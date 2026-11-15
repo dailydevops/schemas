@@ -1,0 +1,19 @@
+<Project>
+  <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+  <Import Project="$(MSBuildThisFileDirectory)../src/Shared/Package.props" />
+  <PropertyGroup>
+    <TargetFrameworks>net8.0;net9.0;net10.0;net11.0</TargetFrameworks>
+    <OutputType>Exe</OutputType>
+    <!-- Open source project without revenue: Verify SponsorCheck exemption (max term 12 months, renew before expiry). -->
+    <Verify_SponsorshipExemption>OpenSource</Verify_SponsorshipExemption>
+    <Verify_SponsorshipExemptionUntil>2027-11-14</Verify_SponsorshipExemptionUntil>
+    <!-- TUnit assertion awaitables have no ConfigureAwait (MA0004) and are awaited as statements (IDE0058). -->
+    <NoWarn>$(NoWarn);MA0004;IDE0058</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="TUnit" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(MSBuildProjectName)' != 'NetEvolve.Schemas.Testing'">
+    <ProjectReference Include="$(MSBuildThisFileDirectory)NetEvolve.Schemas.Testing/NetEvolve.Schemas.Testing.csproj" />
+  </ItemGroup>
+</Project>

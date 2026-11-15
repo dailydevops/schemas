@@ -1,0 +1,24 @@
+<Project>
+  <!-- Single place for package metadata and pack suppression; imported by src, tests and benchmarks. -->
+  <!-- NetEvolve.Defaults analyzers (NED0005, NED0006) require the metadata on every project, packable or not. -->
+  <PropertyGroup Label="Package settings">
+    <Description>Span-based XML, XPath, XSD, and Schematron processing for .NET.</Description>
+    <RepositoryUrl>https://github.com/dailydevops/schemas</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/dailydevops/schemas</PackageProjectUrl>
+  </PropertyGroup>
+  <!-- Only the core library is packable; every other project stays unpackaged until its package lands. -->
+  <PropertyGroup Condition="'$(MSBuildProjectName)' != 'NetEvolve.Schemas'">
+    <IsPackable>false</IsPackable>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+  </PropertyGroup>
+  <!-- NetEvolve.Defaults re-enables IsPackable after props evaluation; force it off again before any pack step. -->
+  <Target
+    Name="DisablePack"
+    BeforeTargets="_IntermediatePack;GenerateNuspec"
+    Condition="'$(MSBuildProjectName)' != 'NetEvolve.Schemas'"
+  >
+    <PropertyGroup>
+      <IsPackable>false</IsPackable>
+    </PropertyGroup>
+  </Target>
+</Project>
