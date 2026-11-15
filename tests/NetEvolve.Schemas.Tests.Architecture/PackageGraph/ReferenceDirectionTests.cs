@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.Tests.Architecture.PackageGraph;
 
 using System.Reflection;
+using NetEvolve.Schemas.Architecture.Fixtures;
 using NetEvolve.Schemas.Tests.Architecture.Shared;
 
 public class ReferenceDirectionTests
@@ -30,6 +31,17 @@ public class ReferenceDirectionTests
         var violations = ArchitectureRules.FindDisallowedReferences(name, [new AssemblyName(other)]);
 
         await Assert.That(violations).Count().IsEqualTo(1);
+    }
+
+    [Test]
+    public async Task FixtureAssemblyReferencingXml_IsReportedWhenCheckedAsCore()
+    {
+        var violations = ArchitectureRules.FindDisallowedReferences(
+            SourceAssemblies.Schemas,
+            typeof(HigherLayerReferenceFixture).Assembly.GetReferencedAssemblies()
+        );
+
+        await Assert.That(violations).Contains("NetEvolve.Schemas -> NetEvolve.Schemas.Xml");
     }
 
     [Test]

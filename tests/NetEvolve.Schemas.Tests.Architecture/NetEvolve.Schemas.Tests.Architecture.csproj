@@ -9,6 +9,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/NetEvolve.Schemas/NetEvolve.Schemas.csproj" SetTargetFramework="$(LibraryLegTargetFramework)" />
+    <ProjectReference Include="../NetEvolve.Schemas.Architecture.Fixtures/NetEvolve.Schemas.Architecture.Fixtures.csproj" />
     <ProjectReference Include="../../src/NetEvolve.Schemas.Xml/NetEvolve.Schemas.Xml.csproj" SetTargetFramework="$(LibraryLegTargetFramework)" />
     <ProjectReference Include="../../src/NetEvolve.Schemas.XPath/NetEvolve.Schemas.XPath.csproj" SetTargetFramework="$(LibraryLegTargetFramework)" />
     <ProjectReference Include="../../src/NetEvolve.Schemas.Xsd/NetEvolve.Schemas.Xsd.csproj" SetTargetFramework="$(LibraryLegTargetFramework)" />
