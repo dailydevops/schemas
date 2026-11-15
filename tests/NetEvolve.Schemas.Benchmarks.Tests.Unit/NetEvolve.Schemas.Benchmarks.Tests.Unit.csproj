@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <!-- The gate has no BenchmarkDotNet dependency, so its sources are linked instead of referencing the Exe project. -->
+    <Compile Include="../../benchmarks/NetEvolve.Schemas.Benchmarks/Gate/*.cs" LinkBase="Gate" />
+  </ItemGroup>
+</Project>
