@@ -5,11 +5,17 @@ namespace NetEvolve.Schemas.Testing.Allocations;
 /// <see cref="GC.GetAllocatedBytesForCurrentThread"/>.
 /// </summary>
 /// <remarks>
-/// The action runs <c>warmups</c> times unmeasured so JIT and tiering do not count, then <c>repeats</c> times
-/// measured; the smallest measurement is used so one-off noise cannot cause false failures. If the meter reports a
-/// negative value or throws <see cref="NotSupportedException"/>, an
-/// <see cref="AllocationMeasurementUnavailableException"/> is thrown. Measurement is per thread: allocations on
-/// other threads are not seen.
+/// The action runs <c>warmups</c> times unmeasured to reduce JIT and tiering effects, then <c>repeats</c> times
+/// measured; the smallest measurement is used so one-off noise cannot cause false failures. Warm-up does not
+/// guarantee tier-1 promotion (the runtime needs about 30 calls plus a background delay), so code that allocates
+/// only on its first tier-0 calls may still need a larger <c>warmups</c> value. If the meter reports a negative
+/// value or throws <see cref="NotSupportedException"/>, an <see cref="AllocationMeasurementUnavailableException"/>
+/// is thrown. Measurement is per thread: allocations on other threads are not seen.
+/// <para>
+/// Known deviations: the unavailable path cannot occur with the real meter on the supported runtimes (it never
+/// returns a negative value and does not throw), so it is verified only through the injectable meter. The issue's
+/// net472/net481 legs are not covered; the helper is verified on net8.0, net9.0, net10.0, and net11.0 only.
+/// </para>
 /// </remarks>
 public static class AllocationAssert
 {
@@ -20,8 +26,13 @@ public static class AllocationAssert
     /// <param name="action">The code under test.</param>
     /// <param name="warmups">Unmeasured runs before measuring.</param>
     /// <param name="repeats">Measured runs; the smallest result counts.</param>
-    public static void NoAllocation(Action action, int warmups = DefaultWarmups, int repeats = DefaultRepeats) =>
-        AtMost(0, action, warmups, repeats);
+    /// <param name="allocatedBytes">Optional meter replacing <see cref="GC.GetAllocatedBytesForCurrentThread"/>; a negative value means unavailable.</param>
+    public static void NoAllocation(
+        Action action,
+        int warmups = DefaultWarmups,
+        int repeats = DefaultRepeats,
+        Func<long>? allocatedBytes = null
+    ) => AtMost(0, action, warmups, repeats, allocatedBytes);
 
     /// <summary>Asserts that <paramref name="action"/> allocates at most <paramref name="maxBytes"/> bytes per run.</summary>
     /// <param name="maxBytes">The inclusive upper bound.</param>
