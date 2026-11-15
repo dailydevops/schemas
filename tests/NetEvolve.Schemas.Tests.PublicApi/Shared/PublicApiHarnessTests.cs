@@ -7,7 +7,7 @@ public class PublicApiHarnessTests
     {
         var expected = Environment.Version.Major switch
         {
-            8 => "netstandard2.0",
+            8 => "netstandard2.1",
             9 => "netstandard2.1",
             var major => $"net{major}.0",
         };
@@ -45,8 +45,8 @@ public class PublicApiHarnessTests
         _ = Directory.CreateDirectory(directory);
         try
         {
-            File.WriteAllText(Path.Combine(directory, "A.Core.net10.0.verified.txt"), string.Empty);
-            File.WriteAllText(Path.Combine(directory, "B.Core.net10.0.verified.txt"), string.Empty);
+            await File.WriteAllTextAsync(Path.Combine(directory, "A.Core.net10.0.verified.txt"), string.Empty);
+            await File.WriteAllTextAsync(Path.Combine(directory, "B.Core.net10.0.verified.txt"), string.Empty);
 
             var conflicts = PublicApiHarness.FindSharedFolders(directory);
 
