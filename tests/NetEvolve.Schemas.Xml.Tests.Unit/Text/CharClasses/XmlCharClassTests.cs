@@ -238,13 +238,17 @@ public class XmlCharClassTests
         await Assert.That(XmlCharClass.NameLength("1abc".AsSpan())).IsEqualTo(0);
         await Assert.That(XmlCharClass.NameLength("-abc".AsSpan())).IsEqualTo(0);
         await Assert.That(XmlCharClass.NameLength(ReadOnlySpan<char>.Empty)).IsEqualTo(0);
-        await Assert.That(XmlCharClass.NameLength("a·̀".AsSpan())).IsEqualTo(3);
+        await Assert.That(XmlCharClass.NameLength("a\u00B7\u0300".AsSpan())).IsEqualTo(3);
+        await Assert.That(XmlCharClass.NameLength("a\uD800\uDC00b c".AsSpan())).IsEqualTo(4);
+        await Assert.That(XmlCharClass.NameLength("a\uDB7F\uDFFFb".AsSpan())).IsEqualTo(4);
+        await Assert.That(XmlCharClass.NameLength("a\uDB80\uDC00b".AsSpan())).IsEqualTo(1);
+        await Assert.That(XmlCharClass.NameLength("ab\uD800".AsSpan())).IsEqualTo(2);
     }
 
     [Test]
     public async Task IndexOfNonChar_AllValid_ReturnsMinusOne()
     {
-        await Assert.That(XmlCharClass.IndexOfNonChar("a\t\n\r ퟿�".AsSpan())).IsEqualTo(-1);
+        await Assert.That(XmlCharClass.IndexOfNonChar("a\t\n\r \uD7FF\uE000\uFFFD".AsSpan())).IsEqualTo(-1);
         await Assert.That(XmlCharClass.IndexOfNonChar(ReadOnlySpan<char>.Empty)).IsEqualTo(-1);
     }
 

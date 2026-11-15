@@ -113,7 +113,7 @@ internal static class XmlCharClass
         || (c >= 0xF8 && c <= 0x2FF)
         || (c >= 0x370 && c <= 0x37D)
         || (c >= 0x37F && c <= 0x1FFF)
-        || c is '‌' or '‍'
+        || c is '\u200C' or '\u200D'
         || (c >= 0x2070 && c <= 0x218F)
         || (c >= 0x2C00 && c <= 0x2FEF)
         || (c >= 0x3001 && c <= 0xD7FF)
