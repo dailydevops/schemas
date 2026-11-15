@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="../../src/NetEvolve.Schemas/NetEvolve.Schemas.csproj" />
+    <ProjectReference Include="../../src/NetEvolve.Schemas.Xml/NetEvolve.Schemas.Xml.csproj" />
+    <ProjectReference Include="../../src/NetEvolve.Schemas.XPath/NetEvolve.Schemas.XPath.csproj" />
+    <ProjectReference Include="../../src/NetEvolve.Schemas.Xsd/NetEvolve.Schemas.Xsd.csproj" />
+    <ProjectReference Include="../../src/NetEvolve.Schemas.Schematron/NetEvolve.Schemas.Schematron.csproj" />
+    <ProjectReference Include="../../src/NetEvolve.Schemas.DependencyInjection/NetEvolve.Schemas.DependencyInjection.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="NetArchTest.Rules" />
+  </ItemGroup>
+</Project>

@@ -1,15 +1,30 @@
 <Project>
   <PropertyGroup Label="Package settings">
     <Title>$(MSBuildProjectName)</Title>
-    <Description></Description>
-    <RepositoryUrl></RepositoryUrl>
-    <PackageProjectUrl></PackageProjectUrl>
+    <Description>Span-based XML, XPath, XSD, and Schematron processing for .NET.</Description>
+    <RepositoryUrl>https://github.com/dailydevops/schemas</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/dailydevops/schemas</PackageProjectUrl>
     <PackageReleaseNotes>$(PackageProjectUrl)/releases</PackageReleaseNotes>
     <PackageTags></PackageTags>
     <CopyrightYearStart>2024</CopyrightYearStart>
+  </PropertyGroup>
+  <!-- Only the core library is packable; every other project stays unpackaged until its package lands. -->
+  <PropertyGroup Condition="'$(MSBuildProjectName)' != 'NetEvolve.Schemas'">
+    <IsPackable>false</IsPackable>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
   </PropertyGroup>
   <PropertyGroup>
     <!-- Workaround, until https://github.com/GitTools/GitVersion/pull/4206 is released -->
     <GitVersionTargetFramework>net8.0</GitVersionTargetFramework>
   </PropertyGroup>
+  <!-- NetEvolve.Defaults re-enables IsPackable after props evaluation; force it off again before any pack step. -->
+  <Target
+    Name="DisablePack"
+    BeforeTargets="_IntermediatePack;GenerateNuspec"
+    Condition="'$(MSBuildProjectName)' != 'NetEvolve.Schemas'"
+  >
+    <PropertyGroup>
+      <IsPackable>false</IsPackable>
+    </PropertyGroup>
+  </Target>
 </Project>

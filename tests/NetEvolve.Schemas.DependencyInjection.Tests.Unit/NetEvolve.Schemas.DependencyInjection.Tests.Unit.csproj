@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="../../src/NetEvolve.Schemas.DependencyInjection/NetEvolve.Schemas.DependencyInjection.csproj" />
+  </ItemGroup>
+</Project>
