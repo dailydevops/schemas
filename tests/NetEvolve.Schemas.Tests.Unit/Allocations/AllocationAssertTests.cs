@@ -65,7 +65,7 @@ public class AllocationAssertTests
     public async Task NoAllocation_MeterNotSupported_ThrowsUnavailable() =>
         await Assert
             .That(() =>
-                AllocationAssert.AtMost(0, SpanLoop, allocatedBytes: static () => throw new NotSupportedException())
+                AllocationAssert.NoAllocation(SpanLoop, allocatedBytes: static () => throw new NotSupportedException())
             )
             .Throws<AllocationMeasurementUnavailableException>();
 }
