@@ -1,9 +1,8 @@
-namespace NetEvolve.Schemas.Tests.PublicApi.Harness;
+namespace NetEvolve.Schemas.Tests.PublicApi.Shared;
 
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.Versioning;
-using System.Text.RegularExpressions;
 using PublicApiGenerator;
 using VerifyTests;
 using VerifyTUnit;
@@ -18,7 +17,7 @@ using VerifyTUnit;
 /// exactly one folder. Limitation: the target framework is the one of the core library build the leg loads
 /// (<c>net8.0</c> loads <c>netstandard2.0</c>, <c>net9.0</c> loads <c>netstandard2.1</c>); all libraries share that matrix.
 /// </remarks>
-public static partial class PublicApiHarness
+internal static class PublicApiHarness
 {
     private const string CoreAssemblyName = "NetEvolve.Schemas";
     private const string VerifiedSuffix = ".verified.txt";
@@ -30,17 +29,23 @@ public static partial class PublicApiHarness
     /// <param name="assembly">The assembly to snapshot.</param>
     /// <param name="assemblyName">The assembly name that prefixes the verified file.</param>
     /// <param name="namespacePrefixes">The namespace prefixes that make up the snapshot.</param>
+    /// <param name="requireUniquePrefix">False lets a second verification reuse the file name, to prove a mismatch fails.</param>
     /// <param name="sourceFile">The calling test file; its folder holds the verified files.</param>
     public static SettingsTask VerifyAsync(
         Assembly assembly,
         string assemblyName,
         string[] namespacePrefixes,
+        bool requireUniquePrefix = true,
         [CallerFilePath] string sourceFile = ""
     )
     {
         var settings = new VerifySettings();
         settings.UseFileName(SnapshotName(assemblyName, LibraryTargetFramework));
         settings.DisableDiff();
+        if (!requireUniquePrefix)
+        {
+            settings.DisableRequireUniquePrefix();
+        }
 
         return Verifier.Verify(Generate(assembly, namespacePrefixes), "txt", settings, sourceFile);
     }
@@ -111,9 +116,8 @@ public static partial class PublicApiHarness
 
         foreach (var file in Directory.EnumerateFiles(root, "*" + VerifiedSuffix, SearchOption.AllDirectories))
         {
-            var match = VerifiedFileName().Match(Path.GetFileName(file));
             var folder = Path.GetDirectoryName(file)!;
-            var assembly = match.Success ? match.Groups["assembly"].Value : Path.GetFileName(file);
+            var assembly = AssemblyOf(Path.GetFileName(file));
 
             if (!assembliesByFolder.TryGetValue(folder, out var known))
             {
@@ -136,9 +140,11 @@ public static partial class PublicApiHarness
         return ToMoniker(attribute.FrameworkName);
     }
 
-    [GeneratedRegex(
-        @"^(?<assembly>.+)\.(netstandard\d+\.\d+|net\d+\.\d+)\.verified\.txt$",
-        RegexOptions.ExplicitCapture
-    )]
-    private static partial Regex VerifiedFileName();
+    // File names are {AssemblyName}.{targetFramework}.verified.txt; the moniker has one dot (net10.0).
+    private static string AssemblyOf(string fileName)
+    {
+        var parts = fileName[..^VerifiedSuffix.Length].Split('.');
+
+        return parts.Length > 2 ? string.Join('.', parts[..^2]) : fileName;
+    }
 }

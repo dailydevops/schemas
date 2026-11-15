@@ -2,10 +2,10 @@ namespace NetEvolve.Schemas.Tests.PublicApi.Fixture;
 
 using NetEvolve.Schemas.Tests.PublicApi.Fixture.Approved;
 using NetEvolve.Schemas.Tests.PublicApi.Fixture.Seeded;
-using NetEvolve.Schemas.Tests.PublicApi.Harness;
+using NetEvolve.Schemas.Tests.PublicApi.Shared;
 
 /// <summary>Proves the harness on the fixture namespaces compiled into this test assembly.</summary>
-public class FixturePublicApiTests
+internal sealed class FixturePublicApiTests
 {
     private const string AssemblyName = "NetEvolve.Schemas.Fixture";
     private const string ApprovedNamespace = "NetEvolve.Schemas.Tests.PublicApi.Fixture.Approved";
@@ -16,13 +16,32 @@ public class FixturePublicApiTests
         await PublicApiHarness.VerifyAsync(typeof(FixtureApi).Assembly, AssemblyName, [ApprovedNamespace]);
 
     [Test]
-    public async Task PublicApi_WithSeededMember_DiffersFromVerifiedFile()
+    public async Task PublicApi_WithSeededMember_FailsVerification(CancellationToken cancellationToken)
     {
-        // The seeded type is public but absent from the verified file, so verification would fail.
-        var seeded = PublicApiHarness.Generate(typeof(FixtureApi).Assembly, [ApprovedNamespace, SeededNamespace]);
-        var verified = await File.ReadAllTextAsync(PublicApiHarness.VerifiedFilePath(AssemblyName));
+        cancellationToken.ThrowIfCancellationRequested();
+        // The seeded type is public but absent from the verified file, so Verify must reject it.
+        var received = PublicApiHarness
+            .VerifiedFilePath(AssemblyName)
+            .Replace(".verified.", ".received.", StringComparison.Ordinal);
+        Exception? failure = null;
+        try
+        {
+            await PublicApiHarness.VerifyAsync(
+                typeof(FixtureApi).Assembly,
+                AssemblyName,
+                [ApprovedNamespace, SeededNamespace],
+                requireUniquePrefix: false
+            );
+        }
+        catch (Exception ex)
+        {
+            failure = ex;
+        }
+        finally
+        {
+            File.Delete(received);
+        }
 
-        await Assert.That(seeded).Contains(nameof(SeededMember));
-        await Assert.That(seeded.TrimEnd()).IsNotEqualTo(verified.TrimStart('﻿').TrimEnd());
+        await Assert.That(failure?.Message).Contains(nameof(SeededMember));
     }
 }

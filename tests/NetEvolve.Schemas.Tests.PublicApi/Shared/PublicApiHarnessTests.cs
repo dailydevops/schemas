@@ -1,6 +1,6 @@
-namespace NetEvolve.Schemas.Tests.PublicApi.Harness;
+namespace NetEvolve.Schemas.Tests.PublicApi.Shared;
 
-public class PublicApiHarnessTests
+internal sealed class PublicApiHarnessTests
 {
     [Test]
     public async Task LibraryTargetFramework_NamesTheBuildTheLegLoads()
@@ -39,14 +39,23 @@ public class PublicApiHarnessTests
     }
 
     [Test]
-    public async Task FindSharedFolders_ReportsFolderWithTwoAssemblies()
+    public async Task FindSharedFolders_ReportsFolderWithTwoAssemblies(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var directory = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
         _ = Directory.CreateDirectory(directory);
         try
         {
-            await File.WriteAllTextAsync(Path.Combine(directory, "A.Core.net10.0.verified.txt"), string.Empty);
-            await File.WriteAllTextAsync(Path.Combine(directory, "B.Core.net10.0.verified.txt"), string.Empty);
+            await File.WriteAllTextAsync(
+                Path.Combine(directory, "A.Core.net10.0.verified.txt"),
+                string.Empty,
+                cancellationToken
+            );
+            await File.WriteAllTextAsync(
+                Path.Combine(directory, "B.Core.net10.0.verified.txt"),
+                string.Empty,
+                cancellationToken
+            );
 
             var conflicts = PublicApiHarness.FindSharedFolders(directory);
 
