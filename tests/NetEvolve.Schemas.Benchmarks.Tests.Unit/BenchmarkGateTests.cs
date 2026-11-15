@@ -92,11 +92,13 @@ public class BenchmarkGateTests
     }
 
     [Test]
-    public async Task Run_EmptyTargetsDirectory_ReturnsErrorExitCode()
+    public async Task Run_EmptyTargetsDirectory_ReturnsErrorExitCode(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var dir = Directory.CreateTempSubdirectory().FullName;
         var file = Path.Combine(dir, "results.json");
-        await File.WriteAllTextAsync(file, Results(100, 0, 200, 200, 24), CancellationToken.None);
+        await File.WriteAllTextAsync(file, Results(100, 0, 200, 200, 24), cancellationToken);
         try
         {
             using var output = new StringWriter();
@@ -113,12 +115,14 @@ public class BenchmarkGateTests
     }
 
     [Test]
-    public async Task Run_MatchingTargetFile_ReturnsZero()
+    public async Task Run_MatchingTargetFile_ReturnsZero(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var dir = Directory.CreateTempSubdirectory().FullName;
         var file = Path.Combine(dir, "results.json");
-        await File.WriteAllTextAsync(file, Results(100, 0, 200, 200, 24), CancellationToken.None);
-        await File.WriteAllTextAsync(Path.Combine(dir, "parse.json"), Targets, CancellationToken.None);
+        await File.WriteAllTextAsync(file, Results(100, 0, 200, 200, 24), cancellationToken);
+        await File.WriteAllTextAsync(Path.Combine(dir, "parse.json"), Targets, cancellationToken);
         try
         {
             using var output = new StringWriter();
