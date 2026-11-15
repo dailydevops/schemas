@@ -4,9 +4,14 @@ The files `schematron.rnc`, `schematron.sch`, `svrl.rnc`, and `svrl.sch` are
 copied unchanged from the official Schematron project repository.
 
 - Source: https://github.com/schematron/schema
-- Revision (commit SHA): `3a94cbe9ee6a9481d38888654cd7411bb450f895`
-- Revision date: 2025-06-16
+- Branch: `2025-edition`
+- Revision (commit SHA): `f12483d056f97feac7630dea1949449d72741271`
+- Revision date: 2025-04-01 (commit message: "[FIX] changes to reflect DIS comments")
 - The repository has no release tags, so the commit is pinned.
+
+This is the state of the upstream `2025-edition` branch as of April 2025
+(changes to reflect DIS comments). That state does not by itself prove that it
+equals the final ISO/IEC 19757-3:2025 text.
 
 `checksums.txt` lists the SHA-256 checksum of every file in this folder except
 itself (`sha256sum` format). Unit tests verify the checksums and that no

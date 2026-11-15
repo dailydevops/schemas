@@ -1,5 +1,5 @@
 <!--
-Copyright © ISO/IEC 2014
+Copyright © ISO/IEC 2024
 
 The following permission notice and disclaimer shall be included in all
 copies of this XML schema ("the Schema"), and derivations of the Schema:
@@ -22,7 +22,7 @@ THIS SCHEMA HAS BEEN MODIFIED FROM THE SCHEMA DEFINED IN ISO/IEC 19757 3,
 AND SHOULD NOT BE INTERPRETED AS COMPLYING WITH THAT STANDARD."
 -->
 
-<sch:schema queryBinding="xslt2" xmlns:sch="http://purl.oclc.org/dsdl/schematron" xml:lang="en">
+<sch:schema xmlns:sch="http://purl.oclc.org/dsdl/schematron" xml:lang="en">
     <sch:title>Schema for Schematron Validation Report Language</sch:title>
     <sch:ns prefix="svrl" uri="http://purl.oclc.org/dsdl/svrl"/>
     <sch:p>The Schematron Validation Report Language is a simple language
@@ -36,7 +36,7 @@ AND SHOULD NOT BE INTERPRETED AS COMPLYING WITH THAT STANDARD."
         <sch:title>Elements</sch:title>
         <!--Abstract Rules -->
         <sch:rule abstract="true" id="second-level">
-            <sch:assert test="parent::svrl:schematron-output"> The <sch:name/> element is a
+            <sch:assert test="../svrl:schematron-output"> The <sch:name/> element is a
                 child of schematron-output. </sch:assert>
         </sch:rule>
         <sch:rule abstract="true" id="childless">
@@ -51,12 +51,11 @@ AND SHOULD NOT BE INTERPRETED AS COMPLYING WITH THAT STANDARD."
         </sch:rule>
         <!-- Rules-->
         <sch:rule context="svrl:schematron-output">
-            <sch:assert test="parent::document-node()"> The <sch:name/> element is the root element.
+            <sch:assert test="not(../*)"> The <sch:name/> element is the root element.
             </sch:assert>
             <sch:assert
-                test="count(svrl:text) + count(svrl:ns-prefix-in-attribute-values) +
-                      count(svrl:active-pattern) + count(svrl:fired-rule) +
-                      count(svrl:failed-assert) + count(svrl:successful-report) = count(*)">
+                test="count(svrl:text) + count(svrl:ns-prefix-in-attribute-values) + count(svrl:active-pattern) + count(svrl:fired-rule) + count(svrl:failed-assert) +
+                count(svrl:successful-report) = count(*)">
                 <sch:name/> may only contain the following elements: text,
                 ns-prefix-in-attribute-values, active-pattern, fired-rule, failed-assert and
                 successful-report. </sch:assert>
@@ -132,7 +131,7 @@ AND SHOULD NOT BE INTERPRETED AS COMPLYING WITH THAT STANDARD."
         <sch:title>Required Attributes</sch:title>
         <sch:rule context=" $context ">
             <sch:assert test="string-length( $attribute ) &gt; 0"> The <sch:name/> element
-                should have a <sch:value-of select="$attribute /name()"/> attribute.
+                should have a <sch:value-of select="name($attribute)"/> attribute.
             </sch:assert>
         </sch:rule>
     </sch:pattern>

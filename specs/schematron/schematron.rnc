@@ -1,4 +1,4 @@
-# Copyright © ISO/IEC 2017
+# Copyright © ISO/IEC 2024
 # The following permission notice and disclaimer shall be included in all 
 # copies of this XML schema ("the Schema"), and derivations of the Schema: 
 
@@ -26,7 +26,7 @@
 namespace local = ""
 default namespace sch = "http://purl.oclc.org/dsdl/schematron"
 
-start = schema
+start = schema | library
 
 # Element declarations 
 schema =
@@ -34,11 +34,12 @@ schema =
         attribute id { xsd:ID }?,
         rich,
         attribute schemaVersion { non-empty-string }?,
+        attribute schematronEdition { non-empty-string }?,
         attribute defaultPhase { xsd:IDREF }?,
         attribute queryBinding { non-empty-string }?,
         (foreign
-         & inclusion*
-         & (title?, ns*, p*, let*, phase*, pattern+, p*, diagnostics?, properties?))
+         & (inclusion | extends)*
+         & (title?, ns*, p*, param*, let*, phase*, abstract-rules*, (rule-set|pattern)+, p*, diagnostics?, properties?))
     }
 active =
     element active {
@@ -54,22 +55,23 @@ assert =
         attribute properties { xsd:IDREFS }?,
         rich,
         linkable,
-        (foreign & (text | name | value-of | emph | dir | span)*)
+        severity,
+        message
     }
 diagnostic =
     element diagnostic {
         attribute id { xsd:ID },
         attribute role { roleValue }?,
         rich,
-        (foreign & (text | value-of | emph | dir | span)*)
+        message
     }
 diagnostics = element diagnostics { foreign & inclusion* & diagnostic* }
 dir =
     element dir {
         attribute value { "ltr" | "rtl" }?,
-        (foreign & text)
+        (foreign & (text | dynamic)*)
     }
-emph = element emph { text }
+emph = element emph { (foreign & (text | dynamic)*) }
 extends =
     element extends {
         (attribute rule { xsd:IDREF }
@@ -79,8 +81,17 @@ extends =
 let =
     element let {
         attribute name { nameValue },
+        attribute as { text }?,
         (attribute value { string }
          | foreign-element+)
+    }
+library =
+    element library {
+        attribute id { xsd:ID }?,
+        rich,
+        (foreign
+         & (inclusion | extends)*
+         & (title?, p*, param*, let*, abstract-rules*, (rule-set|pattern)*, p*, diagnostics?, properties?))
     }
 name =
     element name {
@@ -103,32 +114,18 @@ p =
 param =
     element param {
         attribute name { nameValue },
-        attribute value { non-empty-string }
+        attribute value { non-empty-string }?
     }
 
 pattern =
     element pattern {
-        attribute documents { pathValue }?,
-        rich,
-        (foreign
-         & inclusion*
-         & ((attribute abstract { "true" },
-             attribute id { xsd:ID },
-             title?,
-             (p*, let*, rule*))
-            | (attribute abstract { "false" }?,
-               attribute id { xsd:ID }?,
-               title?,
-               (p*, let*, rule*))
-            | (attribute abstract { "false" }?,
-               attribute is-a { xsd:IDREF },
-               attribute id { xsd:ID }?,
-               title?,
-               (p*, param*))))
+        rule-set-or-pattern
     }
 phase =
     element phase {
         attribute id { xsd:ID },
+        attribute from { pathValue }?,
+        attribute when { pathValue }?,
         rich,
         (foreign & inclusion* & (p*, let*, active*))
     }
@@ -138,7 +135,7 @@ property =
         attribute id { xsd:ID },
         attribute role { roleValue }?,
         attribute scheme { text }?,
-        (foreign & (text | name | value-of | emph | dir | span)*)
+        message
     }
 report =
     element report {
@@ -149,7 +146,8 @@ report =
         attribute properties { xsd:IDREFS }?,
         rich,
         linkable,
-        (foreign & (text | name | value-of | emph | dir | span)*)
+        severity,
+        message
     }
 rule =
     element rule {
@@ -158,20 +156,43 @@ rule =
         linkable,
         (foreign
          & inclusion*
-         & ((attribute abstract { "true" },
-             attribute id { xsd:ID },
-             let*,
-             (assert | report | extends | p)+)
-            | (attribute context { pathValue },
+         & ((attribute context { pathValue },
+               attribute visit-each { pathValue }?,
                attribute id { xsd:ID }?,
                attribute abstract { "false" }?,
+               title?,
                let*,
                (assert | report | extends | p)+)))
+    }
+abstract-rule =
+    element rule {
+        attribute flag { flagValue }?,
+        rich,
+        linkable,
+        (foreign
+        & inclusion*
+        & (attribute abstract { "true" },
+            attribute id { xsd:ID },
+            title?,
+            let*,
+            (assert | report | extends | p)+))
+    }    
+abstract-rules =
+    element rules {
+        attribute id { xsd:ID }?,
+        rich,
+        title?,
+        p*,
+        abstract-rule+
+    }
+rule-set = 
+    element group {
+        rule-set-or-pattern    
     }
 span =
     element span {
         attribute class { classValue },
-        (foreign & text)
+        (foreign & (text | dynamic)*)
     }
 title = element title { (text | dir)* }
 value-of =
@@ -205,6 +226,28 @@ foreign-element =
          | schema
          | text)*
     }
+rule-set-or-pattern =
+    attribute documents { pathValue }?,
+    attribute role { roleValue }?,
+    rich,
+    (foreign
+     & inclusion*
+     & ((attribute abstract { "true" },
+         attribute id { xsd:ID },
+         title?,
+         (p*, param*, let*, rule*))
+        | (attribute abstract { "false" }?,
+           attribute id { xsd:ID }?,
+           title?,
+           (p*, let*, rule*))
+        | (attribute abstract { "false" }?,
+           attribute is-a { xsd:IDREF },
+           attribute id { xsd:ID }?,
+           title?,
+           (p*, param*))))
+severity = attribute severity{ text }?           
+dynamic = value-of | name
+message = (foreign & (text | dynamic | emph | dir | span)*)
 
 # Data types 
 uriValue = xsd:anyURI
@@ -213,7 +256,7 @@ exprValue = string
 fpiValue = string
 langValue = xsd:language
 roleValue = string
-flagValue = string
+flagValue = list{ token+ }
 nameValue = string
 
 # In the default query language binding, xsd:NCNAME 

@@ -1,4 +1,4 @@
-# Copyright © ISO/IEC 2019
+# Copyright © ISO/IEC 2024
 # 
 # The following permission notice and disclaimer shall be included in all 
 # copies of this XML schema ("the Schema"), and derivations of the Schema: 
@@ -32,10 +32,16 @@ schematron-output =
         attribute title { text }?,
         attribute phase { xsd:NMTOKEN }?,
         attribute schemaVersion { text }?,
-        human-text*,
-        ns-prefix-in-attribute-values*,
-        (active-pattern,
-         (fired-rule, (failed-assert | successful-report)*)*)+
+        attribute schematronEdition { text }?,
+        (
+            (error+, human-text*)
+            |
+            (error*,
+            human-text*,
+            ns-prefix-in-attribute-values*,
+            (active-pattern-rule-set,
+             (fired-rule, (failed-assert | successful-report)*)*)+)
+        )
     }
 # only namespaces from sch:ns need to be reported 
 ns-prefix-in-attribute-values =
@@ -44,23 +50,24 @@ ns-prefix-in-attribute-values =
         attribute uri { text },
         empty
     }
-# only active patterns are reported 
+# only active patterns and groups are reported 
 active-pattern =
     element active-pattern {
-        attribute id { xsd:NCName }?,
-        attribute documents { text }?,
-        attribute name { text }?,
-        attribute role { string }?,
-        empty
+        active
     }
+active-rule-set =
+    element active-group {
+        active
+    }    
 # only rules that are fired are reported, 
 fired-rule =
     element fired-rule {
         attribute id { xsd:NCName }?,
         attribute name { text }?,
         attribute context { text },
+        attribute visit-each { text }?,
         attribute role { string }?,
-        attribute flag { string }?,
+        attribute flag { list{ token+ } }?,
         attribute document { xsd:anyURI }?,
         empty
     }
@@ -68,17 +75,18 @@ fired-rule =
 diagnostic-reference =
     element diagnostic-reference {
         attribute diagnostic { xsd:NMTOKEN },
+        attribute role { text }?,
         human-text
     }
 # only failed assertions are reported 
 failed-assert =
     element failed-assert {
-        attlist.assert-and-report, diagnostic-reference*, property-reference*, human-text
+        assertion-message
     }
 # only successful asserts are reported 
 successful-report =
     element successful-report {
-        attlist.assert-and-report, diagnostic-reference*, property-reference*, human-text
+        assertion-message
     }
 # property-reference 
 property-reference =
@@ -87,6 +95,14 @@ property-reference =
         attribute role { text }?,
         attribute scheme { text }?,
         human-text
+    }
+# errors raised by the implementation
+error =
+    element error {
+        attribute document { xsd:anyURI },
+        attribute location { text },
+        attribute code { text }?,
+        rich-text
     }
 # human text 
 human-text =
@@ -133,5 +149,21 @@ attlist.assert-and-report =
     attribute location { text },
     attribute test { text },
     attribute role { string }?,
-    attribute flag { string }?
+    attribute flag { list{ token+ } }?,
+    attribute severity { string }?
+
+# active patterns and rule-sets
+active-pattern-rule-set =
+    active-pattern | active-rule-set
+active =
+    attribute id { xsd:NCName }?,
+    attribute documents { text }?,
+    attribute name { text }?,
+    attribute role { string }?,
+    error*
+    
+# assert and report message
+assertion-message = 
+    attlist.assert-and-report, diagnostic-reference*, property-reference*, human-text
+
 start = schematron-output
