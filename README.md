@@ -6,7 +6,9 @@ Format-agnostic, span-based .NET libraries for reading, validating, and querying
 
 In development. No package has been released yet.
 
-## Planned packages
+## Planned packages (provisional)
+
+Provisional names derived from the planned layer order `Schemas <- Xml <- XPath <- {Schematron, Xsd}` with dependency injection on top (epic #3). They are not final until the package matrix is published (REL-02).
 
 - `NetEvolve.Schemas`: shared abstractions and diagnostics.
 - `NetEvolve.Schemas.Xml`: XML reader and document model.
