@@ -1,6 +1,5 @@
 <Project>
   <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
-  <Import Project="$(MSBuildThisFileDirectory)Shared/Package.props" />
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netstandard2.1;net10.0;net11.0</TargetFrameworks>
   </PropertyGroup>
