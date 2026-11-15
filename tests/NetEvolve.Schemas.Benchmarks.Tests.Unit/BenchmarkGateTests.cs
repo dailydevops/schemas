@@ -1,6 +1,6 @@
-using NetEvolve.Schemas.Benchmarks.Gate;
-
 namespace NetEvolve.Schemas.Benchmarks.Tests.Unit;
+
+using NetEvolve.Schemas.Benchmarks.Gate;
 
 public class BenchmarkGateTests
 {
@@ -12,7 +12,8 @@ public class BenchmarkGateTests
         """;
 
     private static string Results(double fast, long fastBytes, double baseline, double alone, long aloneBytes) =>
-        $$"""
+        FormattableString.Invariant(
+            $$"""
             {
               "Title": "fixture",
               "Benchmarks": [
@@ -21,7 +22,8 @@ public class BenchmarkGateTests
                 { "Type": "Parse", "Method": "Alone", "Parameters": "", "Statistics": { "Mean": {{alone}} }, "Memory": { "BytesAllocatedPerOperation": {{aloneBytes}} } }
               ]
             }
-            """;
+            """
+        );
 
     private static IReadOnlyList<GateViolation> Evaluate(string results) =>
         BenchmarkGate.Evaluate(ResultReader.Read(results), TargetReader.Read(Targets));
@@ -94,7 +96,7 @@ public class BenchmarkGateTests
     {
         var dir = Directory.CreateTempSubdirectory().FullName;
         var file = Path.Combine(dir, "results.json");
-        File.WriteAllText(file, Results(100, 0, 200, 200, 24));
+        await File.WriteAllTextAsync(file, Results(100, 0, 200, 200, 24), CancellationToken.None);
         try
         {
             using var output = new StringWriter();
@@ -115,8 +117,8 @@ public class BenchmarkGateTests
     {
         var dir = Directory.CreateTempSubdirectory().FullName;
         var file = Path.Combine(dir, "results.json");
-        File.WriteAllText(file, Results(100, 0, 200, 200, 24));
-        File.WriteAllText(Path.Combine(dir, "parse.json"), Targets);
+        await File.WriteAllTextAsync(file, Results(100, 0, 200, 200, 24), CancellationToken.None);
+        await File.WriteAllTextAsync(Path.Combine(dir, "parse.json"), Targets, CancellationToken.None);
         try
         {
             using var output = new StringWriter();
