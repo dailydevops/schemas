@@ -8,7 +8,7 @@ In development. No package has been released yet.
 
 ## Planned packages (provisional)
 
-Provisional names derived from the planned layer order `Schemas <- Xml <- XPath <- {Schematron, Xsd}` with dependency injection on top (epic #3). They are not final until the package matrix is published (REL-02).
+Provisional names derived from the planned layer order `Schemas <- Xml <- XPath <- {Schematron, Xsd}` with dependency injection on top. They are not final until the first release.
 
 - `NetEvolve.Schemas`: shared abstractions and diagnostics.
 - `NetEvolve.Schemas.Xml`: XML reader and document model.
