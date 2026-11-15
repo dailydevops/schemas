@@ -70,9 +70,21 @@ internal sealed class PooledBuffer<T> : IDisposable
     /// <param name="values">The elements.</param>
     internal void Append(ReadOnlySpan<T> values)
     {
-        EnsureCapacity(values.Length);
-        values.CopyTo(new Span<T>(_array, _length, values.Length));
+        var array = Array();
+        var old = array;
+        if (array.Length - _length < values.Length)
+        {
+            array = GrowCore(values.Length);
+        }
+
+        values.CopyTo(new Span<T>(array, _length, values.Length));
         _length += values.Length;
+
+        // Return the old array only after the copy: values may alias it.
+        if (!ReferenceEquals(old, array))
+        {
+            _pool.Return(old);
+        }
     }
 
     /// <summary>Ensures at least <paramref name="additionalCount"/> free elements after the written ones.</summary>
@@ -142,6 +154,15 @@ internal sealed class PooledBuffer<T> : IDisposable
     private T[] Grow(int additionalCount)
     {
         var old = _array!;
+        var grown = GrowCore(additionalCount);
+        _pool.Return(old);
+        return grown;
+    }
+
+    // Swaps in a larger array without returning the old one; the caller returns it.
+    private T[] GrowCore(int additionalCount)
+    {
+        var old = _array!;
         var required = (long)_length + additionalCount;
         if (required > MaxArrayLength)
         {
@@ -152,7 +173,6 @@ internal sealed class PooledBuffer<T> : IDisposable
         var grown = _pool.Rent(target);
         new ReadOnlySpan<T>(old, 0, _length).CopyTo(grown);
         _array = grown;
-        _pool.Return(old);
         return grown;
     }
 
