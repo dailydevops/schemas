@@ -27,7 +27,9 @@ internal static partial class ArchitectureRules
         ],
     };
 
-    // Third-party references allowed per assembly (besides the framework and the three polyfill packages).
+    // Third-party references allowed per assembly. Framework and System.* packages (e.g. System.Memory) pass via the
+    // 'System.' prefix; the only other polyfill allowed everywhere is Microsoft.Bcl.AsyncInterfaces (see FindDisallowedReferences).
+    // A new non-System polyfill package must be added to that list explicitly.
     private static readonly Dictionary<string, string[]> AllowedExternalReferences = new(StringComparer.Ordinal)
     {
         [SourceAssemblies.DependencyInjection] = ["Microsoft.Extensions.DependencyInjection.Abstractions"],
@@ -122,7 +124,7 @@ internal static partial class ArchitectureRules
         var files = new List<(string, string)>();
         if (root is null)
         {
-            return files;
+            throw new InvalidOperationException("Schemas.slnx not found above the test base directory.");
         }
 
         foreach (

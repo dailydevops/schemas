@@ -33,15 +33,14 @@ public class ReferenceDirectionTests
     }
 
     [Test]
-    public async Task FixtureAssemblyReferencingEveryLayer_IsReported()
+    public async Task UnlistedPolyfillPackage_IsReported()
     {
-        // The test assembly itself references all layers and therefore violates the rules of the lowest one.
         var violations = ArchitectureRules.FindDisallowedReferences(
-            SourceAssemblies.Schemas,
-            typeof(ReferenceDirectionTests).Assembly.GetReferencedAssemblies()
+            SourceAssemblies.Xml,
+            [new AssemblyName("Microsoft.Bcl.Memory")]
         );
 
-        await Assert.That(violations).IsNotEmpty();
+        await Assert.That(violations).Count().IsEqualTo(1);
     }
 
     [Test]
