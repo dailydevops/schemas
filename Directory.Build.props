@@ -19,11 +19,7 @@
     <GitVersionTargetFramework>net8.0</GitVersionTargetFramework>
   </PropertyGroup>
   <!-- NetEvolve.Defaults re-enables IsPackable after props evaluation; force it off again before any pack step. -->
-  <Target
-    Name="DisablePack"
-    BeforeTargets="_IntermediatePack;GenerateNuspec"
-    Condition="'$(MSBuildProjectName)' != 'NetEvolve.Schemas'"
-  >
+  <Target Name="DisablePack" BeforeTargets="_IntermediatePack;GenerateNuspec" Condition="'$(MSBuildProjectName)' != 'NetEvolve.Schemas'">
     <PropertyGroup>
       <IsPackable>false</IsPackable>
     </PropertyGroup>
