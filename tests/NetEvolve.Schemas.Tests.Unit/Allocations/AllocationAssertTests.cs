@@ -50,7 +50,9 @@ public class AllocationAssertTests
     {
         var bytes = AllocationAssert.Measure(SeededAllocation);
 
-        await Assert.That(() => AllocationAssert.AtMost(bytes - 1, SeededAllocation)).Throws<AllocationAssertionException>();
+        await Assert
+            .That(() => AllocationAssert.AtMost(bytes - 1, SeededAllocation))
+            .Throws<AllocationAssertionException>();
     }
 
     [Test]
@@ -62,6 +64,8 @@ public class AllocationAssertTests
     [Test]
     public async Task NoAllocation_MeterNotSupported_ThrowsUnavailable() =>
         await Assert
-            .That(() => AllocationAssert.AtMost(0, SpanLoop, allocatedBytes: static () => throw new NotSupportedException()))
+            .That(() =>
+                AllocationAssert.AtMost(0, SpanLoop, allocatedBytes: static () => throw new NotSupportedException())
+            )
             .Throws<AllocationMeasurementUnavailableException>();
 }
