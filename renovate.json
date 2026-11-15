@@ -1,0 +1,111 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:best-practices",
+    ":disableDependencyDashboard",
+    ":automergeMinor",
+    "group:dotNetCore",
+    "group:dotnetMonorepo",
+    "group:applicationinsights-dotnetMonorepo",
+    "group:opentelemetry-dotnet-contribMonorepo",
+    "group:testcontainers-dotnetMonorepo",
+    "group:xunit-dotnetMonorepo",
+    "group:mstestMonorepo"
+  ],
+  "rebaseWhen": "conflicted",
+  "ignorePresets": ["group:monorepos"],
+  "automergeStrategy": "squash",
+  "assignees": ["samtrion"],
+  "semanticCommits": "enabled",
+  "semanticCommitType": "chore",
+  "osvVulnerabilityAlerts": true,
+  "enabledManagers": ["custom.regex", "dockerfile", "github-actions", "nuget"],
+  "ignorePaths": [
+    "**/node_modules/**",
+    "**/bower_components/**",
+    "**/vendor/**",
+    "**/examples/**",
+    "**/__tests__/**",
+    "**/test/**",
+    "**/__fixtures__/**"
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/\\.cs$/"],
+      "matchStrings": ["/\\*\\s*dockerimage\\s*\\*/\\s*\"(?<depName>[^:]+):(?<currentValue>[^\"]+)\""],
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "docker"
+    }
+  ],
+  "packageRules": [
+    {
+      "matchManagers": ["nuget"],
+      "prPriority": 5,
+      "labels": ["dependency:nuget"],
+      "semanticCommitScope": "deps",
+      "minimumReleaseAge": "1 day"
+    },
+    {
+      "matchManagers": ["nuget"],
+      "matchPackageNames": ["NetEvolve", "NetEvolve.*"],
+      "minimumReleaseAge": null
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "prPriority": 10,
+      "labels": ["dependency:actions"],
+      "automerge": true,
+      "semanticCommitScope": "ci"
+    },
+    {
+      "matchDatasources": ["docker", "custom.regex"],
+      "prPriority": -5,
+      "labels": ["dependency:docker"],
+      "semanticCommitScope": "docker",
+      "allowedVersions": "!/(^|[-_.])(arm|arm32v[0-9]|arm64|arm64v[0-9]|aarch64|riscv64|s390x|ppc64le)([-_.]|$)/"
+    },
+    {
+      "description": "Track SQL Server CU/GDR releases on the ubuntu-22.04 base only; preview/RC/CTP tags never match. See microsoft/mssql-docker#974.",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["mcr.microsoft.com/mssql/server"],
+      "versioning": "regex:^(?<major>\\d+)-CU(?<minor>\\d+)(-GDR(?<patch>\\d+))?-ubuntu-(?<compatibility>\\d+\\.\\d+)$"
+    },
+    {
+      "groupName": "Verify packages",
+      "groupSlug": "verify-packages",
+      "matchManagers": ["nuget"],
+      "matchPackageNames": ["Verify", "Verify.*"]
+    },
+    {
+      "groupName": "TUnit packages",
+      "groupSlug": "tunit-packages",
+      "matchManagers": ["nuget"],
+      "matchPackageNames": ["TUnit", "TUnit.*", "Verify.TUnit"]
+    },
+    {
+      "groupName": "AWS SDK packages",
+      "groupSlug": "aws-sdk-packages",
+      "matchManagers": ["nuget"],
+      "matchPackageNames": ["AWSSDK.*"]
+    },
+    {
+      "groupName": "NetEvolve HttpCorrelation packages",
+      "groupSlug": "netevolve-httpcorrelation-packages",
+      "matchManagers": ["nuget"],
+      "matchPackageNames": ["NetEvolve.Http.Correlation", "NetEvolve.Http.Correlation.*"]
+    },
+    {
+      "groupName": "Roslynator packages",
+      "groupSlug": "roslynator-packages",
+      "matchManagers": ["nuget"],
+      "matchPackageNames": ["/^Roslynator/"]
+    },
+    {
+      "groupName": "IBM Db2 packages",
+      "groupSlug": "ibm-db2-packages",
+      "matchManagers": ["nuget"],
+      "matchPackageNames": ["/^Net\\.IBM\\.Data\\.Db2/"]
+    }
+  ]
+}
