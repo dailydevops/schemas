@@ -1,6 +1,6 @@
-using Microsoft.Extensions.DependencyInjection;
-
 namespace NetEvolve.Schemas.DependencyInjection.Tests.Unit;
+
+using Microsoft.Extensions.DependencyInjection;
 
 public class DependencyVersionFloorTests
 {
