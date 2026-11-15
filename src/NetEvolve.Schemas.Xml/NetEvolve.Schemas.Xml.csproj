@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="../NetEvolve.Schemas/NetEvolve.Schemas.csproj" />
+  </ItemGroup>
+</Project>

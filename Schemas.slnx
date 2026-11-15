@@ -21,4 +21,27 @@
     <File Path="renovate.json" />
     <File Path="testEnvironments.json" />
   </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/NetEvolve.Schemas/NetEvolve.Schemas.csproj" />
+    <Project Path="src/NetEvolve.Schemas.DependencyInjection/NetEvolve.Schemas.DependencyInjection.csproj" />
+    <Project Path="src/NetEvolve.Schemas.Schematron/NetEvolve.Schemas.Schematron.csproj" />
+    <Project Path="src/NetEvolve.Schemas.Xml/NetEvolve.Schemas.Xml.csproj" />
+    <Project Path="src/NetEvolve.Schemas.XPath/NetEvolve.Schemas.XPath.csproj" />
+    <Project Path="src/NetEvolve.Schemas.Xsd/NetEvolve.Schemas.Xsd.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/NetEvolve.Schemas.DependencyInjection.Tests.Unit/NetEvolve.Schemas.DependencyInjection.Tests.Unit.csproj" />
+    <Project Path="tests/NetEvolve.Schemas.Schematron.Tests.Unit/NetEvolve.Schemas.Schematron.Tests.Unit.csproj" />
+    <Project Path="tests/NetEvolve.Schemas.Testing/NetEvolve.Schemas.Testing.csproj" />
+    <Project Path="tests/NetEvolve.Schemas.Tests.Architecture/NetEvolve.Schemas.Tests.Architecture.csproj" />
+    <Project Path="tests/NetEvolve.Schemas.Tests.LegacyCompiler/NetEvolve.Schemas.Tests.LegacyCompiler.csproj" />
+    <Project Path="tests/NetEvolve.Schemas.Tests.PublicApi/NetEvolve.Schemas.Tests.PublicApi.csproj" />
+    <Project Path="tests/NetEvolve.Schemas.Tests.Unit/NetEvolve.Schemas.Tests.Unit.csproj" />
+    <Project Path="tests/NetEvolve.Schemas.Xml.Tests.Unit/NetEvolve.Schemas.Xml.Tests.Unit.csproj" />
+    <Project Path="tests/NetEvolve.Schemas.XPath.Tests.Unit/NetEvolve.Schemas.XPath.Tests.Unit.csproj" />
+    <Project Path="tests/NetEvolve.Schemas.Xsd.Tests.Unit/NetEvolve.Schemas.Xsd.Tests.Unit.csproj" />
+  </Folder>
+  <Folder Name="/benchmarks/">
+    <Project Path="benchmarks/NetEvolve.Schemas.Benchmarks/NetEvolve.Schemas.Benchmarks.csproj" />
+  </Folder>
 </Solution>
