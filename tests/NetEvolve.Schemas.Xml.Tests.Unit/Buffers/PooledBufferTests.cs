@@ -10,7 +10,7 @@ public class PooledBufferTests
     [Test]
     public async Task Append_BeyondCapacity_GrowsAndKeepsEarlierContent()
     {
-        using var pool = new TrackingPool<char>();
+        var pool = new TrackingPool<char>();
         using var buffer = new PooledBuffer<char>(4, pool);
 
         buffer.Append("abcd".AsSpan());
@@ -25,7 +25,7 @@ public class PooledBufferTests
     [Test]
     public async Task Append_Bytes_GrowsAndKeepsEarlierContent()
     {
-        using var pool = new TrackingPool<byte>();
+        var pool = new TrackingPool<byte>();
         using var buffer = new PooledBuffer<byte>(2, pool);
 
         buffer.Append([1, 2, 3]);
@@ -37,7 +37,7 @@ public class PooledBufferTests
     [Test]
     public async Task EnsureCapacity_ProvidesRequestedFreeSpace()
     {
-        using var pool = new TrackingPool<char>();
+        var pool = new TrackingPool<char>();
         using var buffer = new PooledBuffer<char>(4, pool);
         buffer.Append("ab".AsSpan());
 
@@ -52,7 +52,7 @@ public class PooledBufferTests
     [Test]
     public async Task Clear_ResetsLengthAndKeepsCapacity()
     {
-        using var pool = new TrackingPool<char>();
+        var pool = new TrackingPool<char>();
         using var buffer = new PooledBuffer<char>(4, pool);
         buffer.Append("abc".AsSpan());
         var capacity = buffer.Capacity;
@@ -66,7 +66,7 @@ public class PooledBufferTests
     [Test]
     public async Task Dispose_ReturnsExactlyOneArray()
     {
-        using var pool = new TrackingPool<char>();
+        var pool = new TrackingPool<char>();
         var buffer = new PooledBuffer<char>(4, pool);
         buffer.Append('a');
 
@@ -79,7 +79,7 @@ public class PooledBufferTests
     [Test]
     public async Task Growth_ReturnsOldArray()
     {
-        using var pool = new TrackingPool<char>();
+        var pool = new TrackingPool<char>();
         var buffer = new PooledBuffer<char>(4, pool);
         var first = pool.LastRented!;
 
@@ -98,7 +98,7 @@ public class PooledBufferTests
     [Test]
     public async Task Dispose_Twice_DoesNotReturnAgain()
     {
-        using var pool = new TrackingPool<char>();
+        var pool = new TrackingPool<char>();
         var buffer = new PooledBuffer<char>(4, pool);
 
         buffer.Dispose();
@@ -110,7 +110,7 @@ public class PooledBufferTests
     [Test]
     public async Task AccessAfterDispose_ThrowsObjectDisposedException()
     {
-        using var pool = new TrackingPool<char>();
+        var pool = new TrackingPool<char>();
         var buffer = new PooledBuffer<char>(4, pool);
         buffer.Dispose();
 
@@ -128,7 +128,7 @@ public class PooledBufferTests
     [Test]
     public async Task Constructor_NegativeCapacity_Throws()
     {
-        using var pool = new TrackingPool<char>();
+        var pool = new TrackingPool<char>();
 
         await Assert.That(() => new PooledBuffer<char>(-1, pool)).Throws<ArgumentOutOfRangeException>();
     }
@@ -136,13 +136,33 @@ public class PooledBufferTests
     [Test]
     public async Task Advance_BeyondCapacity_Throws()
     {
-        using var pool = new TrackingPool<char>();
+        var pool = new TrackingPool<char>();
         using var buffer = new PooledBuffer<char>(4, pool);
 
         await Assert.That(() => buffer.Advance(buffer.Capacity + 1)).Throws<ArgumentOutOfRangeException>();
     }
 
-    private sealed class TrackingPool<T> : ArrayPool<T>, IDisposable
+    [Test]
+    public async Task EnsureCapacity_NegativeCount_Throws()
+    {
+        var pool = new TrackingPool<char>();
+        using var buffer = new PooledBuffer<char>(4, pool);
+
+        await Assert.That(() => buffer.EnsureCapacity(-1)).Throws<ArgumentOutOfRangeException>();
+    }
+
+    [Test]
+    public async Task EnsureCapacity_BeyondMaximumArrayLength_Throws()
+    {
+        var pool = new TrackingPool<char>();
+        using var buffer = new PooledBuffer<char>(4, pool);
+        buffer.Append("ab".AsSpan());
+
+        await Assert.That(() => buffer.EnsureCapacity(int.MaxValue)).Throws<InvalidOperationException>();
+        await Assert.That(buffer.WrittenSpan.ToString()).IsEqualTo("ab");
+    }
+
+    private sealed class TrackingPool<T> : ArrayPool<T>
     {
         public int Rented { get; private set; }
 
@@ -157,7 +177,5 @@ public class PooledBufferTests
         }
 
         public override void Return(T[] array, bool clearArray = false) => Returned.Add(array);
-
-        public void Dispose() { }
     }
 }
