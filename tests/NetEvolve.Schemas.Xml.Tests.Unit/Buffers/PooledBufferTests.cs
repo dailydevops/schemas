@@ -162,8 +162,22 @@ public class PooledBufferTests
         await Assert.That(buffer.WrittenSpan.ToString()).IsEqualTo("ab");
     }
 
+    [Test]
+    public async Task Append_SpanOverOwnWrittenContent_SurvivesGrowth()
+    {
+        var pool = new TrackingPool<char> { ClearOnReturn = true };
+        using var buffer = new PooledBuffer<char>(4, pool);
+        buffer.Append("abcd".AsSpan());
+
+        buffer.Append(buffer.WrittenSpan);
+
+        await Assert.That(buffer.WrittenSpan.ToString()).IsEqualTo("abcdabcd");
+    }
+
     private sealed class TrackingPool<T> : ArrayPool<T>
     {
+        public bool ClearOnReturn { get; init; }
+
         public int Rented { get; private set; }
 
         public T[]? LastRented { get; private set; }
@@ -176,6 +190,13 @@ public class PooledBufferTests
             return LastRented = new T[minimumLength];
         }
 
-        public override void Return(T[] array, bool clearArray = false) => Returned.Add(array);
+        public override void Return(T[] array, bool clearArray = false)
+        {
+            Returned.Add(array);
+            if (ClearOnReturn)
+            {
+                Array.Clear(array);
+            }
+        }
     }
 }
