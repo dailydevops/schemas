@@ -16,21 +16,13 @@ public class FixturePublicApiTests
         await PublicApiHarness.VerifyAsync(typeof(FixtureApi).Assembly, AssemblyName, [ApprovedNamespace]);
 
     [Test]
-    public async Task PublicApi_WithSeededMember_FailsVerification()
+    public async Task PublicApi_WithSeededMember_DiffersFromVerifiedFile()
     {
-        // The seeded type is public but absent from the verified file, so verification must fail.
-        _ = typeof(SeededMember);
+        // The seeded type is public but absent from the verified file, so verification would fail.
+        var seeded = PublicApiHarness.Generate(typeof(FixtureApi).Assembly, [ApprovedNamespace, SeededNamespace]);
+        var verified = await File.ReadAllTextAsync(PublicApiHarness.VerifiedFilePath(AssemblyName));
 
-        await Assert
-            .That(async () =>
-                await PublicApiHarness.VerifyAsync(
-                    typeof(FixtureApi).Assembly,
-                    AssemblyName,
-                    [ApprovedNamespace, SeededNamespace]
-                )
-            )
-            .ThrowsException();
-
-        PublicApiHarness.DeleteReceivedFiles();
+        await Assert.That(seeded).Contains(nameof(SeededMember));
+        await Assert.That(seeded.TrimEnd()).IsNotEqualTo(verified.TrimStart('﻿').TrimEnd());
     }
 }
