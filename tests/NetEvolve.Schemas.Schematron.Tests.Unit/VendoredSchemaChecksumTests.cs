@@ -7,8 +7,10 @@ public class VendoredSchemaChecksumTests
     private const string ChecksumFileName = "checksums.txt";
 
     [Test]
-    public async Task EveryVendoredFile_MatchesPinnedChecksum()
+    public async Task EveryVendoredFile_MatchesPinnedChecksum(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var folder = FindSpecsFolder();
         var entries = ReadChecksumList(folder);
 
@@ -19,7 +21,7 @@ public class VendoredSchemaChecksumTests
             var path = Path.Combine(folder, name);
             await Assert.That(File.Exists(path)).IsTrue();
 
-            var actual = Convert.ToHexString(SHA256.HashData(await File.ReadAllBytesAsync(path)));
+            var actual = Convert.ToHexString(SHA256.HashData(await File.ReadAllBytesAsync(path, cancellationToken)));
             await Assert.That(actual).IsEqualTo(checksum).IgnoringCase();
         }
     }
@@ -33,7 +35,7 @@ public class VendoredSchemaChecksumTests
         var unlisted = Directory
             .EnumerateFiles(folder, "*", SearchOption.AllDirectories)
             .Select(p => Path.GetRelativePath(folder, p).Replace(Path.DirectorySeparatorChar, '/'))
-            .Where(n => n != ChecksumFileName && !listed.Contains(n))
+            .Where(n => !string.Equals(n, ChecksumFileName, StringComparison.Ordinal) && !listed.Contains(n))
             .ToArray();
 
         await Assert.That(listed).IsNotEmpty();
