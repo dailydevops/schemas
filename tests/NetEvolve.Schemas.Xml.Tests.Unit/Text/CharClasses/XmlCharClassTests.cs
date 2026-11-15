@@ -234,7 +234,7 @@ public class XmlCharClassTests
     [Test]
     public async Task NameLength_ReturnsLeadingNameOnly()
     {
-        await Assert.That(XmlCharClass.NameLength("a:b-c.d1 rest".AsSpan())).IsEqualTo(7);
+        await Assert.That(XmlCharClass.NameLength("a:b-c.d1 rest".AsSpan())).IsEqualTo(8);
         await Assert.That(XmlCharClass.NameLength("1abc".AsSpan())).IsEqualTo(0);
         await Assert.That(XmlCharClass.NameLength("-abc".AsSpan())).IsEqualTo(0);
         await Assert.That(XmlCharClass.NameLength(ReadOnlySpan<char>.Empty)).IsEqualTo(0);
