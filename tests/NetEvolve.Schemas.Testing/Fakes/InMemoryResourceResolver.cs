@@ -1,3 +1,5 @@
+#pragma warning disable CA1054 // The approved contract passes URIs as strings.
+
 namespace NetEvolve.Schemas.Testing.Fakes;
 
 using System;

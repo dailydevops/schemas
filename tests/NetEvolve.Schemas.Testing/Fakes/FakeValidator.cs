@@ -1,3 +1,5 @@
+#pragma warning disable NE0009 // The canceled-token branch is the contract under test and lives in the record helpers.
+
 namespace NetEvolve.Schemas.Testing.Fakes;
 
 using System;
@@ -24,45 +26,69 @@ public sealed class FakeValidator : ISchemaValidator
     /// <inheritdoc />
     public ValueTask<ValidationResult> ValidateAsync(
         Stream stream,
-        string? systemId = null,
+        string? systemId = default,
         CancellationToken cancellationToken = default
     )
     {
         ArgumentNullException.ThrowIfNull(stream);
-        return Record(nameof(ValidateAsync), "Stream", ReadAll(stream), null, systemId, cancellationToken);
+        return RecordAsync(nameof(ValidateAsync), "Stream", ReadAll(stream), default, systemId, cancellationToken);
     }
 
     /// <inheritdoc />
     public ValueTask<ValidationResult> ValidateAsync(
         ReadOnlyMemory<byte> content,
-        string? systemId = null,
+        string? systemId = default,
         CancellationToken cancellationToken = default
-    ) => Record(nameof(ValidateAsync), "ReadOnlyMemory<Byte>", content.ToArray(), null, systemId, cancellationToken);
+    ) =>
+        RecordAsync(
+            nameof(ValidateAsync),
+            "ReadOnlyMemory<Byte>",
+            content.ToArray(),
+            default,
+            systemId,
+            cancellationToken
+        );
 
     /// <inheritdoc />
     public ValueTask<ValidationResult> ValidateAsync(
         ReadOnlyMemory<char> content,
-        string? systemId = null,
+        string? systemId = default,
         CancellationToken cancellationToken = default
-    ) => Record(nameof(ValidateAsync), "ReadOnlyMemory<Char>", null, content.ToString(), systemId, cancellationToken);
+    ) =>
+        RecordAsync(
+            nameof(ValidateAsync),
+            "ReadOnlyMemory<Char>",
+            default,
+            content.ToString(),
+            systemId,
+            cancellationToken
+        );
 
     /// <inheritdoc />
     public ValueTask<ValidationResult> ValidateAsync(
         ReadOnlySequence<byte> content,
-        string? systemId = null,
+        string? systemId = default,
         CancellationToken cancellationToken = default
-    ) => Record(nameof(ValidateAsync), "ReadOnlySequence<Byte>", content.ToArray(), null, systemId, cancellationToken);
+    ) =>
+        RecordAsync(
+            nameof(ValidateAsync),
+            "ReadOnlySequence<Byte>",
+            content.ToArray(),
+            default,
+            systemId,
+            cancellationToken
+        );
 
     /// <inheritdoc />
     public ValueTask<ValidationResult> ValidateAsync(
         ReadOnlySequence<char> content,
-        string? systemId = null,
+        string? systemId = default,
         CancellationToken cancellationToken = default
     ) =>
-        Record(
+        RecordAsync(
             nameof(ValidateAsync),
             "ReadOnlySequence<Char>",
-            null,
+            default,
             new string(content.ToArray()),
             systemId,
             cancellationToken
@@ -71,45 +97,46 @@ public sealed class FakeValidator : ISchemaValidator
     /// <inheritdoc />
     public ValidationResult Validate(
         Stream stream,
-        string? systemId = null,
+        string? systemId = default,
         CancellationToken cancellationToken = default
     )
     {
         ArgumentNullException.ThrowIfNull(stream);
-        return RecordSync(nameof(Validate), "Stream", ReadAll(stream), null, systemId, cancellationToken);
+        return RecordSync(nameof(Validate), "Stream", ReadAll(stream), default, systemId, cancellationToken);
     }
 
     /// <inheritdoc />
     public ValidationResult Validate(
         ReadOnlySpan<byte> content,
-        string? systemId = null,
+        string? systemId = default,
         CancellationToken cancellationToken = default
-    ) => RecordSync(nameof(Validate), "ReadOnlySpan<Byte>", content.ToArray(), null, systemId, cancellationToken);
+    ) => RecordSync(nameof(Validate), "ReadOnlySpan<Byte>", content.ToArray(), default, systemId, cancellationToken);
 
     /// <inheritdoc />
     public ValidationResult Validate(
         ReadOnlySpan<char> content,
-        string? systemId = null,
+        string? systemId = default,
         CancellationToken cancellationToken = default
-    ) => RecordSync(nameof(Validate), "ReadOnlySpan<Char>", null, content.ToString(), systemId, cancellationToken);
+    ) => RecordSync(nameof(Validate), "ReadOnlySpan<Char>", default, content.ToString(), systemId, cancellationToken);
 
     /// <inheritdoc />
     public ValidationResult Validate(
         ReadOnlySequence<byte> content,
-        string? systemId = null,
+        string? systemId = default,
         CancellationToken cancellationToken = default
-    ) => RecordSync(nameof(Validate), "ReadOnlySequence<Byte>", content.ToArray(), null, systemId, cancellationToken);
+    ) =>
+        RecordSync(nameof(Validate), "ReadOnlySequence<Byte>", content.ToArray(), default, systemId, cancellationToken);
 
     /// <inheritdoc />
     public ValidationResult Validate(
         ReadOnlySequence<char> content,
-        string? systemId = null,
+        string? systemId = default,
         CancellationToken cancellationToken = default
     ) =>
         RecordSync(
             nameof(Validate),
             "ReadOnlySequence<Char>",
-            null,
+            default,
             new string(content.ToArray()),
             systemId,
             cancellationToken
@@ -123,10 +150,10 @@ public sealed class FakeValidator : ISchemaValidator
     }
 
     // A canceled token follows the asynchronous failure contract: a canceled ValueTask, never a synchronous throw.
-    private ValueTask<ValidationResult> Record(
+    private ValueTask<ValidationResult> RecordAsync(
         string method,
         string parameterType,
-        byte[]? bytes,
+        ReadOnlyMemory<byte> bytes,
         string? chars,
         string? systemId,
         CancellationToken cancellationToken
@@ -144,7 +171,7 @@ public sealed class FakeValidator : ISchemaValidator
     private ValidationResult RecordSync(
         string method,
         string parameterType,
-        byte[]? bytes,
+        ReadOnlyMemory<byte> bytes,
         string? chars,
         string? systemId,
         CancellationToken cancellationToken

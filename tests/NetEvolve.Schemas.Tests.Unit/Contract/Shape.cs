@@ -1,3 +1,5 @@
+#pragma warning disable MA0051 // One flat renderer per member kind reads better than fragments.
+
 namespace NetEvolve.Schemas.Tests.Unit.Contract;
 
 using System;
@@ -108,7 +110,7 @@ internal static class Shape
             return "abstract ";
         }
 
-        return method.IsVirtual && !method.IsFinal ? "virtual " : "";
+        return method.IsVirtual && !method.IsFinal && method.GetBaseDefinition() == method ? "virtual " : "";
     }
 
     private static string Parameters(ParameterInfo[] parameters)

@@ -1,3 +1,5 @@
+#pragma warning disable TUnitAssertions0005 // The ceilings are compile-time constants and the constants are the contract.
+
 namespace NetEvolve.Schemas.Tests.Unit.Contract;
 
 using System.Threading.Tasks;

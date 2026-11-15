@@ -49,8 +49,8 @@ public class DiagnosticRangeContractTests
 
         await Assert
             .That(typeof(DiagnosticRanges).GetProperties(BindingFlags.Public | BindingFlags.Static))
-            .HasCount()
-            .EqualTo(Approved.Length);
+            .Count()
+            .IsEqualTo(Approved.Length);
     }
 
     [Test]
@@ -82,7 +82,7 @@ public class DiagnosticRangeContractTests
         var fields = typeof(CoreDiagnosticCodes).GetFields(BindingFlags.Public | BindingFlags.Static);
         var seen = new HashSet<int>();
 
-        await Assert.That(fields).HasCount().EqualTo(CoreCodes.Length);
+        await Assert.That(fields).Count().IsEqualTo(CoreCodes.Length);
         foreach (var (name, number) in CoreCodes)
         {
             var code = (DiagnosticCode)typeof(CoreDiagnosticCodes).GetField(name)!.GetValue(null)!;

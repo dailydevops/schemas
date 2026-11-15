@@ -1,3 +1,5 @@
+#pragma warning disable NE0010 // Test methods take no token.
+
 namespace NetEvolve.Schemas.Tests.Unit.Contract;
 
 using System.Threading;
