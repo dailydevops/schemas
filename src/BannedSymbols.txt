@@ -1,0 +1,1 @@
+N:System.Linq;LINQ is not allowed in src; use loops and spans
