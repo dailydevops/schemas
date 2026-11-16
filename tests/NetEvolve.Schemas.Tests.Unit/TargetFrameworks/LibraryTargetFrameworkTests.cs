@@ -5,7 +5,7 @@ using System.Runtime.Versioning;
 
 public class LibraryTargetFrameworkTests
 {
-    // Each test leg forces a specific library build (see tests/Directory.Build.targets).
+    // Each test leg forces a specific library build (forced via SetTargetFramework in the test project files).
 #if NET11_0
     private const string Expected = ".NETCoreApp,Version=v11.0";
 #elif NET10_0
