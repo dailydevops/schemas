@@ -1,8 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <!-- Verify 33.4.0 requires yyyy-MM; tests/Directory.Build.props still carries yyyy-MM-dd (shared file, tracked as follow-up). -->
-    <Verify_SponsorshipExemptionUntil>2027-11</Verify_SponsorshipExemptionUntil>
-  </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/NetEvolve.Schemas/NetEvolve.Schemas.csproj" />
     <ProjectReference Include="../../src/NetEvolve.Schemas.Xml/NetEvolve.Schemas.Xml.csproj" />
