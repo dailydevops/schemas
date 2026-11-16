@@ -1,0 +1,11 @@
+{
+  "stryker-config": {
+    "solution": "Schemas.slnx",
+    "configuration": "Mutation",
+    "target-framework": "net10.0",
+    "test-runner": "mtp",
+    "reporters": ["html", "json", "dashboard", "progress"],
+    "coverage-analysis": "perTest",
+    "mutate": ["**/*.cs", "!**/*.Designer.cs", "!**/*.g.cs", "!**/*.g.i.cs"]
+  }
+}
