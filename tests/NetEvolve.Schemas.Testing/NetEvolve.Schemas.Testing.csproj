@@ -3,4 +3,7 @@
     <OutputType>Library</OutputType>
     <IsTestingPlatformApplication>false</IsTestingPlatformApplication>
   </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/NetEvolve.Schemas/NetEvolve.Schemas.csproj" />
+  </ItemGroup>
 </Project>
