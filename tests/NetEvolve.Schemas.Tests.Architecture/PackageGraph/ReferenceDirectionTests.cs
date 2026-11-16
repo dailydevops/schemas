@@ -45,6 +45,10 @@ public class ReferenceDirectionTests
     }
 
     [Test]
+    public async Task Fixture_ReadsNameFromXmlProbe() =>
+        await Assert.That(HigherLayerReferenceFixture.Name).IsEqualTo("XmlProbe");
+
+    [Test]
     public async Task UnlistedPolyfillPackage_IsReported()
     {
         var violations = ArchitectureRules.FindDisallowedReferences(
