@@ -17,5 +17,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="PublicApiGenerator" />
+    <PackageReference Include="Verify.TUnit" />
   </ItemGroup>
 </Project>
