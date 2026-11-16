@@ -28,8 +28,8 @@ internal static partial class ArchitectureRules
     };
 
     // Third-party references allowed per assembly. Framework and System.* packages (e.g. System.Memory) pass via the
-    // 'System.' prefix; the only other polyfill allowed everywhere is Microsoft.Bcl.AsyncInterfaces (see FindDisallowedReferences).
-    // A new non-System polyfill package must be added to that list explicitly.
+    // 'System.' prefix; the only other polyfill allowed everywhere is Microsoft.Bcl.AsyncInterfaces (hard-coded in the switch of FindDisallowedReferences).
+    // A new non-System polyfill package must be added to that switch explicitly.
     private static readonly Dictionary<string, string[]> AllowedExternalReferences = new(StringComparer.Ordinal)
     {
         [SourceAssemblies.DependencyInjection] = ["Microsoft.Extensions.DependencyInjection.Abstractions"],

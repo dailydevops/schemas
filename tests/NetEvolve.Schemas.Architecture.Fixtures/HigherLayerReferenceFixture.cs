@@ -4,5 +4,5 @@ namespace NetEvolve.Schemas.Architecture.Fixtures;
 public static class HigherLayerReferenceFixture
 {
     /// <summary>Gets the name; in the final form it reads from a higher layer.</summary>
-    public static string Name => "HigherLayerReferenceFixture";
+    public static string Name => Xml.XmlProbe.Name;
 }
