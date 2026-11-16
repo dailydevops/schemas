@@ -1,0 +1,9 @@
+﻿namespace NetEvolve.Schemas.Tests.PublicApi.Fixture.Approved
+{
+    public sealed class FixtureApi
+    {
+        public FixtureApi() { }
+        public int Value { get; init; }
+        public string Describe() { }
+    }
+}
