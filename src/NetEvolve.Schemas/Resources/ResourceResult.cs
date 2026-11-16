@@ -1,4 +1,4 @@
-#pragma warning disable CA1065, MA0025, CA1815 // Contract stub: the owning work package replaces the throwing bodies.
+#pragma warning disable CA1065, MA0025, CA1815 // Stub per #103: throwing bodies stay until the owning package replaces them; the struct defines no value equality (CA1815).
 
 namespace NetEvolve.Schemas.Resources;
 

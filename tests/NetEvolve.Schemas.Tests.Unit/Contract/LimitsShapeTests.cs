@@ -1,23 +1,28 @@
-#pragma warning disable TUnitAssertions0005 // The ceilings are compile-time constants and the constants are the contract.
-
 namespace NetEvolve.Schemas.Tests.Unit.Contract;
 
+using System.Threading;
 using System.Threading.Tasks;
 
 public class LimitsShapeTests
 {
     [Test]
-    public async Task Ceilings_AreTheApprovedConstants()
+    public async Task Ceilings_AreTheApprovedConstants(CancellationToken cancellationToken)
     {
-        await Assert.That(ValidationLimits.MaxDepthCeiling).IsEqualTo(10_000);
-        await Assert.That(ValidationLimits.MaxEntityDepthCeiling).IsEqualTo(1_000);
-        await Assert.That(ValidationLimits.MaxInputSizeCeiling).IsEqualTo(2_000_000_000L);
-        await Assert.That(ValidationLimits.MaxResourceSizeCeiling).IsEqualTo(2_000_000_000L);
+        cancellationToken.ThrowIfCancellationRequested();
+        var maxDepthCeiling = ValidationLimits.MaxDepthCeiling;
+        await Assert.That(maxDepthCeiling).IsEqualTo(10_000);
+        var maxEntityDepthCeiling = ValidationLimits.MaxEntityDepthCeiling;
+        await Assert.That(maxEntityDepthCeiling).IsEqualTo(1_000);
+        var maxInputSizeCeiling = ValidationLimits.MaxInputSizeCeiling;
+        await Assert.That(maxInputSizeCeiling).IsEqualTo(2_000_000_000L);
+        var maxResourceSizeCeiling = ValidationLimits.MaxResourceSizeCeiling;
+        await Assert.That(maxResourceSizeCeiling).IsEqualTo(2_000_000_000L);
     }
 
     [Test]
-    public async Task ValidationLimits_IsSealedWithApprovedMembers()
+    public async Task ValidationLimits_IsSealedWithApprovedMembers(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         await Assert.That(typeof(ValidationLimits).IsSealed).IsTrue();
         await Assert
             .That(Shape.Of(typeof(ValidationLimits)))

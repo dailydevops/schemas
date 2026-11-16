@@ -1,5 +1,3 @@
-#pragma warning disable NE0009 // The canceled-token branch is the contract under test and lives in the record helpers.
-
 namespace NetEvolve.Schemas.Testing.Fakes;
 
 using System;
@@ -28,11 +26,7 @@ public sealed class FakeValidator : ISchemaValidator
         Stream stream,
         string? systemId = default,
         CancellationToken cancellationToken = default
-    )
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        return RecordAsync(nameof(ValidateAsync), "Stream", ReadAll(stream), default, systemId, cancellationToken);
-    }
+    ) => RecordAsync(nameof(ValidateAsync), "Stream", ReadAll(stream), default, systemId, cancellationToken);
 
     /// <inheritdoc />
     public ValueTask<ValidationResult> ValidateAsync(
@@ -99,11 +93,7 @@ public sealed class FakeValidator : ISchemaValidator
         Stream stream,
         string? systemId = default,
         CancellationToken cancellationToken = default
-    )
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-        return RecordSync(nameof(Validate), "Stream", ReadAll(stream), default, systemId, cancellationToken);
-    }
+    ) => RecordSync(nameof(Validate), "Stream", ReadAll(stream), default, systemId, cancellationToken);
 
     /// <inheritdoc />
     public ValidationResult Validate(
@@ -144,6 +134,7 @@ public sealed class FakeValidator : ISchemaValidator
 
     private static byte[] ReadAll(Stream stream)
     {
+        ArgumentNullException.ThrowIfNull(stream);
         using var buffer = new MemoryStream();
         stream.CopyTo(buffer);
         return buffer.ToArray();

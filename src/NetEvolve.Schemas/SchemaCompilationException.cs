@@ -1,4 +1,4 @@
-#pragma warning disable CA1065, MA0025, CA1032, RCS1194 // Contract stub: the owning work package replaces the throwing bodies.
+#pragma warning disable CA1065, MA0025, CA1032, RCS1194 // Stub per #103: throwing bodies stay until FND-09, FND-10, FND-55 and FND-56 replace them; the exception keeps the approved constructor set (CA1032, RCS1194).
 
 namespace NetEvolve.Schemas;
 

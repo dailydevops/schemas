@@ -1,5 +1,3 @@
-#pragma warning disable CA1054 // The approved contract passes URIs as strings.
-
 namespace NetEvolve.Schemas.Testing.Fakes;
 
 using System;
@@ -14,12 +12,12 @@ public sealed class InMemoryResourceResolver : IResourceResolver
     private readonly Dictionary<string, byte[]> _resources = new(StringComparer.Ordinal);
 
     /// <summary>Registers content under a key.</summary>
-    /// <param name="uri">The resolved URI, or the reference when no URI is resolved.</param>
+    /// <param name="key">The resolved URI, or the reference when no URI is resolved.</param>
     /// <param name="content">The content to serve.</param>
     /// <returns>This resolver.</returns>
-    public InMemoryResourceResolver Add(string uri, byte[] content)
+    public InMemoryResourceResolver Add(string key, byte[] content)
     {
-        _resources[uri] = content;
+        _resources[key] = content;
         return this;
     }
 

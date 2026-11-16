@@ -1,4 +1,4 @@
-#pragma warning disable CA1065, MA0025 // Contract stub: the owning work package replaces the throwing bodies.
+#pragma warning disable CA1065, MA0025 // Stub per #103: throwing bodies stay until FND-09, FND-10, FND-55 and FND-56 replace them.
 
 namespace NetEvolve.Schemas.Formats;
 

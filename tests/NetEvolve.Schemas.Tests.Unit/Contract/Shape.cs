@@ -1,5 +1,3 @@
-#pragma warning disable MA0051 // One flat renderer per member kind reads better than fragments.
-
 namespace NetEvolve.Schemas.Tests.Unit.Contract;
 
 using System;
@@ -23,64 +21,86 @@ internal static class Shape
         var lines = new List<string>();
         if (type.IsEnum)
         {
-            foreach (var name in Enum.GetNames(type))
-            {
-                var value = Convert.ToInt64(Enum.Parse(type, name), CultureInfo.InvariantCulture);
-                lines.Add($"{name}={value.ToString(CultureInfo.InvariantCulture)}");
-            }
+            AddEnum(lines, type);
         }
         else
         {
-            foreach (var constructor in type.GetConstructors(All))
-            {
-                if (IsExposed(constructor.IsPublic, constructor.IsFamily || constructor.IsFamilyOrAssembly))
-                {
-                    lines.Add($"{Access(constructor.IsPublic)}.ctor({Parameters(constructor.GetParameters())})");
-                }
-            }
-
-            foreach (var field in type.GetFields(All))
-            {
-                if (IsExposed(field.IsPublic, field.IsFamily || field.IsFamilyOrAssembly))
-                {
-                    lines.Add(
-                        field.IsLiteral
-                            ? $"const {Name(field.FieldType)} {field.Name}={Convert.ToString(field.GetRawConstantValue(), CultureInfo.InvariantCulture)}"
-                            : $"{(field.IsStatic ? "static " : "")}{Name(field.FieldType)} {field.Name}"
-                    );
-                }
-            }
-
-            foreach (var property in type.GetProperties(All))
-            {
-                var getter = property.GetMethod ?? property.SetMethod!;
-                if (IsExposed(getter.IsPublic, getter.IsFamily || getter.IsFamilyOrAssembly))
-                {
-                    var accessors = property.SetMethod is null ? "get" : "get; set";
-                    lines.Add(
-                        $"{Access(getter.IsPublic)}{(getter.IsStatic ? "static " : "")}{Name(property.PropertyType)} {property.Name} {{ {accessors} }}"
-                    );
-                }
-            }
-
-            foreach (var method in type.GetMethods(All))
-            {
-                if (method.IsSpecialName && !method.Name.StartsWith("op_", StringComparison.Ordinal))
-                {
-                    continue;
-                }
-
-                if (IsExposed(method.IsPublic, method.IsFamily || method.IsFamilyOrAssembly))
-                {
-                    lines.Add(
-                        $"{Access(method.IsPublic)}{Modifier(method, type)}{Name(method.ReturnType)} {method.Name}({Parameters(method.GetParameters())})"
-                    );
-                }
-            }
+            AddConstructors(lines, type);
+            AddFields(lines, type);
+            AddProperties(lines, type);
+            AddMethods(lines, type);
         }
 
         lines.Sort(StringComparer.Ordinal);
         return [.. lines];
+    }
+
+    private static void AddEnum(List<string> lines, Type type)
+    {
+        foreach (var name in Enum.GetNames(type))
+        {
+            var value = Convert.ToInt64(Enum.Parse(type, name), CultureInfo.InvariantCulture);
+            lines.Add($"{name}={value.ToString(CultureInfo.InvariantCulture)}");
+        }
+    }
+
+    private static void AddConstructors(List<string> lines, Type type)
+    {
+        foreach (var constructor in type.GetConstructors(All))
+        {
+            if (IsExposed(constructor.IsPublic, constructor.IsFamily || constructor.IsFamilyOrAssembly))
+            {
+                lines.Add($"{Access(constructor.IsPublic)}.ctor({Parameters(constructor.GetParameters())})");
+            }
+        }
+    }
+
+    private static void AddFields(List<string> lines, Type type)
+    {
+        foreach (var field in type.GetFields(All))
+        {
+            if (IsExposed(field.IsPublic, field.IsFamily || field.IsFamilyOrAssembly))
+            {
+                lines.Add(
+                    field.IsLiteral
+                        ? $"const {Name(field.FieldType)} {field.Name}={Convert.ToString(field.GetRawConstantValue(), CultureInfo.InvariantCulture)}"
+                        : $"{(field.IsStatic ? "static " : "")}{Name(field.FieldType)} {field.Name}"
+                );
+            }
+        }
+    }
+
+    private static void AddProperties(List<string> lines, Type type)
+    {
+        foreach (var property in type.GetProperties(All))
+        {
+            var getter = property.GetMethod ?? property.SetMethod!;
+            if (IsExposed(getter.IsPublic, getter.IsFamily || getter.IsFamilyOrAssembly))
+            {
+                var accessors = property.SetMethod is null ? "get" : "get; set";
+                lines.Add(
+                    $"{Access(getter.IsPublic)}{(getter.IsStatic ? "static " : "")}{Name(property.PropertyType)} {property.Name} {{ {accessors} }}"
+                );
+            }
+        }
+    }
+
+    private static void AddMethods(List<string> lines, Type type)
+    {
+        foreach (var method in type.GetMethods(All))
+        {
+            if (method.IsSpecialName && !method.Name.StartsWith("op_", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            if (IsExposed(method.IsPublic, method.IsFamily || method.IsFamilyOrAssembly))
+            {
+                lines.Add(
+                    $"{Access(method.IsPublic)}{Modifier(method, type)}{Name(method.ReturnType)} {method.Name}({Parameters(method.GetParameters())})"
+                );
+            }
+        }
     }
 
     internal static string[] Sorted(params string[] expected)

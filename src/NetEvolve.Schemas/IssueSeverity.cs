@@ -1,4 +1,4 @@
-#pragma warning disable CA1028 // The approved contract fixes byte as the underlying type.
+#pragma warning disable CA1028 // Approved shape (#103): byte is the fixed underlying enum type.
 
 namespace NetEvolve.Schemas;
 

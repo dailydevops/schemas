@@ -1,4 +1,4 @@
-#pragma warning disable CA1054, CA1056, CA1815 // The approved contract passes URIs as strings and defines no value equality.
+#pragma warning disable CA1054, CA1056, CA1815 // Approved shape (#103): URIs are passed as strings and the struct defines no value equality.
 
 namespace NetEvolve.Schemas.Resources;
 

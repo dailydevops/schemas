@@ -1,5 +1,3 @@
-#pragma warning disable CA1849, VSTHRD103, NE0010 // The synchronous overloads are the contract under test; test methods take no token.
-
 namespace NetEvolve.Schemas.Tests.Unit.Contract;
 
 using System;
@@ -23,8 +21,22 @@ public class FakeValidatorContractTests
     private static ReadOnlySequence<char> CharsInTwoSegments() =>
         Segments.Create<char>(Text.AsMemory(0, 2), Text.AsMemory(2));
 
-    private async Task AssertCall(FakeValidator fake, string method, string parameterType, bool bytes)
+    private static FakeValidator Run(Action<FakeValidator> call)
     {
+        var fake = new FakeValidator();
+        call(fake);
+        return fake;
+    }
+
+    private async Task AssertCall(
+        FakeValidator fake,
+        string method,
+        string parameterType,
+        bool bytes,
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
         await Assert.That(fake.Calls).Count().IsEqualTo(1);
         var call = fake.Calls[0];
         await Assert.That(call.Method).IsEqualTo(method);
@@ -42,110 +54,111 @@ public class FakeValidatorContractTests
     }
 
     [Test]
-    public async Task ValidateAsync_Stream_FakeReceivesSameContent()
+    public async Task ValidateAsync_Stream_FakeReceivesSameContent(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var fake = new FakeValidator();
         using var stream = new MemoryStream(Utf8);
 
         _ = await fake.ValidateAsync(stream, SystemId, Source.Token);
 
-        await AssertCall(fake, "ValidateAsync", "Stream", bytes: true);
+        await AssertCall(fake, "ValidateAsync", "Stream", bytes: true, cancellationToken);
     }
 
     [Test]
-    public async Task ValidateAsync_MemoryOfByte_FakeReceivesSameContent()
+    public async Task ValidateAsync_MemoryOfByte_FakeReceivesSameContent(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var fake = new FakeValidator();
 
         _ = await fake.ValidateAsync(new ReadOnlyMemory<byte>(Utf8), SystemId, Source.Token);
 
-        await AssertCall(fake, "ValidateAsync", "ReadOnlyMemory<Byte>", bytes: true);
+        await AssertCall(fake, "ValidateAsync", "ReadOnlyMemory<Byte>", bytes: true, cancellationToken);
     }
 
     [Test]
-    public async Task ValidateAsync_MemoryOfChar_FakeReceivesSameContent()
+    public async Task ValidateAsync_MemoryOfChar_FakeReceivesSameContent(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var fake = new FakeValidator();
 
         _ = await fake.ValidateAsync(Text.AsMemory(), SystemId, Source.Token);
 
-        await AssertCall(fake, "ValidateAsync", "ReadOnlyMemory<Char>", bytes: false);
+        await AssertCall(fake, "ValidateAsync", "ReadOnlyMemory<Char>", bytes: false, cancellationToken);
     }
 
     [Test]
-    public async Task ValidateAsync_SequenceOfByte_FakeReceivesSameContent()
+    public async Task ValidateAsync_SequenceOfByte_FakeReceivesSameContent(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var fake = new FakeValidator();
 
         _ = await fake.ValidateAsync(BytesInTwoSegments(), SystemId, Source.Token);
 
-        await AssertCall(fake, "ValidateAsync", "ReadOnlySequence<Byte>", bytes: true);
+        await AssertCall(fake, "ValidateAsync", "ReadOnlySequence<Byte>", bytes: true, cancellationToken);
     }
 
     [Test]
-    public async Task ValidateAsync_SequenceOfChar_FakeReceivesSameContent()
+    public async Task ValidateAsync_SequenceOfChar_FakeReceivesSameContent(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var fake = new FakeValidator();
 
         _ = await fake.ValidateAsync(CharsInTwoSegments(), SystemId, Source.Token);
 
-        await AssertCall(fake, "ValidateAsync", "ReadOnlySequence<Char>", bytes: false);
+        await AssertCall(fake, "ValidateAsync", "ReadOnlySequence<Char>", bytes: false, cancellationToken);
     }
 
     [Test]
-    public async Task Validate_Stream_FakeReceivesSameContent()
+    public async Task Validate_Stream_FakeReceivesSameContent(CancellationToken cancellationToken)
     {
-        var fake = new FakeValidator();
+        cancellationToken.ThrowIfCancellationRequested();
         using var stream = new MemoryStream(Utf8);
+        var fake = Run(f => f.Validate(stream, SystemId, Source.Token));
 
-        _ = fake.Validate(stream, SystemId, Source.Token);
-
-        await AssertCall(fake, "Validate", "Stream", bytes: true);
+        await AssertCall(fake, "Validate", "Stream", bytes: true, cancellationToken);
     }
 
     [Test]
-    public async Task Validate_SpanOfByte_FakeReceivesSameContent()
+    public async Task Validate_SpanOfByte_FakeReceivesSameContent(CancellationToken cancellationToken)
     {
-        var fake = new FakeValidator();
+        cancellationToken.ThrowIfCancellationRequested();
+        var fake = Run(f => f.Validate(new ReadOnlySpan<byte>(Utf8), SystemId, Source.Token));
 
-        _ = fake.Validate(new ReadOnlySpan<byte>(Utf8), SystemId, Source.Token);
-
-        await AssertCall(fake, "Validate", "ReadOnlySpan<Byte>", bytes: true);
+        await AssertCall(fake, "Validate", "ReadOnlySpan<Byte>", bytes: true, cancellationToken);
     }
 
     [Test]
-    public async Task Validate_SpanOfChar_FakeReceivesSameContent()
+    public async Task Validate_SpanOfChar_FakeReceivesSameContent(CancellationToken cancellationToken)
     {
-        var fake = new FakeValidator();
+        cancellationToken.ThrowIfCancellationRequested();
+        var fake = Run(f => f.Validate(Text.AsSpan(), SystemId, Source.Token));
 
-        _ = fake.Validate(Text.AsSpan(), SystemId, Source.Token);
-
-        await AssertCall(fake, "Validate", "ReadOnlySpan<Char>", bytes: false);
+        await AssertCall(fake, "Validate", "ReadOnlySpan<Char>", bytes: false, cancellationToken);
     }
 
     [Test]
-    public async Task Validate_SequenceOfByte_FakeReceivesSameContent()
+    public async Task Validate_SequenceOfByte_FakeReceivesSameContent(CancellationToken cancellationToken)
     {
-        var fake = new FakeValidator();
+        cancellationToken.ThrowIfCancellationRequested();
+        var fake = Run(f => f.Validate(BytesInTwoSegments(), SystemId, Source.Token));
 
-        _ = fake.Validate(BytesInTwoSegments(), SystemId, Source.Token);
-
-        await AssertCall(fake, "Validate", "ReadOnlySequence<Byte>", bytes: true);
+        await AssertCall(fake, "Validate", "ReadOnlySequence<Byte>", bytes: true, cancellationToken);
     }
 
     [Test]
-    public async Task Validate_SequenceOfChar_FakeReceivesSameContent()
+    public async Task Validate_SequenceOfChar_FakeReceivesSameContent(CancellationToken cancellationToken)
     {
-        var fake = new FakeValidator();
+        cancellationToken.ThrowIfCancellationRequested();
+        var fake = Run(f => f.Validate(CharsInTwoSegments(), SystemId, Source.Token));
 
-        _ = fake.Validate(CharsInTwoSegments(), SystemId, Source.Token);
-
-        await AssertCall(fake, "Validate", "ReadOnlySequence<Char>", bytes: false);
+        await AssertCall(fake, "Validate", "ReadOnlySequence<Char>", bytes: false, cancellationToken);
     }
 
     [Test]
-    public async Task ValidateAsync_CanceledToken_ThrowsOperationCanceledException()
+    public async Task ValidateAsync_CanceledToken_ThrowsOperationCanceledException(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var fake = new FakeValidator();
         using var canceled = new CancellationTokenSource();
         await canceled.CancelAsync();
@@ -157,8 +170,9 @@ public class FakeValidatorContractTests
     }
 
     [Test]
-    public async Task Validate_CanceledToken_ThrowsOperationCanceledException()
+    public async Task Validate_CanceledToken_ThrowsOperationCanceledException(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var fake = new FakeValidator();
         using var canceled = new CancellationTokenSource();
         await canceled.CancelAsync();
