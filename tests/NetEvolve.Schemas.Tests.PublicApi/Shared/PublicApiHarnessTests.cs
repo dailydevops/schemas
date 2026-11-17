@@ -7,7 +7,7 @@ internal sealed class PublicApiHarnessTests
     {
         var expected = Environment.Version.Major switch
         {
-            8 => "netstandard2.1",
+            8 => "netstandard2.0",
             9 => "netstandard2.1",
             var major => $"net{major}.0",
         };
