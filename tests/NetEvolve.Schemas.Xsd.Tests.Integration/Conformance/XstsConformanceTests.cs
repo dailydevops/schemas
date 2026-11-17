@@ -1,10 +1,14 @@
-namespace NetEvolve.Schemas.Xsd.Tests.Integration.Xsts;
+namespace NetEvolve.Schemas.Xsd.Tests.Integration.Conformance;
 
+using System.Collections.Concurrent;
 using NetEvolve.Schemas.Conformance.Baseline;
 using NetEvolve.Schemas.Conformance.Results;
+using NetEvolve.Schemas.Xsd.Tests.Integration.Xsts;
 
-public class XstsSuiteTests
+public class XstsConformanceTests
 {
+    private static readonly ConcurrentBag<CaseResult> ChunkResults = [];
+
     /// <summary>The number of cases the pinned suite selects for XSD 1.0; a new pin changes it on purpose.</summary>
     private const int SelectedCaseCount10 = 39271;
 
@@ -118,6 +122,11 @@ public class XstsSuiteTests
             UnboundXstsValidator.Instance,
             cancellationToken
         );
+        foreach (var result in results)
+        {
+            ChunkResults.Add(result);
+        }
+
         var report = ConformanceReport.Compare(
             results,
             new Dictionary<string, KnownFailureBaseline>(StringComparer.Ordinal)
@@ -129,4 +138,8 @@ public class XstsSuiteTests
         await Assert.That(cases).IsNotEmpty();
         await Assert.That(report.IsSuccess).IsTrue();
     }
+
+    /// <summary>Appends one aggregated rate row per test set after all chunks ran.</summary>
+    [After(Class)]
+    public static void PublishConformanceRate() => XstsRateReport.Publish([.. ChunkResults]);
 }
