@@ -1,9 +1,9 @@
-#pragma warning disable CA1065, MA0025 // Stub per #103: throwing bodies stay until FND-09, FND-10, FND-55 and FND-56 replace them.
-
 namespace NetEvolve.Schemas;
 
+using System.Globalization;
+using NetEvolve.Arguments;
+
 /// <summary>One finding of a validation or schema compilation. Immutable.</summary>
-/// <remarks>Limitation: members throw until FND-09 lands.</remarks>
 public sealed class ValidationIssue
 {
     /// <summary>Initializes a new instance of the <see cref="ValidationIssue"/> class.</summary>
@@ -18,23 +18,35 @@ public sealed class ValidationIssue
         string message,
         DocumentLocation location,
         string? constraint = null
-    ) => throw Stub.For("FND-09");
+    )
+    {
+        Argument.ThrowIfNull(message);
+        Argument.ThrowIfGreaterThan((int)severity, (int)IssueSeverity.Error);
+
+        Code = code;
+        Severity = severity;
+        Message = message;
+        Location = location;
+        Constraint = constraint;
+    }
 
     /// <summary>Gets the stable diagnostic code.</summary>
-    public DiagnosticCode Code => throw Stub.For("FND-09");
+    public DiagnosticCode Code { get; }
 
     /// <summary>Gets the severity.</summary>
-    public IssueSeverity Severity => throw Stub.For("FND-09");
+    public IssueSeverity Severity { get; }
 
     /// <summary>Gets the message.</summary>
-    public string Message => throw Stub.For("FND-09");
+    public string Message { get; }
 
     /// <summary>Gets the location in the document.</summary>
-    public DocumentLocation Location => throw Stub.For("FND-09");
+    public DocumentLocation Location { get; }
 
     /// <summary>Gets the constraint identifier of the specification.</summary>
-    public string? Constraint => throw Stub.For("FND-09");
+    public string? Constraint { get; }
 
-    /// <inheritdoc />
-    public override string ToString() => throw Stub.For("FND-09");
+    /// <summary>Returns <c>code severity location: message</c>.</summary>
+    /// <returns>The text form.</returns>
+    public override string ToString() =>
+        string.Format(CultureInfo.InvariantCulture, "{0} {1} {2}: {3}", Code, Severity, Location, Message);
 }
