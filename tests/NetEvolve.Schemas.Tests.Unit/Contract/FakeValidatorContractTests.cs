@@ -181,4 +181,26 @@ public class FakeValidatorContractTests
             .That(() => fake.Validate(new ReadOnlySpan<byte>(Utf8), SystemId, canceled.Token))
             .Throws<OperationCanceledException>();
     }
+
+    [Test]
+    public async Task ValidateAsync_ReturnsValidResult(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var fake = new FakeValidator();
+
+        var result = await fake.ValidateAsync(new ReadOnlyMemory<byte>(Utf8), SystemId, Source.Token);
+
+        await Assert.That(result).IsSameReferenceAs(ValidationResult.Valid);
+    }
+
+    [Test]
+    public async Task Validate_ReturnsValidResult(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var fake = new FakeValidator();
+
+        var result = fake.Validate(new ReadOnlySpan<byte>(Utf8), SystemId, Source.Token);
+
+        await Assert.That(result.IsValid).IsTrue();
+    }
 }
