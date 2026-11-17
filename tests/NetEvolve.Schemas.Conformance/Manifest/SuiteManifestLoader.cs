@@ -8,7 +8,13 @@ public static class SuiteManifestLoader
 {
     private const int Sha256HexLength = 64;
 
-    /// <summary>Loads every <c>*.json</c> manifest of a directory, one suite per file.</summary>
+    private static readonly string[] ManifestFields = ["key", "url", "sha256", "archive"];
+
+    /// <summary>
+    /// Loads every <c>*.json</c> manifest of a directory, one suite per file. A JSON object that declares none of
+    /// <c>key</c>, <c>url</c>, <c>sha256</c> or <c>archive</c> is not a manifest (for example the stage record
+    /// <c>stage-sources.json</c>) and is skipped; a file that declares any of them is validated in full.
+    /// </summary>
     /// <param name="directory">The directory that holds the manifests.</param>
     /// <returns>The manifests, ordered by file name.</returns>
     /// <exception cref="SuiteManifestException">The directory is missing, a manifest is invalid, or a suite key repeats.</exception>
@@ -27,7 +33,11 @@ public static class SuiteManifestLoader
         var sources = new Dictionary<string, string>(StringComparer.Ordinal);
         foreach (var file in files)
         {
-            var manifest = Parse(File.ReadAllText(file), file);
+            var manifest = Parse(File.ReadAllText(file), file, skipNonManifests: true);
+            if (manifest is null)
+            {
+                continue;
+            }
             if (!sources.TryAdd(manifest.Key, file))
             {
                 throw new SuiteManifestException(
@@ -44,18 +54,36 @@ public static class SuiteManifestLoader
     /// <param name="source">A description of the origin (usually the file path), used in error messages.</param>
     /// <returns>The validated manifest.</returns>
     /// <exception cref="SuiteManifestException">The manifest is malformed or incomplete.</exception>
-    public static SuiteManifest Parse(string json, string source)
+    public static SuiteManifest Parse(string json, string source) => Parse(json, source, skipNonManifests: false)!;
+
+    private static SuiteManifest? Parse(string json, string source, bool skipNonManifests)
     {
         ArgumentNullException.ThrowIfNull(json);
         try
         {
             using var document = JsonDocument.Parse(json);
-            return Read(document.RootElement, source);
+            return skipNonManifests && IsNotManifest(document.RootElement) ? null : Read(document.RootElement, source);
         }
         catch (JsonException ex)
         {
             throw new SuiteManifestException($"Manifest '{source}' is not valid JSON: {ex.Message}", ex);
         }
+    }
+
+    private static bool IsNotManifest(JsonElement root)
+    {
+        if (root.ValueKind != JsonValueKind.Object)
+        {
+            return false;
+        }
+        foreach (var field in ManifestFields)
+        {
+            if (root.TryGetProperty(field, out _))
+            {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static SuiteManifest Read(JsonElement root, string source)
