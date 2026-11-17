@@ -1,5 +1,7 @@
 namespace NetEvolve.Schemas.Xml.Model.Traversal;
 
+using System;
+using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Contracts;
 
 /// <summary>Pumps a document or an element subtree of the model into a sink.</summary>
@@ -27,6 +29,7 @@ public static class XmlTreePump
     /// because neither is an event of the sink contract on its own; they are pumped as part of their element.
     /// </param>
     /// <param name="sink">The sink.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="node"/> is <see langword="default"/> or <paramref name="sink"/> is <see langword="null"/>.</exception>
     public static void Pump(XmlNode node, IXmlSink sink) => Pump(node, ref sink);
 
     /// <summary>Pumps a node and its descendants into a class sink or a mutable struct sink.</summary>
@@ -36,11 +39,20 @@ public static class XmlTreePump
     /// because neither is an event of the sink contract on its own; they are pumped as part of their element.
     /// </param>
     /// <param name="sink">The sink, passed by reference so a struct sink keeps its state.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="node"/> is <see langword="default"/> or <paramref name="sink"/> is a <see langword="null"/> reference.</exception>
     public static void Pump<TSink>(XmlNode node, ref TSink sink)
         where TSink : IXmlSink
     {
+        Argument.ThrowIfNull(node.Tree, nameof(node));
+
+        // A struct sink cannot be null; skipping the check for it keeps the call from boxing.
+        if (!typeof(TSink).IsValueType)
+        {
+            Argument.ThrowIfNull(sink);
+        }
+
         // XmlTree can only be derived inside this assembly, and XmlDocumentTree is its only implementation.
-        var tree = (XmlDocumentTree)node.Tree!;
+        var tree = (XmlDocumentTree)node.Tree;
         var target = sink.Names;
         var root = node.Index;
         var index = root;
