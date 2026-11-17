@@ -48,6 +48,7 @@
     <Project Path="tests/NetEvolve.Schemas.Tests.PublicApi/NetEvolve.Schemas.Tests.PublicApi.csproj" />
     <Project Path="tests/NetEvolve.Schemas.Tests.Unit/NetEvolve.Schemas.Tests.Unit.csproj" />
     <Project Path="tests/NetEvolve.Schemas.Xml.Tests.Unit/NetEvolve.Schemas.Xml.Tests.Unit.csproj" />
+    <Project Path="tests/NetEvolve.Schemas.XPath.Tests.Integration/NetEvolve.Schemas.XPath.Tests.Integration.csproj" />
     <Project Path="tests/NetEvolve.Schemas.XPath.Tests.Unit/NetEvolve.Schemas.XPath.Tests.Unit.csproj" />
     <Project Path="tests/NetEvolve.Schemas.Xsd.Tests.Unit/NetEvolve.Schemas.Xsd.Tests.Unit.csproj" />
   </Folder>

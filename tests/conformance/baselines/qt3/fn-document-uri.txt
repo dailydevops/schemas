@@ -1,0 +1,13 @@
+fn-document-uri/K-DocumentURIFunc-1
+fn-document-uri/K-DocumentURIFunc-2
+fn-document-uri/K-DocumentURIFunc-3
+fn-document-uri/fn-document-uri-12
+fn-document-uri/fn-document-uri-13
+fn-document-uri/fn-document-uri-14
+fn-document-uri/fn-document-uri-15
+fn-document-uri/fn-document-uri-16
+fn-document-uri/fn-document-uri-17
+fn-document-uri/fn-document-uri-18
+fn-document-uri/fn-document-uri-19
+fn-document-uri/fn-document-uri-20
+fn-document-uri/fn-document-uri-21

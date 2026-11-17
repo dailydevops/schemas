@@ -1,0 +1,7 @@
+{
+  "key": "qt3",
+  "url": "https://github.com/w3c/qt3tests/archive/201a6e466940cdfc727f4babfedcde5332b9f578.zip",
+  "sha256": "ba9032e4fa5b71da574e3eab7ff16320b7294f6ba586a5cd060430c55974cf29",
+  "archive": "zip",
+  "subPath": "qt3tests-201a6e466940cdfc727f4babfedcde5332b9f578"
+}

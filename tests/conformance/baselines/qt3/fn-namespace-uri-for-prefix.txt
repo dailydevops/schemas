@@ -1,0 +1,2 @@
+fn-namespace-uri-for-prefix/K-NamespaceURIForPrefixFunc-1
+fn-namespace-uri-for-prefix/K-NamespaceURIForPrefixFunc-2
