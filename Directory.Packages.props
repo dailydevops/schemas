@@ -29,7 +29,8 @@
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="11.0.0" Condition="'$(TargetFramework)' == 'net11.0'" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.15" Condition="'$(TargetFramework)' != 'net11.0'" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="11.0.0" Condition="'$(TargetFramework)' == 'net11.0'" />
-    <PackageVersion Include="NetEvolve.Arguments" Version="4.0.0" />
+    <!-- Pinned to 2.0.17 (#464): from 3.x on, the netstandard builds bind BCL-style guard calls to polyfills that exist only in lib/netstandard2.0 (per-asset mismatch), which crash on net8.0/net9.0, and Argument.ThrowIf* is obsolete in 4.x. Do not bump to >= 3 until upstream resolves this. -->
+    <PackageVersion Include="NetEvolve.Arguments" Version="2.0.17" />
     <PackageVersion Include="NetArchTest.Rules" Version="1.3.2" />
     <PackageVersion Include="PublicApiGenerator" Version="11.5.4" />
     <PackageVersion Include="System.Memory" Version="4.6.3" />
