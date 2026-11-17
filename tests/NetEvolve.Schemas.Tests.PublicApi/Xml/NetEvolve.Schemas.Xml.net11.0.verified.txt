@@ -545,6 +545,16 @@ namespace NetEvolve.Schemas.Xml.Datatypes.Decimals
         public static bool operator >=(NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal left, NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal right) { }
     }
 }
+namespace NetEvolve.Schemas.Xml.Datatypes.Floating
+{
+    public static class XsdFloatingPoint
+    {
+        public static NetEvolve.Schemas.Xml.Datatypes.Contracts.ParseResult<double> ParseDouble(System.ReadOnlySpan<char> lexical, NetEvolve.Schemas.Xml.Datatypes.Contracts.XsdVersion version) { }
+        public static NetEvolve.Schemas.Xml.Datatypes.Contracts.ParseResult<float> ParseSingle(System.ReadOnlySpan<char> lexical, NetEvolve.Schemas.Xml.Datatypes.Contracts.XsdVersion version) { }
+        public static string ToCanonicalString(double value) { }
+        public static string ToCanonicalString(float value) { }
+    }
+}
 namespace NetEvolve.Schemas.Xml.Interop
 {
     public static class XmlInterop
