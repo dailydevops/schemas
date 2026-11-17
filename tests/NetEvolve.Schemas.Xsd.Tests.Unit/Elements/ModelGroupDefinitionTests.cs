@@ -33,14 +33,14 @@ public class ModelGroupDefinitionTests
     }
 
     [Test]
-    [Arguments("sequence", ModelGroupCompositor.Sequence)]
-    [Arguments("choice", ModelGroupCompositor.Choice)]
-    [Arguments("all", ModelGroupCompositor.All)]
-    public async Task GroupDefinition_ReadsEveryCompositor(string tag, ModelGroupCompositor expected)
+    [Arguments("sequence", "Sequence")]
+    [Arguments("choice", "Choice")]
+    [Arguments("all", "All")]
+    public async Task GroupDefinition_ReadsEveryCompositor(string tag, string expected)
     {
         var fixture = ElementFixture.Build("<xs:group name=\"g\"><xs:" + tag + "/></xs:group>");
 
-        await Assert.That(fixture.Group("g").ModelGroup.Compositor).IsEqualTo(expected);
+        await Assert.That(fixture.Group("g").ModelGroup.Compositor.ToString()).IsEqualTo(expected);
     }
 
     [Test]
@@ -103,7 +103,9 @@ public class ModelGroupDefinitionTests
             .Resolve();
 
         await Assert.That(fixture.Issues.Count).IsEqualTo(0);
-        await Assert.That(fixture.Group("first").ModelGroup.Particles[0].Term).IsSameReferenceAs(fixture.Group("later"));
+        await Assert
+            .That(fixture.Group("first").ModelGroup.Particles[0].Term)
+            .IsSameReferenceAs(fixture.Group("later"));
     }
 
     [Test]

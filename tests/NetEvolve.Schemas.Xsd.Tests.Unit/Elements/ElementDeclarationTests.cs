@@ -1,5 +1,6 @@
 namespace NetEvolve.Schemas.Xsd.Tests.Unit.Elements;
 
+using System;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Elements;
 
@@ -53,6 +54,7 @@ public class ElementDeclarationTests
         bool qualified
     )
     {
+        ArgumentNullException.ThrowIfNull(form);
         var formAttribute = form.Length == 0 ? string.Empty : " form=\"" + form + "\"";
         var fixture = ElementFixture
             .Build(
@@ -135,7 +137,8 @@ public class ElementDeclarationTests
         await Assert.That(fixture.Element("b").Block).IsEqualTo(XsdDerivationMethod.None);
         await Assert.That(fixture.Element("b").Final).IsEqualTo(XsdDerivationMethod.None);
         await Assert.That(fixture.Element("c").Block).IsEqualTo(AllBlock);
-        await Assert.That(fixture.Element("c").Final)
+        await Assert
+            .That(fixture.Element("c").Final)
             .IsEqualTo(XsdDerivationMethod.Extension | XsdDerivationMethod.Restriction);
     }
 

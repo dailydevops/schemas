@@ -52,11 +52,11 @@ internal sealed class ElementFixture
         for (var i = 0; i < root.ChildCount; i++)
         {
             var child = root.GetChildNode(i);
-            if (child.Name.LocalName == "element")
+            if (string.Equals(child.Name.LocalName, "element", StringComparison.Ordinal))
             {
                 _ = elements.Build(child, registry, reporter);
             }
-            else if (child.Name.LocalName == "group")
+            else if (string.Equals(child.Name.LocalName, "group", StringComparison.Ordinal))
             {
                 _ = groups.Build(child, registry, reporter);
             }
@@ -71,7 +71,8 @@ internal sealed class ElementFixture
         return this;
     }
 
-    public ElementDeclaration Element(string local) => Get<ElementDeclaration>(XsdComponentKind.ElementDeclaration, local);
+    public ElementDeclaration Element(string local) =>
+        Get<ElementDeclaration>(XsdComponentKind.ElementDeclaration, local);
 
     public ModelGroupDefinition Group(string local) =>
         Get<ModelGroupDefinition>(XsdComponentKind.ModelGroupDefinition, local);
