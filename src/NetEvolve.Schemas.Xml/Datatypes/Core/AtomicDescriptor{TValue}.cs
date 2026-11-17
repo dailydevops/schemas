@@ -51,23 +51,34 @@ public sealed class AtomicDescriptor<TValue> : IDatatypeDescriptor<TValue>
         LexicalMode = baseType.LexicalMode;
         _mapping = baseType._mapping;
         Whitespace = whitespace ?? baseType.Whitespace;
+        Facets = Combine(baseType.Facets, facets, out _hasValueFacets);
+    }
 
-        var all = new IFacet[baseType.Facets.Count + facets.Count];
-        for (var i = 0; i < baseType.Facets.Count; i++)
-        {
-            all[i] = baseType.Facets[i];
-        }
-
-        for (var i = 0; i < facets.Count; i++)
-        {
-            all[baseType.Facets.Count + i] = facets[i];
-        }
-
-        Facets = all;
-        for (var i = 0; i < all.Length; i++)
-        {
-            _hasValueFacets |= all[i] is IValueFacet<TValue>;
-        }
+    /// <summary>Initializes a restriction of an atomic type whose value type differs from the value type of this descriptor, for example integer on <see cref="System.Numerics.BigInteger"/> derived from decimal.</summary>
+    /// <param name="name">The name of the type.</param>
+    /// <param name="baseType">The restricted type; its version and facets are inherited, its mapping is not.</param>
+    /// <param name="mapping">The lexical mapping of this type.</param>
+    /// <param name="whitespace">The whitespace mode, <see langword="null"/> to take the mode of <paramref name="mapping"/>.</param>
+    /// <param name="facets">The facets added by the restriction, after the inherited ones.</param>
+    /// <remarks>Limitation: the inherited facets are carried over as listed; value facets of another value type are never applied.</remarks>
+    public AtomicDescriptor(
+        string name,
+        IDatatypeDescriptor baseType,
+        ILexicalMapping<TValue> mapping,
+        WhitespaceMode? whitespace,
+        IReadOnlyList<IFacet> facets
+    )
+    {
+        Argument.ThrowIfNull(name);
+        Argument.ThrowIfNull(baseType);
+        Argument.ThrowIfNull(mapping);
+        Argument.ThrowIfNull(facets);
+        Name = name;
+        BaseType = baseType;
+        LexicalMode = baseType.LexicalMode;
+        _mapping = mapping;
+        Whitespace = whitespace ?? mapping.Whitespace;
+        Facets = Combine(baseType.Facets, facets, out _hasValueFacets);
     }
 
     /// <inheritdoc />
@@ -116,6 +127,32 @@ public sealed class AtomicDescriptor<TValue> : IDatatypeDescriptor<TValue>
 
     /// <inheritdoc />
     public bool IsIdentical(in TValue a, in TValue b) => _mapping.IsIdentical(in a, in b, LexicalMode);
+
+    private static IFacet[] Combine(
+        IReadOnlyList<IFacet> inherited,
+        IReadOnlyList<IFacet> added,
+        out bool hasValueFacets
+    )
+    {
+        var all = new IFacet[inherited.Count + added.Count];
+        for (var i = 0; i < inherited.Count; i++)
+        {
+            all[i] = inherited[i];
+        }
+
+        for (var i = 0; i < added.Count; i++)
+        {
+            all[inherited.Count + i] = added[i];
+        }
+
+        hasValueFacets = false;
+        for (var i = 0; i < all.Length; i++)
+        {
+            hasValueFacets |= all[i] is IValueFacet<TValue>;
+        }
+
+        return all;
+    }
 
     private DatatypeError Evaluate(
         ReadOnlySpan<char> lexical,
