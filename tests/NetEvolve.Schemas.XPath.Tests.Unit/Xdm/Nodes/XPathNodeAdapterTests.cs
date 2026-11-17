@@ -47,6 +47,9 @@ public class XPathNodeAdapterTests
         return b.Complete();
     }
 
+    private static string? SpanText(XPathNode node) =>
+        node.TryGetStringValueSpan(out var span) ? span.ToString() : null;
+
     private static List<XPathNode> Children(XPathNode node)
     {
         var list = new List<XPathNode>();
@@ -146,14 +149,10 @@ public class XPathNodeAdapterTests
         var kids = Children(a);
 
         await Assert.That(a.TryGetStringValueSpan(out _)).IsFalse();
-        await Assert.That(a.FirstAttribute().TryGetStringValueSpan(out var attribute)).IsTrue();
-        await Assert.That(attribute.ToString()).IsEqualTo("1");
-        await Assert.That(kids[1].TryGetStringValueSpan(out var comment)).IsTrue();
-        await Assert.That(comment.ToString()).IsEqualTo("c");
-        await Assert.That(kids[2].TryGetStringValueSpan(out var pi)).IsTrue();
-        await Assert.That(pi.ToString()).IsEqualTo("d");
-        await Assert.That(kids[0].FirstChild().TryGetStringValueSpan(out var text)).IsTrue();
-        await Assert.That(text.ToString()).IsEqualTo("t1");
+        await Assert.That(SpanText(a.FirstAttribute())).IsEqualTo("1");
+        await Assert.That(SpanText(kids[1])).IsEqualTo("c");
+        await Assert.That(SpanText(kids[2])).IsEqualTo("d");
+        await Assert.That(SpanText(kids[0].FirstChild())).IsEqualTo("t1");
     }
 
     [Test]
@@ -184,7 +183,9 @@ public class XPathNodeAdapterTests
         var a = Children(new XPathNode(Build().Document))[0];
         var kids = Children(a);
 
-        foreach (var node in new[] { a, a.FirstAttribute(), kids[0].FirstChild(), new XPathNode(a.Node.Tree!.Document) })
+        foreach (
+            var node in new[] { a, a.FirstAttribute(), kids[0].FirstChild(), new XPathNode(a.Node.Tree!.Document) }
+        )
         {
             var item = node.TypedValue();
             await Assert.That(item.Kind).IsEqualTo(XdmItemKind.UntypedAtomic);
@@ -210,9 +211,9 @@ public class XPathNodeAdapterTests
         var id = a.FirstAttribute();
         var source = new FakeAnnotations(id, XdmTypeId.XsInteger, XdmItem.FromInteger(1));
 
-        await Assert.That(id.TypeAnnotation(source)).IsEqualTo(XdmTypeId.XsInteger);
+        await Assert.That(id.GetTypeAnnotation(source)).IsEqualTo(XdmTypeId.XsInteger);
         await Assert.That(id.TypedValue(source)).IsEqualTo(XdmItem.FromInteger(1));
-        await Assert.That(a.TypeAnnotation(source)).IsEqualTo(XdmTypeId.Untyped);
+        await Assert.That(a.GetTypeAnnotation(source)).IsEqualTo(XdmTypeId.Untyped);
         await Assert.That(a.TypedValue(source).Kind).IsEqualTo(XdmItemKind.UntypedAtomic);
     }
 
