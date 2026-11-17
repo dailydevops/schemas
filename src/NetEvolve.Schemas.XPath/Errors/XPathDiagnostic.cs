@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.XPath.Errors;
 
 using System;
 using System.Runtime.InteropServices;
+using NetEvolve.Arguments;
 
 /// <summary>An XPath error as a code with its kind, message, and expression location. Immutable.</summary>
 [StructLayout(LayoutKind.Auto)]
@@ -19,19 +20,13 @@ public readonly struct XPathDiagnostic : IEquatable<XPathDiagnostic>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> is below -1 or <paramref name="length"/> is negative.</exception>
     public XPathDiagnostic(XPathErrorCode qname, XPathErrorKind kind, string message, int offset, int length)
     {
-        if (offset < -1)
-        {
-            throw new ArgumentOutOfRangeException(nameof(offset), offset, "The offset must be -1 or greater.");
-        }
-
-        if (length < 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(length), length, "The length must not be negative.");
-        }
+        Argument.ThrowIfLessThan(offset, -1);
+        Argument.ThrowIfLessThan(length, 0);
+        Argument.ThrowIfNull(message);
 
         QName = qname;
         Kind = kind;
-        _message = message ?? throw new ArgumentNullException(nameof(message));
+        _message = message;
         Offset = offset;
         Length = length;
     }

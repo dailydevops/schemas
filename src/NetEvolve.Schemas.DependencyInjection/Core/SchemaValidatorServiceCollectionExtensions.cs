@@ -58,10 +58,12 @@ public static class SchemaValidatorServiceCollectionExtensions
         // Explicit check (#111 DP-5, issue #125 decision): no Argument.ThrowIf* guard takes an object, ThrowIfEqual<T> needs IEquatable<T>.
         if (ReferenceEquals(serviceKey, KeyedService.AnyKey))
         {
+#pragma warning disable RS0030 // #125 DP-5 explicit AnyKey check: no Argument.ThrowIf equivalent for an object sentinel (decision recorded on #125)
             throw new ArgumentException(
                 "KeyedService.AnyKey is a resolution wildcard, not a registrable key.",
                 nameof(serviceKey)
             );
+#pragma warning restore RS0030
         }
 
         services.TryAddKeyedSingleton(serviceKey, factory);
