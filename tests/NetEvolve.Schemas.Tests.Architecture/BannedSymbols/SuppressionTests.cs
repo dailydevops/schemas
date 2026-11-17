@@ -16,10 +16,10 @@ public class SuppressionTests
     }
 
     [Test]
-    public async Task Src_ContainsNoRS0030PragmaSuppression(CancellationToken cancellationToken)
+    public async Task Src_RS0030Suppression_IsLimitedToTheAnyKeyGuard(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        var offenders = new List<string>();
+        var occurrences = new List<string>();
         foreach (
             var file in Directory.EnumerateFiles(
                 Path.Combine(ProbeBuild.RepositoryRoot, "src"),
@@ -29,12 +29,20 @@ public class SuppressionTests
         )
         {
             var text = await File.ReadAllTextAsync(file, cancellationToken).ConfigureAwait(false);
-            if (text.Contains("RS0030", StringComparison.Ordinal))
+            var index = 0;
+            while ((index = text.IndexOf("RS0030", index, StringComparison.Ordinal)) >= 0)
             {
-                offenders.Add(file);
+                occurrences.Add(Path.GetFileName(file));
+                index += 6;
             }
         }
 
-        await Assert.That(offenders).IsEmpty();
+        // One pragma disable and one restore, only around the explicit AnyKey check (decision recorded on #125).
+        await Assert
+            .That(occurrences)
+            .IsEquivalentTo([
+                "SchemaValidatorServiceCollectionExtensions.cs",
+                "SchemaValidatorServiceCollectionExtensions.cs",
+            ]);
     }
 }
