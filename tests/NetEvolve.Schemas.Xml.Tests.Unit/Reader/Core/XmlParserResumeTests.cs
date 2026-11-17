@@ -154,8 +154,4 @@ public class XmlParserResumeTests
         await Assert.That(status).IsEqualTo(XmlReadStatus.Completed);
         await Assert.That(sink.Count).IsEqualTo(7);
     }
-
-    [Test]
-    public async Task Constructor_NullLimits_Throws() =>
-        await Assert.That(() => new XmlParser(null!)).Throws<ArgumentNullException>();
 }

@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xml.Reader.Core;
 
 using System;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Buffers;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Limits;
@@ -57,15 +56,12 @@ internal sealed partial class XmlParser : IXmlReader, IDisposable
     /// <param name="limits">The limits.</param>
     /// <param name="doctypeHandler">The doctype seam, or <see langword="null"/> to reject a document type declaration.</param>
     /// <param name="entityStack">The entity input stack seam, or <see langword="null"/> to reject other entity references.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="limits"/> is <see langword="null"/>.</exception>
     internal XmlParser(
         XmlReaderLimits limits,
         IXmlDoctypeHandler? doctypeHandler = null,
         IXmlEntityInputStack? entityStack = null
     )
     {
-        Argument.ThrowIfNull(limits);
-
         _limits = limits;
         _doctypeHandler = doctypeHandler;
         _entityStack = entityStack;
