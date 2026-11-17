@@ -1,5 +1,6 @@
 ﻿namespace NetEvolve.Schemas.Xsd.Tests.Unit.Substitution;
 
+using System;
 using System.Collections.Generic;
 using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Xsd.Contracts;
@@ -149,5 +150,34 @@ public class SubstitutionGroupTests
 
         await Assert.That(Names(groups.GetMembers(head))).IsEqualTo("head,member");
         await Assert.That(Names(groups.GetInstanceElements(head))).IsEqualTo("member");
+    }
+
+    [Test]
+    public async Task LeadsIntoCycle_IsNotAMember_AndOnlyTheCycleIsReported()
+    {
+        var a = new FakeElement("a", Base);
+        var b = new FakeElement("b", Base, a);
+        a.SubstitutionGroup = b;
+        var tail = new FakeElement("tail", Base, a);
+
+        var (groups, issues) = Build(a, b, tail);
+
+        await Assert.That(issues.Count).IsEqualTo(2);
+        await Assert.That(Names(groups.GetMembers(a))).IsEqualTo("a");
+    }
+
+    [Test]
+    public async Task Guards_NullArguments_Throw()
+    {
+        var collector = new ValidationIssueCollector(ValidationLimits.Default);
+        var reporter = new XsdIssueReporter(collector);
+        var check = new ChainDerivationCheck();
+        var groups = SubstitutionGroups.Build([], check, reporter);
+
+        await Assert.That(() => SubstitutionGroups.Build(null!, check, reporter)).Throws<ArgumentNullException>();
+        await Assert.That(() => SubstitutionGroups.Build([], null!, reporter)).Throws<ArgumentNullException>();
+        await Assert.That(() => SubstitutionGroups.Build([], check, null!)).Throws<ArgumentNullException>();
+        await Assert.That(() => groups.GetMembers(null!)).Throws<ArgumentNullException>();
+        await Assert.That(() => groups.GetInstanceElements(null!)).Throws<ArgumentNullException>();
     }
 }
