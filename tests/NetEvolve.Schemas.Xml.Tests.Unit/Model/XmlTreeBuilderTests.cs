@@ -316,6 +316,36 @@ public class XmlTreeBuilderTests
     }
 
     [Test]
+    public async Task BaseUri_RootedPathXmlBase_ResolvesAgainstDocumentUriOnEveryPlatform()
+    {
+        using var b = new XmlTreeBuilder(documentUri: new Uri("http://example.org/a/b.xml"));
+        b.StartDocument(new XmlDeclaration("1.0", "", null));
+        var xmlBase = Name(b, "base", "xml", XmlNs);
+        var r = Name(b, "r");
+        b.StartElement(r, default);
+        b.Attribute(xmlBase, "/dir/");
+        b.EndAttributes();
+        b.EndElement(r);
+        b.EndDocument();
+        var tree = b.Complete();
+
+        await Assert.That(tree.Document.FirstChild.BaseUri).IsEqualTo(new Uri("http://example.org/dir/"));
+    }
+
+    [Test]
+    public async Task Complete_AfterFailure_BuilderStaysUsableAfterNewDocument()
+    {
+        using var b = new XmlTreeBuilder();
+        await Assert.That(() => b.Complete()).Throws<InvalidOperationException>();
+
+        b.StartDocument(new XmlDeclaration("1.0", "", null));
+        Element(b, "a");
+        b.EndDocument();
+
+        await Assert.That(b.Complete().Document.FirstChild.Kind).IsEqualTo(XmlNodeKind.Element);
+    }
+
+    [Test]
     public async Task BaseUri_WithoutDocumentUri_IsNull()
     {
         var tree = BuildSample();
