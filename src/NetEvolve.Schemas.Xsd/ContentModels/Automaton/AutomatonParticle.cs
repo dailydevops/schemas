@@ -99,7 +99,7 @@ internal sealed class AutomatonParticle
     /// <returns>The particle.</returns>
     public static AutomatonParticle Sequence(long minOccurs, long maxOccurs, params AutomatonParticle[] children)
     {
-        Argument.ThrowIfNull(children);
+        ThrowIfAnyNull(children);
 
         return new AutomatonParticle(AutomatonParticleKind.Sequence, minOccurs, maxOccurs, null, null, children);
     }
@@ -111,8 +111,17 @@ internal sealed class AutomatonParticle
     /// <returns>The particle.</returns>
     public static AutomatonParticle Choice(long minOccurs, long maxOccurs, params AutomatonParticle[] children)
     {
-        Argument.ThrowIfNull(children);
+        ThrowIfAnyNull(children);
 
         return new AutomatonParticle(AutomatonParticleKind.Choice, minOccurs, maxOccurs, null, null, children);
+    }
+
+    private static void ThrowIfAnyNull(AutomatonParticle[] children)
+    {
+        Argument.ThrowIfNull(children);
+        foreach (var child in children)
+        {
+            Argument.ThrowIfNull(child);
+        }
     }
 }

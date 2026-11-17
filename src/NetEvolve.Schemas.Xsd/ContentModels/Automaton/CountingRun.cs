@@ -14,7 +14,9 @@ using NetEvolve.Schemas.Xsd.Contracts;
 /// <para>
 /// Limitations: the set holds at most <see cref="MaxConfigurations"/> configurations, an internal, non-configurable
 /// ceiling over the counted nesting. A step that would exceed it is rejected and sets <see cref="CeilingExceeded"/>;
-/// the validator (XSD-13) reports it. The seam <see cref="IContentModelMatcher"/> carries no counters
+/// the validator (XSD-13) reports it. The check runs before a candidate's guards and de-duplication, so a set of exactly
+/// <see cref="MaxConfigurations"/> configurations can be flagged by a candidate that would have been dropped
+/// (conservative). The seam <see cref="IContentModelMatcher"/> carries no counters
 /// (<see cref="ContentModelState"/> is a position and an offset), so this run is the matcher until the validator
 /// decides between this overload and a change of the seam (design #146 DP-7 gap 2). The overloads taking an
 /// <see cref="XPathQName"/> reach wildcards; the one with only the id never matches a wildcard.

@@ -15,7 +15,7 @@ public class CountingAutomatonDifferentialTests
     public async Task RandomModels_AgreeWithTheUnfoldedReference()
     {
         var random = new Lcg(236);
-        var mismatches = 0;
+        var mismatches = new List<string>();
         for (var model = 0; model < 80; model++)
         {
             var next = 1;
@@ -26,12 +26,12 @@ public class CountingAutomatonDifferentialTests
                 var expected = Reference(particle, input, 0).Contains(input.Length);
                 if (Accepts(automaton, input) != expected)
                 {
-                    mismatches++;
+                    mismatches.Add($"model {model} (seed 236), input [{string.Join(",", input)}]");
                 }
             }
         }
 
-        await Assert.That(mismatches).IsEqualTo(0);
+        await Assert.That(mismatches).IsEmpty();
     }
 
     private static AutomatonParticle Generate(Lcg random, int depth, ref int nextName)
