@@ -720,6 +720,42 @@ namespace NetEvolve.Schemas.Xml.Regex.Matching
         public static NetEvolve.Schemas.Xml.Regex.Contracts.RegexError TryCompile(System.ReadOnlySpan<NetEvolve.Schemas.Xml.Regex.Contracts.RegexNode> nodes, int root, System.ReadOnlySpan<NetEvolve.Schemas.Xml.Regex.Matching.RegexCharacterSet> sets, NetEvolve.Schemas.Xml.Regex.Contracts.RegexDialect dialect, out NetEvolve.Schemas.Xml.Regex.Matching.RegexProgram? program) { }
     }
 }
+namespace NetEvolve.Schemas.Xml.Regex.Parsing
+{
+    public sealed class RegexLimits
+    {
+        public int MaxNesting { get; }
+        public int MaxPatternLength { get; }
+        public static NetEvolve.Schemas.Xml.Regex.Parsing.RegexLimits Default { get; }
+        public NetEvolve.Schemas.Xml.Regex.Parsing.RegexLimits WithMaxNesting(int value) { }
+        public NetEvolve.Schemas.Xml.Regex.Parsing.RegexLimits WithMaxPatternLength(int value) { }
+    }
+    public readonly struct RegexParseResult : System.IEquatable<NetEvolve.Schemas.Xml.Regex.Parsing.RegexParseResult>
+    {
+        public NetEvolve.Schemas.Xml.Regex.Contracts.RegexError Error { get; }
+        public int Position { get; }
+        public bool Succeeded { get; }
+        public NetEvolve.Schemas.Xml.Regex.Parsing.RegexTree? Tree { get; }
+    }
+    public static class RegexParser
+    {
+        public static NetEvolve.Schemas.Xml.Regex.Parsing.RegexParseResult Parse(System.ReadOnlySpan<char> pattern, NetEvolve.Schemas.Xml.Regex.Parsing.RegexSyntax syntax) { }
+        public static NetEvolve.Schemas.Xml.Regex.Parsing.RegexParseResult Parse(System.ReadOnlySpan<char> pattern, NetEvolve.Schemas.Xml.Regex.Parsing.RegexSyntax syntax, NetEvolve.Schemas.Xml.Regex.Parsing.RegexLimits limits) { }
+    }
+    public readonly struct RegexSyntax : System.IEquatable<NetEvolve.Schemas.Xml.Regex.Parsing.RegexSyntax>
+    {
+        public RegexSyntax(NetEvolve.Schemas.Xml.Regex.Contracts.RegexDialect dialect, NetEvolve.Schemas.Xml.Text.CharClasses.NameEdition names) { }
+        public NetEvolve.Schemas.Xml.Regex.Contracts.RegexDialect Dialect { get; }
+        public NetEvolve.Schemas.Xml.Text.CharClasses.NameEdition Names { get; }
+    }
+    public sealed class RegexTree
+    {
+        public System.ReadOnlySpan<NetEvolve.Schemas.Xml.Regex.Contracts.RegexNode> Nodes { get; }
+        public int Root { get; }
+        public int SetCount { get; }
+        public NetEvolve.Schemas.Xml.Regex.Matching.RegexCharacterSet GetSet(int index) { }
+    }
+}
 namespace NetEvolve.Schemas.Xml.Writer
 {
     public sealed class XmlWriteException : System.Exception
