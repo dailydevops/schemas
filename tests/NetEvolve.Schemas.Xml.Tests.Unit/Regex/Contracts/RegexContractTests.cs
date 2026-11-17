@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Xml.Tests.Unit.Regex.Contracts;
+﻿namespace NetEvolve.Schemas.Xml.Tests.Unit.Regex.Contracts;
 
 using System;
 using System.Collections.Generic;
@@ -86,6 +86,7 @@ public class RegexContractTests
         await Assert.That(() => RegexNode.Repeat(1, 3, 2, false)).Throws<ArgumentOutOfRangeException>();
         await Assert.That(() => RegexNode.Set(-1)).Throws<ArgumentOutOfRangeException>();
         await Assert.That(() => RegexNode.BackReference(0)).Throws<ArgumentOutOfRangeException>();
+        await Assert.That(() => RegexNode.Group(-5, 1)).Throws<ArgumentOutOfRangeException>();
         await Assert.That(() => RegexNode.Group(1, -2)).Throws<ArgumentOutOfRangeException>();
         await Assert.That(() => RegexNode.Concat(-2)).Throws<ArgumentOutOfRangeException>();
         await Assert.That(() => RegexNode.Empty().WithNextSibling(-2)).Throws<ArgumentOutOfRangeException>();

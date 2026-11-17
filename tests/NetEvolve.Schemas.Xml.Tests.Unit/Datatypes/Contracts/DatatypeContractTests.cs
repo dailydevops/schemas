@@ -96,6 +96,13 @@ public class DatatypeContractTests
     }
 
     [Test]
+    public async Task DefaultResults_AreNeverValid()
+    {
+        await Assert.That(default(ValidationResult).IsValid).IsFalse();
+        await Assert.That(default(ParseResult<int>).Success).IsFalse();
+    }
+
+    [Test]
     public async Task ValidationResult_Invalid_RejectsANegativeOffset() =>
         await Assert
             .That(() => ValidationResult.Invalid(DatatypeError.InvalidCharacter, FacetKind.None, -1))
