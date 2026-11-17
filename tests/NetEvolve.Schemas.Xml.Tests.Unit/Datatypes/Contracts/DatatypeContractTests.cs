@@ -45,10 +45,13 @@ public class DatatypeContractTests
     {
         await Assert.That(Enum.GetName((DatatypeError)0)).IsEqualTo("None");
         await Assert.That(Enum.GetName((DatatypeError)1)).IsEqualTo("InvalidLexicalForm");
+        await Assert.That(Enum.GetName((DatatypeError)2)).IsEqualTo("FacetViolation");
+        await Assert.That(Enum.GetName((DatatypeError)3)).IsEqualTo("InvalidListItem");
+        await Assert.That(Enum.GetName((DatatypeError)4)).IsEqualTo("NoUnionMember");
         await Assert.That(Enum.GetName((DatatypeError)10)).IsEqualTo("DigitCap");
         await Assert.That(Enum.GetName((DatatypeError)11)).IsEqualTo("YearOrComponentCap");
         await Assert.That(Enum.GetName((DatatypeError)13)).IsEqualTo("InvalidCharacter");
-        await Assert.That(Enum.GetValues<DatatypeError>().Length).IsEqualTo(5);
+        await Assert.That(Enum.GetValues<DatatypeError>().Length).IsEqualTo(8);
     }
 
     [Test]

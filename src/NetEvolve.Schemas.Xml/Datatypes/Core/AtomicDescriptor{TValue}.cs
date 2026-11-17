@@ -1,0 +1,172 @@
+namespace NetEvolve.Schemas.Xml.Datatypes.Core;
+
+using System;
+using System.Collections.Generic;
+using NetEvolve.Arguments;
+using NetEvolve.Schemas.Xml.Datatypes.Contracts;
+
+/// <summary>
+/// An atomic datatype: a primitive built from an <see cref="ILexicalMapping{TValue}"/>, or a restriction of another atomic
+/// type that adds facets and may replace the whitespace mode. The pipeline is whitespace, lexical check, value mapping, facets.
+/// </summary>
+/// <typeparam name="TValue">The value type, always a non-ref struct.</typeparam>
+/// <remarks>Limitation: a restriction may set any whitespace mode; the rule that it can only strengthen the base mode is not checked.</remarks>
+public sealed class AtomicDescriptor<TValue> : IDatatypeDescriptor<TValue>
+{
+    private readonly ILexicalMapping<TValue> _mapping;
+    private readonly bool _hasValueFacets;
+
+    /// <summary>Initializes a primitive type.</summary>
+    /// <param name="name">The name of the type.</param>
+    /// <param name="lexicalMode">The XSD version whose rules apply.</param>
+    /// <param name="mapping">The lexical mapping.</param>
+    public AtomicDescriptor(string name, XsdVersion lexicalMode, ILexicalMapping<TValue> mapping)
+    {
+        Argument.ThrowIfNull(name);
+        Argument.ThrowIfNull(mapping);
+        Name = name;
+        LexicalMode = lexicalMode;
+        _mapping = mapping;
+        Whitespace = mapping.Whitespace;
+        Facets = [];
+    }
+
+    /// <summary>Initializes a restriction of an atomic type.</summary>
+    /// <param name="name">The name of the type.</param>
+    /// <param name="baseType">The restricted type; its mapping, version, and facets are inherited.</param>
+    /// <param name="whitespace">The whitespace mode, <see langword="null"/> to inherit it.</param>
+    /// <param name="facets">The facets added by the restriction, after the inherited ones.</param>
+    public AtomicDescriptor(
+        string name,
+        AtomicDescriptor<TValue> baseType,
+        WhitespaceMode? whitespace,
+        IReadOnlyList<IFacet> facets
+    )
+    {
+        Argument.ThrowIfNull(name);
+        Argument.ThrowIfNull(baseType);
+        Argument.ThrowIfNull(facets);
+        Name = name;
+        BaseType = baseType;
+        LexicalMode = baseType.LexicalMode;
+        _mapping = baseType._mapping;
+        Whitespace = whitespace ?? baseType.Whitespace;
+
+        var all = new IFacet[baseType.Facets.Count + facets.Count];
+        for (var i = 0; i < baseType.Facets.Count; i++)
+        {
+            all[i] = baseType.Facets[i];
+        }
+
+        for (var i = 0; i < facets.Count; i++)
+        {
+            all[baseType.Facets.Count + i] = facets[i];
+        }
+
+        Facets = all;
+        for (var i = 0; i < all.Length; i++)
+        {
+            _hasValueFacets |= all[i] is IValueFacet<TValue>;
+        }
+    }
+
+    /// <inheritdoc />
+    public string Name { get; }
+
+    /// <inheritdoc />
+    public DatatypeVariety Variety => DatatypeVariety.Atomic;
+
+    /// <inheritdoc />
+    public IDatatypeDescriptor? BaseType { get; }
+
+    /// <inheritdoc />
+    public XsdVersion LexicalMode { get; }
+
+    /// <inheritdoc />
+    public bool IsOrdered => _mapping.IsOrdered;
+
+    /// <inheritdoc />
+    public IReadOnlyList<IFacet> Facets { get; }
+
+    /// <summary>Gets the whitespace mode applied before the lexical check.</summary>
+    public WhitespaceMode Whitespace { get; }
+
+    /// <inheritdoc />
+    public ParseResult<TValue> Parse(ReadOnlySpan<char> lexical)
+    {
+        var error = Evaluate(lexical, true, out var value, out _, out var offset);
+        return error == DatatypeError.None ? new ParseResult<TValue>(value) : new ParseResult<TValue>(error, offset);
+    }
+
+    /// <inheritdoc />
+    public ValidationResult Validate(ReadOnlySpan<char> lexical)
+    {
+        var error = Evaluate(lexical, false, out _, out var facet, out var offset);
+        return error == DatatypeError.None
+            ? ValidationResult.Valid
+            : ValidationResult.Invalid(
+                error == DatatypeError.FacetViolation ? DatatypeError.None : error,
+                facet,
+                offset
+            );
+    }
+
+    /// <inheritdoc />
+    public XsdOrder Compare(in TValue a, in TValue b) => _mapping.Compare(in a, in b, LexicalMode);
+
+    /// <inheritdoc />
+    public bool IsIdentical(in TValue a, in TValue b) => _mapping.IsIdentical(in a, in b, LexicalMode);
+
+    private DatatypeError Evaluate(
+        ReadOnlySpan<char> lexical,
+        bool wantValue,
+        out TValue value,
+        out FacetKind failedFacet,
+        out int offset
+    )
+    {
+        value = default!;
+        failedFacet = FacetKind.None;
+        offset = 0;
+
+        var normalized = WhitespaceNormalizer.Apply(lexical, Whitespace, out var rented);
+        try
+        {
+            var error = _mapping.Check(normalized, LexicalMode, out var normalizedOffset);
+            if (error != DatatypeError.None)
+            {
+                offset = WhitespaceNormalizer.ToSourceOffset(lexical, Whitespace, normalizedOffset);
+                return error;
+            }
+
+            // Facets in the fixed order of the design: lexical facets first, then the value-space facets.
+            for (var i = 0; i < Facets.Count; i++)
+            {
+                if (Facets[i] is ILexicalFacet lexicalFacet && !lexicalFacet.IsSatisfiedBy(normalized))
+                {
+                    failedFacet = lexicalFacet.Kind;
+                    return DatatypeError.FacetViolation;
+                }
+            }
+
+            if (wantValue || _hasValueFacets)
+            {
+                value = _mapping.Map(normalized, LexicalMode);
+                for (var i = 0; i < Facets.Count; i++)
+                {
+                    if (Facets[i] is IValueFacet<TValue> valueFacet && !valueFacet.IsSatisfiedBy(in value))
+                    {
+                        failedFacet = valueFacet.Kind;
+                        return DatatypeError.FacetViolation;
+                    }
+                }
+            }
+
+            return DatatypeError.None;
+        }
+        finally
+        {
+            rented?.Dispose();
+        }
+    }
+}
