@@ -110,6 +110,18 @@ public class SchemaErrorTests
         "src-simple-type"
     )]
     [Arguments(Open + "  <xs:complexType name=\"c\">^<xs:assert/></xs:complexType>", "src-ct")]
+    [Arguments(
+        Open
+            + "  <xs:simpleType name=\"t\"><xs:restriction base=\"xs:int\">^<xs:assertion/></xs:restriction></xs:simpleType>",
+        "src-simple-type"
+    )]
+    // assert is the complex type assertion, not a facet; assertion is the facet, not a complex type child.
+    [Arguments(
+        Open
+            + "  <xs:simpleType name=\"t\"><xs:restriction base=\"xs:int\">^<xs:assert test=\"$value gt 0\"/></xs:restriction></xs:simpleType>",
+        "src-simple-type"
+    )]
+    [Arguments(Open + "  <xs:complexType name=\"c\">^<xs:assertion test=\"1\"/></xs:complexType>", "src-ct")]
     // Either or both of an attribute and a simpleType child.
     [Arguments(
         Open + "  <xs:simpleType name=\"t\">^<xs:restriction/></xs:simpleType>",

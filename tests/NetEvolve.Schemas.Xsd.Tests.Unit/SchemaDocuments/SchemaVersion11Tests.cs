@@ -22,9 +22,27 @@ public class SchemaVersion11Tests
     )]
     [Arguments(
         Open
-            + "  <xs:simpleType name=\"t\"><xs:restriction base=\"xs:int\">^<xs:assert test=\"$value gt 0\"/></xs:restriction></xs:simpleType>",
-        "simpleType/restriction/assert",
+            + "  <xs:simpleType name=\"t\"><xs:restriction base=\"xs:int\">^<xs:assertion id=\"i\" test=\"$value gt 0\" xpathDefaultNamespace=\"##local\"/></xs:restriction></xs:simpleType>",
+        "simpleType/restriction/assertion",
+        "id=i;test=$value gt 0;xpathDefaultNamespace=##local"
+    )]
+    [Arguments(
+        Open
+            + "  <xs:complexType name=\"c\"><xs:simpleContent><xs:restriction base=\"b\"><xs:assertion test=\"$value gt 0\"/>^<xs:assert test=\"1\"/></xs:restriction></xs:simpleContent></xs:complexType>",
+        "complexType/simpleContent/restriction/assert",
+        "test=1"
+    )]
+    [Arguments(
+        Open
+            + "  <xs:complexType name=\"c\"><xs:simpleContent><xs:restriction base=\"b\">^<xs:assertion test=\"$value gt 0\"/></xs:restriction></xs:simpleContent></xs:complexType>",
+        "complexType/simpleContent/restriction/assertion",
         "test=$value gt 0"
+    )]
+    [Arguments(
+        Open
+            + "  <xs:complexType name=\"c\"><xs:simpleContent><xs:extension base=\"b\">^<xs:assert test=\"1\"/></xs:extension></xs:simpleContent></xs:complexType>",
+        "complexType/simpleContent/extension/assert",
+        "test=1"
     )]
     [Arguments(
         Open
