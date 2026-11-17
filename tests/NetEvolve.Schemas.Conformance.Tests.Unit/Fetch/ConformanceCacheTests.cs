@@ -1,21 +1,23 @@
 #if NET10_0_OR_GREATER
-using NetEvolve.Schemas.Conformance.Fetch;
-
 namespace NetEvolve.Schemas.Conformance.Tests.Unit.Fetch;
+
+using NetEvolve.Schemas.Conformance.Fetch;
 
 public class ConformanceCacheTests
 {
     [Test]
-    public async Task ResolveRoot_OverrideValue_Wins()
+    public async Task ResolveRoot_OverrideValue_Wins(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         using var temp = new TempDirectory();
 
         await Assert.That(ConformanceCache.ResolveRoot(temp.Path)).IsEqualTo(temp.Path);
     }
 
     [Test]
-    public async Task ResolveRoot_WithoutOverride_UsesArtifactsFolderInRepository()
+    public async Task ResolveRoot_WithoutOverride_UsesArtifactsFolderInRepository(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var root = ConformanceCache.ResolveRoot(null);
         var repository = Path.GetDirectoryName(Path.GetDirectoryName(root))!;
 
@@ -24,8 +26,9 @@ public class ConformanceCacheTests
     }
 
     [Test]
-    public async Task ResolveRoot_Default_ReadsEnvironmentVariable()
+    public async Task ResolveRoot_Default_ReadsEnvironmentVariable(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var previous = Environment.GetEnvironmentVariable(ConformanceCache.EnvironmentVariable);
         using var temp = new TempDirectory();
         try

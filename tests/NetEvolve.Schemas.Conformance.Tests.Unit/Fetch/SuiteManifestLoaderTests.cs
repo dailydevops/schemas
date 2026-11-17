@@ -1,7 +1,7 @@
 #if NET10_0_OR_GREATER
-using NetEvolve.Schemas.Conformance.Manifest;
-
 namespace NetEvolve.Schemas.Conformance.Tests.Unit.Fetch;
+
+using NetEvolve.Schemas.Conformance.Manifest;
 
 public class SuiteManifestLoaderTests
 {
@@ -11,15 +11,17 @@ public class SuiteManifestLoaderTests
         $$"""{ "key": "{{key}}", "url": "https://example.invalid/{{key}}.zip", "sha256": "{{hash}}", "archive": "{{archive}}"{{extra}} }""";
 
     [Test]
-    public async Task LoadDirectory_ReadsOneManifestPerFile()
+    public async Task LoadDirectory_ReadsOneManifestPerFile(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         using var temp = new TempDirectory();
-        await File.WriteAllTextAsync(Path.Combine(temp.Path, "one.json"), Json("one", ValidHash));
+        await File.WriteAllTextAsync(Path.Combine(temp.Path, "one.json"), Json("one", ValidHash), cancellationToken);
         await File.WriteAllTextAsync(
             Path.Combine(temp.Path, "two.json"),
-            Json("two", ValidHash.ToUpperInvariant(), "tar.gz", ", \"subPath\": \"sub/dir\"")
+            Json("two", ValidHash.ToUpperInvariant(), "tar.gz", ", \"subPath\": \"sub/dir\""),
+            cancellationToken
         );
-        await File.WriteAllTextAsync(Path.Combine(temp.Path, "README.md"), "ignored");
+        await File.WriteAllTextAsync(Path.Combine(temp.Path, "README.md"), "ignored", cancellationToken);
 
         var manifests = SuiteManifestLoader.LoadDirectory(temp.Path);
 
@@ -35,11 +37,12 @@ public class SuiteManifestLoaderTests
     }
 
     [Test]
-    public async Task LoadDirectory_DuplicateSuiteKey_Fails()
+    public async Task LoadDirectory_DuplicateSuiteKey_Fails(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         using var temp = new TempDirectory();
-        await File.WriteAllTextAsync(Path.Combine(temp.Path, "a.json"), Json("same", ValidHash));
-        await File.WriteAllTextAsync(Path.Combine(temp.Path, "b.json"), Json("same", ValidHash));
+        await File.WriteAllTextAsync(Path.Combine(temp.Path, "a.json"), Json("same", ValidHash), cancellationToken);
+        await File.WriteAllTextAsync(Path.Combine(temp.Path, "b.json"), Json("same", ValidHash), cancellationToken);
 
         var ex = await Assert.That(() => SuiteManifestLoader.LoadDirectory(temp.Path)).Throws<SuiteManifestException>();
 
@@ -47,8 +50,9 @@ public class SuiteManifestLoaderTests
     }
 
     [Test]
-    public async Task LoadDirectory_MissingDirectory_Fails()
+    public async Task LoadDirectory_MissingDirectory_Fails(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         using var temp = new TempDirectory();
 
         await Assert
@@ -61,12 +65,17 @@ public class SuiteManifestLoaderTests
     [Arguments("abc")]
     [Arguments("zz00000000000000000000000000000000000000000000000000000000000000")]
     [Arguments("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")]
-    public async Task Parse_MalformedChecksum_IsRejected(string hash) =>
+    public async Task Parse_MalformedChecksum_IsRejected(string hash, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
         await Assert.That(() => SuiteManifestLoader.Parse(Json("s", hash), "s.json")).Throws<SuiteManifestException>();
+    }
 
     [Test]
-    public async Task Parse_MissingChecksum_IsRejected()
+    public async Task Parse_MissingChecksum_IsRejected(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         const string json = """{ "key": "s", "url": "https://example.invalid/s.zip", "archive": "zip" }""";
 
         var ex = await Assert.That(() => SuiteManifestLoader.Parse(json, "s.json")).Throws<SuiteManifestException>();
@@ -81,22 +90,29 @@ public class SuiteManifestLoaderTests
     [Arguments("""{ "key": "s", "url": "ftp://e.invalid/s.zip", "sha256": "HASH", "archive": "zip" }""")]
     [Arguments("""{ "key": "s", "url": "https://e.invalid/s.zip", "sha256": "HASH", "archive": "rar" }""")]
     [Arguments("""{ "key": "s", "url": "https://e.invalid/s.zip", "sha256": "HASH" }""")]
-    [Arguments("""{ "key": "s", "url": "https://e.invalid/s.zip", "sha256": "HASH", "archive": "zip", "subPath": "../x" }""")]
-    [Arguments("""{ "key": "s", "url": "https://e.invalid/s.zip", "sha256": "HASH", "archive": "zip", "subPath": "/x" }""")]
+    [Arguments(
+        """{ "key": "s", "url": "https://e.invalid/s.zip", "sha256": "HASH", "archive": "zip", "subPath": "../x" }"""
+    )]
+    [Arguments(
+        """{ "key": "s", "url": "https://e.invalid/s.zip", "sha256": "HASH", "archive": "zip", "subPath": "/x" }"""
+    )]
     [Arguments("""{ "key": "s", "url": 5, "sha256": "HASH", "archive": "zip" }""")]
     [Arguments("""{ "key": "a/b", "url": "https://e.invalid/s.zip", "sha256": "HASH", "archive": "zip" }""")]
     [Arguments("[]")]
     [Arguments("{ not json")]
-    public async Task Parse_InvalidManifest_IsRejected(string template)
+    public async Task Parse_InvalidManifest_IsRejected(string template, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+        ArgumentNullException.ThrowIfNull(template);
         var json = template.Replace("HASH", ValidHash, StringComparison.Ordinal);
 
         await Assert.That(() => SuiteManifestLoader.Parse(json, "s.json")).Throws<SuiteManifestException>();
     }
 
     [Test]
-    public async Task Parse_NullArguments_Throw()
+    public async Task Parse_NullArguments_Throw(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         await Assert.That(() => SuiteManifestLoader.Parse(null!, "s.json")).Throws<ArgumentNullException>();
         await Assert.That(() => SuiteManifestLoader.LoadDirectory(null!)).Throws<ArgumentNullException>();
     }

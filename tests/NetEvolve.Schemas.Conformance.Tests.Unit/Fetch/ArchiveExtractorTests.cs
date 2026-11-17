@@ -1,8 +1,8 @@
 #if NET10_0_OR_GREATER
+namespace NetEvolve.Schemas.Conformance.Tests.Unit.Fetch;
+
 using NetEvolve.Schemas.Conformance.Fetch;
 using NetEvolve.Schemas.Conformance.Manifest;
-
-namespace NetEvolve.Schemas.Conformance.Tests.Unit.Fetch;
 
 public class ArchiveExtractorTests
 {
@@ -13,8 +13,13 @@ public class ArchiveExtractorTests
     [Arguments(ArchiveType.TarGz, "../evil.txt")]
     [Arguments(ArchiveType.TarGz, "a/../../evil.txt")]
     [Arguments(ArchiveType.TarGz, "/abs/evil.txt")]
-    public async Task Extract_EntryLeavingTarget_IsRejected(ArchiveType type, string entryName)
+    public async Task Extract_EntryLeavingTarget_IsRejected(
+        ArchiveType type,
+        string entryName,
+        CancellationToken cancellationToken
+    )
     {
+        cancellationToken.ThrowIfCancellationRequested();
         using var temp = new TempDirectory();
         var target = Path.Combine(temp.Path, "target");
         var bytes = type == ArchiveType.Zip ? Fixtures.Zip((entryName, "x")) : Fixtures.TarGz((entryName, "x"));
@@ -28,8 +33,9 @@ public class ArchiveExtractorTests
     [Test]
     [Arguments(ArchiveType.Zip)]
     [Arguments(ArchiveType.TarGz)]
-    public async Task Extract_NestedEntries_WritesFiles(ArchiveType type)
+    public async Task Extract_NestedEntries_WritesFiles(ArchiveType type, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         using var temp = new TempDirectory();
         var bytes =
             type == ArchiveType.Zip
@@ -39,13 +45,18 @@ public class ArchiveExtractorTests
 
         ArchiveExtractor.Extract(stream, type, temp.Path);
 
-        await Assert.That(await File.ReadAllTextAsync(Path.Combine(temp.Path, "d", "e", "f.txt"))).IsEqualTo("f");
-        await Assert.That(await File.ReadAllTextAsync(Path.Combine(temp.Path, "g.txt"))).IsEqualTo("g");
+        await Assert
+            .That(await File.ReadAllTextAsync(Path.Combine(temp.Path, "d", "e", "f.txt"), cancellationToken))
+            .IsEqualTo("f");
+        await Assert
+            .That(await File.ReadAllTextAsync(Path.Combine(temp.Path, "g.txt"), cancellationToken))
+            .IsEqualTo("g");
     }
 
     [Test]
-    public async Task Extract_ZipDirectoryEntry_CreatesDirectory()
+    public async Task Extract_ZipDirectoryEntry_CreatesDirectory(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         using var temp = new TempDirectory();
         using var stream = new MemoryStream(Fixtures.Zip(("empty/", string.Empty)));
 
@@ -55,8 +66,9 @@ public class ArchiveExtractorTests
     }
 
     [Test]
-    public async Task Extract_TarSymbolicLink_IsRejected()
+    public async Task Extract_TarSymbolicLink_IsRejected(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         using var temp = new TempDirectory();
         using var stream = new MemoryStream(Fixtures.TarGzSymbolicLink("link", "../outside"));
 
@@ -66,8 +78,9 @@ public class ArchiveExtractorTests
     }
 
     [Test]
-    public async Task Extract_InvalidArguments_Throw()
+    public async Task Extract_InvalidArguments_Throw(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         using var stream = new MemoryStream();
 
         await Assert.That(() => ArchiveExtractor.Extract(null!, ArchiveType.Zip, "x")).Throws<ArgumentNullException>();
