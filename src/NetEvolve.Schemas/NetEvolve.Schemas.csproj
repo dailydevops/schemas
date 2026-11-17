@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <!-- The Xml package throws the Stub.For exceptions of its signature-only members (XML-50). -->
+  <!-- The Xml package throws the Stub.For exceptions of its signature-only members (XML-50); so does the XPath package (XP-50). -->
   <ItemGroup>
     <InternalsVisibleTo Include="NetEvolve.Schemas.Xml" />
+    <InternalsVisibleTo Include="NetEvolve.Schemas.XPath" />
   </ItemGroup>
 </Project>
