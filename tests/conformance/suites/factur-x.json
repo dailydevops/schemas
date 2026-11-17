@@ -1,0 +1,7 @@
+{
+  "key": "stage3-factur-x",
+  "url": "https://github.com/fnfempe/France_RFE/archive/refs/tags/v1.4.0.04.zip",
+  "sha256": "c54633dd73fbbd25fa4e689cced1b8736e706301233f49fc1012ec68811dcde0",
+  "archive": "zip",
+  "subPath": "France_RFE-1.4.0.04/FNFE_RFE_INVOICE/Factur-X"
+}
