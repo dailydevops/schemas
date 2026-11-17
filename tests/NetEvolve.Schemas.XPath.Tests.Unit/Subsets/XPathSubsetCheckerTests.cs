@@ -88,8 +88,8 @@ public class XPathSubsetCheckerTests
     [Arguments("@a//b", "attribute-step-position", 0, 2)]
     [Arguments("@a[1]", "predicate", 3, 1)]
     [Arguments("a[@b]", "predicate", 2, 2)]
-    [Arguments("@node()", "node-test", 0, 7)]
-    [Arguments("@*:a", "name-test", 0, 4)]
+    [Arguments("@node()", "node-test", 1, 6)]
+    [Arguments("@*:a", "name-test", 1, 3)]
     [Arguments("/a", "absolute-path", 0, 1)]
     [Arguments("a//@b", "descendant-position", 1, 2)]
     [Arguments("..", "axis", 0, 2)]
@@ -154,14 +154,11 @@ public class XPathSubsetCheckerTests
         var field = Parse(".//a/b/@c | d");
 
         // Recorded bound: the walk over the tree allocates no bytes.
-        AllocationAssert.AtMost(
-            0,
-            () =>
-            {
-                _ = XPathSubsetChecker.Selector.Accepts(selector, out _);
-                _ = XPathSubsetChecker.Field.Accepts(field, out _);
-            }
-        );
+        AllocationAssert.AtMost(0, () =>
+        {
+            _ = XPathSubsetChecker.Selector.Accepts(selector, out _);
+            _ = XPathSubsetChecker.Field.Accepts(field, out _);
+        });
     }
 
     private static bool Check(XPathSubsetChecker profile, string text, out XPathDiagnostic violation) =>
