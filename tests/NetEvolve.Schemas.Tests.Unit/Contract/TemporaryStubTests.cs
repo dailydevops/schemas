@@ -12,7 +12,7 @@ using NetEvolve.Schemas.Testing.Fakes;
 
 /// <summary>
 /// TEMPORARY: pins the throwing contract stubs. Each test is replaced by real behavior tests when the owning
-/// work package lands (FND-09, FND-10, FND-55, FND-56). Delete the matching test then.
+/// work package lands (FND-09, FND-56). Delete the matching test then.
 /// </summary>
 public class TemporaryStubTests
 {
@@ -96,51 +96,6 @@ public class TemporaryStubTests
     }
 
     [Test]
-    public async Task Fnd55_LimitsStubs_ThrowUntilImplemented()
-    {
-        var limits = Blank<ValidationLimits>();
-
-        await AssertStubAsync(
-            "FND-55",
-            () => _ = ValidationLimits.Default,
-            () => _ = limits.MaxIssues,
-            () => _ = limits.MaxInputSize,
-            () => _ = limits.MaxDepth,
-            () => _ = limits.MaxAttributesPerElement,
-            () => _ = limits.MaxEntityExpansion,
-            () => _ = limits.MaxEntityDepth,
-            () => _ = limits.MaxExternalResources,
-            () => _ = limits.MaxResourceSize,
-            () => _ = limits.WithMaxIssues(1),
-            () => _ = limits.WithMaxInputSize(1),
-            () => _ = limits.WithMaxDepth(1),
-            () => _ = limits.WithMaxAttributesPerElement(1),
-            () => _ = limits.WithMaxEntityExpansion(1),
-            () => _ = limits.WithMaxEntityDepth(1),
-            () => _ = limits.WithMaxExternalResources(1),
-            () => _ = limits.WithMaxResourceSize(1)
-        );
-    }
-
-    [Test]
-    public async Task Fnd55_BuilderStubs_ThrowUntilImplemented()
-    {
-        var builder = new FakeBuilder();
-        var baseHook = new BaseHookBuilder();
-
-        await AssertStubAsync(
-            "FND-55",
-            () => _ = builder.Limits,
-            () => _ = builder.Resolver,
-            () => _ = builder.WithLimits(null!),
-            () => _ = builder.WithResolver(null!),
-            () => _ = builder.Build(),
-            () => _ = builder.BuildAsync().AsTask(),
-            () => _ = baseHook.CallBaseHook(CancellationToken.None).AsTask()
-        );
-    }
-
-    [Test]
     public async Task Fnd56_DocumentSourceStubs_ThrowUntilImplemented() =>
         await AssertStubAsync(
             "FND-56",
@@ -190,14 +145,5 @@ public class TemporaryStubTests
             in DocumentSource source,
             CancellationToken cancellationToken
         ) => throw new NotSupportedException();
-    }
-
-    private sealed class BaseHookBuilder : SchemaValidatorBuilder<BaseHookBuilder, FakeValidator>
-    {
-        public ValueTask<FakeValidator> CallBaseHook(CancellationToken cancellationToken) =>
-            CreateValidatorAsync(null!, null!, cancellationToken);
-
-        protected override FakeValidator CreateValidator(ValidationLimits limits, IResourceResolver resolver) =>
-            throw new NotSupportedException();
     }
 }
