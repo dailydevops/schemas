@@ -8,22 +8,22 @@ public class FacetApplicabilityTests
     private const DatatypeVariety Atomic = DatatypeVariety.Atomic;
 
     [Test]
-    [Arguments(FacetKind.Length, PrimitiveKind.String, true)]
+    [Arguments(FacetKind.Length, PrimitiveKind.StringType, true)]
     [Arguments(FacetKind.MinLength, PrimitiveKind.AnyUri, true)]
     [Arguments(FacetKind.MaxLength, PrimitiveKind.HexBinary, true)]
-    [Arguments(FacetKind.Length, PrimitiveKind.Decimal, false)]
+    [Arguments(FacetKind.Length, PrimitiveKind.DecimalType, false)]
     [Arguments(FacetKind.Length, PrimitiveKind.Boolean, false)]
-    [Arguments(FacetKind.MaxInclusive, PrimitiveKind.String, false)]
-    [Arguments(FacetKind.MaxInclusive, PrimitiveKind.Decimal, true)]
+    [Arguments(FacetKind.MaxInclusive, PrimitiveKind.StringType, false)]
+    [Arguments(FacetKind.MaxInclusive, PrimitiveKind.DecimalType, true)]
     [Arguments(FacetKind.MinExclusive, PrimitiveKind.GYear, true)]
     [Arguments(FacetKind.MinInclusive, PrimitiveKind.Duration, true)]
     [Arguments(FacetKind.MaxExclusive, PrimitiveKind.Boolean, false)]
-    [Arguments(FacetKind.TotalDigits, PrimitiveKind.Decimal, true)]
-    [Arguments(FacetKind.FractionDigits, PrimitiveKind.Double, false)]
+    [Arguments(FacetKind.TotalDigits, PrimitiveKind.DecimalType, true)]
+    [Arguments(FacetKind.FractionDigits, PrimitiveKind.DoubleType, false)]
     [Arguments(FacetKind.Pattern, PrimitiveKind.Boolean, true)]
     [Arguments(FacetKind.Enumeration, PrimitiveKind.QName, true)]
-    [Arguments(FacetKind.WhiteSpace, PrimitiveKind.String, true)]
-    [Arguments(FacetKind.None, PrimitiveKind.String, false)]
+    [Arguments(FacetKind.WhiteSpace, PrimitiveKind.StringType, true)]
+    [Arguments(FacetKind.None, PrimitiveKind.StringType, false)]
     public async Task Atomic_FollowsTheSpecificationTable(FacetKind facet, PrimitiveKind primitive, bool expected) =>
         await Assert
             .That(FacetApplicability.IsApplicable(facet, Atomic, primitive, XsdVersion.V11))
@@ -58,19 +58,34 @@ public class FacetApplicabilityTests
     public async Task Version11Facets_AreRejectedInVersion10()
     {
         await Assert
-            .That(FacetApplicability.IsApplicable(FacetKind.Assertions, Atomic, PrimitiveKind.String, XsdVersion.V10))
+            .That(
+                FacetApplicability.IsApplicable(FacetKind.Assertions, Atomic, PrimitiveKind.StringType, XsdVersion.V10)
+            )
             .IsFalse();
         await Assert
-            .That(FacetApplicability.IsApplicable(FacetKind.Assertions, Atomic, PrimitiveKind.String, XsdVersion.V11))
+            .That(
+                FacetApplicability.IsApplicable(FacetKind.Assertions, Atomic, PrimitiveKind.StringType, XsdVersion.V11)
+            )
             .IsTrue();
         await Assert
-            .That(FacetApplicability.IsApplicable(FacetKind.ExplicitTimezone, Atomic, PrimitiveKind.Date, XsdVersion.V10))
+            .That(
+                FacetApplicability.IsApplicable(FacetKind.ExplicitTimezone, Atomic, PrimitiveKind.Date, XsdVersion.V10)
+            )
             .IsFalse();
         await Assert
-            .That(FacetApplicability.IsApplicable(FacetKind.ExplicitTimezone, Atomic, PrimitiveKind.Date, XsdVersion.V11))
+            .That(
+                FacetApplicability.IsApplicable(FacetKind.ExplicitTimezone, Atomic, PrimitiveKind.Date, XsdVersion.V11)
+            )
             .IsTrue();
         await Assert
-            .That(FacetApplicability.IsApplicable(FacetKind.ExplicitTimezone, Atomic, PrimitiveKind.String, XsdVersion.V11))
+            .That(
+                FacetApplicability.IsApplicable(
+                    FacetKind.ExplicitTimezone,
+                    Atomic,
+                    PrimitiveKind.StringType,
+                    XsdVersion.V11
+                )
+            )
             .IsFalse();
     }
 }

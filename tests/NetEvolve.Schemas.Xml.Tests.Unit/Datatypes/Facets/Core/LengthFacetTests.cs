@@ -34,9 +34,7 @@ public class LengthFacetTests
 
     [Test]
     public async Task LoneSurrogate_CountsAsOneCharacter() =>
-        await Assert
-            .That(LengthFacet.Length(2, LengthUnit.Characters).IsSatisfiedBy("\uD834\uD834".AsSpan()))
-            .IsTrue();
+        await Assert.That(LengthFacet.Length(2, LengthUnit.Characters).IsSatisfiedBy("\uD834\uD834".AsSpan())).IsTrue();
 
     [Test]
     [Arguments(2, "a b", true)]
@@ -74,9 +72,7 @@ public class LengthFacetTests
 
     [Test]
     public async Task NegativeValue_IsRejected() =>
-        await Assert
-            .That(() => LengthFacet.Length(-1, LengthUnit.Characters))
-            .Throws<ArgumentOutOfRangeException>();
+        await Assert.That(() => LengthFacet.Length(-1, LengthUnit.Characters)).Throws<ArgumentOutOfRangeException>();
 
     [Test]
     public async Task OnAtomicDescriptor_CountsCodePointsAfterWhitespaceNormalization()

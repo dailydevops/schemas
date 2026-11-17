@@ -8,7 +8,7 @@ using NetEvolve.Schemas.Xml.Datatypes.Facets.Core;
 public class FacetRestrictionTests
 {
     private static FacetRestrictionResult Strings(FacetSet baseSet, FacetSet derived) =>
-        FacetRestriction.Validate(baseSet, derived, DatatypeVariety.Atomic, PrimitiveKind.String, XsdVersion.V11);
+        FacetRestriction.Validate(baseSet, derived, DatatypeVariety.Atomic, PrimitiveKind.StringType, XsdVersion.V11);
 
     private static FacetKindSet Fixed(params FacetKind[] kinds)
     {
@@ -171,7 +171,7 @@ public class FacetRestrictionTests
             default,
             new FacetSet(length: 2),
             DatatypeVariety.Atomic,
-            PrimitiveKind.Decimal,
+            PrimitiveKind.DecimalType,
             XsdVersion.V11
         );
 
