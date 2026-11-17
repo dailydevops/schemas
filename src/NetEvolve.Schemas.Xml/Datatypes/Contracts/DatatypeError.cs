@@ -39,4 +39,7 @@ public enum DatatypeError
 
     /// <summary><c>DT0013</c>: the input contains a character that the lexical space does not allow.</summary>
     InvalidCharacter = 13,
+
+    /// <summary><c>DT0014</c>: a QName or NOTATION prefix is not bound in the namespace context.</summary>
+    UnboundPrefix = 14,
 }

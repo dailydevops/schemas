@@ -310,6 +310,28 @@
         public string SystemId { get; }
     }
 }
+namespace NetEvolve.Schemas.Xml.Datatypes.Binary
+{
+    public enum BinaryKind
+    {
+        HexBinary = 0,
+        Base64Binary = 1,
+    }
+    public readonly struct XsdBinary : System.IEquatable<NetEvolve.Schemas.Xml.Datatypes.Binary.XsdBinary>
+    {
+        public int Length { get; }
+        public System.ReadOnlySpan<byte> AsSpan() { }
+        public bool Equals(NetEvolve.Schemas.Xml.Datatypes.Binary.XsdBinary other) { }
+        public override bool Equals(object? obj) { }
+        public override int GetHashCode() { }
+        public byte[] ToArray() { }
+        public override string ToString() { }
+        public string ToString(NetEvolve.Schemas.Xml.Datatypes.Binary.BinaryKind kind) { }
+        public static NetEvolve.Schemas.Xml.Datatypes.Contracts.ParseResult<NetEvolve.Schemas.Xml.Datatypes.Binary.XsdBinary> Parse(System.ReadOnlySpan<char> lexical, NetEvolve.Schemas.Xml.Datatypes.Binary.BinaryKind kind) { }
+        public static bool operator !=(NetEvolve.Schemas.Xml.Datatypes.Binary.XsdBinary left, NetEvolve.Schemas.Xml.Datatypes.Binary.XsdBinary right) { }
+        public static bool operator ==(NetEvolve.Schemas.Xml.Datatypes.Binary.XsdBinary left, NetEvolve.Schemas.Xml.Datatypes.Binary.XsdBinary right) { }
+    }
+}
 namespace NetEvolve.Schemas.Xml.Datatypes.Contracts
 {
     public enum DatatypeError
@@ -325,6 +347,7 @@ namespace NetEvolve.Schemas.Xml.Datatypes.Contracts
         DigitCap = 10,
         YearOrComponentCap = 11,
         InvalidCharacter = 13,
+        UnboundPrefix = 14,
     }
     public enum DatatypeVariety
     {
@@ -771,6 +794,25 @@ namespace NetEvolve.Schemas.Xml.Datatypes.Numeric
     {
         public static string ToCanonicalString(NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal value) { }
         public static string ToCanonicalString(NetEvolve.Schemas.Xml.Datatypes.Numeric.XsdInteger value) { }
+    }
+}
+namespace NetEvolve.Schemas.Xml.Datatypes.QNames
+{
+    public interface INamespaceContext
+    {
+        bool TryResolvePrefix(System.ReadOnlySpan<char> prefix, out string? namespaceName);
+    }
+    public readonly struct XsdQName : System.IEquatable<NetEvolve.Schemas.Xml.Datatypes.QNames.XsdQName>
+    {
+        public string LocalName { get; }
+        public string? NamespaceName { get; }
+        public bool Equals(NetEvolve.Schemas.Xml.Datatypes.QNames.XsdQName other) { }
+        public override bool Equals(object? obj) { }
+        public override int GetHashCode() { }
+        public override string ToString() { }
+        public static NetEvolve.Schemas.Xml.Datatypes.Contracts.ParseResult<NetEvolve.Schemas.Xml.Datatypes.QNames.XsdQName> Parse(System.ReadOnlySpan<char> lexical, NetEvolve.Schemas.Xml.Datatypes.QNames.INamespaceContext context) { }
+        public static bool operator !=(NetEvolve.Schemas.Xml.Datatypes.QNames.XsdQName left, NetEvolve.Schemas.Xml.Datatypes.QNames.XsdQName right) { }
+        public static bool operator ==(NetEvolve.Schemas.Xml.Datatypes.QNames.XsdQName left, NetEvolve.Schemas.Xml.Datatypes.QNames.XsdQName right) { }
     }
 }
 namespace NetEvolve.Schemas.Xml.Datatypes.Strings
