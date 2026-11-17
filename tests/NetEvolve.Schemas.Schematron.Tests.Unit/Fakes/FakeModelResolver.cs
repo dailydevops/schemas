@@ -10,7 +10,7 @@ internal sealed class FakeModelResolver : IModelResolver
     public bool TryResolve(ParsedModule root, IModuleLoader loader, IProblemSink problems, out ResolvedModel model)
     {
         Calls++;
-        model = new ResolvedModel();
+        model = new ResolvedModel(FakeModel.Schema());
         return true;
     }
 }

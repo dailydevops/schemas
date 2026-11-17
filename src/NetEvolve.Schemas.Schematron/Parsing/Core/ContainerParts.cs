@@ -29,4 +29,6 @@ internal sealed class ContainerParts
     internal List<SchematronRule> PatternRules { get; } = [];
 
     internal List<SchematronForeignElement> Foreign { get; } = [];
+
+    internal List<SchematronInclude> Includes { get; } = [];
 }

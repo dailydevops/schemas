@@ -10,7 +10,7 @@ internal sealed class FakeModelParser : IModelParser
     public bool TryParse(SchemaSource source, IProblemSink problems, out ParsedModule module)
     {
         Calls++;
-        module = new ParsedModule();
+        module = new ParsedModule(FakeModel.Schema());
         return true;
     }
 }

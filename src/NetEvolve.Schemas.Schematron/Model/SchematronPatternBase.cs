@@ -1,5 +1,6 @@
 namespace NetEvolve.Schemas.Schematron.Model;
 
+using System;
 using System.Collections.Generic;
 
 /// <summary>Base of <c>pattern</c> and <see langword="group"/>, which share all members.</summary>
@@ -17,7 +18,8 @@ public abstract class SchematronPatternBase : SchematronNode
         IReadOnlyList<SchematronParameter> parameters,
         IReadOnlyList<SchematronLet> lets,
         IReadOnlyList<SchematronRule> rules,
-        DocumentLocation? expandedFrom
+        DocumentLocation? expandedFrom,
+        IReadOnlyList<SchematronInclude>? includes = null
     )
         : base(location)
     {
@@ -32,6 +34,7 @@ public abstract class SchematronPatternBase : SchematronNode
         Lets = lets;
         Rules = rules;
         ExpandedFrom = expandedFrom;
+        Includes = includes ?? Array.Empty<SchematronInclude>();
     }
 
     /// <summary>Gets the <c>id</c> attribute, or <see langword="null"/> when absent.</summary>
@@ -69,4 +72,7 @@ public abstract class SchematronPatternBase : SchematronNode
 
     /// <summary>Gets the location of the <c>is-a</c> instantiation site for expanded content, <see langword="null"/> for authored content.</summary>
     public DocumentLocation? ExpandedFrom { get; }
+
+    // The include elements of the pattern, placed among its rules by their indices; replaced by stage Resolve.
+    internal IReadOnlyList<SchematronInclude> Includes { get; }
 }
