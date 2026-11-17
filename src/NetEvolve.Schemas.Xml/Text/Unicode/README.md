@@ -32,7 +32,9 @@ no block, and folds to itself.
   (`T`) are not applied.
 - Block names are the `Blocks.txt` names. `FindBlock` additionally knows the superseded names that XSD 1.1 Part 2
   (G.4.2.3) cites as alias rows: `Greek` (U+0370 to U+03FF), `CombiningMarksforSymbols` (U+20D0 to U+20FF), and
-  `PrivateUse` (U+E000 to U+F8FF, U+F0000 to U+FFFFD, U+100000 to U+10FFFD, the ranges as cited there).
+  `PrivateUse` (U+E000 to U+F8FF, U+F0000 to U+FFFFD, U+100000 to U+10FFFD, the ranges as cited there), plus the
+  Blocks 4.0.0 name `CyrillicSupplementary` (U+0500 to U+052F). The fixtures `Fixtures/Blocks-3.1.txt` and
+  `Fixtures/Blocks-4.0.0.txt` in the unit-test project pin which names exist; a test resolves every one of them.
 
 ## Regenerating the tables
 

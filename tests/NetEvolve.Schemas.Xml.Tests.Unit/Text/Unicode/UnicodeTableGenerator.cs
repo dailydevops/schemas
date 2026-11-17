@@ -12,7 +12,8 @@ internal static class UnicodeTableGenerator
     /// <summary>The environment variable that makes the generator test rewrite the committed file.</summary>
     internal const string RegenerateVariable = "SCHEMAS_UCD_REGENERATE";
 
-    // Superseded block names cited by XSD 1.1 Part 2 G.4.2.3, with the ranges as cited there.
+    // Names of Blocks 3.1 (cited by XSD 1.1 Part 2 G.4.2.3) and of Blocks 4.0.0 that the pinned file lacks, with the
+    // ranges they denoted there (design #100, AP-17).
     private static readonly (string Name, int First, int Last)[] Aliases =
     [
         ("Greek", 0x0370, 0x03FF),
@@ -20,6 +21,7 @@ internal static class UnicodeTableGenerator
         ("PrivateUse", 0xE000, 0xF8FF),
         ("PrivateUse", 0xF0000, 0xFFFFD),
         ("PrivateUse", 0x100000, 0x10FFFD),
+        ("CyrillicSupplementary", 0x0500, 0x052F),
     ];
 
     internal static string CommittedPath() =>
