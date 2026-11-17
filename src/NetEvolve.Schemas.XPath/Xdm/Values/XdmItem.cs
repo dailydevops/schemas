@@ -13,7 +13,7 @@ using NetEvolve.Schemas.XPath.Xdm.Nodes;
 /// <summary>An item: a node or an atomic value. A tagged struct; boolean, integer, double, and node need no allocation.</summary>
 /// <remarks>
 /// Limitation: the public factories and accessors cover boolean, integer, double, string, node, decimal, date and time, and
-/// duration values; <c>xs:float</c> and <c>xs:untypedAtomic</c> are internal, and <c>xs:anyURI</c>, <c>xs:QName</c>,
+/// duration values; <c>xs:float</c>, <c>xs:untypedAtomic</c>, and <c>xs:anyURI</c> are internal, and <c>xs:QName</c>,
 /// <c>xs:NOTATION</c>, <c>xs:hexBinary</c>, <c>xs:base64Binary</c>, and the Gregorian types have no value type yet.
 /// Decimal, date and time, and duration values are boxed.
 /// </remarks>
@@ -76,6 +76,18 @@ public readonly struct XdmItem : IEquatable<XdmItem>
         Argument.ThrowIfNull(value);
 
         return new(XdmItemKind.UntypedAtomic, XdmTypeId.UntypedAtomic, 0, value);
+    }
+
+    /// <summary>Creates an <c>xs:anyURI</c> item.</summary>
+    /// <param name="value">The lexical value.</param>
+    /// <returns>The item.</returns>
+    /// <remarks>Limitation: backed by the string like <c>xs:untypedAtomic</c> until the anyURI datatype value type (#545) replaces it.</remarks>
+    /// <exception cref="ArgumentNullException"><paramref name="value"/> is <see langword="null"/>.</exception>
+    internal static XdmItem FromAnyUri(string value)
+    {
+        Argument.ThrowIfNull(value);
+
+        return new(XdmItemKind.AnyUri, XdmTypeId.AnyUri, 0, value);
     }
 
     /// <summary>Creates an <c>xs:float</c> item.</summary>
@@ -214,6 +226,15 @@ public readonly struct XdmItem : IEquatable<XdmItem>
         return value is not null;
     }
 
+    /// <summary>Gets the <c>xs:anyURI</c> value.</summary>
+    /// <param name="value">The value, <see langword="null"/> unless the item is <c>xs:anyURI</c>.</param>
+    /// <returns><see langword="true"/> when the item is <c>xs:anyURI</c>.</returns>
+    internal bool TryGetAnyUri(out string? value)
+    {
+        value = Kind == XdmItemKind.AnyUri ? (string?)_reference : null;
+        return value is not null;
+    }
+
     /// <summary>Gets the node.</summary>
     /// <param name="node">The node, <see langword="default"/> unless the item is a node.</param>
     /// <returns><see langword="true"/> when the item is a node.</returns>
@@ -238,7 +259,7 @@ public readonly struct XdmItem : IEquatable<XdmItem>
     private bool ReferencesEqual(XdmItem other) =>
         Kind switch
         {
-            XdmItemKind.XsString or XdmItemKind.UntypedAtomic => string.Equals(
+            XdmItemKind.XsString or XdmItemKind.UntypedAtomic or XdmItemKind.AnyUri => string.Equals(
                 (string?)_reference,
                 (string?)other._reference,
                 StringComparison.Ordinal
@@ -250,9 +271,8 @@ public readonly struct XdmItem : IEquatable<XdmItem>
     private int ReferenceHash() =>
         Kind switch
         {
-            XdmItemKind.XsString or XdmItemKind.UntypedAtomic => StringComparer.Ordinal.GetHashCode(
-                (string)_reference!
-            ),
+            XdmItemKind.XsString or XdmItemKind.UntypedAtomic or XdmItemKind.AnyUri =>
+                StringComparer.Ordinal.GetHashCode((string)_reference!),
             XdmItemKind.Node => RuntimeHelpers.GetHashCode(_reference),
             _ => _reference?.GetHashCode() ?? 0,
         };

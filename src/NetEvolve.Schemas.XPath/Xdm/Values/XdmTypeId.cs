@@ -49,6 +49,8 @@ public readonly struct XdmTypeId : IEquatable<XdmTypeId>
 
     internal static XdmTypeId Time => new(14);
 
+    internal static XdmTypeId AnyUri => new(15);
+
     /// <summary>Gets the handle.</summary>
     public int Value { get; }
 
