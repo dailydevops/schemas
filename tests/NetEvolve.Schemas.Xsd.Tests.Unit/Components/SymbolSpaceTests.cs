@@ -7,27 +7,27 @@ using static NetEvolve.Schemas.Xsd.Tests.Unit.Components.Fixture;
 public class SymbolSpaceTests
 {
     [Test]
-    [Arguments(XsdComponentKind.SimpleType, XsdSymbolSpace.Types)]
-    [Arguments(XsdComponentKind.ComplexType, XsdSymbolSpace.Types)]
-    [Arguments(XsdComponentKind.ElementDeclaration, XsdSymbolSpace.Elements)]
-    [Arguments(XsdComponentKind.AttributeDeclaration, XsdSymbolSpace.Attributes)]
-    [Arguments(XsdComponentKind.ModelGroupDefinition, XsdSymbolSpace.Groups)]
-    [Arguments(XsdComponentKind.AttributeGroup, XsdSymbolSpace.AttributeGroups)]
-    [Arguments(XsdComponentKind.IdentityConstraint, XsdSymbolSpace.IdentityConstraints)]
-    [Arguments(XsdComponentKind.Notation, XsdSymbolSpace.Notations)]
-    public async Task Kind_MapsToItsSymbolSpace(XsdComponentKind kind, XsdSymbolSpace expected)
+    [Arguments("SimpleType", "Types")]
+    [Arguments("ComplexType", "Types")]
+    [Arguments("ElementDeclaration", "Elements")]
+    [Arguments("AttributeDeclaration", "Attributes")]
+    [Arguments("ModelGroupDefinition", "Groups")]
+    [Arguments("AttributeGroup", "AttributeGroups")]
+    [Arguments("IdentityConstraint", "IdentityConstraints")]
+    [Arguments("Notation", "Notations")]
+    public async Task Kind_MapsToItsSymbolSpace(string kind, string expected)
     {
-        await Assert.That(XsdSymbolSpaces.TryOf(kind, out var space)).IsTrue();
-        await Assert.That(space).IsEqualTo(expected);
+        await Assert.That(XsdSymbolSpaces.TryOf(Enum.Parse<XsdComponentKind>(kind), out var space)).IsTrue();
+        await Assert.That(space).IsEqualTo(Enum.Parse<XsdSymbolSpace>(expected));
     }
 
     [Test]
-    [Arguments(XsdComponentKind.Particle)]
-    [Arguments(XsdComponentKind.Wildcard)]
-    [Arguments(XsdComponentKind.AttributeUse)]
-    [Arguments(XsdComponentKind.ModelGroup)]
-    public async Task Kind_WithoutSymbolSpace_IsNotNamed(XsdComponentKind kind) =>
-        await Assert.That(XsdSymbolSpaces.TryOf(kind, out _)).IsFalse();
+    [Arguments("Particle")]
+    [Arguments("Wildcard")]
+    [Arguments("AttributeUse")]
+    [Arguments("ModelGroup")]
+    public async Task Kind_WithoutSymbolSpace_IsNotNamed(string kind) =>
+        await Assert.That(XsdSymbolSpaces.TryOf(Enum.Parse<XsdComponentKind>(kind), out _)).IsFalse();
 
     [Test]
     public async Task SameLocalName_InTwoSymbolSpaces_ResolvesIndependently()

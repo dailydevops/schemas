@@ -42,12 +42,14 @@ public class ResolutionTests
     }
 
     [Test]
-    [Arguments(XsdComponentKind.SimpleType, XsdSymbolSpace.Types, "st-props-correct")]
-    [Arguments(XsdComponentKind.ComplexType, XsdSymbolSpace.Types, "ct-props-correct")]
-    [Arguments(XsdComponentKind.ModelGroupDefinition, XsdSymbolSpace.Groups, "mg-props-correct")]
-    [Arguments(XsdComponentKind.AttributeGroup, XsdSymbolSpace.AttributeGroups, "ag-props-correct")]
-    public async Task CircularDefinition_IsALocatedSchemaError(XsdComponentKind kind, XsdSymbolSpace space, string rule)
+    [Arguments("SimpleType", "Types", "st-props-correct")]
+    [Arguments("ComplexType", "Types", "ct-props-correct")]
+    [Arguments("ModelGroupDefinition", "Groups", "mg-props-correct")]
+    [Arguments("AttributeGroup", "AttributeGroups", "ag-props-correct")]
+    public async Task CircularDefinition_IsALocatedSchemaError(string kindName, string spaceName, string rule)
     {
+        var kind = Enum.Parse<XsdComponentKind>(kindName);
+        var space = Enum.Parse<XsdSymbolSpace>(spaceName);
         var registry = NewRegistry(out var collector);
         registry.Add(new RefComponent(kind, "a", 3, Ref(space, "b", 4)));
         registry.Add(new RefComponent(kind, "b", 7, Ref(space, "c", 8)));
@@ -88,7 +90,9 @@ public class ResolutionTests
     public async Task MissingComponent_IsSrcResolveAtTheReference()
     {
         var registry = NewRegistry(out var collector);
-        registry.Add(new RefComponent(XsdComponentKind.ElementDeclaration, "e", 1, Ref(XsdSymbolSpace.Types, "nope", 5)));
+        registry.Add(
+            new RefComponent(XsdComponentKind.ElementDeclaration, "e", 1, Ref(XsdSymbolSpace.Types, "nope", 5))
+        );
 
         var issues = Resolve(registry, collector);
 

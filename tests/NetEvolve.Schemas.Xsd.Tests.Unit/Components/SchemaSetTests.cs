@@ -28,24 +28,21 @@ public class SchemaSetTests
         var set = Frozen(out var components);
         var failures = 0;
 
-        await Parallel.ForEachAsync(
-            Enumerable.Range(0, 64),
-            async (_, _) =>
+        await Parallel.ForEachAsync(Enumerable.Range(0, 64), async (_, _) =>
+        {
+            for (var i = 0; i < components.Length; i++)
             {
-                for (var i = 0; i < components.Length; i++)
+                if (
+                    !set.TryGet(XsdComponentKind.ElementDeclaration, Name("e" + i), out var found)
+                    || !ReferenceEquals(found, components[i])
+                )
                 {
-                    if (
-                        !set.TryGet(XsdComponentKind.ElementDeclaration, Name("e" + i), out var found)
-                        || !ReferenceEquals(found, components[i])
-                    )
-                    {
-                        _ = Interlocked.Increment(ref failures);
-                    }
+                    _ = Interlocked.Increment(ref failures);
                 }
-
-                await Task.Yield();
             }
-        );
+
+            await Task.Yield();
+        });
 
         await Assert.That(failures).IsEqualTo(0);
         await Assert.That(set.Count).IsEqualTo(200);
@@ -55,7 +52,9 @@ public class SchemaSetTests
     [Test]
     public async Task SchemaSet_PublicSurface_HasNoMutationApi()
     {
-        var members = typeof(XsdSchemaSet).GetMembers(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
+        var members = typeof(XsdSchemaSet).GetMembers(
+            BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static
+        );
         var mutating = new[] { "Add", "Remove", "Clear", "Set", "Register", "Freeze", "Resolve" };
 
         foreach (var member in members)

@@ -10,7 +10,11 @@ public class ChameleonTests
 
     private static NetEvolve.Schemas.Xsd.SchemaDocuments.SchemaSyntaxNode Element(string attributes)
     {
-        var (document, issues) = Parse(Open.Replace("<xs:schema ", "<xs:schema " + attributes + " ") + "<xs:element name=\"e\" type=\"t\"/>" + Close);
+        var (document, issues) = Parse(
+            Open.Replace("<xs:schema ", "<xs:schema " + attributes + " ", StringComparison.Ordinal)
+                + "<xs:element name=\"e\" type=\"t\"/>"
+                + Close
+        );
         if (issues.Count > 0)
         {
             throw new InvalidOperationException(issues[0].Message);

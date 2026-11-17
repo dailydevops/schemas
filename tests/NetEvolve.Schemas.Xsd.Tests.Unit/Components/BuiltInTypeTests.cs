@@ -1,7 +1,7 @@
 namespace NetEvolve.Schemas.Xsd.Tests.Unit.Components;
 
-using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
+using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Contracts;
 using static NetEvolve.Schemas.Xsd.Tests.Unit.Components.Fixture;
@@ -13,12 +13,52 @@ public class BuiltInTypeTests
     /// <summary>Datatypes 1.0 section 3: the 19 primitive and 25 derived types, plus the two ur-types.</summary>
     private static readonly string[] Xsd10Names =
     [
-        "anyType", "anySimpleType",
-        "string", "boolean", "decimal", "float", "double", "duration", "dateTime", "time", "date", "gYearMonth", "gYear",
-        "gMonthDay", "gDay", "gMonth", "hexBinary", "base64Binary", "anyURI", "QName", "NOTATION",
-        "normalizedString", "token", "language", "NMTOKEN", "NMTOKENS", "Name", "NCName", "ID", "IDREF", "IDREFS",
-        "ENTITY", "ENTITIES", "integer", "nonPositiveInteger", "negativeInteger", "long", "int", "short", "byte",
-        "nonNegativeInteger", "unsignedLong", "unsignedInt", "unsignedShort", "unsignedByte", "positiveInteger",
+        "anyType",
+        "anySimpleType",
+        "string",
+        "boolean",
+        "decimal",
+        "float",
+        "double",
+        "duration",
+        "dateTime",
+        "time",
+        "date",
+        "gYearMonth",
+        "gYear",
+        "gMonthDay",
+        "gDay",
+        "gMonth",
+        "hexBinary",
+        "base64Binary",
+        "anyURI",
+        "QName",
+        "NOTATION",
+        "normalizedString",
+        "token",
+        "language",
+        "NMTOKEN",
+        "NMTOKENS",
+        "Name",
+        "NCName",
+        "ID",
+        "IDREF",
+        "IDREFS",
+        "ENTITY",
+        "ENTITIES",
+        "integer",
+        "nonPositiveInteger",
+        "negativeInteger",
+        "long",
+        "int",
+        "short",
+        "byte",
+        "nonNegativeInteger",
+        "unsignedLong",
+        "unsignedInt",
+        "unsignedShort",
+        "unsignedByte",
+        "positiveInteger",
     ];
 
     private static ComponentRegistry Registered(XsdVersion version)
@@ -34,7 +74,9 @@ public class BuiltInTypeTests
     {
         var registry = Registered(XsdVersion.V10);
 
-        await Assert.That(registry.TryGet(XsdComponentKind.SimpleType, new XPathQName(Xs, name), out var type)).IsTrue();
+        await Assert
+            .That(registry.TryGet(XsdComponentKind.SimpleType, new XPathQName(Xs, name), out var type))
+            .IsTrue();
         await Assert.That(type!.Name.LocalName).IsEqualTo(name);
     }
 
@@ -54,9 +96,7 @@ public class BuiltInTypeTests
         }
 
         await Assert.That(anyType!.Kind).IsEqualTo(XsdComponentKind.ComplexType);
-        await Assert
-            .That(string.Join(">", chain))
-            .IsEqualTo("int>long>integer>decimal>anySimpleType>anyType");
+        await Assert.That(string.Join(">", chain)).IsEqualTo("int>long>integer>decimal>anySimpleType>anyType");
     }
 
     [Test]
