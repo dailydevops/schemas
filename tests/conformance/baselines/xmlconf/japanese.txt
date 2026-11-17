@@ -1,12 +1,6 @@
-japanese/pr-xml-euc-jp
-japanese/pr-xml-iso-2022-jp
 japanese/pr-xml-little
-japanese/pr-xml-shift_jis
 japanese/pr-xml-utf-16
 japanese/pr-xml-utf-8
-japanese/weekly-euc-jp
-japanese/weekly-iso-2022-jp
 japanese/weekly-little
-japanese/weekly-shift_jis
 japanese/weekly-utf-16
 japanese/weekly-utf-8

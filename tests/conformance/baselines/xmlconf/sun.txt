@@ -45,18 +45,10 @@ sun/el04
 sun/el05
 sun/el06
 sun/element
-sun/element00
-sun/element01
 sun/element02
 sun/element03
 sun/element04
 sun/empty
-sun/encoding01
-sun/encoding02
-sun/encoding03
-sun/encoding04
-sun/encoding05
-sun/encoding06
 sun/encoding07
 sun/ext01
 sun/ext02
@@ -132,7 +124,6 @@ sun/sa03
 sun/sa04
 sun/sa05
 sun/sgml01
-sun/sgml02
 sun/sgml03
 sun/sgml04
 sun/sgml05
@@ -145,8 +136,6 @@ sun/sgml11
 sun/sgml12
 sun/sgml13
 sun/uri01
-sun/utf16b
-sun/utf16l
 sun/v-lang01
 sun/v-lang02
 sun/v-lang03

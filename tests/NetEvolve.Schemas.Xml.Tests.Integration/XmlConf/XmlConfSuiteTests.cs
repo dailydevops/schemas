@@ -1,5 +1,6 @@
 ﻿namespace NetEvolve.Schemas.Xml.Tests.Integration.XmlConf;
 
+using System.Text;
 using NetEvolve.Schemas.Conformance.Baseline;
 using NetEvolve.Schemas.Conformance.Results;
 
@@ -49,57 +50,138 @@ public class XmlConfSuiteTests
         await Assert.That(selection.Excluded.All(e => !string.IsNullOrWhiteSpace(e.Reason))).IsTrue();
     }
 
-    [Test]
-    public async Task Baseline_ListsEverySelectedCase_InOneFilePerTestSet(CancellationToken cancellationToken)
+    private static async Task<List<XmlConfCase>> WithoutDoctypeAsync(
+        IEnumerable<XmlConfCase> candidates,
+        CancellationToken cancellationToken
+    )
     {
         cancellationToken.ThrowIfCancellationRequested();
-        var selection = await XmlConfSuite.LoadSelectionAsync(cancellationToken);
 
-        var expected = selection
-            .Selected.GroupBy(c => c.TestSet, StringComparer.Ordinal)
-            .ToDictionary(
-                g => g.Key,
-                g => g.Select(c => c.Id).Order(StringComparer.Ordinal).ToArray(),
-                StringComparer.Ordinal
-            );
-        var files = Directory
-            .GetFiles(XmlConfSuite.BaselineDirectory, "*.txt")
-            .Select(f => Path.GetFileNameWithoutExtension(f))
-            .Order(StringComparer.Ordinal);
-
-        await Assert.That(files).IsEquivalentTo(expected.Keys.Order(StringComparer.Ordinal));
-        foreach (var (testSet, ids) in expected)
+        var cases = new List<XmlConfCase>();
+        foreach (var c in candidates)
         {
-            await Assert.That(BaselineFiles.Load(XmlConfSuite.BaselineDirectory, testSet).Ids).IsEquivalentTo(ids);
+            var path = Path.Combine(XmlConfSuite.SuiteRoot, c.Uri);
+            if (!File.Exists(path))
+            {
+                continue;
+            }
+
+            var bytes = await File.ReadAllBytesAsync(path, cancellationToken);
+            var text =
+                bytes is [0xFF, 0xFE, ..] ? Encoding.Unicode.GetString(bytes)
+                : bytes is [0xFE, 0xFF, ..] ? Encoding.BigEndianUnicode.GetString(bytes)
+                : Encoding.Latin1.GetString(bytes);
+            if (!text.Contains("<!DOCTYPE", StringComparison.Ordinal))
+            {
+                cases.Add(c);
+            }
+        }
+
+        return cases;
+    }
+
+    [Test]
+    public async Task Baseline_ListsOnlySelectedCases_InOneFilePerTestSet(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var selection = await XmlConfSuite.LoadSelectionAsync(cancellationToken);
+        var selected = selection.Selected.ToDictionary(c => c.Id, c => c.TestSet, StringComparer.Ordinal);
+
+        foreach (var file in Directory.GetFiles(XmlConfSuite.BaselineDirectory, "*.txt"))
+        {
+            var testSet = Path.GetFileNameWithoutExtension(file);
+            foreach (var id in BaselineFiles.Load(XmlConfSuite.BaselineDirectory, testSet).Ids)
+            {
+                await Assert.That(selected.TryGetValue(id, out var owner)).IsTrue();
+                await Assert.That(owner).IsEqualTo(testSet);
+            }
         }
     }
 
     [Test]
-    public async Task Baseline_MatchesUnboundReaderRun(CancellationToken cancellationToken)
+    public async Task Baseline_MatchesPipelineReaderRun(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
+
         var selection = await XmlConfSuite.LoadSelectionAsync(cancellationToken);
-        var results = await XmlConfRunner.RunAsync(selection, UnboundXmlConfReader.Instance, cancellationToken);
+        var results = await XmlConfRunner.RunAsync(
+            selection,
+            new PipelineXmlConfReader(XmlConfSuite.SuiteRoot),
+            cancellationToken
+        );
 
         var report = ConformanceReport.Compare(results, XmlConfSuite.LoadBaselines(selection));
 
         await Assert.That(report.IsSuccess).IsTrue();
-        await Assert.That(report.Counts.Passed).IsEqualTo(0);
-        await Assert.That(report.Counts.Failed).IsEqualTo(SelectedCaseCount);
+        await Assert.That(report.Counts.Passed).IsGreaterThan(0);
         await Assert.That(report.Counts.Skipped).IsEqualTo(ExcludedCaseCount);
     }
 
-    /// <summary>Regenerates the baseline files from the current selection; run it with the explicit filter after a deliberate change.</summary>
+    [Test]
+    public async Task Pipeline_NamespaceCasesWithoutDoctype_GiveTheExpectedResultAndLeaveTheBaseline(
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var selection = await XmlConfSuite.LoadSelectionAsync(cancellationToken);
+        var baseline = XmlConfSuite.LoadBaselines(selection)["eduni-namespaces-1.0"];
+        var cases = await WithoutDoctypeAsync(
+            selection.Selected.Where(c => string.Equals(c.TestSet, "eduni-namespaces-1.0", StringComparison.Ordinal)),
+            cancellationToken
+        );
+
+        var results = await XmlConfRunner.RunAsync(
+            new XmlConfSelection(cases, []),
+            new PipelineXmlConfReader(XmlConfSuite.SuiteRoot),
+            cancellationToken
+        );
+
+        var failed = results.Where(r => r.Outcome == CaseOutcome.Fail).Select(r => r.CaseId).ToList();
+
+        // Known defect: a colon in a processing instruction target is accepted (rmt-ns10-042 expects an error).
+        await Assert.That(failed).IsEquivalentTo(["eduni-namespaces-1.0/rmt-ns10-042"]);
+        await Assert.That(results.Count(r => r.Outcome == CaseOutcome.Pass)).IsEqualTo(29);
+        await Assert
+            .That(
+                cases
+                    .Where(c => !failed.Contains(c.Id, StringComparer.Ordinal))
+                    .Any(c => baseline.Ids.Contains(c.Id, StringComparer.Ordinal))
+            )
+            .IsFalse();
+    }
+
+    /// <summary>Regenerates the baseline files from the failures of the pipeline reader; run it with the explicit filter after a deliberate change.</summary>
     [Test]
     [Explicit]
     public async Task Baseline_Regenerate(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        var selection = await XmlConfSuite.LoadSelectionAsync(cancellationToken);
 
-        foreach (var group in selection.Selected.GroupBy(c => c.TestSet, StringComparer.Ordinal))
+        var selection = await XmlConfSuite.LoadSelectionAsync(cancellationToken);
+        var results = await XmlConfRunner.RunAsync(
+            selection,
+            new PipelineXmlConfReader(XmlConfSuite.SuiteRoot),
+            cancellationToken
+        );
+
+        foreach (var testSet in selection.Selected.Select(c => c.TestSet).Distinct(StringComparer.Ordinal))
         {
-            BaselineFiles.Save(XmlConfSuite.BaselineDirectory, group.Key, group.Select(c => c.Id));
+            var failures = results
+                .Where(r =>
+                    string.Equals(r.TestSet, testSet, StringComparison.Ordinal) && r.Outcome == CaseOutcome.Fail
+                )
+                .Select(r => r.CaseId)
+                .ToList();
+            if (failures.Count == 0)
+            {
+                File.Delete(BaselineFiles.PathFor(XmlConfSuite.BaselineDirectory, testSet));
+            }
+            else
+            {
+                BaselineFiles.Save(XmlConfSuite.BaselineDirectory, testSet, failures);
+            }
         }
 
         await Assert.That(Directory.GetFiles(XmlConfSuite.BaselineDirectory, "*.txt").Length).IsGreaterThan(0);
