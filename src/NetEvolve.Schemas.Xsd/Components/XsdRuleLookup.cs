@@ -13,6 +13,11 @@ internal static class XsdRuleLookup
     internal static readonly XsdRule MgPropsCorrect = Find("mg-props-correct");
     internal static readonly XsdRule AgPropsCorrect = Find("ag-props-correct");
     internal static readonly XsdRule CosEquivDerivedOkRec = Find("cos-equiv-derived-ok-rec");
+    internal static readonly XsdRule SrcElement = Find("src-element");
+    internal static readonly XsdRule SrcModelGroupDefn = Find("src-model_group_defn");
+    internal static readonly XsdRule SrcWildcard = Find("src-wildcard");
+    internal static readonly XsdRule PPropsCorrect = Find("p-props-correct");
+    internal static readonly XsdRule CosElementConsistent = Find("cos-element-consistent");
 
     private static XsdRule Find(string id)
     {
