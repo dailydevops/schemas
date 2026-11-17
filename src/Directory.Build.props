@@ -6,6 +6,10 @@
   <ItemGroup>
     <AdditionalFiles Include="$(MSBuildThisFileDirectory)BannedSymbols.txt" />
   </ItemGroup>
+  <!-- Maintainer rule: argument validation uses NetEvolve.Arguments; it ships as a runtime dependency of every package. -->
+  <ItemGroup>
+    <PackageReference Include="NetEvolve.Arguments" />
+  </ItemGroup>
   <!-- Limitation: netstandard2.0 depends on exactly these three Microsoft polyfill packages and nothing else. -->
   <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" />
