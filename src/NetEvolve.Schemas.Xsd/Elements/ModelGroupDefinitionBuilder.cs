@@ -44,7 +44,7 @@ internal sealed class ModelGroupDefinitionBuilder : IComponentBuilder
             ?? throw new NotSupportedException("Only a SchemaSyntaxNode can be built into a component.");
 
         var name = node.FindAttribute("name");
-        if (string.IsNullOrEmpty(name))
+        if (name is null || name.Length == 0)
         {
             Report(reporter, node, "A model group definition must have a name.");
         }
@@ -77,7 +77,7 @@ internal sealed class ModelGroupDefinitionBuilder : IComponentBuilder
             ? ModelGroup.Create(ModelGroupCompositor.Sequence, node.Location, [])
             : _particles.BuildGroup(compositor, reporter);
         var definition = ModelGroupDefinition.Create(
-            string.IsNullOrEmpty(name) ? default : _scope.Declare(name),
+            name is null || name.Length == 0 ? default : _scope.Declare(name),
             node.Location,
             group
         );

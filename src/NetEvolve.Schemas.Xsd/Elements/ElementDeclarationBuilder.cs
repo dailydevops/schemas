@@ -87,7 +87,7 @@ internal sealed class ElementDeclarationBuilder : IComponentBuilder
         var root = Root(node);
         var form = node.FindAttribute("form") ?? root.FindAttribute("elementFormDefault");
         var qualifiedName =
-            string.IsNullOrEmpty(name) ? default
+            name is null || name.Length == 0 ? default
             : isGlobal || string.Equals(form, "qualified", StringComparison.Ordinal) ? _scope.Declare(name)
             : new XPathQName(string.Empty, name);
 
