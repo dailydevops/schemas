@@ -1,8 +1,9 @@
-namespace NetEvolve.Schemas.Xsd.Tests.Integration.Xsts;
+namespace NetEvolve.Schemas.Xsd.Tests.Integration.Conformance;
 
 using System.Collections.Concurrent;
 using NetEvolve.Schemas.Conformance.Baseline;
 using NetEvolve.Schemas.Conformance.Results;
+using NetEvolve.Schemas.Xsd.Tests.Integration.Xsts;
 
 public class XstsConformanceTests
 {
