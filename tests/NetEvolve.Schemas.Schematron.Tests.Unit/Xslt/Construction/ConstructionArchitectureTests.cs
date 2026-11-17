@@ -27,7 +27,7 @@ public class ConstructionArchitectureTests
 
         foreach (var type in assembly.GetTypes())
         {
-            if (type.Namespace != Folder)
+            if (!string.Equals(type.Namespace, Folder, StringComparison.Ordinal))
             {
                 continue;
             }

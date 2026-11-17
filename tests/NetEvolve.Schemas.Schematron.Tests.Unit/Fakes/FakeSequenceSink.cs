@@ -11,6 +11,10 @@ internal sealed class FakeSequenceSink : ISequenceSink
 {
     internal List<string> Texts { get; } = [];
 
+    public SequenceSinkKind Kind => SequenceSinkKind.Items;
+
+    public IXmlSink Content => throw new InvalidOperationException("Only a tree sink has content.");
+
     public void Item(in XdmItem item) => Texts.Add("item");
 
     public void Text(ReadOnlySpan<char> text) => Texts.Add(text.ToString());

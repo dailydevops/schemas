@@ -9,13 +9,17 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 public class TreeContentSinkTests
 {
     [Test]
-    public async Task Kind_IsTree() =>
-        await Assert.That(new TreeContentSink(SinkTestSupport.NewTable()).Kind).IsEqualTo(SequenceSinkKind.Tree);
+    public async Task Kind_IsTree()
+    {
+        using var sink = new TreeContentSink(SinkTestSupport.NewTable());
+
+        await Assert.That(sink.Kind).IsEqualTo(SequenceSinkKind.Tree);
+    }
 
     [Test]
     public async Task Tree_VariableContent_GivesDocumentNode()
     {
-        var sink = new TreeContentSink(SinkTestSupport.NewTable());
+        using var sink = new TreeContentSink(SinkTestSupport.NewTable());
 
         var node = SinkTestSupport.Node(sink.Document);
 
@@ -26,7 +30,7 @@ public class TreeContentSinkTests
     [Test]
     public async Task Tree_ValueOfPush_GivesOneTextNode()
     {
-        var sink = new TreeContentSink(SinkTestSupport.NewTable());
+        using var sink = new TreeContentSink(SinkTestSupport.NewTable());
 
         sink.Text("hello");
 
@@ -39,7 +43,7 @@ public class TreeContentSinkTests
     [Test]
     public async Task Tree_AdjacentText_MergesAndEmptyTextCreatesNone()
     {
-        var sink = new TreeContentSink(SinkTestSupport.NewTable());
+        using var sink = new TreeContentSink(SinkTestSupport.NewTable());
 
         sink.Text("a");
         sink.Text("");
@@ -53,7 +57,7 @@ public class TreeContentSinkTests
     [Test]
     public async Task Tree_AtomicValues_AreSpaceSeparated()
     {
-        var sink = new TreeContentSink(SinkTestSupport.NewTable());
+        using var sink = new TreeContentSink(SinkTestSupport.NewTable());
         var one = XdmItem.FromInteger(1);
         var two = XdmItem.FromInteger(2);
         var yes = XdmItem.FromBoolean(true);
@@ -68,7 +72,7 @@ public class TreeContentSinkTests
     [Test]
     public async Task Tree_TextCall_ResetsAdjacency()
     {
-        var sink = new TreeContentSink(SinkTestSupport.NewTable());
+        using var sink = new TreeContentSink(SinkTestSupport.NewTable());
         var one = XdmItem.FromInteger(1);
         var s = XdmItem.FromString("s");
 
@@ -82,7 +86,7 @@ public class TreeContentSinkTests
     [Test]
     public async Task Tree_NodeIsCopiedThroughPump_NewIdentity()
     {
-        var sink = new TreeContentSink(SinkTestSupport.NewTable());
+        using var sink = new TreeContentSink(SinkTestSupport.NewTable());
         var source = SinkTestSupport.Element("a", "x");
 
         sink.Item(in source);
@@ -97,7 +101,7 @@ public class TreeContentSinkTests
     [Test]
     public async Task Tree_DocumentNodeContributesItsChildren()
     {
-        var sink = new TreeContentSink(SinkTestSupport.NewTable());
+        using var sink = new TreeContentSink(SinkTestSupport.NewTable());
         var document = SinkTestSupport.Item(SinkTestSupport.Node(SinkTestSupport.Element("a", "x")).Parent);
 
         sink.Item(in document);
@@ -109,7 +113,7 @@ public class TreeContentSinkTests
     [Test]
     public async Task Tree_AttributeInDocumentContent_Fails()
     {
-        var sink = new TreeContentSink(SinkTestSupport.NewTable());
+        using var sink = new TreeContentSink(SinkTestSupport.NewTable());
         var attribute = SinkTestSupport.Attribute("id", "1");
 
         sink.Item(in attribute);
@@ -123,8 +127,8 @@ public class TreeContentSinkTests
     public async Task Tree_TwoConstructedTrees_HaveDistinctIdentity()
     {
         var names = SinkTestSupport.NewTable();
-        var first = new TreeContentSink(names);
-        var second = new TreeContentSink(names);
+        using var first = new TreeContentSink(names);
+        using var second = new TreeContentSink(names);
         first.Text("a");
         second.Text("a");
 
@@ -134,7 +138,7 @@ public class TreeContentSinkTests
     [Test]
     public async Task Tree_NodesOfOneTree_AreInDocumentOrder()
     {
-        var sink = new TreeContentSink(SinkTestSupport.NewTable());
+        using var sink = new TreeContentSink(SinkTestSupport.NewTable());
         var source = SinkTestSupport.Element("a", "x");
         sink.Item(in source);
         sink.Text("t");
@@ -152,7 +156,7 @@ public class TreeContentSinkTests
     {
         var instanceNames = SinkTestSupport.NewTable();
         var before = instanceNames.Count;
-        var sink = new TreeContentSink(SinkTestSupport.NewTable());
+        using var sink = new TreeContentSink(SinkTestSupport.NewTable());
         var content = sink.Content;
         var name = content.Names.Intern("", "brandNew", "");
 
@@ -168,7 +172,7 @@ public class TreeContentSinkTests
     [Test]
     public async Task Tree_NestedTree_CopiesChildrenWhenPassedToItem()
     {
-        var sink = new TreeContentSink(SinkTestSupport.NewTable());
+        using var sink = new TreeContentSink(SinkTestSupport.NewTable());
 
         var nested = sink.BeginTree();
         nested.Text("n", XmlTextKind.Text);
@@ -183,7 +187,7 @@ public class TreeContentSinkTests
     [Test]
     public async Task Tree_UnsupportedAtomicKind_ReportsProblem()
     {
-        var sink = new TreeContentSink(SinkTestSupport.NewTable());
+        using var sink = new TreeContentSink(SinkTestSupport.NewTable());
         var d = XdmItem.FromDouble(1.5);
 
         sink.Item(in d);
