@@ -105,8 +105,6 @@ public class AnyUriDatatypeTests
     }
 
     [Test]
-    public async Task Constructor_RejectsAnUndefinedVersion()
-    {
+    public async Task Constructor_RejectsAnUndefinedVersion() =>
         await Assert.That(() => new AnyUriDescriptor((XsdVersion)99)).Throws<ArgumentOutOfRangeException>();
-    }
 }
