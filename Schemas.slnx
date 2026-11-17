@@ -45,6 +45,7 @@
     <Project Path="tests/NetEvolve.Schemas.Tests.Architecture/NetEvolve.Schemas.Tests.Architecture.csproj" />
     <Project Path="tests/NetEvolve.Schemas.Architecture.Fixtures/NetEvolve.Schemas.Architecture.Fixtures.csproj" />
     <Project Path="tests/NetEvolve.Schemas.Tests.LegacyCompiler/NetEvolve.Schemas.Tests.LegacyCompiler.csproj" />
+    <Project Path="tests/NetEvolve.Schemas.Tests.Packaging/NetEvolve.Schemas.Tests.Packaging.csproj" />
     <Project Path="tests/NetEvolve.Schemas.Tests.PublicApi/NetEvolve.Schemas.Tests.PublicApi.csproj" />
     <Project Path="tests/NetEvolve.Schemas.Tests.Unit/NetEvolve.Schemas.Tests.Unit.csproj" />
     <Project Path="tests/NetEvolve.Schemas.Xml.Tests.Unit/NetEvolve.Schemas.Xml.Tests.Unit.csproj" />
