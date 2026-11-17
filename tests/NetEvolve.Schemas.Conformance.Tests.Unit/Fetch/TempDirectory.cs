@@ -1,4 +1,3 @@
-#if NET10_0_OR_GREATER
 namespace NetEvolve.Schemas.Conformance.Tests.Unit.Fetch;
 
 using System.Formats.Tar;
@@ -16,4 +15,3 @@ internal sealed class TempDirectory : IDisposable
 
     public void Dispose() => Directory.Delete(Path, recursive: true);
 }
-#endif

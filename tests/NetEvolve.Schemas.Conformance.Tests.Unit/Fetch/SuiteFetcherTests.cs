@@ -1,4 +1,3 @@
-#if NET10_0_OR_GREATER
 namespace NetEvolve.Schemas.Conformance.Tests.Unit.Fetch;
 
 using NetEvolve.Schemas.Conformance.Fetch;
@@ -120,4 +119,3 @@ public class SuiteFetcherTests
         await Assert.That(() => new SuiteFetcher(new FakeTransport([]), " ")).Throws<ArgumentException>();
     }
 }
-#endif

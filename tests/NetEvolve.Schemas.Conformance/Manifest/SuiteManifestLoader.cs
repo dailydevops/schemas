@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.Conformance.Manifest;
 
 using System.Text.Json;
+using NetEvolve.Schemas.Conformance.Fetch;
 
 /// <summary>Reads suite manifests (<c>tests/conformance/suites/&lt;suite&gt;.json</c>).</summary>
 public static class SuiteManifestLoader
@@ -106,7 +107,7 @@ public static class SuiteManifestLoader
             }
         }
 
-        return new SuiteManifest(key, url, Convert.ToHexStringLower(Convert.FromHexString(sha256)), archive, subPath);
+        return new SuiteManifest(key, url, HexEncoding.ToLower(Convert.FromHexString(sha256)), archive, subPath);
     }
 
     private static string Required(JsonElement root, string name, string source) =>
