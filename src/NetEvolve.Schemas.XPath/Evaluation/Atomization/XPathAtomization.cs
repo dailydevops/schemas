@@ -83,22 +83,48 @@ internal static class XPathAtomization
             throw XPathErrors.Exception(XPathErrorCodes.FORG0006);
         }
 
+        // Each family is tried in turn; a failed accessor falls through to the next one.
         if (item.TryGetBoolean(out var boolean))
         {
             return boolean;
         }
 
-        return item.Kind switch
+        if (item.TryGetString(out var text))
         {
-            XdmItemKind.XsString => item.TryGetString(out var s) && s!.Length > 0,
-            XdmItemKind.UntypedAtomic => item.TryGetUntypedAtomic(out var u) && u!.Length > 0,
-            XdmItemKind.AnyUri => item.TryGetAnyUri(out var a) && a!.Length > 0,
-            XdmItemKind.XsInteger => item.TryGetInteger(out var i) && i != 0,
-            XdmItemKind.XsDouble => item.TryGetDouble(out var d) && d != 0 && !double.IsNaN(d),
-            XdmItemKind.XsFloat => item.TryGetFloat(out var f) && f != 0 && !float.IsNaN(f),
-            XdmItemKind.XsDecimal => item.TryGetDecimal(out var m) && m.Sign != 0,
-            _ => throw XPathErrors.Exception(XPathErrorCodes.FORG0006),
-        };
+            return text!.Length > 0;
+        }
+
+        if (item.TryGetUntypedAtomic(out var untyped))
+        {
+            return untyped!.Length > 0;
+        }
+
+        if (item.TryGetAnyUri(out var uri))
+        {
+            return uri!.Length > 0;
+        }
+
+        if (item.TryGetInteger(out var integer))
+        {
+            return integer != 0;
+        }
+
+        if (item.TryGetDouble(out var number))
+        {
+            return number != 0 && !double.IsNaN(number);
+        }
+
+        if (item.TryGetFloat(out var single))
+        {
+            return single != 0 && !float.IsNaN(single);
+        }
+
+        if (item.TryGetDecimal(out var dec))
+        {
+            return dec.Sign != 0;
+        }
+
+        throw XPathErrors.Exception(XPathErrorCodes.FORG0006);
     }
 
     private static XdmItem AtomizeNode(in XdmItem item, IXdmTypeAnnotationSource source)
