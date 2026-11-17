@@ -632,6 +632,110 @@ namespace NetEvolve.Schemas.Xml.Datatypes.Duration
         public static bool operator ==(NetEvolve.Schemas.Xml.Datatypes.Duration.XsdDuration left, NetEvolve.Schemas.Xml.Datatypes.Duration.XsdDuration right) { }
     }
 }
+namespace NetEvolve.Schemas.Xml.Datatypes.Facets.Core
+{
+    public sealed class EnumerationFacet<TValue> : NetEvolve.Schemas.Xml.Datatypes.Contracts.IFacet, NetEvolve.Schemas.Xml.Datatypes.Contracts.IValueFacet<TValue>
+    {
+        public EnumerationFacet(NetEvolve.Schemas.Xml.Datatypes.Contracts.IDatatypeDescriptor<TValue> type, System.Collections.Generic.IReadOnlyList<TValue> values) { }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.FacetKind Kind { get; }
+        public bool IsSatisfiedBy(in TValue value) { }
+    }
+    public static class FacetApplicability
+    {
+        public static bool IsApplicable(NetEvolve.Schemas.Xml.Datatypes.Contracts.FacetKind facet, NetEvolve.Schemas.Xml.Datatypes.Contracts.DatatypeVariety variety, NetEvolve.Schemas.Xml.Datatypes.Facets.Core.PrimitiveKind primitive, NetEvolve.Schemas.Xml.Datatypes.Contracts.XsdVersion version) { }
+    }
+    public readonly struct FacetKindSet : System.IEquatable<NetEvolve.Schemas.Xml.Datatypes.Facets.Core.FacetKindSet>
+    {
+        public bool Contains(NetEvolve.Schemas.Xml.Datatypes.Contracts.FacetKind kind) { }
+        public NetEvolve.Schemas.Xml.Datatypes.Facets.Core.FacetKindSet Union(NetEvolve.Schemas.Xml.Datatypes.Facets.Core.FacetKindSet other) { }
+        public NetEvolve.Schemas.Xml.Datatypes.Facets.Core.FacetKindSet With(NetEvolve.Schemas.Xml.Datatypes.Contracts.FacetKind kind) { }
+    }
+    public static class FacetRestriction
+    {
+        public static NetEvolve.Schemas.Xml.Datatypes.Facets.Core.FacetSet Apply(NetEvolve.Schemas.Xml.Datatypes.Facets.Core.FacetSet baseSet, NetEvolve.Schemas.Xml.Datatypes.Facets.Core.FacetSet derived) { }
+        public static NetEvolve.Schemas.Xml.Datatypes.Facets.Core.FacetRestrictionResult Validate(NetEvolve.Schemas.Xml.Datatypes.Facets.Core.FacetSet baseSet, NetEvolve.Schemas.Xml.Datatypes.Facets.Core.FacetSet derived, NetEvolve.Schemas.Xml.Datatypes.Contracts.DatatypeVariety variety, NetEvolve.Schemas.Xml.Datatypes.Facets.Core.PrimitiveKind primitive, NetEvolve.Schemas.Xml.Datatypes.Contracts.XsdVersion version) { }
+    }
+    public enum FacetRestrictionError
+    {
+        None = 0,
+        NotApplicable = 1,
+        FixedFacetChanged = 2,
+        WhiteSpaceLoosened = 3,
+        LengthChanged = 4,
+        MinLengthLoosened = 5,
+        MaxLengthLoosened = 6,
+        LengthConflict = 7,
+        MinLengthGreaterThanMaxLength = 8,
+    }
+    public readonly struct FacetRestrictionResult : System.IEquatable<NetEvolve.Schemas.Xml.Datatypes.Facets.Core.FacetRestrictionResult>
+    {
+        public FacetRestrictionResult(NetEvolve.Schemas.Xml.Datatypes.Facets.Core.FacetRestrictionError error, NetEvolve.Schemas.Xml.Datatypes.Contracts.FacetKind facet) { }
+        public NetEvolve.Schemas.Xml.Datatypes.Facets.Core.FacetRestrictionError Error { get; }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.FacetKind Facet { get; }
+        public bool IsValid { get; }
+    }
+    public readonly struct FacetSet : System.IEquatable<NetEvolve.Schemas.Xml.Datatypes.Facets.Core.FacetSet>
+    {
+        public FacetSet(int? length = default, int? minLength = default, int? maxLength = default, NetEvolve.Schemas.Xml.Datatypes.Core.WhitespaceMode? whiteSpace = default, NetEvolve.Schemas.Xml.Datatypes.Facets.Core.FacetKindSet fixedFacets = default) { }
+        public NetEvolve.Schemas.Xml.Datatypes.Facets.Core.FacetKindSet FixedFacets { get; }
+        public int? Length { get; }
+        public int? MaxLength { get; }
+        public int? MinLength { get; }
+        public NetEvolve.Schemas.Xml.Datatypes.Facets.Core.FacetKindSet Specified { get; }
+        public NetEvolve.Schemas.Xml.Datatypes.Core.WhitespaceMode? WhiteSpace { get; }
+    }
+    public sealed class LengthFacet : NetEvolve.Schemas.Xml.Datatypes.Contracts.IFacet, NetEvolve.Schemas.Xml.Datatypes.Contracts.ILexicalFacet
+    {
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.FacetKind Kind { get; }
+        public NetEvolve.Schemas.Xml.Datatypes.Facets.Core.LengthUnit Unit { get; }
+        public int Value { get; }
+        public bool IsSatisfiedBy(System.ReadOnlySpan<char> lexical) { }
+        public static NetEvolve.Schemas.Xml.Datatypes.Facets.Core.LengthFacet Length(int value, NetEvolve.Schemas.Xml.Datatypes.Facets.Core.LengthUnit unit) { }
+        public static NetEvolve.Schemas.Xml.Datatypes.Facets.Core.LengthFacet MaxLength(int value, NetEvolve.Schemas.Xml.Datatypes.Facets.Core.LengthUnit unit) { }
+        public static NetEvolve.Schemas.Xml.Datatypes.Facets.Core.LengthFacet MinLength(int value, NetEvolve.Schemas.Xml.Datatypes.Facets.Core.LengthUnit unit) { }
+    }
+    public enum LengthUnit
+    {
+        Characters = 0,
+        Items = 1,
+    }
+    public sealed class LexicalEnumerationFacet : NetEvolve.Schemas.Xml.Datatypes.Contracts.IFacet, NetEvolve.Schemas.Xml.Datatypes.Contracts.ILexicalFacet
+    {
+        public LexicalEnumerationFacet(System.Collections.Generic.IReadOnlyList<string> values) { }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.FacetKind Kind { get; }
+        public bool IsSatisfiedBy(System.ReadOnlySpan<char> lexical) { }
+    }
+    public enum PrimitiveKind
+    {
+        None = 0,
+        StringType = 1,
+        Boolean = 2,
+        DecimalType = 3,
+        FloatType = 4,
+        DoubleType = 5,
+        Duration = 6,
+        DateTime = 7,
+        Time = 8,
+        Date = 9,
+        GYearMonth = 10,
+        GYear = 11,
+        GMonthDay = 12,
+        GDay = 13,
+        GMonth = 14,
+        HexBinary = 15,
+        Base64Binary = 16,
+        AnyUri = 17,
+        QName = 18,
+        Notation = 19,
+    }
+    public sealed class WhiteSpaceFacet : NetEvolve.Schemas.Xml.Datatypes.Contracts.IFacet, NetEvolve.Schemas.Xml.Datatypes.Contracts.ILexicalFacet
+    {
+        public WhiteSpaceFacet(NetEvolve.Schemas.Xml.Datatypes.Core.WhitespaceMode mode) { }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.FacetKind Kind { get; }
+        public NetEvolve.Schemas.Xml.Datatypes.Core.WhitespaceMode Mode { get; }
+        public bool IsSatisfiedBy(System.ReadOnlySpan<char> lexical) { }
+    }
+}
 namespace NetEvolve.Schemas.Xml.Datatypes.Floating
 {
     public static class XsdFloatingPoint
