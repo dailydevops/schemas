@@ -39,6 +39,7 @@
     <Project Path="tests/NetEvolve.Schemas.Conformance/NetEvolve.Schemas.Conformance.csproj" />
     <Project Path="tests/NetEvolve.Schemas.Conformance.Tests.Unit/NetEvolve.Schemas.Conformance.Tests.Unit.csproj" />
     <Project Path="tests/NetEvolve.Schemas.DependencyInjection.Tests.Unit/NetEvolve.Schemas.DependencyInjection.Tests.Unit.csproj" />
+    <Project Path="tests/NetEvolve.Schemas.Schematron.Tests.Integration/NetEvolve.Schemas.Schematron.Tests.Integration.csproj" />
     <Project Path="tests/NetEvolve.Schemas.Schematron.Tests.Unit/NetEvolve.Schemas.Schematron.Tests.Unit.csproj" />
     <Project Path="tests/NetEvolve.Schemas.Testing/NetEvolve.Schemas.Testing.csproj" />
     <Project Path="tests/NetEvolve.Schemas.Tests.Architecture/NetEvolve.Schemas.Tests.Architecture.csproj" />
