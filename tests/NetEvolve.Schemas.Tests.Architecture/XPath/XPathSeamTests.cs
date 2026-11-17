@@ -14,6 +14,10 @@ public class XPathSeamTests
         "NetEvolve.Schemas.XPath.Syntax.Tree",
         "NetEvolve.Schemas.XPath.Abstractions",
         "NetEvolve.Schemas.XPath.Subsets",
+        // The Schematron pattern matcher parses with XPathParser, builds step tests with XPathNodeTest, and walks nodes with XPathNodeAccessors (SCH-54).
+        "NetEvolve.Schemas.XPath.Syntax.Parser",
+        "NetEvolve.Schemas.XPath.Evaluation.Axes",
+        "NetEvolve.Schemas.XPath.Xdm.Nodes",
     ];
 
     private static readonly string[] AllowedFriends =
