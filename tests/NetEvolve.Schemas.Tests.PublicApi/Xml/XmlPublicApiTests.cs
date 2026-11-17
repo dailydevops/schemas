@@ -13,6 +13,11 @@ public class XmlPublicApiTests
         await PublicApiHarness.VerifyAsync(
             typeof(XmlSymbol).Assembly,
             AssemblyName,
-            ["NetEvolve.Schemas.Xml.Contracts", "NetEvolve.Schemas.Xml.Interop"]
+            [
+                "NetEvolve.Schemas.Xml.Contracts",
+                "NetEvolve.Schemas.Xml.Datatypes",
+                "NetEvolve.Schemas.Xml.Interop",
+                "NetEvolve.Schemas.Xml.Regex",
+            ]
         );
 }
