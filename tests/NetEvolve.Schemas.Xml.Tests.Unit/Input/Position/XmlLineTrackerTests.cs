@@ -19,6 +19,7 @@ public class XmlLineTrackerTests
     [Arguments("a\r\nb", "a\nb")]
     public async Task Normalize_CrLfAndCrLf_ProduceOneLineFeedAndOneLine(string input, string expected)
     {
+        ArgumentNullException.ThrowIfNull(input);
         var tracker = new XmlLineTracker();
 
         var result = Normalize(ref tracker, input);
