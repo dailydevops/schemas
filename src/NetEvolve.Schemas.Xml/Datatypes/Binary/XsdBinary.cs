@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.Xml.Datatypes.Binary;
 
 using System;
 using System.Runtime.InteropServices;
+using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 
 /// <summary>The value of <c>hexBinary</c> and <c>base64Binary</c> (XSD 1.1 Part 2, sections 3.3.15 and 3.3.16): a finite sequence of octets.</summary>
@@ -22,6 +23,8 @@ public readonly struct XsdBinary : IEquatable<XsdBinary>
     /// <returns>The value, or the error with its offset.</returns>
     public static ParseResult<XsdBinary> Parse(ReadOnlySpan<char> lexical, BinaryKind kind)
     {
+        Argument.ThrowIfLessThan((int)kind, (int)BinaryKind.HexBinary);
+        Argument.ThrowIfGreaterThan((int)kind, (int)BinaryKind.Base64Binary);
         var error = BinaryLexical.Scan(lexical, kind, out var octets, out var offset);
         return error == DatatypeError.None
             ? new ParseResult<XsdBinary>(Map(lexical, kind, octets))

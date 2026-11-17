@@ -36,11 +36,14 @@ internal static class QNameDatatypes
         public DatatypeError Check(ReadOnlySpan<char> normalized, XsdVersion version, out int errorOffset) =>
             XsdQName.Scan(normalized, out _, out errorOffset);
 
+        // The range addresses the whitespace-collapsed text, not the original input.
         public TextRange Map(ReadOnlySpan<char> normalized, WhitespaceMode mode, XsdVersion version) =>
             new(0, normalized.Length);
 
         public XsdOrder Compare(in TextRange a, in TextRange b, XsdVersion version) => XsdOrder.Incomparable;
 
+        // Decision: always false. A TextRange is only an offset pair, so range equality would equate unrelated values of the
+        // same length, and the resolved value needs a namespace context (XsdQName.Parse). Identity is therefore undefined here.
         public bool IsIdentical(in TextRange a, in TextRange b, XsdVersion version) => false;
     }
 }
