@@ -6,7 +6,6 @@ using NetEvolve.Schemas.Conformance.Manifest;
 /// <summary>Scans the rule sets of fetched suites and publishes the report.</summary>
 internal static class CorpusScanRun
 {
-    private const string StageSourcesFile = "stage-sources.json";
     private const string JobSummaryVariable = "GITHUB_STEP_SUMMARY";
 
     /// <summary>Scans every rule set below a suite root.</summary>
@@ -32,22 +31,15 @@ internal static class CorpusScanRun
 
     /// <summary>Loads the rule set pins of the manifest directory.</summary>
     /// <param name="directory">The manifest directory.</param>
-    /// <returns>The pinned rule set suites (keys starting with <c>stage</c>); <c>stage-sources.json</c> pins no archive and other pins such as the Unicode Character Database carry no rule sets, so both are skipped.</returns>
+    /// <returns>The pinned rule set suites (keys starting with <c>stage</c>); other pins such as the Unicode Character Database carry no rule sets and are skipped.</returns>
     public static IReadOnlyList<SuiteManifest> LoadPins(string directory)
     {
-        var files = Directory.GetFiles(directory, "*.json");
-        Array.Sort(files, StringComparer.Ordinal);
-
         var pins = new List<SuiteManifest>();
-        foreach (var file in files)
+        foreach (var manifest in SuiteManifestLoader.LoadDirectory(directory))
         {
-            if (!string.Equals(Path.GetFileName(file), StageSourcesFile, StringComparison.Ordinal))
+            if (manifest.Key.StartsWith("stage", StringComparison.Ordinal))
             {
-                var manifest = SuiteManifestLoader.Parse(File.ReadAllText(file), file);
-                if (manifest.Key.StartsWith("stage", StringComparison.Ordinal))
-                {
-                    pins.Add(manifest);
-                }
+                pins.Add(manifest);
             }
         }
         return pins;

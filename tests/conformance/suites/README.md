@@ -27,6 +27,10 @@ fetch step live in `tests/NetEvolve.Schemas.Conformance`.
 A manifest with a missing or malformed field is rejected when it is loaded, and two files that declare the
 same `key` fail the load.
 
+A `*.json` file in this folder that is a JSON object declaring none of `key`, `url`, `sha256` or `archive`
+(for example the stage record `stage-sources.json`) is not a manifest and is skipped by the directory load.
+Any file that declares at least one of these fields is a manifest and is validated in full.
+
 ## How to pin a suite
 
 1. Download the archive once from its official release location.
