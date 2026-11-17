@@ -189,6 +189,36 @@ public class XmlTreePumpTests
     }
 
     [Test]
+    public async Task Pump_AttributeAndNamespaceRoots_EmitNothing()
+    {
+        var (names, script) = Sample();
+        var tree = Build(names, script);
+        var a = tree.Document.FirstChild;
+        var sink = new RecordingXmlSink(names);
+
+        XmlTreePump.Pump(a.FirstAttribute, sink);
+        XmlTreePump.Pump(a.FirstNamespace, sink);
+
+        await Assert.That(sink.Events.Count).IsEqualTo(0);
+    }
+
+    [Test]
+    public async Task Pump_NestedRootThatUndeclaresDefaultNamespace_DeclaresOnlyInScopeBindings()
+    {
+        var (names, script) = Sample();
+        var tree = Build(names, script);
+        var b = tree.Document.FirstChild.FirstChild;
+        var sink = new RecordingXmlSink(names);
+
+        XmlTreePump.Pump(b, sink);
+
+        var declarations = sink.Events.Where(e => e.Kind == XmlEventKind.NamespaceDeclaration).ToArray();
+        await Assert.That(declarations.Length).IsEqualTo(1);
+        await Assert.That(declarations[0].Prefix).IsEqualTo(names.Intern("p"));
+        await Assert.That(declarations[0].Uri).IsEqualTo(names.Intern("urn:q"));
+    }
+
+    [Test]
     public async Task Pump_IntoStructSink_AllocatesNothingPerNode()
     {
         var (names, script) = Sample();
