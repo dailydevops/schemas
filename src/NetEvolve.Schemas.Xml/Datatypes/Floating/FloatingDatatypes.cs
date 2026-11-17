@@ -47,7 +47,7 @@ internal static class FloatingDatatypes
         public DatatypeError Check(ReadOnlySpan<char> normalized, XsdVersion version, out int errorOffset) =>
             XsdFloatingPoint.Parse(normalized, version, false, out _, out errorOffset);
 
-        public double Map(ReadOnlySpan<char> normalized, XsdVersion version)
+        public double Map(ReadOnlySpan<char> normalized, WhitespaceMode mode, XsdVersion version)
         {
             _ = XsdFloatingPoint.Parse(normalized, version, false, out var value, out _);
             return value;
@@ -67,7 +67,7 @@ internal static class FloatingDatatypes
         public DatatypeError Check(ReadOnlySpan<char> normalized, XsdVersion version, out int errorOffset) =>
             XsdFloatingPoint.Parse(normalized, version, true, out _, out errorOffset);
 
-        public float Map(ReadOnlySpan<char> normalized, XsdVersion version)
+        public float Map(ReadOnlySpan<char> normalized, WhitespaceMode mode, XsdVersion version)
         {
             _ = XsdFloatingPoint.Parse(normalized, version, true, out var value, out _);
             return (float)value;

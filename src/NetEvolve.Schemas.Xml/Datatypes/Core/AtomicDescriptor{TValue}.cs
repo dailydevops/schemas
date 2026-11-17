@@ -188,7 +188,7 @@ public sealed class AtomicDescriptor<TValue> : IDatatypeDescriptor<TValue>
 
             if (wantValue || _hasValueFacets)
             {
-                value = _mapping.Map(normalized, LexicalMode);
+                value = _mapping.Map(normalized, Whitespace, LexicalMode);
                 for (var i = 0; i < Facets.Count; i++)
                 {
                     if (Facets[i] is IValueFacet<TValue> valueFacet && !valueFacet.IsSatisfiedBy(in value))

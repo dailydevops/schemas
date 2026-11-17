@@ -31,8 +31,11 @@ internal sealed class FakeDigitsMapping : ILexicalMapping<int>
         return DatatypeError.None;
     }
 
-    public int Map(ReadOnlySpan<char> normalized, XsdVersion version)
+    public WhitespaceMode? LastMode { get; private set; }
+
+    public int Map(ReadOnlySpan<char> normalized, WhitespaceMode mode, XsdVersion version)
     {
+        LastMode = mode;
         var value = 0;
         for (var i = 0; i < normalized.Length; i++)
         {

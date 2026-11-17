@@ -49,7 +49,7 @@ internal static class DurationDatatypes
         public DatatypeError Check(ReadOnlySpan<char> normalized, XsdVersion version, out int errorOffset) =>
             DurationLexical.Scan(normalized, DurationKind.Duration, out _, out errorOffset);
 
-        public XsdDuration Map(ReadOnlySpan<char> normalized, XsdVersion version)
+        public XsdDuration Map(ReadOnlySpan<char> normalized, WhitespaceMode mode, XsdVersion version)
         {
             _ = DurationLexical.Scan(normalized, DurationKind.Duration, out var parts, out _);
             return XsdDuration.Map(normalized, parts);

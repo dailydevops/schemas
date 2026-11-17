@@ -5,6 +5,7 @@ using NetEvolve.Schemas.Xml.Datatypes.DateTime;
 using NetEvolve.Schemas.Xml.Datatypes.Duration;
 using NetEvolve.Schemas.Xml.Datatypes.Floating;
 using NetEvolve.Schemas.Xml.Datatypes.Numeric;
+using NetEvolve.Schemas.Xml.Datatypes.Strings;
 
 public static partial class BuiltInDatatypes
 {
@@ -17,5 +18,6 @@ public static partial class BuiltInDatatypes
             FloatingDatatypes.Registrations,
             DurationDatatypes.Registrations,
             NumericDatatypes.Registrations,
+            StringDatatypes.Registrations,
         ];
 }
