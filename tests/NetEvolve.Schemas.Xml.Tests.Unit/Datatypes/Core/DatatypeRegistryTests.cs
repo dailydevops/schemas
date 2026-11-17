@@ -60,6 +60,26 @@ public class DatatypeRegistryTests
         await Assert.That(BuiltInDatatypes.For(XsdVersion.V11).TryGet("nope", out _)).IsFalse();
 
     [Test]
+    public async Task TryGet_NullName_ThrowsForTheNameParameter()
+    {
+        var registry = BuiltInDatatypes.For(XsdVersion.V11);
+
+        var thrown = Assert.Throws<ArgumentNullException>(() => registry.TryGet(null!, out _));
+
+        await Assert.That(thrown.ParamName).IsEqualTo("name");
+    }
+
+    [Test]
+    public async Task Get_NullName_ThrowsForTheNameParameter()
+    {
+        var registry = BuiltInDatatypes.For(XsdVersion.V11);
+
+        var thrown = Assert.Throws<ArgumentNullException>(() => registry.Get(null!));
+
+        await Assert.That(thrown.ParamName).IsEqualTo("name");
+    }
+
+    [Test]
     public async Task BuiltIn_UndefinedVersion_Throws() =>
         await Assert.That(() => BuiltInDatatypes.For((XsdVersion)7)).Throws<ArgumentOutOfRangeException>();
 
@@ -107,4 +127,27 @@ public class DatatypeRegistryTests
         await Assert
             .That(() => new DatatypeRegistry(XsdVersion.V10, []).Get("missing"))
             .Throws<InvalidOperationException>();
+
+    [Test]
+    public async Task Registry_Constructor_CyclicRegistration_Throws()
+    {
+        DatatypeRegistration[] registrations = [new("loop", XsdVersion.V10, static r => r.Get("loop"))];
+
+        await Assert
+            .That(() => new DatatypeRegistry(XsdVersion.V10, registrations))
+            .Throws<InvalidOperationException>()
+            .WithMessageContaining("depends on itself", StringComparison.Ordinal);
+    }
+
+    [Test]
+    public async Task Registry_Constructor_DuplicateName_Throws()
+    {
+        DatatypeRegistration[] registrations =
+        [
+            new("dup", XsdVersion.V10, static r => Fake("dup", r.Version)),
+            new("dup", XsdVersion.V10, static r => Fake("dup", r.Version)),
+        ];
+
+        await Assert.That(() => new DatatypeRegistry(XsdVersion.V10, registrations)).Throws<ArgumentException>();
+    }
 }
