@@ -4,7 +4,7 @@ using System;
 using NetEvolve.Schemas.XPath.Api;
 
 /// <summary>A compiled match pattern with the data the evaluator needs to skip non-candidates.</summary>
-internal sealed class CompiledPattern
+internal class CompiledPattern
 {
     private readonly XPathQName[] _candidateNames;
 
