@@ -107,4 +107,26 @@ public class DatatypeRegistryTests
         await Assert
             .That(() => new DatatypeRegistry(XsdVersion.V10, []).Get("missing"))
             .Throws<InvalidOperationException>();
+
+    [Test]
+    public async Task Registry_Constructor_CyclicRegistration_Throws()
+    {
+        DatatypeRegistration[] registrations = [new("loop", XsdVersion.V10, static r => r.Get("loop"))];
+
+        await Assert
+            .That(() => new DatatypeRegistry(XsdVersion.V10, registrations))
+            .Throws<InvalidOperationException>();
+    }
+
+    [Test]
+    public async Task Registry_Constructor_DuplicateName_Throws()
+    {
+        DatatypeRegistration[] registrations =
+        [
+            new("dup", XsdVersion.V10, static r => Fake("dup", r.Version)),
+            new("dup", XsdVersion.V10, static r => Fake("dup", r.Version)),
+        ];
+
+        await Assert.That(() => new DatatypeRegistry(XsdVersion.V10, registrations)).Throws<ArgumentException>();
+    }
 }

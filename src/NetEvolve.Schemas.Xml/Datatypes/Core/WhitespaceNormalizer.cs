@@ -15,16 +15,18 @@ internal static class WhitespaceNormalizer
     internal static int Normalize(ReadOnlySpan<char> source, WhitespaceMode mode, Span<char> destination)
     {
         Argument.ThrowIfLessThan(destination.Length, source.Length);
+        if (mode == WhitespaceMode.Preserve)
+        {
+            source.CopyTo(destination);
+            return source.Length;
+        }
+
         var length = 0;
         var pendingSpace = false;
         for (var i = 0; i < source.Length; i++)
         {
             var c = source[i];
-            if (mode == WhitespaceMode.Preserve)
-            {
-                destination[length++] = c;
-            }
-            else if (!IsXmlSpace(c))
+            if (!IsXmlSpace(c))
             {
                 if (pendingSpace)
                 {
@@ -58,7 +60,7 @@ internal static class WhitespaceNormalizer
             return true;
         }
 
-        var previousSpace = true; // a leading space is not collapsed
+        var previousSpace = true; // starts true so a leading space counts as a collapsible one
         for (var i = 0; i < source.Length; i++)
         {
             var c = source[i];
