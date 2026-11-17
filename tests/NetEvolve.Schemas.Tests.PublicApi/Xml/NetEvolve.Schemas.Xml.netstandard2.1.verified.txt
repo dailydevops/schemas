@@ -544,6 +544,11 @@ namespace NetEvolve.Schemas.Xml.Datatypes.DateTime
         DateTime = 0,
         Date = 1,
         Time = 2,
+        GYear = 3,
+        GYearMonth = 4,
+        GMonth = 5,
+        GMonthDay = 6,
+        GDay = 7,
     }
 }
 namespace NetEvolve.Schemas.Xml.Datatypes.Decimals.Arithmetic
