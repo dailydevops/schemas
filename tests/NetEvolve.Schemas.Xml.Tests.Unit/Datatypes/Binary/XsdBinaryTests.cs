@@ -213,4 +213,10 @@ public class XsdBinaryTests
             await Assert.That(value.ToString(BinaryKind.Base64Binary)).IsEqualTo(lexical);
         }
     }
+
+    [Test]
+    [Arguments(-1)]
+    [Arguments(2)]
+    public async Task Parse_UndefinedKind_Throws(int kind) =>
+        await Assert.That(() => XsdBinary.Parse("00", (BinaryKind)kind)).Throws<ArgumentOutOfRangeException>();
 }
