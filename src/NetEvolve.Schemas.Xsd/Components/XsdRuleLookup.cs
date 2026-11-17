@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.Xsd.Components;
 
 using System;
+using NetEvolve.Schemas.Formats;
 
 /// <summary>Finds the rules of the catalog that the component phase reports.</summary>
 internal static class XsdRuleLookup
@@ -23,5 +24,21 @@ internal static class XsdRuleLookup
         }
 
         throw new InvalidOperationException("The rule catalog has no rule '" + id + "'.");
+    }
+
+    /// <summary>Finds the rule with a code; a code missing from the catalog is a defect and throws.</summary>
+    /// <param name="code">The code of the rule.</param>
+    /// <returns>The rule.</returns>
+    internal static XsdRule Find(DiagnosticCode code)
+    {
+        foreach (var rule in XsdRuleCatalog.All)
+        {
+            if (rule.Code == code)
+            {
+                return rule;
+            }
+        }
+
+        throw new InvalidOperationException($"The rule catalog has no rule for the code {code}.");
     }
 }
