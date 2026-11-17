@@ -369,5 +369,7 @@ public class CountingAutomatonTests
         await Assert.That(() => El(A, 3, 2)).Throws<ArgumentOutOfRangeException>();
         await Assert.That(() => El(A, -1, 2)).Throws<ArgumentOutOfRangeException>();
         await Assert.That(() => AutomatonParticle.Sequence(1, 1, null!)).Throws<ArgumentNullException>();
+        await Assert.That(() => AutomatonParticle.Sequence(1, 1, El(A, 1, 1), null!)).Throws<ArgumentNullException>();
+        await Assert.That(() => AutomatonParticle.Choice(1, 1, null!, El(A, 1, 1))).Throws<ArgumentNullException>();
     }
 }
