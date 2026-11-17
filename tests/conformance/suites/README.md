@@ -77,3 +77,25 @@ the extracted content against the commit, and update the checksum in the manifes
 
 `xsts.json` pins the W3C XML Schema Test Suite at the head of the default branch (commit `7bc3365c`) because
 the repository has neither tags nor releases, and the dated 2007 release contains XSD 1.0 tests only.
+
+## XML Conformance Test Suite (`xmlconf.json`)
+
+The W3C XML Conformance Test Suite is pinned by its official release archive,
+`https://www.w3.org/XML/Test/xmlts20130923.zip`, with the `subPath` `xmlconf`. The runner lives in
+`tests/NetEvolve.Schemas.Xml.Tests.Integration/XmlConf`.
+
+- **Byte stability:** the archive is a static file on the W3C server, so its bytes do not change between downloads
+  (two independent downloads produced the same SHA-256). If the W3C ever replaces the file, the fetch fails with a
+  checksum mismatch; re-pin by downloading the new release and updating `sha256`.
+- **Selection:** every case of the catalog `xmlconf.xml` except cases for XML 1.1 (`RECOMMENDATION` `XML1.1`, `VERSION`
+  without `1.0`), for Namespaces in XML 1.1, and cases that apply only to XML 1.0 editions one to four (`EDITION`
+  without `5`). Each exclusion keeps its reason in the selection result. Every selected case carries its `ENTITIES`
+  tag (`none`, `general`, `parameter`, `both`) and its `NAMESPACE` flag.
+- **Outcome rules:** a `not-wf` case passes only when the reader reports a fatal error; `valid` and `invalid` cases
+  pass only when it reports none (a non-validating reader accepts an invalid document); an `error` case passes with
+  any observation of a bound reader, because readers are not required to report it. Without a bound reader (XML-53)
+  every selected case is a known failure.
+- **Baseline:** `tests/conformance/baselines/xmlconf/<test-set>.txt` lists every selected case of one test set as
+  `<test-set>/<case-id>`, one per line. The test set is the effective `xml:base` of the case with `/` replaced by
+  `-`. Regenerate the files with the explicit test `XmlConfSuiteTests.Baseline_Regenerate` after a deliberate filter
+  change.

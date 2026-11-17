@@ -13,7 +13,7 @@ public class XmlConfFilterTests
     {
         var selection = Select();
 
-        var excluded = selection.Excluded.ToDictionary(e => e.Case.Id, e => e.Reason);
+        var excluded = selection.Excluded.ToDictionary(e => e.Case.Id, e => e.Reason, StringComparer.Ordinal);
         await Assert.That(excluded["b/xml11-version"]).Contains("XML 1.1");
         await Assert.That(excluded["b/xml11-recommendation"]).Contains("XML 1.1");
         await Assert.That(excluded["b/ns11"]).Contains("Namespaces in XML 1.1");
@@ -24,7 +24,9 @@ public class XmlConfFilterTests
     {
         var selection = Select();
 
-        var excluded = selection.Excluded.Single(e => e.Case.Id == "b/edition-1-4");
+        var excluded = selection.Excluded.Single(e =>
+            string.Equals(e.Case.Id, "b/edition-1-4", StringComparison.Ordinal)
+        );
         await Assert.That(excluded.Reason).Contains("editions one to four");
     }
 
@@ -46,18 +48,16 @@ public class XmlConfFilterTests
 
         await Assert
             .That(selection.Selected.Select(c => c.Id))
-            .IsEquivalentTo(
-                [
-                    "a/valid-1",
-                    "a/notwf-1",
-                    "a/invalid-1",
-                    "a/error-1",
-                    "a/default-1",
-                    "b/edition-4-5",
-                    "b/both-versions",
-                    "b/no-namespaces",
-                ]
-            );
+            .IsEquivalentTo([
+                "a/valid-1",
+                "a/notwf-1",
+                "a/invalid-1",
+                "a/error-1",
+                "a/default-1",
+                "b/edition-4-5",
+                "b/both-versions",
+                "b/no-namespaces",
+            ]);
     }
 
     [Test]
@@ -65,7 +65,7 @@ public class XmlConfFilterTests
     {
         var selection = Select();
 
-        var tags = selection.Selected.ToDictionary(c => c.Id, c => c.Entities);
+        var tags = selection.Selected.ToDictionary(c => c.Id, c => c.Entities, StringComparer.Ordinal);
         await Assert.That(tags["a/valid-1"]).IsEqualTo(XmlConfEntities.None);
         await Assert.That(tags["a/notwf-1"]).IsEqualTo(XmlConfEntities.General);
         await Assert.That(tags["a/invalid-1"]).IsEqualTo(XmlConfEntities.Parameter);

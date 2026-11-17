@@ -24,6 +24,7 @@ public class XmlConfRunnerTests
         CancellationToken cancellationToken
     )
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var rejecting = await RunAsync(new FakeXmlConfReader(_ => XmlConfObservation.FatalError), cancellationToken);
         var accepting = await RunAsync(new FakeXmlConfReader(_ => XmlConfObservation.Accepted), cancellationToken);
 
@@ -37,6 +38,7 @@ public class XmlConfRunnerTests
     [Test]
     public async Task Run_ValidCase_PassesOnlyWhenTheReaderReportsNoFatalError(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var accepting = await RunAsync(new FakeXmlConfReader(_ => XmlConfObservation.Accepted), cancellationToken);
         var rejecting = await RunAsync(new FakeXmlConfReader(_ => XmlConfObservation.FatalError), cancellationToken);
 
@@ -49,6 +51,7 @@ public class XmlConfRunnerTests
     [Test]
     public async Task Run_InvalidCase_NeedsOnlyWellFormedness(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var accepting = await RunAsync(new FakeXmlConfReader(_ => XmlConfObservation.Accepted), cancellationToken);
         var rejecting = await RunAsync(new FakeXmlConfReader(_ => XmlConfObservation.FatalError), cancellationToken);
 
@@ -59,6 +62,7 @@ public class XmlConfRunnerTests
     [Test]
     public async Task Run_ErrorCase_AcceptsAnyObservationOfARealReader(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var accepting = await RunAsync(new FakeXmlConfReader(_ => XmlConfObservation.Accepted), cancellationToken);
         var rejecting = await RunAsync(new FakeXmlConfReader(_ => XmlConfObservation.FatalError), cancellationToken);
 
@@ -69,6 +73,7 @@ public class XmlConfRunnerTests
     [Test]
     public async Task Run_NoReaderBound_FailsEverySelectedCase(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var results = await RunAsync(UnboundXmlConfReader.Instance, cancellationToken);
 
         await Assert.That(results.Count(r => r.Outcome == CaseOutcome.Fail)).IsEqualTo(8);
@@ -79,6 +84,7 @@ public class XmlConfRunnerTests
     [Test]
     public async Task Run_ExcludedCases_AreSkippedWithTheirReasonAndNeverRead(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var reader = new FakeXmlConfReader(_ => XmlConfObservation.Accepted);
 
         var results = await RunAsync(reader, cancellationToken);
@@ -93,6 +99,7 @@ public class XmlConfRunnerTests
     [Test]
     public async Task Compare_FailureNotInBaseline_IsRegression(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var results = await RunAsync(UnboundXmlConfReader.Instance, cancellationToken);
 
         var report = ConformanceReport.Compare(
@@ -112,6 +119,7 @@ public class XmlConfRunnerTests
     [Test]
     public async Task Compare_PassOfBaselinedCase_IsUnexpectedPass(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var results = await RunAsync(new FakeXmlConfReader(_ => XmlConfObservation.Accepted), cancellationToken);
 
         var report = ConformanceReport.Compare(

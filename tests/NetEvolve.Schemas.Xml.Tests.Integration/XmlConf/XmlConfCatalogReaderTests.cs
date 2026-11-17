@@ -2,6 +2,9 @@
 
 public class XmlConfCatalogReaderTests
 {
+    private static XmlConfCase Find(IReadOnlyList<XmlConfCase> cases, string id) =>
+        cases.Single(c => string.Equals(c.Id, id, StringComparison.Ordinal));
+
     [Test]
     public async Task Read_FixtureCatalog_ReturnsEveryCaseInCatalogOrder()
     {
@@ -11,23 +14,21 @@ public class XmlConfCatalogReaderTests
 
         await Assert
             .That(cases.Select(c => c.Id))
-            .IsEquivalentTo(
-                [
-                    "a/valid-1",
-                    "a/notwf-1",
-                    "a/invalid-1",
-                    "a/error-1",
-                    "a/default-1",
-                    "b/xml11-version",
-                    "b/xml11-recommendation",
-                    "b/ns11",
-                    "b/edition-1-4",
-                    "b/edition-4-5",
-                    "b/both-versions",
-                    "b/no-namespaces",
-                ]
-            );
-        await Assert.That(cases.Select(c => c.TestSet).Distinct()).IsEquivalentTo(["a", "b"]);
+            .IsEquivalentTo([
+                "a/valid-1",
+                "a/notwf-1",
+                "a/invalid-1",
+                "a/error-1",
+                "a/default-1",
+                "b/xml11-version",
+                "b/xml11-recommendation",
+                "b/ns11",
+                "b/edition-1-4",
+                "b/edition-4-5",
+                "b/both-versions",
+                "b/no-namespaces",
+            ]);
+        await Assert.That(cases.Select(c => c.TestSet).Distinct(StringComparer.Ordinal)).IsEquivalentTo(["a", "b"]);
     }
 
     [Test]
@@ -37,8 +38,8 @@ public class XmlConfCatalogReaderTests
 
         var cases = XmlConfCatalogReader.Read(fixture.Path);
 
-        await Assert.That(cases.Single(c => c.Id == "a/notwf-1").Uri).IsEqualTo("a/sub/notwf-1.xml");
-        await Assert.That(cases.Single(c => c.Id == "b/edition-4-5").Uri).IsEqualTo("b/e45.xml");
+        await Assert.That(Find(cases, "a/notwf-1").Uri).IsEqualTo("a/sub/notwf-1.xml");
+        await Assert.That(Find(cases, "b/edition-4-5").Uri).IsEqualTo("b/e45.xml");
     }
 
     [Test]
@@ -52,7 +53,7 @@ public class XmlConfCatalogReaderTests
 
         var cases = XmlConfCatalogReader.Read(fixture.Path);
 
-        await Assert.That(cases.Single(c => c.Id == id).Type).IsEqualTo(expected);
+        await Assert.That(Find(cases, id).Type).IsEqualTo(expected);
     }
 
     [Test]
@@ -67,7 +68,7 @@ public class XmlConfCatalogReaderTests
 
         var cases = XmlConfCatalogReader.Read(fixture.Path);
 
-        await Assert.That(cases.Single(c => c.Id == id).Entities).IsEqualTo(expected);
+        await Assert.That(Find(cases, id).Entities).IsEqualTo(expected);
     }
 
     [Test]
@@ -77,8 +78,8 @@ public class XmlConfCatalogReaderTests
 
         var cases = XmlConfCatalogReader.Read(fixture.Path);
 
-        await Assert.That(cases.Single(c => c.Id == "a/default-1").Namespaces).IsTrue();
-        await Assert.That(cases.Single(c => c.Id == "b/no-namespaces").Namespaces).IsFalse();
+        await Assert.That(Find(cases, "a/default-1").Namespaces).IsTrue();
+        await Assert.That(Find(cases, "b/no-namespaces").Namespaces).IsFalse();
     }
 
     [Test]
@@ -88,10 +89,10 @@ public class XmlConfCatalogReaderTests
 
         var cases = XmlConfCatalogReader.Read(fixture.Path);
 
-        var testCase = cases.Single(c => c.Id == "b/edition-1-4");
+        var testCase = Find(cases, "b/edition-1-4");
         await Assert.That(testCase.Versions).IsEquivalentTo(["1.0"]);
         await Assert.That(testCase.Editions).IsEquivalentTo(["1", "2", "3", "4"]);
-        var plain = cases.Single(c => c.Id == "a/valid-1");
+        var plain = Find(cases, "a/valid-1");
         await Assert.That(plain.Versions).IsEmpty();
         await Assert.That(plain.Editions).IsEmpty();
         await Assert.That(plain.Recommendation).IsEqualTo("XML1.0");
@@ -104,7 +105,7 @@ public class XmlConfCatalogReaderTests
 
         var cases = XmlConfCatalogReader.Read(fixture.Path);
 
-        await Assert.That(cases.Single(c => c.Id == "a/notwf-1").Description).IsEqualTo("A not-wf case with markup.");
+        await Assert.That(Find(cases, "a/notwf-1").Description).IsEqualTo("A not-wf case with markup.");
     }
 
     [Test]
