@@ -53,17 +53,17 @@ foreach ($package in $packages) {
         }
 
         # Dependencies
-        foreach ($group in @($meta.dependencies.group)) {
-            if ($null -eq $group) { continue }
-            foreach ($dependency in @($group.dependency)) {
-                if ($null -eq $dependency) { continue }
-                $depId = [string]$dependency.id
-                $allowed = ($depId -eq 'NetEvolve.Schemas') -or $depId.StartsWith('NetEvolve.Schemas.', [System.StringComparison]::Ordinal) `
-                    -or ($depId -eq 'NetEvolve.Arguments') `
-                    -or (($polyfills -contains $depId) -and $group.targetFramework -eq '.NETStandard2.0') `
-                    -or ($depId -eq 'Microsoft.Extensions.DependencyInjection.Abstractions' -and $id -eq 'NetEvolve.Schemas.DependencyInjection')
-                if (-not $allowed) { $errors.Add("disallowed dependency $depId in group '$($group.targetFramework)'") }
-            }
+        # Grouped and ungrouped <dependency> elements; an ungrouped one has no target framework.
+        foreach ($dependency in @($nuspec.SelectNodes("//*[local-name()='dependency']"))) {
+            if ($null -eq $dependency) { continue }
+            $group = $dependency.ParentNode
+            $targetFramework = if ($group.LocalName -eq 'group') { $group.GetAttribute('targetFramework') } else { '' }
+            $depId = [string]$dependency.id
+            $allowed = ($depId -eq 'NetEvolve.Schemas') -or $depId.StartsWith('NetEvolve.Schemas.', [System.StringComparison]::Ordinal) `
+                -or ($depId -eq 'NetEvolve.Arguments') `
+                -or (($polyfills -contains $depId) -and $targetFramework -eq '.NETStandard2.0') `
+                -or ($depId -eq 'Microsoft.Extensions.DependencyInjection.Abstractions' -and $id -eq 'NetEvolve.Schemas.DependencyInjection')
+            if (-not $allowed) { $errors.Add("disallowed dependency $depId in group '$targetFramework'") }
         }
 
         # License

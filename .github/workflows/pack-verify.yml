@@ -37,7 +37,7 @@ jobs:
             for tfm in net10.0 net11.0; do
               # Trim analyzer warnings fail the run.
               dotnet build "$project" --configuration Release --framework "$tfm" --no-incremental \
-                -p:GeneratePackageOnBuild=false -p:EnableTrimAnalyzer=true -p:TreatWarningsAsErrors=true
+                -p:GeneratePackageOnBuild=false -p:IsTrimmable=true -p:EnableTrimAnalyzer=true -p:TreatWarningsAsErrors=true
             done
             dotnet pack "$project" --configuration Release --no-build --output "$out" \
               -p:EnablePackageValidation=true \
