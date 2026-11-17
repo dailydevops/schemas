@@ -1,0 +1,46 @@
+## XSLT usage in pinned rule sets
+
+Element counts are exact: elements are matched by expanded name, never by prefix. Function counts are approximate: names come from a lexical scan of expression attributes, not from parsing.
+
+### fixtures/default-namespace.sch
+
+| Construct | Count |
+| --- | ---: |
+| xsl:function | 1 |
+| xsl:param | 1 |
+| xsl:value-of | 1 |
+
+| Function (approximate) | Count |
+| --- | ---: |
+| count | 1 |
+| name | 1 |
+| string-length | 1 |
+| upper-case | 1 |
+
+### fixtures/unusual-prefix.sch
+
+| Construct | Count |
+| --- | ---: |
+| xsl:function | 1 |
+| xsl:param | 1 |
+| xsl:value-of | 1 |
+
+| Function (approximate) | Count |
+| --- | ---: |
+| count | 1 |
+| name | 1 |
+| string-length | 1 |
+| upper-case | 1 |
+
+### fixtures/with-xinclude.sch
+
+| Construct | Count |
+| --- | ---: |
+| xsl:function | 1 |
+| xsl:param | 1 |
+| xsl:sequence | 1 |
+
+| Function (approximate) | Count |
+| --- | ---: |
+| concat | 1 |
+| exists | 1 |
