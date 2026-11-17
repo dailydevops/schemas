@@ -260,6 +260,8 @@ internal ref struct XPathLexer
             case '[':
                 return Emit(XPathTokenKind.LeftBracket, start, 1, false);
             case ']':
+                // A sequence type never contains a bracket, so this closes the predicate that held the type.
+                _inType = false;
                 return Emit(XPathTokenKind.RightBracket, start, 1, true);
             case '.':
                 return Peek(start + 1) == '.'
