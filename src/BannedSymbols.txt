@@ -1,1 +1,15 @@
 N:System.Linq;LINQ is not allowed in src; use loops and spans
+M:System.ArgumentNullException.#ctor;Use Argument.ThrowIfNull from NetEvolve.Arguments instead of a hand-written guard
+M:System.ArgumentNullException.#ctor(System.String);Use Argument.ThrowIfNull from NetEvolve.Arguments instead of a hand-written guard
+M:System.ArgumentNullException.#ctor(System.String,System.Exception);Use Argument.ThrowIfNull from NetEvolve.Arguments instead of a hand-written guard
+M:System.ArgumentNullException.#ctor(System.String,System.String);Use Argument.ThrowIfNull from NetEvolve.Arguments instead of a hand-written guard
+M:System.ArgumentOutOfRangeException.#ctor;Use the Argument.ThrowIf* methods from NetEvolve.Arguments instead of a hand-written guard
+M:System.ArgumentOutOfRangeException.#ctor(System.String);Use the Argument.ThrowIf* methods from NetEvolve.Arguments instead of a hand-written guard
+M:System.ArgumentOutOfRangeException.#ctor(System.String,System.Exception);Use the Argument.ThrowIf* methods from NetEvolve.Arguments instead of a hand-written guard
+M:System.ArgumentOutOfRangeException.#ctor(System.String,System.String);Use the Argument.ThrowIf* methods from NetEvolve.Arguments instead of a hand-written guard
+M:System.ArgumentOutOfRangeException.#ctor(System.String,System.Object,System.String);Use the Argument.ThrowIf* methods from NetEvolve.Arguments instead of a hand-written guard
+M:System.ArgumentException.#ctor;Use the Argument.ThrowIf* methods from NetEvolve.Arguments instead of a hand-written guard
+M:System.ArgumentException.#ctor(System.String);Use the Argument.ThrowIf* methods from NetEvolve.Arguments instead of a hand-written guard
+M:System.ArgumentException.#ctor(System.String,System.Exception);Use the Argument.ThrowIf* methods from NetEvolve.Arguments instead of a hand-written guard
+M:System.ArgumentException.#ctor(System.String,System.String);Use the Argument.ThrowIf* methods from NetEvolve.Arguments instead of a hand-written guard
+M:System.ArgumentException.#ctor(System.String,System.String,System.Exception);Use the Argument.ThrowIf* methods from NetEvolve.Arguments instead of a hand-written guard

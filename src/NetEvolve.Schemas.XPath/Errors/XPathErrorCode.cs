@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.XPath.Errors;
 
 using System;
 using System.Runtime.InteropServices;
+using NetEvolve.Arguments;
 
 /// <summary>An error code as a QName: namespace URI and local name.</summary>
 /// <remarks>Equality is ordinal on both parts, so the same local name in different namespaces is a different code.</remarks>
@@ -28,13 +29,11 @@ public readonly struct XPathErrorCode : IEquatable<XPathErrorCode>
     /// <exception cref="ArgumentException"><paramref name="localName"/> is empty.</exception>
     public XPathErrorCode(string namespaceName, string localName)
     {
-        _namespaceName = namespaceName ?? throw new ArgumentNullException(nameof(namespaceName));
-        _localName = localName ?? throw new ArgumentNullException(nameof(localName));
+        Argument.ThrowIfNull(namespaceName);
+        Argument.ThrowIfNullOrEmpty(localName);
 
-        if (localName.Length == 0)
-        {
-            throw new ArgumentException("The local name must not be empty.", nameof(localName));
-        }
+        _namespaceName = namespaceName;
+        _localName = localName;
     }
 
     /// <summary>Gets the namespace URI, empty for <see langword="default"/>.</summary>

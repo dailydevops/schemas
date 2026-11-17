@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas;
 
 using System;
 using System.Globalization;
+using NetEvolve.Arguments;
 
 /// <summary>A stable diagnostic code, <c>NES</c> plus four digits. <see langword="default"/> means unassigned (<c>NES0000</c>).</summary>
 public readonly struct DiagnosticCode : IEquatable<DiagnosticCode>
@@ -13,10 +14,8 @@ public readonly struct DiagnosticCode : IEquatable<DiagnosticCode>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="number"/> is outside 1 to 9999.</exception>
     public DiagnosticCode(int number)
     {
-        if (number < 1 || number > MaxNumber)
-        {
-            throw new ArgumentOutOfRangeException(nameof(number), number, "The number must be between 1 and 9999.");
-        }
+        Argument.ThrowIfLessThan(number, 1);
+        Argument.ThrowIfGreaterThan(number, MaxNumber);
 
         Number = number;
     }
