@@ -28,7 +28,7 @@ public class EscapingTests
         );
 
         await Assert.That(xml).IsEqualTo($"<a>{expected}</a>");
-        await Assert.That(XElement.Parse(xml).Value).IsEqualTo(value);
+        await Assert.That(XElement.Parse(xml, LoadOptions.PreserveWhitespace).Value).IsEqualTo(value);
     }
 
     [Test]
@@ -51,7 +51,7 @@ public class EscapingTests
         );
 
         await Assert.That(xml).IsEqualTo($"<a b=\"{expected}\"/>");
-        await Assert.That((string)XElement.Parse(xml).Attribute("b")!).IsEqualTo(value);
+        await Assert.That((string)XElement.Parse(xml, LoadOptions.PreserveWhitespace).Attribute("b")!).IsEqualTo(value);
     }
 
     [Test]
@@ -67,7 +67,7 @@ public class EscapingTests
         );
 
         await Assert.That(xml).IsEqualTo("<a><![CDATA[x<y]]]]><![CDATA[>z]]></a>");
-        await Assert.That(XElement.Parse(xml).Value).IsEqualTo("x<y]]>z");
+        await Assert.That(XElement.Parse(xml, LoadOptions.PreserveWhitespace).Value).IsEqualTo("x<y]]>z");
     }
 
     [Test]
