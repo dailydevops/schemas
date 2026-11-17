@@ -26,8 +26,6 @@ eduni-errata-2e/rmt-e2e-38
 eduni-errata-2e/rmt-e2e-41
 eduni-errata-2e/rmt-e2e-48
 eduni-errata-2e/rmt-e2e-55
-eduni-errata-2e/rmt-e2e-57
 eduni-errata-2e/rmt-e2e-60
-eduni-errata-2e/rmt-e2e-61
 eduni-errata-2e/rmt-e2e-9a
 eduni-errata-2e/rmt-e2e-9b

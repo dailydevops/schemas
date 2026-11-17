@@ -51,6 +51,9 @@ internal sealed class PooledBuffer<T> : IDisposable
     /// <summary>Gets the written elements.</summary>
     internal ReadOnlySpan<T> WrittenSpan => new(Array(), 0, _length);
 
+    /// <summary>Gets the written elements as memory; valid until the buffer is changed or disposed.</summary>
+    internal ReadOnlyMemory<T> WrittenMemory => new(Array(), 0, _length);
+
     /// <summary>Appends one element.</summary>
     /// <param name="value">The element.</param>
     internal void Append(T value)

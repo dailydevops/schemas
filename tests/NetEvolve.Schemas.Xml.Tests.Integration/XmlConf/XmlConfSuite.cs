@@ -11,6 +11,10 @@ internal static class XmlConfSuite
 
     private static readonly SemaphoreSlim Gate = new(1, 1);
     private static XmlConfSelection? s_selection;
+    private static string? s_root;
+
+    /// <summary>Gets the directory of the fetched suite; set once <see cref="LoadSelectionAsync"/> has run.</summary>
+    public static string SuiteRoot => s_root ?? throw new InvalidOperationException("The suite is not loaded.");
 
     public static string RepositoryRoot { get; } = FindRepositoryRoot();
 
@@ -57,6 +61,7 @@ internal static class XmlConfSuite
             manifest,
             cancellationToken
         );
+        s_root = root;
         return XmlConfFilter.Select(XmlConfCatalogReader.Read(root));
     }
 
