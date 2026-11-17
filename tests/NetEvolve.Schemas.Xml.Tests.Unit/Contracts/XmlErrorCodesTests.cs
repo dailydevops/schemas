@@ -11,7 +11,7 @@ public class XmlErrorCodesTests
     // The catalog approved in the XML core design (XML-01): well-formedness, limits, security, namespaces, encoding.
     private static readonly string[] ApprovedAliases =
     [
-        .. Range("XML00", 1, 18),
+        .. Range("XML00", 1, 19),
         .. Range("XML11", 1, 16),
         "XML2001",
         "XML2002",
