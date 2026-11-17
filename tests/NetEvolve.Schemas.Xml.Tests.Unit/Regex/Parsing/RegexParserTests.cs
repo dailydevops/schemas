@@ -412,6 +412,29 @@ public class RegexParserTests
     }
 
     [Test]
+    [Arguments(0)]
+    [Arguments(-1)]
+    public async Task Limits_BelowOne_Throw(int value)
+    {
+        await Assert.That(() => RegexLimits.Default.WithMaxPatternLength(value)).Throws<ArgumentOutOfRangeException>();
+        await Assert.That(() => RegexLimits.Default.WithMaxNesting(value)).Throws<ArgumentOutOfRangeException>();
+    }
+
+    [Test]
+    [Arguments(-1)]
+    [Arguments(1)]
+    public async Task Tree_GetSet_OutsideTheSets_Throws(int index)
+    {
+        var tree = Tree("a");
+
+        await Assert.That(() => tree.GetSet(index)).Throws<ArgumentOutOfRangeException>();
+    }
+
+    [Test]
+    public async Task Parse_NullLimits_Throws() =>
+        await Assert.That(() => RegexParser.Parse("a", Xsd10, null!)).Throws<ArgumentNullException>();
+
+    [Test]
     public async Task Parse_PatternLongerThanTheLimit_IsRejectedAtTheLimit()
     {
         var limits = RegexLimits.Default.WithMaxPatternLength(3);
