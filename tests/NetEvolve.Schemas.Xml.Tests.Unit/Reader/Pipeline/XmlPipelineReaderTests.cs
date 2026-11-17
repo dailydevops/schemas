@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Xml.Tests.Unit.Reader.Pipeline;
+﻿namespace NetEvolve.Schemas.Xml.Tests.Unit.Reader.Pipeline;
 
 using System;
 using System.Linq;
@@ -7,6 +7,7 @@ using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Reader.Pipeline;
 using NetEvolve.Schemas.Xml.Tests.Unit.Contracts.Fakes;
 using NetEvolve.Schemas.Xml.Text.NameTable;
+using TUnit.Assertions.Enums;
 
 /// <summary>The composed reader pipeline (XML-53): factories for char and byte inputs, stage order, and limits.</summary>
 public class XmlPipelineReaderTests
@@ -42,16 +43,16 @@ public class XmlPipelineReaderTests
         using var fromCharMemory = XmlPipelineReader.CreateFromMemory(Document.AsMemory());
         using var fromByteMemory = XmlPipelineReader.CreateFromMemory(bytes.AsMemory());
 
-        var expected = Pump(fromCharSpan);
-        await Assert.That(expected.Status).IsEqualTo(XmlReadStatus.Completed);
-        var expectedDump = Dump(expected.Sink);
+        var (expectedStatus, expectedSink) = Pump(fromCharSpan);
+        await Assert.That(expectedStatus).IsEqualTo(XmlReadStatus.Completed);
+        var expectedDump = Dump(expectedSink);
         await Assert.That(expectedDump.Length).IsGreaterThan(10);
 
         foreach (var reader in new[] { fromByteSpan, fromCharMemory, fromByteMemory })
         {
             var (status, sink) = Pump(reader);
             await Assert.That(status).IsEqualTo(XmlReadStatus.Completed);
-            await Assert.That(Dump(sink)).IsEquivalentTo(expectedDump).WithOrdering();
+            await Assert.That(Dump(sink)).IsEquivalentTo(expectedDump, CollectionOrdering.Matching);
             await Assert.That(reader.Position).IsEqualTo(fromCharSpan.Position);
         }
     }
@@ -69,21 +70,18 @@ public class XmlPipelineReaderTests
         await Assert.That(again).IsEqualTo(XmlReadStatus.Completed);
         await Assert
             .That(sink.Events.Select(e => e.Kind))
-            .IsEquivalentTo(
-                [
-                    XmlEventKind.StartDocument,
-                    XmlEventKind.StartElement,
-                    XmlEventKind.Attribute,
-                    XmlEventKind.EndAttributes,
-                    XmlEventKind.StartElement,
-                    XmlEventKind.EndAttributes,
-                    XmlEventKind.EndElement,
-                    XmlEventKind.Text,
-                    XmlEventKind.EndElement,
-                    XmlEventKind.EndDocument,
-                ]
-            )
-            .WithOrdering();
+            .IsEquivalentTo([
+                XmlEventKind.StartDocument,
+                XmlEventKind.StartElement,
+                XmlEventKind.Attribute,
+                XmlEventKind.EndAttributes,
+                XmlEventKind.StartElement,
+                XmlEventKind.EndAttributes,
+                XmlEventKind.EndElement,
+                XmlEventKind.Text,
+                XmlEventKind.EndElement,
+                XmlEventKind.EndDocument,
+            ]);
     }
 
     [Test]
@@ -109,7 +107,9 @@ public class XmlPipelineReaderTests
         using var fromBytes = XmlPipelineReader.Create(bytes.AsSpan());
         using var fromChars = XmlPipelineReader.Create(xml.AsSpan());
 
-        await Assert.That(Dump(Pump(fromBytes).Sink)).IsEquivalentTo(Dump(Pump(fromChars).Sink)).WithOrdering();
+        await Assert
+            .That(Dump(Pump(fromBytes).Sink))
+            .IsEquivalentTo(Dump(Pump(fromChars).Sink), CollectionOrdering.Matching);
     }
 
     [Test]
