@@ -1,0 +1,51 @@
+name: Pack Verify
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  pack:
+    name: Pack and verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6
+        with:
+          dotnet-version: ${{ vars.NE_DOTNET_TARGETFRAMEWORKS }}
+      - name: Pack
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="$RUNNER_TEMP/packages"
+          # IsPackable stays false in the repository: this targets file overrides it for this run only.
+          targets="$RUNNER_TEMP/force-pack.targets"
+          cat > "$targets" <<'EOF'
+          <Project>
+            <PropertyGroup><IsPackable>true</IsPackable></PropertyGroup>
+            <Target Name="DisablePack" />
+          </Project>
+          EOF
+          for project in src/*/*.csproj; do
+            dotnet build "$project" --configuration Release -p:GeneratePackageOnBuild=false
+            for tfm in net10.0 net11.0; do
+              # Trim analyzer warnings fail the run.
+              dotnet build "$project" --configuration Release --framework "$tfm" --no-incremental \
+                -p:GeneratePackageOnBuild=false -p:EnableTrimAnalyzer=true -p:TreatWarningsAsErrors=true
+            done
+            dotnet pack "$project" --configuration Release --no-build --output "$out" \
+              -p:EnablePackageValidation=true \
+              -p:DirectoryBuildTargetsPath="$targets" \
+              -p:SolutionDir="$PWD/"
+          done
+          echo "PACKAGES=$out" >> "$GITHUB_ENV"
+      - name: Verify
+        shell: pwsh
+        # Known gap until REL-03: package readmes do not exist yet.
+        run: ./scripts/verify-package.ps1 -PackageDirectory $env:PACKAGES -AllowMissingReadme
