@@ -32,7 +32,7 @@ internal static class CorpusScanRun
 
     /// <summary>Loads the rule set pins of the manifest directory.</summary>
     /// <param name="directory">The manifest directory.</param>
-    /// <returns>The pinned rule set suites; <c>stage-sources.json</c> pins no archive and is skipped.</returns>
+    /// <returns>The pinned rule set suites (keys starting with <c>stage</c>); <c>stage-sources.json</c> pins no archive and other pins such as the Unicode Character Database carry no rule sets, so both are skipped.</returns>
     public static IReadOnlyList<SuiteManifest> LoadPins(string directory)
     {
         var files = Directory.GetFiles(directory, "*.json");
@@ -43,7 +43,11 @@ internal static class CorpusScanRun
         {
             if (!string.Equals(Path.GetFileName(file), StageSourcesFile, StringComparison.Ordinal))
             {
-                pins.Add(SuiteManifestLoader.Parse(File.ReadAllText(file), file));
+                var manifest = SuiteManifestLoader.Parse(File.ReadAllText(file), file);
+                if (manifest.Key.StartsWith("stage", StringComparison.Ordinal))
+                {
+                    pins.Add(manifest);
+                }
             }
         }
         return pins;
