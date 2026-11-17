@@ -312,6 +312,7 @@ namespace NetEvolve.Schemas.Xml.Datatypes.Contracts
     public enum DatatypeError
     {
         None = 0,
+        InvalidLexicalForm = 1,
         DigitCap = 10,
         YearOrComponentCap = 11,
         InvalidCharacter = 13,
@@ -409,6 +410,36 @@ namespace NetEvolve.Schemas.Xml.Datatypes.Contracts
     {
         V10 = 0,
         V11 = 1,
+    }
+}
+namespace NetEvolve.Schemas.Xml.Datatypes.Decimals
+{
+    public readonly struct XsdDecimal : System.IComparable<NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal>, System.IEquatable<NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal>
+    {
+        public const int DefaultMaxDigits = 4096;
+        public XsdDecimal(System.Numerics.BigInteger mantissa, int scale) { }
+        public int FractionDigits { get; }
+        public System.Numerics.BigInteger Mantissa { get; }
+        public int Scale { get; }
+        public int Sign { get; }
+        public int TotalDigits { get; }
+        public static NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal Zero { get; }
+        public NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal Add(NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal other) { }
+        public int CompareTo(NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal other) { }
+        public bool Equals(NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal other) { }
+        public override bool Equals(object? obj) { }
+        public override int GetHashCode() { }
+        public NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal Multiply(NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal other) { }
+        public NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal Negate() { }
+        public NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal Subtract(NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal other) { }
+        public override string ToString() { }
+        public static NetEvolve.Schemas.Xml.Datatypes.Contracts.ParseResult<NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal> Parse(System.ReadOnlySpan<char> lexical, int maxDigits = 4096) { }
+        public static bool operator !=(NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal left, NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal right) { }
+        public static bool operator <(NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal left, NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal right) { }
+        public static bool operator <=(NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal left, NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal right) { }
+        public static bool operator ==(NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal left, NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal right) { }
+        public static bool operator >(NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal left, NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal right) { }
+        public static bool operator >=(NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal left, NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal right) { }
     }
 }
 namespace NetEvolve.Schemas.Xml.Interop
