@@ -1,0 +1,122 @@
+name: Benchmarks
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'benchmarks/**'
+      - '.github/workflows/benchmarks.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: benchmarks-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  BENCH_PROJECT: benchmarks/NetEvolve.Schemas.Benchmarks
+  # Per-benchmark table (throughput, allocation, ratio to the System.Xml baseline of the same class) from BenchmarkDotNet's full JSON reports, because the gate prints no rows.
+  SUMMARY_JQ: |
+    [.Benchmarks[] | {n: (.Type + "." + .Method + (if (.Parameters // "") == "" then "" else "(" + .Parameters + ")" end)), g: (.Type + "|" + (.Parameters // "")), m: .Statistics.Mean, a: .Memory.BytesAllocatedPerOperation, b: (.Method | endswith("SystemXml"))}] as $r
+    | $r[] | . as $x | ($r | map(select(.g == $x.g and .b)) | .[0].m) as $bm
+    | "| \($x.n) | \($x.m * 100 | round / 100) | \(1e9 / $x.m | floor) | \($x.a) | \(if $bm != null and ($x.b | not) then ($x.m / $bm * 1000 | round / 1000 | tostring) else "n/a" end) |"
+
+jobs:
+  selftest:
+    name: Gate selftest (${{ matrix.tfm }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        tfm: [net10.0, net11.0]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6
+        with:
+          dotnet-version: ${{ vars.NE_DOTNET_TARGETFRAMEWORKS }}
+      # On net11.0 BenchmarkDotNet 0.15.8 does not know the runtime moniker; Program.cs runs in-process there (limitation).
+      - name: Run sample benchmarks
+        run: >
+          dotnet run -c Release -f ${{ matrix.tfm }} --project "$BENCH_PROJECT"
+          -- --filter '*Sample*' --artifacts "$RUNNER_TEMP/bdn"
+      - name: Summarize
+        run: |
+          {
+            echo "### Sample benchmarks (${{ matrix.tfm }})"
+            echo
+            echo "| Benchmark | Mean (ns) | Ops/s | Allocated (B) | Ratio to System.Xml |"
+            echo "| --- | ---: | ---: | ---: | ---: |"
+            for f in "$RUNNER_TEMP"/bdn/results/*-report-full.json; do jq -r "$SUMMARY_JQ" "$f"; done
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Assert gate verdicts
+        run: |
+          set -u
+          report=$(ls "$RUNNER_TEMP"/bdn/results/*SampleBenchmarks-report-full.json)
+          # Targets from the measurement: mean 5 % above it (green), 20 % lower (seeded regression), allocation -1 (seeded allocation; the sample allocates 0 B).
+          gen() { mkdir -p "$RUNNER_TEMP/t/$1"; jq --argjson f "$2" --argjson a "$3" '[.Benchmarks[] | select(.Method | endswith("SystemXml") | not)
+              | {name: (.Type + "." + .Method), meanNs: (.Statistics.Mean * $f), allocatedBytes: (if $a == null then .Memory.BytesAllocatedPerOperation else $a end)}]' "$report" > "$RUNNER_TEMP/t/$1/targets.json"; }
+          gen green 1.05 null
+          gen regression 0.84 null
+          gen allocation 1.05 -1
+          gate() { dotnet run -c Release -f ${{ matrix.tfm }} --no-build --project "$BENCH_PROJECT" -- gate "$report" "$RUNNER_TEMP/t/$1"; }
+          fail=0
+          expect() { # name, exit code, output pattern
+            set +e; out=$(gate "$1"); code=$?; set -e
+            echo "[$1] exit $code"; echo "$out"
+            if [ "$code" -ne "$2" ] || { [ -n "$3" ] && ! grep -q -- "$3" <<<"$out"; }; then echo "::error::selftest case '$1' expected exit $2 and /$3/"; fail=1; fi
+          }
+          set -e
+          expect green 0 ''
+          expect regression 1 'Regression: SampleBenchmarks.CountMarkup: mean .* ns > target .* ns'
+          expect allocation 1 'AllocationGrowth: SampleBenchmarks.CountMarkup: allocated 0 B > target -1 B'
+          exit $fail
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: benchmark-selftest-${{ matrix.tfm }}
+          path: ${{ runner.temp }}/bdn/results
+          if-no-files-found: warn
+
+  gate:
+    name: Benchmark gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - name: Look for recorded targets
+        id: targets
+        run: |
+          if compgen -G "benchmarks/targets/*.json" > /dev/null; then echo "found=true" >> "$GITHUB_OUTPUT"; else echo "No targets recorded yet; skipping." >> "$GITHUB_STEP_SUMMARY"; fi
+      - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6
+        if: steps.targets.outputs.found == 'true'
+        with:
+          dotnet-version: ${{ vars.NE_DOTNET_TARGETFRAMEWORKS }}
+      - name: Run benchmarks
+        if: steps.targets.outputs.found == 'true'
+        run: >
+          dotnet run -c Release -f net10.0 --project "$BENCH_PROJECT"
+          -- --filter '*' --exclusion-filter '*Sample*' --artifacts "$RUNNER_TEMP/bdn"
+      - name: Summarize
+        if: steps.targets.outputs.found == 'true'
+        run: |
+          {
+            echo "### Benchmarks"
+            echo
+            echo "| Benchmark | Mean (ns) | Ops/s | Allocated (B) | Ratio to System.Xml |"
+            echo "| --- | ---: | ---: | ---: | ---: |"
+            for f in "$RUNNER_TEMP"/bdn/results/*-report-full.json; do jq -r "$SUMMARY_JQ" "$f"; done
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Gate
+        if: steps.targets.outputs.found == 'true'
+        run: |
+          fail=0
+          for f in "$RUNNER_TEMP"/bdn/results/*-report-full.json; do
+            dotnet run -c Release -f net10.0 --no-build --project "$BENCH_PROJECT" -- gate "$f" benchmarks/targets || fail=1
+          done
+          exit $fail
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: steps.targets.outputs.found == 'true' && always()
+        with:
+          name: benchmark-results
+          path: ${{ runner.temp }}/bdn/results
+          if-no-files-found: warn
