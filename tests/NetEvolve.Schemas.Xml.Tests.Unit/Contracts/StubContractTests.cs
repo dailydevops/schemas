@@ -2,13 +2,9 @@ namespace NetEvolve.Schemas.Xml.Tests.Unit.Contracts;
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Reflection;
-using System.Xml;
-using System.Xml.Linq;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Interop;
-using XmlNode = NetEvolve.Schemas.Xml.Contracts.XmlNode;
 
 public class StubContractTests
 {
@@ -31,12 +27,6 @@ public class StubContractTests
         ("MaxXmlDeclarationLength", typeof(int)),
         ("MaxDoctypeLength", typeof(int)),
     ];
-
-    private static async Task AssertStub(Func<object?> call, string workPackage)
-    {
-        var failure = Assert.Throws<NotImplementedException>(() => call());
-        await Assert.That(failure.Message).Contains(workPackage);
-    }
 
     private static Exception? Unwrap(Action call)
     {
@@ -80,32 +70,9 @@ public class StubContractTests
     }
 
     [Test]
-    public async Task XmlInterop_EveryMemberThrowsUntilXml18Lands()
-    {
-        var node = new XmlNode(new Fakes.FakeXmlTree(), 0);
-        using var reader = XmlReader.Create(new StringReader("<a/>"));
-        var xdocument = new XDocument();
-        var xmlDocument = new XmlDocument();
-        var options = new XmlInteropOptions();
-
-        await AssertStub(() => XmlInterop.FromXmlReader(reader), "XML-18");
-        await AssertStub(() => XmlInterop.FromXmlReader(reader, options), "XML-18");
-        await AssertStub(() => XmlInterop.ToXmlReader(node), "XML-18");
-        await AssertStub(() => XmlInterop.FromXDocument(xdocument), "XML-18");
-        await AssertStub(() => XmlInterop.ToXDocument(node), "XML-18");
-        await AssertStub(() => XmlInterop.FromXmlDocument(xmlDocument), "XML-18");
-        await AssertStub(() => XmlInterop.ToXmlDocument(node), "XML-18");
-    }
-
-    [Test]
     public async Task XmlInteropOptions_RejectsDocumentTypesByDefault()
     {
         await Assert.That(new XmlInteropOptions().AllowDocumentType).IsFalse();
         await Assert.That(new XmlInteropOptions(allowDocumentType: true).AllowDocumentType).IsTrue();
     }
-
-    [Test]
-    public async Task Stub_IsReachableFromXml() =>
-        // The Schemas assembly exposes its internal Stub helper to the Xml assembly (InternalsVisibleTo); the message names the work package.
-        await AssertStub(() => XmlInterop.ToXDocument(default), "XML-18");
 }
