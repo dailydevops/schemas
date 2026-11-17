@@ -145,4 +145,12 @@ public class ConformanceRateReporterTests
             File.Delete(path);
         }
     }
+
+    [Test]
+    public async Task Render_PipeInPackageName_IsEscaped()
+    {
+        var text = ConformanceRateReporter.Render("A|B", "net10.0", Report("s", 1, 0, 0));
+
+        await Assert.That(text).Contains("| A&#124;B | net10.0 |");
+    }
 }
