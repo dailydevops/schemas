@@ -48,7 +48,7 @@ public class XmlNamespaceLayeringTests
     [Test]
     public async Task InteropNamespace_IsALeaf()
     {
-        var violations = ArchitectureRules.FindTypesDependingOn(XmlAssembly, $"{XmlLayering.Root}.Interop.", true);
+        var violations = ArchitectureRules.FindTypesDependingOn(XmlAssembly, $"{XmlLayering.Root}.Interop", true);
 
         await Assert.That(violations).IsEmpty();
     }
@@ -78,7 +78,7 @@ public class XmlNamespaceLayeringTests
     {
         var violations = ArchitectureRules.FindTypesDependingOn(
             typeof(XmlNamespaceLayeringTests).Assembly,
-            $"{Fixtures}.Interop.",
+            $"{Fixtures}.Interop",
             true
         );
 
