@@ -44,10 +44,11 @@ public class DatatypeContractTests
     public async Task DatatypeError_HasTheStableCodesOfTheDesign()
     {
         await Assert.That(Enum.GetName((DatatypeError)0)).IsEqualTo("None");
+        await Assert.That(Enum.GetName((DatatypeError)1)).IsEqualTo("InvalidLexicalForm");
         await Assert.That(Enum.GetName((DatatypeError)10)).IsEqualTo("DigitCap");
         await Assert.That(Enum.GetName((DatatypeError)11)).IsEqualTo("YearOrComponentCap");
         await Assert.That(Enum.GetName((DatatypeError)13)).IsEqualTo("InvalidCharacter");
-        await Assert.That(Enum.GetValues<DatatypeError>().Length).IsEqualTo(4);
+        await Assert.That(Enum.GetValues<DatatypeError>().Length).IsEqualTo(5);
     }
 
     [Test]
