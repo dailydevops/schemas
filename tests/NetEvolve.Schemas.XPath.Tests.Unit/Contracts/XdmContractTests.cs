@@ -98,10 +98,10 @@ public class XdmContractTests
         await Assert.That(() => XdmItem.FromString(null!)).Throws<ArgumentNullException>();
 
     [Test]
-    public async Task Limitation_DecimalAndDateTimeFactories_NotInContract()
+    public async Task Limitation_DecimalAndDateTimeFactories_AreInTheContract()
     {
-        // Q3 of #168: these members arrive with #185 together with its snapshot update.
-        string[] deferred =
+        // Q3 of #168: exactly these six members are added by #185 together with its snapshot update.
+        string[] added =
         [
             "FromDecimal",
             "FromDateTime",
@@ -111,7 +111,13 @@ public class XdmContractTests
             "TryGetDuration",
         ];
 
-        foreach (var name in deferred)
+        foreach (var name in added)
+        {
+            await Assert.That(typeof(XdmItem).GetMethod(name)).IsNotNull();
+        }
+
+        // Everything beyond the enumerated members stays internal.
+        foreach (var name in new[] { "FromFloat", "TryGetFloat", "FromUntypedAtomic", "TryGetUntypedAtomic" })
         {
             await Assert.That(typeof(XdmItem).GetMethod(name)).IsNull();
         }

@@ -33,6 +33,22 @@ public readonly struct XdmTypeId : IEquatable<XdmTypeId>
     /// <summary>Gets <c>xs:double</c>.</summary>
     public static XdmTypeId XsDouble => new(6);
 
+    internal static XdmTypeId XsDecimal => new(7);
+
+    internal static XdmTypeId XsFloat => new(8);
+
+    internal static XdmTypeId Duration => new(9);
+
+    internal static XdmTypeId YearMonthDuration => new(10);
+
+    internal static XdmTypeId DayTimeDuration => new(11);
+
+    internal static XdmTypeId DateTime => new(12);
+
+    internal static XdmTypeId Date => new(13);
+
+    internal static XdmTypeId Time => new(14);
+
     /// <summary>Gets the handle.</summary>
     public int Value { get; }
 

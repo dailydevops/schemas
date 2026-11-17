@@ -6,19 +6,21 @@ using System.Runtime.InteropServices;
 [StructLayout(LayoutKind.Auto)]
 public ref struct XdmSequenceEnumerator
 {
-    private readonly XdmItem[] _items;
+    private readonly XdmSequence _sequence;
+    private readonly int _count;
     private int _index;
 
-    internal XdmSequenceEnumerator(XdmItem[] items)
+    internal XdmSequenceEnumerator(XdmSequence sequence)
     {
-        _items = items;
+        _sequence = sequence;
+        _count = sequence.Count;
         _index = -1;
     }
 
     /// <summary>Gets the current item.</summary>
-    public readonly XdmItem Current => _items[_index];
+    public readonly XdmItem Current => _sequence[_index];
 
     /// <summary>Advances to the next item.</summary>
     /// <returns><see langword="true"/> when there is one.</returns>
-    public bool MoveNext() => ++_index < _items.Length;
+    public bool MoveNext() => ++_index < _count;
 }

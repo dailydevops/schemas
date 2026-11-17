@@ -1,23 +1,49 @@
 namespace NetEvolve.Schemas.XPath.Xdm.Values;
 
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using NetEvolve.Arguments;
 
 /// <summary>A flat sequence of items: never nested, and a singleton equals its item.</summary>
-/// <remarks>Limitation: this contract copies the items into an array; the pooled sequence of XP-06 replaces the storage behind the same members.</remarks>
+/// <remarks>
+/// The empty sequence is <see langword="default"/>, and a singleton keeps its item inline, so neither allocates. Limitation:
+/// two or more items are copied into an array; sequence size is not limited (XP-75). Lazy sequences and concatenation are internal.
+/// </remarks>
 [StructLayout(LayoutKind.Auto)]
 public readonly struct XdmSequence : IEquatable<XdmSequence>
 {
-    private readonly XdmItem[]? _items;
+    // _many is null (empty or singleton), an XdmItem[] (two or more items), or an XdmLazyItems (count unknown until read: _count is -1).
+    private readonly XdmItem _single;
+    private readonly object? _many;
+    private readonly int _count;
 
-    private XdmSequence(XdmItem[] items) => _items = items;
+    private XdmSequence(in XdmItem single)
+    {
+        _single = single;
+        _many = null;
+        _count = 1;
+    }
+
+    private XdmSequence(XdmItem[] items)
+    {
+        _single = default;
+        _many = items;
+        _count = items.Length;
+    }
+
+    private XdmSequence(XdmLazyItems lazy)
+    {
+        _single = default;
+        _many = lazy;
+        _count = -1;
+    }
 
     /// <summary>Gets the empty sequence; <see langword="default"/> is empty too.</summary>
     public static XdmSequence Empty => default;
 
     /// <summary>Gets the number of items.</summary>
-    public int Count => _items?.Length ?? 0;
+    public int Count => _count >= 0 ? _count : ((XdmLazyItems)_many!).Items.Length;
 
     /// <summary>Gets a value indicating whether the sequence has no item.</summary>
     public bool IsEmpty => Count == 0;
@@ -33,23 +59,89 @@ public readonly struct XdmSequence : IEquatable<XdmSequence>
             Argument.ThrowIfLessThan(index, 0);
             Argument.ThrowIfGreaterThanOrEqual(index, Count);
 
-            return _items![index];
+            return _many switch
+            {
+                null => _single,
+                XdmItem[] items => items[index],
+                _ => ((XdmLazyItems)_many).Items[index],
+            };
         }
     }
 
     /// <summary>Creates a sequence of one item.</summary>
     /// <param name="item">The item.</param>
     /// <returns>The sequence.</returns>
-    public static XdmSequence Create(in XdmItem item) => new([item]);
+    public static XdmSequence Create(in XdmItem item) => new(item);
 
     /// <summary>Creates a sequence of the items; the items are copied.</summary>
     /// <param name="items">The items.</param>
     /// <returns>The sequence.</returns>
-    public static XdmSequence Create(ReadOnlySpan<XdmItem> items) => items.IsEmpty ? default : new(items.ToArray());
+    public static XdmSequence Create(ReadOnlySpan<XdmItem> items) =>
+        items.Length switch
+        {
+            0 => default,
+            1 => new(items[0]),
+            _ => new(items.ToArray()),
+        };
+
+    /// <summary>Creates a lazy sequence: the source is enumerated once, when the sequence is first read.</summary>
+    /// <param name="source">The source.</param>
+    /// <returns>The sequence.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
+    internal static XdmSequence FromLazy(IEnumerable<XdmItem> source)
+    {
+        Argument.ThrowIfNull(source);
+
+        return new(new XdmLazyItems(source));
+    }
+
+    /// <summary>Concatenates two sequences into one flat sequence; lazy operands are read.</summary>
+    /// <param name="left">The first sequence.</param>
+    /// <param name="right">The second sequence.</param>
+    /// <returns>The sequence; an empty operand yields the other one without copying.</returns>
+    internal static XdmSequence Concat(in XdmSequence left, in XdmSequence right)
+    {
+        var leftCount = left.Count;
+        var rightCount = right.Count;
+        if (leftCount == 0)
+        {
+            return right.Materialize();
+        }
+
+        if (rightCount == 0)
+        {
+            return left.Materialize();
+        }
+
+        var items = new XdmItem[leftCount + rightCount];
+        for (var i = 0; i < leftCount; i++)
+        {
+            items[i] = left[i];
+        }
+
+        for (var i = 0; i < rightCount; i++)
+        {
+            items[leftCount + i] = right[i];
+        }
+
+        return new(items);
+    }
+
+    /// <summary>Reads a lazy sequence completely and returns the sequence without the lazy source.</summary>
+    /// <returns>This sequence when it is not lazy.</returns>
+    internal XdmSequence Materialize() =>
+        _many is XdmLazyItems lazy
+            ? lazy.Items.Length switch
+            {
+                0 => default,
+                1 => new(lazy.Items[0]),
+                _ => new(lazy.Items),
+            }
+            : this;
 
     /// <summary>Gets the enumerator.</summary>
     /// <returns>A struct enumerator.</returns>
-    public XdmSequenceEnumerator GetEnumerator() => new(_items ?? []);
+    public XdmSequenceEnumerator GetEnumerator() => new(this);
 
     /// <inheritdoc />
     public bool Equals(XdmSequence other) => Count == other.Count && ItemsEqual(other);
@@ -74,9 +166,10 @@ public readonly struct XdmSequence : IEquatable<XdmSequence>
 
     private bool ItemsEqual(XdmSequence other)
     {
-        for (var i = 0; i < Count; i++)
+        var count = Count;
+        for (var i = 0; i < count; i++)
         {
-            if (!_items![i].Equals(other._items![i]))
+            if (!this[i].Equals(other[i]))
             {
                 return false;
             }
@@ -87,10 +180,11 @@ public readonly struct XdmSequence : IEquatable<XdmSequence>
 
     private int HashItems()
     {
-        var hash = Count;
-        for (var i = 0; i < Count; i++)
+        var count = Count;
+        var hash = count;
+        for (var i = 0; i < count; i++)
         {
-            hash = unchecked((hash * 31) + _items![i].GetHashCode());
+            hash = unchecked((hash * 31) + this[i].GetHashCode());
         }
 
         return hash;
