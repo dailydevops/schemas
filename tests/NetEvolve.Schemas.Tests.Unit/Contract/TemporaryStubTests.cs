@@ -96,20 +96,6 @@ public class TemporaryStubTests
     }
 
     [Test]
-    public async Task Fnd10_ResourceStubs_ThrowUntilImplemented()
-    {
-        var resolver = Blank<DenyAllResourceResolver>();
-        var request = new ResourceRequest(ResourceKind.SchemaDocument, "a.xsd", null, null);
-
-        await AssertStubAsync(
-            "FND-10",
-            () => _ = ResourceResult.Found(Stream.Null, "sys"),
-            () => _ = DenyAllResourceResolver.Instance,
-            () => _ = resolver.Resolve(request, CancellationToken.None)
-        );
-    }
-
-    [Test]
     public async Task Fnd55_LimitsStubs_ThrowUntilImplemented()
     {
         var limits = Blank<ValidationLimits>();

@@ -2,10 +2,14 @@
 
 namespace NetEvolve.Schemas.Resources;
 
+using System;
+using NetEvolve.Arguments;
+
 /// <summary>A request for an external resource.</summary>
-/// <remarks>Limitation: argument validation and the empty-string default of <see cref="Reference"/> arrive with FND-10.</remarks>
 public readonly struct ResourceRequest
 {
+    private readonly string? _reference;
+
     /// <summary>Initializes a new instance of the <see cref="ResourceRequest"/> struct.</summary>
     /// <param name="kind">The kind of resource.</param>
     /// <param name="reference">The reference as written.</param>
@@ -22,8 +26,11 @@ public readonly struct ResourceRequest
         string? namespaceUri = null
     )
     {
+        Argument.ThrowIfNull(reference);
+        Argument.ThrowIfGreaterThan((byte)kind, (byte)ResourceKind.XPathText);
+
         Kind = kind;
-        Reference = reference;
+        _reference = reference;
         BaseUri = baseUri;
         ResolvedUri = resolvedUri;
         PublicId = publicId;
@@ -33,8 +40,8 @@ public readonly struct ResourceRequest
     /// <summary>Gets the kind of resource.</summary>
     public ResourceKind Kind { get; }
 
-    /// <summary>Gets the reference as written.</summary>
-    public string Reference { get; }
+    /// <summary>Gets the reference as written, never <see langword="null"/>; <see langword="default"/> gives an empty string.</summary>
+    public string Reference => _reference ?? string.Empty;
 
     /// <summary>Gets the base URI.</summary>
     public string? BaseUri { get; }
