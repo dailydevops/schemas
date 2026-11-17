@@ -1,4 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <!-- The unit tests reach the internal seams and fake them (XSD-50, design #146 DP-1). -->
+  <ItemGroup>
+    <InternalsVisibleTo Include="NetEvolve.Schemas.Xsd.Tests.Unit" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../NetEvolve.Schemas.XPath/NetEvolve.Schemas.XPath.csproj" />
   </ItemGroup>
