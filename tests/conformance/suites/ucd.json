@@ -1,0 +1,6 @@
+{
+  "key": "ucd",
+  "url": "https://www.unicode.org/Public/18.0.0/ucd/UCD.zip",
+  "sha256": "7b3e555514060b92290d154f53655c5eb0fa62b16eb04c03434ff72d1a66a0d8",
+  "archive": "zip"
+}
