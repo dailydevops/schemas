@@ -140,9 +140,8 @@ public class XmlConfSuiteTests
 
         var failed = results.Where(r => r.Outcome == CaseOutcome.Fail).Select(r => r.CaseId).ToList();
 
-        // Known defect: a colon in a processing instruction target is accepted (rmt-ns10-042 expects an error).
-        await Assert.That(failed).IsEquivalentTo(["eduni-namespaces-1.0/rmt-ns10-042"]);
-        await Assert.That(results.Count(r => r.Outcome == CaseOutcome.Pass)).IsEqualTo(29);
+        await Assert.That(failed).IsEmpty();
+        await Assert.That(results.Count(r => r.Outcome == CaseOutcome.Pass)).IsEqualTo(30);
         await Assert
             .That(
                 cases

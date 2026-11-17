@@ -12,7 +12,6 @@ eduni-namespaces-1.0/rmt-ns10-009
 eduni-namespaces-1.0/rmt-ns10-010
 eduni-namespaces-1.0/rmt-ns10-011
 eduni-namespaces-1.0/rmt-ns10-012
-eduni-namespaces-1.0/rmt-ns10-042
 eduni-namespaces-1.0/rmt-ns10-043
 eduni-namespaces-1.0/rmt-ns10-044
 eduni-namespaces-1.0/rmt-ns10-045
