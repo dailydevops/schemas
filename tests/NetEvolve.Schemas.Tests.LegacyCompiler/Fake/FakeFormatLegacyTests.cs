@@ -7,20 +7,22 @@ namespace NetEvolve.Schemas.Tests.LegacyCompiler.Fake;
 public class FakeFormatLegacyTests
 {
     [Test]
-    public async Task NamedExtensionClass_ForFake_BuildsValidatorThatReceivesContent()
+    public async Task ForFake_BuildsValidatorReceivingContent(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var builder = FakeSchemaValidatorExtensions.ForFake();
-        var validator = builder.CreateFakeValidator();
+        var validator = await builder.CreateFakeValidatorAsync(cancellationToken);
 
-        _ = validator.Validate("<a/>"u8, "file:///doc.xml");
+        _ = validator.Validate("<a/>"u8, "file:///doc.xml", cancellationToken);
 
         await Assert.That(validator.Calls).Count().IsEqualTo(1);
         await Assert.That(validator.Calls[0].SystemId).IsEqualTo("file:///doc.xml");
     }
 
     [Test]
-    public async Task NamedExtensionClass_IsPublicStaticInEntryPointNamespace()
+    public async Task NamedExtensionClass_IsPublicStaticInEntryPointNamespace(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var type = typeof(FakeSchemaValidatorExtensions);
 
         await Assert.That(type.IsPublic).IsTrue();
