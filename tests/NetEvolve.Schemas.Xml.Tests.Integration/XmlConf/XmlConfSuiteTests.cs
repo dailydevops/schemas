@@ -151,6 +151,82 @@ public class XmlConfSuiteTests
             .IsFalse();
     }
 
+    /// <summary>Not-well-formed cases whose document is absent from the pinned archive; they cannot be read and belong to XML-11 (#166).</summary>
+    private static readonly string[] MissingNotWellFormedDocuments =
+    [
+        "eduni-namespaces-misc/hst-bh-001",
+        "eduni-namespaces-misc/hst-bh-002",
+        "eduni-namespaces-misc/hst-bh-003",
+        "eduni-namespaces-misc/hst-bh-004",
+        "eduni-namespaces-misc/hst-lhs-007",
+        "eduni-namespaces-misc/hst-lhs-008",
+        "eduni-namespaces-misc/hst-lhs-009",
+    ];
+
+    [Test]
+    public async Task Pipeline_NotWellFormedCasesWithoutDoctype_AreAllRejectedAndLeaveTheBaseline(
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var selection = await XmlConfSuite.LoadSelectionAsync(cancellationToken);
+        var baselines = XmlConfSuite.LoadBaselines(selection);
+        var notWellFormed = selection.Selected.Where(c => c.Type == XmlConfType.NotWellFormed).ToList();
+        var cases = await WithoutDoctypeAsync(notWellFormed, cancellationToken);
+
+        var results = await XmlConfRunner.RunAsync(
+            new XmlConfSelection(cases, []),
+            new PipelineXmlConfReader(XmlConfSuite.SuiteRoot),
+            cancellationToken
+        );
+
+        var failed = results.Where(r => r.Outcome == CaseOutcome.Fail).Select(r => r.CaseId).ToList();
+        var missing = notWellFormed
+            .Where(c => !File.Exists(Path.Combine(XmlConfSuite.SuiteRoot, c.Uri)))
+            .Select(c => c.Id)
+            .ToList();
+
+        await Assert.That(cases).IsNotEmpty();
+        await Assert.That(failed).IsEmpty();
+        await Assert.That(cases.Any(c => baselines[c.TestSet].Ids.Contains(c.Id, StringComparer.Ordinal))).IsFalse();
+        await Assert.That(missing).IsEquivalentTo(MissingNotWellFormedDocuments);
+    }
+
+    /// <summary>
+    /// Valid cases without a document type declaration that need namespace processing switched off; the pipeline reader
+    /// has no such mode (limitation), so they stay in the baseline.
+    /// </summary>
+    private static readonly string[] NamespaceProcessingOffCases = ["oasis/o-p04pass1", "oasis/o-p05pass1"];
+
+    [Test]
+    public async Task Pipeline_ValidAndInvalidCasesWithoutDoctype_AreAcceptedAndLeaveTheBaseline(
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var selection = await XmlConfSuite.LoadSelectionAsync(cancellationToken);
+        var baselines = XmlConfSuite.LoadBaselines(selection);
+        var candidates = await WithoutDoctypeAsync(
+            selection.Selected.Where(c => c.Type is XmlConfType.Valid or XmlConfType.Invalid),
+            cancellationToken
+        );
+        var cases = candidates.Where(c => c.Namespaces).ToList();
+
+        var results = await XmlConfRunner.RunAsync(
+            new XmlConfSelection(cases, []),
+            new PipelineXmlConfReader(XmlConfSuite.SuiteRoot),
+            cancellationToken
+        );
+
+        await Assert.That(results.Where(r => r.Outcome == CaseOutcome.Fail).Select(r => r.CaseId)).IsEmpty();
+        await Assert.That(cases.Any(c => baselines[c.TestSet].Ids.Contains(c.Id, StringComparer.Ordinal))).IsFalse();
+        await Assert
+            .That(candidates.Where(c => !c.Namespaces).Select(c => c.Id))
+            .IsEquivalentTo(NamespaceProcessingOffCases);
+    }
+
     /// <summary>Regenerates the baseline files from the failures of the pipeline reader; run it with the explicit filter after a deliberate change.</summary>
     [Test]
     [Explicit]
