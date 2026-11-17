@@ -354,6 +354,43 @@ public class AttributeDeclarationTests
     }
 
     [Test]
+    public async Task Group_SameDeclarationThroughTwoNestedGroups_IsNotADuplicate()
+    {
+        // Pinned limitation: ag-props-correct 2 read literally would flag this diamond; the same declaration is kept once.
+        var registry = new FakeComponentRegistry([]);
+        var shared = Global("a");
+        foreach (var name in new[] { "left", "right" })
+        {
+            registry.Add(
+                AttributeGroupDefinition.Create(
+                    new XPathQName(Tns, name),
+                    Where,
+                    [Use(AttributeUseKind.Optional, shared)],
+                    [],
+                    null
+                )
+            );
+        }
+
+        var top = AttributeGroupDefinition.Create(
+            new XPathQName(Tns, "top"),
+            Where,
+            [],
+            [
+                new AttributeGroupReference(new XPathQName(Tns, "left"), Where),
+                new AttributeGroupReference(new XPathQName(Tns, "right"), Where),
+            ],
+            null
+        );
+        registry.Add(top);
+
+        top.Resolve(registry, Reporter);
+
+        await Assert.That(_collector.ToResult().Issues).IsEmpty();
+        await Assert.That(top.Uses).Count().IsEqualTo(1);
+    }
+
+    [Test]
     public async Task Group_DuplicateUse_IsASchemaError()
     {
         var group = AttributeGroupDefinition.Create(
