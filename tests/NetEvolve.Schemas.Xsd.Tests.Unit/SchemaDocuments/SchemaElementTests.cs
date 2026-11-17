@@ -215,9 +215,7 @@ public class SchemaElementTests
 
         await Assert.That(issues.Count).IsEqualTo(0);
         await Assert.That(node.Name.NamespaceName).IsEqualTo("http://www.w3.org/2001/XMLSchema");
-        await Assert
-            .That(node.Name.LocalName)
-            .IsEqualTo(path.Length == 0 ? "schema" : path[(path.LastIndexOf('/') + 1)..]);
+        await Assert.That(node.Name.LocalName).IsEqualTo(path.Length == 0 ? "schema" : path.Split('/')[^1]);
         await Assert.That(Attributes(node)).IsEqualTo(attributes);
         await Assert.That(node.Location.Source).IsEqualTo(SystemId);
         await Assert.That(node.Location.Line).IsEqualTo(line);
