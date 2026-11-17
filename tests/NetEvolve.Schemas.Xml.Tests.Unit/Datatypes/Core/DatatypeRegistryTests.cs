@@ -115,7 +115,8 @@ public class DatatypeRegistryTests
 
         await Assert
             .That(() => new DatatypeRegistry(XsdVersion.V10, registrations))
-            .Throws<InvalidOperationException>();
+            .Throws<InvalidOperationException>()
+            .WithMessageContaining("depends on itself", StringComparison.Ordinal);
     }
 
     [Test]
