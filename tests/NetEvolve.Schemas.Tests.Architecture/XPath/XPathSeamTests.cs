@@ -69,7 +69,10 @@ public class XPathSeamTests
             .Load(SourceAssemblies.XPath)
             .GetTypes()
             .Where(type =>
-                !type.IsNested && !(internalOnly && type.IsPublic) && !allowedNamespaces.Contains(type.Namespace)
+                !type.IsNested
+                && !(internalOnly && type.IsPublic)
+                && !allowedNamespaces.Contains(type.Namespace)
+                && IsXPathType(type)
             )
             .Select(type => type.FullName!)
             .ToArray();
@@ -78,6 +81,12 @@ public class XPathSeamTests
             ? []
             : Types.InAssembly(consumer).ShouldNot().HaveDependencyOnAny(forbidden).GetResult().FailingTypeNames ?? [];
     }
+
+    // A consumer with access to the internals binds the embedded attributes, polyfills, and synthesized helper types of the
+    // compiler (nullable, readonly, ref struct, collection expressions) to the copies in the XPath assembly instead of
+    // embedding its own. Only the types that the XPath package declares in its own namespaces are seam candidates.
+    private static bool IsXPathType(Type type) =>
+        type.Namespace is { } ns && ns.StartsWith(SourceAssemblies.XPath, StringComparison.Ordinal);
 
     /// <summary>Violating fixture: depends on a type of the XPath assembly outside the seam namespaces.</summary>
     internal static class OutsideSeamFixture

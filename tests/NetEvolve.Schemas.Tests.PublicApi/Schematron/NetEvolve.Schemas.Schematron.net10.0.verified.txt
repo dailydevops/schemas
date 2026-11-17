@@ -1,0 +1,344 @@
+﻿namespace NetEvolve.Schemas
+{
+    public interface ISchematronValidator : NetEvolve.Schemas.ISchemaValidator
+    {
+        NetEvolve.Schemas.Schematron.Model.SchematronEdition Edition { get; }
+        string EffectivePhase { get; }
+        NetEvolve.Schemas.ValidationLimits Limits { get; }
+        System.Collections.Generic.IReadOnlyDictionary<string, string> Parameters { get; }
+        string Phase { get; }
+        NetEvolve.Schemas.Resources.IResourceResolver Resolver { get; }
+        NetEvolve.Schemas.Schematron.Model.SchematronSchema Schema { get; }
+        NetEvolve.Schemas.ISchematronValidator WithReportSink(NetEvolve.Schemas.Schematron.ISchematronReportSink sink);
+    }
+    public static class SchematronSchemaValidatorExtensions
+    {
+        public sealed class <G>$8181A2D17B7E404582A6E1871A86A2F2
+        {
+            public static NetEvolve.Schemas.SchematronValidatorBuilder ForSchematron(System.Buffers.ReadOnlySequence<byte> schema, string? systemId = null) { }
+            public static NetEvolve.Schemas.SchematronValidatorBuilder ForSchematron(System.Buffers.ReadOnlySequence<char> schema, string? systemId = null) { }
+            public static NetEvolve.Schemas.SchematronValidatorBuilder ForSchematron(System.IO.Stream schema, string? systemId = null) { }
+            public static NetEvolve.Schemas.SchematronValidatorBuilder ForSchematron(System.ReadOnlySpan<byte> schema, string? systemId = null) { }
+            public static NetEvolve.Schemas.SchematronValidatorBuilder ForSchematron(System.ReadOnlySpan<char> schema, string? systemId = null) { }
+            public static class <M>$BA625B3221FA1E4BC76D571E2A3521B7 { }
+        }
+        extension(NetEvolve.Schemas.SchemaValidator)
+        {
+            public static NetEvolve.Schemas.SchematronValidatorBuilder ForSchematron(System.IO.Stream schema, string? systemId = null) { }
+            public static NetEvolve.Schemas.SchematronValidatorBuilder ForSchematron(System.ReadOnlySpan<byte> schema, string? systemId = null) { }
+            public static NetEvolve.Schemas.SchematronValidatorBuilder ForSchematron(System.ReadOnlySpan<char> schema, string? systemId = null) { }
+            public static NetEvolve.Schemas.SchematronValidatorBuilder ForSchematron(System.Buffers.ReadOnlySequence<byte> schema, string? systemId = null) { }
+            public static NetEvolve.Schemas.SchematronValidatorBuilder ForSchematron(System.Buffers.ReadOnlySequence<char> schema, string? systemId = null) { }
+        }
+    }
+    public sealed class SchematronValidatorBuilder : NetEvolve.Schemas.Formats.SchemaValidatorBuilder<NetEvolve.Schemas.SchematronValidatorBuilder, NetEvolve.Schemas.ISchematronValidator>
+    {
+        public System.Collections.Generic.IReadOnlyDictionary<string, string> Parameters { get; }
+        public string Phase { get; }
+        protected override NetEvolve.Schemas.ISchematronValidator CreateValidator(NetEvolve.Schemas.ValidationLimits limits, NetEvolve.Schemas.Resources.IResourceResolver resolver) { }
+        public NetEvolve.Schemas.SchematronValidatorBuilder WithParameter(string name, string value) { }
+        public NetEvolve.Schemas.SchematronValidatorBuilder WithPhase(string phase) { }
+    }
+}
+namespace NetEvolve.Schemas.Schematron
+{
+    public interface ISchematronReportSink
+    {
+        void ActivePattern(in NetEvolve.Schemas.Schematron.SchematronPatternEvent pattern);
+        void Begin(in NetEvolve.Schemas.Schematron.SchematronRunInfo info);
+        void ErrorOccurred(in NetEvolve.Schemas.Schematron.SchematronErrorEvent errorEvent);
+        void Finding(in NetEvolve.Schemas.Schematron.SchematronFinding finding);
+        void Finish(in NetEvolve.Schemas.Schematron.SchematronRunSummary summary);
+        void FiredRule(in NetEvolve.Schemas.Schematron.SchematronRuleEvent rule);
+    }
+    public static class SchematronDiagnosticCodes
+    {
+        public static readonly NetEvolve.Schemas.DiagnosticCode AbstractTargetInvalid;
+        public static readonly NetEvolve.Schemas.DiagnosticCode AssertionFailed;
+        public static readonly NetEvolve.Schemas.DiagnosticCode AttributeInvalid;
+        public static readonly NetEvolve.Schemas.DiagnosticCode AttributeMissing;
+        public static readonly NetEvolve.Schemas.DiagnosticCode BindingUnsupported;
+        public static readonly NetEvolve.Schemas.DiagnosticCode DocumentDenied;
+        public static readonly NetEvolve.Schemas.DiagnosticCode EditionMismatch;
+        public static readonly NetEvolve.Schemas.DiagnosticCode EditionUnknown;
+        public static readonly NetEvolve.Schemas.DiagnosticCode ElementMisplaced;
+        public static readonly NetEvolve.Schemas.DiagnosticCode ElementUnknown;
+        public static readonly NetEvolve.Schemas.DiagnosticCode EvaluationFailed;
+        public static readonly NetEvolve.Schemas.DiagnosticCode ExpressionInvalid;
+        public static readonly NetEvolve.Schemas.DiagnosticCode IdDuplicate;
+        public static readonly NetEvolve.Schemas.DiagnosticCode IdrefUnresolved;
+        public static readonly NetEvolve.Schemas.DiagnosticCode IncludeCycle;
+        public static readonly NetEvolve.Schemas.DiagnosticCode IssueLimitStop;
+        public static readonly NetEvolve.Schemas.DiagnosticCode LetDuplicate;
+        public static readonly NetEvolve.Schemas.DiagnosticCode LetType;
+        public static readonly NetEvolve.Schemas.DiagnosticCode ModuleInvalid;
+        public static readonly NetEvolve.Schemas.DiagnosticCode NoActivePattern;
+        public static readonly NetEvolve.Schemas.DiagnosticCode NotImplemented;
+        public static readonly NetEvolve.Schemas.DiagnosticCode ParamMissing;
+        public static readonly NetEvolve.Schemas.DiagnosticCode ParamUnknown;
+        public static readonly NetEvolve.Schemas.DiagnosticCode PatternUnsupported;
+        public static readonly NetEvolve.Schemas.DiagnosticCode PhaseUnknown;
+        public static readonly NetEvolve.Schemas.DiagnosticCode ReportFired;
+        public static readonly NetEvolve.Schemas.DiagnosticCode RootInvalid;
+        public static readonly NetEvolve.Schemas.DiagnosticCode SvrlBufferLimit;
+        public static readonly NetEvolve.Schemas.DiagnosticCode Unsupported;
+        public static readonly NetEvolve.Schemas.DiagnosticCode VariableUndefined;
+        public static readonly NetEvolve.Schemas.DiagnosticCode XsltUnsupported;
+    }
+    public readonly ref struct SchematronErrorEvent
+    {
+        public System.ReadOnlySpan<char> Code { get; }
+        public System.ReadOnlySpan<char> Document { get; }
+        public NetEvolve.Schemas.ValidationIssue? Issue { get; }
+        public System.ReadOnlySpan<char> Location { get; }
+        public System.ReadOnlySpan<char> Message { get; }
+    }
+    public readonly ref struct SchematronFinding
+    {
+        public System.ReadOnlySpan<char> Constraint { get; }
+        public NetEvolve.Schemas.Schematron.SchematronReferenceList Diagnostics { get; }
+        public System.ReadOnlySpan<char> Flags { get; }
+        public System.ReadOnlySpan<char> Id { get; }
+        public bool IsReport { get; }
+        public NetEvolve.Schemas.ValidationIssue? Issue { get; }
+        public System.ReadOnlySpan<char> Location { get; }
+        public System.ReadOnlySpan<char> Message { get; }
+        public NetEvolve.Schemas.Schematron.SchematronReferenceList Properties { get; }
+        public System.ReadOnlySpan<char> Role { get; }
+        public System.ReadOnlySpan<char> RuleId { get; }
+        public System.ReadOnlySpan<char> Severity { get; }
+        public System.ReadOnlySpan<char> Test { get; }
+    }
+    public readonly ref struct SchematronPatternEvent
+    {
+        public System.ReadOnlySpan<char> Documents { get; }
+        public System.ReadOnlySpan<char> Id { get; }
+        public bool IsGroup { get; }
+        public System.ReadOnlySpan<char> Name { get; }
+        public System.ReadOnlySpan<char> Role { get; }
+    }
+    public readonly ref struct SchematronReferenceList
+    {
+        public int Count { get; }
+        public string IdAt(int index) { }
+        public string TextAt(int index) { }
+    }
+    public readonly ref struct SchematronRuleEvent
+    {
+        public System.ReadOnlySpan<char> Context { get; }
+        public System.ReadOnlySpan<char> Document { get; }
+        public System.ReadOnlySpan<char> Flags { get; }
+        public System.ReadOnlySpan<char> Id { get; }
+        public System.ReadOnlySpan<char> Role { get; }
+    }
+    public readonly ref struct SchematronRunInfo
+    {
+        public NetEvolve.Schemas.Schematron.Model.SchematronEdition Edition { get; }
+        public System.ReadOnlySpan<char> InstanceSystemId { get; }
+        public System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Schematron.Model.SchematronNamespace> Namespaces { get; }
+        public System.ReadOnlySpan<char> Phase { get; }
+        public System.ReadOnlySpan<char> SchemaVersion { get; }
+        public System.ReadOnlySpan<char> Title { get; }
+    }
+    public readonly ref struct SchematronRunSummary
+    {
+        public bool IsTruncated { get; }
+        public NetEvolve.Schemas.DiagnosticCode StopCode { get; }
+    }
+}
+namespace NetEvolve.Schemas.Schematron.Model
+{
+    public sealed class SchematronActive : NetEvolve.Schemas.Schematron.Model.SchematronRichText
+    {
+        public string Pattern { get; }
+    }
+    public sealed class SchematronAssert : NetEvolve.Schemas.Schematron.Model.SchematronAssertion { }
+    public abstract class SchematronAssertion : NetEvolve.Schemas.Schematron.Model.SchematronNode
+    {
+        public System.Collections.Generic.IReadOnlyList<string> DiagnosticIds { get; }
+        public System.Collections.Generic.IReadOnlyList<string> Flags { get; }
+        public string? Id { get; }
+        public NetEvolve.Schemas.Schematron.Model.SchematronMessage Message { get; }
+        public System.Collections.Generic.IReadOnlyList<string> PropertyIds { get; }
+        public string? Role { get; }
+        public string? Severity { get; }
+        public string? Subject { get; }
+        public string Test { get; }
+    }
+    public abstract class SchematronContainer : NetEvolve.Schemas.Schematron.Model.SchematronNode
+    {
+        public NetEvolve.Schemas.Schematron.Model.SchematronDiagnostics? Diagnostics { get; }
+        public System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Schematron.Model.SchematronLet> Lets { get; }
+        public System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Schematron.Model.SchematronParagraph> Paragraphs { get; }
+        public System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Schematron.Model.SchematronParameter> Parameters { get; }
+        public System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Schematron.Model.SchematronPatternBase> Patterns { get; }
+        public NetEvolve.Schemas.Schematron.Model.SchematronProperties? Properties { get; }
+        public NetEvolve.Schemas.Schematron.Model.SchematronTitle? Title { get; }
+    }
+    public sealed class SchematronDiagnostic : NetEvolve.Schemas.Schematron.Model.SchematronNode
+    {
+        public string Id { get; }
+        public NetEvolve.Schemas.Schematron.Model.SchematronMessage Message { get; }
+        public string? Role { get; }
+    }
+    public sealed class SchematronDiagnostics : NetEvolve.Schemas.Schematron.Model.SchematronNode
+    {
+        public System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Schematron.Model.SchematronDiagnostic> Items { get; }
+    }
+    public sealed class SchematronDirection : NetEvolve.Schemas.Schematron.Model.SchematronMessagePart
+    {
+        public System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Schematron.Model.SchematronMessagePart> Parts { get; }
+        public string? Value { get; }
+    }
+    public enum SchematronEdition
+    {
+        Iso2016 = 0,
+        Iso2025 = 1,
+    }
+    public sealed class SchematronEmphasis : NetEvolve.Schemas.Schematron.Model.SchematronMessagePart
+    {
+        public System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Schematron.Model.SchematronMessagePart> Parts { get; }
+    }
+    public sealed class SchematronGroup : NetEvolve.Schemas.Schematron.Model.SchematronPatternBase { }
+    public sealed class SchematronLet : NetEvolve.Schemas.Schematron.Model.SchematronNode
+    {
+        public string? DeclaredType { get; }
+        public string Name { get; }
+        public string Value { get; }
+    }
+    public sealed class SchematronMessage : NetEvolve.Schemas.Schematron.Model.SchematronRichText { }
+    public abstract class SchematronMessagePart : NetEvolve.Schemas.Schematron.Model.SchematronNode { }
+    public sealed class SchematronName : NetEvolve.Schemas.Schematron.Model.SchematronMessagePart
+    {
+        public string? Path { get; }
+    }
+    public sealed class SchematronNamespace : NetEvolve.Schemas.Schematron.Model.SchematronNode
+    {
+        public string NamespaceName { get; }
+        public string Prefix { get; }
+    }
+    public abstract class SchematronNode
+    {
+        public NetEvolve.Schemas.DocumentLocation Location { get; }
+    }
+    public sealed class SchematronParagraph : NetEvolve.Schemas.Schematron.Model.SchematronRichText
+    {
+        public string? Icon { get; }
+        public string? Id { get; }
+        public string? StyleClass { get; }
+    }
+    public sealed class SchematronParameter : NetEvolve.Schemas.Schematron.Model.SchematronNode
+    {
+        public string Name { get; }
+        public string? Value { get; }
+    }
+    public sealed class SchematronPattern : NetEvolve.Schemas.Schematron.Model.SchematronPatternBase { }
+    public abstract class SchematronPatternBase : NetEvolve.Schemas.Schematron.Model.SchematronNode
+    {
+        public string? Documents { get; }
+        public NetEvolve.Schemas.DocumentLocation? ExpandedFrom { get; }
+        public string? Id { get; }
+        public string? IsA { get; }
+        public bool IsAbstract { get; }
+        public bool IsGroup { get; }
+        public System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Schematron.Model.SchematronLet> Lets { get; }
+        public System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Schematron.Model.SchematronParagraph> Paragraphs { get; }
+        public System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Schematron.Model.SchematronParameter> Parameters { get; }
+        public string? Role { get; }
+        public System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Schematron.Model.SchematronRule> Rules { get; }
+        public NetEvolve.Schemas.Schematron.Model.SchematronTitle? Title { get; }
+    }
+    public sealed class SchematronPhase : NetEvolve.Schemas.Schematron.Model.SchematronNode
+    {
+        public System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Schematron.Model.SchematronActive> Actives { get; }
+        public string? From { get; }
+        public string Id { get; }
+        public System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Schematron.Model.SchematronLet> Lets { get; }
+        public System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Schematron.Model.SchematronParagraph> Paragraphs { get; }
+        public string? When { get; }
+    }
+    public sealed class SchematronProperties : NetEvolve.Schemas.Schematron.Model.SchematronNode
+    {
+        public System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Schematron.Model.SchematronProperty> Items { get; }
+    }
+    public sealed class SchematronProperty : NetEvolve.Schemas.Schematron.Model.SchematronNode
+    {
+        public string Id { get; }
+        public NetEvolve.Schemas.Schematron.Model.SchematronMessage Message { get; }
+        public string? Role { get; }
+        public string? Scheme { get; }
+    }
+    public sealed class SchematronReport : NetEvolve.Schemas.Schematron.Model.SchematronAssertion { }
+    public abstract class SchematronRichText : NetEvolve.Schemas.Schematron.Model.SchematronNode
+    {
+        public System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Schematron.Model.SchematronMessagePart> Parts { get; }
+    }
+    public sealed class SchematronRule : NetEvolve.Schemas.Schematron.Model.SchematronNode
+    {
+        public string? Context { get; }
+        public NetEvolve.Schemas.DocumentLocation? ExpandedFrom { get; }
+        public System.Collections.Generic.IReadOnlyList<string> Flags { get; }
+        public string? Id { get; }
+        public bool IsAbstract { get; }
+        public System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Schematron.Model.SchematronNode> Items { get; }
+        public System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Schematron.Model.SchematronLet> Lets { get; }
+        public string? Role { get; }
+        public string? Subject { get; }
+        public NetEvolve.Schemas.Schematron.Model.SchematronTitle? Title { get; }
+        public string? VisitEach { get; }
+    }
+    public sealed class SchematronSchema : NetEvolve.Schemas.Schematron.Model.SchematronContainer
+    {
+        public string? DefaultPhase { get; }
+        public NetEvolve.Schemas.Schematron.Model.SchematronEdition Edition { get; }
+        public string? EditionText { get; }
+        public string? Id { get; }
+        public System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Schematron.Model.SchematronNamespace> Namespaces { get; }
+        public System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Schematron.Model.SchematronPhase> Phases { get; }
+        public string? QueryBinding { get; }
+        public string? SchemaVersion { get; }
+    }
+    public sealed class SchematronSpan : NetEvolve.Schemas.Schematron.Model.SchematronMessagePart
+    {
+        public System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Schematron.Model.SchematronMessagePart> Parts { get; }
+        public string? StyleClass { get; }
+    }
+    public sealed class SchematronText : NetEvolve.Schemas.Schematron.Model.SchematronMessagePart
+    {
+        public string Text { get; }
+    }
+    public sealed class SchematronTitle : NetEvolve.Schemas.Schematron.Model.SchematronRichText { }
+    public sealed class SchematronValueOf : NetEvolve.Schemas.Schematron.Model.SchematronMessagePart
+    {
+        public string Select { get; }
+    }
+}
+namespace NetEvolve.Schemas.Schematron.Svrl
+{
+    public sealed class SvrlReportSink : NetEvolve.Schemas.Schematron.ISchematronReportSink, System.IAsyncDisposable, System.IDisposable
+    {
+        public SvrlReportSink(System.Buffers.IBufferWriter<byte> output, NetEvolve.Schemas.Schematron.Svrl.SvrlWriterOptions? options = null) { }
+        public SvrlReportSink(System.IO.Stream output, NetEvolve.Schemas.Schematron.Svrl.SvrlWriterOptions? options = null) { }
+        public bool IsCompleted { get; }
+        public void ActivePattern(in NetEvolve.Schemas.Schematron.SchematronPatternEvent pattern) { }
+        public void Begin(in NetEvolve.Schemas.Schematron.SchematronRunInfo info) { }
+        public System.Threading.Tasks.ValueTask CompleteAsync(System.Threading.CancellationToken cancellationToken = default) { }
+        public void Dispose() { }
+        public System.Threading.Tasks.ValueTask DisposeAsync() { }
+        public void ErrorOccurred(in NetEvolve.Schemas.Schematron.SchematronErrorEvent errorEvent) { }
+        public void Finding(in NetEvolve.Schemas.Schematron.SchematronFinding finding) { }
+        public void Finish(in NetEvolve.Schemas.Schematron.SchematronRunSummary summary) { }
+        public void FiredRule(in NetEvolve.Schemas.Schematron.SchematronRuleEvent rule) { }
+    }
+    public sealed class SvrlWriterOptions
+    {
+        public const int DefaultMaxBufferedBytes = 16777216;
+        public const int MaxBufferedBytesCeiling = 2000000000;
+        public SvrlWriterOptions(NetEvolve.Schemas.Xml.Writer.XmlWriterEncoding encoding = 0, bool indent = false, bool emitNamespaceDeclarations = true, int maxBufferedBytes = 16777216) { }
+        public bool EmitNamespaceDeclarations { get; }
+        public NetEvolve.Schemas.Xml.Writer.XmlWriterEncoding Encoding { get; }
+        public bool Indent { get; }
+        public int MaxBufferedBytes { get; }
+        public static NetEvolve.Schemas.Schematron.Svrl.SvrlWriterOptions Default { get; }
+    }
+}
