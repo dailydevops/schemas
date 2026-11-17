@@ -835,6 +835,35 @@ namespace NetEvolve.Schemas.Xml.Datatypes.Strings
         public static bool operator ==(NetEvolve.Schemas.Xml.Datatypes.Strings.XsdString left, NetEvolve.Schemas.Xml.Datatypes.Strings.XsdString right) { }
     }
 }
+namespace NetEvolve.Schemas.Xml.Datatypes.Uri
+{
+    public enum AnyUriBasis
+    {
+        Rfc2396 = 0,
+        Rfc3987 = 1,
+    }
+    public sealed class AnyUriDescriptor : NetEvolve.Schemas.Xml.Datatypes.Contracts.IDatatypeDescriptor, NetEvolve.Schemas.Xml.Datatypes.Contracts.IDatatypeDescriptor<NetEvolve.Schemas.Xml.Datatypes.Strings.XsdString>
+    {
+        public AnyUriDescriptor(NetEvolve.Schemas.Xml.Datatypes.Contracts.XsdVersion version) { }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.IDatatypeDescriptor? BaseType { get; }
+        public NetEvolve.Schemas.Xml.Datatypes.Uri.AnyUriBasis Basis { get; }
+        public System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Xml.Datatypes.Contracts.IFacet> Facets { get; }
+        public NetEvolve.Schemas.Xml.Datatypes.Uri.AnyUriGrammar Grammar { get; }
+        public bool IsOrdered { get; }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.XsdVersion LexicalMode { get; }
+        public string Name { get; }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.DatatypeVariety Variety { get; }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.XsdOrder Compare(in NetEvolve.Schemas.Xml.Datatypes.Strings.XsdString a, in NetEvolve.Schemas.Xml.Datatypes.Strings.XsdString b) { }
+        public bool IsIdentical(in NetEvolve.Schemas.Xml.Datatypes.Strings.XsdString a, in NetEvolve.Schemas.Xml.Datatypes.Strings.XsdString b) { }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.ParseResult<NetEvolve.Schemas.Xml.Datatypes.Strings.XsdString> Parse(System.ReadOnlySpan<char> lexical) { }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.ValidationResult Validate(System.ReadOnlySpan<char> lexical) { }
+    }
+    public enum AnyUriGrammar
+    {
+        Lax = 0,
+        Strict = 1,
+    }
+}
 namespace NetEvolve.Schemas.Xml.Interop
 {
     public static class XmlInterop
