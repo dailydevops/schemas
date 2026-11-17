@@ -60,7 +60,7 @@ internal static class GregorianDatatypes
                 return error;
             }
 
-            if (_inner.Map(normalized, version).TimezoneOffsetMinutes is null)
+            if (_inner.Map(normalized, WhitespaceMode.Collapse, version).TimezoneOffsetMinutes is null)
             {
                 errorOffset = normalized.Length;
                 return DatatypeError.InvalidLexicalForm;
@@ -69,7 +69,8 @@ internal static class GregorianDatatypes
             return DatatypeError.None;
         }
 
-        public XsdDateTime Map(ReadOnlySpan<char> normalized, XsdVersion version) => _inner.Map(normalized, version);
+        public XsdDateTime Map(ReadOnlySpan<char> normalized, WhitespaceMode mode, XsdVersion version) =>
+            _inner.Map(normalized, mode, version);
 
         public XsdOrder Compare(in XsdDateTime a, in XsdDateTime b, XsdVersion version) =>
             _inner.Compare(in a, in b, version);
