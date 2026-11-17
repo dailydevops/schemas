@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Xdm.Nodes;
 
 using System;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Model;
 using NetEvolve.Schemas.XPath.Xdm.Values;
@@ -88,8 +87,6 @@ internal static class XPathNodeAccessors
     /// <returns>The annotation.</returns>
     public static XdmTypeId GetTypeAnnotation(this in XPathNode node, IXdmTypeAnnotationSource source)
     {
-        Argument.ThrowIfNull(source);
-
         return source.GetTypeAnnotation(node);
     }
 
@@ -104,8 +101,6 @@ internal static class XPathNodeAccessors
     /// <returns>The typed value.</returns>
     public static XdmItem TypedValue(this in XPathNode node, IXdmTypeAnnotationSource source)
     {
-        Argument.ThrowIfNull(source);
-
         if (source.TryGetTypedValue(node, out var typed))
         {
             return typed;

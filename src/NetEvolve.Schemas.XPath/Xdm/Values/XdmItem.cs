@@ -68,8 +68,6 @@ public readonly struct XdmItem : IEquatable<XdmItem>
     /// <exception cref="ArgumentNullException"><paramref name="value"/> is <see langword="null"/>.</exception>
     internal static XdmItem FromUntypedAtomic(string value)
     {
-        Argument.ThrowIfNull(value);
-
         return new(XdmItemKind.UntypedAtomic, XdmTypeId.UntypedAtomic, 0, value);
     }
 

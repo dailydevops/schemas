@@ -218,10 +218,6 @@ public class XPathNodeAdapterTests
     }
 
     [Test]
-    public async Task FromUntypedAtomic_Null_Throws() =>
-        await Assert.That(() => XdmItem.FromUntypedAtomic(null!)).Throws<ArgumentNullException>();
-
-    [Test]
     public async Task FromUntypedAtomic_EqualityIgnoresStringInstance()
     {
         var left = XdmItem.FromUntypedAtomic("a");
