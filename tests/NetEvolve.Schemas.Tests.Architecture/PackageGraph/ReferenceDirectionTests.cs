@@ -49,6 +49,15 @@ public class ReferenceDirectionTests
         await Assert.That(HigherLayerReferenceFixture.Name).IsEqualTo("XmlProbe");
 
     [Test]
+    [MethodDataSource(typeof(SourceAssemblies), nameof(SourceAssemblies.Names))]
+    public async Task ArgumentsReference_IsNotReported(string name)
+    {
+        var violations = ArchitectureRules.FindDisallowedReferences(name, [new AssemblyName("NetEvolve.Arguments")]);
+
+        await Assert.That(violations).IsEmpty();
+    }
+
+    [Test]
     public async Task UnlistedPolyfillPackage_IsReported()
     {
         var violations = ArchitectureRules.FindDisallowedReferences(
