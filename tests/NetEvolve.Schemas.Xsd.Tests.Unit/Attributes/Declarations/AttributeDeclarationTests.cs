@@ -1,5 +1,6 @@
 namespace NetEvolve.Schemas.Xsd.Tests.Unit.Attributes.Declarations;
 
+using System;
 using System.Collections.Generic;
 using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
@@ -187,6 +188,49 @@ public class AttributeDeclarationTests
 
         await Assert.That(use).IsNull();
         await AssertSingleError(XsdRuleCodes.AuPropsCorrect, 4);
+    }
+
+    [Test]
+    public async Task Use_DefaultOnAFixedDeclaration_IsAnIssue()
+    {
+        var declaration = Global("a", new AttributeValueConstraint(AttributeValueConstraintKind.Fixed, "f"));
+
+        var use = AttributeUse.Create(
+            Where,
+            AttributeUseKind.Optional,
+            declaration,
+            new AttributeValueConstraint(AttributeValueConstraintKind.Default, "f"),
+            Reporter
+        );
+
+        await Assert.That(use).IsNull();
+        await AssertSingleError(XsdRuleCodes.AuPropsCorrect, 4);
+    }
+
+    [Test]
+    public async Task Group_SameDeclarationTwiceDirectly_IsASchemaError()
+    {
+        var shared = Global("a");
+        var group = AttributeGroupDefinition.Create(
+            new XPathQName(Tns, "g"),
+            Where,
+            [Use(AttributeUseKind.Optional, shared), Use(AttributeUseKind.Optional, shared)],
+            [],
+            null
+        );
+
+        group.Resolve(new FakeComponentRegistry([]), Reporter);
+
+        await AssertSingleError(XsdRuleCodes.AgPropsCorrect, 4);
+        await Assert.That(group.Uses).Count().IsEqualTo(1);
+    }
+
+    [Test]
+    public async Task Issues_UnknownCode_Throws()
+    {
+        await Assert
+            .That(() => AttributeIssues.Report(Reporter, new DiagnosticCode(999999), Where, "m"))
+            .Throws<InvalidOperationException>();
     }
 
     [Test]
