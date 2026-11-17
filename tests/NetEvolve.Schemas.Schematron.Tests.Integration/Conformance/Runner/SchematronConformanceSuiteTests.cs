@@ -1,6 +1,7 @@
 ﻿namespace NetEvolve.Schemas.Schematron.Tests.Integration.Conformance.Runner;
 
 using NetEvolve.Schemas.Conformance.Baseline;
+using NetEvolve.Schemas.Conformance.Reporting;
 using NetEvolve.Schemas.Conformance.Results;
 
 public class SchematronConformanceSuiteTests
@@ -69,6 +70,12 @@ public class SchematronConformanceSuiteTests
             {
                 [testSet] = BaselineFiles.Load(SchematronSuite.BaselineDirectory, testSet),
             }
+        );
+
+        ConformanceRateReporter.Append(
+            "NetEvolve.Schemas.Schematron",
+            TargetFrameworkName.Of(typeof(SchematronConformanceSuiteTests).Assembly),
+            report
         );
 
         await Assert.That(report.TestSets).HasSingleItem();
