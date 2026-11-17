@@ -48,6 +48,14 @@ public class XPathLexerTests
     [Arguments("(a instance of xs:integer*) and b", "LeftParen Name Instance Of QName Star RightParen And Name")]
     [Arguments("a instance of xs:integer and b * c", "Name Instance Of QName And Name Star Name")]
     [Arguments(
+        "a[. instance of xs:integer] * if (1) then 2 else 3",
+        "Name LeftBracket Dot Instance Of QName RightBracket Star If LeftParen IntegerLiteral RightParen Then IntegerLiteral Else IntegerLiteral"
+    )]
+    [Arguments(
+        "a[. instance of xs:integer] * for $x in b return $x",
+        "Name LeftBracket Dot Instance Of QName RightBracket Star For Dollar Name In Name Return Dollar Name"
+    )]
+    [Arguments(
         "a, b . . .. [ ] @ - + $ ::",
         "Name Comma Name Dot Dot DotDot LeftBracket RightBracket At Minus Plus Dollar ColonColon"
     )]
