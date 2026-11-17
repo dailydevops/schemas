@@ -25,10 +25,20 @@ internal static class TestTree
     /// <summary>Creates an attribute without namespace.</summary>
     internal static XmlAttr A(string name, string value) => new(name, value);
 
-    /// <summary>Builds the tree and returns its document node.</summary>
-    internal static XmlNode Build(XmlElem root, string? documentUri = null)
+    /// <summary>Builds a document that holds only a comment, so it has no root element.</summary>
+    internal static XmlNode BuildWithoutRoot()
     {
-        using var builder = new XmlTreeBuilder(documentUri: documentUri is null ? null : new System.Uri(documentUri));
+        using var builder = new XmlTreeBuilder();
+        builder.StartDocument(new XmlDeclaration("1.0", "utf-8", null));
+        builder.Comment("empty");
+        builder.EndDocument();
+        return builder.Complete().Document;
+    }
+
+    /// <summary>Builds the tree and returns its document node.</summary>
+    internal static XmlNode Build(XmlElem root, bool trackPositions = true)
+    {
+        using var builder = new XmlTreeBuilder(trackPositions: trackPositions);
         builder.StartDocument(new XmlDeclaration("1.0", "utf-8", null));
         Write(builder, root);
         builder.EndDocument();

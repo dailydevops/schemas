@@ -1,0 +1,685 @@
+namespace NetEvolve.Schemas.Schematron.Parsing.Core;
+
+using System;
+using System.Collections.Generic;
+using NetEvolve.Schemas.Schematron.Model;
+using NetEvolve.Schemas.Schematron.Seams;
+using NetEvolve.Schemas.Xml.Contracts;
+using NetEvolve.Schemas.Xml.Model;
+
+/// <summary>The state of one parse: the tree, the source, the problem sink, and the failure flag.</summary>
+internal sealed class CoreParseRun
+{
+    private const string SchematronNamespace = "http://purl.oclc.org/dsdl/schematron";
+
+    private readonly XmlNameTable _names;
+    private readonly XmlDocumentTree? _positions;
+    private readonly string? _systemId;
+    private readonly IProblemSink _problems;
+    private readonly XmlSymbol _schematronNamespace;
+    private readonly bool _hasNamespace;
+    private bool _failed;
+
+    internal CoreParseRun(XmlTree tree, string? systemId, IProblemSink problems)
+    {
+        _names = tree.Names;
+        _positions = tree as XmlDocumentTree;
+        _systemId = systemId;
+        _problems = problems;
+        _hasNamespace = _names.TryGet(SchematronNamespace.AsSpan(), out _schematronNamespace);
+    }
+
+    internal SchematronSchema? Run(XmlNode start)
+    {
+        var root = start.Kind == XmlNodeKind.Document ? SkipToElement(start.FirstChild) : start;
+        if (root.IsEmpty)
+        {
+            Report(SchematronDiagnosticCodes.RootInvalid, "The document has no root element.", Location(start));
+            return null;
+        }
+
+        var kind = Classify(root);
+        if (kind != CoreElement.Schema)
+        {
+            if (kind == CoreElement.Deferred && string.Equals(LocalName(root), "library", StringComparison.Ordinal))
+            {
+                Report(SchematronDiagnosticCodes.Unsupported, "A library root is not supported yet.", Location(root));
+            }
+            else
+            {
+                Report(
+                    SchematronDiagnosticCodes.RootInvalid,
+                    "The root element '" + LocalName(root) + "' is not 'schema' in the Schematron namespace.",
+                    Location(root)
+                );
+            }
+
+            return null;
+        }
+
+        var schema = ParseSchema(root);
+        return _failed ? null : schema;
+    }
+
+    private SchematronSchema ParseSchema(XmlNode element)
+    {
+        SchematronTitle? title = null;
+        SchematronDiagnostics? diagnostics = null;
+        var paragraphs = new List<SchematronParagraph>();
+        var lets = new List<SchematronLet>();
+        var namespaces = new List<SchematronNamespace>();
+        var phases = new List<SchematronPhase>();
+        var patterns = new List<SchematronPatternBase>();
+
+        var edition = ReadEdition(element, out var editionText);
+        for (var child = FirstChild(element); !child.IsEmpty; child = NextChild(child))
+        {
+            var kind = Classify(child);
+            switch (kind)
+            {
+                case CoreElement.Title when title is null:
+                    title = ParseTitle(child);
+                    break;
+                case CoreElement.Diagnostics when diagnostics is null:
+                    diagnostics = ParseDiagnostics(child);
+                    break;
+                case CoreElement.Ns:
+                    namespaces.Add(ParseNamespace(child));
+                    break;
+                case CoreElement.Paragraph:
+                    paragraphs.Add(ParseParagraph(child));
+                    break;
+                case CoreElement.Let:
+                    lets.Add(ParseLet(child));
+                    break;
+                case CoreElement.Phase:
+                    phases.Add(ParsePhase(child));
+                    break;
+                case CoreElement.Pattern:
+                    patterns.Add(ParsePattern(child));
+                    break;
+                default:
+                    Reject(child, kind, "schema");
+                    break;
+            }
+        }
+
+        return new SchematronSchema(
+            Location(element),
+            title,
+            paragraphs.ToArray(),
+            Array.Empty<SchematronParameter>(),
+            lets.ToArray(),
+            patterns.ToArray(),
+            diagnostics,
+            null,
+            Attribute(element, "id"),
+            Attribute(element, "schemaVersion"),
+            editionText,
+            edition,
+            Attribute(element, "defaultPhase"),
+            Attribute(element, "queryBinding"),
+            namespaces.ToArray(),
+            phases.ToArray()
+        );
+    }
+
+    private SchematronEdition ReadEdition(XmlNode element, out string? text)
+    {
+        text = Attribute(element, "schematronEdition");
+        if (text is null || string.Equals(text, "2016", StringComparison.Ordinal))
+        {
+            return SchematronEdition.Iso2016;
+        }
+
+        if (string.Equals(text, "2025", StringComparison.Ordinal))
+        {
+            return SchematronEdition.Iso2025;
+        }
+
+        Report(
+            SchematronDiagnosticCodes.EditionUnknown,
+            "The schematronEdition value '" + text + "' is not known.",
+            Location(element)
+        );
+        return SchematronEdition.Iso2016;
+    }
+
+    private SchematronNamespace ParseNamespace(XmlNode element)
+    {
+        var prefix = Required(element, "prefix");
+        var uri = Required(element, "uri");
+        RejectChildren(element, "ns");
+        return new SchematronNamespace(Location(element), prefix, uri);
+    }
+
+    private SchematronPattern ParsePattern(XmlNode element)
+    {
+        SchematronTitle? title = null;
+        var paragraphs = new List<SchematronParagraph>();
+        var lets = new List<SchematronLet>();
+        var rules = new List<SchematronRule>();
+
+        var id = Attribute(element, "id");
+        var isAbstract = Boolean(element, "abstract");
+        var isA = Attribute(element, "is-a");
+        var documents = Attribute(element, "documents");
+        var role = Attribute(element, "role");
+        for (var child = FirstChild(element); !child.IsEmpty; child = NextChild(child))
+        {
+            var kind = Classify(child);
+            switch (kind)
+            {
+                case CoreElement.Title when title is null:
+                    title = ParseTitle(child);
+                    break;
+                case CoreElement.Paragraph:
+                    paragraphs.Add(ParseParagraph(child));
+                    break;
+                case CoreElement.Let:
+                    lets.Add(ParseLet(child));
+                    break;
+                case CoreElement.Rule:
+                    rules.Add(ParseRule(child));
+                    break;
+                default:
+                    Reject(child, kind, "pattern");
+                    break;
+            }
+        }
+
+        return new SchematronPattern(
+            Location(element),
+            id,
+            isAbstract,
+            isA,
+            documents,
+            role,
+            title,
+            paragraphs.ToArray(),
+            Array.Empty<SchematronParameter>(),
+            lets.ToArray(),
+            rules.ToArray(),
+            null
+        );
+    }
+
+    private SchematronRule ParseRule(XmlNode element)
+    {
+        SchematronTitle? title = null;
+        var lets = new List<SchematronLet>();
+        var items = new List<SchematronNode>();
+
+        var id = Attribute(element, "id");
+        var isAbstract = Boolean(element, "abstract");
+        var context = isAbstract ? Attribute(element, "context") : Required(element, "context");
+        var visitEach = Attribute(element, "visit-each");
+        var flags = Tokens(Attribute(element, "flag"));
+        var role = Attribute(element, "role");
+        var subject = Attribute(element, "subject");
+        for (var child = FirstChild(element); !child.IsEmpty; child = NextChild(child))
+        {
+            var kind = Classify(child);
+            switch (kind)
+            {
+                case CoreElement.Title when title is null:
+                    title = ParseTitle(child);
+                    break;
+                case CoreElement.Paragraph:
+                    items.Add(ParseParagraph(child));
+                    break;
+                case CoreElement.Let:
+                    lets.Add(ParseLet(child));
+                    break;
+                case CoreElement.Assert:
+                    items.Add(ParseAssert(child));
+                    break;
+                case CoreElement.Report:
+                    items.Add(ParseReport(child));
+                    break;
+                default:
+                    Reject(child, kind, "rule");
+                    break;
+            }
+        }
+
+        return new SchematronRule(
+            Location(element),
+            id,
+            context,
+            visitEach,
+            flags,
+            role,
+            subject,
+            isAbstract,
+            title,
+            lets.ToArray(),
+            items.ToArray(),
+            null
+        );
+    }
+
+    private SchematronAssert ParseAssert(XmlNode element)
+    {
+        var test = Required(element, "test");
+        var id = Attribute(element, "id");
+        var flags = Tokens(Attribute(element, "flag"));
+        var role = Attribute(element, "role");
+        var severity = Attribute(element, "severity");
+        var subject = Attribute(element, "subject");
+        var diagnostics = Tokens(Attribute(element, "diagnostics"));
+        var properties = Tokens(Attribute(element, "properties"));
+        return new SchematronAssert(
+            Location(element),
+            test,
+            id,
+            flags,
+            role,
+            severity,
+            subject,
+            diagnostics,
+            properties,
+            ParseMessage(element, CoreInline.Message)
+        );
+    }
+
+    private SchematronReport ParseReport(XmlNode element)
+    {
+        var test = Required(element, "test");
+        var id = Attribute(element, "id");
+        var flags = Tokens(Attribute(element, "flag"));
+        var role = Attribute(element, "role");
+        var severity = Attribute(element, "severity");
+        var subject = Attribute(element, "subject");
+        var diagnostics = Tokens(Attribute(element, "diagnostics"));
+        var properties = Tokens(Attribute(element, "properties"));
+        return new SchematronReport(
+            Location(element),
+            test,
+            id,
+            flags,
+            role,
+            severity,
+            subject,
+            diagnostics,
+            properties,
+            ParseMessage(element, CoreInline.Message)
+        );
+    }
+
+    private SchematronLet ParseLet(XmlNode element)
+    {
+        var name = Required(element, "name");
+        var declaredType = Attribute(element, "as");
+        var value = Attribute(element, "value");
+        if (value is null)
+        {
+            if (SkipToElement(element.FirstChild).IsEmpty)
+            {
+                Report(
+                    SchematronDiagnosticCodes.AttributeMissing,
+                    "The element 'let' requires the attribute 'value'.",
+                    Location(element)
+                );
+            }
+            else
+            {
+                Report(
+                    SchematronDiagnosticCodes.Unsupported,
+                    "A 'let' with element content is not supported; use the 'value' attribute.",
+                    Location(element)
+                );
+            }
+
+            value = string.Empty;
+        }
+        else
+        {
+            RejectChildren(element, "let");
+        }
+
+        return new SchematronLet(Location(element), name, declaredType, value);
+    }
+
+    private SchematronPhase ParsePhase(XmlNode element)
+    {
+        var paragraphs = new List<SchematronParagraph>();
+        var lets = new List<SchematronLet>();
+        var actives = new List<SchematronActive>();
+
+        var id = Required(element, "id");
+        var from = Attribute(element, "from");
+        var when = Attribute(element, "when");
+        for (var child = FirstChild(element); !child.IsEmpty; child = NextChild(child))
+        {
+            var kind = Classify(child);
+            switch (kind)
+            {
+                case CoreElement.Paragraph:
+                    paragraphs.Add(ParseParagraph(child));
+                    break;
+                case CoreElement.Let:
+                    lets.Add(ParseLet(child));
+                    break;
+                case CoreElement.Active:
+                    actives.Add(ParseActive(child));
+                    break;
+                default:
+                    Reject(child, kind, "phase");
+                    break;
+            }
+        }
+
+        return new SchematronPhase(
+            Location(element),
+            id,
+            from,
+            when,
+            paragraphs.ToArray(),
+            lets.ToArray(),
+            actives.ToArray()
+        );
+    }
+
+    private SchematronActive ParseActive(XmlNode element)
+    {
+        var pattern = Required(element, "pattern");
+        return new SchematronActive(Location(element), ParseParts(element, CoreInline.Plain), pattern);
+    }
+
+    private SchematronDiagnostics ParseDiagnostics(XmlNode element)
+    {
+        var items = new List<SchematronDiagnostic>();
+        for (var child = FirstChild(element); !child.IsEmpty; child = NextChild(child))
+        {
+            var kind = Classify(child);
+            switch (kind)
+            {
+                case CoreElement.Diagnostic:
+                    items.Add(ParseDiagnostic(child));
+                    break;
+                default:
+                    Reject(child, kind, "diagnostics");
+                    break;
+            }
+        }
+
+        return new SchematronDiagnostics(Location(element), items.ToArray());
+    }
+
+    private SchematronDiagnostic ParseDiagnostic(XmlNode element)
+    {
+        var id = Required(element, "id");
+        var role = Attribute(element, "role");
+        return new SchematronDiagnostic(Location(element), id, role, ParseMessage(element, CoreInline.Diagnostic));
+    }
+
+    private SchematronTitle ParseTitle(XmlNode element) =>
+        new(Location(element), ParseParts(element, CoreInline.Direction));
+
+    private SchematronParagraph ParseParagraph(XmlNode element)
+    {
+        var id = Attribute(element, "id");
+        var styleClass = Attribute(element, "class");
+        var icon = Attribute(element, "icon");
+        return new SchematronParagraph(Location(element), ParseParts(element, CoreInline.Plain), id, styleClass, icon);
+    }
+
+    private SchematronMessage ParseMessage(XmlNode element, CoreInline allowed) =>
+        new(Location(element), ParseParts(element, allowed));
+
+    private SchematronMessagePart[] ParseParts(XmlNode element, CoreInline allowed)
+    {
+        List<SchematronMessagePart>? parts = null;
+        for (var child = element.FirstChild; !child.IsEmpty; child = child.NextSibling)
+        {
+            if (child.Kind == XmlNodeKind.Text)
+            {
+                (parts ??= []).Add(new SchematronText(Location(element), child.StringValue));
+            }
+            else if (child.Kind == XmlNodeKind.Element)
+            {
+                var part = ParsePart(child, allowed, element);
+                if (part is not null)
+                {
+                    (parts ??= []).Add(part);
+                }
+            }
+        }
+
+        return parts is null ? Array.Empty<SchematronMessagePart>() : parts.ToArray();
+    }
+
+    private SchematronMessagePart? ParsePart(XmlNode element, CoreInline allowed, XmlNode host)
+    {
+        var kind = Classify(element);
+        if (kind == CoreElement.Foreign)
+        {
+            return null;
+        }
+
+        if (kind == CoreElement.Name && (allowed & CoreInline.Name) != CoreInline.None)
+        {
+            return new SchematronName(Location(element), Attribute(element, "path"));
+        }
+
+        if (kind == CoreElement.ValueOf && (allowed & CoreInline.ValueOf) != CoreInline.None)
+        {
+            return new SchematronValueOf(Location(element), Required(element, "select"));
+        }
+
+        if (kind == CoreElement.Emphasis && (allowed & CoreInline.Emphasis) != CoreInline.None)
+        {
+            return new SchematronEmphasis(Location(element), ParseParts(element, allowed));
+        }
+
+        if (kind == CoreElement.Direction && (allowed & CoreInline.Direction) != CoreInline.None)
+        {
+            var value = Attribute(element, "value");
+            return new SchematronDirection(Location(element), value, ParseParts(element, allowed));
+        }
+
+        if (kind == CoreElement.Span && (allowed & CoreInline.Span) != CoreInline.None)
+        {
+            var styleClass = Attribute(element, "class");
+            return new SchematronSpan(Location(element), styleClass, ParseParts(element, allowed));
+        }
+
+        Reject(element, kind, LocalName(host));
+        return null;
+    }
+
+    private CoreElement Classify(XmlNode element)
+    {
+        var name = element.Name;
+        if (!_hasNamespace || name.NamespaceUri != _schematronNamespace)
+        {
+            return CoreElement.Foreign;
+        }
+
+        return _names.GetString(name.Local) switch
+        {
+            "schema" => CoreElement.Schema,
+            "ns" => CoreElement.Ns,
+            "pattern" => CoreElement.Pattern,
+            "rule" => CoreElement.Rule,
+            "assert" => CoreElement.Assert,
+            "report" => CoreElement.Report,
+            "let" => CoreElement.Let,
+            "phase" => CoreElement.Phase,
+            "active" => CoreElement.Active,
+            "diagnostics" => CoreElement.Diagnostics,
+            "diagnostic" => CoreElement.Diagnostic,
+            "title" => CoreElement.Title,
+            "p" => CoreElement.Paragraph,
+            "name" => CoreElement.Name,
+            "value-of" => CoreElement.ValueOf,
+            "emph" => CoreElement.Emphasis,
+            "dir" => CoreElement.Direction,
+            "span" => CoreElement.Span,
+            "include" or "extends" or "library" or "rules" or "group" or "param" or "properties" or "property" =>
+                CoreElement.Deferred,
+            _ => CoreElement.Unknown,
+        };
+    }
+
+    private void Reject(XmlNode element, CoreElement kind, string parent)
+    {
+        var local = LocalName(element);
+        if (kind == CoreElement.Unknown)
+        {
+            Report(
+                SchematronDiagnosticCodes.ElementUnknown,
+                "The element '" + local + "' is not known in the Schematron namespace.",
+                Location(element)
+            );
+        }
+        else if (kind == CoreElement.Deferred)
+        {
+            Report(
+                SchematronDiagnosticCodes.Unsupported,
+                "The element '" + local + "' is not supported yet.",
+                Location(element)
+            );
+        }
+        else
+        {
+            Report(
+                SchematronDiagnosticCodes.ElementMisplaced,
+                "The element '" + local + "' is not allowed in '" + parent + "'.",
+                Location(element)
+            );
+        }
+    }
+
+    private void RejectChildren(XmlNode element, string parent)
+    {
+        for (var child = FirstChild(element); !child.IsEmpty; child = NextChild(child))
+        {
+            Reject(child, Classify(child), parent);
+        }
+    }
+
+    private string LocalName(XmlNode element) => _names.GetString(element.Name.Local);
+
+    private string? Attribute(XmlNode element, string name)
+    {
+        for (var attribute = element.FirstAttribute; !attribute.IsEmpty; attribute = attribute.NextAttribute)
+        {
+            var attributeName = attribute.Name;
+            if (
+                attributeName.NamespaceUri.IsEmpty
+                && string.Equals(_names.GetString(attributeName.Local), name, StringComparison.Ordinal)
+            )
+            {
+                return attribute.StringValue;
+            }
+        }
+
+        return null;
+    }
+
+    private string Required(XmlNode element, string name)
+    {
+        var value = Attribute(element, name);
+        if (value is null)
+        {
+            Report(
+                SchematronDiagnosticCodes.AttributeMissing,
+                "The element '" + LocalName(element) + "' requires the attribute '" + name + "'.",
+                Location(element)
+            );
+            return string.Empty;
+        }
+
+        return value;
+    }
+
+    private bool Boolean(XmlNode element, string name)
+    {
+        var value = Attribute(element, name)?.Trim();
+        if (value is null or "false" or "0")
+        {
+            return false;
+        }
+
+        if (value is "true" or "1")
+        {
+            return true;
+        }
+
+        Report(
+            SchematronDiagnosticCodes.AttributeInvalid,
+            "The attribute '" + name + "' of '" + LocalName(element) + "' must be a boolean.",
+            Location(element)
+        );
+        return false;
+    }
+
+    private static string[] Tokens(string? value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return Array.Empty<string>();
+        }
+
+        List<string>? tokens = null;
+        var start = -1;
+        for (var i = 0; i <= value!.Length; i++)
+        {
+            var isSeparator = i == value.Length || value[i] is ' ' or '\t' or '\r' or '\n';
+            if (!isSeparator && start < 0)
+            {
+                start = i;
+            }
+            else if (isSeparator && start >= 0)
+            {
+                (tokens ??= []).Add(value.Substring(start, i - start));
+                start = -1;
+            }
+        }
+
+        return tokens is null ? Array.Empty<string>() : tokens.ToArray();
+    }
+
+    private XmlNode FirstChild(XmlNode parent) => SkipToCore(SkipToElement(parent.FirstChild));
+
+    private XmlNode NextChild(XmlNode element) => SkipToCore(SkipToElement(element.NextSibling));
+
+    private XmlNode SkipToCore(XmlNode node)
+    {
+        while (!node.IsEmpty && Classify(node) == CoreElement.Foreign)
+        {
+            node = SkipToElement(node.NextSibling);
+        }
+
+        return node;
+    }
+
+    private static XmlNode SkipToElement(XmlNode node)
+    {
+        while (!node.IsEmpty && node.Kind != XmlNodeKind.Element)
+        {
+            node = node.NextSibling;
+        }
+
+        return node;
+    }
+
+    private DocumentLocation Location(XmlNode node)
+    {
+        if (_positions is null || node.Kind != XmlNodeKind.Element)
+        {
+            return new DocumentLocation(_systemId, 0, 0);
+        }
+
+        var position = _positions.GetPosition(node.Index);
+        return new DocumentLocation(_systemId, position.Line, position.Column);
+    }
+
+    private void Report(DiagnosticCode code, string message, DocumentLocation location)
+    {
+        _failed = true;
+        _problems.Add(new SchematronProblem(code, message, location));
+    }
+}
