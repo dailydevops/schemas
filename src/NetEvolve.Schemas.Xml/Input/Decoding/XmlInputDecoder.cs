@@ -193,6 +193,10 @@ internal sealed class XmlInputDecoder
     /// <remarks>
     /// A switch to another decoder resets it: the caller restarts decoding at byte zero with the same bytes, because
     /// the declaration itself was read from bytes decoded as ASCII-compatible characters.
+    /// Limitation: declared names are an exact whitelist (ASCII case-insensitive): <c>UTF-8</c>, <c>ISO-8859-1</c>,
+    /// <c>US-ASCII</c>, <c>UTF-16</c>, <c>UTF-16LE</c>, <c>UTF-16BE</c>, <c>ISO-10646-UCS-4</c>, <c>UCS-4</c>,
+    /// <c>UTF-32</c>, <c>UTF-32BE</c> and <c>UTF-32LE</c>. IANA aliases such as <c>UTF8</c>, <c>ASCII</c>, <c>latin1</c>
+    /// or <c>ISO_8859-1</c> are <c>XML4001</c>.
     /// </remarks>
     internal bool TryConfirmEncoding(ReadOnlySpan<char> declaredName, out XmlDecodingError error)
     {
