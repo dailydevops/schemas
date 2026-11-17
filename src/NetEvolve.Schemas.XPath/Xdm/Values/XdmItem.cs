@@ -1,8 +1,7 @@
-#pragma warning disable CA1815 // Approved shape (#123): the struct defines no value equality.
-
 namespace NetEvolve.Schemas.XPath.Xdm.Values;
 
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Contracts;
@@ -14,7 +13,7 @@ using NetEvolve.Schemas.XPath.Xdm.Nodes;
 /// adds exactly <c>FromDecimal</c>, <c>FromDateTime</c>, <c>FromDuration</c>, and the matching <c>TryGet</c> members (#185).
 /// </remarks>
 [StructLayout(LayoutKind.Auto)]
-public readonly struct XdmItem
+public readonly struct XdmItem : IEquatable<XdmItem>
 {
     private readonly long _bits;
     private readonly object? _reference;
@@ -44,13 +43,13 @@ public readonly struct XdmItem
     /// <summary>Creates an integer item.</summary>
     /// <param name="value">The value.</param>
     /// <returns>The item.</returns>
-    public static XdmItem FromInteger(long value) => new(XdmItemKind.Integer, XdmTypeId.Integer, value, null);
+    public static XdmItem FromInteger(long value) => new(XdmItemKind.XsInteger, XdmTypeId.XsInteger, value, null);
 
     /// <summary>Creates a double item.</summary>
     /// <param name="value">The value.</param>
     /// <returns>The item.</returns>
     public static XdmItem FromDouble(double value) =>
-        new(XdmItemKind.Double, XdmTypeId.Double, BitConverter.DoubleToInt64Bits(value), null);
+        new(XdmItemKind.XsDouble, XdmTypeId.XsDouble, BitConverter.DoubleToInt64Bits(value), null);
 
     /// <summary>Creates a string item.</summary>
     /// <param name="value">The value.</param>
@@ -60,7 +59,7 @@ public readonly struct XdmItem
     {
         Argument.ThrowIfNull(value);
 
-        return new(XdmItemKind.String, XdmTypeId.String, 0, value);
+        return new(XdmItemKind.XsString, XdmTypeId.XsString, 0, value);
     }
 
     /// <summary>Creates a node item.</summary>
@@ -90,7 +89,7 @@ public readonly struct XdmItem
     public bool TryGetInteger(out long value)
     {
         value = _bits;
-        return Kind == XdmItemKind.Integer;
+        return Kind == XdmItemKind.XsInteger;
     }
 
     /// <summary>Gets the double value.</summary>
@@ -99,7 +98,7 @@ public readonly struct XdmItem
     public bool TryGetDouble(out double value)
     {
         value = BitConverter.Int64BitsToDouble(_bits);
-        return Kind == XdmItemKind.Double;
+        return Kind == XdmItemKind.XsDouble;
     }
 
     /// <summary>Gets the string value.</summary>
@@ -107,7 +106,7 @@ public readonly struct XdmItem
     /// <returns><see langword="true"/> when the item is a string.</returns>
     public bool TryGetString(out string? value)
     {
-        value = Kind == XdmItemKind.String ? (string?)_reference : null;
+        value = Kind == XdmItemKind.XsString ? (string?)_reference : null;
         return value is not null;
     }
 
@@ -119,4 +118,41 @@ public readonly struct XdmItem
         node = IsNode ? new XPathNode(new XmlNode((XmlTree)_reference!, (int)_bits)) : default;
         return IsNode;
     }
+
+    /// <inheritdoc />
+    public bool Equals(XdmItem other) =>
+        Kind == other.Kind
+        && TypeId == other.TypeId
+        && _bits == other._bits
+        && (
+            Kind == XdmItemKind.XsString
+                ? string.Equals((string?)_reference, (string?)other._reference, StringComparison.Ordinal)
+                : ReferenceEquals(_reference, other._reference)
+        );
+
+    /// <inheritdoc />
+    public override bool Equals(object? obj) => obj is XdmItem other && Equals(other);
+
+    /// <inheritdoc />
+    public override int GetHashCode() =>
+        unchecked(
+            (((((((int)Kind * 31) + TypeId.Value) * 31) + _bits.GetHashCode()) * 31))
+            + (
+                Kind == XdmItemKind.XsString
+                    ? StringComparer.Ordinal.GetHashCode((string)_reference!)
+                    : RuntimeHelpers.GetHashCode(_reference)
+            )
+        );
+
+    /// <summary>Determines whether two items are equal.</summary>
+    /// <param name="left">The first value.</param>
+    /// <param name="right">The second value.</param>
+    /// <returns><see langword="true"/> when equal.</returns>
+    public static bool operator ==(XdmItem left, XdmItem right) => left.Equals(right);
+
+    /// <summary>Determines whether two items differ.</summary>
+    /// <param name="left">The first value.</param>
+    /// <param name="right">The second value.</param>
+    /// <returns><see langword="true"/> when different.</returns>
+    public static bool operator !=(XdmItem left, XdmItem right) => !left.Equals(right);
 }

@@ -32,22 +32,32 @@
         public NetEvolve.Schemas.XPath.Abstractions.XPathRegexGroups? RegexGroups { get; set; }
         public void Clear() { }
     }
-    public readonly struct XPathRegexGroups
+    public readonly struct XPathRegexGroups : System.IEquatable<NetEvolve.Schemas.XPath.Abstractions.XPathRegexGroups>
     {
         public XPathRegexGroups(string subject, NetEvolve.Schemas.Xml.Datatypes.Contracts.TextRange[] groups) { }
         public int Count { get; }
         public string Subject { get; }
+        public bool Equals(NetEvolve.Schemas.XPath.Abstractions.XPathRegexGroups other) { }
+        public override bool Equals(object? obj) { }
         public System.ReadOnlySpan<char> GetGroup(int index) { }
+        public override int GetHashCode() { }
+        public static bool operator !=(NetEvolve.Schemas.XPath.Abstractions.XPathRegexGroups left, NetEvolve.Schemas.XPath.Abstractions.XPathRegexGroups right) { }
+        public static bool operator ==(NetEvolve.Schemas.XPath.Abstractions.XPathRegexGroups left, NetEvolve.Schemas.XPath.Abstractions.XPathRegexGroups right) { }
     }
 }
 namespace NetEvolve.Schemas.XPath.Api
 {
-    public readonly struct XPathCompileResult
+    public readonly struct XPathCompileResult : System.IEquatable<NetEvolve.Schemas.XPath.Api.XPathCompileResult>
     {
         public XPathCompileResult(NetEvolve.Schemas.XPath.Api.XPathExpression? expression, NetEvolve.Schemas.XPath.Errors.XPathDiagnostic diagnostic) { }
         public NetEvolve.Schemas.XPath.Errors.XPathDiagnostic Diagnostic { get; }
         public NetEvolve.Schemas.XPath.Api.XPathExpression? Expression { get; }
         public bool Success { get; }
+        public bool Equals(NetEvolve.Schemas.XPath.Api.XPathCompileResult other) { }
+        public override bool Equals(object? obj) { }
+        public override int GetHashCode() { }
+        public static bool operator !=(NetEvolve.Schemas.XPath.Api.XPathCompileResult left, NetEvolve.Schemas.XPath.Api.XPathCompileResult right) { }
+        public static bool operator ==(NetEvolve.Schemas.XPath.Api.XPathCompileResult left, NetEvolve.Schemas.XPath.Api.XPathCompileResult right) { }
     }
     public enum XPathEvaluationStatus
     {
@@ -100,9 +110,9 @@ namespace NetEvolve.Schemas.XPath.Api
     }
     public readonly struct XPathQName : System.IEquatable<NetEvolve.Schemas.XPath.Api.XPathQName>
     {
-        public XPathQName(string namespaceUri, string localName) { }
+        public XPathQName(string namespaceName, string localName) { }
         public string LocalName { get; }
-        public string NamespaceUri { get; }
+        public string NamespaceName { get; }
         public bool Equals(NetEvolve.Schemas.XPath.Api.XPathQName other) { }
         public override bool Equals(object? obj) { }
         public override int GetHashCode() { }
@@ -110,26 +120,31 @@ namespace NetEvolve.Schemas.XPath.Api
         public static bool operator !=(NetEvolve.Schemas.XPath.Api.XPathQName left, NetEvolve.Schemas.XPath.Api.XPathQName right) { }
         public static bool operator ==(NetEvolve.Schemas.XPath.Api.XPathQName left, NetEvolve.Schemas.XPath.Api.XPathQName right) { }
     }
-    public readonly struct XPathResult
+    public readonly struct XPathResult : System.IEquatable<NetEvolve.Schemas.XPath.Api.XPathResult>
     {
         public XPathResult(NetEvolve.Schemas.XPath.Api.XPathEvaluationStatus status, NetEvolve.Schemas.XPath.Xdm.Values.XdmSequence value, NetEvolve.Schemas.XPath.Errors.XPathDiagnostic diagnostic) { }
         public NetEvolve.Schemas.XPath.Errors.XPathDiagnostic Diagnostic { get; }
         public NetEvolve.Schemas.XPath.Api.XPathEvaluationStatus Status { get; }
         public NetEvolve.Schemas.XPath.Xdm.Values.XdmSequence Value { get; }
+        public bool Equals(NetEvolve.Schemas.XPath.Api.XPathResult other) { }
+        public override bool Equals(object? obj) { }
+        public override int GetHashCode() { }
+        public static bool operator !=(NetEvolve.Schemas.XPath.Api.XPathResult left, NetEvolve.Schemas.XPath.Api.XPathResult right) { }
+        public static bool operator ==(NetEvolve.Schemas.XPath.Api.XPathResult left, NetEvolve.Schemas.XPath.Api.XPathResult right) { }
     }
     public enum XPathVersion
     {
-        V2_0 = 0,
-        V3_0 = 1,
-        V3_1 = 2,
+        V20 = 0,
+        V30 = 1,
+        V31 = 2,
     }
     [System.Flags]
     public enum XPathVersionMask
     {
         None = 0,
-        V2_0 = 1,
-        V3_0 = 2,
-        V3_1 = 4,
+        V20 = 1,
+        V30 = 2,
+        V31 = 4,
         All = 7,
     }
 }
@@ -147,7 +162,7 @@ namespace NetEvolve.Schemas.XPath.Context
     }
     public sealed class XPathStaticContext
     {
-        public string? BaseUri { get; }
+        public System.Uri? BaseUri { get; }
         public string? DefaultElementNamespace { get; }
         public string DefaultFunctionNamespace { get; }
         public NetEvolve.Schemas.XPath.Api.XPathVersion Version { get; }
@@ -157,11 +172,11 @@ namespace NetEvolve.Schemas.XPath.Context
         public sealed class Builder
         {
             public NetEvolve.Schemas.XPath.Context.XPathStaticContext Build() { }
-            public NetEvolve.Schemas.XPath.Context.XPathStaticContext.Builder WithBaseUri(string? uri) { }
-            public NetEvolve.Schemas.XPath.Context.XPathStaticContext.Builder WithDefaultElementNamespace(string? namespaceUri) { }
+            public NetEvolve.Schemas.XPath.Context.XPathStaticContext.Builder WithBaseUri(System.Uri? uri) { }
+            public NetEvolve.Schemas.XPath.Context.XPathStaticContext.Builder WithDefaultElementNamespace(string? namespaceName) { }
             public NetEvolve.Schemas.XPath.Context.XPathStaticContext.Builder WithFunction(NetEvolve.Schemas.XPath.Api.XPathHostFunction function) { }
             public NetEvolve.Schemas.XPath.Context.XPathStaticContext.Builder WithLibrary(NetEvolve.Schemas.XPath.Api.XPathFunctionLibrary library) { }
-            public NetEvolve.Schemas.XPath.Context.XPathStaticContext.Builder WithNamespace(string prefix, string namespaceUri) { }
+            public NetEvolve.Schemas.XPath.Context.XPathStaticContext.Builder WithNamespace(string prefix, string namespaceName) { }
             public NetEvolve.Schemas.XPath.Context.XPathStaticContext.Builder WithVariable(NetEvolve.Schemas.XPath.Api.XPathQName name, string? declaredType = null) { }
             public NetEvolve.Schemas.XPath.Context.XPathStaticContext.Builder WithVersion(NetEvolve.Schemas.XPath.Api.XPathVersion version) { }
             public NetEvolve.Schemas.XPath.Context.XPathStaticContext.Builder WithXPath10Compatibility(bool enabled) { }
@@ -224,7 +239,7 @@ namespace NetEvolve.Schemas.XPath.Errors
 }
 namespace NetEvolve.Schemas.XPath.Xdm.Nodes
 {
-    public readonly struct XPathNode
+    public readonly struct XPathNode : System.IEquatable<NetEvolve.Schemas.XPath.Xdm.Nodes.XPathNode>
     {
         public XPathNode(NetEvolve.Schemas.Xml.Contracts.XmlNode node) { }
         public NetEvolve.Schemas.XPath.Xdm.Nodes.XdmNodeKind Kind { get; }
@@ -232,7 +247,12 @@ namespace NetEvolve.Schemas.XPath.Xdm.Nodes
         public NetEvolve.Schemas.Xml.Contracts.XmlTree? Tree { get; }
         public NetEvolve.Schemas.XPath.Xdm.Values.XdmTypeId TypeAnnotation { get; }
         public int CompareDocumentOrder(in NetEvolve.Schemas.XPath.Xdm.Nodes.XPathNode other) { }
+        public bool Equals(NetEvolve.Schemas.XPath.Xdm.Nodes.XPathNode other) { }
+        public override bool Equals(object? obj) { }
+        public override int GetHashCode() { }
         public bool IsSameNode(in NetEvolve.Schemas.XPath.Xdm.Nodes.XPathNode other) { }
+        public static bool operator !=(NetEvolve.Schemas.XPath.Xdm.Nodes.XPathNode left, NetEvolve.Schemas.XPath.Xdm.Nodes.XPathNode right) { }
+        public static bool operator ==(NetEvolve.Schemas.XPath.Xdm.Nodes.XPathNode left, NetEvolve.Schemas.XPath.Xdm.Nodes.XPathNode right) { }
     }
     public enum XdmNodeKind
     {
@@ -247,11 +267,14 @@ namespace NetEvolve.Schemas.XPath.Xdm.Nodes
 }
 namespace NetEvolve.Schemas.XPath.Xdm.Values
 {
-    public readonly struct XdmItem
+    public readonly struct XdmItem : System.IEquatable<NetEvolve.Schemas.XPath.Xdm.Values.XdmItem>
     {
         public bool IsNode { get; }
         public NetEvolve.Schemas.XPath.Xdm.Values.XdmItemKind Kind { get; }
         public NetEvolve.Schemas.XPath.Xdm.Values.XdmTypeId TypeId { get; }
+        public bool Equals(NetEvolve.Schemas.XPath.Xdm.Values.XdmItem other) { }
+        public override bool Equals(object? obj) { }
+        public override int GetHashCode() { }
         public bool TryGetBoolean(out bool value) { }
         public bool TryGetDouble(out double value) { }
         public bool TryGetInteger(out long value) { }
@@ -262,17 +285,19 @@ namespace NetEvolve.Schemas.XPath.Xdm.Values
         public static NetEvolve.Schemas.XPath.Xdm.Values.XdmItem FromInteger(long value) { }
         public static NetEvolve.Schemas.XPath.Xdm.Values.XdmItem FromNode(in NetEvolve.Schemas.XPath.Xdm.Nodes.XPathNode node) { }
         public static NetEvolve.Schemas.XPath.Xdm.Values.XdmItem FromString(string value) { }
+        public static bool operator !=(NetEvolve.Schemas.XPath.Xdm.Values.XdmItem left, NetEvolve.Schemas.XPath.Xdm.Values.XdmItem right) { }
+        public static bool operator ==(NetEvolve.Schemas.XPath.Xdm.Values.XdmItem left, NetEvolve.Schemas.XPath.Xdm.Values.XdmItem right) { }
     }
     public enum XdmItemKind
     {
         None = 0,
         Node = 1,
         Boolean = 2,
-        Integer = 3,
-        Decimal = 4,
-        Double = 5,
-        Float = 6,
-        String = 7,
+        XsInteger = 3,
+        XsDecimal = 4,
+        XsDouble = 5,
+        XsFloat = 6,
+        XsString = 7,
         UntypedAtomic = 8,
         AnyUri = 9,
         QName = 10,
@@ -291,31 +316,36 @@ namespace NetEvolve.Schemas.XPath.Xdm.Values
         HexBinary = 23,
         Base64Binary = 24,
     }
-    public readonly struct XdmSequence
+    public readonly struct XdmSequence : System.IEquatable<NetEvolve.Schemas.XPath.Xdm.Values.XdmSequence>
     {
         public int Count { get; }
         public bool IsEmpty { get; }
         public NetEvolve.Schemas.XPath.Xdm.Values.XdmItem this[int index] { get; }
         public static NetEvolve.Schemas.XPath.Xdm.Values.XdmSequence Empty { get; }
-        public NetEvolve.Schemas.XPath.Xdm.Values.XdmSequence.Enumerator GetEnumerator() { }
+        public bool Equals(NetEvolve.Schemas.XPath.Xdm.Values.XdmSequence other) { }
+        public override bool Equals(object? obj) { }
+        public NetEvolve.Schemas.XPath.Xdm.Values.XdmSequenceEnumerator GetEnumerator() { }
+        public override int GetHashCode() { }
         public static NetEvolve.Schemas.XPath.Xdm.Values.XdmSequence Create(System.ReadOnlySpan<NetEvolve.Schemas.XPath.Xdm.Values.XdmItem> items) { }
         public static NetEvolve.Schemas.XPath.Xdm.Values.XdmSequence Create(in NetEvolve.Schemas.XPath.Xdm.Values.XdmItem item) { }
-        public struct Enumerator
-        {
-            public NetEvolve.Schemas.XPath.Xdm.Values.XdmItem Current { get; }
-            public bool MoveNext() { }
-        }
+        public static bool operator !=(NetEvolve.Schemas.XPath.Xdm.Values.XdmSequence left, NetEvolve.Schemas.XPath.Xdm.Values.XdmSequence right) { }
+        public static bool operator ==(NetEvolve.Schemas.XPath.Xdm.Values.XdmSequence left, NetEvolve.Schemas.XPath.Xdm.Values.XdmSequence right) { }
+    }
+    public ref struct XdmSequenceEnumerator
+    {
+        public NetEvolve.Schemas.XPath.Xdm.Values.XdmItem Current { get; }
+        public bool MoveNext() { }
     }
     public readonly struct XdmTypeId : System.IEquatable<NetEvolve.Schemas.XPath.Xdm.Values.XdmTypeId>
     {
         public XdmTypeId(int value) { }
         public int Value { get; }
         public static NetEvolve.Schemas.XPath.Xdm.Values.XdmTypeId Boolean { get; }
-        public static NetEvolve.Schemas.XPath.Xdm.Values.XdmTypeId Double { get; }
-        public static NetEvolve.Schemas.XPath.Xdm.Values.XdmTypeId Integer { get; }
-        public static NetEvolve.Schemas.XPath.Xdm.Values.XdmTypeId String { get; }
         public static NetEvolve.Schemas.XPath.Xdm.Values.XdmTypeId Untyped { get; }
         public static NetEvolve.Schemas.XPath.Xdm.Values.XdmTypeId UntypedAtomic { get; }
+        public static NetEvolve.Schemas.XPath.Xdm.Values.XdmTypeId XsDouble { get; }
+        public static NetEvolve.Schemas.XPath.Xdm.Values.XdmTypeId XsInteger { get; }
+        public static NetEvolve.Schemas.XPath.Xdm.Values.XdmTypeId XsString { get; }
         public bool Equals(NetEvolve.Schemas.XPath.Xdm.Values.XdmTypeId other) { }
         public override bool Equals(object? obj) { }
         public override int GetHashCode() { }
