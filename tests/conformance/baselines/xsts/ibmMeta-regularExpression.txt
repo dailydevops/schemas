@@ -1,0 +1,16 @@
+1.1/d6_gii01/d6_gii01i
+1.1/d6_gii01/d6_gii01s
+1.1/d6_gii02/d6_gii02i
+1.1/d6_gii02/d6_gii02s
+1.1/d6_gii03/d6_gii03i
+1.1/d6_gii03/d6_gii03s
+1.1/d6_gii04/d6_gii04i
+1.1/d6_gii04/d6_gii04s
+1.1/d6_gv01/d6_gv01i
+1.1/d6_gv01/d6_gv01s
+1.1/d6_gv02/d6_gv02i
+1.1/d6_gv02/d6_gv02s
+1.1/d6_gv03/d6_gv03i
+1.1/d6_gv03/d6_gv03s
+1.1/d6_gv04/d6_gv04i
+1.1/d6_gv04/d6_gv04s
