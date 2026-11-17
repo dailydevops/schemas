@@ -1,15 +1,12 @@
-#pragma warning disable CA1065, MA0025, CA1815 // Stub per #103: throwing bodies stay until the owning package replaces them; the struct defines no value equality (CA1815).
+#pragma warning disable CA1815 // Approved shape (#103): the struct defines no value equality.
 
 namespace NetEvolve.Schemas.Resources;
 
 using System;
 using System.IO;
+using NetEvolve.Arguments;
 
 /// <summary>The outcome of resolving a resource. <see langword="default"/> denies.</summary>
-/// <remarks>
-/// Limitation: only the in-memory <c>Found</c> factory, <c>Denied</c> and <c>NotFound</c> carry data until FND-10;
-/// <c>Found(Stream)</c> throws and <see cref="Dispose"/> does nothing yet.
-/// </remarks>
 public readonly struct ResourceResult : IDisposable
 {
     private ResourceResult(
@@ -46,7 +43,12 @@ public readonly struct ResourceResult : IDisposable
     /// <param name="stream">The stream.</param>
     /// <param name="systemId">The final URI, or <see langword="null"/>.</param>
     /// <returns>The result.</returns>
-    public static ResourceResult Found(Stream stream, string? systemId = null) => throw Stub.For("FND-10");
+    public static ResourceResult Found(Stream stream, string? systemId = null)
+    {
+        Argument.ThrowIfNull(stream);
+
+        return new(ResourceStatus.Found, stream, default, systemId, message: null);
+    }
 
     /// <summary>Creates a found result over memory. The library takes no ownership.</summary>
     /// <param name="content">The content.</param>
@@ -68,8 +70,6 @@ public readonly struct ResourceResult : IDisposable
         new(ResourceStatus.NotFound, stream: null, default, systemId: null, message);
 
     /// <inheritdoc />
-    public void Dispose()
-    {
-        // Nothing to release until Found(Stream) exists (FND-10).
-    }
+    /// <remarks>Disposes <see cref="Stream"/> when present; repeated calls and calls on copies are harmless.</remarks>
+    public void Dispose() => Stream?.Dispose();
 }
