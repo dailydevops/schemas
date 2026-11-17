@@ -72,6 +72,33 @@ public class BuilderContractTests
         await Assert.That(new RecordingBuilder().Limits).IsSameReferenceAs(ValidationLimits.Default);
 
     [Test]
+    public async Task Resolver_WithoutWithResolver_IsDenyAllInstance() =>
+        await Assert.That(new RecordingBuilder().Resolver).IsSameReferenceAs(DenyAllResourceResolver.Instance);
+
+    [Test]
+    public async Task Build_WithoutWithResolver_PassesDenyAllInstanceToCreateValidator()
+    {
+        var builder = new RecordingBuilder();
+
+        _ = BuildSync(builder);
+
+        await Assert.That(builder.Calls[0].Resolver).IsSameReferenceAs(DenyAllResourceResolver.Instance);
+    }
+
+    [Test]
+    public async Task BuildAsync_WithoutWithResolver_PassesDenyAllInstanceToCreateValidatorAsync(
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var builder = new RecordingBuilder();
+
+        _ = await builder.BuildAsync(cancellationToken);
+
+        await Assert.That(builder.Calls[0].Resolver).IsSameReferenceAs(DenyAllResourceResolver.Instance);
+    }
+
+    [Test]
     public async Task WithLimits_ReturnsSameBuilderAndStoresLimits()
     {
         var builder = new RecordingBuilder();
