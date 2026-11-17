@@ -62,6 +62,17 @@ public readonly struct XdmItem : IEquatable<XdmItem>
         return new(XdmItemKind.XsString, XdmTypeId.XsString, 0, value);
     }
 
+    /// <summary>Creates an <c>xs:untypedAtomic</c> item.</summary>
+    /// <param name="value">The lexical value.</param>
+    /// <returns>The item.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="value"/> is <see langword="null"/>.</exception>
+    internal static XdmItem FromUntypedAtomic(string value)
+    {
+        Argument.ThrowIfNull(value);
+
+        return new(XdmItemKind.UntypedAtomic, XdmTypeId.UntypedAtomic, 0, value);
+    }
+
     /// <summary>Creates a node item.</summary>
     /// <param name="node">The node.</param>
     /// <returns>The item, carrying the type annotation of the node.</returns>
@@ -110,6 +121,15 @@ public readonly struct XdmItem : IEquatable<XdmItem>
         return value is not null;
     }
 
+    /// <summary>Gets the <c>xs:untypedAtomic</c> value.</summary>
+    /// <param name="value">The value, <see langword="null"/> unless the item is untyped atomic.</param>
+    /// <returns><see langword="true"/> when the item is <c>xs:untypedAtomic</c>.</returns>
+    internal bool TryGetUntypedAtomic(out string? value)
+    {
+        value = Kind == XdmItemKind.UntypedAtomic ? (string?)_reference : null;
+        return value is not null;
+    }
+
     /// <summary>Gets the node.</summary>
     /// <param name="node">The node, <see langword="default"/> unless the item is a node.</param>
     /// <returns><see langword="true"/> when the item is a node.</returns>
@@ -125,7 +145,7 @@ public readonly struct XdmItem : IEquatable<XdmItem>
         && TypeId == other.TypeId
         && _bits == other._bits
         && (
-            Kind == XdmItemKind.XsString
+            Kind is XdmItemKind.XsString or XdmItemKind.UntypedAtomic
                 ? string.Equals((string?)_reference, (string?)other._reference, StringComparison.Ordinal)
                 : ReferenceEquals(_reference, other._reference)
         );
@@ -138,7 +158,7 @@ public readonly struct XdmItem : IEquatable<XdmItem>
         unchecked(
             (((((((int)Kind * 31) + TypeId.Value) * 31) + _bits.GetHashCode()) * 31))
             + (
-                Kind == XdmItemKind.XsString
+                Kind is XdmItemKind.XsString or XdmItemKind.UntypedAtomic
                     ? StringComparer.Ordinal.GetHashCode((string)_reference!)
                     : RuntimeHelpers.GetHashCode(_reference)
             )
