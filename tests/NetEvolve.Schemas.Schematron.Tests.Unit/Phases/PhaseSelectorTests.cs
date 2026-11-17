@@ -12,10 +12,10 @@ public class PhaseSelectorTests
 {
     private static readonly DocumentLocation Origin = FakeModel.Origin;
 
-    private static SchematronPatternBase Pattern(string? id, bool isAbstract = false) =>
+    private static SchematronPattern Pattern(string? id, bool isAbstract = false) =>
         new SchematronPattern(Origin, id, isAbstract, null, null, null, null, [], [], [], [], null);
 
-    private static SchematronPatternBase Group(string id) =>
+    private static SchematronGroup Group(string id) =>
         new SchematronGroup(Origin, id, false, null, null, null, null, [], [], [], [], null);
 
     private static SchematronPhase Phase(
@@ -70,12 +70,12 @@ public class PhaseSelectorTests
         return (ok, selection, problems);
     }
 
-    private static string?[] Ids(PhaseSelection selection)
+    private static string[] Ids(PhaseSelection selection)
     {
-        var ids = new List<string?>();
+        var ids = new List<string>();
         foreach (var pattern in selection.Patterns)
         {
-            ids.Add(pattern.Id);
+            ids.Add(pattern.Id!);
         }
         return ids.ToArray();
     }
