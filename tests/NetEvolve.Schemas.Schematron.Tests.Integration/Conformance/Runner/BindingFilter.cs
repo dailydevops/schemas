@@ -1,4 +1,4 @@
-﻿namespace NetEvolve.Schemas.Schematron.Tests.Integration.Conformance.Runner;
+namespace NetEvolve.Schemas.Schematron.Tests.Integration.Conformance.Runner;
 
 /// <summary>Selects cases by query binding.</summary>
 internal static class BindingFilter
@@ -9,13 +9,38 @@ internal static class BindingFilter
     /// <returns>The selection; the order of the catalog is kept.</returns>
     public static CaseSelection Select(IReadOnlyList<SchematronCase> cases, IReadOnlyList<BindingRule> rules)
     {
+        ArgumentNullException.ThrowIfNull(cases);
         ArgumentNullException.ThrowIfNull(rules);
-        var excluded = new List<ExcludedCase>(cases.Count);
+        var selected = new List<SchematronCase>();
+        var excluded = new List<ExcludedCase>();
         foreach (var schematronCase in cases)
         {
-            excluded.Add(new ExcludedCase(schematronCase, string.Empty));
+            var reasons = new List<string>();
+            var isSelected = false;
+            foreach (var rule in rules)
+            {
+                if (!schematronCase.Bindings.Contains(rule.Binding, StringComparer.Ordinal))
+                {
+                    continue;
+                }
+
+                isSelected |= rule.IsSelected;
+                if (rule.ExclusionReason is { } reason && !reasons.Contains(reason))
+                {
+                    reasons.Add(reason);
+                }
+            }
+
+            if (isSelected)
+            {
+                selected.Add(schematronCase);
+            }
+            else
+            {
+                excluded.Add(new ExcludedCase(schematronCase, string.Join(" ", reasons)));
+            }
         }
 
-        return new CaseSelection([], excluded);
+        return new CaseSelection(selected, excluded);
     }
 }

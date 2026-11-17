@@ -1,4 +1,4 @@
-﻿namespace NetEvolve.Schemas.Schematron.Tests.Integration.Conformance.Runner;
+namespace NetEvolve.Schemas.Schematron.Tests.Integration.Conformance.Runner;
 
 /// <summary>
 /// Maps a query binding to the suite file that lists its cases and says whether the binding is selected.
@@ -13,7 +13,17 @@ internal sealed class BindingRule(string binding, string suiteFile, string? excl
 
     public string SuiteFile { get; } = suiteFile;
 
-    public string? ExclusionReason { get; } = exclusionReason;
+    public string? ExclusionReason { get; } = Validate(exclusionReason);
 
     public bool IsSelected => ExclusionReason is null;
+
+    private static string? Validate(string? reason)
+    {
+        if (reason is not null)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(reason);
+        }
+
+        return reason;
+    }
 }
