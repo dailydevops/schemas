@@ -65,8 +65,13 @@ public readonly struct XdmItem : IEquatable<XdmItem>
     /// <summary>Creates an <c>xs:untypedAtomic</c> item.</summary>
     /// <param name="value">The lexical value.</param>
     /// <returns>The item.</returns>
-    internal static XdmItem FromUntypedAtomic(string value) =>
-        new(XdmItemKind.UntypedAtomic, XdmTypeId.UntypedAtomic, 0, value);
+    /// <exception cref="ArgumentNullException"><paramref name="value"/> is <see langword="null"/>.</exception>
+    internal static XdmItem FromUntypedAtomic(string value)
+    {
+        Argument.ThrowIfNull(value);
+
+        return new(XdmItemKind.UntypedAtomic, XdmTypeId.UntypedAtomic, 0, value);
+    }
 
     /// <summary>Creates a node item.</summary>
     /// <param name="node">The node.</param>

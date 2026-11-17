@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.XPath.Xdm.Nodes;
 
 using System;
+using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Model;
 using NetEvolve.Schemas.XPath.Xdm.Values;
@@ -85,8 +86,12 @@ internal static class XPathNodeAccessors
     /// <param name="node">The node.</param>
     /// <param name="source">The annotation source.</param>
     /// <returns>The annotation.</returns>
-    public static XdmTypeId GetTypeAnnotation(this in XPathNode node, IXdmTypeAnnotationSource source) =>
-        source.GetTypeAnnotation(node);
+    public static XdmTypeId GetTypeAnnotation(this in XPathNode node, IXdmTypeAnnotationSource source)
+    {
+        Argument.ThrowIfNull(source);
+
+        return source.GetTypeAnnotation(node);
+    }
 
     /// <summary>Gets the typed value with the untyped default: <c>xs:untypedAtomic</c> for documents, elements, attributes, and text, and <c>xs:string</c> for the rest.</summary>
     /// <param name="node">The node.</param>
@@ -99,6 +104,8 @@ internal static class XPathNodeAccessors
     /// <returns>The typed value.</returns>
     public static XdmItem TypedValue(this in XPathNode node, IXdmTypeAnnotationSource source)
     {
+        Argument.ThrowIfNull(source);
+
         if (source.TryGetTypedValue(node, out var typed))
         {
             return typed;
