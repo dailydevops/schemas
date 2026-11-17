@@ -6,20 +6,24 @@ using System.Threading;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Regex.Contracts;
 using NetEvolve.Schemas.Xml.Regex.Matching;
+using NetEvolve.Schemas.Xml.Regex.XPathDialect;
 using NetEvolve.Schemas.Xml.Text.CharClasses;
 using NetEvolve.Schemas.Xml.Text.Unicode;
 
 /// <summary>
-/// Parses a pattern of the XSD regular expression dialect into a <see cref="RegexTree"/>. The parser never throws for a
-/// pattern: a defect is a <see cref="RegexError"/> with the position in the pattern.
+/// Parses a pattern of the XSD or the XPath regular expression dialect into a <see cref="RegexTree"/>. The parser never throws
+/// for a pattern: a defect is a <see cref="RegexError"/> with the position in the pattern.
 /// </summary>
 /// <remarks>
-/// Limitations: only <see cref="RegexDialect.Xsd"/> is parsed, the XPath additions are DT-14 and a request for them is
-/// <see cref="RegexError.ConstructNotAllowed"/> at position 0. In the XSD dialect the anchors <c>^</c> and <c>$</c> outside a
-/// character class, back references (<c>\1</c> to <c>\9</c>), and reluctant quantifiers are rejected with
-/// <see cref="RegexError.ConstructNotAllowed"/> as the approved design stipulates; XSD Part 2 itself would read a bare <c>^</c>
-/// or <c>$</c> as a literal character. Groups do not capture in the XSD dialect (<see cref="RegexNode.NoGroup"/>). A hyphen in
-/// a character class is a literal only at its start or end, and a counted repeat is limited to <see cref="int.MaxValue"/>.
+/// Limitations: in the XSD dialect the anchors <c>^</c> and <c>$</c> outside a character class, back references
+/// (<c>\1</c> to <c>\9</c>), reluctant quantifiers, and flags are rejected with <see cref="RegexError.ConstructNotAllowed"/> as
+/// the approved design stipulates; XSD Part 2 itself would read a bare <c>^</c> or <c>$</c> as a literal character. Groups do
+/// not capture in the XSD dialect (<see cref="RegexNode.NoGroup"/>). A hyphen in a character class is a literal only at its
+/// start or end, and a counted repeat is limited to <see cref="int.MaxValue"/>. The XPath dialect adds the anchors, reluctant
+/// quantifiers, back references to a closed group, non-capturing groups <c>(?:</c>, and the flags <c>s m i x q</c>; the other
+/// <c>(?</c> constructs are <see cref="RegexError.ConstructNotAllowed"/>. With the <c>x</c> flag, white space inside a counted
+/// quantifier <c>{n,m}</c> is not removed. With the <c>i</c> flag a class is closed under the simple case folding before its
+/// negation, but a negated escape such as <c>\P{Lu}</c> is closed after its negation, so it also matches an uppercase letter.
 /// </remarks>
 public static class RegexParser
 {
@@ -39,7 +43,10 @@ public static class RegexParser
     {
         Argument.ThrowIfNull(limits);
 
-        if (syntax.Dialect != RegexDialect.Xsd)
+        if (
+            syntax.Dialect is not (RegexDialect.Xsd or RegexDialect.XPath)
+            || (syntax.Dialect == RegexDialect.Xsd && syntax.Flags != RegexFlagSet.None)
+        )
         {
             return new(RegexError.ConstructNotAllowed, 0);
         }
@@ -49,7 +56,7 @@ public static class RegexParser
             return new(RegexError.LimitExceeded, limits.MaxPatternLength);
         }
 
-        return new Parser(pattern, syntax.Names, limits.MaxNesting).Run();
+        return new Parser(pattern, syntax, limits.MaxNesting).Run();
     }
 
     private enum EscapeKind
@@ -57,6 +64,7 @@ public static class RegexParser
         Failed,
         Single,
         Set,
+        BackReference,
     }
 
     private ref struct Parser
@@ -110,11 +118,17 @@ public static class RegexParser
         private int _pos;
         private RegexError _error;
         private int _errorPos;
+        private readonly bool _xpath;
+        private readonly RegexFlagSet _flags;
+        private readonly List<bool> _closedGroups;
 
-        internal Parser(ReadOnlySpan<char> pattern, NameEdition names, int maxNesting)
+        internal Parser(ReadOnlySpan<char> pattern, RegexSyntax syntax, int maxNesting)
         {
             _p = pattern;
-            _names = names;
+            _names = syntax.Names;
+            _xpath = syntax.Dialect == RegexDialect.XPath;
+            _flags = syntax.Flags;
+            _closedGroups = [];
             _maxNesting = maxNesting;
             _nodes = new RegexNode[Math.Max(8, pattern.Length + 2)];
             _count = 0;
@@ -126,9 +140,11 @@ public static class RegexParser
             _errorPos = 0;
         }
 
+        private bool Fold => (_flags & RegexFlagSet.IgnoreCase) != RegexFlagSet.None;
+
         internal RegexParseResult Run()
         {
-            var root = ParseRegExp(0);
+            var root = (_flags & RegexFlagSet.Literal) != RegexFlagSet.None ? ParseLiteral() : ParseRegExp(0);
             if (root == RegexNode.NoNode)
             {
                 return new(_error, _errorPos);
@@ -191,6 +207,46 @@ public static class RegexParser
             return first;
         }
 
+        // The q flag: every code point of the pattern is a character.
+        private int ParseLiteral()
+        {
+            var start = _sp;
+            while (_pos < _p.Length)
+            {
+                if (!ReadCodePoint(out var codePoint))
+                {
+                    return RegexNode.NoNode;
+                }
+
+                Push(AddChar(codePoint));
+            }
+
+            return (_sp - start) switch
+            {
+                0 => Add(RegexNode.Empty()),
+                1 => _stack[--_sp],
+                _ => Add(RegexNode.Concat(LinkChildren(start))),
+            };
+        }
+
+        // The x flag removes white space between the tokens of the pattern.
+        private void SkipSpace()
+        {
+            while (
+                (_flags & RegexFlagSet.Extended) != RegexFlagSet.None
+                && _pos < _p.Length
+                && _p[_pos] is ' ' or '\t' or '\n' or '\r'
+            )
+            {
+                _pos++;
+            }
+        }
+
+        private int AddChar(int codePoint) =>
+            Fold && RegexCaseFolding.TryGetClass(codePoint, out var equivalents)
+                ? AddSet(equivalents)
+                : Add(RegexNode.Character(codePoint));
+
         private int ParseRegExp(int level)
         {
             var start = _sp;
@@ -218,6 +274,7 @@ public static class RegexParser
         private int ParseBranch(int level)
         {
             var start = _sp;
+            SkipSpace();
             while (_pos < _p.Length && _p[_pos] != '|' && _p[_pos] != ')')
             {
                 var piece = ParsePiece(level);
@@ -227,6 +284,7 @@ public static class RegexParser
                 }
 
                 Push(piece);
+                SkipSpace();
             }
 
             return (_sp - start) switch
@@ -240,7 +298,13 @@ public static class RegexParser
         private int ParsePiece(int level)
         {
             var atom = ParseAtom(level);
-            if (atom == RegexNode.NoNode || _pos >= _p.Length)
+            if (atom == RegexNode.NoNode)
+            {
+                return atom;
+            }
+
+            SkipSpace();
+            if (_pos >= _p.Length)
             {
                 return atom;
             }
@@ -273,9 +337,19 @@ public static class RegexParser
             }
 
             // A reluctant quantifier is an XPath construct.
-            return _pos < _p.Length && _p[_pos] == '?'
-                ? Fail(RegexError.ConstructNotAllowed, _pos)
-                : Add(RegexNode.Repeat(atom, min, max, false));
+            SkipSpace();
+            if (_pos < _p.Length && _p[_pos] == '?')
+            {
+                if (!_xpath)
+                {
+                    return Fail(RegexError.ConstructNotAllowed, _pos);
+                }
+
+                _pos++;
+                return Add(RegexNode.Repeat(atom, min, max, true));
+            }
+
+            return Add(RegexNode.Repeat(atom, min, max, false));
         }
 
         private bool ParseCount(out int min, out int max)
@@ -388,20 +462,29 @@ public static class RegexParser
                 case '{' or '}' or '?' or '*' or '+':
                     return Fail(RegexError.InvalidQuantifier, _pos);
                 case '^' or '$':
-                    return Fail(RegexError.ConstructNotAllowed, _pos);
+                    if (!_xpath)
+                    {
+                        return Fail(RegexError.ConstructNotAllowed, _pos);
+                    }
+
+                    _pos++;
+                    return Add(RegexNode.Anchor(c == '^' ? RegexAnchor.Start : RegexAnchor.End));
                 case '.':
                     _pos++;
-                    return Add(RegexNode.AnyChar());
+                    return (_flags & RegexFlagSet.DotAll) != RegexFlagSet.None
+                        ? AddSet([0, RegexSetMath.MaxCodePoint])
+                        : Add(RegexNode.AnyChar());
                 case '\\':
                     var kind = ParseEscape(false, out var codePoint, out var escapeSet);
                     return kind switch
                     {
-                        EscapeKind.Single => Add(RegexNode.Character(codePoint)),
-                        EscapeKind.Set => AddSet(escapeSet!),
+                        EscapeKind.Single => AddChar(codePoint),
+                        EscapeKind.Set => AddSet(Fold ? RegexCaseFolding.Close(escapeSet!) : escapeSet!),
+                        EscapeKind.BackReference => Add(RegexNode.BackReference(codePoint)),
                         _ => RegexNode.NoNode,
                     };
                 default:
-                    return ReadCodePoint(out codePoint) ? Add(RegexNode.Character(codePoint)) : RegexNode.NoNode;
+                    return ReadCodePoint(out codePoint) ? AddChar(codePoint) : RegexNode.NoNode;
             }
         }
 
@@ -418,7 +501,24 @@ public static class RegexParser
                 return Fail(RegexError.LimitExceeded, _pos);
             }
 
+            var groupNumber = RegexNode.NoGroup;
             _pos++;
+            if (_xpath && _pos < _p.Length && _p[_pos] == '?')
+            {
+                // Only the non-capturing group of the (?: form exists.
+                if (_pos + 1 >= _p.Length || _p[_pos + 1] != ':')
+                {
+                    return Fail(RegexError.ConstructNotAllowed, _pos);
+                }
+
+                _pos += 2;
+            }
+            else if (_xpath)
+            {
+                _closedGroups.Add(false);
+                groupNumber = _closedGroups.Count;
+            }
+
             var inner = ParseRegExp(level + 1);
             if (inner == RegexNode.NoNode)
             {
@@ -431,7 +531,12 @@ public static class RegexParser
             }
 
             _pos++;
-            return Add(RegexNode.Group(inner, RegexNode.NoGroup));
+            if (groupNumber != RegexNode.NoGroup)
+            {
+                _closedGroups[groupNumber - 1] = true;
+            }
+
+            return Add(RegexNode.Group(inner, groupNumber));
         }
 
         private bool ReadCodePoint(out int codePoint)
@@ -479,6 +584,11 @@ public static class RegexParser
             }
 
             var ranges = builder.Build();
+            if (Fold)
+            {
+                ranges = RegexCaseFolding.Close(ranges);
+            }
+
             if (negate)
             {
                 ranges = RegexSetMath.Negate(ranges);
@@ -662,6 +772,11 @@ public static class RegexParser
                     return EscapeKind.Set;
                 case 'p' or 'P':
                     return ParseProperty(c == 'P', start, out set);
+                case '$' when _xpath:
+                    codePoint = c;
+                    return EscapeKind.Single;
+                case >= '1' and <= '9' when !inClass && _xpath:
+                    return ParseBackReference(c, start, out codePoint);
                 case >= '1' and <= '9' when !inClass:
                     SetError(RegexError.ConstructNotAllowed, start);
                     return EscapeKind.Failed;
@@ -670,6 +785,27 @@ public static class RegexParser
                     return EscapeKind.Failed;
             }
         }
+
+        // _pos is after the first digit. More digits belong to the reference while they name a closed group.
+        private EscapeKind ParseBackReference(char first, int start, out int groupNumber)
+        {
+            groupNumber = first - '0';
+            if (!IsClosed(groupNumber))
+            {
+                SetError(RegexError.InvalidBackReference, start);
+                return EscapeKind.Failed;
+            }
+
+            while (_pos < _p.Length && _p[_pos] is >= '0' and <= '9' && IsClosed((groupNumber * 10) + (_p[_pos] - '0')))
+            {
+                groupNumber = (groupNumber * 10) + (_p[_pos++] - '0');
+            }
+
+            return EscapeKind.BackReference;
+        }
+
+        private readonly bool IsClosed(int groupNumber) =>
+            groupNumber <= _closedGroups.Count && _closedGroups[groupNumber - 1];
 
         // _pos is after \p or \P.
         private EscapeKind ParseProperty(bool complement, int start, out int[]? set)

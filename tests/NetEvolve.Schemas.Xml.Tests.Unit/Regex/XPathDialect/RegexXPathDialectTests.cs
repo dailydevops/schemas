@@ -24,7 +24,8 @@ public class RegexXPathDialectTests
     {
         _ = RegexFlagParser.TryParse(flags, out var parsed, out _);
         var result = Parse(pattern, flags);
-        var tree = result.Tree ?? throw new InvalidOperationException($"{pattern}: {result.Error} at {result.Position}");
+        var tree = result.Tree
+            ?? throw new InvalidOperationException($"{pattern}: {result.Error} at {result.Position}");
         var sets = new RegexCharacterSet[tree.SetCount];
         for (var i = 0; i < sets.Length; i++)
         {
@@ -35,7 +36,11 @@ public class RegexXPathDialectTests
         return error == RegexError.None ? program! : throw new InvalidOperationException($"{pattern}: {error}");
     }
 
-    private static (RegexMatchResult Result, int Index, int Length) Find(string pattern, string input, string flags = "")
+    private static (RegexMatchResult Result, int Index, int Length) Find(
+        string pattern,
+        string input,
+        string flags = ""
+    )
     {
         var result = Compile(pattern, flags).Search(input, RegexStepLimits.Default, out var index, out var length);
         return (result, index, length);
@@ -50,27 +55,29 @@ public class RegexXPathDialectTests
         await Assert.That(found.Length).IsEqualTo(length);
     }
 
-    private static async Task AssertNoMatch(string pattern, string input, string flags = "")
-    {
+    private static async Task AssertNoMatch(string pattern, string input, string flags = "") =>
         await Assert.That(Find(pattern, input, flags).Result).IsEqualTo(RegexMatchResult.NoMatch);
-    }
 
     [Test]
-    [Arguments("", RegexFlags.None)]
-    [Arguments("s", RegexFlags.DotAll)]
-    [Arguments("m", RegexFlags.MultiLine)]
-    [Arguments("i", RegexFlags.IgnoreCase)]
-    [Arguments("x", RegexFlags.Extended)]
-    [Arguments("q", RegexFlags.Literal)]
-    [Arguments("sm", RegexFlags.DotAll | RegexFlags.MultiLine)]
-    [Arguments("ix", RegexFlags.IgnoreCase | RegexFlags.Extended)]
-    [Arguments("qi", RegexFlags.Literal | RegexFlags.IgnoreCase)]
+    [Arguments("", RegexFlagSet.None)]
+    [Arguments("s", RegexFlagSet.DotAll)]
+    [Arguments("m", RegexFlagSet.MultiLine)]
+    [Arguments("i", RegexFlagSet.IgnoreCase)]
+    [Arguments("x", RegexFlagSet.Extended)]
+    [Arguments("q", RegexFlagSet.Literal)]
+    [Arguments("sm", RegexFlagSet.DotAll | RegexFlagSet.MultiLine)]
+    [Arguments("ix", RegexFlagSet.IgnoreCase | RegexFlagSet.Extended)]
+    [Arguments("qi", RegexFlagSet.Literal | RegexFlagSet.IgnoreCase)]
     [Arguments(
         "smixq",
-        RegexFlags.DotAll | RegexFlags.MultiLine | RegexFlags.IgnoreCase | RegexFlags.Extended | RegexFlags.Literal
+        RegexFlagSet.DotAll
+            | RegexFlagSet.MultiLine
+            | RegexFlagSet.IgnoreCase
+            | RegexFlagSet.Extended
+            | RegexFlagSet.Literal
     )]
-    [Arguments("ssii", RegexFlags.DotAll | RegexFlags.IgnoreCase)]
-    public async Task Flags_ValidLetters_Parse(string text, RegexFlags expected)
+    [Arguments("ssii", RegexFlagSet.DotAll | RegexFlagSet.IgnoreCase)]
+    public async Task Flags_ValidLetters_Parse(string text, RegexFlagSet expected)
     {
         var error = RegexFlagParser.TryParse(text, out var flags, out var position);
 
@@ -98,7 +105,7 @@ public class RegexXPathDialectTests
     {
         var result = RegexParser.Parse(
             "a",
-            new RegexSyntax(RegexDialect.Xsd, NameEdition.Xml10SecondEdition, RegexFlags.IgnoreCase)
+            new RegexSyntax(RegexDialect.Xsd, NameEdition.Xml10SecondEdition, RegexFlagSet.IgnoreCase)
         );
 
         await Assert.That(result.Error).IsEqualTo(RegexError.ConstructNotAllowed);
@@ -195,10 +202,12 @@ public class RegexXPathDialectTests
     [Arguments("<.+>", "<a><b>", 0, 6)]
     [Arguments("a*?b", "aaab", 0, 4)]
     [Arguments("(a|ab)+?c", "abac", 0, 4)]
-    public async Task Reluctant_QuantifiersReturnTheShortestMatch(string pattern, string input, int index, int length)
-    {
-        await AssertMatch(pattern, input, index, length);
-    }
+    public async Task Reluctant_QuantifiersReturnTheShortestMatch(
+        string pattern,
+        string input,
+        int index,
+        int length
+    ) => await AssertMatch(pattern, input, index, length);
 
     [Test]
     public async Task Reluctant_IsRejectedInTheXsdDialect()
@@ -217,12 +226,10 @@ public class RegexXPathDialectTests
     [Arguments("^(a+)b\\1$", "aaba", false)]
     [Arguments("(a)(b)\\2\\1", "abba", true)]
     [Arguments("(a)|b\\1", "b", true)]
-    public async Task BackReference_MatchesTheCapturedText(string pattern, string input, bool expected)
-    {
+    public async Task BackReference_MatchesTheCapturedText(string pattern, string input, bool expected) =>
         await Assert
             .That(Find(pattern, input).Result)
             .IsEqualTo(expected ? RegexMatchResult.Match : RegexMatchResult.NoMatch);
-    }
 
     [Test]
     public async Task BackReference_ExtentsFollowThePriorityOrder()
@@ -233,12 +240,12 @@ public class RegexXPathDialectTests
     }
 
     [Test]
-    [Arguments("(a\\1)", 3)]
+    [Arguments("(a\\1)", 2)]
     [Arguments("\\1", 0)]
     [Arguments("(a)\\2", 3)]
     [Arguments("\\1(a)", 0)]
     [Arguments("(?:a)\\1", 5)]
-    [Arguments("((a)\\1)", 5)]
+    [Arguments("((a)\\1)", 4)]
     public async Task BackReference_ToAnUnclosedOrMissingGroup_IsAStaticError(string pattern, int position)
     {
         var result = Parse(pattern);
@@ -400,17 +407,15 @@ public class RegexXPathDialectTests
     }
 
     [Test]
-    public async Task XPathProgram_ReportsItsDialect()
-    {
+    public async Task XPathProgram_ReportsItsDialect() =>
         await Assert.That(Compile("a").Dialect).IsEqualTo(RegexDialect.XPath);
-    }
 
     [Test]
     public async Task Compile_ABackReferenceBeyondTheGroups_IsAnError()
     {
         var nodes = new[] { RegexNode.BackReference(1) };
 
-        var error = RegexProgram.TryCompile(nodes, 0, [], RegexDialect.XPath, RegexFlags.None, out var program);
+        var error = RegexProgram.TryCompile(nodes, 0, [], RegexDialect.XPath, RegexFlagSet.None, out var program);
 
         await Assert.That(error).IsEqualTo(RegexError.InvalidBackReference);
         await Assert.That(program).IsNull();

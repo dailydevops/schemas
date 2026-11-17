@@ -15,6 +15,11 @@ public sealed partial class RegexProgram
         Split,
         Jump,
         Match,
+        Save,
+        Progress,
+        AnchorStart,
+        AnchorEnd,
+        BackRef,
     }
 
     [StructLayout(LayoutKind.Auto)]
@@ -38,12 +43,18 @@ public sealed partial class RegexProgram
     private ref struct StateSet
     {
         public readonly Span<int> Dense;
+        public readonly Span<int> Starts;
         private readonly Span<int> _sparse;
         public int Count;
 
         public StateSet(Span<int> dense, Span<int> sparse)
+            : this(dense, sparse, default) { }
+
+        // The XPath search also keeps the input position at which the thread of each state started.
+        public StateSet(Span<int> dense, Span<int> sparse, Span<int> starts)
         {
             Dense = dense;
+            Starts = starts;
             _sparse = sparse;
             Count = 0;
         }
@@ -62,17 +73,52 @@ public sealed partial class RegexProgram
             Dense[Count++] = pc;
             return true;
         }
+
+        public bool Add(int pc, int start)
+        {
+            if (!Add(pc))
+            {
+                return false;
+            }
+
+            Starts[Count - 1] = start;
+            return true;
+        }
     }
 
     // Compiles at most MaxProgramSize instructions; the first error wins and stops all emission.
     private sealed class Emitter
     {
         private readonly RegexNode[] _nodes;
+        private readonly bool _xsd;
+        private readonly int _maxGroup;
         private readonly List<Instruction> _code = [];
+        private int _loops;
 
-        public Emitter(ReadOnlySpan<RegexNode> nodes) => _nodes = nodes.ToArray();
+        public Emitter(ReadOnlySpan<RegexNode> nodes, RegexDialect dialect)
+        {
+            _nodes = nodes.ToArray();
+            _xsd = dialect == RegexDialect.Xsd;
+            foreach (var node in _nodes)
+            {
+                if (node.Kind == RegexNodeKind.BackReference)
+                {
+                    HasBackReference = true;
+                }
+                else if (node.Kind == RegexNodeKind.Group && node.Value > _maxGroup)
+                {
+                    _maxGroup = node.Value;
+                }
+            }
+        }
 
         public RegexError Error { get; private set; }
+
+        // A pattern with a back reference runs on the backtracking machine, which needs the capture and loop slots.
+        public bool HasBackReference { get; }
+
+        // Slots 2g and 2g + 1 hold the bounds of group g; the loop progress slots follow.
+        public int SlotCount => (2 * (_maxGroup + 1)) + _loops;
 
         public Instruction[] ToArray() => _code.ToArray();
 
@@ -114,7 +160,19 @@ public sealed partial class RegexProgram
                     _ = Add(Opcode.Any, 0, 0);
                     break;
                 case RegexNodeKind.Group:
-                    Emit(node.FirstChild, depth + 1);
+                    EmitGroup(node, depth);
+                    break;
+                case RegexNodeKind.Anchor when !_xsd:
+                    _ = Add(node.Value == (int)RegexAnchor.Start ? Opcode.AnchorStart : Opcode.AnchorEnd, 0, 0);
+                    break;
+                case RegexNodeKind.BackReference when !_xsd:
+                    if (node.Value > _maxGroup)
+                    {
+                        Fail(RegexError.InvalidBackReference);
+                        break;
+                    }
+
+                    _ = Add(Opcode.BackRef, node.Value, 0);
                     break;
                 case RegexNodeKind.Concat:
                     for (var child = node.FirstChild; child != RegexNode.NoNode && Error == RegexError.None; )
@@ -137,6 +195,19 @@ public sealed partial class RegexProgram
                     Fail(RegexError.ConstructNotAllowed);
                     break;
             }
+        }
+
+        private void EmitGroup(RegexNode node, int depth)
+        {
+            if (!HasBackReference || node.Value < 1)
+            {
+                Emit(node.FirstChild, depth + 1);
+                return;
+            }
+
+            _ = Add(Opcode.Save, 2 * node.Value, 0);
+            Emit(node.FirstChild, depth + 1);
+            _ = Add(Opcode.Save, (2 * node.Value) + 1, 0);
         }
 
         private void EmitAlternation(RegexNode node, int depth)
@@ -166,7 +237,7 @@ public sealed partial class RegexProgram
 
         private void EmitRepeat(RegexNode node, int depth)
         {
-            if (node.IsLazy)
+            if (node.IsLazy && _xsd)
             {
                 Fail(RegexError.ConstructNotAllowed);
                 return;
@@ -185,17 +256,29 @@ public sealed partial class RegexProgram
 
             if (node.Max == RegexNode.Unbounded)
             {
-                var loop = Add(Opcode.Split, _code.Count + 1, 0);
+                var loop = Add(Opcode.Split, 0, 0);
+                var slot = HasBackReference ? (2 * (_maxGroup + 1)) + _loops++ : -1;
+                if (slot >= 0)
+                {
+                    // An iteration that consumed nothing fails, so the backtracking machine cannot loop on an empty body.
+                    _ = Add(Opcode.Save, slot, 0);
+                }
+
                 Emit(node.FirstChild, depth + 1);
+                if (slot >= 0)
+                {
+                    _ = Add(Opcode.Progress, slot, 0);
+                }
+
                 _ = Add(Opcode.Jump, loop, 0);
-                Patch(loop, b: _code.Count);
+                PatchSplit(loop, node.IsLazy);
                 return;
             }
 
             var splits = new List<int>();
             for (var i = node.Min; i < node.Max && Error == RegexError.None; i++)
             {
-                splits.Add(Add(Opcode.Split, _code.Count + 1, 0));
+                splits.Add(Add(Opcode.Split, 0, 0));
                 var start = _code.Count;
                 Emit(node.FirstChild, depth + 1);
                 if (_code.Count == start)
@@ -206,8 +289,16 @@ public sealed partial class RegexProgram
 
             foreach (var split in splits)
             {
-                Patch(split, b: _code.Count);
+                PatchSplit(split, node.IsLazy);
             }
+        }
+
+        // A split prefers the repeated body at the next instruction, or, when lazy, the exit at the end of the code so far.
+        private void PatchSplit(int split, bool lazy)
+        {
+            var body = split + 1;
+            var exit = _code.Count;
+            Patch(split, lazy ? exit : body, lazy ? body : exit);
         }
 
         private void Patch(int at, int? a = null, int? b = null)
