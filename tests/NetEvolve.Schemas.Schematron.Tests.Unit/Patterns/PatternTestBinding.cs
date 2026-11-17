@@ -93,7 +93,9 @@ internal sealed class PatternTestBinding : IQueryBinding
             if (text.StartsWith("position() = ", StringComparison.Ordinal))
             {
                 var operand = text.Substring("position() = ".Length);
-                operand = operand.StartsWith('(', StringComparison.Ordinal) ? operand.Substring(1, operand.Length - 2) : operand;
+                operand = operand.StartsWith('(', StringComparison.Ordinal)
+                    ? operand.Substring(1, operand.Length - 2)
+                    : operand;
                 var expected = string.Equals(operand, "last()", StringComparison.Ordinal) ? focus.Size : Sum(operand);
                 return focus.Position == expected;
             }
