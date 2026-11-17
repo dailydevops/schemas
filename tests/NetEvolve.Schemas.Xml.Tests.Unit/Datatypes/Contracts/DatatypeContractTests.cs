@@ -54,7 +54,8 @@ public class DatatypeContractTests
         await Assert.That(Enum.GetName((DatatypeError)10)).IsEqualTo("DigitCap");
         await Assert.That(Enum.GetName((DatatypeError)11)).IsEqualTo("YearOrComponentCap");
         await Assert.That(Enum.GetName((DatatypeError)13)).IsEqualTo("InvalidCharacter");
-        await Assert.That(Enum.GetValues<DatatypeError>().Length).IsEqualTo(11);
+        await Assert.That(Enum.GetName((DatatypeError)14)).IsEqualTo("UnboundPrefix");
+        await Assert.That(Enum.GetValues<DatatypeError>().Length).IsEqualTo(12);
     }
 
     [Test]
