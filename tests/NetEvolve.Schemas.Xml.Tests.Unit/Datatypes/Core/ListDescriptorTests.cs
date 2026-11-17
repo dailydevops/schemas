@@ -34,12 +34,15 @@ public class ListDescriptorTests
     [Arguments(" \t ", 0)]
     public async Task Parse_SplitsOnWhitespaceAndCountsItems(string lexical, int count)
     {
-        var result = DigitsList().Parse(lexical);
+        var span = lexical.AsSpan();
+        var result = DigitsList().Parse(span);
+        var range = new TextRange(0, span.Length);
+        var valid = DigitsList().Validate(span).IsValid;
 
         await Assert.That(result.Success).IsTrue();
         await Assert.That(result.Value.ItemCount).IsEqualTo(count);
-        await Assert.That(result.Value.Range).IsEqualTo(new TextRange(0, lexical.Length));
-        await Assert.That(DigitsList().Validate(lexical).IsValid).IsTrue();
+        await Assert.That(result.Value.Range).IsEqualTo(range);
+        await Assert.That(valid).IsTrue();
     }
 
     [Test]

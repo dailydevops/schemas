@@ -59,7 +59,12 @@ public class AtomicDescriptorTests
     [Test]
     public async Task Restriction_InheritsTheMappingAndAccumulatesFacets()
     {
-        var derived = new AtomicDescriptor<int>("short", Restricted(new FakeMaxInclusiveFacet(500)), null, [new FakeLengthFacet(2)]);
+        var derived = new AtomicDescriptor<int>(
+            "short",
+            Restricted(new FakeMaxInclusiveFacet(500)),
+            null,
+            [new FakeLengthFacet(2)]
+        );
 
         await Assert.That(derived.BaseType!.Name).IsEqualTo("small");
         await Assert.That(derived.LexicalMode).IsEqualTo(XsdVersion.V11);

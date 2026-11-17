@@ -87,11 +87,12 @@ public class DatatypeRegistryTests
     {
         DatatypeRegistration[] registrations =
         [
-            new(
+            new("derived", XsdVersion.V10, static r => new AtomicDescriptor<int>(
                 "derived",
-                XsdVersion.V10,
-                static r => new AtomicDescriptor<int>("derived", (AtomicDescriptor<int>)r.Get("base"), null, [])
-            ),
+                (AtomicDescriptor<int>)r.Get("base"),
+                null,
+                []
+            )),
             new("base", XsdVersion.V10, static r => Fake("base", r.Version)),
         ];
 

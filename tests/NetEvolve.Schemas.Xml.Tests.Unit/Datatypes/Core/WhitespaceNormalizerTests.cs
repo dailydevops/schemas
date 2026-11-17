@@ -6,10 +6,10 @@ using NetEvolve.Schemas.Xml.Datatypes.Core;
 
 public class WhitespaceNormalizerTests
 {
-    private static string Normalize(string source, WhitespaceMode mode)
+    private static string Normalize(ReadOnlySpan<char> source, WhitespaceMode mode)
     {
         var destination = new char[source.Length];
-        var length = WhitespaceNormalizer.Normalize(source.AsSpan(), mode, destination);
+        var length = WhitespaceNormalizer.Normalize(source, mode, destination);
         return new string(destination, 0, length);
     }
 
@@ -17,7 +17,7 @@ public class WhitespaceNormalizerTests
     [Arguments("a\tb\nc\rd e", "a\tb\nc\rd e")]
     [Arguments("  a  ", "  a  ")]
     public async Task Preserve_KeepsEveryCharacter(string source, string expected) =>
-        await Assert.That(Normalize(source, WhitespaceMode.Preserve)).IsEqualTo(expected);
+        await Assert.That(Normalize(source.AsSpan(), WhitespaceMode.Preserve)).IsEqualTo(expected);
 
     [Test]
     [Arguments("a\tb", "a b")]
@@ -26,7 +26,7 @@ public class WhitespaceNormalizerTests
     [Arguments("\t\n\r ", "    ")]
     [Arguments("a\r\nb", "a  b")]
     public async Task Replace_MapsTabLineFeedAndCarriageReturnToSpace(string source, string expected) =>
-        await Assert.That(Normalize(source, WhitespaceMode.Replace)).IsEqualTo(expected);
+        await Assert.That(Normalize(source.AsSpan(), WhitespaceMode.Replace)).IsEqualTo(expected);
 
     [Test]
     [Arguments("a\t\t b", "a b")]
@@ -36,7 +36,7 @@ public class WhitespaceNormalizerTests
     [Arguments("", "")]
     [Arguments("abc", "abc")]
     public async Task Collapse_TrimsAndMergesRuns(string source, string expected) =>
-        await Assert.That(Normalize(source, WhitespaceMode.Collapse)).IsEqualTo(expected);
+        await Assert.That(Normalize(source.AsSpan(), WhitespaceMode.Collapse)).IsEqualTo(expected);
 
     [Test]
     [Arguments("a b", WhitespaceMode.Collapse, true)]
@@ -65,20 +65,23 @@ public class WhitespaceNormalizerTests
     [Arguments(WhitespaceMode.Collapse, "a b")]
     public async Task Apply_NormalizedInput_ReturnsTheSameTextWithoutRenting(WhitespaceMode mode, string source)
     {
-        var result = WhitespaceNormalizer.Apply(source.AsSpan(), mode, out var rented);
+        var result = WhitespaceNormalizer.Apply(source.AsSpan(), mode, out var rented).ToString();
+        using var owner = rented;
 
         await Assert.That(rented).IsNull();
-        await Assert.That(result.ToString()).IsEqualTo(source);
+        await Assert.That(result).IsEqualTo(source);
     }
 
     [Test]
     public async Task Apply_UnnormalizedInput_RentsABufferThatTheCallerDisposes()
     {
-        var result = WhitespaceNormalizer.Apply(" a \t b ".AsSpan(), WhitespaceMode.Collapse, out var rented);
+        var result = WhitespaceNormalizer
+            .Apply(" a \t b ".AsSpan(), WhitespaceMode.Collapse, out var rented)
+            .ToString();
+        using var owner = rented;
 
         await Assert.That(rented).IsNotNull();
-        await Assert.That(result.ToString()).IsEqualTo("a b");
-        rented!.Dispose();
+        await Assert.That(result).IsEqualTo("a b");
     }
 
     [Test]
@@ -112,6 +115,8 @@ public class WhitespaceNormalizerTests
     public async Task ToSourceOffset_ReplaceAndPreserve_AreTheIdentity()
     {
         await Assert.That(WhitespaceNormalizer.ToSourceOffset("a\tb".AsSpan(), WhitespaceMode.Replace, 2)).IsEqualTo(2);
-        await Assert.That(WhitespaceNormalizer.ToSourceOffset("a\tb".AsSpan(), WhitespaceMode.Preserve, 2)).IsEqualTo(2);
+        await Assert
+            .That(WhitespaceNormalizer.ToSourceOffset("a\tb".AsSpan(), WhitespaceMode.Preserve, 2))
+            .IsEqualTo(2);
     }
 }
