@@ -7,7 +7,7 @@ using NetEvolve.Schemas.Xml.Datatypes.QNames;
 public class XsdQNameTests
 {
     private static readonly FakeNamespaceContext Context = new(
-        new Dictionary<string, string>
+        new Dictionary<string, string>(StringComparer.Ordinal)
         {
             ["a"] = "urn:one",
             ["b"] = "urn:one",
@@ -21,10 +21,10 @@ public class XsdQNameTests
 
         public FakeNamespaceContext(Dictionary<string, string> bindings) => _bindings = bindings;
 
-        public bool TryResolvePrefix(ReadOnlySpan<char> prefix, out string? namespaceUri)
+        public bool TryResolvePrefix(ReadOnlySpan<char> prefix, out string? namespaceName)
         {
             var found = _bindings.TryGetValue(prefix.ToString(), out var uri);
-            namespaceUri = uri;
+            namespaceName = uri;
             return found;
         }
     }
@@ -48,7 +48,7 @@ public class XsdQNameTests
         var result = XsdQName.Parse("a:item", Context);
 
         await Assert.That(result.Success).IsTrue();
-        await Assert.That(result.Value.NamespaceUri).IsEqualTo("urn:one");
+        await Assert.That(result.Value.NamespaceName).IsEqualTo("urn:one");
         await Assert.That(result.Value.LocalName).IsEqualTo("item");
         await Assert.That(result.Value.ToString()).IsEqualTo("{urn:one}item");
     }
@@ -83,10 +83,12 @@ public class XsdQNameTests
     [Test]
     public async Task Parse_WithoutAPrefix_UsesTheDefaultNamespaceWhenBound()
     {
-        var withDefault = new FakeNamespaceContext(new Dictionary<string, string> { [""] = "urn:default" });
+        var withDefault = new FakeNamespaceContext(
+            new Dictionary<string, string>(StringComparer.Ordinal) { [""] = "urn:default" }
+        );
 
-        await Assert.That(XsdQName.Parse("item", withDefault).Value.NamespaceUri).IsEqualTo("urn:default");
-        await Assert.That(XsdQName.Parse("item", Context).Value.NamespaceUri).IsNull();
+        await Assert.That(XsdQName.Parse("item", withDefault).Value.NamespaceName).IsEqualTo("urn:default");
+        await Assert.That(XsdQName.Parse("item", Context).Value.NamespaceName).IsNull();
         await Assert.That(XsdQName.Parse("item", Context).Value.ToString()).IsEqualTo("item");
     }
 
