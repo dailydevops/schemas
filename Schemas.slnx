@@ -35,6 +35,7 @@
     <Project Path="src/NetEvolve.Schemas.Xsd/NetEvolve.Schemas.Xsd.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/NetEvolve.Schemas.Benchmarks.Tests.Unit/NetEvolve.Schemas.Benchmarks.Tests.Unit.csproj" />
     <Project Path="tests/NetEvolve.Schemas.Conformance/NetEvolve.Schemas.Conformance.csproj" />
     <Project Path="tests/NetEvolve.Schemas.Conformance.Tests.Unit/NetEvolve.Schemas.Conformance.Tests.Unit.csproj" />
     <Project Path="tests/NetEvolve.Schemas.DependencyInjection.Tests.Unit/NetEvolve.Schemas.DependencyInjection.Tests.Unit.csproj" />
