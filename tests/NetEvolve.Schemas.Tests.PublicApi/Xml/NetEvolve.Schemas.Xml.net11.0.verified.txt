@@ -424,6 +424,7 @@ namespace NetEvolve.Schemas.Xml.Datatypes.Core
     {
         public AtomicDescriptor(string name, NetEvolve.Schemas.Xml.Datatypes.Contracts.XsdVersion lexicalMode, NetEvolve.Schemas.Xml.Datatypes.Core.ILexicalMapping<TValue> mapping) { }
         public AtomicDescriptor(string name, NetEvolve.Schemas.Xml.Datatypes.Core.AtomicDescriptor<TValue> baseType, NetEvolve.Schemas.Xml.Datatypes.Core.WhitespaceMode? whitespace, System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Xml.Datatypes.Contracts.IFacet> facets) { }
+        public AtomicDescriptor(string name, NetEvolve.Schemas.Xml.Datatypes.Contracts.IDatatypeDescriptor baseType, NetEvolve.Schemas.Xml.Datatypes.Core.ILexicalMapping<TValue> mapping, NetEvolve.Schemas.Xml.Datatypes.Core.WhitespaceMode? whitespace, System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Xml.Datatypes.Contracts.IFacet> facets) { }
         public NetEvolve.Schemas.Xml.Datatypes.Contracts.IDatatypeDescriptor? BaseType { get; }
         public System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Xml.Datatypes.Contracts.IFacet> Facets { get; }
         public bool IsOrdered { get; }
@@ -634,6 +635,30 @@ namespace NetEvolve.Schemas.Xml.Datatypes.Floating
         public static NetEvolve.Schemas.Xml.Datatypes.Contracts.ParseResult<float> ParseSingle(System.ReadOnlySpan<char> lexical, NetEvolve.Schemas.Xml.Datatypes.Contracts.XsdVersion version) { }
         public static string ToCanonicalString(double value) { }
         public static string ToCanonicalString(float value) { }
+    }
+}
+namespace NetEvolve.Schemas.Xml.Datatypes.Numeric
+{
+    public readonly struct XsdInteger : System.IComparable<NetEvolve.Schemas.Xml.Datatypes.Numeric.XsdInteger>, System.IEquatable<NetEvolve.Schemas.Xml.Datatypes.Numeric.XsdInteger>
+    {
+        public XsdInteger(System.Numerics.BigInteger value) { }
+        public System.Numerics.BigInteger Value { get; }
+        public int CompareTo(NetEvolve.Schemas.Xml.Datatypes.Numeric.XsdInteger other) { }
+        public bool Equals(NetEvolve.Schemas.Xml.Datatypes.Numeric.XsdInteger other) { }
+        public override bool Equals(object? obj) { }
+        public override int GetHashCode() { }
+        public override string ToString() { }
+        public static bool operator !=(NetEvolve.Schemas.Xml.Datatypes.Numeric.XsdInteger left, NetEvolve.Schemas.Xml.Datatypes.Numeric.XsdInteger right) { }
+        public static bool operator <(NetEvolve.Schemas.Xml.Datatypes.Numeric.XsdInteger left, NetEvolve.Schemas.Xml.Datatypes.Numeric.XsdInteger right) { }
+        public static bool operator <=(NetEvolve.Schemas.Xml.Datatypes.Numeric.XsdInteger left, NetEvolve.Schemas.Xml.Datatypes.Numeric.XsdInteger right) { }
+        public static bool operator ==(NetEvolve.Schemas.Xml.Datatypes.Numeric.XsdInteger left, NetEvolve.Schemas.Xml.Datatypes.Numeric.XsdInteger right) { }
+        public static bool operator >(NetEvolve.Schemas.Xml.Datatypes.Numeric.XsdInteger left, NetEvolve.Schemas.Xml.Datatypes.Numeric.XsdInteger right) { }
+        public static bool operator >=(NetEvolve.Schemas.Xml.Datatypes.Numeric.XsdInteger left, NetEvolve.Schemas.Xml.Datatypes.Numeric.XsdInteger right) { }
+    }
+    public static class XsdNumeric
+    {
+        public static string ToCanonicalString(NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal value) { }
+        public static string ToCanonicalString(NetEvolve.Schemas.Xml.Datatypes.Numeric.XsdInteger value) { }
     }
 }
 namespace NetEvolve.Schemas.Xml.Interop
