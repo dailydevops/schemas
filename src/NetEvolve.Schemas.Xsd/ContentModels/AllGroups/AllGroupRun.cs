@@ -36,7 +36,15 @@ internal sealed class AllGroupRun
     /// <summary>Determines whether a member has occurred.</summary>
     /// <param name="member">The member index.</param>
     /// <returns><see langword="true"/> when it has been seen.</returns>
-    public bool IsSeen(int member) => (_seen[member >> 6] & (1UL << (member & 63))) != 0;
+    public bool IsSeen(int member)
+    {
+        Argument.ThrowIfLessThan(member, 0);
+        Argument.ThrowIfGreaterThanOrEqual(member, _group.MemberCount);
+
+        return IsSeenCore(member);
+    }
+
+    private bool IsSeenCore(int member) => (_seen[member >> 6] & (1UL << (member & 63))) != 0;
 
     /// <summary>Tries to accept a child. A second occurrence of a member and an unknown name are rejected.</summary>
     /// <param name="schemaNameId">The bound schema name id, <c>-1</c> when unknown.</param>
@@ -46,7 +54,7 @@ internal sealed class AllGroupRun
     {
         matched = default;
         var member = _group.FindMember(schemaNameId);
-        if (member < 0 || IsSeen(member))
+        if (member < 0 || IsSeenCore(member))
         {
             return false;
         }
@@ -87,7 +95,7 @@ internal sealed class AllGroupRun
         var written = 0;
         for (var m = 0; m < _group.MemberCount && written < destination.Length; m++)
         {
-            if ((_group.RequiredWord(m >> 6) & (1UL << (m & 63))) != 0 && !IsSeen(m))
+            if ((_group.RequiredWord(m >> 6) & (1UL << (m & 63))) != 0 && !IsSeenCore(m))
             {
                 destination[written++] = _group.NamesOf(m)[0];
             }
@@ -106,7 +114,7 @@ internal sealed class AllGroupRun
         var written = 0;
         for (var m = 0; m < _group.MemberCount; m++)
         {
-            if (IsSeen(m))
+            if (IsSeenCore(m))
             {
                 continue;
             }
