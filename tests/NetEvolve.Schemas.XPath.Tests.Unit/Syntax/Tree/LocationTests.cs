@@ -50,7 +50,7 @@ public class LocationTests
         var offenders = new System.Collections.Generic.List<string>();
         foreach (var type in typeof(SyntaxNode).Assembly.GetTypes())
         {
-            if (type.Namespace != typeof(SyntaxNode).Namespace)
+            if (!string.Equals(type.Namespace, typeof(SyntaxNode).Namespace, System.StringComparison.Ordinal))
             {
                 continue;
             }
@@ -58,7 +58,10 @@ public class LocationTests
             foreach (var property in type.GetProperties())
             {
                 var ns = property.PropertyType.Namespace ?? string.Empty;
-                if (ns != type.Namespace && !ns.StartsWith("System", System.StringComparison.Ordinal))
+                if (
+                    !string.Equals(ns, type.Namespace, System.StringComparison.Ordinal)
+                    && !ns.StartsWith("System", System.StringComparison.Ordinal)
+                )
                 {
                     offenders.Add(type.Name + "." + property.Name);
                 }

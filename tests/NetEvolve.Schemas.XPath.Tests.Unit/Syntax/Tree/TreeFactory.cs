@@ -45,8 +45,7 @@ internal sealed class TreeFactory
     public VariableBinding Bind(string name = "v", Expression? source = null) =>
         Make(s => new VariableBinding(s, Q(name), source ?? Int()));
 
-    public ForExpression For(params VariableBinding[] bindings) =>
-        Make(s => new ForExpression(s, bindings, Var("v")));
+    public ForExpression For(params VariableBinding[] bindings) => Make(s => new ForExpression(s, bindings, Var("v")));
 
     public QuantifiedExpression Quantified(Quantifier quantifier) =>
         Make(s => new QuantifiedExpression(s, quantifier, new[] { Bind("a"), Bind("b") }, Var("a")));
@@ -97,8 +96,7 @@ internal sealed class TreeFactory
 
     public CommentTest Comment() => Make(s => new CommentTest(s));
 
-    public ProcessingInstructionTest PI(string? target = null) =>
-        Make(s => new ProcessingInstructionTest(s, target));
+    public ProcessingInstructionTest PI(string? target = null) => Make(s => new ProcessingInstructionTest(s, target));
 
     public AttributeTest AttrTest(QualifiedName? name = null, QualifiedName? type = null) =>
         Make(s => new AttributeTest(s, name, type));
@@ -124,7 +122,8 @@ internal sealed class TreeFactory
     public InstanceOfExpression InstanceOf() =>
         Make(s => new InstanceOfExpression(s, Var("x"), SeqType(Atomic(), Occurrence.ZeroOrMore)));
 
-    public TreatExpression Treat() => Make(s => new TreatExpression(s, Var("x"), SeqType(Item(), Occurrence.OneOrMore)));
+    public TreatExpression Treat() =>
+        Make(s => new TreatExpression(s, Var("x"), SeqType(Item(), Occurrence.OneOrMore)));
 
     public CastableExpression Castable() => Make(s => new CastableExpression(s, Var("x"), Single(true)));
 

@@ -16,7 +16,7 @@ public class VisitorTests
                 type.IsClass
                 && !type.IsAbstract
                 && typeof(SyntaxNode).IsAssignableFrom(type)
-                && type.Namespace == typeof(SyntaxNode).Namespace
+                && string.Equals(type.Namespace, typeof(SyntaxNode).Namespace, StringComparison.Ordinal)
             )
             {
                 kinds.Add(type);
@@ -27,10 +27,8 @@ public class VisitorTests
     }
 
     [Test]
-    public async Task NodeKinds_ReflectionFindsAtLeastTheXPath20Forms()
-    {
+    public async Task NodeKinds_ReflectionFindsAtLeastTheXPath20Forms() =>
         await Assert.That(NodeKinds().Count).IsGreaterThanOrEqualTo(40);
-    }
 
     [Test]
     public async Task CountingVisitor_OverAllKindsTree_VisitsEveryKindAndNothingTwice()
@@ -78,14 +76,22 @@ public class VisitorTests
             }
 
             var generic = typeof(SyntaxVisitor<>).GetMethod(name);
-            if (generic is null || generic.GetParameters().Length != 1 || generic.GetParameters()[0].ParameterType != kind)
+            if (
+                generic is null
+                || generic.GetParameters().Length != 1
+                || generic.GetParameters()[0].ParameterType != kind
+            )
             {
                 resultMissing.Add(name);
             }
         }
 
         var visitMethods = 0;
-        foreach (var method in typeof(SyntaxVisitor).GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly))
+        foreach (
+            var method in typeof(SyntaxVisitor).GetMethods(
+                BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly
+            )
+        )
         {
             if (method.Name.StartsWith("Visit", StringComparison.Ordinal))
             {
@@ -109,6 +115,36 @@ public class VisitorTests
         await Assert.That(integer).IsEqualTo("42");
         await Assert.That(other).IsNull();
     }
+
+    [Test]
+    public async Task ResultVisitor_ReturnsTheKindNameForEveryNodeOfTheAllKindsTree()
+    {
+        var root = new TreeFactory().AllKinds();
+        var visitor = new KindNameVisitor();
+
+        foreach (var node in TreeWalker.Descendants(root))
+        {
+            await Assert.That(node.Accept(visitor)).IsEqualTo(node.GetType().Name);
+        }
+    }
+
+    [Test]
+    public async Task DefaultVisitors_DoNothingAndReturnTheDefaultForEveryNodeOfTheAllKindsTree()
+    {
+        var root = new TreeFactory().AllKinds();
+        var plain = new SilentVisitor();
+        var withResult = new SilentResultVisitor();
+
+        foreach (var node in TreeWalker.Descendants(root))
+        {
+            node.Accept(plain);
+            await Assert.That(node.Accept(withResult)).IsEqualTo(0);
+        }
+    }
+
+    private sealed class SilentVisitor : SyntaxVisitor;
+
+    private sealed class SilentResultVisitor : SyntaxVisitor<int>;
 
     private sealed class LexemeVisitor : SyntaxVisitor<string>
     {

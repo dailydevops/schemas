@@ -28,7 +28,9 @@ public class ImmutabilityTests
         var offenders = new List<string>();
         foreach (var type in NodeTypesIncludingBases())
         {
-            foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static))
+            foreach (
+                var property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static)
+            )
             {
                 if (property.SetMethod is { IsPublic: true } || property.SetMethod is { IsFamily: true })
                 {
@@ -76,7 +78,7 @@ public class ImmutabilityTests
 
         items.Add(factory.Int("3"));
 
-        await Assert.That(sequence.Items).HasCount(2);
+        await Assert.That(sequence.Items.Count).IsEqualTo(2);
         await Assert.That(((IList<Expression>)sequence.Items).IsReadOnly).IsTrue();
         await Assert.That(((IList)sequence.Children).IsReadOnly).IsTrue();
     }
