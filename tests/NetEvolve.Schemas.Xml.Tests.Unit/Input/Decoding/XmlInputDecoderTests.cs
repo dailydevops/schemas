@@ -4,12 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading;
 using NetEvolve.Schemas.Xml.Buffers;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Input.Decoding;
 using static DecodingTestHelper;
 
-public class XmlInputDecoderTests
+internal sealed class XmlInputDecoderTests
 {
     private const string Sample = "<?xml version=\"1.0\"?><a>Aé€😀\r\n\t</a>";
 
@@ -89,10 +90,8 @@ public class XmlInputDecoderTests
     [Arguments("61 62 63 E2 82", 3L)] // truncated at the end
     [Arguments("61 EF BF BE", 1L)] // U+FFFE is not a Char
     [Arguments("61 01", 1L)] // U+0001 is not a Char
-    public async Task Decode_MalformedUtf8_YieldsMalformedCodeAndOffset(string hex, long offset)
-    {
-        await AssertMalformed(Hex(hex), offset);
-    }
+    public Task Decode_MalformedUtf8_YieldsMalformedCodeAndOffset(string hex, long offset) =>
+        AssertMalformed(Hex(hex), offset);
 
     // Malformed UTF-16 and UCS-4.
     [Test]
@@ -109,10 +108,8 @@ public class XmlInputDecoderTests
     [Arguments("00 00 FE FF 00 11 00 00", 4L)] // UCS-4 above U+10FFFF
     [Arguments("00 00 FE FF 00 00 D8 00", 4L)] // UCS-4 surrogate
     [Arguments("00 00 FE FF 00 00 00", 4L)] // UCS-4 truncated
-    public async Task Decode_MalformedUtf16AndUcs4_YieldsMalformedCodeAndOffset(string hex, long offset)
-    {
-        await AssertMalformed(Hex(hex), offset);
-    }
+    public Task Decode_MalformedUtf16AndUcs4_YieldsMalformedCodeAndOffset(string hex, long offset) =>
+        AssertMalformed(Hex(hex), offset);
 
     private static async Task AssertMalformed(byte[] bytes, long offset)
     {
@@ -216,17 +213,17 @@ public class XmlInputDecoderTests
     }
 
     [Test]
-    [Arguments("3C 3F 78 6D", "utf-8", XmlInputEncoding.Utf8)]
-    [Arguments("EF BB BF 41", "UTF-8", XmlInputEncoding.Utf8)]
-    [Arguments("3C 3F 78 6D", "ISO-8859-1", XmlInputEncoding.Iso88591)]
-    [Arguments("3C 3F 78 6D", "Us-Ascii", XmlInputEncoding.UsAscii)]
-    [Arguments("FF FE 41 00", "UTF-16", XmlInputEncoding.Utf16LittleEndian)]
-    [Arguments("FE FF 00 41", "utf-16be", XmlInputEncoding.Utf16BigEndian)]
-    [Arguments("3C 00 3F 00", "UTF-16LE", XmlInputEncoding.Utf16LittleEndian)]
-    [Arguments("00 3C 00 3F", "UTF-16BE", XmlInputEncoding.Utf16BigEndian)]
-    [Arguments("00 00 00 3C", "ISO-10646-UCS-4", XmlInputEncoding.Ucs4Order1234)]
-    [Arguments("3C 00 00 00", "UTF-32LE", XmlInputEncoding.Ucs4Order4321)]
-    public async Task ConfirmEncoding_Matching_Succeeds(string hex, string declared, XmlInputEncoding expected)
+    [Arguments("3C 3F 78 6D", "utf-8", "Utf8")]
+    [Arguments("EF BB BF 41", "UTF-8", "Utf8")]
+    [Arguments("3C 3F 78 6D", "ISO-8859-1", "Iso88591")]
+    [Arguments("3C 3F 78 6D", "Us-Ascii", "UsAscii")]
+    [Arguments("FF FE 41 00", "UTF-16", "Utf16LittleEndian")]
+    [Arguments("FE FF 00 41", "utf-16be", "Utf16BigEndian")]
+    [Arguments("3C 00 3F 00", "UTF-16LE", "Utf16LittleEndian")]
+    [Arguments("00 3C 00 3F", "UTF-16BE", "Utf16BigEndian")]
+    [Arguments("00 00 00 3C", "ISO-10646-UCS-4", "Ucs4Order1234")]
+    [Arguments("3C 00 00 00", "UTF-32LE", "Ucs4Order4321")]
+    public async Task ConfirmEncoding_Matching_Succeeds(string hex, string declared, string expected)
     {
         XmlInputDecoder.TryCreate(Detect(Hex(hex)), out var decoder, out _);
 
@@ -234,7 +231,7 @@ public class XmlInputDecoderTests
 
         await Assert.That(confirmed).IsTrue();
         await Assert.That(error.Code).IsNull();
-        await Assert.That(decoder.Encoding).IsEqualTo(expected);
+        await Assert.That(decoder.Encoding.ToString()).IsEqualTo(expected);
     }
 
     [Test]
@@ -277,8 +274,10 @@ public class XmlInputDecoderTests
     }
 
     [Test]
-    public async Task Folder_UsesNeitherLinqNorSystemXml_AndWritesToPooledBuffers()
+    public async Task Folder_UsesNeitherLinqNorSystemXml_AndWritesToPooledBuffers(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var dir = new DirectoryInfo(AppContext.BaseDirectory);
         while (dir is not null && !File.Exists(Path.Combine(dir.FullName, "Schemas.slnx")))
         {
@@ -292,7 +291,7 @@ public class XmlInputDecoderTests
         await Assert.That(files.Length).IsGreaterThan(0);
         foreach (var file in files)
         {
-            var text = File.ReadAllText(file);
+            var text = await File.ReadAllTextAsync(file, cancellationToken);
             all.Append(text);
             await Assert.That(text.Contains("System.Linq", StringComparison.Ordinal)).IsFalse().Because(file);
             await Assert.That(text.Contains("System.Xml", StringComparison.Ordinal)).IsFalse().Because(file);
