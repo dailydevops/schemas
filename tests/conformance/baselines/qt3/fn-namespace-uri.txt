@@ -1,0 +1,15 @@
+fn-namespace-uri/K-NodeNamespaceURIFunc-1
+fn-namespace-uri/K-NodeNamespaceURIFunc-2
+fn-namespace-uri/K-NodeNamespaceURIFunc-3
+fn-namespace-uri/fn-namespace-uri-1
+fn-namespace-uri/fn-namespace-uri-10
+fn-namespace-uri/fn-namespace-uri-12
+fn-namespace-uri/fn-namespace-uri-14
+fn-namespace-uri/fn-namespace-uri-15
+fn-namespace-uri/fn-namespace-uri-2
+fn-namespace-uri/fn-namespace-uri-26
+fn-namespace-uri/fn-namespace-uri-3
+fn-namespace-uri/fn-namespace-uri-4
+fn-namespace-uri/fn-namespace-uri-5
+fn-namespace-uri/fn-namespace-uri-7
+fn-namespace-uri/fn-namespace-uri-9
