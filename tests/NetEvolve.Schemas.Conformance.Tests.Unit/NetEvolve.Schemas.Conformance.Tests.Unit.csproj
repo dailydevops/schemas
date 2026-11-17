@@ -1,5 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <ItemGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net10.0'))">
+  <ItemGroup>
     <ProjectReference Include="../NetEvolve.Schemas.Conformance/NetEvolve.Schemas.Conformance.csproj" />
   </ItemGroup>
 </Project>

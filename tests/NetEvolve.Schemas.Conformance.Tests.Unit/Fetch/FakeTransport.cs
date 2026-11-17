@@ -1,4 +1,3 @@
-#if NET10_0_OR_GREATER
 namespace NetEvolve.Schemas.Conformance.Tests.Unit.Fetch;
 
 using System.Formats.Tar;
@@ -19,4 +18,3 @@ internal sealed class FakeTransport(byte[] payload) : ISuiteTransport
         return Task.FromResult<Stream>(new MemoryStream(payload, writable: false));
     }
 }
-#endif

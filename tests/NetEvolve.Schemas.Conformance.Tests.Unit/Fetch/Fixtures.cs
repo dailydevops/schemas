@@ -1,4 +1,3 @@
-#if NET10_0_OR_GREATER
 namespace NetEvolve.Schemas.Conformance.Tests.Unit.Fetch;
 
 using System.Formats.Tar;
@@ -10,7 +9,7 @@ using NetEvolve.Schemas.Conformance.Manifest;
 
 internal static class Fixtures
 {
-    public static string Sha256Of(byte[] data) => Convert.ToHexStringLower(SHA256.HashData(data));
+    public static string Sha256Of(byte[] data) => HexEncoding.ToLower(SHA256.HashData(data));
 
     public static SuiteManifest Manifest(string key, byte[] archive, ArchiveType type, string? subPath = null) =>
         new(key, new Uri("https://example.invalid/" + key), Sha256Of(archive), type, subPath);
@@ -58,4 +57,3 @@ internal static class Fixtures
         return buffer.ToArray();
     }
 }
-#endif

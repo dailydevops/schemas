@@ -1,4 +1,3 @@
-#if NET10_0_OR_GREATER
 namespace NetEvolve.Schemas.Conformance.Tests.Unit.Fetch;
 
 using NetEvolve.Schemas.Conformance.Manifest;
@@ -117,4 +116,3 @@ public class SuiteManifestLoaderTests
         await Assert.That(() => SuiteManifestLoader.LoadDirectory(null!)).Throws<ArgumentNullException>();
     }
 }
-#endif

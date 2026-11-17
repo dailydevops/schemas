@@ -56,7 +56,7 @@ public sealed class SuiteFetcher
 
             using (var file = File.OpenRead(archivePath))
             {
-                var actual = Convert.ToHexStringLower(
+                var actual = HexEncoding.ToLower(
                     await SHA256.HashDataAsync(file, cancellationToken).ConfigureAwait(false)
                 );
                 if (!string.Equals(actual, manifest.Sha256, StringComparison.Ordinal))
