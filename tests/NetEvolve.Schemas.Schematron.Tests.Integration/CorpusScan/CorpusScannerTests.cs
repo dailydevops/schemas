@@ -59,7 +59,7 @@ public class CorpusScannerTests
             path,
             """
             <schema xmlns="http://purl.oclc.org/dsdl/schematron">
-              <pattern><rule context="a"><assert test="if (b) then string('count(x)') else text()">m</assert></rule></pattern>
+              <pattern><rule context="a"><assert test="if (b) then string('count(x)') else text() and (c) or (d)">m</assert></rule></pattern>
             </schema>
             """,
             cancellationToken
