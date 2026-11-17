@@ -1,0 +1,115 @@
+﻿namespace NetEvolve.Schemas.Schematron.Tests.Integration.Conformance.Runner;
+
+using NetEvolve.Schemas.Conformance.Baseline;
+using NetEvolve.Schemas.Conformance.Results;
+
+public class SchematronConformanceRunnerTests
+{
+    private static readonly BindingRule[] Rules =
+    [
+        new("xslt-1", "iso-schematron-xslt-1.xml"),
+        new("xslt-2", "iso-schematron-xslt-2.xml"),
+        new("xslt-3", "iso-schematron-xslt-3.xml", "xslt3 cases belong to SCH-21."),
+    ];
+
+    private static CaseSelection Selection(FixtureDirectory fixture) =>
+        BindingFilter.Select(SchematronCatalogReader.Read(fixture.Path, Rules), Rules);
+
+    [Test]
+    public async Task Run_ObservedOutcomeEqualsExpected_IsPass(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        using var fixture = new FixtureDirectory();
+        var validator = new FakeSchematronValidator(c => c.Expect);
+
+        var results = await SchematronConformanceRunner.RunAsync(Selection(fixture), validator, cancellationToken);
+
+        await Assert.That(results.Count(r => r.Outcome == CaseOutcome.Pass)).IsEqualTo(3);
+        await Assert.That(validator.Calls).IsEquivalentTo(["set-a/one.xml", "set-a/two.xml", "set-b/only-xslt2.xml"]);
+    }
+
+    [Test]
+    public async Task Run_ObservedOutcomeDiffers_IsFailWithReason(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        using var fixture = new FixtureDirectory();
+        var validator = new FakeSchematronValidator(_ => SchematronOutcome.Valid);
+
+        var results = await SchematronConformanceRunner.RunAsync(Selection(fixture), validator, cancellationToken);
+
+        var failed = results.Single(r => string.Equals(r.CaseId, "set-a/one.xml", StringComparison.Ordinal));
+        await Assert.That(failed.Outcome).IsEqualTo(CaseOutcome.Fail);
+        await Assert.That(failed.TestSet).IsEqualTo("set-a");
+        await Assert.That(failed.Reason).IsEqualTo("Expected Invalid but observed Valid.");
+    }
+
+    [Test]
+    public async Task Run_ExcludedCases_AreSkippedWithTheirReasonAndNeverValidated(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        using var fixture = new FixtureDirectory();
+        var validator = new FakeSchematronValidator(c => c.Expect);
+
+        var results = await SchematronConformanceRunner.RunAsync(Selection(fixture), validator, cancellationToken);
+
+        var skipped = results.Single(r => r.Outcome == CaseOutcome.Skipped);
+        await Assert.That(skipped.CaseId).IsEqualTo("set-b/only-xslt3.xml");
+        await Assert.That(skipped.Reason).IsEqualTo("xslt3 cases belong to SCH-21.");
+        await Assert.That(validator.Calls).DoesNotContain("set-b/only-xslt3.xml");
+    }
+
+    [Test]
+    public async Task Run_UnboundValidator_FailsEverySelectedCase(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        using var fixture = new FixtureDirectory();
+
+        var results = await SchematronConformanceRunner.RunAsync(
+            Selection(fixture),
+            UnboundSchematronValidator.Instance,
+            cancellationToken
+        );
+
+        await Assert.That(results.Count(r => r.Outcome == CaseOutcome.Fail)).IsEqualTo(3);
+        await Assert.That(results.Count(r => r.Outcome == CaseOutcome.Pass)).IsEqualTo(0);
+    }
+
+    [Test]
+    public async Task Compare_FailureNotInBaseline_IsRegression(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        using var fixture = new FixtureDirectory();
+        var validator = new FakeSchematronValidator(_ => SchematronOutcome.Error);
+        var results = await SchematronConformanceRunner.RunAsync(Selection(fixture), validator, cancellationToken);
+
+        var report = ConformanceReport.Compare(
+            results,
+            new Dictionary<string, KnownFailureBaseline>(StringComparer.Ordinal)
+        );
+
+        await Assert.That(report.IsSuccess).IsFalse();
+        await Assert
+            .That(report.TestSets.SelectMany(t => t.Regressions))
+            .IsEquivalentTo(["set-a/one.xml", "set-a/two.xml"]);
+    }
+
+    [Test]
+    public async Task Compare_PassOfBaselinedCase_IsUnexpectedPass(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        using var fixture = new FixtureDirectory();
+        var validator = new FakeSchematronValidator(c => c.Expect);
+        var results = await SchematronConformanceRunner.RunAsync(Selection(fixture), validator, cancellationToken);
+
+        var report = ConformanceReport.Compare(
+            results,
+            new Dictionary<string, KnownFailureBaseline>(StringComparer.Ordinal)
+            {
+                ["set-a"] = KnownFailureBaseline.Parse("set-a/one.xml\n"),
+            }
+        );
+
+        await Assert.That(report.IsSuccess).IsFalse();
+        await Assert.That(report.TestSets.SelectMany(t => t.UnexpectedPasses)).IsEquivalentTo(["set-a/one.xml"]);
+    }
+}
