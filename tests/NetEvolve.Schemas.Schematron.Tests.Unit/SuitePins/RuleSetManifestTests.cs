@@ -25,11 +25,15 @@ public class RuleSetManifestTests
     }
 
     [Test]
-    [Arguments("ehf.json")]
-    [Arguments("peppol-reporting.json")]
-    [Arguments("factur-x.json")]
-    [Arguments("french-ctc.json")]
-    public async Task Fetch_DownloadsEntryAndVerifiesChecksum(string fileName, CancellationToken cancellationToken)
+    [Arguments("ehf.json", "EHF-CATALOGUE-3.0.sch")]
+    [Arguments("peppol-reporting.json", "peppol-end-user-statistics-reporting-1.1.0.sch")]
+    [Arguments("factur-x.json", "FACTUR-X_BASIC-WL.sch")]
+    [Arguments("french-ctc.json", "EXTENDED-CTC-FR-CII.sch")]
+    public async Task Fetch_DownloadsEntryAndVerifiesChecksum(
+        string fileName,
+        string expectedFile,
+        CancellationToken cancellationToken
+    )
     {
         cancellationToken.ThrowIfCancellationRequested();
         var manifest = SuitePinFiles.Load(fileName);
@@ -37,7 +41,7 @@ public class RuleSetManifestTests
 
         var root = await fetcher.FetchAsync(manifest, cancellationToken);
 
-        await Assert.That(Directory.EnumerateFiles(root, "*.sch", SearchOption.AllDirectories)).IsNotEmpty();
+        await Assert.That(Directory.EnumerateFiles(root, expectedFile, SearchOption.AllDirectories)).IsNotEmpty();
     }
 
     [Test]
