@@ -8,12 +8,8 @@ using System.Threading;
 using System.Threading.Tasks;
 
 /// <summary>
-/// Validator that records the content, system identifier and token of every call and applies the cancellation contract.
+/// Validator that records the content, system identifier and token of every call and applies the cancellation contract; every call returns <see cref="ValidationResult.Valid"/>.
 /// </summary>
-/// <remarks>
-/// Limitation: the fake returns no <see cref="ValidationResult"/> instance (<see langword="null"/>) until the result model
-/// is implemented (FND-09); callers assert on <see cref="Calls"/>.
-/// </remarks>
 public sealed class FakeValidator : ISchemaValidator
 {
     private readonly List<FakeValidatorCall> _calls = [];
@@ -156,7 +152,7 @@ public sealed class FakeValidator : ISchemaValidator
         }
 
         _calls.Add(new FakeValidatorCall(method, parameterType, bytes, chars, systemId, cancellationToken));
-        return new ValueTask<ValidationResult>(result: null!);
+        return new ValueTask<ValidationResult>(ValidationResult.Valid);
     }
 
     private ValidationResult RecordSync(
@@ -170,6 +166,6 @@ public sealed class FakeValidator : ISchemaValidator
     {
         cancellationToken.ThrowIfCancellationRequested();
         _calls.Add(new FakeValidatorCall(method, parameterType, bytes, chars, systemId, cancellationToken));
-        return null!;
+        return ValidationResult.Valid;
     }
 }
