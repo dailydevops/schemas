@@ -84,14 +84,18 @@ public class CoreParserProblemTests
             5
         );
 
+    // Flipped from Deferred_IncludeElement_ReportsUnsupported (#200): include is parsed since #202.
     [Test]
-    public async Task Deferred_IncludeElement_ReportsUnsupported() =>
-        await AssertSingle(
-            E("schema", 1, 1, E("include", 2, 3, A("href", "x.sch")), E("pattern", 3, 3)),
-            SchematronDiagnosticCodes.Unsupported,
-            2,
-            3
+    public async Task Include_InSchema_IsParsedAndNoLongerReportsUnsupported()
+    {
+        var (schema, problems, result) = CoreParserFixture.Parse(
+            E("schema", 1, 1, E("include", 2, 3, A("href", "x.sch")), E("pattern", 3, 3))
         );
+
+        await Assert.That(result).IsTrue();
+        await Assert.That(problems.Count).IsEqualTo(0);
+        await Assert.That(schema!.Includes.Count).IsEqualTo(1);
+    }
 
     [Test]
     public async Task Root_NotSchema_ReportsRootInvalid() =>
