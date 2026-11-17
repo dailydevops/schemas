@@ -47,6 +47,7 @@ public class ModelShapeTests
     private static readonly string[] InternalTypes =
     [
         "SchematronExtends",
+        "SchematronForeignElement",
         "SchematronInclude",
         "SchematronLibrary",
         "SchematronRules",
@@ -297,7 +298,9 @@ public class ModelShapeTests
             "ph",
             "xslt2",
             [new SchematronNamespace(At, "x", "urn:x")],
-            [phase]
+            [phase],
+            [],
+            []
         );
     }
 
@@ -401,7 +404,14 @@ public class ModelShapeTests
         var include = new SchematronInclude(at, "lib.sch");
         var extends = new SchematronExtends(at, "r1", "lib.sch");
         var rules = new SchematronRules(at, "rs", null, [], []);
-        var library = new SchematronLibrary(at, null, [], [], [], [], null, null);
+        var foreign = new SchematronForeignElement(
+            at,
+            "urn:x",
+            "e",
+            [new KeyValuePair<string, string>("a", "1")],
+            [new SchematronText(at, "t")]
+        );
+        var library = new SchematronLibrary(at, null, [], [], [], [], null, null, [rules], [foreign]);
 
         await Assert.That(include.Href).IsEqualTo("lib.sch");
         await Assert.That(extends.Rule).IsEqualTo("r1");
@@ -411,6 +421,12 @@ public class ModelShapeTests
         await Assert.That(rules.Paragraphs.Count).IsEqualTo(0);
         await Assert.That(rules.Rules.Count).IsEqualTo(0);
         await Assert.That(library.Patterns.Count).IsEqualTo(0);
+        await Assert.That(library.Rules[0]).IsSameReferenceAs(rules);
+        await Assert.That(library.ForeignElements[0]).IsSameReferenceAs(foreign);
+        await Assert.That(foreign.NamespaceUri).IsEqualTo("urn:x");
+        await Assert.That(foreign.LocalName).IsEqualTo("e");
+        await Assert.That(foreign.Attributes[0].Value).IsEqualTo("1");
+        await Assert.That(foreign.Children.Count).IsEqualTo(1);
     }
 
     private static bool IsCompilerGenerated(Type type) =>

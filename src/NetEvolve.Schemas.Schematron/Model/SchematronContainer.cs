@@ -13,7 +13,9 @@ public abstract class SchematronContainer : SchematronNode
         IReadOnlyList<SchematronLet> lets,
         IReadOnlyList<SchematronPatternBase> patterns,
         SchematronDiagnostics? diagnostics,
-        SchematronProperties? properties
+        SchematronProperties? properties,
+        IReadOnlyList<SchematronRules> rules,
+        IReadOnlyList<SchematronForeignElement> foreignElements
     )
         : base(location)
     {
@@ -24,6 +26,8 @@ public abstract class SchematronContainer : SchematronNode
         Patterns = patterns;
         Diagnostics = diagnostics;
         Properties = properties;
+        Rules = rules;
+        ForeignElements = foreignElements;
     }
 
     /// <summary>Gets the title, or <see langword="null"/> when absent.</summary>
@@ -46,4 +50,10 @@ public abstract class SchematronContainer : SchematronNode
 
     /// <summary>Gets the properties, or <see langword="null"/> when absent.</summary>
     public SchematronProperties? Properties { get; }
+
+    // Parser intermediates for later stages; never part of the public surface.
+    internal IReadOnlyList<SchematronRules> Rules { get; }
+
+    // Direct foreign children (design #137 AP-3 as narrowed by #150 EP-11), kept for the XSLT registry.
+    internal IReadOnlyList<SchematronForeignElement> ForeignElements { get; }
 }

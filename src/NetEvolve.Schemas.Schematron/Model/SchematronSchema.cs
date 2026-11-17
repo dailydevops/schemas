@@ -21,9 +21,11 @@ public sealed class SchematronSchema : SchematronContainer
         string? defaultPhase,
         string? queryBinding,
         IReadOnlyList<SchematronNamespace> namespaces,
-        IReadOnlyList<SchematronPhase> phases
+        IReadOnlyList<SchematronPhase> phases,
+        IReadOnlyList<SchematronRules> rules,
+        IReadOnlyList<SchematronForeignElement> foreignElements
     )
-        : base(location, title, paragraphs, parameters, lets, patterns, diagnostics, properties)
+        : base(location, title, paragraphs, parameters, lets, patterns, diagnostics, properties, rules, foreignElements)
     {
         Id = id;
         SchemaVersion = schemaVersion;
