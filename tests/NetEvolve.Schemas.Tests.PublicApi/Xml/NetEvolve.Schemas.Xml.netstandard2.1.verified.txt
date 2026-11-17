@@ -772,6 +772,24 @@ namespace NetEvolve.Schemas.Xml.Datatypes.Floating
         public static string ToCanonicalString(float value) { }
     }
 }
+namespace NetEvolve.Schemas.Xml.Datatypes.Names
+{
+    public sealed class NameListDescriptor : NetEvolve.Schemas.Xml.Datatypes.Contracts.IDatatypeDescriptor
+    {
+        public NameListDescriptor(string name, NetEvolve.Schemas.Xml.Datatypes.Contracts.IDatatypeDescriptor itemType) { }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.IDatatypeDescriptor? BaseType { get; }
+        public System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Xml.Datatypes.Contracts.IFacet> Facets { get; }
+        public bool IsOrdered { get; }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.IDatatypeDescriptor ItemType { get; }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.XsdVersion LexicalMode { get; }
+        public string Name { get; }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.DatatypeVariety Variety { get; }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.ParseResult<NetEvolve.Schemas.Xml.Datatypes.Core.XsdList> Parse(System.ReadOnlySpan<char> lexical) { }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.ParseResult<NetEvolve.Schemas.Xml.Datatypes.Core.XsdList> Parse(System.ReadOnlySpan<char> lexical, out int itemIndex) { }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.ValidationResult Validate(System.ReadOnlySpan<char> lexical) { }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.ValidationResult Validate(System.ReadOnlySpan<char> lexical, out int itemIndex) { }
+    }
+}
 namespace NetEvolve.Schemas.Xml.Datatypes.Numeric
 {
     public readonly struct XsdInteger : System.IComparable<NetEvolve.Schemas.Xml.Datatypes.Numeric.XsdInteger>, System.IEquatable<NetEvolve.Schemas.Xml.Datatypes.Numeric.XsdInteger>

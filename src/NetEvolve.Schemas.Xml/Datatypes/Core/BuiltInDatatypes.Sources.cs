@@ -6,6 +6,7 @@ using NetEvolve.Schemas.Xml.Datatypes.DateTime;
 using NetEvolve.Schemas.Xml.Datatypes.Duration;
 using NetEvolve.Schemas.Xml.Datatypes.Floating;
 using NetEvolve.Schemas.Xml.Datatypes.Gregorian;
+using NetEvolve.Schemas.Xml.Datatypes.Names;
 using NetEvolve.Schemas.Xml.Datatypes.Numeric;
 using NetEvolve.Schemas.Xml.Datatypes.QNames;
 using NetEvolve.Schemas.Xml.Datatypes.Strings;
@@ -27,5 +28,6 @@ public static partial class BuiltInDatatypes
             BinaryDatatypes.Registrations,
             QNameDatatypes.Registrations,
             UriDatatypes.Registrations,
+            NameDatatypes.Registrations,
         ];
 }
