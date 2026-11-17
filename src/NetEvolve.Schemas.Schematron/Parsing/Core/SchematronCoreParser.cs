@@ -1,5 +1,6 @@
 namespace NetEvolve.Schemas.Schematron.Parsing.Core;
 
+using System;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Model;
 using NetEvolve.Schemas.Schematron.Seams;
@@ -39,4 +40,14 @@ internal static class SchematronCoreParser
         schema = new CoreParseRun(node.Tree, systemId, problems).Run(node);
         return schema is not null;
     }
+
+    // ponytail: stub until the implementation commit
+    internal static bool TryParseLibrary(
+        XmlNode node,
+        string? systemId,
+        SchematronEdition edition,
+        bool xsltBinding,
+        IProblemSink problems,
+        out SchematronLibrary? library
+    ) => throw new NotSupportedException();
 }

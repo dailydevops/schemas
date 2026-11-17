@@ -8,7 +8,7 @@ using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Model;
 
 /// <summary>The state of one parse: the tree, the source, the problem sink, and the failure flag.</summary>
-internal sealed class CoreParseRun
+internal sealed partial class CoreParseRun
 {
     private const string SchematronNamespace = "http://purl.oclc.org/dsdl/schematron";
 
@@ -63,55 +63,18 @@ internal sealed class CoreParseRun
 
     private SchematronSchema ParseSchema(XmlNode element)
     {
-        SchematronTitle? title = null;
-        SchematronDiagnostics? diagnostics = null;
-        var paragraphs = new List<SchematronParagraph>();
-        var lets = new List<SchematronLet>();
-        var namespaces = new List<SchematronNamespace>();
-        var phases = new List<SchematronPhase>();
-        var patterns = new List<SchematronPatternBase>();
-
+        var parts = new ContainerParts();
         var edition = ReadEdition(element, out var editionText);
-        for (var child = FirstChild(element); !child.IsEmpty; child = NextChild(child))
-        {
-            var kind = Classify(child);
-            switch (kind)
-            {
-                case CoreElement.Title when title is null:
-                    title = ParseTitle(child);
-                    break;
-                case CoreElement.Diagnostics when diagnostics is null:
-                    diagnostics = ParseDiagnostics(child);
-                    break;
-                case CoreElement.Ns:
-                    namespaces.Add(ParseNamespace(child));
-                    break;
-                case CoreElement.Paragraph:
-                    paragraphs.Add(ParseParagraph(child));
-                    break;
-                case CoreElement.Let:
-                    lets.Add(ParseLet(child));
-                    break;
-                case CoreElement.Phase:
-                    phases.Add(ParsePhase(child));
-                    break;
-                case CoreElement.Pattern:
-                    patterns.Add(ParsePattern(child));
-                    break;
-                default:
-                    Reject(child, kind, "schema");
-                    break;
-            }
-        }
+        ReadContainerChildren(element, parts, isLibrary: false);
 
         return new SchematronSchema(
             Location(element),
-            title,
-            paragraphs.ToArray(),
+            parts.Title,
+            parts.Paragraphs.ToArray(),
             Array.Empty<SchematronParameter>(),
-            lets.ToArray(),
-            patterns.ToArray(),
-            diagnostics,
+            parts.Lets.ToArray(),
+            parts.Patterns.ToArray(),
+            parts.Diagnostics,
             null,
             Attribute(element, "id"),
             Attribute(element, "schemaVersion"),
@@ -119,9 +82,47 @@ internal sealed class CoreParseRun
             edition,
             Attribute(element, "defaultPhase"),
             Attribute(element, "queryBinding"),
-            namespaces.ToArray(),
-            phases.ToArray()
+            parts.Namespaces.ToArray(),
+            parts.Phases.ToArray(),
+            Array.Empty<SchematronRules>(),
+            Array.Empty<SchematronForeignElement>()
         );
+    }
+
+    private void ReadContainerChildren(XmlNode element, ContainerParts parts, bool isLibrary)
+    {
+        var parent = isLibrary ? "library" : "schema";
+        for (var child = FirstChild(element); !child.IsEmpty; child = NextChild(child))
+        {
+            var kind = Classify(child);
+            switch (kind)
+            {
+                case CoreElement.Title when parts.Title is null:
+                    parts.Title = ParseTitle(child);
+                    break;
+                case CoreElement.Diagnostics when parts.Diagnostics is null:
+                    parts.Diagnostics = ParseDiagnostics(child);
+                    break;
+                case CoreElement.Ns when !isLibrary:
+                    parts.Namespaces.Add(ParseNamespace(child));
+                    break;
+                case CoreElement.Paragraph:
+                    parts.Paragraphs.Add(ParseParagraph(child));
+                    break;
+                case CoreElement.Let:
+                    parts.Lets.Add(ParseLet(child));
+                    break;
+                case CoreElement.Phase when !isLibrary:
+                    parts.Phases.Add(ParsePhase(child));
+                    break;
+                case CoreElement.Pattern:
+                    parts.Patterns.Add(ParsePattern(child));
+                    break;
+                default:
+                    Reject(child, kind, parent);
+                    break;
+            }
+        }
     }
 
     private SchematronEdition ReadEdition(XmlNode element, out string? text)
