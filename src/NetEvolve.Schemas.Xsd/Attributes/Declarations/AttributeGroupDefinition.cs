@@ -106,7 +106,7 @@ internal sealed class AttributeGroupDefinition : IXsdComponent
 
         var all = new List<AttributeUse>(_uses.Length);
         var declarations = new Dictionary<XPathQName, AttributeDeclaration>();
-        AddUses(_uses, all, declarations, reporter);
+        AddUses(_uses, all, declarations, reporter, direct: true);
 
         IWildcard? wildcard = null;
         var failed = false;
@@ -118,8 +118,7 @@ internal sealed class AttributeGroupDefinition : IXsdComponent
                 || component is not AttributeGroupDefinition nested
             )
             {
-                AttributeIssues.Report(
-                    reporter,
+                reporter.Report(
                     XsdRuleCodes.SrcResolve,
                     reference.Location,
                     "The referenced attribute group is not declared."
@@ -129,8 +128,7 @@ internal sealed class AttributeGroupDefinition : IXsdComponent
 
             if (nested._state == ResolveState.Resolving)
             {
-                AttributeIssues.Report(
-                    reporter,
+                reporter.Report(
                     XsdRuleCodes.SrcAttributeGroup,
                     reference.Location,
                     "The attribute group reference is circular."
@@ -139,7 +137,7 @@ internal sealed class AttributeGroupDefinition : IXsdComponent
             }
 
             nested.Resolve(registry, reporter);
-            AddUses(nested._uses, all, declarations, reporter);
+            AddUses(nested._uses, all, declarations, reporter, direct: false);
             Intersect(ref wildcard, ref failed, nested.AttributeWildcard, reporter);
         }
 
@@ -154,7 +152,8 @@ internal sealed class AttributeGroupDefinition : IXsdComponent
         AttributeUse[] source,
         List<AttributeUse> all,
         Dictionary<XPathQName, AttributeDeclaration> declarations,
-        XsdIssueReporter reporter
+        XsdIssueReporter reporter,
+        bool direct
     )
     {
         for (var i = 0; i < source.Length; i++)
@@ -165,10 +164,9 @@ internal sealed class AttributeGroupDefinition : IXsdComponent
                 declarations.Add(use.Name, use.Declaration);
                 all.Add(use);
             }
-            else if (!ReferenceEquals(existing, use.Declaration))
+            else if (direct || !ReferenceEquals(existing, use.Declaration))
             {
-                AttributeIssues.Report(
-                    reporter,
+                reporter.Report(
                     XsdRuleCodes.AgPropsCorrect,
                     use.Location,
                     "Two attribute uses have the same name and target namespace."
@@ -193,8 +191,7 @@ internal sealed class AttributeGroupDefinition : IXsdComponent
         wildcard = wildcard.Intersect(next);
         if (wildcard is null)
         {
-            AttributeIssues.Report(
-                reporter,
+            reporter.Report(
                 XsdRuleCodes.CosAwIntersect,
                 Location,
                 "The attribute wildcards of the group have no expressible intersection."

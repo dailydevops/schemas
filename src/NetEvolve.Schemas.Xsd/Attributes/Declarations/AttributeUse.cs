@@ -72,8 +72,7 @@ internal sealed class AttributeUse : IXsdComponent
 
         if (valueConstraint.Kind == AttributeValueConstraintKind.Default && use != AttributeUseKind.Optional)
         {
-            AttributeIssues.Report(
-                reporter,
+            reporter.Report(
                 XsdRuleCodes.SrcAttribute,
                 location,
                 "An attribute use with a default value must be optional."
@@ -83,13 +82,25 @@ internal sealed class AttributeUse : IXsdComponent
 
         var inherited = declaration.ValueConstraint;
         if (
+            valueConstraint.Kind == AttributeValueConstraintKind.Default
+            && inherited.Kind == AttributeValueConstraintKind.Fixed
+        )
+        {
+            reporter.Report(
+                XsdRuleCodes.AuPropsCorrect,
+                location,
+                "The use of a declaration with a fixed value must not carry a default value."
+            );
+            return null;
+        }
+
+        if (
             valueConstraint.Kind == AttributeValueConstraintKind.Fixed
             && inherited.Kind == AttributeValueConstraintKind.Fixed
             && !string.Equals(valueConstraint.Value, inherited.Value, StringComparison.Ordinal)
         )
         {
-            AttributeIssues.Report(
-                reporter,
+            reporter.Report(
                 XsdRuleCodes.AuPropsCorrect,
                 location,
                 "The fixed value of the use differs from the fixed value of the declaration."

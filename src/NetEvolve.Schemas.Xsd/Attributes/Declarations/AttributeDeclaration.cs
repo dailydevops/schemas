@@ -118,14 +118,13 @@ internal sealed class AttributeDeclaration : IXsdComponent
 
         if (string.Equals(localName, "xmlns", StringComparison.Ordinal))
         {
-            AttributeIssues.Report(reporter, XsdRuleCodes.NoXmlns, location, "An attribute must not be named xmlns.");
+            reporter.Report(XsdRuleCodes.NoXmlns, location, "An attribute must not be named xmlns.");
             return null;
         }
 
         if (string.Equals(namespaceName, XsiNamespace, StringComparison.Ordinal))
         {
-            AttributeIssues.Report(
-                reporter,
+            reporter.Report(
                 XsdRuleCodes.NoXsi,
                 location,
                 "An attribute must not be in the XML Schema instance namespace."

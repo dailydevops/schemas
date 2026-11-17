@@ -1,5 +1,6 @@
 namespace NetEvolve.Schemas.Xsd.Diagnostics;
 
+using System;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Formats;
 
@@ -26,5 +27,23 @@ internal sealed class XsdIssueReporter
         Argument.ThrowIfNull(message);
 
         _collector.Add(new ValidationIssue(rule.Code, rule.DefaultSeverity, message, location, clause ?? rule.Id));
+    }
+
+    /// <summary>Reports a violation of the rule with a code; a code missing from the catalog is a defect and throws.</summary>
+    /// <param name="code">The code of the violated rule.</param>
+    /// <param name="location">The location of the violation.</param>
+    /// <param name="message">The message.</param>
+    internal void Report(DiagnosticCode code, DocumentLocation location, string message)
+    {
+        foreach (var rule in XsdRuleCatalog.All)
+        {
+            if (rule.Code == code)
+            {
+                Report(rule, location, message);
+                return;
+            }
+        }
+
+        throw new InvalidOperationException($"The rule catalog has no rule for the code {code}.");
     }
 }

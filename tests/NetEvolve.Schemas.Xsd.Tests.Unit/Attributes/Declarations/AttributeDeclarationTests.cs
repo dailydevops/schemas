@@ -226,12 +226,10 @@ public class AttributeDeclarationTests
     }
 
     [Test]
-    public async Task Issues_UnknownCode_Throws()
-    {
+    public async Task Issues_UnknownCode_Throws() =>
         await Assert
-            .That(() => AttributeIssues.Report(Reporter, new DiagnosticCode(999999), Where, "m"))
+            .That(() => Reporter.Report(new DiagnosticCode(999999), Where, "m"))
             .Throws<InvalidOperationException>();
-    }
 
     [Test]
     public async Task Use_DefaultWithRequired_IsAnIssue()
