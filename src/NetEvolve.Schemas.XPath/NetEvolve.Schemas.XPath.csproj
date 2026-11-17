@@ -3,6 +3,7 @@
   <ItemGroup>
     <InternalsVisibleTo Include="NetEvolve.Schemas.Schematron" />
     <InternalsVisibleTo Include="NetEvolve.Schemas.Xsd" />
+    <InternalsVisibleTo Include="NetEvolve.Schemas.XPath.Tests.Unit" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../NetEvolve.Schemas.Xml/NetEvolve.Schemas.Xml.csproj" />
