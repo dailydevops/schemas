@@ -65,8 +65,6 @@ prod-QuantifiedExpr/K-QuantExprWithout-70
 prod-QuantifiedExpr/K-QuantExprWithout-71
 prod-QuantifiedExpr/K-QuantExprWithout-72
 prod-QuantifiedExpr/K-QuantExprWithout-73
-prod-QuantifiedExpr/K-QuantExprWithout-74
-prod-QuantifiedExpr/K-QuantExprWithout-75
 prod-QuantifiedExpr/K-QuantExprWithout-76
 prod-QuantifiedExpr/K-QuantExprWithout-77
 prod-QuantifiedExpr/K-QuantExprWithout-78
@@ -91,10 +89,6 @@ prod-QuantifiedExpr/K-QuantExprWithout-94
 prod-QuantifiedExpr/K-QuantExprWithout-95
 prod-QuantifiedExpr/K-QuantExprWithout-96
 prod-QuantifiedExpr/K-QuantExprWithout-97
-prod-QuantifiedExpr/K-QuantExprWithout-98
-prod-QuantifiedExpr/K-QuantExprWithout-99
-prod-QuantifiedExpr/K2-QuantExprWithout-1
-prod-QuantifiedExpr/K2-QuantExprWithout-2
 prod-QuantifiedExpr/K2-QuantExprWithout-4
 prod-QuantifiedExpr/cbcl-every-001
 prod-QuantifiedExpr/cbcl-every-002

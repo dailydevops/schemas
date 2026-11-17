@@ -11,9 +11,6 @@ op-numeric-mod/K-NumericMod-18
 op-numeric-mod/K-NumericMod-19
 op-numeric-mod/K-NumericMod-2
 op-numeric-mod/K-NumericMod-20
-op-numeric-mod/K-NumericMod-21
-op-numeric-mod/K-NumericMod-22
-op-numeric-mod/K-NumericMod-23
 op-numeric-mod/K-NumericMod-24
 op-numeric-mod/K-NumericMod-25
 op-numeric-mod/K-NumericMod-26

@@ -35,7 +35,6 @@ prod-GeneralComp.ne/K-GenCompNE-4
 prod-GeneralComp.ne/K-GenCompNE-40
 prod-GeneralComp.ne/K-GenCompNE-41
 prod-GeneralComp.ne/K-GenCompNE-5
-prod-GeneralComp.ne/K-GenCompNE-6
 prod-GeneralComp.ne/K-GenCompNE-7
 prod-GeneralComp.ne/K-GenCompNE-8
 prod-GeneralComp.ne/K-GenCompNE-9

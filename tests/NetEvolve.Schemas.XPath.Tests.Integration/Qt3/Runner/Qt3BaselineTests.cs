@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.XPath.Tests.Integration.Qt3.Runner;
 
 using NetEvolve.Schemas.Conformance.Results;
+using NetEvolve.Schemas.XPath.Tests.Integration.Qt3.ParserOnly;
 
 public class Qt3BaselineTests
 {
@@ -12,13 +13,13 @@ public class Qt3BaselineTests
         cancellationToken.ThrowIfCancellationRequested();
         var selection = await Qt3Suite.GetSelectionAsync(cancellationToken);
 
-        Qt3Suite.RegenerateBaselines(selection);
+        Qt3Suite.RegenerateBaselines(selection, new ParserOnlyEngine());
 
         await Assert.That(Qt3Suite.LoadBaselines().Count).IsEqualTo(selection.SelectedTestSets.Count);
     }
 
     [Test]
-    public async Task Baseline_EverySelectedCase_InExactlyOneFile(CancellationToken cancellationToken)
+    public async Task Baseline_ListsOnlySelectedCases_EachOnceInItsOwnFile(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         var selection = await Qt3Suite.GetSelectionAsync(cancellationToken);
@@ -36,31 +37,46 @@ public class Qt3BaselineTests
             }
         }
 
-        var missingOrRepeated = new List<string>();
+        var selected = new HashSet<string>(StringComparer.Ordinal);
         foreach (var testCase in selection.Selected)
         {
-            if (owners.GetValueOrDefault(testCase.Id) != 1)
+            _ = selected.Add(testCase.Id);
+        }
+
+        var unselectedOrRepeated = new List<string>();
+        foreach (var (id, count) in owners)
+        {
+            if (count != 1 || !selected.Contains(id))
             {
-                missingOrRepeated.Add(testCase.Id);
+                unselectedOrRepeated.Add(id);
             }
         }
 
-        await Assert.That(missingOrRepeated).IsEmpty();
+        await Assert.That(unselectedOrRepeated).IsEmpty();
         await Assert.That(foreign).IsEmpty();
-        await Assert.That(owners.Count).IsEqualTo(selection.Selected.Count);
+        await Assert.That(Qt3Suite.LoadBaselines().Count).IsEqualTo(selection.SelectedTestSets.Count);
     }
 
     [Test]
-    public async Task Baseline_MatchesUnboundEngineRun(CancellationToken cancellationToken)
+    public async Task Baseline_MatchesParserOnlyEngineRun(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         var selection = await Qt3Suite.GetSelectionAsync(cancellationToken);
-        var results = Qt3Runner.Run(selection.Selected, new UnboundEngine());
+        var results = Qt3Runner.Run(selection.Selected, new ParserOnlyEngine());
+        var baselines = Qt3Suite.LoadBaselines();
+        var listed = 0;
+        foreach (var baseline in baselines.Values)
+        {
+            listed += baseline.Count;
+        }
 
-        var report = ConformanceReport.Compare(results, Qt3Suite.LoadBaselines());
+        var report = ConformanceReport.Compare(results, baselines);
 
         await Assert.That(report.IsSuccess).IsTrue();
-        await Assert.That(report.Counts.Passed).IsEqualTo(0);
-        await Assert.That(report.Counts.Failed + report.Counts.Skipped).IsEqualTo(selection.Selected.Count);
+        await Assert.That(report.Counts.Passed).IsGreaterThan(0);
+        await Assert.That(report.Counts.Failed + report.Counts.Skipped).IsEqualTo(listed);
+        await Assert
+            .That(report.Counts.Passed + report.Counts.Failed + report.Counts.Skipped)
+            .IsEqualTo(selection.Selected.Count);
     }
 }

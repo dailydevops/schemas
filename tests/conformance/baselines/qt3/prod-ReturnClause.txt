@@ -5,11 +5,8 @@ prod-ReturnClause/ReturnExpr007
 prod-ReturnClause/ReturnExpr008
 prod-ReturnClause/ReturnExpr009
 prod-ReturnClause/ReturnExpr011
-prod-ReturnClause/ReturnExpr012
-prod-ReturnClause/ReturnExpr013
 prod-ReturnClause/ReturnExpr014
 prod-ReturnClause/ReturnExpr015
 prod-ReturnClause/ReturnExpr017
 prod-ReturnClause/ReturnExpr018
-prod-ReturnClause/ReturnExpr019
 prod-ReturnClause/ReturnExpr020

@@ -35,9 +35,6 @@ op-numeric-integer-divide/K-NumericIntegerDivide-4
 op-numeric-integer-divide/K-NumericIntegerDivide-40
 op-numeric-integer-divide/K-NumericIntegerDivide-41
 op-numeric-integer-divide/K-NumericIntegerDivide-42
-op-numeric-integer-divide/K-NumericIntegerDivide-43
-op-numeric-integer-divide/K-NumericIntegerDivide-44
-op-numeric-integer-divide/K-NumericIntegerDivide-45
 op-numeric-integer-divide/K-NumericIntegerDivide-46
 op-numeric-integer-divide/K-NumericIntegerDivide-47
 op-numeric-integer-divide/K-NumericIntegerDivide-48
