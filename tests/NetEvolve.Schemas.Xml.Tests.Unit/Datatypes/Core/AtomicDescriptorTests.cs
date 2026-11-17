@@ -124,6 +124,56 @@ public class AtomicDescriptorTests
     }
 
     [Test]
+    public async Task CrossValueTypeRestriction_DerivesFromABaseOfAnotherValueType()
+    {
+        var derived = new AtomicDescriptor<long>(
+            "wide",
+            Restricted(new FakeMaxInclusiveFacet(500)),
+            new WideMapping(),
+            null,
+            [new FakeLengthFacet(3)]
+        );
+
+        await Assert.That(derived.BaseType!.Name).IsEqualTo("small");
+        await Assert.That(derived.LexicalMode).IsEqualTo(XsdVersion.V11);
+        await Assert.That(derived.Whitespace).IsEqualTo(WhitespaceMode.Collapse);
+        await Assert.That(derived.Facets.Count).IsEqualTo(2);
+        await Assert.That(derived.Facets[0].Kind).IsEqualTo(FacetKind.MaxInclusive);
+        await Assert.That(derived.Facets[1].Kind).IsEqualTo(FacetKind.MaxLength);
+        await Assert.That(derived.Parse(" 123 ").Value).IsEqualTo(123L);
+        await Assert.That(derived.Validate("1234").FailedFacet).IsEqualTo(FacetKind.MaxLength);
+    }
+
+    [Test]
+    public async Task CrossValueTypeRestriction_WhitespaceOverride_ReplacesTheMappingMode()
+    {
+        var derived = new AtomicDescriptor<long>("wide", Primitive(), new WideMapping(), WhitespaceMode.Preserve, []);
+
+        await Assert.That(derived.Whitespace).IsEqualTo(WhitespaceMode.Preserve);
+    }
+
+    private sealed class WideMapping : ILexicalMapping<long>
+    {
+        private readonly FakeDigitsMapping _digits = new();
+
+        public WhitespaceMode Whitespace => WhitespaceMode.Collapse;
+
+        public bool IsOrdered => true;
+
+        public DatatypeError Check(ReadOnlySpan<char> normalized, XsdVersion version, out int errorOffset) =>
+            _digits.Check(normalized, version, out errorOffset);
+
+        public long Map(ReadOnlySpan<char> normalized, XsdVersion version) => _digits.Map(normalized, version);
+
+        public XsdOrder Compare(in long a, in long b, XsdVersion version) =>
+            a < b ? XsdOrder.Less
+            : a > b ? XsdOrder.Greater
+            : XsdOrder.Equal;
+
+        public bool IsIdentical(in long a, in long b, XsdVersion version) => a == b;
+    }
+
+    [Test]
     public async Task Constructor_NullArguments_Throw()
     {
         await Assert
