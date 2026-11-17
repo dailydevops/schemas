@@ -9,8 +9,11 @@ internal enum CoreElement
     /// <summary>A Schematron element the grammar does not know.</summary>
     Unknown,
 
-    /// <summary>A known Schematron element that a later work package parses.</summary>
-    Deferred,
+    /// <summary>The <c>include</c> element.</summary>
+    Include,
+
+    /// <summary>The <c>extends</c> element.</summary>
+    Extends,
     Library,
     Rules,
     Group,

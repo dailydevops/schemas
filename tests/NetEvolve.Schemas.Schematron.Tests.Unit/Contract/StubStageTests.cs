@@ -48,7 +48,7 @@ public class StubStageTests
     public async Task StubStage_Resolver_Throws_DiagnosticWithNotImplementedCode() =>
         await AssertNotImplemented(() =>
             _ = new NotImplementedModelResolver().TryResolve(
-                new ParsedModule(),
+                new ParsedModule(FakeModel.Schema()),
                 new FakeModuleLoader(),
                 new FakeProblemSink(),
                 out _
@@ -59,7 +59,7 @@ public class StubStageTests
     public async Task StubStage_Expander_Throws_DiagnosticWithNotImplementedCode() =>
         await AssertNotImplemented(() =>
             _ = new NotImplementedModelExpander().TryExpand(
-                new ResolvedModel(),
+                new ResolvedModel(FakeModel.Schema()),
                 Settings(),
                 new FakeProblemSink(),
                 out _

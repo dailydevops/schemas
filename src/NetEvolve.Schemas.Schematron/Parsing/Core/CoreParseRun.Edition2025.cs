@@ -44,10 +44,16 @@ internal sealed partial class CoreParseRun
             return null;
         }
 
+        var library = ReadLibrary(root);
+        return _failed ? null : library;
+    }
+
+    private SchematronLibrary ReadLibrary(XmlNode root)
+    {
         _ = Gate2025(root, "library");
         var parts = new ContainerParts();
         ReadContainerChildren(root, parts, isLibrary: true);
-        var library = new SchematronLibrary(
+        return new SchematronLibrary(
             Location(root),
             parts.Title,
             parts.Paragraphs.ToArray(),
@@ -57,12 +63,12 @@ internal sealed partial class CoreParseRun
             parts.Diagnostics,
             parts.Properties,
             parts.Rules.ToArray(),
-            parts.Foreign.ToArray()
+            parts.Foreign.ToArray(),
+            parts.Includes.ToArray()
         );
-        return _failed ? null : library;
     }
 
-    private static bool IsXsltBinding(string? queryBinding) =>
+    internal static bool IsXsltBinding(string? queryBinding) =>
         queryBinding is null
         || string.Equals(queryBinding, "xslt", StringComparison.OrdinalIgnoreCase)
         || string.Equals(queryBinding, "xslt1", StringComparison.OrdinalIgnoreCase)
