@@ -85,10 +85,8 @@ internal static class XPathNodeAccessors
     /// <param name="node">The node.</param>
     /// <param name="source">The annotation source.</param>
     /// <returns>The annotation.</returns>
-    public static XdmTypeId GetTypeAnnotation(this in XPathNode node, IXdmTypeAnnotationSource source)
-    {
-        return source.GetTypeAnnotation(node);
-    }
+    public static XdmTypeId GetTypeAnnotation(this in XPathNode node, IXdmTypeAnnotationSource source) =>
+        source.GetTypeAnnotation(node);
 
     /// <summary>Gets the typed value with the untyped default: <c>xs:untypedAtomic</c> for documents, elements, attributes, and text, and <c>xs:string</c> for the rest.</summary>
     /// <param name="node">The node.</param>
