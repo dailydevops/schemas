@@ -2,7 +2,7 @@ namespace NetEvolve.Schemas.Xml.Tests.Unit.Datatypes.Contracts;
 
 using System;
 using System.Collections.Generic;
-using NetEvolve.Schemas.Xml.Datatypes;
+using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xml.Tests.Unit.Datatypes.Contracts.Fakes;
 
 public class DatatypeContractTests
@@ -37,16 +37,17 @@ public class DatatypeContractTests
     [Test]
     public async Task ParseResult_Fail_RejectsANegativeOffset() =>
         await Assert
-            .That(() => ParseResult<int>.Fail(DatatypeError.InvalidCharacter, -1))
+            .That(() => new ParseResult<int>(DatatypeError.InvalidCharacter, -1))
             .Throws<ArgumentOutOfRangeException>();
 
     [Test]
     public async Task DatatypeError_HasTheStableCodesOfTheDesign()
     {
-        await Assert.That((int)DatatypeError.None).IsEqualTo(0);
-        await Assert.That((int)DatatypeError.DigitCap).IsEqualTo(10);
-        await Assert.That((int)DatatypeError.YearOrComponentCap).IsEqualTo(11);
-        await Assert.That((int)DatatypeError.InvalidCharacter).IsEqualTo(13);
+        await Assert.That(Enum.GetName((DatatypeError)0)).IsEqualTo("None");
+        await Assert.That(Enum.GetName((DatatypeError)10)).IsEqualTo("DigitCap");
+        await Assert.That(Enum.GetName((DatatypeError)11)).IsEqualTo("YearOrComponentCap");
+        await Assert.That(Enum.GetName((DatatypeError)13)).IsEqualTo("InvalidCharacter");
+        await Assert.That(Enum.GetValues<DatatypeError>().Length).IsEqualTo(4);
     }
 
     [Test]
@@ -87,12 +88,11 @@ public class DatatypeContractTests
     [Test]
     public async Task LexicalFacet_IsEvaluatedOverASpan()
     {
-        IFacet facet = new FakeLengthFacet(2);
-        var lexical = (ILexicalFacet)facet;
+        var facet = new FakeLengthFacet(2);
 
         await Assert.That(facet.Kind).IsEqualTo(FacetKind.MaxLength);
-        await Assert.That(lexical.IsSatisfiedBy("ab")).IsTrue();
-        await Assert.That(lexical.IsSatisfiedBy("abc")).IsFalse();
+        await Assert.That(facet.IsSatisfiedBy("ab")).IsTrue();
+        await Assert.That(facet.IsSatisfiedBy("abc")).IsFalse();
     }
 
     [Test]
@@ -127,8 +127,8 @@ public class DatatypeContractTests
     [Test]
     public async Task LexicalMode_DistinguishesTheTwoVersionsForTheSameInput()
     {
-        IDatatypeDescriptor v10 = V10();
-        IDatatypeDescriptor v11 = V11();
+        var v10 = V10();
+        var v11 = V11();
 
         await Assert.That(v10.LexicalMode).IsEqualTo(XsdVersion.V10);
         await Assert.That(v11.LexicalMode).IsEqualTo(XsdVersion.V11);
@@ -142,7 +142,7 @@ public class DatatypeContractTests
     public async Task Descriptor_ExposesVarietyBaseTypeAndOrdering()
     {
         var baseType = V10();
-        IDatatypeDescriptor list = new FakeDatatypeDescriptor(XsdVersion.V11, baseType, DatatypeVariety.List);
+        var list = new FakeDatatypeDescriptor(XsdVersion.V11, baseType, DatatypeVariety.List);
 
         await Assert.That(list.Variety).IsEqualTo(DatatypeVariety.List);
         await Assert.That(list.BaseType).IsSameReferenceAs(baseType);
@@ -177,7 +177,7 @@ public class DatatypeContractTests
         names.Remove("None");
 
         await Assert.That(names).IsEquivalentTo(expected);
-        await Assert.That((int)FacetKind.None).IsEqualTo(0);
+        await Assert.That(Enum.GetName((FacetKind)0)).IsEqualTo("None");
     }
 
     [Test]
@@ -202,7 +202,9 @@ public class DatatypeContractTests
         var spanMethods = 0;
         var failures = new List<string>();
 
-        foreach (var type in new[] { typeof(IDatatypeDescriptor<int>), typeof(IDatatypeDescriptor), typeof(ILexicalFacet) })
+        foreach (
+            var type in new[] { typeof(IDatatypeDescriptor<int>), typeof(IDatatypeDescriptor), typeof(ILexicalFacet) }
+        )
         {
             foreach (var method in type.GetMethods())
             {

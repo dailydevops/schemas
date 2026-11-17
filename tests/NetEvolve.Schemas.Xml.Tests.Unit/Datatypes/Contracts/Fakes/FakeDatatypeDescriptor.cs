@@ -2,7 +2,7 @@ namespace NetEvolve.Schemas.Xml.Tests.Unit.Datatypes.Contracts.Fakes;
 
 using System;
 using System.Collections.Generic;
-using NetEvolve.Schemas.Xml.Datatypes;
+using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 
 /// <summary>
 /// A scripted integer datatype. A leading plus sign is lexically valid in 1.1 only; <see cref="int.MinValue"/> stands in for
@@ -42,12 +42,12 @@ internal sealed class FakeDatatypeDescriptor : IDatatypeDescriptor<int>
         var start = lexical.Length > 0 && lexical[0] == '+' && LexicalMode == XsdVersion.V11 ? 1 : 0;
         if (lexical.Length - start == 0)
         {
-            return ParseResult<int>.Fail(DatatypeError.InvalidCharacter, 0);
+            return new ParseResult<int>(DatatypeError.InvalidCharacter, 0);
         }
 
         if (lexical.Length - start > 9)
         {
-            return ParseResult<int>.Fail(DatatypeError.DigitCap, start);
+            return new ParseResult<int>(DatatypeError.DigitCap, start);
         }
 
         var value = 0;
@@ -55,13 +55,13 @@ internal sealed class FakeDatatypeDescriptor : IDatatypeDescriptor<int>
         {
             if (lexical[i] is < '0' or > '9')
             {
-                return ParseResult<int>.Fail(DatatypeError.InvalidCharacter, i);
+                return new ParseResult<int>(DatatypeError.InvalidCharacter, i);
             }
 
             value = (value * 10) + (lexical[i] - '0');
         }
 
-        return ParseResult<int>.Ok(value);
+        return new ParseResult<int>(value);
     }
 
     public ValidationResult Validate(ReadOnlySpan<char> lexical)
@@ -99,20 +99,4 @@ internal sealed class FakeDatatypeDescriptor : IDatatypeDescriptor<int>
     }
 
     public bool IsIdentical(in int a, in int b) => a != int.MinValue && a == b;
-}
-
-/// <summary>A value-space facet that accepts values up to an inclusive maximum.</summary>
-internal sealed class FakeMaxInclusiveFacet(int maximum) : IValueFacet<int>
-{
-    public FacetKind Kind => FacetKind.MaxInclusive;
-
-    public bool IsSatisfiedBy(in int value) => value <= maximum;
-}
-
-/// <summary>A lexical facet that accepts lexical forms up to a maximum length.</summary>
-internal sealed class FakeLengthFacet(int maximum) : ILexicalFacet
-{
-    public FacetKind Kind => FacetKind.MaxLength;
-
-    public bool IsSatisfiedBy(ReadOnlySpan<char> lexical) => lexical.Length <= maximum;
 }

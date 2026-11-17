@@ -2,7 +2,7 @@ namespace NetEvolve.Schemas.Xml.Tests.Unit.Regex.Contracts;
 
 using System;
 using System.Collections.Generic;
-using NetEvolve.Schemas.Xml.Regex;
+using NetEvolve.Schemas.Xml.Regex.Contracts;
 using NetEvolve.Schemas.Xml.Tests.Unit.Regex.Contracts.Fakes;
 
 public class RegexContractTests
@@ -10,7 +10,7 @@ public class RegexContractTests
     private static RegexNode[] OneOfEachKind() =>
         [
             RegexNode.Empty(),
-            RegexNode.Char('a'),
+            RegexNode.Character('a'),
             RegexNode.Set(0),
             RegexNode.Concat(1),
             RegexNode.Alternation(1),
@@ -27,7 +27,7 @@ public class RegexContractTests
         string[] expected =
         [
             "Empty",
-            "Char",
+            "Character",
             "Set",
             "Concat",
             "Alternation",
@@ -69,7 +69,7 @@ public class RegexContractTests
         await Assert.That(group.Value).IsEqualTo(7);
         await Assert.That(group.FirstChild).IsEqualTo(3);
         await Assert.That(group.NextSibling).IsEqualTo(9);
-        await Assert.That(RegexNode.Char(0x1F600).Value).IsEqualTo(0x1F600);
+        await Assert.That(RegexNode.Character(0x1F600).Value).IsEqualTo(0x1F600);
         await Assert.That(RegexNode.Empty().FirstChild).IsEqualTo(RegexNode.NoNode);
         await Assert.That(RegexNode.Empty().NextSibling).IsEqualTo(RegexNode.NoNode);
         await Assert.That(RegexNode.Group(1, RegexNode.NoGroup).Value).IsEqualTo(RegexNode.NoGroup);
@@ -80,8 +80,8 @@ public class RegexContractTests
     [Test]
     public async Task NodeFactories_RejectInvalidArguments()
     {
-        await Assert.That(() => RegexNode.Char(-1)).Throws<ArgumentOutOfRangeException>();
-        await Assert.That(() => RegexNode.Char(0x110000)).Throws<ArgumentOutOfRangeException>();
+        await Assert.That(() => RegexNode.Character(-1)).Throws<ArgumentOutOfRangeException>();
+        await Assert.That(() => RegexNode.Character(0x110000)).Throws<ArgumentOutOfRangeException>();
         await Assert.That(() => RegexNode.Repeat(1, -1, 2, false)).Throws<ArgumentOutOfRangeException>();
         await Assert.That(() => RegexNode.Repeat(1, 3, 2, false)).Throws<ArgumentOutOfRangeException>();
         await Assert.That(() => RegexNode.Set(-1)).Throws<ArgumentOutOfRangeException>();
@@ -92,12 +92,13 @@ public class RegexContractTests
     }
 
     [Test]
-    public async Task DefaultNode_IsEmpty() => await Assert.That(default(RegexNode).Kind).IsEqualTo(RegexNodeKind.Empty);
+    public async Task DefaultNode_IsEmpty() =>
+        await Assert.That(default(RegexNode).Kind).IsEqualTo(RegexNodeKind.Empty);
 
     [Test]
     public async Task Matcher_ReportsTheStepLimitAsAborted()
     {
-        IRegexMatcher matcher = new FakeRegexMatcher("abc", RegexDialect.Xsd);
+        var matcher = new FakeRegexMatcher("abc", RegexDialect.Xsd);
         var limits = RegexStepLimits.Default.WithMaxNfaSteps(2);
 
         await Assert.That(matcher.Match("abc", limits)).IsEqualTo(RegexMatchResult.Aborted);
@@ -160,7 +161,7 @@ public class RegexContractTests
             await Assert.That(Enum.GetName((RegexError)number)).IsEqualTo(name);
         }
 
-        await Assert.That((int)RegexError.None).IsEqualTo(0);
+        await Assert.That(Enum.GetName((RegexError)0)).IsEqualTo("None");
         await Assert.That(Enum.GetValues<RegexError>().Length).IsEqualTo(12);
     }
 
