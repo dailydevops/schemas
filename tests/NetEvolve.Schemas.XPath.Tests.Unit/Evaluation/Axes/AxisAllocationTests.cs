@@ -10,8 +10,8 @@ using static AxisFixture;
 
 public class AxisAllocationTests
 {
-    // The fixture plus 99 elements with 99 children each: more than 10,000 nodes.
-    private static readonly XmlDocumentTree Big = Build(fanOut: 99);
+    // The fixture plus 100 elements with 100 children each: more than 10,000 nodes.
+    private static readonly XmlDocumentTree Big = Build(fanOut: 100);
 
     [Test]
     public async Task Walk_DescendantOverTenThousandNodes_AllocatesZeroBytes()

@@ -146,7 +146,7 @@ internal static class AxisFixture
         var b2 = pi.NextSibling();
         var t2 = b2.FirstChild();
         var i = t2.NextSibling();
-        return new()
+        return new(StringComparer.Ordinal)
         {
             ["doc"] = doc,
             ["a"] = a,
