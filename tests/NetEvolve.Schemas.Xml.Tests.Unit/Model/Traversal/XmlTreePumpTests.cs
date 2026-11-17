@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Xml.Tests.Unit.Model.Traversal;
+﻿namespace NetEvolve.Schemas.Xml.Tests.Unit.Model.Traversal;
 
 using System;
 using System.Collections.Generic;
@@ -255,5 +255,44 @@ public class XmlTreePumpTests
 
         // StartElement, EndAttributes and EndElement per element.
         await Assert.That(sink.Count).IsEqualTo(Depth * 3);
+    }
+
+    [Test]
+    public async Task Pump_DefaultNode_ThrowsArgumentNullException()
+    {
+        var sink = new RecordingXmlSink(new SpanInterningNameTable(16));
+
+        var ex = await Assert.That(() => XmlTreePump.Pump(default, sink)).Throws<ArgumentNullException>();
+
+        await Assert.That(ex!.ParamName).IsEqualTo("node");
+    }
+
+    [Test]
+    public async Task Pump_DefaultNodeWithStructSink_ThrowsArgumentNullException()
+    {
+        var sink = new CountingStructSink(new SpanInterningNameTable(16));
+
+        await Assert.That(() => XmlTreePump.Pump(default, ref sink)).Throws<ArgumentNullException>();
+    }
+
+    [Test]
+    public async Task Pump_NullSink_ThrowsArgumentNullException()
+    {
+        var (names, script) = Sample();
+        var tree = Build(names, script);
+
+        var ex = await Assert.That(() => XmlTreePump.Pump(tree.Document, null!)).Throws<ArgumentNullException>();
+
+        await Assert.That(ex!.ParamName).IsEqualTo("sink");
+    }
+
+    [Test]
+    public async Task Pump_NullClassSinkByReference_ThrowsArgumentNullException()
+    {
+        var (names, script) = Sample();
+        var tree = Build(names, script);
+        RecordingXmlSink sink = null!;
+
+        await Assert.That(() => XmlTreePump.Pump(tree.Document, ref sink)).Throws<ArgumentNullException>();
     }
 }
