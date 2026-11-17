@@ -2,6 +2,8 @@
 
 namespace NetEvolve.Schemas.Xsd;
 
+using NetEvolve.Arguments;
+
 /// <summary>One rule of the catalog: a stable diagnostic code for one constraint of the specification.</summary>
 /// <remarks>
 /// The <see cref="Id"/> of a specification rule is the short id of the constraint (for example <c>cvc-elt</c>); engine
@@ -20,6 +22,13 @@ public sealed class XsdRule
         IssueSeverity defaultSeverity = IssueSeverity.Error
     )
     {
+        Argument.ThrowIfNullOrEmpty(id);
+        Argument.ThrowIfNullOrEmpty(title);
+        Argument.ThrowIfNull(section);
+        Argument.ThrowIfGreaterThan((int)kind, (int)XsdRuleKind.Validation);
+        Argument.ThrowIfGreaterThan((int)versions, (int)XsdVersionMask.All);
+        Argument.ThrowIfGreaterThan((int)defaultSeverity, (int)IssueSeverity.Error);
+
         Code = code;
         Id = id;
         Title = title;

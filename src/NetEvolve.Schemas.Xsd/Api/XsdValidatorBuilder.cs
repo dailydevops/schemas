@@ -3,6 +3,7 @@
 namespace NetEvolve.Schemas;
 
 using System;
+using NetEvolve.Arguments;
 using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Resources;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
@@ -27,6 +28,9 @@ public sealed class XsdValidatorBuilder : SchemaValidatorBuilder<XsdValidatorBui
     /// <returns>This builder.</returns>
     public XsdValidatorBuilder WithVersion(XsdVersion version)
     {
+        Argument.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
+        Argument.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
+
         _version = version;
         return this;
     }

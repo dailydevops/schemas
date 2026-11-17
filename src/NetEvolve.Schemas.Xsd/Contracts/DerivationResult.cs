@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.Xsd.Contracts;
 
 using System.Runtime.InteropServices;
+using NetEvolve.Arguments;
 
 /// <summary>The outcome of a derivation check.</summary>
 [StructLayout(LayoutKind.Auto)]
@@ -20,5 +21,10 @@ internal readonly struct DerivationResult
     /// <summary>Creates an invalid result.</summary>
     /// <param name="rule">The violated rule.</param>
     /// <returns>The result.</returns>
-    public static DerivationResult Invalid(XsdRule rule) => new(rule);
+    public static DerivationResult Invalid(XsdRule rule)
+    {
+        Argument.ThrowIfNull(rule);
+
+        return new(rule);
+    }
 }
