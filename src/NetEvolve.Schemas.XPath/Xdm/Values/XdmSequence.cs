@@ -1,5 +1,3 @@
-#pragma warning disable CA1815, CA1034 // Approved shape (#123): the struct defines no value equality and exposes its struct enumerator as a nested type.
-
 namespace NetEvolve.Schemas.XPath.Xdm.Values;
 
 using System;
@@ -9,7 +7,7 @@ using NetEvolve.Arguments;
 /// <summary>A flat sequence of items: never nested, and a singleton equals its item.</summary>
 /// <remarks>Limitation: this contract copies the items into an array; the pooled sequence of XP-06 replaces the storage behind the same members.</remarks>
 [StructLayout(LayoutKind.Auto)]
-public readonly struct XdmSequence
+public readonly struct XdmSequence : IEquatable<XdmSequence>
 {
     private readonly XdmItem[]? _items;
 
@@ -51,26 +49,50 @@ public readonly struct XdmSequence
 
     /// <summary>Gets the enumerator.</summary>
     /// <returns>A struct enumerator.</returns>
-    public Enumerator GetEnumerator() => new(_items ?? []);
+    public XdmSequenceEnumerator GetEnumerator() => new(_items ?? []);
 
-    /// <summary>Enumerates the items of a sequence without allocating.</summary>
-    [StructLayout(LayoutKind.Auto)]
-    public struct Enumerator
+    /// <inheritdoc />
+    public bool Equals(XdmSequence other) => Count == other.Count && ItemsEqual(other);
+
+    /// <inheritdoc />
+    public override bool Equals(object? obj) => obj is XdmSequence other && Equals(other);
+
+    /// <inheritdoc />
+    public override int GetHashCode() => HashItems();
+
+    /// <summary>Determines whether two sequences are equal.</summary>
+    /// <param name="left">The first value.</param>
+    /// <param name="right">The second value.</param>
+    /// <returns><see langword="true"/> when equal.</returns>
+    public static bool operator ==(XdmSequence left, XdmSequence right) => left.Equals(right);
+
+    /// <summary>Determines whether two sequences differ.</summary>
+    /// <param name="left">The first value.</param>
+    /// <param name="right">The second value.</param>
+    /// <returns><see langword="true"/> when different.</returns>
+    public static bool operator !=(XdmSequence left, XdmSequence right) => !left.Equals(right);
+
+    private bool ItemsEqual(XdmSequence other)
     {
-        private readonly XdmItem[] _items;
-        private int _index;
-
-        internal Enumerator(XdmItem[] items)
+        for (var i = 0; i < Count; i++)
         {
-            _items = items;
-            _index = -1;
+            if (!_items![i].Equals(other._items![i]))
+            {
+                return false;
+            }
         }
 
-        /// <summary>Gets the current item.</summary>
-        public readonly XdmItem Current => _items[_index];
+        return true;
+    }
 
-        /// <summary>Advances to the next item.</summary>
-        /// <returns><see langword="true"/> when there is one.</returns>
-        public bool MoveNext() => ++_index < _items.Length;
+    private int HashItems()
+    {
+        var hash = Count;
+        for (var i = 0; i < Count; i++)
+        {
+            hash = unchecked((hash * 31) + _items![i].GetHashCode());
+        }
+
+        return hash;
     }
 }

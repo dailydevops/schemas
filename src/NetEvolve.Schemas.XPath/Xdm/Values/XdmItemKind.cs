@@ -1,5 +1,3 @@
-#pragma warning disable CA1720 // Approved shape (#123): the members are named after the XDM atomic families.
-
 namespace NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>The kind of an item: a node, or one atomic family of the data model.</summary>
@@ -16,19 +14,19 @@ public enum XdmItemKind
     Boolean = 2,
 
     /// <summary><c>xs:integer</c> and the types derived from it.</summary>
-    Integer = 3,
+    XsInteger = 3,
 
     /// <summary><c>xs:decimal</c>.</summary>
-    Decimal = 4,
+    XsDecimal = 4,
 
     /// <summary><c>xs:double</c>.</summary>
-    Double = 5,
+    XsDouble = 5,
 
     /// <summary><c>xs:float</c>.</summary>
-    Float = 6,
+    XsFloat = 6,
 
     /// <summary><c>xs:string</c> and the types derived from it.</summary>
-    String = 7,
+    XsString = 7,
 
     /// <summary><c>xs:untypedAtomic</c>.</summary>
     UntypedAtomic = 8,

@@ -1,7 +1,6 @@
-#pragma warning disable CA1815 // Approved shape (#123): identity is IsSameNode, not value equality.
-
 namespace NetEvolve.Schemas.XPath.Xdm.Nodes;
 
+using System;
 using System.Runtime.InteropServices;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Contracts;
@@ -10,7 +9,7 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// <summary>A thin adapter over a node of the document model that adds the data model accessors XPath needs.</summary>
 /// <remarks>Limitation: nothing is annotated until schema-aware processing exists, so the annotation is the untyped default.</remarks>
 [StructLayout(LayoutKind.Auto)]
-public readonly struct XPathNode
+public readonly struct XPathNode : IEquatable<XPathNode>
 {
     /// <summary>Initializes a new instance of the <see cref="XPathNode"/> struct.</summary>
     /// <param name="node">The node of the document model.</param>
@@ -38,7 +37,7 @@ public readonly struct XPathNode
     public XdmTypeId TypeAnnotation =>
         Kind is XdmNodeKind.Document or XdmNodeKind.Element ? XdmTypeId.Untyped
         : Kind is XdmNodeKind.Attribute or XdmNodeKind.Text ? XdmTypeId.UntypedAtomic
-        : XdmTypeId.String;
+        : XdmTypeId.XsString;
 
     /// <summary>Determines whether another node is the same node (the <see langword="is"/> operator).</summary>
     /// <param name="other">The other node.</param>
@@ -49,4 +48,25 @@ public readonly struct XPathNode
     /// <param name="other">The other node.</param>
     /// <returns>Less than zero when this node comes first, zero when both are the same node, greater than zero otherwise.</returns>
     public int CompareDocumentOrder(in XPathNode other) => Node.CompareDocumentOrder(other.Node);
+
+    /// <inheritdoc />
+    public bool Equals(XPathNode other) => Node == other.Node;
+
+    /// <inheritdoc />
+    public override bool Equals(object? obj) => obj is XPathNode other && Equals(other);
+
+    /// <inheritdoc />
+    public override int GetHashCode() => Node.GetHashCode();
+
+    /// <summary>Determines whether two nodes are equal.</summary>
+    /// <param name="left">The first value.</param>
+    /// <param name="right">The second value.</param>
+    /// <returns><see langword="true"/> when equal.</returns>
+    public static bool operator ==(XPathNode left, XPathNode right) => left.Equals(right);
+
+    /// <summary>Determines whether two nodes differ.</summary>
+    /// <param name="left">The first value.</param>
+    /// <param name="right">The second value.</param>
+    /// <returns><see langword="true"/> when different.</returns>
+    public static bool operator !=(XPathNode left, XPathNode right) => !left.Equals(right);
 }

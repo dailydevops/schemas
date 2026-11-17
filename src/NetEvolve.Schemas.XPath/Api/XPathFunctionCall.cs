@@ -1,5 +1,3 @@
-#pragma warning disable CA1815 // Approved shape (#123): a call is a transient by-reference carrier and defines no value equality.
-
 namespace NetEvolve.Schemas.XPath.Api;
 
 using System;

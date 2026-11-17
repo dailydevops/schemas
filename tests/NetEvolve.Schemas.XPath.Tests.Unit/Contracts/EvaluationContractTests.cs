@@ -75,9 +75,9 @@ public class EvaluationContractTests
         var name = new XPathQName(FakeFunction.Namespace, "v3");
         var context = XPathStaticContext
             .Default.ToBuilder()
-            .WithFunction(new FakeFunction("v3", 0, 0, "x") { VersionMask = XPathVersionMask.V3_0 })
+            .WithFunction(new FakeFunction("v3", 0, 0, "x") { VersionMask = XPathVersionMask.V30 })
             .Build();
-        var v3 = context.ToBuilder().WithVersion(XPathVersion.V3_0).Build();
+        var v3 = context.ToBuilder().WithVersion(XPathVersion.V30).Build();
 
         await Assert.That(context.TryResolveFunction(name, 0, out _)).IsFalse();
         await Assert.That(v3.TryResolveFunction(name, 0, out _)).IsTrue();
@@ -105,24 +105,24 @@ public class EvaluationContractTests
     {
         var builder = XPathStaticContext
             .Default.ToBuilder()
-            .WithVersion(XPathVersion.V3_1)
+            .WithVersion(XPathVersion.V31)
             .WithXPath10Compatibility(true)
-            .WithBaseUri("urn:base")
+            .WithBaseUri(new Uri("urn:base"))
             .WithDefaultElementNamespace("urn:default")
             .WithVariable(new XPathQName("", "v"), "xs:integer");
         var first = builder.Build();
-        _ = builder.WithBaseUri("urn:other");
+        _ = builder.WithBaseUri(new Uri("urn:other"));
         var second = first.ToBuilder().Build();
 
-        await Assert.That(first.Version).IsEqualTo(XPathVersion.V3_1);
+        await Assert.That(first.Version).IsEqualTo(XPathVersion.V31);
         await Assert.That(first.XPath10Compatibility).IsTrue();
-        await Assert.That(first.BaseUri).IsEqualTo("urn:base");
+        await Assert.That(first.BaseUri?.OriginalString).IsEqualTo("urn:base");
         await Assert.That(first.DefaultElementNamespace).IsEqualTo("urn:default");
         await Assert.That(first.TryGetVariableType(new XPathQName("", "v"), out var type)).IsTrue();
         await Assert.That(type).IsEqualTo("xs:integer");
         await Assert.That(first.TryGetVariableType(new XPathQName("", "w"), out _)).IsFalse();
-        await Assert.That(second.BaseUri).IsEqualTo("urn:base");
-        await Assert.That(builder.Build().BaseUri).IsEqualTo("urn:other");
+        await Assert.That(second.BaseUri?.OriginalString).IsEqualTo("urn:base");
+        await Assert.That(builder.Build().BaseUri?.OriginalString).IsEqualTo("urn:other");
     }
 
     [Test]
@@ -130,7 +130,7 @@ public class EvaluationContractTests
     {
         var context = XPathStaticContext.Default;
 
-        await Assert.That(context.Version).IsEqualTo(XPathVersion.V2_0);
+        await Assert.That(context.Version).IsEqualTo(XPathVersion.V20);
         await Assert.That(context.XPath10Compatibility).IsFalse();
         await Assert.That(context.BaseUri).IsNull();
         await Assert.That(context.DefaultElementNamespace).IsNull();
