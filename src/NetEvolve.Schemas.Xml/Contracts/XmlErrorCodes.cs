@@ -160,6 +160,14 @@ public static class XmlErrorCodes
         "Character data is not allowed outside the root element."
     );
 
+    /// <summary>Parameter-entity reference inside a markup declaration of the internal subset.</summary>
+    public static readonly XmlErrorCode XML0019 = Define(
+        "XML0019",
+        1019,
+        "WFC: PEs in Internal Subset",
+        "A parameter-entity reference is not allowed inside a markup declaration of the internal subset."
+    );
+
     /// <summary><c>MaxDocumentCharacters</c> exceeded.</summary>
     public static readonly XmlErrorCode XML1101 = Define(
         "XML1101",

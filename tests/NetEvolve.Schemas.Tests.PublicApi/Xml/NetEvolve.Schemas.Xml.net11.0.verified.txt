@@ -73,6 +73,7 @@
         public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML0016;
         public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML0017;
         public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML0018;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML0019;
         public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML1101;
         public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML1102;
         public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML1103;
@@ -252,9 +253,11 @@
     }
     public sealed class XmlReaderOptions
     {
+        public bool DtdProcessing { get; }
         public NetEvolve.Schemas.Xml.Contracts.XmlReaderLimits Limits { get; }
         public NetEvolve.Schemas.Xml.Contracts.XmlNameTable? NameTable { get; }
         public static NetEvolve.Schemas.Xml.Contracts.XmlReaderOptions Default { get; }
+        public NetEvolve.Schemas.Xml.Contracts.XmlReaderOptions WithDtdProcessing(bool value) { }
         public NetEvolve.Schemas.Xml.Contracts.XmlReaderOptions WithLimits(NetEvolve.Schemas.Xml.Contracts.XmlReaderLimits value) { }
         public NetEvolve.Schemas.Xml.Contracts.XmlReaderOptions WithNameTable(NetEvolve.Schemas.Xml.Contracts.XmlNameTable? value) { }
     }
