@@ -166,4 +166,39 @@ public class StringDatatypesTests
         await Assert.That(type.Compare(one, zero)).IsEqualTo(XsdOrder.Incomparable);
         await Assert.That(((IDatatypeDescriptor)type).IsOrdered).IsFalse();
     }
+
+    [Test]
+    public async Task XsdString_StructuralEquality_ComparesRangeAndMode()
+    {
+        var a = new XsdString(new TextRange(0, 3), WhitespaceMode.Collapse);
+        var same = new XsdString(new TextRange(0, 3), WhitespaceMode.Collapse);
+        var otherMode = new XsdString(new TextRange(0, 3), WhitespaceMode.Replace);
+
+        await Assert.That(a == same).IsTrue();
+        await Assert.That(a != otherMode).IsTrue();
+        await Assert.That(a.Equals((object)same)).IsTrue();
+        await Assert.That(a.Equals((object)"x")).IsFalse();
+        await Assert.That(a.GetHashCode()).IsEqualTo(same.GetHashCode());
+    }
+
+    [Test]
+    public async Task StringValues_AreViewsWithoutOrderOrIdentityOnTheMapping()
+    {
+        var type = Get<XsdString>("token");
+        var value = type.Parse("a").Value;
+
+        await Assert.That(type.Compare(value, value)).IsEqualTo(XsdOrder.Incomparable);
+        await Assert.That(type.IsIdentical(value, value)).IsFalse();
+    }
+
+    [Test]
+    public async Task CopyTo_CopiesOnlyTheRangeOfTheNormalizedView()
+    {
+        var value = new XsdString(new TextRange(1, 2), WhitespaceMode.Collapse);
+        var buffer = new char[8];
+
+        var length = value.CopyTo("  ab  c ", buffer);
+
+        await Assert.That(new string(buffer, 0, length)).IsEqualTo("b ");
+    }
 }
