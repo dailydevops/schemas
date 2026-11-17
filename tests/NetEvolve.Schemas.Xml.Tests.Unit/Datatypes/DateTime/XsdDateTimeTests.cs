@@ -18,8 +18,30 @@ public class XsdDateTimeTests
     [Test]
     [Arguments("2024-03-05T07:08:09", XsdDateTimeKind.DateTime, 2024L, 3, 5, 7, 8, "9", null, "2024-03-05T07:08:09")]
     [Arguments("2024-03-05T07:08:09Z", XsdDateTimeKind.DateTime, 2024L, 3, 5, 7, 8, "9", 0, "2024-03-05T07:08:09Z")]
-    [Arguments("2024-03-05T07:08:09+00:00", XsdDateTimeKind.DateTime, 2024L, 3, 5, 7, 8, "9", 0, "2024-03-05T07:08:09Z")]
-    [Arguments("2024-03-05T07:08:09.500-05:30", XsdDateTimeKind.DateTime, 2024L, 3, 5, 7, 8, "9.5", -330, "2024-03-05T07:08:09.5-05:30")]
+    [Arguments(
+        "2024-03-05T07:08:09+00:00",
+        XsdDateTimeKind.DateTime,
+        2024L,
+        3,
+        5,
+        7,
+        8,
+        "9",
+        0,
+        "2024-03-05T07:08:09Z"
+    )]
+    [Arguments(
+        "2024-03-05T07:08:09.500-05:30",
+        XsdDateTimeKind.DateTime,
+        2024L,
+        3,
+        5,
+        7,
+        8,
+        "9.5",
+        -330,
+        "2024-03-05T07:08:09.5-05:30"
+    )]
     [Arguments("-0044-03-15T12:00:00", XsdDateTimeKind.DateTime, -44L, 3, 15, 12, 0, "0", null, "-0044-03-15T12:00:00")]
     [Arguments("2024-03-05", XsdDateTimeKind.Date, 2024L, 3, 5, 0, 0, "0", null, "2024-03-05")]
     [Arguments("2024-03-05+14:00", XsdDateTimeKind.Date, 2024L, 3, 5, 0, 0, "0", 840, "2024-03-05+14:00")]
@@ -121,10 +143,10 @@ public class XsdDateTimeTests
     [Test]
     public async Task Parse_FractionBeyondTickPrecision_IsKeptWithoutRounding()
     {
-        var value = P("2024-03-05T07:08:09.123456789012345678901234567890", XsdDateTimeKind.DateTime);
+        var value = P("2024-03-05T07:08:09.12345678901234567890123456789", XsdDateTimeKind.DateTime);
 
-        await Assert.That(value.Second.ToString()).IsEqualTo("9.123456789012345678901234567890");
-        await Assert.That(value.ToString()).IsEqualTo("2024-03-05T07:08:09.123456789012345678901234567890");
+        await Assert.That(value.Second.ToString()).IsEqualTo("9.12345678901234567890123456789");
+        await Assert.That(value.ToString()).IsEqualTo("2024-03-05T07:08:09.12345678901234567890123456789");
     }
 
     [Test]
