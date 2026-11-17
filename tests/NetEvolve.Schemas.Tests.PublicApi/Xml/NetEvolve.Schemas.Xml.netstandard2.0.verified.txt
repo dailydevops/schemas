@@ -661,6 +661,23 @@ namespace NetEvolve.Schemas.Xml.Regex.Contracts
         public NetEvolve.Schemas.Xml.Regex.Contracts.RegexStepLimits WithMaxNfaSteps(long value) { }
     }
 }
+namespace NetEvolve.Schemas.Xml.Regex.Matching
+{
+    public sealed class RegexCharacterSet
+    {
+        public RegexCharacterSet(System.ReadOnlySpan<int> ranges) { }
+        public bool Contains(int codePoint) { }
+    }
+    public sealed class RegexProgram : NetEvolve.Schemas.Xml.Regex.Contracts.IRegexMatcher
+    {
+        public const int MaxNesting = 64;
+        public const int MaxProgramSize = 100000;
+        public NetEvolve.Schemas.Xml.Regex.Contracts.RegexDialect Dialect { get; }
+        public NetEvolve.Schemas.Xml.Regex.Contracts.RegexMatchResult Match(System.ReadOnlySpan<char> input, NetEvolve.Schemas.Xml.Regex.Contracts.RegexStepLimits limits) { }
+        public NetEvolve.Schemas.Xml.Regex.Contracts.RegexMatchResult Match(System.ReadOnlySpan<char> input, NetEvolve.Schemas.Xml.Regex.Contracts.RegexStepLimits limits, out long steps) { }
+        public static NetEvolve.Schemas.Xml.Regex.Contracts.RegexError TryCompile(System.ReadOnlySpan<NetEvolve.Schemas.Xml.Regex.Contracts.RegexNode> nodes, int root, System.ReadOnlySpan<NetEvolve.Schemas.Xml.Regex.Matching.RegexCharacterSet> sets, NetEvolve.Schemas.Xml.Regex.Contracts.RegexDialect dialect, out NetEvolve.Schemas.Xml.Regex.Matching.RegexProgram? program) { }
+    }
+}
 namespace NetEvolve.Schemas.Xml.Writer
 {
     public sealed class XmlWriteException : System.Exception
