@@ -60,12 +60,16 @@ public class XdmValueTests
         await Assert.That(XdmItem.FromBoolean(true).TryGetBoolean(out var b) && b).IsTrue();
         await Assert.That(XdmItem.FromBoolean(true).TypeId).IsEqualTo(XdmTypeId.Boolean);
         await Assert.That(XdmItem.FromInteger(-5).TryGetInteger(out var i) && i == -5).IsTrue();
-        await Assert.That(XdmItem.FromString("x").TryGetString(out var s) && s == "x").IsTrue();
+        await Assert
+            .That(XdmItem.FromString("x").TryGetString(out var s) && string.Equals(s, "x", StringComparison.Ordinal))
+            .IsTrue();
         await Assert.That(XdmItem.FromDouble(1.5).TryGetDouble(out var d) && d == 1.5).IsTrue();
         await Assert.That(XdmItem.FromFloat(2.5f).TryGetFloat(out var f) && f == 2.5f).IsTrue();
         await Assert.That(XdmItem.FromFloat(2.5f).Kind).IsEqualTo(XdmItemKind.XsFloat);
         await Assert.That(XdmItem.FromFloat(2.5f).TypeId).IsEqualTo(XdmTypeId.XsFloat);
-        await Assert.That(XdmItem.FromFloat(float.PositiveInfinity).TryGetFloat(out var inf) && float.IsInfinity(inf)).IsTrue();
+        await Assert
+            .That(XdmItem.FromFloat(float.PositiveInfinity).TryGetFloat(out var inf) && float.IsInfinity(inf))
+            .IsTrue();
 
         var decimalItem = XdmItem.FromDecimal(dec);
         await Assert.That(decimalItem.Kind).IsEqualTo(XdmItemKind.XsDecimal);
@@ -76,7 +80,12 @@ public class XdmValueTests
         await AssertDateTime(date, XdmItemKind.Date, XdmTypeId.Date);
         await AssertDateTime(time, XdmItemKind.Time, XdmTypeId.Time);
         await AssertDuration(duration, DurationKind.Duration, XdmItemKind.Duration, XdmTypeId.Duration);
-        await AssertDuration(yearMonth, DurationKind.YearMonth, XdmItemKind.YearMonthDuration, XdmTypeId.YearMonthDuration);
+        await AssertDuration(
+            yearMonth,
+            DurationKind.YearMonth,
+            XdmItemKind.YearMonthDuration,
+            XdmTypeId.YearMonthDuration
+        );
         await AssertDuration(dayTime, DurationKind.DayTime, XdmItemKind.DayTimeDuration, XdmTypeId.DayTimeDuration);
     }
 
@@ -89,7 +98,12 @@ public class XdmValueTests
         await Assert.That(item.TryGetDecimal(out _)).IsFalse();
     }
 
-    private static async Task AssertDuration(XsdDuration value, DurationKind durationKind, XdmItemKind kind, XdmTypeId typeId)
+    private static async Task AssertDuration(
+        XsdDuration value,
+        DurationKind durationKind,
+        XdmItemKind kind,
+        XdmTypeId typeId
+    )
     {
         var item = XdmItem.FromDuration(value, durationKind);
         await Assert.That(item.Kind).IsEqualTo(kind);
@@ -113,7 +127,9 @@ public class XdmValueTests
     public async Task Atomic_Factories_RejectInvalidArguments()
     {
         await Assert.That(() => XdmItem.FromDuration(default, (DurationKind)99)).Throws<ArgumentOutOfRangeException>();
-        await Assert.That(() => XdmItem.FromDuration(default, (DurationKind)(-1))).Throws<ArgumentOutOfRangeException>();
+        await Assert
+            .That(() => XdmItem.FromDuration(default, (DurationKind)(-1)))
+            .Throws<ArgumentOutOfRangeException>();
     }
 
     [Test]
@@ -127,7 +143,9 @@ public class XdmValueTests
         await Assert.That(untyped == text).IsFalse();
         await Assert.That(untyped.TryGetString(out _)).IsFalse();
         await Assert.That(text.TryGetUntypedAtomic(out _)).IsFalse();
-        await Assert.That(untyped.TryGetUntypedAtomic(out var value) && value == "a").IsTrue();
+        await Assert
+            .That(untyped.TryGetUntypedAtomic(out var value) && string.Equals(value, "a", StringComparison.Ordinal))
+            .IsTrue();
     }
 
     [Test]
