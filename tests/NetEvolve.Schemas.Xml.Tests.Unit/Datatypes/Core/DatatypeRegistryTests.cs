@@ -60,6 +60,26 @@ public class DatatypeRegistryTests
         await Assert.That(BuiltInDatatypes.For(XsdVersion.V11).TryGet("nope", out _)).IsFalse();
 
     [Test]
+    public async Task TryGet_NullName_ThrowsForTheNameParameter()
+    {
+        var registry = BuiltInDatatypes.For(XsdVersion.V11);
+
+        var thrown = Assert.Throws<ArgumentNullException>(() => registry.TryGet(null!, out _));
+
+        await Assert.That(thrown.ParamName).IsEqualTo("name");
+    }
+
+    [Test]
+    public async Task Get_NullName_ThrowsForTheNameParameter()
+    {
+        var registry = BuiltInDatatypes.For(XsdVersion.V11);
+
+        var thrown = Assert.Throws<ArgumentNullException>(() => registry.Get(null!));
+
+        await Assert.That(thrown.ParamName).IsEqualTo("name");
+    }
+
+    [Test]
     public async Task BuiltIn_UndefinedVersion_Throws() =>
         await Assert.That(() => BuiltInDatatypes.For((XsdVersion)7)).Throws<ArgumentOutOfRangeException>();
 
