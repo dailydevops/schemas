@@ -9,5 +9,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/NetEvolve.Schemas.Xml/NetEvolve.Schemas.Xml.csproj" SetTargetFramework="$(LibraryLegTargetFramework)" />
+    <!-- Fetches the pinned Unicode Character Database by checksum for the table tests. -->
+    <ProjectReference Include="../NetEvolve.Schemas.Conformance/NetEvolve.Schemas.Conformance.csproj" />
   </ItemGroup>
 </Project>
