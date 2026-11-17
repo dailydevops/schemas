@@ -24,12 +24,12 @@ public static class ReadmeSamples
         {
             if (current is null)
             {
-                if (line.TrimEnd().Equals(Fence + "csharp", StringComparison.Ordinal))
+                if (line.Trim().Equals(Fence + "csharp", StringComparison.Ordinal))
                 {
                     current = [];
                 }
             }
-            else if (line.TrimEnd().Equals(Fence, StringComparison.Ordinal))
+            else if (line.Trim().Equals(Fence, StringComparison.Ordinal))
             {
                 blocks.Add(Normalize(current));
                 current = null;
