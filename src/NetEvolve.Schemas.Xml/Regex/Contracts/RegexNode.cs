@@ -131,9 +131,10 @@ public readonly record struct RegexNode
     /// <param name="child">The index of the grouped node.</param>
     /// <param name="groupNumber">The group number, or <see cref="NoGroup"/> for a non-capturing group.</param>
     /// <returns>The node.</returns>
-    /// <exception cref="System.ArgumentOutOfRangeException"><paramref name="groupNumber"/> is below <see cref="NoGroup"/>.</exception>
+    /// <exception cref="System.ArgumentOutOfRangeException"><paramref name="child"/> is below <see cref="NoNode"/>, or <paramref name="groupNumber"/> is below <see cref="NoGroup"/>.</exception>
     public static RegexNode Group(int child, int groupNumber)
     {
+        Argument.ThrowIfLessThan(child, NoNode);
         Argument.ThrowIfLessThan(groupNumber, NoGroup);
 
         return Create(RegexNodeKind.Group, groupNumber, child);
