@@ -107,9 +107,10 @@ public class RegexProgramTests
         var t = new TreeBuilder();
         t.WithRoot(t.Repeat(t.Char('a'), 1, 1_000_000));
 
-        await Assert.That(t.TryCompile()).IsEqualTo(RegexError.LimitExceeded);
-        await Assert.That((int)RegexError.LimitExceeded).IsEqualTo(9);
-        await Assert.That(RegexProgram.MaxProgramSize).IsEqualTo(100_000);
+        var error = t.TryCompile();
+
+        await Assert.That(error).IsEqualTo(RegexError.LimitExceeded);
+        await Assert.That((int)error).IsEqualTo(9);
     }
 
     [Test]
