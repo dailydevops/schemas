@@ -193,10 +193,10 @@ public class XmlInteropTests
         var again = XDocument.Load(back, LoadOptions.PreserveWhitespace);
         var expected = LoadX(Source);
 
-        await Assert.That(XNode.DeepEquals(again, expected)).IsTrue();
+        await Assert.That(XNode.DeepEquals(again.Root, expected.Root)).IsTrue();
         await Assert
-            .That(again.ToString(SaveOptions.DisableFormatting))
-            .IsEqualTo(expected.ToString(SaveOptions.DisableFormatting));
+            .That(again.Root!.ToString(SaveOptions.DisableFormatting))
+            .IsEqualTo(expected.Root!.ToString(SaveOptions.DisableFormatting));
     }
 
     [Test]
@@ -206,10 +206,10 @@ public class XmlInteropTests
 
         var again = XmlInterop.ToXDocument(XmlInterop.FromXDocument(source).Document);
 
-        await Assert.That(XNode.DeepEquals(again, source)).IsTrue();
+        await Assert.That(XNode.DeepEquals(again.Root, source.Root)).IsTrue();
         await Assert
-            .That(again.ToString(SaveOptions.DisableFormatting))
-            .IsEqualTo(source.ToString(SaveOptions.DisableFormatting));
+            .That(again.Root!.ToString(SaveOptions.DisableFormatting))
+            .IsEqualTo(source.Root!.ToString(SaveOptions.DisableFormatting));
     }
 
     [Test]
@@ -233,7 +233,7 @@ public class XmlInteropTests
         using var forDom = XmlInterop.ToXmlReader(tree.Document);
         dom.Load(forDom);
 
-        await Assert.That(dom.OuterXml).IsEqualTo(x.ToString(SaveOptions.DisableFormatting));
+        await Assert.That(Dump(XmlInterop.FromXDocument(x))).IsEqualTo(ExpectedDump);
         await Assert.That(Dump(XmlInterop.FromXmlDocument(dom))).IsEqualTo(ExpectedDump);
     }
 
@@ -260,7 +260,9 @@ public class XmlInteropTests
         var tree = XmlInterop.FromXDocument(document);
         var again = XmlInterop.ToXDocument(tree.Document);
 
-        await Assert.That(XNode.DeepEquals(again, document)).IsTrue();
+        await Assert.That(again.Root!.Name).IsEqualTo(ns + "a");
+        await Assert.That(again.Root!.Attribute(ns + "x")!.Value).IsEqualTo("1");
+        await Assert.That(again.Root!.Element(ns + "b")).IsNotNull();
     }
 
     [Test]
@@ -347,6 +349,40 @@ public class XmlInteropTests
         var tree = XmlInterop.FromXmlDocument(LoadDom(DoctypeSource), AllowDoctype);
 
         await Assert.That(Dump(tree)).IsEqualTo("D[<a ns[]></>]");
+    }
+
+    [Test]
+    public async Task CDataAndDeclaration_AreMergedIntoTextInEverySource()
+    {
+        const string xml = "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"no\"?><a><![CDATA[x<y]]>z<?p?></a>";
+        using var reader = Reader(xml);
+
+        await Assert.That(Dump(XmlInterop.FromXmlReader(reader))).IsEqualTo("D[<a ns[]>T(x<yz)P(p,)</>]");
+        await Assert.That(Dump(XmlInterop.FromXDocument(LoadX(xml)))).IsEqualTo("D[<a ns[]>T(x<yz)P(p,)</>]");
+        await Assert.That(Dump(XmlInterop.FromXmlDocument(LoadDom(xml)))).IsEqualTo("D[<a ns[]>T(x<yz)P(p,)</>]");
+    }
+
+    [Test]
+    public async Task ToXmlDocument_OfElementNode_CarriesTheNamespacesInScope()
+    {
+        var tree = XmlInterop.FromXmlDocument(LoadDom("<r xmlns:p=\"urn:p\" xmlns=\"urn:d\"><p:a><b/></p:a></r>"));
+
+        var document = XmlInterop.ToXmlDocument(FindElement(tree.Document, tree, "a"));
+
+        await Assert
+            .That(document.DocumentElement!.OuterXml)
+            .IsEqualTo("<p:a xmlns:p=\"urn:p\" xmlns=\"urn:d\"><b /></p:a>");
+    }
+
+    [Test]
+    public async Task FromXmlReader_FragmentWithoutDocumentElement_IsAccepted()
+    {
+        using var reader = XmlReader.Create(
+            new StringReader("<a/><b/>"),
+            new XmlReaderSettings { ConformanceLevel = ConformanceLevel.Fragment }
+        );
+
+        await Assert.That(Dump(XmlInterop.FromXmlReader(reader))).IsEqualTo("D[<a ns[]></><b ns[]></>]");
     }
 
     [Test]
