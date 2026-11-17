@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 
-/// <summary>The built types of one XSD version. Immutable once constructed, so it is safe to share between threads.</summary>
+/// <summary>The built types of one XSD version. Types are created lazily while the constructor runs; once the constructor returns nothing changes, so it is safe to share between threads.</summary>
 public sealed class DatatypeRegistry
 {
     private readonly Dictionary<string, DatatypeRegistration> _pending = new(StringComparer.Ordinal);
@@ -48,6 +48,7 @@ public sealed class DatatypeRegistry
     /// <returns><see langword="true"/> when the type exists in this version.</returns>
     public bool TryGet(string name, out IDatatypeDescriptor? descriptor)
     {
+        Argument.ThrowIfNull(name);
         var found = _built.TryGetValue(name, out var built);
         descriptor = built;
         return found;
@@ -59,6 +60,7 @@ public sealed class DatatypeRegistry
     /// <exception cref="InvalidOperationException">The type is unknown in this version, or its registration depends on itself.</exception>
     public IDatatypeDescriptor Get(string name)
     {
+        Argument.ThrowIfNull(name);
         if (_built.TryGetValue(name, out var built))
         {
             return built;
@@ -66,7 +68,9 @@ public sealed class DatatypeRegistry
 
         if (!_pending.TryGetValue(name, out var registration))
         {
-            throw new InvalidOperationException($"The datatype '{name}' is not registered for XSD {Version}.");
+            throw new InvalidOperationException(
+                $"The datatype '{name}' is not registered for XSD {Version}, or its registration depends on itself."
+            );
         }
 
         // Removed before the factory runs: a cycle then ends in the exception above instead of a stack overflow.
