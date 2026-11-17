@@ -1,4 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <!-- The XPath lexer reuses the single implementation of the XML character classes (XmlCharClass). -->
+  <ItemGroup>
+    <InternalsVisibleTo Include="NetEvolve.Schemas.XPath" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../NetEvolve.Schemas/NetEvolve.Schemas.csproj" />
   </ItemGroup>
