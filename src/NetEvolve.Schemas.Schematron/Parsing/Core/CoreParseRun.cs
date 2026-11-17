@@ -11,6 +11,7 @@ using NetEvolve.Schemas.Xml.Model;
 internal sealed partial class CoreParseRun
 {
     private const string SchematronNamespace = "http://purl.oclc.org/dsdl/schematron";
+    private const string XsltNamespace = "http://www.w3.org/1999/XSL/Transform";
 
     private readonly XmlNameTable _names;
     private readonly XmlDocumentTree? _positions;
@@ -18,6 +19,10 @@ internal sealed partial class CoreParseRun
     private readonly IProblemSink _problems;
     private readonly XmlSymbol _schematronNamespace;
     private readonly bool _hasNamespace;
+    private readonly XmlSymbol _xsltNamespace;
+    private readonly bool _hasXsltNamespace;
+    private SchematronEdition _edition;
+    private bool _rejectXslt;
     private bool _failed;
 
     internal CoreParseRun(XmlTree tree, string? systemId, IProblemSink problems)
@@ -27,21 +32,20 @@ internal sealed partial class CoreParseRun
         _systemId = systemId;
         _problems = problems;
         _hasNamespace = _names.TryGet(SchematronNamespace.AsSpan(), out _schematronNamespace);
+        _hasXsltNamespace = _names.TryGet(XsltNamespace.AsSpan(), out _xsltNamespace);
     }
 
     internal SchematronSchema? Run(XmlNode start)
     {
-        var root = start.Kind == XmlNodeKind.Document ? SkipToElement(start.FirstChild) : start;
-        if (root.IsEmpty)
+        if (!TryGetRoot(start, out var root))
         {
-            Report(SchematronDiagnosticCodes.RootInvalid, "The document has no root element.", Location(start));
             return null;
         }
 
         var kind = Classify(root);
         if (kind != CoreElement.Schema)
         {
-            if (kind == CoreElement.Deferred && string.Equals(LocalName(root), "library", StringComparison.Ordinal))
+            if (kind == CoreElement.Library)
             {
                 Report(SchematronDiagnosticCodes.Unsupported, "A library root is not supported yet.", Location(root));
             }
@@ -65,17 +69,19 @@ internal sealed partial class CoreParseRun
     {
         var parts = new ContainerParts();
         var edition = ReadEdition(element, out var editionText);
+        _edition = edition;
+        _rejectXslt = IsXsltBinding(Attribute(element, "queryBinding"));
         ReadContainerChildren(element, parts, isLibrary: false);
 
         return new SchematronSchema(
             Location(element),
             parts.Title,
             parts.Paragraphs.ToArray(),
-            Array.Empty<SchematronParameter>(),
+            parts.Parameters.ToArray(),
             parts.Lets.ToArray(),
             parts.Patterns.ToArray(),
             parts.Diagnostics,
-            null,
+            parts.Properties,
             Attribute(element, "id"),
             Attribute(element, "schemaVersion"),
             editionText,
@@ -84,19 +90,22 @@ internal sealed partial class CoreParseRun
             Attribute(element, "queryBinding"),
             parts.Namespaces.ToArray(),
             parts.Phases.ToArray(),
-            Array.Empty<SchematronRules>(),
-            Array.Empty<SchematronForeignElement>()
+            parts.Rules.ToArray(),
+            parts.Foreign.ToArray()
         );
     }
 
     private void ReadContainerChildren(XmlNode element, ContainerParts parts, bool isLibrary)
     {
         var parent = isLibrary ? "library" : "schema";
-        for (var child = FirstChild(element); !child.IsEmpty; child = NextChild(child))
+        for (var child = SkipToElement(element.FirstChild); !child.IsEmpty; child = SkipToElement(child.NextSibling))
         {
             var kind = Classify(child);
             switch (kind)
             {
+                case CoreElement.Foreign:
+                    parts.Foreign.Add(ParseForeign(child));
+                    break;
                 case CoreElement.Title when parts.Title is null:
                     parts.Title = ParseTitle(child);
                     break;
@@ -116,10 +125,10 @@ internal sealed partial class CoreParseRun
                     parts.Phases.Add(ParsePhase(child));
                     break;
                 case CoreElement.Pattern:
-                    parts.Patterns.Add(ParsePattern(child));
+                    parts.Patterns.Add(ParsePattern(child, isGroup: false));
                     break;
                 default:
-                    Reject(child, kind, parent);
+                    ReadEditionElement(child, kind, parts, parent);
                     break;
             }
         }
@@ -154,55 +163,78 @@ internal sealed partial class CoreParseRun
         return new SchematronNamespace(Location(element), prefix, uri);
     }
 
-    private SchematronPattern ParsePattern(XmlNode element)
+    private SchematronPatternBase ParsePattern(XmlNode element, bool isGroup)
     {
-        SchematronTitle? title = null;
-        var paragraphs = new List<SchematronParagraph>();
-        var lets = new List<SchematronLet>();
-        var rules = new List<SchematronRule>();
-
         var id = Attribute(element, "id");
         var isAbstract = Boolean(element, "abstract");
         var isA = Attribute(element, "is-a");
         var documents = Attribute(element, "documents");
         var role = Attribute(element, "role");
+        var parts = new ContainerParts();
+        ReadPatternChildren(element, isGroup ? "group" : "pattern", parts);
+
+        var paragraphs = parts.Paragraphs.ToArray();
+        var parameters = parts.Parameters.ToArray();
+        var lets = parts.Lets.ToArray();
+        var rules = parts.PatternRules.ToArray();
+        return isGroup
+            ? new SchematronGroup(
+                Location(element),
+                id,
+                isAbstract,
+                isA,
+                documents,
+                role,
+                parts.Title,
+                paragraphs,
+                parameters,
+                lets,
+                rules,
+                null
+            )
+            : new SchematronPattern(
+                Location(element),
+                id,
+                isAbstract,
+                isA,
+                documents,
+                role,
+                parts.Title,
+                paragraphs,
+                parameters,
+                lets,
+                rules,
+                null
+            );
+    }
+
+    private void ReadPatternChildren(XmlNode element, string parent, ContainerParts parts)
+    {
         for (var child = FirstChild(element); !child.IsEmpty; child = NextChild(child))
         {
             var kind = Classify(child);
             switch (kind)
             {
-                case CoreElement.Title when title is null:
-                    title = ParseTitle(child);
+                case CoreElement.Title when parts.Title is null:
+                    parts.Title = ParseTitle(child);
                     break;
                 case CoreElement.Paragraph:
-                    paragraphs.Add(ParseParagraph(child));
+                    parts.Paragraphs.Add(ParseParagraph(child));
+                    break;
+                case CoreElement.Param:
+                    parts.Parameters.Add(ParseParam(child));
                     break;
                 case CoreElement.Let:
-                    lets.Add(ParseLet(child));
+                    parts.Lets.Add(ParseLet(child));
                     break;
                 case CoreElement.Rule:
-                    rules.Add(ParseRule(child));
+                    parts.PatternRules.Add(ParseRule(child));
                     break;
                 default:
-                    Reject(child, kind, "pattern");
+                    Reject(child, kind, parent);
                     break;
             }
         }
-
-        return new SchematronPattern(
-            Location(element),
-            id,
-            isAbstract,
-            isA,
-            documents,
-            role,
-            title,
-            paragraphs.ToArray(),
-            Array.Empty<SchematronParameter>(),
-            lets.ToArray(),
-            rules.ToArray(),
-            null
-        );
     }
 
     private SchematronRule ParseRule(XmlNode element)
@@ -456,6 +488,7 @@ internal sealed partial class CoreParseRun
         var kind = Classify(element);
         if (kind == CoreElement.Foreign)
         {
+            RejectXslt(element, host);
             return null;
         }
 
@@ -518,8 +551,13 @@ internal sealed partial class CoreParseRun
             "emph" => CoreElement.Emphasis,
             "dir" => CoreElement.Direction,
             "span" => CoreElement.Span,
-            "include" or "extends" or "library" or "rules" or "group" or "param" or "properties" or "property" =>
-                CoreElement.Deferred,
+            "library" => CoreElement.Library,
+            "rules" => CoreElement.Rules,
+            "group" => CoreElement.Group,
+            "param" => CoreElement.Param,
+            "properties" => CoreElement.Properties,
+            "property" => CoreElement.Property,
+            "include" or "extends" => CoreElement.Deferred,
             _ => CoreElement.Unknown,
         };
     }
@@ -643,14 +681,15 @@ internal sealed partial class CoreParseRun
         return tokens is null ? Array.Empty<string>() : tokens.ToArray();
     }
 
-    private XmlNode FirstChild(XmlNode parent) => SkipToCore(SkipToElement(parent.FirstChild));
+    private XmlNode FirstChild(XmlNode parent) => SkipToCore(SkipToElement(parent.FirstChild), parent);
 
-    private XmlNode NextChild(XmlNode element) => SkipToCore(SkipToElement(element.NextSibling));
+    private XmlNode NextChild(XmlNode element) => SkipToCore(SkipToElement(element.NextSibling), element.Parent);
 
-    private XmlNode SkipToCore(XmlNode node)
+    private XmlNode SkipToCore(XmlNode node, XmlNode parent)
     {
         while (!node.IsEmpty && Classify(node) == CoreElement.Foreign)
         {
+            RejectXslt(node, parent);
             node = SkipToElement(node.NextSibling);
         }
 
@@ -665,6 +704,18 @@ internal sealed partial class CoreParseRun
         }
 
         return node;
+    }
+
+    private bool TryGetRoot(XmlNode start, out XmlNode root)
+    {
+        root = start.Kind == XmlNodeKind.Document ? SkipToElement(start.FirstChild) : start;
+        if (root.IsEmpty)
+        {
+            Report(SchematronDiagnosticCodes.RootInvalid, "The document has no root element.", Location(start));
+            return false;
+        }
+
+        return true;
     }
 
     private DocumentLocation Location(XmlNode node)

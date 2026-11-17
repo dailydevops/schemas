@@ -10,6 +10,8 @@ internal sealed class ContainerParts
 
     internal SchematronDiagnostics? Diagnostics { get; set; }
 
+    internal SchematronProperties? Properties { get; set; }
+
     internal List<SchematronParagraph> Paragraphs { get; } = [];
 
     internal List<SchematronLet> Lets { get; } = [];
@@ -19,4 +21,12 @@ internal sealed class ContainerParts
     internal List<SchematronPhase> Phases { get; } = [];
 
     internal List<SchematronPatternBase> Patterns { get; } = [];
+
+    internal List<SchematronParameter> Parameters { get; } = [];
+
+    internal List<SchematronRules> Rules { get; } = [];
+
+    internal List<SchematronRule> PatternRules { get; } = [];
+
+    internal List<SchematronForeignElement> Foreign { get; } = [];
 }
