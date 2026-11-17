@@ -22,6 +22,8 @@ public class XmlNamespaceLayeringTests
 
     private static readonly string[] ParserLayers = ["Reader", "Input", "Model", "Writer", "Dtd"];
 
+    private static string[] ParserLayerNamespaces => [.. ParserLayers.Select(layer => $"{XmlLayering.Root}.{layer}")];
+
     [Test]
     [MethodDataSource(nameof(CoreNamespaces))]
     public async Task CoreNamespace_DependsOnNothingElseInThePackage(string ns, string[] allowed)
@@ -38,9 +40,7 @@ public class XmlNamespaceLayeringTests
     [MethodDataSource(nameof(DatatypeLayerNamespaces))]
     public async Task DatatypesAndRegex_DoNotDependOnParserLayers(string ns)
     {
-        var forbidden = ParserLayers.Select(layer => $"{XmlLayering.Root}.{layer}").ToArray();
-
-        var violations = XmlLayering.FindDependencies(XmlAssembly, ns, forbidden);
+        var violations = XmlLayering.FindDependencies(XmlAssembly, ns, ParserLayerNamespaces);
 
         await Assert.That(violations).IsEmpty();
     }
@@ -71,6 +71,31 @@ public class XmlNamespaceLayeringTests
         );
 
         await Assert.That(violations).Contains($"{Fixtures}.Core.CoreDependsOnReaderFixture");
+    }
+
+    [Test]
+    public async Task FixtureDatatypesDependingOnReader_IsReported()
+    {
+        var violations = XmlLayering.FindDependencies(
+            typeof(XmlNamespaceLayeringTests).Assembly,
+            $"{Fixtures}.Datatypes",
+            [$"{Fixtures}.Reader"]
+        );
+
+        await Assert.That(violations).Contains($"{Fixtures}.Datatypes.DatatypesDependsOnReaderFixture");
+    }
+
+    [Test]
+    public async Task FixtureTableDependingOnContracts_IsOnlyReportedWhenContractsAreForbidden()
+    {
+        var assembly = typeof(XmlNamespaceLayeringTests).Assembly;
+        var table = $"{Fixtures}.Table";
+
+        var allowed = XmlLayering.FindDependencies(assembly, table, [$"{Fixtures}.Reader"]);
+        var forbidden = XmlLayering.FindDependencies(assembly, table, [$"{Fixtures}.Contracts"]);
+
+        await Assert.That(allowed).IsEmpty();
+        await Assert.That(forbidden).Contains($"{table}.TableImplementsContractFixture");
     }
 
     [Test]
