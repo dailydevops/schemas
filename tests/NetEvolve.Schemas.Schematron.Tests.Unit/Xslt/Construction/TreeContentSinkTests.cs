@@ -1,5 +1,6 @@
 namespace NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Construction;
 
+using System;
 using NetEvolve.Schemas.Schematron.Diagnostics;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Schematron.Xslt.Construction;
@@ -193,5 +194,36 @@ public class TreeContentSinkTests
         sink.Item(in d);
 
         await Assert.That(sink.Problem).IsNotNull();
+    }
+
+    [Test]
+    public async Task Tree_AfterDocumentRead_RejectsFurtherPushes()
+    {
+        using var sink = new TreeContentSink(SinkTestSupport.NewTable());
+        _ = sink.Document;
+
+        await Assert.That(() => sink.Text("late")).Throws<InvalidOperationException>();
+    }
+
+    [Test]
+    public async Task Tree_DisposeBeforeDocument_ReleasesTheBuilder()
+    {
+        var sink = new TreeContentSink(SinkTestSupport.NewTable());
+        sink.Dispose();
+
+        await Assert.That(() => sink.Text("late")).Throws<InvalidOperationException>();
+    }
+
+    [Test]
+    public async Task Tree_OnlyFirstProblemIsKept()
+    {
+        using var sink = new TreeContentSink(SinkTestSupport.NewTable());
+        var d = XdmItem.FromDouble(1.5);
+        var attribute = SinkTestSupport.Attribute("id", "1");
+
+        sink.Item(in d);
+        sink.Item(in attribute);
+
+        await Assert.That(sink.Problem!.Value.Constraint).IsNull();
     }
 }

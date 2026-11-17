@@ -103,4 +103,16 @@ public class ItemSequenceSinkTests
 
         await Assert.That(() => sink.Content).Throws<InvalidOperationException>();
     }
+
+    [Test]
+    public async Task Items_LongText_GrowsTheBuffer()
+    {
+        var sink = new ItemSequenceSink(SinkTestSupport.NewTable());
+        var text = new string('x', 100);
+
+        sink.Text(text);
+        sink.Text(text);
+
+        await Assert.That(SinkTestSupport.Node(sink.Result[0]).StringValue).IsEqualTo(text + text);
+    }
 }
