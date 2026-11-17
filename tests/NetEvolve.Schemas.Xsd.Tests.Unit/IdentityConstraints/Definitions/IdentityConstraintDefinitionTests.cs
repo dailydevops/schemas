@@ -13,7 +13,7 @@ using NetEvolve.Schemas.Xsd.Tests.Unit.Fakes;
 public class IdentityConstraintDefinitionTests
 {
     private const string Header =
-        "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:p=\"urn:p\" targetNamespace=\"urn:t\">\n";
+        "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:p=\"urn:p\" xmlns:t=\"urn:t\" targetNamespace=\"urn:t\">\n";
 
     private const string Footer = "\n</xs:schema>";
 
@@ -68,9 +68,9 @@ public class IdentityConstraintDefinitionTests
     }
 
     [Test]
-    [Arguments("unique", IdentityConstraintKind.Unique)]
-    [Arguments("key", IdentityConstraintKind.Key)]
-    public async Task Create_UniqueAndKey_RecordNameSelectorAndOrderedFields(string element, IdentityConstraintKind kind)
+    [Arguments("unique", "Unique")]
+    [Arguments("key", "Key")]
+    public async Task Create_UniqueAndKey_RecordNameSelectorAndOrderedFields(string element, string kind)
     {
         var definition = Create(
             $"<xs:{element} name=\"k\"><xs:selector xpath=\".//p:item|a/b\"/><xs:field xpath=\"@id\"/><xs:field xpath=\"p:code\"/></xs:{element}>"
@@ -78,7 +78,7 @@ public class IdentityConstraintDefinitionTests
 
         await Assert.That(definition).IsNotNull();
         await Assert.That(definition!.Kind).IsEqualTo(XsdComponentKind.IdentityConstraint);
-        await Assert.That(definition.ConstraintKind).IsEqualTo(kind);
+        await Assert.That(definition.ConstraintKind.ToString()).IsEqualTo(kind);
         await Assert.That(definition.Name).IsEqualTo(new XPathQName("urn:t", "k"));
         await Assert.That(definition.Selector).IsEqualTo(".//p:item|a/b");
         await Assert.That(definition.Fields).Count().IsEqualTo(2);
@@ -107,7 +107,7 @@ public class IdentityConstraintDefinitionTests
     {
         var schema = Schema(
             $"<xs:{target} name=\"k\"><xs:selector xpath=\"a\"/><xs:field xpath=\"@x\"/></xs:{target}>"
-                + "<xs:keyref name=\"r\" refer=\"k\"><xs:selector xpath=\"b\"/><xs:field xpath=\"@y\"/></xs:keyref>"
+                + "<xs:keyref name=\"r\" refer=\"t:k\"><xs:selector xpath=\"b\"/><xs:field xpath=\"@y\"/></xs:keyref>"
         );
         var nodes = Constraints(schema);
         var key = IdentityConstraintDefinition.Create(nodes[0], _registry, Reporter)!;
@@ -136,8 +136,8 @@ public class IdentityConstraintDefinitionTests
     public async Task ResolveRefer_ReferToAKeyref_IsSchemaError()
     {
         var schema = Schema(
-            "<xs:keyref name=\"a\" refer=\"b\"><xs:selector xpath=\"a\"/><xs:field xpath=\"@x\"/></xs:keyref>"
-                + "<xs:keyref name=\"b\" refer=\"a\"><xs:selector xpath=\"a\"/><xs:field xpath=\"@x\"/></xs:keyref>"
+            "<xs:keyref name=\"a\" refer=\"t:b\"><xs:selector xpath=\"a\"/><xs:field xpath=\"@x\"/></xs:keyref>"
+                + "<xs:keyref name=\"b\" refer=\"t:a\"><xs:selector xpath=\"a\"/><xs:field xpath=\"@x\"/></xs:keyref>"
         );
         var nodes = Constraints(schema);
         var first = IdentityConstraintDefinition.Create(nodes[0], _registry, Reporter)!;
@@ -154,7 +154,7 @@ public class IdentityConstraintDefinitionTests
     {
         var schema = Schema(
             "<xs:key name=\"k\"><xs:selector xpath=\"a\"/><xs:field xpath=\"@x\"/><xs:field xpath=\"@y\"/></xs:key>"
-                + "<xs:keyref name=\"r\" refer=\"k\"><xs:selector xpath=\"b\"/><xs:field xpath=\"@z\"/></xs:keyref>"
+                + "<xs:keyref name=\"r\" refer=\"t:k\"><xs:selector xpath=\"b\"/><xs:field xpath=\"@z\"/></xs:keyref>"
         );
         var nodes = Constraints(schema);
         _ = IdentityConstraintDefinition.Create(nodes[0], _registry, Reporter);
@@ -163,7 +163,7 @@ public class IdentityConstraintDefinitionTests
         keyref.ResolveRefer(_registry, Reporter);
 
         await Assert.That(keyref.ReferencedConstraint).IsNull();
-        await AssertSingleIssue("c-props-correct", 3, 1);
+        await AssertSingleIssue("c-props-correct", 3, 95);
     }
 
     [Test]
@@ -172,25 +172,29 @@ public class IdentityConstraintDefinitionTests
         var definition = Create("<xs:key name=\"k\"><xs:selector xpath=\"a[1]\"/><xs:field xpath=\"@x\"/></xs:key>");
 
         await Assert.That(definition).IsNull();
-        await AssertSingleIssue("c-selector-xpath", 3, 21);
+        await AssertSingleIssue("c-selector-xpath", 3, 18);
     }
 
     [Test]
     public async Task Create_FieldWithFunctionCall_IsSchemaError()
     {
-        var definition = Create("<xs:key name=\"k\"><xs:selector xpath=\"a\"/><xs:field xpath=\"string(@x)\"/></xs:key>");
+        var definition = Create(
+            "<xs:key name=\"k\"><xs:selector xpath=\"a\"/><xs:field xpath=\"string(@x)\"/></xs:key>"
+        );
 
         await Assert.That(definition).IsNull();
-        await AssertSingleIssue("c-fields-xpaths", 3, 44);
+        await AssertSingleIssue("c-fields-xpaths", 3, 42);
     }
 
     [Test]
     public async Task Create_FieldWithAxisOutsideTheSubset_IsSchemaError()
     {
-        var definition = Create("<xs:key name=\"k\"><xs:selector xpath=\"a\"/><xs:field xpath=\"ancestor::b\"/></xs:key>");
+        var definition = Create(
+            "<xs:key name=\"k\"><xs:selector xpath=\"a\"/><xs:field xpath=\"ancestor::b\"/></xs:key>"
+        );
 
         await Assert.That(definition).IsNull();
-        await AssertSingleIssue("c-fields-xpaths", 3, 44);
+        await AssertSingleIssue("c-fields-xpaths", 3, 42);
     }
 
     [Test]
@@ -199,7 +203,7 @@ public class IdentityConstraintDefinitionTests
         var definition = Create("<xs:key name=\"k\"><xs:selector xpath=\"q:a\"/><xs:field xpath=\"@x\"/></xs:key>");
 
         await Assert.That(definition).IsNull();
-        await AssertSingleIssue("c-selector-xpath", 3, 21);
+        await AssertSingleIssue("c-selector-xpath", 3, 18);
     }
 
     [Test]
@@ -208,7 +212,7 @@ public class IdentityConstraintDefinitionTests
         var definition = Create("<xs:key name=\"k\"><xs:selector xpath=\"a/\"/><xs:field xpath=\"@x\"/></xs:key>");
 
         await Assert.That(definition).IsNull();
-        await AssertSingleIssue("c-selector-xpath", 3, 21);
+        await AssertSingleIssue("c-selector-xpath", 3, 18);
     }
 
     [Test]
@@ -225,13 +229,15 @@ public class IdentityConstraintDefinitionTests
 
         await Assert.That(first).IsNotNull();
         await Assert.That(second).IsNull();
-        await AssertSingleIssue("sch-props-correct", 3, 76);
+        await AssertSingleIssue("sch-props-correct", 3, 73);
     }
 
     [Test]
     [Arguments("<xs:key name=\"k\"><xs:field xpath=\"@x\"/></xs:key>")]
     [Arguments("<xs:key name=\"k\"><xs:selector xpath=\"a\"/></xs:key>")]
-    [Arguments("<xs:key name=\"k\"><xs:selector xpath=\"a\"/><xs:selector xpath=\"b\"/><xs:field xpath=\"@x\"/></xs:key>")]
+    [Arguments(
+        "<xs:key name=\"k\"><xs:selector xpath=\"a\"/><xs:selector xpath=\"b\"/><xs:field xpath=\"@x\"/></xs:key>"
+    )]
     [Arguments("<xs:key><xs:selector xpath=\"a\"/><xs:field xpath=\"@x\"/></xs:key>")]
     public async Task Create_MissingPartsOrName_IsRepresentationError(string constraint)
     {

@@ -3,11 +3,12 @@ namespace NetEvolve.Schemas.Xsd.Tests.Unit.IdentityConstraints.Definitions;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using NetEvolve.Schemas.XPath.Subsets;
 using NetEvolve.Schemas.Xsd.IdentityConstraints.Definitions;
 
 public class IdentityConstraintArchitectureTests
 {
+    private const string Checker = "NetEvolve.Schemas.XPath.Subsets.XPathSubsetChecker";
+
     private const string Folder = "NetEvolve.Schemas.Xsd.IdentityConstraints.Definitions";
 
     private const BindingFlags All =
@@ -38,7 +39,7 @@ public class IdentityConstraintArchitectureTests
             {
                 foreach (var declaring in CalledTypes(method))
                 {
-                    usesChecker |= declaring == typeof(XPathSubsetChecker);
+                    usesChecker |= string.Equals(declaring.FullName, Checker, StringComparison.Ordinal);
                     if (string.Equals(declaring.Namespace, "System.Linq", StringComparison.Ordinal))
                     {
                         linq.Add(type.Name + "." + method.Name);
