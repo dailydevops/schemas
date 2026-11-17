@@ -5,6 +5,7 @@ on:
   pull_request:
     paths:
       - 'benchmarks/**'
+      - 'src/**'
       - '.github/workflows/benchmarks.yml'
 
 permissions:
