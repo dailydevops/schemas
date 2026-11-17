@@ -310,12 +310,15 @@ public class XmlNamespaceScopeTests
         s.Start("a", out _, "xmlns:p", "urn:1", "xmlns:q", "urn:q", "xmlns", "urn:d");
         s.Start("b", out _, "xmlns:p", "urn:2");
 
+        var bindings = new XmlNamespaceBinding[s.Scope.InScopeCount];
+        var copied = s.Scope.CopyInScope(bindings);
         var seen = string.Empty;
-        for (var i = 0; i < s.Scope.InScopeCount; i++)
+        foreach (var b in bindings)
         {
-            var b = s.Scope.GetInScope(i);
             seen += s.Table.GetString(b.Prefix) + "=" + s.Table.GetString(b.Uri) + ";";
         }
+
+        await Assert.That(copied).IsEqualTo(4);
 
         await Assert.That(s.Scope.InScopeCount).IsEqualTo(4);
         await Assert.That(seen).Contains("p=urn:2;").And.Contains("q=urn:q;").And.Contains("=urn:d;");
@@ -330,6 +333,16 @@ public class XmlNamespaceScopeTests
         s.Start("b", out _, "xmlns", string.Empty);
 
         await Assert.That(s.Scope.InScopeCount).IsEqualTo(1);
+    }
+
+    [Test]
+    public async Task CopyInScopeIntoAShortDestinationThrows()
+    {
+        var s = new Script();
+
+        await Assert
+            .That(() => s.Scope.CopyInScope(Span<XmlNamespaceBinding>.Empty))
+            .Throws<ArgumentOutOfRangeException>();
     }
 
     [Test]
