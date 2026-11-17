@@ -27,15 +27,15 @@ public class WildcardTests
     }
 
     [Test]
-    [Arguments(null, XsdProcessContents.Strict)]
-    [Arguments("strict", XsdProcessContents.Strict)]
-    [Arguments("lax", XsdProcessContents.Lax)]
-    [Arguments("skip", XsdProcessContents.Skip)]
-    public async Task TryCreate_ParsesProcessContents(string? value, XsdProcessContents expected)
+    [Arguments(null, "Strict")]
+    [Arguments("strict", "Strict")]
+    [Arguments("lax", "Lax")]
+    [Arguments("skip", "Skip")]
+    public async Task TryCreate_ParsesProcessContents(string? value, string expected)
     {
         var wildcard = Create("##any", value);
 
-        await Assert.That(wildcard.ProcessContents).IsEqualTo(expected);
+        await Assert.That(wildcard.ProcessContents).IsEqualTo(Enum.Parse<XsdProcessContents>(expected));
         await Assert.That(wildcard.Kind).IsEqualTo(XsdComponentKind.Wildcard);
         await Assert.That(wildcard.Name).IsEqualTo(default(XPathQName));
         await Assert.That(wildcard.Location).IsEqualTo(Where);
@@ -130,8 +130,16 @@ public class WildcardTests
     [Test]
     public async Task Intersect_NotExpressible_ReturnsNullAndReportsAttributeWildcardIntersection()
     {
-        var left = Wildcard.Create(NamespaceConstraintTests.Parse("##other", "urn:t"), XsdProcessContents.Strict, Where);
-        var right = Wildcard.Create(NamespaceConstraintTests.Parse("##other", "urn:o"), XsdProcessContents.Strict, Where);
+        var left = Wildcard.Create(
+            NamespaceConstraintTests.Parse("##other", "urn:t"),
+            XsdProcessContents.Strict,
+            Where
+        );
+        var right = Wildcard.Create(
+            NamespaceConstraintTests.Parse("##other", "urn:o"),
+            XsdProcessContents.Strict,
+            Where
+        );
 
         var intersection = left.Intersect(right, Reporter);
 

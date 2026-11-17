@@ -104,7 +104,11 @@ public class NamespaceConstraintTests
     [Arguments("urn:a urn:b", "urn:a urn:b", "{urn:a,urn:b}")]
     [Arguments("urn:a urn:b", "urn:t ##local", "{##local,urn:a,urn:b,urn:t}")]
     [Arguments("urn:t ##local", "urn:t ##local", "{##local,urn:t}")]
-    public async Task Union_OfEveryPairOfForms_FollowsAttributeWildcardUnion(string left, string right, string? expected)
+    public async Task Union_OfEveryPairOfForms_FollowsAttributeWildcardUnion(
+        string left,
+        string right,
+        string? expected
+    )
     {
         var l = Parse(left);
         var r = Parse(right);
