@@ -194,6 +194,11 @@ internal static partial class CorpusScanner
         }
     }
 
+    private static readonly StringComparison PathComparison =
+        OperatingSystem.IsWindows() || OperatingSystem.IsMacOS()
+            ? StringComparison.OrdinalIgnoreCase
+            : StringComparison.Ordinal;
+
     private static void Follow(XElement include, bool xinclude, string path, ScanState state)
     {
         if (xinclude && string.Equals((string?)include.Attribute("parse"), "text", StringComparison.Ordinal))
@@ -218,7 +223,8 @@ internal static partial class CorpusScanner
         var file = hash < 0 ? href : href[..hash];
         var fragment = hash < 0 || hash == href.Length - 1 ? null : Uri.UnescapeDataString(href[(hash + 1)..]);
         var target = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(path)!, Uri.UnescapeDataString(file)));
-        if (!target.StartsWith(state.Root, StringComparison.Ordinal))
+        // Symlinks are not resolved: a link inside the suite root that points elsewhere is followed.
+        if (!target.StartsWith(state.Root, PathComparison))
         {
             state.Unresolved.Add($"{href}: outside the suite root");
             return;
