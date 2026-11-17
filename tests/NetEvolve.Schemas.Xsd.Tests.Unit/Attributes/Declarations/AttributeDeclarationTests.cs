@@ -228,7 +228,7 @@ public class AttributeDeclarationTests
     [Test]
     public async Task Issues_UnknownCode_Throws() =>
         await Assert
-            .That(() => Reporter.Report(new DiagnosticCode(999999), Where, "m"))
+            .That(() => Reporter.Report(new DiagnosticCode(9999), Where, "m"))
             .Throws<InvalidOperationException>();
 
     [Test]
