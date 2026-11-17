@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.XPath.Tests.Unit.Contracts;
 
 using System;
+using NetEvolve.Arguments;
 using NetEvolve.Schemas.Resources;
 using NetEvolve.Schemas.XPath.Abstractions;
 using NetEvolve.Schemas.XPath.Api;
@@ -24,6 +25,7 @@ public class EvaluationContractTests
     [Arguments("fake:string-length(@a)", 1L)]
     public async Task Expression_OverFakeNodeSource_CallsFakeFunction(string expression, long expected)
     {
+        Argument.ThrowIfNull(expression);
         var source = new FakeNodeSource();
         using var context = new XPathEvaluationContext();
         context.SetContextItem(XdmItem.FromNode(new XPathNode(source.Element)));
@@ -170,7 +172,7 @@ public class EvaluationContractTests
         await Assert.That(empty.IsEmpty).IsTrue();
         await Assert.That(context.Variables.TryGet(new XPathQName("", "none"), out _)).IsFalse();
 
-        context.ResourceResolver = new XPathResourceResolverAdapter(new DenyAllResourceResolver());
+        context.ResourceResolver = new XPathResourceResolverAdapter(DenyAllResourceResolver.Instance);
         context.Reset();
 
         await Assert.That(context.ContextItem).IsNull();
@@ -207,15 +209,29 @@ public class EvaluationContractTests
     public async Task FunctionCall_CarriesContextArgumentsAndDiagnostic()
     {
         using var context = new XPathEvaluationContext();
+
+        var (sameContext, count, resultEmpty, code) = Probe(context);
+
+        await Assert.That(sameContext).IsTrue();
+        await Assert.That(count).IsEqualTo(1);
+        await Assert.That(resultEmpty).IsTrue();
+        await Assert.That(code).IsEqualTo("XPDY0002");
+    }
+
+    private static (bool SameContext, int Count, bool ResultEmpty, string Code) Probe(XPathEvaluationContext context)
+    {
         XdmSequence[] arguments = [XdmSequence.Empty];
+        var call = new XPathFunctionCall(context, arguments)
+        {
+            Diagnostic = XPathDiagnostic.Create(XPathErrorCodes.XPDY0002),
+        };
 
-        var call = new XPathFunctionCall(context, arguments);
-        call.Diagnostic = XPathDiagnostic.Create(XPathErrorCodes.XPDY0002);
-
-        await Assert.That(call.Context).IsSameReferenceAs(context);
-        await Assert.That(call.Arguments.Length).IsEqualTo(1);
-        await Assert.That(call.Result.IsEmpty).IsTrue();
-        await Assert.That(call.Diagnostic.Code).IsEqualTo("XPDY0002");
+        return (
+            ReferenceEquals(call.Context, context),
+            call.Arguments.Length,
+            call.Result.IsEmpty,
+            call.Diagnostic.Code
+        );
     }
 
     [Test]
@@ -246,12 +262,12 @@ public class EvaluationContractTests
         using var evaluation = new XPathEvaluationContext();
         var arguments = new XdmSequence[arity];
         var call = new XPathFunctionCall(evaluation, arguments);
-        _ = function.Invoke(ref call);
+        _ = function!.Invoke(ref call);
         return call.Result[0].TryGetString(out var text) ? text : null;
     }
 
     private sealed class PlainFunction() : XPathHostFunction(new XPathQName("urn:p", "p"), 0, 0)
     {
-        public override XPathEvaluationStatus Invoke(ref XPathFunctionCall call) => XPathEvaluationStatus.Ok;
+        public override XPathEvaluationStatus Invoke(ref XPathFunctionCall invocation) => XPathEvaluationStatus.Ok;
     }
 }

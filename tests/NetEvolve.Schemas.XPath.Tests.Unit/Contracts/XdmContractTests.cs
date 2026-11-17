@@ -40,7 +40,7 @@ public class XdmContractTests
     [Test]
     public async Task XdmItem_Kinds_CoverAllXdmAtomicFamilies()
     {
-        var names = Enum.GetNames(typeof(XdmItemKind));
+        var names = Enum.GetNames<XdmItemKind>();
 
         await Assert.That(names).Contains("None").And.Contains("Node");
         foreach (var family in AtomicFamilies)
@@ -101,7 +101,15 @@ public class XdmContractTests
     public async Task Limitation_DecimalAndDateTimeFactories_NotInContract()
     {
         // Q3 of #168: these members arrive with #185 together with its snapshot update.
-        string[] deferred = ["FromDecimal", "FromDateTime", "FromDuration", "TryGetDecimal", "TryGetDateTime", "TryGetDuration"];
+        string[] deferred =
+        [
+            "FromDecimal",
+            "FromDateTime",
+            "FromDuration",
+            "TryGetDecimal",
+            "TryGetDateTime",
+            "TryGetDuration",
+        ];
 
         foreach (var name in deferred)
         {
@@ -153,13 +161,13 @@ public class XdmContractTests
     [Test]
     public async Task XdmNodeKind_MirrorsXmlNodeKind()
     {
-        var xml = Enum.GetNames(typeof(XmlNodeKind));
-        var xdm = Enum.GetNames(typeof(XdmNodeKind));
+        var xml = Enum.GetNames<XmlNodeKind>();
+        var xdm = Enum.GetNames<XdmNodeKind>();
 
         await Assert.That(xdm).IsEquivalentTo(xml);
-        foreach (var value in (XmlNodeKind[])Enum.GetValues(typeof(XmlNodeKind)))
+        foreach (var value in Enum.GetValues<XmlNodeKind>())
         {
-            await Assert.That((int)Enum.Parse(typeof(XdmNodeKind), value.ToString())).IsEqualTo((int)value);
+            await Assert.That((int)Enum.Parse<XdmNodeKind>(value.ToString())).IsEqualTo((int)value);
         }
     }
 

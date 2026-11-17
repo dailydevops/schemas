@@ -1,5 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Tests.Unit.Fakes;
 
+using System;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Xdm.Values;
@@ -21,8 +22,8 @@ internal sealed class FakeEngine
 
     public static FakeEngine Compile(string expression, XPathStaticContext context)
     {
-        var open = expression.IndexOf('(');
-        var local = expression[(expression.IndexOf(':') + 1)..open];
+        var open = expression.IndexOf('(', StringComparison.Ordinal);
+        var local = expression[(expression.IndexOf(':', StringComparison.Ordinal) + 1)..open];
         var argument = expression[(open + 1)..^1];
         _ = context.TryResolveFunction(new XPathQName(FakeFunction.Namespace, local), 1, out var function);
         return new FakeEngine(function!, argument);

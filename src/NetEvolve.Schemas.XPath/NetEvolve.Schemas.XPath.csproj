@@ -1,4 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <!-- Schematron and Xsd reach the internal syntax tree and the subset-profile seam (XP-50, #168). -->
+  <ItemGroup>
+    <InternalsVisibleTo Include="NetEvolve.Schemas.Schematron" />
+    <InternalsVisibleTo Include="NetEvolve.Schemas.Xsd" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../NetEvolve.Schemas.Xml/NetEvolve.Schemas.Xml.csproj" />
   </ItemGroup>

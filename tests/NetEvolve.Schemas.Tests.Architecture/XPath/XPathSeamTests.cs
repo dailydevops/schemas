@@ -3,7 +3,7 @@ namespace NetEvolve.Schemas.Tests.Architecture.XPath;
 using System.Reflection;
 using NetArchTest.Rules;
 using NetEvolve.Schemas.Tests.Architecture.Shared;
-using NetEvolve.Schemas.XPath.Errors;
+using NetEvolve.Schemas.XPath.Api;
 
 /// <summary>Pins how the XPath assembly exposes its internals: only to Schematron, Xsd, and its own test assemblies.</summary>
 public class XPathSeamTests
@@ -39,17 +39,17 @@ public class XPathSeamTests
     [Arguments(SourceAssemblies.Xsd)]
     public async Task Consumer_UsesOnlySeamNamespacesOfTheXPathInternals(string name)
     {
-        var violations = FindInternalDependencies(SourceAssemblies.Load(name), SeamNamespaces);
+        var violations = FindDependencies(SourceAssemblies.Load(name), SeamNamespaces, internalOnly: true);
 
         await Assert.That(violations).IsEmpty();
     }
 
     [Test]
-    public async Task FixtureUsingAnInternalOutsideTheSeam_IsReported()
+    public async Task FixtureUsingATypeOutsideTheSeam_IsReported()
     {
-        var violations = FindInternalDependencies(typeof(XPathSeamTests).Assembly, SeamNamespaces);
+        var violations = FindDependencies(typeof(XPathSeamTests).Assembly, SeamNamespaces, internalOnly: false);
 
-        await Assert.That(violations).Contains(typeof(OutsideSeamFixture).FullName!);
+        await Assert.That(string.Join("|", violations)).Contains(nameof(OutsideSeamFixture));
     }
 
     private static string[] FriendNames(Assembly assembly) =>
@@ -59,12 +59,18 @@ public class XPathSeamTests
                 .Select(attribute => attribute.AssemblyName.Split(',')[0]),
         ];
 
-    private static IReadOnlyList<string> FindInternalDependencies(Assembly consumer, string[] allowedNamespaces)
+    private static IReadOnlyList<string> FindDependencies(
+        Assembly consumer,
+        string[] allowedNamespaces,
+        bool internalOnly
+    )
     {
         var forbidden = SourceAssemblies
             .Load(SourceAssemblies.XPath)
             .GetTypes()
-            .Where(type => !type.IsNested && !type.IsPublic && !allowedNamespaces.Contains(type.Namespace))
+            .Where(type =>
+                !type.IsNested && !(internalOnly && type.IsPublic) && !allowedNamespaces.Contains(type.Namespace)
+            )
             .Select(type => type.FullName!)
             .ToArray();
 
@@ -73,9 +79,9 @@ public class XPathSeamTests
             : Types.InAssembly(consumer).ShouldNot().HaveDependencyOnAny(forbidden).GetResult().FailingTypeNames ?? [];
     }
 
-    /// <summary>Violating fixture: depends on an internal type of the XPath assembly outside the seam namespaces.</summary>
+    /// <summary>Violating fixture: depends on a type of the XPath assembly outside the seam namespaces.</summary>
     internal static class OutsideSeamFixture
     {
-        internal static object Create() => XPathErrors.Exception(XPathErrorCodes.XPST0003);
+        internal static XPathQName Create() => new("urn:x", "x");
     }
 }

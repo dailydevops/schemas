@@ -40,8 +40,9 @@ public class SeamContractTests
 
         foreach (var type in assembly.GetTypes())
         {
-            var seam = string.Equals(type.Namespace, "NetEvolve.Schemas.XPath.Abstractions", StringComparison.Ordinal)
-                && type.Name == nameof(IXPathSubsetProfile);
+            var seam =
+                string.Equals(type.Namespace, "NetEvolve.Schemas.XPath.Abstractions", StringComparison.Ordinal)
+                && string.Equals(type.Name, nameof(IXPathSubsetProfile), StringComparison.Ordinal);
             var tree = type.Namespace?.StartsWith("NetEvolve.Schemas.XPath.Syntax", StringComparison.Ordinal) == true;
             if ((seam || tree) && IsPublic(type))
             {
@@ -60,7 +61,10 @@ public class SeamContractTests
 
         foreach (var type in typeof(FakeNodeSource).Assembly.GetTypes())
         {
-            if (type.Namespace == typeof(FakeNodeSource).Namespace && IsPublic(type))
+            if (
+                string.Equals(type.Namespace, typeof(FakeNodeSource).Namespace, StringComparison.Ordinal)
+                && IsPublic(type)
+            )
             {
                 leaked.Add(type.FullName!);
             }
@@ -84,7 +88,7 @@ public class SeamContractTests
     [Test]
     public async Task Resolver_CoreResolver_IsAssignable()
     {
-        var core = new DenyAllResourceResolver();
+        var core = DenyAllResourceResolver.Instance;
         using var context = new XPathEvaluationContext();
 
         var wrapped = XPathResourceResolverAdapter.Wrap(core);
@@ -95,14 +99,22 @@ public class SeamContractTests
         await Assert.That(context.RequireResourceResolver()).IsSameReferenceAs(wrapped);
         await Assert.That(XPathResourceResolverAdapter.Wrap(null)).IsNull();
         await Assert.That(XPathResourceResolverAdapter.Wrap(wrapped)).IsSameReferenceAs(wrapped);
-        await Assert.That(typeof(IXPathResourceResolver).GetMembers(System.Reflection.BindingFlags.DeclaredOnly | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance)).IsEmpty();
+        await Assert
+            .That(
+                typeof(IXPathResourceResolver).GetMembers(
+                    System.Reflection.BindingFlags.DeclaredOnly
+                        | System.Reflection.BindingFlags.Public
+                        | System.Reflection.BindingFlags.Instance
+                )
+            )
+            .IsEmpty();
     }
 
     [Test]
     public async Task Resolver_Adapter_DelegatesToTheCoreResolver()
     {
         var request = new ResourceRequest(ResourceKind.XPathDocument, "urn:x", null, null);
-        var wrapped = XPathResourceResolverAdapter.Wrap(new DenyAllResourceResolver())!;
+        var wrapped = XPathResourceResolverAdapter.Wrap(DenyAllResourceResolver.Instance)!;
 
         using var result = wrapped.Resolve(request, default);
 

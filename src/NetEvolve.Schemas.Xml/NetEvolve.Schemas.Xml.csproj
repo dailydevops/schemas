@@ -1,7 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <!-- The XPath lexer reuses the single implementation of the XML character classes (XmlCharClass). -->
+  <!-- The XPath unit tests derive a fake node source from the sealed-by-accessibility XmlTree (XP-50, #168). -->
   <ItemGroup>
     <InternalsVisibleTo Include="NetEvolve.Schemas.XPath" />
+    <InternalsVisibleTo Include="NetEvolve.Schemas.XPath.Tests.Unit" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../NetEvolve.Schemas/NetEvolve.Schemas.csproj" />

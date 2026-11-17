@@ -74,7 +74,7 @@ public class HostSlotContractTests
 
     private sealed class FakeDecimalFormats(XPathDecimalFormat format) : IXPathDecimalFormatProvider
     {
-        public bool TryGetDecimalFormat(XPathQName name, out XPathDecimalFormat decimalFormat)
+        public bool TryGetDecimalFormat(XPathQName name, out XPathDecimalFormat? decimalFormat)
         {
             decimalFormat = format;
             return true;

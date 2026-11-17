@@ -3,6 +3,7 @@ namespace NetEvolve.Schemas.XPath.Tests.Unit.Fakes;
 using System;
 using System.Collections.Generic;
 using NetEvolve.Schemas.Xml.Contracts;
+using NetEvolve.Schemas.Xml.Text.NameTable;
 
 /// <summary>A fixed tree of <c>&lt;root a="1"&gt;hello&lt;/root&gt;</c>: document 0, element 1, attribute 2, text 3. No annotation exists.</summary>
 internal sealed class FakeNodeSource : XmlTree
@@ -20,8 +21,7 @@ internal sealed class FakeNodeSource : XmlTree
     private readonly SpanInterningNameTable _names = new(1000);
     private readonly XmlName[] _nameOf;
 
-    public FakeNodeSource() =>
-        _nameOf = [default, _names.Intern("", "root", ""), _names.Intern("", "a", ""), default];
+    public FakeNodeSource() => _nameOf = [default, _names.Intern("", "root", ""), _names.Intern("", "a", ""), default];
 
     public XmlNode Element => new(this, 1);
 

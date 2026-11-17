@@ -18,24 +18,25 @@ internal sealed class FakeFunction : XPathHostFunction
 
     public override XPathVersionMask Versions => VersionMask;
 
-    public override XPathEvaluationStatus Invoke(ref XPathFunctionCall call)
+    public override XPathEvaluationStatus Invoke(ref XPathFunctionCall invocation)
     {
         if (_result is not null)
         {
-            call.Result = XdmSequence.Create(XdmItem.FromString(_result));
+            invocation.Result = XdmSequence.Create(XdmItem.FromString(_result));
             return XPathEvaluationStatus.Ok;
         }
 
         var text = string.Empty;
-        if (call.Arguments[0].Count > 0)
+        if (invocation.Arguments[0].Count > 0)
         {
-            var item = call.Arguments[0][0];
-            text = item.TryGetNode(out var node) ? node.Node.StringValue
-                : item.TryGetString(out var value) ? value
+            var item = invocation.Arguments[0][0];
+            text =
+                item.TryGetNode(out var node) ? node.Node.StringValue
+                : item.TryGetString(out var value) ? value ?? string.Empty
                 : string.Empty;
         }
 
-        call.Result = XdmSequence.Create(XdmItem.FromInteger(text.Length));
+        invocation.Result = XdmSequence.Create(XdmItem.FromInteger(text.Length));
         return XPathEvaluationStatus.Ok;
     }
 }
