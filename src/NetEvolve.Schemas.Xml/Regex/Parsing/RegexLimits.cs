@@ -1,5 +1,7 @@
 namespace NetEvolve.Schemas.Xml.Regex.Parsing;
 
+using NetEvolve.Arguments;
+
 /// <summary>Immutable limits of the pattern parser; exceeding one is <c>RX0009</c>.</summary>
 /// <remarks>Limitation: the defaults are those of the approved design; the program size limit belongs to the matcher.</remarks>
 public sealed class RegexLimits
@@ -22,10 +24,18 @@ public sealed class RegexLimits
     /// <summary>Returns a copy with another <see cref="MaxPatternLength"/>.</summary>
     /// <param name="value">The new value, one or greater.</param>
     /// <returns>The new limits.</returns>
-    public RegexLimits WithMaxPatternLength(int value) => new(value, MaxNesting);
+    public RegexLimits WithMaxPatternLength(int value)
+    {
+        Argument.ThrowIfLessThan(value, 1);
+        return new(value, MaxNesting);
+    }
 
     /// <summary>Returns a copy with another <see cref="MaxNesting"/>.</summary>
     /// <param name="value">The new value, one or greater.</param>
     /// <returns>The new limits.</returns>
-    public RegexLimits WithMaxNesting(int value) => new(MaxPatternLength, value);
+    public RegexLimits WithMaxNesting(int value)
+    {
+        Argument.ThrowIfLessThan(value, 1);
+        return new(MaxPatternLength, value);
+    }
 }

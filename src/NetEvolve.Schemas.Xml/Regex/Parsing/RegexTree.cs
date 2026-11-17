@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.Xml.Regex.Parsing;
 
 using System;
+using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Regex.Contracts;
 using NetEvolve.Schemas.Xml.Regex.Matching;
 
@@ -31,5 +32,10 @@ public sealed class RegexTree
     /// <summary>Returns a set.</summary>
     /// <param name="index">The <see cref="RegexNode.Value"/> of a set node.</param>
     /// <returns>The set.</returns>
-    public RegexCharacterSet GetSet(int index) => _sets[index];
+    public RegexCharacterSet GetSet(int index)
+    {
+        Argument.ThrowIfLessThan(index, 0);
+        Argument.ThrowIfGreaterThan(index, _sets.Length - 1);
+        return _sets[index];
+    }
 }

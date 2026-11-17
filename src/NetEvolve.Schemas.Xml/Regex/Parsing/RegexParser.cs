@@ -3,6 +3,7 @@ namespace NetEvolve.Schemas.Xml.Regex.Parsing;
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Regex.Contracts;
 using NetEvolve.Schemas.Xml.Regex.Matching;
 using NetEvolve.Schemas.Xml.Text.CharClasses;
@@ -32,11 +33,11 @@ public static class RegexParser
     /// <summary>Parses a pattern.</summary>
     /// <param name="pattern">The pattern.</param>
     /// <param name="syntax">The dialect and the name edition.</param>
-    /// <param name="limits">The parser limits; <see langword="null"/> selects <see cref="RegexLimits.Default"/>.</param>
+    /// <param name="limits">The parser limits; must not be <see langword="null"/>.</param>
     /// <returns>The tree or the error.</returns>
     public static RegexParseResult Parse(ReadOnlySpan<char> pattern, RegexSyntax syntax, RegexLimits limits)
     {
-        limits ??= RegexLimits.Default;
+        Argument.ThrowIfNull(limits);
 
         if (syntax.Dialect != RegexDialect.Xsd)
         {

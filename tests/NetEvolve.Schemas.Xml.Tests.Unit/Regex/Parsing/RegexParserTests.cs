@@ -470,10 +470,6 @@ public class RegexParserTests
     }
 
     [Test]
-    public async Task Parse_NullLimits_UsesDefaults() =>
-        await Assert.That(RegexParser.Parse("a", Xsd10, null!).Succeeded).IsTrue();
-
-    [Test]
     public async Task Limits_Defaults()
     {
         await Assert.That(RegexLimits.Default.MaxPatternLength).IsEqualTo(4096);
