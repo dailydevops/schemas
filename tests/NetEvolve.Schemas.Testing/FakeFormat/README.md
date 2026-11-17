@@ -13,4 +13,4 @@ Each real format adds exactly one folder next to this one and keeps its entry po
 ## Limitations
 
 - With a compiler older than C# 14, `SchemaValidator.For<Format>` is not available; callers use the named extension class.
-- The fake validator returns no `ValidationResult` until FND-09 lands, so the legacy-compiler tests assert the recorded call instead of a valid result.
+- The fake validator returns `ValidationResult.Valid` for every call and records the call for assertions.
