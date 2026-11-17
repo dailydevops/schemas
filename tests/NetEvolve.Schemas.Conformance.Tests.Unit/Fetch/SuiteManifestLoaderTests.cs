@@ -36,6 +36,47 @@ public class SuiteManifestLoaderTests
     }
 
     [Test]
+    public async Task LoadDirectory_SkipsJsonFilesThatDeclareNoManifestField(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        using var temp = new TempDirectory();
+        await File.WriteAllTextAsync(Path.Combine(temp.Path, "one.json"), Json("one", ValidHash), cancellationToken);
+        await File.WriteAllTextAsync(
+            Path.Combine(temp.Path, "stage-sources.json"),
+            """{ "stage4": { "suite": "x", "cases": [] } }""",
+            cancellationToken
+        );
+
+        var manifests = SuiteManifestLoader.LoadDirectory(temp.Path);
+
+        await Assert.That(manifests.Count).IsEqualTo(1);
+        await Assert.That(manifests[0].Key).IsEqualTo("one");
+    }
+
+    [Test]
+    [Arguments("""{ "key": "s", "url": "https://e.invalid/s.zip", "archive": "zip" }""")]
+    [Arguments("""{ "key": "s", "url": "https://e.invalid/s.zip", "sha256": "abc", "archive": "zip" }""")]
+    [Arguments("""{ "url": "https://e.invalid/s.zip", "sha256": "HASH", "archive": "zip" }""")]
+    [Arguments("[]")]
+    [Arguments("{ not json")]
+    public async Task LoadDirectory_ManifestWithBadOrMissingField_StillFails(
+        string template,
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        ArgumentNullException.ThrowIfNull(template);
+        using var temp = new TempDirectory();
+        await File.WriteAllTextAsync(
+            Path.Combine(temp.Path, "s.json"),
+            template.Replace("HASH", ValidHash, StringComparison.Ordinal),
+            cancellationToken
+        );
+
+        await Assert.That(() => SuiteManifestLoader.LoadDirectory(temp.Path)).Throws<SuiteManifestException>();
+    }
+
+    [Test]
     public async Task LoadDirectory_DuplicateSuiteKey_Fails(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
