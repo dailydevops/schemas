@@ -13,11 +13,11 @@ public class XdmContractTests
     private static readonly string[] AtomicFamilies =
     [
         "Boolean",
-        "Integer",
-        "Decimal",
-        "Double",
-        "Float",
-        "String",
+        "XsInteger",
+        "XsDecimal",
+        "XsDouble",
+        "XsFloat",
+        "XsString",
         "UntypedAtomic",
         "AnyUri",
         "QName",
@@ -65,20 +65,20 @@ public class XdmContractTests
         await Assert.That(b).IsTrue();
         await Assert.That(XdmItem.FromBoolean(false).TryGetBoolean(out var f)).IsTrue();
         await Assert.That(f).IsFalse();
-        await Assert.That(integer.Kind).IsEqualTo(XdmItemKind.Integer);
+        await Assert.That(integer.Kind).IsEqualTo(XdmItemKind.XsInteger);
         await Assert.That(integer.TryGetInteger(out var i)).IsTrue();
         await Assert.That(i).IsEqualTo(-42L);
-        await Assert.That(number.Kind).IsEqualTo(XdmItemKind.Double);
+        await Assert.That(number.Kind).IsEqualTo(XdmItemKind.XsDouble);
         await Assert.That(number.TryGetDouble(out var d)).IsTrue();
         await Assert.That(d).IsEqualTo(1.5);
-        await Assert.That(text.Kind).IsEqualTo(XdmItemKind.String);
+        await Assert.That(text.Kind).IsEqualTo(XdmItemKind.XsString);
         await Assert.That(text.TryGetString(out var s)).IsTrue();
         await Assert.That(s).IsEqualTo("abc");
         await Assert.That(boolean.IsNode).IsFalse();
         await Assert.That(boolean.TypeId).IsEqualTo(XdmTypeId.Boolean);
-        await Assert.That(integer.TypeId).IsEqualTo(XdmTypeId.Integer);
-        await Assert.That(number.TypeId).IsEqualTo(XdmTypeId.Double);
-        await Assert.That(text.TypeId).IsEqualTo(XdmTypeId.String);
+        await Assert.That(integer.TypeId).IsEqualTo(XdmTypeId.XsInteger);
+        await Assert.That(number.TypeId).IsEqualTo(XdmTypeId.XsDouble);
+        await Assert.That(text.TypeId).IsEqualTo(XdmTypeId.XsString);
     }
 
     [Test]
@@ -191,7 +191,7 @@ public class XdmContractTests
             kinds.Add(each.Kind);
         }
 
-        await Assert.That(kinds).IsEquivalentTo([XdmItemKind.Integer, XdmItemKind.String]);
+        await Assert.That(kinds).IsEquivalentTo([XdmItemKind.XsInteger, XdmItemKind.XsString]);
         await Assert.That(() => pair[2]).Throws<ArgumentOutOfRangeException>();
         await Assert.That(() => XdmSequence.Empty[0]).Throws<ArgumentOutOfRangeException>();
     }
@@ -203,10 +203,10 @@ public class XdmContractTests
         [
             XdmTypeId.Untyped,
             XdmTypeId.UntypedAtomic,
-            XdmTypeId.String,
+            XdmTypeId.XsString,
             XdmTypeId.Boolean,
-            XdmTypeId.Integer,
-            XdmTypeId.Double,
+            XdmTypeId.XsInteger,
+            XdmTypeId.XsDouble,
         ];
 
         await Assert.That(new XdmTypeId(ids[0].Value) == ids[0]).IsTrue();
@@ -228,7 +228,7 @@ public class XdmContractTests
         await Assert.That(a.Equals("x")).IsFalse();
         await Assert.That(a.GetHashCode()).IsEqualTo(new XPathQName("urn:a", "x").GetHashCode());
         await Assert.That(a.ToString()).IsEqualTo("Q{urn:a}x");
-        await Assert.That(default(XPathQName).NamespaceUri).IsEqualTo(string.Empty);
+        await Assert.That(default(XPathQName).NamespaceName).IsEqualTo(string.Empty);
         await Assert.That(default(XPathQName).LocalName).IsEqualTo(string.Empty);
         await Assert.That(() => new XPathQName("urn:a", "")).Throws<ArgumentException>();
         await Assert.That(() => new XPathQName(null!, "x")).Throws<ArgumentNullException>();

@@ -1,5 +1,3 @@
-#pragma warning disable CA1720 // Approved shape (#123): the members are named after the XDM atomic families.
-
 namespace NetEvolve.Schemas.XPath.Xdm.Values;
 
 using System;
@@ -24,16 +22,16 @@ public readonly struct XdmTypeId : IEquatable<XdmTypeId>
     public static XdmTypeId UntypedAtomic => new(2);
 
     /// <summary>Gets <c>xs:string</c>.</summary>
-    public static XdmTypeId String => new(3);
+    public static XdmTypeId XsString => new(3);
 
     /// <summary>Gets <c>xs:boolean</c>.</summary>
     public static XdmTypeId Boolean => new(4);
 
     /// <summary>Gets <c>xs:integer</c>.</summary>
-    public static XdmTypeId Integer => new(5);
+    public static XdmTypeId XsInteger => new(5);
 
     /// <summary>Gets <c>xs:double</c>.</summary>
-    public static XdmTypeId Double => new(6);
+    public static XdmTypeId XsDouble => new(6);
 
     /// <summary>Gets the handle.</summary>
     public int Value { get; }

@@ -1,5 +1,3 @@
-#pragma warning disable CA1707 // Approved shape (#123): the members are named after the specification versions.
-
 namespace NetEvolve.Schemas.XPath.Api;
 
 using System;
@@ -12,14 +10,14 @@ public enum XPathVersionMask
     None = 0,
 
     /// <summary>XPath 2.0.</summary>
-    V2_0 = 1,
+    V20 = 1,
 
     /// <summary>XPath 3.0.</summary>
-    V3_0 = 2,
+    V30 = 2,
 
     /// <summary>XPath 3.1.</summary>
-    V3_1 = 4,
+    V31 = 4,
 
     /// <summary>Every version.</summary>
-    All = V2_0 | V3_0 | V3_1,
+    All = V20 | V30 | V31,
 }

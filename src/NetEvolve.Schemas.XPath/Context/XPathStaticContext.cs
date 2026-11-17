@@ -1,5 +1,3 @@
-#pragma warning disable CA1054, CA1056 // Approved shape (#123): base URI and namespace URIs are passed as strings.
-
 namespace NetEvolve.Schemas.XPath.Context;
 
 using System;
@@ -44,7 +42,7 @@ public sealed class XPathStaticContext
     public bool XPath10Compatibility { get; }
 
     /// <summary>Gets the base URI, <see langword="null"/> when there is none.</summary>
-    public string? BaseUri { get; }
+    public Uri? BaseUri { get; }
 
     /// <summary>Gets the default element namespace, <see langword="null"/> for none.</summary>
     public string? DefaultElementNamespace { get; }
@@ -113,7 +111,7 @@ public sealed class XPathStaticContext
 
         internal bool Compatibility { get; private set; }
 
-        internal string? BaseUri { get; private set; }
+        internal Uri? BaseUri { get; private set; }
 
         internal string? DefaultElementNamespace { get; private set; }
 
@@ -144,33 +142,33 @@ public sealed class XPathStaticContext
         /// <summary>Sets the base URI.</summary>
         /// <param name="uri">The base URI, <see langword="null"/> for none.</param>
         /// <returns>This builder.</returns>
-        public Builder WithBaseUri(string? uri)
+        public Builder WithBaseUri(Uri? uri)
         {
             BaseUri = uri;
             return this;
         }
 
-        /// <summary>Binds a prefix to a namespace URI; a later binding replaces an earlier one.</summary>
+        /// <summary>Binds a prefix to a namespace name; a later binding replaces an earlier one.</summary>
         /// <param name="prefix">The prefix.</param>
-        /// <param name="namespaceUri">The namespace URI.</param>
+        /// <param name="namespaceName">The namespace name.</param>
         /// <returns>This builder.</returns>
         /// <exception cref="System.ArgumentNullException">An argument is <see langword="null"/>.</exception>
         /// <exception cref="System.ArgumentException"><paramref name="prefix"/> is empty.</exception>
-        public Builder WithNamespace(string prefix, string namespaceUri)
+        public Builder WithNamespace(string prefix, string namespaceName)
         {
             Argument.ThrowIfNullOrEmpty(prefix);
-            Argument.ThrowIfNull(namespaceUri);
+            Argument.ThrowIfNull(namespaceName);
 
-            Namespaces[prefix] = namespaceUri;
+            Namespaces[prefix] = namespaceName;
             return this;
         }
 
         /// <summary>Sets the default element namespace.</summary>
-        /// <param name="namespaceUri">The namespace URI, <see langword="null"/> for none.</param>
+        /// <param name="namespaceName">The namespace name, <see langword="null"/> for none.</param>
         /// <returns>This builder.</returns>
-        public Builder WithDefaultElementNamespace(string? namespaceUri)
+        public Builder WithDefaultElementNamespace(string? namespaceName)
         {
-            DefaultElementNamespace = namespaceUri;
+            DefaultElementNamespace = namespaceName;
             return this;
         }
 
