@@ -10,6 +10,9 @@ public enum DatatypeError
     /// <summary>No error.</summary>
     None = 0,
 
+    /// <summary><c>DT0001</c>: the input is not a well-formed lexical form of the type, for example it is empty, has no digit, or has a second decimal point.</summary>
+    InvalidLexicalForm = 1,
+
     /// <summary><c>DT0010</c>: a lexical number exceeds the digit cap.</summary>
     DigitCap = 10,
 

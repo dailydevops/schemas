@@ -1,14 +1,15 @@
-namespace NetEvolve.Schemas.Xml.Tests.Unit.Datatypes.Decimal;
+namespace NetEvolve.Schemas.Xml.Tests.Unit.Datatypes.Decimals;
 
 using System;
 using System.Globalization;
 using System.Numerics;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
-using NetEvolve.Schemas.Xml.Datatypes.Decimal;
+using NetEvolve.Schemas.Xml.Datatypes.Decimals;
 
 public class XsdDecimalTests
 {
     private const string Digits40 = "1234567890123456789012345678901234567890";
+    private const string Digits39 = "123456789012345678901234567890123456789";
 
     private static XsdDecimal P(string lexical)
     {
@@ -18,7 +19,7 @@ public class XsdDecimalTests
 
     [Test]
     [Arguments(Digits40, Digits40)]
-    [Arguments("-" + Digits40 + "." + Digits40, "-" + Digits40 + "." + Digits40)]
+    [Arguments("-" + Digits40 + "." + Digits40 + "00", "-" + Digits40 + "." + Digits39)]
     [Arguments("+007.500", "7.5")]
     [Arguments(".5", "0.5")]
     [Arguments("5.", "5")]
@@ -39,9 +40,7 @@ public class XsdDecimalTests
     {
         var value = P(Digits40 + ".5");
 
-        await Assert
-            .That(value.Mantissa)
-            .IsEqualTo(BigInteger.Parse(Digits40 + "5", CultureInfo.InvariantCulture));
+        await Assert.That(value.Mantissa).IsEqualTo(BigInteger.Parse(Digits40 + "5", CultureInfo.InvariantCulture));
         await Assert.That(value.Scale).IsEqualTo(1);
     }
 
@@ -226,7 +225,7 @@ public class XsdDecimalTests
     [Test]
     public async Task Digits_OfAValueBeyondTheInlinePath_AreCounted()
     {
-        var value = P(Digits40 + "." + Digits40 + "0");
+        var value = P(Digits40 + ".1234567890123456789012345678901234567891");
 
         await Assert.That(value.TotalDigits).IsEqualTo(80);
         await Assert.That(value.FractionDigits).IsEqualTo(40);
@@ -235,11 +234,11 @@ public class XsdDecimalTests
     [Test]
     public async Task Constructor_NormalizesMantissaAndScale()
     {
-        var value = new XsdDecimal(new BigInteger(12000), 3);
+        var value = new XsdDecimal(new BigInteger(12000), 0);
 
         await Assert.That(value.Mantissa).IsEqualTo(new BigInteger(12));
-        await Assert.That(value.Scale).IsEqualTo(-1);
-        await Assert.That(value.ToString()).IsEqualTo("12");
+        await Assert.That(value.Scale).IsEqualTo(-3);
+        await Assert.That(value.ToString()).IsEqualTo("12000");
         await Assert.That(new XsdDecimal(BigInteger.Zero, 7)).IsEqualTo(XsdDecimal.Zero);
         await Assert.That(XsdDecimal.Zero.Scale).IsEqualTo(0);
     }
