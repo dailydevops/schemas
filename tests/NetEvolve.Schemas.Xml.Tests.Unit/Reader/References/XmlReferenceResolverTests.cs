@@ -176,4 +176,25 @@ public class XmlReferenceResolverTests
 
         await Task.CompletedTask;
     }
+
+    [Test]
+    public async Task TryResolve_BufferShorterThanTextWithAmpersand_ThrowsArgumentOutOfRange()
+    {
+        var thrown = TryResolveWithShortBuffer("a &amp; b");
+
+        await Assert.That(thrown).IsTrue();
+    }
+
+    private static bool TryResolveWithShortBuffer(string text)
+    {
+        try
+        {
+            _ = XmlReferenceResolver.TryResolve(text, new char[text.Length - 1], out _, out _);
+            return false;
+        }
+        catch (ArgumentOutOfRangeException)
+        {
+            return true;
+        }
+    }
 }
