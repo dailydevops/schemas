@@ -58,8 +58,8 @@ public class ExpressionCompilerTests
         await Assert.That(ok).IsFalse();
         await Assert.That(compiled).IsNull();
         await Assert.That(diagnostic.Code).IsEqualTo("XPST0008");
-        await Assert.That(diagnostic.Offset).IsEqualTo(3);
-        await Assert.That(diagnostic.Length).IsEqualTo(2);
+        await Assert.That(diagnostic.Offset).IsEqualTo(4);
+        await Assert.That(diagnostic.Length).IsEqualTo(1);
     }
 
     [Test]
@@ -135,7 +135,7 @@ public class ExpressionCompilerTests
         await Assert.That(ok).IsFalse();
         await Assert.That(diagnostic.Code).IsEqualTo("XPST0081");
         await Assert.That(diagnostic.Offset).IsEqualTo(2);
-        await Assert.That(diagnostic.Length).IsEqualTo(7);
+        await Assert.That(diagnostic.Length).IsEqualTo(4);
     }
 
     [Test]
