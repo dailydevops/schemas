@@ -364,6 +364,12 @@ internal sealed partial class XmlParser : IXmlReader, IDisposable
             return Fail(XmlErrorCodes.XML1108, position);
         }
 
+        // Namespaces in XML 1.0, production [17]: a processing instruction target is an NCName.
+        if (target.IndexOf(':') >= 0)
+        {
+            return Fail(XmlErrorCodes.XML3004, position);
+        }
+
         var status = _names!.TryIntern(target, out var symbol);
         if (status != XmlNameTableStatus.Ok)
         {

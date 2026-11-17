@@ -203,6 +203,8 @@ public class XmlParserProductionTests
     [Arguments("<a xmlns:p=\"u\" xmlns:q=\"u\" p:x=\"1\" q:x=\"2\"/>", "XML3003")]
     [Arguments("<a:b:c/>", "XML3004")]
     [Arguments("<a xmlns:p=\"\"/>", "XML3005")]
+    [Arguments("<a><?p:t data?></a>", "XML3004")]
+    [Arguments("<?p:t?><a/>", "XML3004")]
     [Arguments("<!DOCTYPE a><a/>", "XML2001")]
     public async Task Pump_InvalidInput_ReportsCode(string xml, string alias)
     {
