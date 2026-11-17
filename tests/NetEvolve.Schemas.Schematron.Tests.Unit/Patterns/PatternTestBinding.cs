@@ -92,10 +92,9 @@ internal sealed class PatternTestBinding : IQueryBinding
         {
             if (text.StartsWith("position() = ", StringComparison.Ordinal))
             {
-                var operand = text.Substring("position() = ".Length).Trim('(', ')');
-                var expected = string.Equals(operand, "last()", StringComparison.Ordinal)
-                    ? focus.Size
-                    : int.Parse(operand, CultureInfo.InvariantCulture);
+                var operand = text.Substring("position() = ".Length);
+                operand = operand.StartsWith('(') ? operand.Substring(1, operand.Length - 2) : operand;
+                var expected = string.Equals(operand, "last()", StringComparison.Ordinal) ? focus.Size : Sum(operand);
                 return focus.Position == expected;
             }
 
@@ -106,6 +105,17 @@ internal sealed class PatternTestBinding : IQueryBinding
             }
 
             return string.Equals(text, "true()", StringComparison.Ordinal);
+        }
+
+        private static int Sum(string operand)
+        {
+            var total = 0;
+            foreach (var part in operand.Split('+'))
+            {
+                total += int.Parse(part, CultureInfo.InvariantCulture);
+            }
+
+            return total;
         }
 
         private static bool HasAttribute(XPathNode element, string name, string? value)

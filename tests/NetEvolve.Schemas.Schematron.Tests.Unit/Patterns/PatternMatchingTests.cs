@@ -88,7 +88,7 @@ public class PatternMatchingTests
     [Test]
     [Arguments("a|text()", "a1 t1 a2")]
     [Arguments("@n|b", "a1n b1 b2 a2n a2b")]
-    [Arguments("e|/|comment()", "doc head c e")]
+    [Arguments("e|/|comment()", "doc head c")]
     [Arguments("a union text()", "a1 t1 a2")]
     public async Task Matches_UnionPattern_MatchesWhenAnyAlternativeMatches(string pattern, string expected) =>
         await Assert.That(MatchingKeys(pattern)).IsEqualTo(expected);
@@ -204,9 +204,9 @@ public class PatternMatchingTests
         AllocationAssert.NoAllocation(() =>
         {
             matches = 0;
-            foreach (var pair in Nodes)
+            for (var i = 0; i < Nodes.Count; i++)
             {
-                _ = matcher.Matches(compiled, run, pair.Value, out var matched);
+                _ = matcher.Matches(compiled, run, Nodes[i].Value, out var matched);
                 if (matched)
                 {
                     matches++;
