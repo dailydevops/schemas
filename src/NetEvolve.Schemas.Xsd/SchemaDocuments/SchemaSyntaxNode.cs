@@ -108,6 +108,25 @@ internal sealed class SchemaSyntaxNode : ISchemaSyntaxElement
 
     internal void AddAttribute(in XsdSyntaxAttribute attribute) => _attributes.Add(attribute);
 
+    /// <summary>Replaces the value of an attribute that has no namespace, keeping its location; composition uses it for the redefine rewrite.</summary>
+    /// <param name="localName">The local name.</param>
+    /// <param name="value">The new value.</param>
+    internal void SetAttribute(string localName, string value)
+    {
+        for (var i = 0; i < _attributes.Count; i++)
+        {
+            var attribute = _attributes[i];
+            if (
+                attribute.Name.NamespaceName.Length == 0
+                && string.Equals(attribute.Name.LocalName, localName, StringComparison.Ordinal)
+            )
+            {
+                _attributes[i] = new XsdSyntaxAttribute(attribute.Name, value, attribute.Location);
+                return;
+            }
+        }
+    }
+
     internal void AddNamespace(string prefix, string uri) =>
         _namespaces.Add(new KeyValuePair<string, string>(prefix, uri));
 }

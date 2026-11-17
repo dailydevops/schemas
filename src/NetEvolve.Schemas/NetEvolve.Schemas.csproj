@@ -1,7 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <!-- The Xml package throws the Stub.For exceptions of its signature-only members (XML-50); so does the XPath package (XP-50). -->
+  <!-- The Xml package throws the Stub.For exceptions of its signature-only members (XML-50); so does the XPath package (XP-50). The Xsd package reuses the internal URI resolution of the resource helper (XSD-05, design #146 DP-24). -->
   <ItemGroup>
     <InternalsVisibleTo Include="NetEvolve.Schemas.Xml" />
     <InternalsVisibleTo Include="NetEvolve.Schemas.XPath" />
+    <InternalsVisibleTo Include="NetEvolve.Schemas.Xsd" />
   </ItemGroup>
 </Project>

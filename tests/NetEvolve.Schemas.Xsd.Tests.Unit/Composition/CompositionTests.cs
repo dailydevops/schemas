@@ -193,8 +193,8 @@ public class CompositionTests
 
         await Assert.That(issues.Count).IsEqualTo(0);
         await Assert.That(set.Units.Count).IsEqualTo(4);
-        await Assert.That(set.Units[2].EffectiveNamespace).IsEqualTo("urn:b");
-        await Assert.That(set.Units[3].EffectiveNamespace).IsEqualTo("urn:root");
+        await Assert.That(set.Units[2].EffectiveNamespace).IsEqualTo("urn:root");
+        await Assert.That(set.Units[3].EffectiveNamespace).IsEqualTo("urn:b");
     }
 
     [Test]
