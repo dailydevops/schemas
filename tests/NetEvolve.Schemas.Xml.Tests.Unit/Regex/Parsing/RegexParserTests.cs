@@ -403,12 +403,11 @@ public class RegexParserTests
     }
 
     [Test]
-    public async Task Parse_XPathDialect_IsNotParsedYet()
+    public async Task Parse_XPathDialect_IsParsed()
     {
         var result = RegexParser.Parse("a", new RegexSyntax(RegexDialect.XPath, NameEdition.Xml10SecondEdition));
 
-        await Assert.That(result.Error).IsEqualTo(RegexError.ConstructNotAllowed);
-        await Assert.That(result.Position).IsEqualTo(0);
+        await Assert.That(result.Succeeded).IsTrue();
     }
 
     [Test]

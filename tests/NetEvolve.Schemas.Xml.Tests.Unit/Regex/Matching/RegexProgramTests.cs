@@ -255,12 +255,12 @@ public class RegexProgramTests
     }
 
     [Test]
-    public async Task XPathDialect_IsNotCompiledYet()
+    public async Task XPathDialect_IsCompiled()
     {
         var t = new TreeBuilder();
         t.WithRoot(t.Char('a'));
 
-        await Assert.That(t.TryCompile(RegexDialect.XPath)).IsEqualTo(RegexError.ConstructNotAllowed);
+        await Assert.That(t.TryCompile(RegexDialect.XPath)).IsEqualTo(RegexError.None);
     }
 
     [Test]
