@@ -276,12 +276,18 @@ namespace NetEvolve.Schemas.XPath.Xdm.Values
         public override bool Equals(object? obj) { }
         public override int GetHashCode() { }
         public bool TryGetBoolean(out bool value) { }
+        public bool TryGetDateTime(out NetEvolve.Schemas.Xml.Datatypes.DateTime.XsdDateTime value) { }
+        public bool TryGetDecimal(out NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal value) { }
         public bool TryGetDouble(out double value) { }
+        public bool TryGetDuration(out NetEvolve.Schemas.Xml.Datatypes.Duration.XsdDuration value) { }
         public bool TryGetInteger(out long value) { }
         public bool TryGetNode(out NetEvolve.Schemas.XPath.Xdm.Nodes.XPathNode node) { }
         public bool TryGetString(out string? value) { }
         public static NetEvolve.Schemas.XPath.Xdm.Values.XdmItem FromBoolean(bool value) { }
+        public static NetEvolve.Schemas.XPath.Xdm.Values.XdmItem FromDateTime(in NetEvolve.Schemas.Xml.Datatypes.DateTime.XsdDateTime value) { }
+        public static NetEvolve.Schemas.XPath.Xdm.Values.XdmItem FromDecimal(in NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal value) { }
         public static NetEvolve.Schemas.XPath.Xdm.Values.XdmItem FromDouble(double value) { }
+        public static NetEvolve.Schemas.XPath.Xdm.Values.XdmItem FromDuration(in NetEvolve.Schemas.Xml.Datatypes.Duration.XsdDuration value, NetEvolve.Schemas.Xml.Datatypes.Duration.DurationKind kind = 0) { }
         public static NetEvolve.Schemas.XPath.Xdm.Values.XdmItem FromInteger(long value) { }
         public static NetEvolve.Schemas.XPath.Xdm.Values.XdmItem FromNode(in NetEvolve.Schemas.XPath.Xdm.Nodes.XPathNode node) { }
         public static NetEvolve.Schemas.XPath.Xdm.Values.XdmItem FromString(string value) { }

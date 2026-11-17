@@ -5,12 +5,17 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Contracts;
+using NetEvolve.Schemas.Xml.Datatypes.DateTime;
+using NetEvolve.Schemas.Xml.Datatypes.Decimals;
+using NetEvolve.Schemas.Xml.Datatypes.Duration;
 using NetEvolve.Schemas.XPath.Xdm.Nodes;
 
 /// <summary>An item: a node or an atomic value. A tagged struct; boolean, integer, double, and node need no allocation.</summary>
 /// <remarks>
-/// Limitation: the factories and accessors for decimal, date and time, and duration values are not part of this contract; XP-06
-/// adds exactly <c>FromDecimal</c>, <c>FromDateTime</c>, <c>FromDuration</c>, and the matching <c>TryGet</c> members (#185).
+/// Limitation: the public factories and accessors cover boolean, integer, double, string, node, decimal, date and time, and
+/// duration values; <c>xs:float</c> and <c>xs:untypedAtomic</c> are internal, and <c>xs:anyURI</c>, <c>xs:QName</c>,
+/// <c>xs:NOTATION</c>, <c>xs:hexBinary</c>, <c>xs:base64Binary</c>, and the Gregorian types have no value type yet.
+/// Decimal, date and time, and duration values are boxed.
 /// </remarks>
 [StructLayout(LayoutKind.Auto)]
 public readonly struct XdmItem : IEquatable<XdmItem>
@@ -73,6 +78,46 @@ public readonly struct XdmItem : IEquatable<XdmItem>
         return new(XdmItemKind.UntypedAtomic, XdmTypeId.UntypedAtomic, 0, value);
     }
 
+    /// <summary>Creates an <c>xs:float</c> item.</summary>
+    /// <param name="value">The value.</param>
+    /// <returns>The item.</returns>
+    internal static XdmItem FromFloat(float value) =>
+        new(XdmItemKind.XsFloat, XdmTypeId.XsFloat, BitConverter.DoubleToInt64Bits(value), null);
+
+    /// <summary>Creates a decimal item.</summary>
+    /// <param name="value">The value.</param>
+    /// <returns>The item.</returns>
+    public static XdmItem FromDecimal(in XsdDecimal value) => new(XdmItemKind.XsDecimal, XdmTypeId.XsDecimal, 0, value);
+
+    /// <summary>Creates an <c>xs:dateTime</c>, <c>xs:date</c>, or <c>xs:time</c> item, chosen by the kind of the value.</summary>
+    /// <param name="value">The value.</param>
+    /// <returns>The item.</returns>
+    public static XdmItem FromDateTime(in XsdDateTime value) =>
+        value.Kind switch
+        {
+            XsdDateTimeKind.Date => new(XdmItemKind.Date, XdmTypeId.Date, 0, value),
+            XsdDateTimeKind.Time => new(XdmItemKind.Time, XdmTypeId.Time, 0, value),
+            _ => new(XdmItemKind.DateTime, XdmTypeId.DateTime, 0, value),
+        };
+
+    /// <summary>Creates an <c>xs:duration</c>, <c>xs:yearMonthDuration</c>, or <c>xs:dayTimeDuration</c> item.</summary>
+    /// <param name="value">The value.</param>
+    /// <param name="kind">The type of the item; the caller guarantees that the value fits it.</param>
+    /// <returns>The item.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="kind"/> is not a defined kind.</exception>
+    public static XdmItem FromDuration(in XsdDuration value, DurationKind kind = DurationKind.Duration)
+    {
+        Argument.ThrowIfLessThan((int)kind, (int)DurationKind.Duration);
+        Argument.ThrowIfGreaterThan((int)kind, (int)DurationKind.DayTime);
+
+        return kind switch
+        {
+            DurationKind.YearMonth => new(XdmItemKind.YearMonthDuration, XdmTypeId.YearMonthDuration, 0, value),
+            DurationKind.DayTime => new(XdmItemKind.DayTimeDuration, XdmTypeId.DayTimeDuration, 0, value),
+            _ => new(XdmItemKind.Duration, XdmTypeId.Duration, 0, value),
+        };
+    }
+
     /// <summary>Creates a node item.</summary>
     /// <param name="node">The node.</param>
     /// <returns>The item, carrying the type annotation of the node.</returns>
@@ -112,6 +157,45 @@ public readonly struct XdmItem : IEquatable<XdmItem>
         return Kind == XdmItemKind.XsDouble;
     }
 
+    /// <summary>Gets the <c>xs:float</c> value.</summary>
+    /// <param name="value">The value.</param>
+    /// <returns><see langword="true"/> when the item is a float.</returns>
+    internal bool TryGetFloat(out float value)
+    {
+        value = (float)BitConverter.Int64BitsToDouble(_bits);
+        return Kind == XdmItemKind.XsFloat;
+    }
+
+    /// <summary>Gets the decimal value.</summary>
+    /// <param name="value">The value, <see langword="default"/> unless the item is a decimal.</param>
+    /// <returns><see langword="true"/> when the item is a decimal.</returns>
+    public bool TryGetDecimal(out XsdDecimal value)
+    {
+        var found = Kind == XdmItemKind.XsDecimal;
+        value = found ? (XsdDecimal)_reference! : default;
+        return found;
+    }
+
+    /// <summary>Gets the date and time value.</summary>
+    /// <param name="value">The value, <see langword="default"/> unless the item is a dateTime, date, or time.</param>
+    /// <returns><see langword="true"/> when the item is an <c>xs:dateTime</c>, <c>xs:date</c>, or <c>xs:time</c>.</returns>
+    public bool TryGetDateTime(out XsdDateTime value)
+    {
+        var found = Kind is XdmItemKind.DateTime or XdmItemKind.Date or XdmItemKind.Time;
+        value = found ? (XsdDateTime)_reference! : default;
+        return found;
+    }
+
+    /// <summary>Gets the duration value.</summary>
+    /// <param name="value">The value, <see langword="default"/> unless the item is a duration.</param>
+    /// <returns><see langword="true"/> when the item is an <c>xs:duration</c>, <c>xs:yearMonthDuration</c>, or <c>xs:dayTimeDuration</c>.</returns>
+    public bool TryGetDuration(out XsdDuration value)
+    {
+        var found = Kind is XdmItemKind.Duration or XdmItemKind.YearMonthDuration or XdmItemKind.DayTimeDuration;
+        value = found ? (XsdDuration)_reference! : default;
+        return found;
+    }
+
     /// <summary>Gets the string value.</summary>
     /// <param name="value">The value, <see langword="null"/> unless the item is a string.</param>
     /// <returns><see langword="true"/> when the item is a string.</returns>
@@ -141,28 +225,37 @@ public readonly struct XdmItem : IEquatable<XdmItem>
 
     /// <inheritdoc />
     public bool Equals(XdmItem other) =>
-        Kind == other.Kind
-        && TypeId == other.TypeId
-        && _bits == other._bits
-        && (
-            Kind is XdmItemKind.XsString or XdmItemKind.UntypedAtomic
-                ? string.Equals((string?)_reference, (string?)other._reference, StringComparison.Ordinal)
-                : ReferenceEquals(_reference, other._reference)
-        );
+        Kind == other.Kind && TypeId == other.TypeId && _bits == other._bits && ReferencesEqual(other);
 
     /// <inheritdoc />
     public override bool Equals(object? obj) => obj is XdmItem other && Equals(other);
 
     /// <inheritdoc />
     public override int GetHashCode() =>
-        unchecked(
-            (((((((int)Kind * 31) + TypeId.Value) * 31) + _bits.GetHashCode()) * 31))
-            + (
-                Kind is XdmItemKind.XsString or XdmItemKind.UntypedAtomic
-                    ? StringComparer.Ordinal.GetHashCode((string)_reference!)
-                    : RuntimeHelpers.GetHashCode(_reference)
-            )
-        );
+        unchecked((((((((int)Kind * 31) + TypeId.Value) * 31) + _bits.GetHashCode()) * 31)) + ReferenceHash());
+
+    // Strings compare ordinally, boxed value types by value, nodes by tree identity.
+    private bool ReferencesEqual(XdmItem other) =>
+        Kind switch
+        {
+            XdmItemKind.XsString or XdmItemKind.UntypedAtomic => string.Equals(
+                (string?)_reference,
+                (string?)other._reference,
+                StringComparison.Ordinal
+            ),
+            XdmItemKind.Node => ReferenceEquals(_reference, other._reference),
+            _ => Equals(_reference, other._reference),
+        };
+
+    private int ReferenceHash() =>
+        Kind switch
+        {
+            XdmItemKind.XsString or XdmItemKind.UntypedAtomic => StringComparer.Ordinal.GetHashCode(
+                (string)_reference!
+            ),
+            XdmItemKind.Node => RuntimeHelpers.GetHashCode(_reference),
+            _ => _reference?.GetHashCode() ?? 0,
+        };
 
     /// <summary>Determines whether two items are equal.</summary>
     /// <param name="left">The first value.</param>
