@@ -104,21 +104,20 @@ public class SpanInterningNameTableTests
         table.Freeze();
         var failures = 0;
 
-        _ = Parallel.For(
-            0,
-            8,
-            _ =>
+        _ = Parallel.For(0, 8, _ =>
+        {
+            for (var i = 0; i < 2000; i++)
             {
-                for (var i = 0; i < 2000; i++)
+                var name = "n" + (i % 100);
+                if (
+                    !table.TryGet(name.AsSpan(), out var s)
+                    || !string.Equals(table.GetString(s), name, StringComparison.Ordinal)
+                )
                 {
-                    var name = "n" + (i % 100);
-                    if (!table.TryGet(name.AsSpan(), out var s) || table.GetString(s) != name)
-                    {
-                        _ = System.Threading.Interlocked.Increment(ref failures);
-                    }
+                    _ = System.Threading.Interlocked.Increment(ref failures);
                 }
             }
-        );
+        });
 
         await Assert.That(failures).IsEqualTo(0);
     }
