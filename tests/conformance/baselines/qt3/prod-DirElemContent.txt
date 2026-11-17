@@ -1,4 +1,0 @@
-prod-DirElemContent/K2-DirectConElemContent-1
-prod-DirElemContent/K2-DirectConElemContent-2
-prod-DirElemContent/K2-DirectConElemContent-3
-prod-DirElemContent/K2-DirectConElemContent-4

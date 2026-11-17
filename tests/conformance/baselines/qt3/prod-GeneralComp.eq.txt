@@ -1,6 +1,5 @@
 prod-GeneralComp.eq/GenCompEq-1
 prod-GeneralComp.eq/GenCompEq-2
-prod-GeneralComp.eq/GenCompEq-24
 prod-GeneralComp.eq/GenCompEq-25
 prod-GeneralComp.eq/GenCompEq-3
 prod-GeneralComp.eq/GenCompEq-4
@@ -50,7 +49,6 @@ prod-GeneralComp.eq/K-GenCompEq-46
 prod-GeneralComp.eq/K-GenCompEq-47
 prod-GeneralComp.eq/K-GenCompEq-48
 prod-GeneralComp.eq/K-GenCompEq-49
-prod-GeneralComp.eq/K-GenCompEq-5
 prod-GeneralComp.eq/K-GenCompEq-50
 prod-GeneralComp.eq/K-GenCompEq-51
 prod-GeneralComp.eq/K-GenCompEq-52

@@ -27,9 +27,6 @@ op-numeric-divide/K-NumericDivide-32
 op-numeric-divide/K-NumericDivide-33
 op-numeric-divide/K-NumericDivide-34
 op-numeric-divide/K-NumericDivide-35
-op-numeric-divide/K-NumericDivide-36
-op-numeric-divide/K-NumericDivide-37
-op-numeric-divide/K-NumericDivide-38
 op-numeric-divide/K-NumericDivide-39
 op-numeric-divide/K-NumericDivide-4
 op-numeric-divide/K-NumericDivide-40

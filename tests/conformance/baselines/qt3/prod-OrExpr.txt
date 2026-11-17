@@ -44,8 +44,6 @@ prod-OrExpr/K-LogicExpr-6
 prod-OrExpr/K-LogicExpr-7
 prod-OrExpr/K-LogicExpr-8
 prod-OrExpr/K-LogicExpr-9
-prod-OrExpr/K2-LogicExpr-1
-prod-OrExpr/K2-LogicExpr-2
 prod-OrExpr/op-logical-and-038
 prod-OrExpr/op-logical-and-039
 prod-OrExpr/op-logical-and-040

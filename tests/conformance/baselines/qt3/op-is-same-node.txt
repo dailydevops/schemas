@@ -2,9 +2,7 @@ op-is-same-node/K-NodeSame-1
 op-is-same-node/K-NodeSame-2
 op-is-same-node/K-NodeSame-3
 op-is-same-node/K-NodeSame-4
-op-is-same-node/K-NodeSame-5
 op-is-same-node/K-NodeSame-6
-op-is-same-node/cbcl-is-same-node-002
 op-is-same-node/nodecomparisonerr-1
 op-is-same-node/nodeexpression1
 op-is-same-node/nodeexpression11

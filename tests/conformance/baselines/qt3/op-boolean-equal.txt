@@ -12,7 +12,6 @@ op-boolean-equal/op-boolean-equal-13
 op-boolean-equal/op-boolean-equal-14
 op-boolean-equal/op-boolean-equal-15
 op-boolean-equal/op-boolean-equal-16
-op-boolean-equal/op-boolean-equal-18
 op-boolean-equal/op-boolean-equal-19
 op-boolean-equal/op-boolean-equal-2
 op-boolean-equal/op-boolean-equal-3
