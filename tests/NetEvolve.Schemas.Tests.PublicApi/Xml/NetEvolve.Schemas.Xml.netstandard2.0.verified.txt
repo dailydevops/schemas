@@ -463,7 +463,7 @@ namespace NetEvolve.Schemas.Xml.Datatypes.Core
         NetEvolve.Schemas.Xml.Datatypes.Contracts.DatatypeError Check(System.ReadOnlySpan<char> normalized, NetEvolve.Schemas.Xml.Datatypes.Contracts.XsdVersion version, out int errorOffset);
         NetEvolve.Schemas.Xml.Datatypes.Contracts.XsdOrder Compare(in TValue a, in TValue b, NetEvolve.Schemas.Xml.Datatypes.Contracts.XsdVersion version);
         bool IsIdentical(in TValue a, in TValue b, NetEvolve.Schemas.Xml.Datatypes.Contracts.XsdVersion version);
-        TValue Map(System.ReadOnlySpan<char> normalized, NetEvolve.Schemas.Xml.Datatypes.Contracts.XsdVersion version);
+        TValue Map(System.ReadOnlySpan<char> normalized, NetEvolve.Schemas.Xml.Datatypes.Core.WhitespaceMode mode, NetEvolve.Schemas.Xml.Datatypes.Contracts.XsdVersion version);
     }
     public sealed class ListDescriptor : NetEvolve.Schemas.Xml.Datatypes.Contracts.IDatatypeDescriptor
     {
@@ -659,6 +659,26 @@ namespace NetEvolve.Schemas.Xml.Datatypes.Numeric
     {
         public static string ToCanonicalString(NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal value) { }
         public static string ToCanonicalString(NetEvolve.Schemas.Xml.Datatypes.Numeric.XsdInteger value) { }
+    }
+}
+namespace NetEvolve.Schemas.Xml.Datatypes.Strings
+{
+    public static class XsdBoolean
+    {
+        public static string ToCanonical(bool value) { }
+    }
+    public readonly struct XsdString : System.IEquatable<NetEvolve.Schemas.Xml.Datatypes.Strings.XsdString>
+    {
+        public XsdString(NetEvolve.Schemas.Xml.Datatypes.Contracts.TextRange range, NetEvolve.Schemas.Xml.Datatypes.Core.WhitespaceMode mode) { }
+        public NetEvolve.Schemas.Xml.Datatypes.Core.WhitespaceMode Mode { get; }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.TextRange Range { get; }
+        public int CopyTo(System.ReadOnlySpan<char> source, System.Span<char> destination) { }
+        public bool Equals(NetEvolve.Schemas.Xml.Datatypes.Strings.XsdString other) { }
+        public override bool Equals(object? obj) { }
+        public bool Equals(System.ReadOnlySpan<char> source, NetEvolve.Schemas.Xml.Datatypes.Strings.XsdString other, System.ReadOnlySpan<char> otherSource) { }
+        public override int GetHashCode() { }
+        public static bool operator !=(NetEvolve.Schemas.Xml.Datatypes.Strings.XsdString left, NetEvolve.Schemas.Xml.Datatypes.Strings.XsdString right) { }
+        public static bool operator ==(NetEvolve.Schemas.Xml.Datatypes.Strings.XsdString left, NetEvolve.Schemas.Xml.Datatypes.Strings.XsdString right) { }
     }
 }
 namespace NetEvolve.Schemas.Xml.Interop

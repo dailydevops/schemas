@@ -35,7 +35,8 @@ internal static class SpecialDatatypes
             return DatatypeError.None;
         }
 
-        public TextRange Map(ReadOnlySpan<char> normalized, XsdVersion version) => new(0, normalized.Length);
+        public TextRange Map(ReadOnlySpan<char> normalized, WhitespaceMode mode, XsdVersion version) =>
+            new(0, normalized.Length);
 
         public XsdOrder Compare(in TextRange a, in TextRange b, XsdVersion version) => XsdOrder.Incomparable;
 

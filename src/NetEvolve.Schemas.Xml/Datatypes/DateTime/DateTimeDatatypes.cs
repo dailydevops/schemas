@@ -36,7 +36,7 @@ internal static class DateTimeDatatypes
             return result.Error;
         }
 
-        public XsdDateTime Map(ReadOnlySpan<char> normalized, XsdVersion version) =>
+        public XsdDateTime Map(ReadOnlySpan<char> normalized, WhitespaceMode mode, XsdVersion version) =>
             XsdDateTime.Parse(normalized, _kind, version).Value;
 
         public XsdOrder Compare(in XsdDateTime a, in XsdDateTime b, XsdVersion version) => XsdOrder.Incomparable;

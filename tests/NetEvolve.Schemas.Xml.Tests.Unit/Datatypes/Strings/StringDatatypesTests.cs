@@ -110,7 +110,7 @@ public class StringDatatypesTests
         var tokenB = token.Parse(B).Value;
 
         await Assert.That(tokenA.Equals(A, tokenB, B)).IsTrue();
-        await Assert.That(tokenA.Equals(A, text.Parse(B).Value, B)).IsFalse();
+        await Assert.That(tokenA.Equals(A, text.Parse(A).Value, A)).IsFalse();
         await Assert.That(tokenA.Equals(A, token.Parse("a c").Value, "a c")).IsFalse();
     }
 
