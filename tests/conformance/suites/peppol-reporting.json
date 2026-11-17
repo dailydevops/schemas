@@ -1,0 +1,6 @@
+{
+  "key": "stage2-peppol-reporting",
+  "url": "https://github.com/OpenPeppol/edec-reporting/archive/refs/tags/eusr-1.1.0.zip",
+  "sha256": "5a5cdfd7e14c8a0b42db252d2691a287c22f1307743ff4403b14e4874e30eaf2",
+  "archive": "zip"
+}

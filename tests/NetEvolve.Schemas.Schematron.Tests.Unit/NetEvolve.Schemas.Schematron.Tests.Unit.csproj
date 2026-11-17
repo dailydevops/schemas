@@ -9,5 +9,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/NetEvolve.Schemas.Schematron/NetEvolve.Schemas.Schematron.csproj" SetTargetFramework="$(LibraryLegTargetFramework)" />
+    <ProjectReference Include="../NetEvolve.Schemas.Conformance/NetEvolve.Schemas.Conformance.csproj" />
   </ItemGroup>
 </Project>
