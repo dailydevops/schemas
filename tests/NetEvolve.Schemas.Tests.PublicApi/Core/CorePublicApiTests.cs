@@ -1,7 +1,8 @@
-namespace NetEvolve.Schemas.Tests.PublicApi.Core;
+﻿namespace NetEvolve.Schemas.Tests.PublicApi.Core;
 
 using System.Runtime.CompilerServices;
 using NetEvolve.Schemas.Tests.PublicApi.Shared;
+using TUnit.Assertions.Enums;
 
 /// <summary>Locks the public API of the <c>NetEvolve.Schemas</c> core assembly per library target framework.</summary>
 internal sealed class CorePublicApiTests
@@ -32,7 +33,7 @@ internal sealed class CorePublicApiTests
     [Arguments("netstandard2.0")]
     [Arguments("netstandard2.1")]
     [Arguments("net11.0")]
-    public async Task VerifiedFile_DiffersFromNet10OnlyWhereTheTargetFrameworkRequires(
+    public async Task VerifiedFile_IsLineForLineIdenticalToNet10(
         string targetFramework,
         CancellationToken cancellationToken
     )
@@ -41,12 +42,9 @@ internal sealed class CorePublicApiTests
         var baseline = await File.ReadAllLinesAsync(VerifiedFile("net10.0"), cancellationToken);
         var other = await File.ReadAllLinesAsync(VerifiedFile(targetFramework), cancellationToken);
 
-        // No difference is required by the target framework today; a difference is added here with its reason.
-        var differences = baseline
-            .Except(other, StringComparer.Ordinal)
-            .Concat(other.Except(baseline, StringComparer.Ordinal));
-
-        await Assert.That(differences).IsEmpty();
+        // No difference is required by the target framework today. A required difference becomes an
+        // explicit per-framework allow-list entry here, each with its reason.
+        await Assert.That(other).IsEquivalentTo(baseline, CollectionOrdering.Matching);
     }
 
     private static string VerifiedFile(string targetFramework, [CallerFilePath] string sourceFile = "") =>
