@@ -1,0 +1,326 @@
+﻿namespace NetEvolve.Schemas.Xml.Contracts
+{
+    public interface IXmlReader
+    {
+        NetEvolve.Schemas.Xml.Contracts.XmlDiagnostic? Diagnostic { get; }
+        NetEvolve.Schemas.Xml.Contracts.XmlPosition Position { get; }
+        NetEvolve.Schemas.Xml.Contracts.XmlReadStatus Pump<TSink>(ref TSink sink)
+            where TSink : NetEvolve.Schemas.Xml.Contracts.IXmlSink;
+    }
+    public interface IXmlSink
+    {
+        NetEvolve.Schemas.Xml.Contracts.XmlNameTable Names { get; }
+        void Attribute(NetEvolve.Schemas.Xml.Contracts.XmlName name, System.ReadOnlySpan<char> value);
+        void Comment(System.ReadOnlySpan<char> text);
+        void Doctype(in NetEvolve.Schemas.Xml.Contracts.XmlDoctypeInfo doctype);
+        void EndAttributes();
+        void EndDocument();
+        void EndElement(NetEvolve.Schemas.Xml.Contracts.XmlName name);
+        void NamespaceDeclaration(NetEvolve.Schemas.Xml.Contracts.XmlSymbol prefix, NetEvolve.Schemas.Xml.Contracts.XmlSymbol uri);
+        void ProcessingInstruction(NetEvolve.Schemas.Xml.Contracts.XmlSymbol target, System.ReadOnlySpan<char> data);
+        void StartDocument(in NetEvolve.Schemas.Xml.Contracts.XmlDeclaration declaration);
+        void StartElement(NetEvolve.Schemas.Xml.Contracts.XmlName name, NetEvolve.Schemas.Xml.Contracts.XmlPosition position);
+        void Text(System.ReadOnlySpan<char> text, NetEvolve.Schemas.Xml.Contracts.XmlTextKind kind);
+    }
+    public readonly ref struct XmlDeclaration
+    {
+        public XmlDeclaration(System.ReadOnlySpan<char> version, System.ReadOnlySpan<char> encoding, bool? standalone) { }
+        public System.ReadOnlySpan<char> Encoding { get; }
+        public bool? Standalone { get; }
+        public System.ReadOnlySpan<char> Version { get; }
+    }
+    public sealed class XmlDiagnostic
+    {
+        public XmlDiagnostic(NetEvolve.Schemas.Xml.Contracts.XmlErrorCode code, NetEvolve.Schemas.Xml.Contracts.XmlPosition position) { }
+        public NetEvolve.Schemas.Xml.Contracts.XmlErrorCode Code { get; }
+        public string Message { get; }
+        public NetEvolve.Schemas.Xml.Contracts.XmlPosition Position { get; }
+    }
+    public readonly ref struct XmlDoctypeInfo
+    {
+        public XmlDoctypeInfo(System.ReadOnlySpan<char> name, System.ReadOnlySpan<char> publicId, System.ReadOnlySpan<char> systemId, System.ReadOnlySpan<char> internalSubset) { }
+        public System.ReadOnlySpan<char> InternalSubset { get; }
+        public System.ReadOnlySpan<char> Name { get; }
+        public System.ReadOnlySpan<char> PublicId { get; }
+        public System.ReadOnlySpan<char> SystemId { get; }
+    }
+    public sealed class XmlErrorCode
+    {
+        public string Alias { get; }
+        public NetEvolve.Schemas.DiagnosticCode Code { get; }
+        public string Constraint { get; }
+        public NetEvolve.Schemas.DiagnosticCode CoreCode { get; }
+        public string Message { get; }
+        public override string ToString() { }
+    }
+    public static class XmlErrorCodes
+    {
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML0001;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML0002;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML0003;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML0004;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML0005;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML0006;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML0007;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML0008;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML0009;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML0010;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML0011;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML0012;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML0013;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML0014;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML0015;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML0016;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML0017;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML0018;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML1101;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML1102;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML1103;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML1104;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML1105;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML1106;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML1107;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML1108;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML1109;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML1110;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML1111;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML1112;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML1113;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML1114;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML1115;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML1116;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML2001;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML2002;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML3001;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML3002;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML3003;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML3004;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML3005;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML4001;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML4002;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML4003;
+        public static System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Xml.Contracts.XmlErrorCode> All { get; }
+    }
+    public enum XmlEventKind
+    {
+        StartDocument = 0,
+        EndDocument = 1,
+        StartElement = 2,
+        NamespaceDeclaration = 3,
+        Attribute = 4,
+        EndAttributes = 5,
+        EndElement = 6,
+        Text = 7,
+        Comment = 8,
+        ProcessingInstruction = 9,
+        Doctype = 10,
+    }
+    public readonly struct XmlName : System.IEquatable<NetEvolve.Schemas.Xml.Contracts.XmlName>
+    {
+        public XmlName(NetEvolve.Schemas.Xml.Contracts.XmlSymbol prefix, NetEvolve.Schemas.Xml.Contracts.XmlSymbol local, NetEvolve.Schemas.Xml.Contracts.XmlSymbol namespaceUri) { }
+        public NetEvolve.Schemas.Xml.Contracts.XmlSymbol Local { get; }
+        public NetEvolve.Schemas.Xml.Contracts.XmlSymbol NamespaceUri { get; }
+        public NetEvolve.Schemas.Xml.Contracts.XmlSymbol Prefix { get; }
+        public bool Equals(NetEvolve.Schemas.Xml.Contracts.XmlName other) { }
+        public override bool Equals(object? obj) { }
+        public override int GetHashCode() { }
+        public static bool operator !=(NetEvolve.Schemas.Xml.Contracts.XmlName left, NetEvolve.Schemas.Xml.Contracts.XmlName right) { }
+        public static bool operator ==(NetEvolve.Schemas.Xml.Contracts.XmlName left, NetEvolve.Schemas.Xml.Contracts.XmlName right) { }
+    }
+    public abstract class XmlNameTable
+    {
+        protected XmlNameTable() { }
+        public abstract int Count { get; }
+        public abstract bool IsFrozen { get; }
+        public abstract void Freeze();
+        public abstract string GetString(NetEvolve.Schemas.Xml.Contracts.XmlSymbol symbol);
+        public NetEvolve.Schemas.Xml.Contracts.XmlSymbol Intern(System.ReadOnlySpan<char> text) { }
+        public NetEvolve.Schemas.Xml.Contracts.XmlName Intern(System.ReadOnlySpan<char> prefix, System.ReadOnlySpan<char> local, System.ReadOnlySpan<char> namespaceUri) { }
+        public string? Lookup(System.ReadOnlySpan<char> text) { }
+        public abstract bool TryGet(System.ReadOnlySpan<char> text, out NetEvolve.Schemas.Xml.Contracts.XmlSymbol symbol);
+        public abstract bool TryGetString(NetEvolve.Schemas.Xml.Contracts.XmlSymbol symbol, out string? text);
+        public abstract NetEvolve.Schemas.Xml.Contracts.XmlNameTableStatus TryIntern(System.ReadOnlySpan<char> text, out NetEvolve.Schemas.Xml.Contracts.XmlSymbol symbol);
+    }
+    public enum XmlNameTableStatus
+    {
+        Ok = 0,
+        LimitExceeded = 1,
+        Frozen = 2,
+    }
+    public readonly struct XmlNode : System.IEquatable<NetEvolve.Schemas.Xml.Contracts.XmlNode>
+    {
+        public XmlNode(NetEvolve.Schemas.Xml.Contracts.XmlTree tree, int index) { }
+        public System.Uri? BaseUri { get; }
+        public System.Uri? DocumentUri { get; }
+        public NetEvolve.Schemas.Xml.Contracts.XmlNode FirstAttribute { get; }
+        public NetEvolve.Schemas.Xml.Contracts.XmlNode FirstChild { get; }
+        public NetEvolve.Schemas.Xml.Contracts.XmlNode FirstNamespace { get; }
+        public int Index { get; }
+        public bool IsEmpty { get; }
+        public NetEvolve.Schemas.Xml.Contracts.XmlNodeKind Kind { get; }
+        public NetEvolve.Schemas.Xml.Contracts.XmlName Name { get; }
+        public NetEvolve.Schemas.Xml.Contracts.XmlNode NextAttribute { get; }
+        public NetEvolve.Schemas.Xml.Contracts.XmlNode NextNamespace { get; }
+        public NetEvolve.Schemas.Xml.Contracts.XmlNode NextSibling { get; }
+        public NetEvolve.Schemas.Xml.Contracts.XmlNode Parent { get; }
+        public string StringValue { get; }
+        public NetEvolve.Schemas.Xml.Contracts.XmlTree? Tree { get; }
+        public int CompareDocumentOrder(NetEvolve.Schemas.Xml.Contracts.XmlNode other) { }
+        public bool Equals(NetEvolve.Schemas.Xml.Contracts.XmlNode other) { }
+        public override bool Equals(object? obj) { }
+        public override int GetHashCode() { }
+        public static bool operator !=(NetEvolve.Schemas.Xml.Contracts.XmlNode left, NetEvolve.Schemas.Xml.Contracts.XmlNode right) { }
+        public static bool operator ==(NetEvolve.Schemas.Xml.Contracts.XmlNode left, NetEvolve.Schemas.Xml.Contracts.XmlNode right) { }
+    }
+    public enum XmlNodeKind
+    {
+        Document = 0,
+        Element = 1,
+        Attribute = 2,
+        Text = 3,
+        Comment = 4,
+        ProcessingInstruction = 5,
+        Namespace = 6,
+    }
+    public sealed class XmlNotation
+    {
+        public XmlNotation(string name, string? systemId, string? publicId) { }
+        public string Name { get; }
+        public string? PublicId { get; }
+        public string? SystemId { get; }
+    }
+    public sealed class XmlParseException : System.Exception
+    {
+        public XmlParseException() { }
+        public XmlParseException(NetEvolve.Schemas.Xml.Contracts.XmlDiagnostic diagnostic) { }
+        public XmlParseException(string message) { }
+        public XmlParseException(string message, System.Exception innerException) { }
+        public NetEvolve.Schemas.Xml.Contracts.XmlDiagnostic? Diagnostic { get; }
+    }
+    public readonly struct XmlPosition : System.IEquatable<NetEvolve.Schemas.Xml.Contracts.XmlPosition>
+    {
+        public XmlPosition(int line, int column, long charOffset) { }
+        public long CharOffset { get; }
+        public int Column { get; }
+        public int Line { get; }
+        public bool Equals(NetEvolve.Schemas.Xml.Contracts.XmlPosition other) { }
+        public override bool Equals(object? obj) { }
+        public override int GetHashCode() { }
+        public override string ToString() { }
+        public static bool operator !=(NetEvolve.Schemas.Xml.Contracts.XmlPosition left, NetEvolve.Schemas.Xml.Contracts.XmlPosition right) { }
+        public static bool operator ==(NetEvolve.Schemas.Xml.Contracts.XmlPosition left, NetEvolve.Schemas.Xml.Contracts.XmlPosition right) { }
+    }
+    public enum XmlReadStatus
+    {
+        Completed = 0,
+        NeedMoreData = 1,
+        Error = 2,
+    }
+    public sealed class XmlReaderLimits
+    {
+        public int MaxAttributeValueLength { get; }
+        public int MaxAttributesPerElement { get; }
+        public int MaxDistinctNames { get; }
+        public int MaxDoctypeLength { get; }
+        public long MaxDocumentCharacters { get; }
+        public int MaxElementDepth { get; }
+        public int MaxEntityDepth { get; }
+        public long MaxEntityExpansionCharacters { get; }
+        public int MaxNameLength { get; }
+        public int MaxNamespaceDeclarationsPerElement { get; }
+        public int MaxNodeCount { get; }
+        public int MaxStartTagCharacters { get; }
+        public int MaxTextNodeLength { get; }
+        public int MaxTokenLength { get; }
+        public int MaxXmlDeclarationLength { get; }
+        public static NetEvolve.Schemas.Xml.Contracts.XmlReaderLimits Default { get; }
+        public NetEvolve.Schemas.Xml.Contracts.XmlReaderLimits WithMaxAttributeValueLength(int value) { }
+        public NetEvolve.Schemas.Xml.Contracts.XmlReaderLimits WithMaxAttributesPerElement(int value) { }
+        public NetEvolve.Schemas.Xml.Contracts.XmlReaderLimits WithMaxDistinctNames(int value) { }
+        public NetEvolve.Schemas.Xml.Contracts.XmlReaderLimits WithMaxDoctypeLength(int value) { }
+        public NetEvolve.Schemas.Xml.Contracts.XmlReaderLimits WithMaxDocumentCharacters(long value) { }
+        public NetEvolve.Schemas.Xml.Contracts.XmlReaderLimits WithMaxElementDepth(int value) { }
+        public NetEvolve.Schemas.Xml.Contracts.XmlReaderLimits WithMaxEntityDepth(int value) { }
+        public NetEvolve.Schemas.Xml.Contracts.XmlReaderLimits WithMaxEntityExpansionCharacters(long value) { }
+        public NetEvolve.Schemas.Xml.Contracts.XmlReaderLimits WithMaxNameLength(int value) { }
+        public NetEvolve.Schemas.Xml.Contracts.XmlReaderLimits WithMaxNamespaceDeclarationsPerElement(int value) { }
+        public NetEvolve.Schemas.Xml.Contracts.XmlReaderLimits WithMaxNodeCount(int value) { }
+        public NetEvolve.Schemas.Xml.Contracts.XmlReaderLimits WithMaxStartTagCharacters(int value) { }
+        public NetEvolve.Schemas.Xml.Contracts.XmlReaderLimits WithMaxTextNodeLength(int value) { }
+        public NetEvolve.Schemas.Xml.Contracts.XmlReaderLimits WithMaxTokenLength(int value) { }
+        public NetEvolve.Schemas.Xml.Contracts.XmlReaderLimits WithMaxXmlDeclarationLength(int value) { }
+    }
+    public sealed class XmlReaderOptions
+    {
+        public NetEvolve.Schemas.Xml.Contracts.XmlReaderLimits Limits { get; }
+        public NetEvolve.Schemas.Xml.Contracts.XmlNameTable? NameTable { get; }
+        public static NetEvolve.Schemas.Xml.Contracts.XmlReaderOptions Default { get; }
+        public NetEvolve.Schemas.Xml.Contracts.XmlReaderOptions WithLimits(NetEvolve.Schemas.Xml.Contracts.XmlReaderLimits value) { }
+        public NetEvolve.Schemas.Xml.Contracts.XmlReaderOptions WithNameTable(NetEvolve.Schemas.Xml.Contracts.XmlNameTable? value) { }
+    }
+    public readonly struct XmlSymbol : System.IEquatable<NetEvolve.Schemas.Xml.Contracts.XmlSymbol>
+    {
+        public XmlSymbol(int value) { }
+        public bool IsEmpty { get; }
+        public int Value { get; }
+        public bool Equals(NetEvolve.Schemas.Xml.Contracts.XmlSymbol other) { }
+        public override bool Equals(object? obj) { }
+        public override int GetHashCode() { }
+        public override string ToString() { }
+        public static bool operator !=(NetEvolve.Schemas.Xml.Contracts.XmlSymbol left, NetEvolve.Schemas.Xml.Contracts.XmlSymbol right) { }
+        public static bool operator ==(NetEvolve.Schemas.Xml.Contracts.XmlSymbol left, NetEvolve.Schemas.Xml.Contracts.XmlSymbol right) { }
+    }
+    public enum XmlTextKind
+    {
+        Text = 0,
+        CData = 1,
+        Reference = 2,
+    }
+    public abstract class XmlTree
+    {
+        public const int NoNode = -1;
+        public NetEvolve.Schemas.Xml.Contracts.XmlNode Document { get; }
+        public abstract NetEvolve.Schemas.Xml.Contracts.XmlNameTable Names { get; }
+        public abstract System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Xml.Contracts.XmlNotation> Notations { get; }
+        public long TreeId { get; }
+        public abstract System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Xml.Contracts.XmlUnparsedEntity> UnparsedEntities { get; }
+        protected abstract int CompareDocumentOrder(int first, int second);
+        protected abstract System.Uri? GetBaseUri(int index);
+        protected abstract System.Uri? GetDocumentUri(int index);
+        protected abstract int GetFirstAttribute(int index);
+        protected abstract int GetFirstChild(int index);
+        protected abstract int GetFirstNamespace(int index);
+        protected abstract NetEvolve.Schemas.Xml.Contracts.XmlNodeKind GetKind(int index);
+        protected abstract NetEvolve.Schemas.Xml.Contracts.XmlName GetName(int index);
+        protected abstract int GetNextAttribute(int index);
+        protected abstract int GetNextNamespace(int index);
+        protected abstract int GetNextSibling(int index);
+        protected abstract int GetParent(int index);
+        protected abstract string GetStringValue(int index);
+    }
+    public sealed class XmlUnparsedEntity
+    {
+        public XmlUnparsedEntity(string name, string systemId, string? publicId, string notationName) { }
+        public string Name { get; }
+        public string NotationName { get; }
+        public string? PublicId { get; }
+        public string SystemId { get; }
+    }
+}
+namespace NetEvolve.Schemas.Xml.Interop
+{
+    public static class XmlInterop
+    {
+        public static NetEvolve.Schemas.Xml.Contracts.XmlTree FromXDocument(System.Xml.Linq.XDocument document, NetEvolve.Schemas.Xml.Interop.XmlInteropOptions? options = null) { }
+        public static NetEvolve.Schemas.Xml.Contracts.XmlTree FromXmlDocument(System.Xml.XmlDocument document, NetEvolve.Schemas.Xml.Interop.XmlInteropOptions? options = null) { }
+        public static NetEvolve.Schemas.Xml.Contracts.XmlTree FromXmlReader(System.Xml.XmlReader reader, NetEvolve.Schemas.Xml.Interop.XmlInteropOptions? options = null) { }
+        public static System.Xml.Linq.XDocument ToXDocument(NetEvolve.Schemas.Xml.Contracts.XmlNode node) { }
+        public static System.Xml.XmlDocument ToXmlDocument(NetEvolve.Schemas.Xml.Contracts.XmlNode node) { }
+        public static System.Xml.XmlReader ToXmlReader(NetEvolve.Schemas.Xml.Contracts.XmlNode node) { }
+    }
+    public sealed class XmlInteropOptions
+    {
+        public XmlInteropOptions(bool allowDocumentType = false) { }
+        public bool AllowDocumentType { get; }
+    }
+}
