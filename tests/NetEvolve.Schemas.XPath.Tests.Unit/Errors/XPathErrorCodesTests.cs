@@ -105,10 +105,8 @@ public class XPathErrorCodesTests
     }
 
     [Test]
-    public async Task Table_HasNoDuplicatesAndNoOtherPrefixes()
-    {
+    public async Task Table_HasNoDuplicatesAndNoOtherPrefixes() =>
         await Assert.That(XPathErrorCodes.All.Count).IsEqualTo(XPath20Codes.Length + FunctionsCodes.Length);
-    }
 
     [Test]
     [MethodDataSource(nameof(AllCodes))]
