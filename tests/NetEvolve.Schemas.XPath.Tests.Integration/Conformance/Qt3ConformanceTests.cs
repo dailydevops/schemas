@@ -1,8 +1,9 @@
-namespace NetEvolve.Schemas.XPath.Tests.Integration.Qt3.Runner;
+namespace NetEvolve.Schemas.XPath.Tests.Integration.Conformance;
 
 using NetEvolve.Schemas.Conformance.Baseline;
 using NetEvolve.Schemas.Conformance.Reporting;
 using NetEvolve.Schemas.Conformance.Results;
+using NetEvolve.Schemas.XPath.Tests.Integration.Qt3.Runner;
 
 /// <summary>One test per QT3 test set; it fails on any regression or unexpected pass against the set's baseline.</summary>
 public class Qt3ConformanceTests
