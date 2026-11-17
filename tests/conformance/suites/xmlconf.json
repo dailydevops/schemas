@@ -1,0 +1,7 @@
+{
+  "key": "xmlconf",
+  "url": "https://www.w3.org/XML/Test/xmlts20130923.zip",
+  "sha256": "f9510b3532926e1b4c2e54855b021e4b8a66ec98a5337dcf4ff07e8a41968deb",
+  "archive": "zip",
+  "subPath": "xmlconf"
+}
