@@ -1,13 +1,11 @@
 namespace NetEvolve.Schemas.DependencyInjection.Tests.Unit.Core;
 
-using System.Runtime.CompilerServices;
 using NetEvolve.Schemas.Testing.Fakes;
 
 internal static class RegistrationTestSupport
 {
-    // The SchemaCompilationException constructors throw until FND-09 lands, so an uninitialized instance stands in for a compile failure.
     internal static SchemaCompilationException CompilationFailure() =>
-        (SchemaCompilationException)RuntimeHelpers.GetUninitializedObject(typeof(SchemaCompilationException));
+        new([new ValidationIssue(new DiagnosticCode(1), IssueSeverity.Error, "compile failure", default)]);
 
     internal static FakeValidator Throw() => throw CompilationFailure();
 }
