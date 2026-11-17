@@ -14,7 +14,7 @@ using NetEvolve.Schemas.Xml.Datatypes.Decimals;
 /// </summary>
 /// <remarks>
 /// Limitation: each integer component of a lexical form is capped at 17 digits (<see cref="DatatypeError.YearOrComponentCap"/>),
-/// so the month count fits a <see cref="long"/>. The partial order against the reference dateTimes is not implemented here.
+/// so the month count fits a <see cref="long"/>. The partial order lives in the ordering namespace (DT-54).
 /// </remarks>
 [StructLayout(LayoutKind.Auto)]
 public readonly struct XsdDuration : IEquatable<XsdDuration>

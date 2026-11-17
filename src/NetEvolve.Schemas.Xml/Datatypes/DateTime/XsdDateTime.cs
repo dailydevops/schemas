@@ -15,7 +15,7 @@ using NetEvolve.Schemas.Xml.Datatypes.Decimals;
 /// <remarks>
 /// Limitations: a year has at most 17 digits (DT0011); a fraction is capped by the digit cap of <see cref="XsdDecimal"/> (DT0010);
 /// leap days are decided by the year number, so in version 1.0 the year <c>-0001</c> follows the same rule as in version 1.1.
-/// The timeline order, equality across timezones, and duration arithmetic are not part of this type (DT-54).
+/// The timeline order, equality across timezones, and duration arithmetic live in the ordering namespace (DT-54).
 /// The value of <c>date</c> has a zero time of day and the value of <c>time</c> has zero year, month, and day.
 /// </remarks>
 [StructLayout(LayoutKind.Auto)]
@@ -49,6 +49,18 @@ public readonly struct XsdDateTime : IEquatable<XsdDateTime>
         _hasOffset = hasOffset;
         _offset = offset;
     }
+
+    /// <summary>Creates a value from already validated properties; the caller keeps the properties in range.</summary>
+    internal static XsdDateTime Create(
+        XsdDateTimeKind kind,
+        long year,
+        int month,
+        int day,
+        int hour,
+        int minute,
+        XsdDecimal second,
+        int? offset
+    ) => new(kind, year, month, day, hour, minute, second, offset.HasValue, offset.GetValueOrDefault());
 
     /// <summary>Gets the type the value belongs to.</summary>
     public XsdDateTimeKind Kind { get; }
@@ -284,9 +296,9 @@ public readonly struct XsdDateTime : IEquatable<XsdDateTime>
         return false;
     }
 
-    private static bool IsLeapYear(long year) => year % 4 == 0 && (year % 100 != 0 || year % 400 == 0);
+    internal static bool IsLeapYear(long year) => year % 4 == 0 && (year % 100 != 0 || year % 400 == 0);
 
-    private static int DaysInMonth(long year, int month) =>
+    internal static int DaysInMonth(long year, int month) =>
         month switch
         {
             2 => IsLeapYear(year) ? 29 : 28,

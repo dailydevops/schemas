@@ -196,7 +196,7 @@ public class GregorianDatatypeTests
 
         await Assert.That(month.IsIdentical(a, b)).IsTrue();
         await Assert.That(month.IsIdentical(a, c)).IsFalse();
-        await Assert.That(month.Compare(a, b)).IsEqualTo(XsdOrder.Incomparable);
-        await Assert.That(month.IsOrdered).IsFalse();
+        await Assert.That(month.Compare(a, b)).IsEqualTo(XsdOrder.Equal);
+        await Assert.That(month.IsOrdered).IsTrue();
     }
 }

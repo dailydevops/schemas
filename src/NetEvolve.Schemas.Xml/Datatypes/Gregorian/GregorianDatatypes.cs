@@ -9,7 +9,7 @@ using NetEvolve.Schemas.Xml.Datatypes.DateTime;
 /// <summary>The primitive types gYear, gYearMonth, gMonth, gMonthDay, and gDay (XSD 1.1 Part 2, sections 3.3.10 to 3.3.14), and dateTimeStamp (section 3.4.28).</summary>
 /// <remarks>
 /// They share the seven-property value <see cref="XsdDateTime"/>; the properties a type does not have are zero.
-/// Limitations: the values are reported as unordered (<see cref="XsdOrder.Incomparable"/>) until the timeline order is added (DT-54);
+/// Limitations: the order is partial like that of dateTime, with absent properties filled from 1972-12-31T00:00:00;
 /// dateTimeStamp enforces its required timezone in the lexical mapping, not through the explicitTimezone facet (DT-55);
 /// the day of gMonthDay is checked against a leap year, so <c>--02-29</c> is valid.
 /// </remarks>

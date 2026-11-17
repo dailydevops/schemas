@@ -4,12 +4,13 @@ using System;
 using System.Collections.Generic;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xml.Datatypes.Core;
+using NetEvolve.Schemas.Xml.Datatypes.Ordering;
 
 /// <summary>The built-in <c>duration</c>, <c>yearMonthDuration</c>, and <c>dayTimeDuration</c> types (XSD 1.1 Part 2, sections 3.3.6, 3.4.26, and 3.4.27).</summary>
 /// <remarks>
-/// Limitation: the order is decided only when the months or the seconds are equal, otherwise it is
-/// <see cref="XsdOrder.Incomparable"/>; this is exact for the two derived types, and the partial order of <c>duration</c> against
-/// the reference dateTimes is left to DT-54. <c>yearMonthDuration</c> and <c>dayTimeDuration</c> exist from XSD 1.1 on.
+/// The order is the partial order against the four reference dateTimes, so <c>P1M</c> and <c>P30D</c> are
+/// <see cref="XsdOrder.Incomparable"/>; it is total for the two derived types.
+/// <c>yearMonthDuration</c> and <c>dayTimeDuration</c> exist from XSD 1.1 on.
 /// </remarks>
 internal static class DurationDatatypes
 {
@@ -55,21 +56,9 @@ internal static class DurationDatatypes
             return XsdDuration.Map(normalized, parts);
         }
 
-        public XsdOrder Compare(in XsdDuration a, in XsdDuration b, XsdVersion version)
-        {
-            if (a.Seconds.Equals(b.Seconds))
-            {
-                return Order(a.Months.CompareTo(b.Months));
-            }
-
-            return a.Months == b.Months ? Order(a.Seconds.CompareTo(b.Seconds)) : XsdOrder.Incomparable;
-        }
+        public XsdOrder Compare(in XsdDuration a, in XsdDuration b, XsdVersion version) =>
+            DurationOrder.Compare(in a, in b);
 
         public bool IsIdentical(in XsdDuration a, in XsdDuration b, XsdVersion version) => a.Equals(b);
-
-        private static XsdOrder Order(int comparison) =>
-            comparison < 0 ? XsdOrder.Less
-            : comparison > 0 ? XsdOrder.Greater
-            : XsdOrder.Equal;
     }
 }
