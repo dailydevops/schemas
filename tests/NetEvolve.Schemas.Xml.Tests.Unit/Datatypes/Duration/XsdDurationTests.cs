@@ -63,10 +63,8 @@ public class XsdDurationTests
     [Arguments("-P0Y", "PT0S")]
     [Arguments("PT0.500S", "PT0.5S")]
     [Arguments("P1DT0H0M1.25S", "P1DT1.25S")]
-    public async Task Canonical_NormalizesComponents(string lexical, string expected)
-    {
+    public async Task Canonical_NormalizesComponents(string lexical, string expected) =>
         await Assert.That(Get("duration", XsdVersion.V11).Parse(lexical).Value.ToString()).IsEqualTo(expected);
-    }
 
     [Test]
     public async Task Canonical_Zero_FollowsTheKind()
@@ -164,16 +162,14 @@ public class XsdDurationTests
     }
 
     [Test]
-    public async Task Parse_InvalidCharacter_IsCoded()
-    {
-        await Assert.That(Get("duration", XsdVersion.V11).Parse("P1Y#").Error).IsEqualTo(DatatypeError.InvalidCharacter);
-    }
+    public async Task Parse_InvalidCharacter_IsCoded() =>
+        await Assert
+            .That(Get("duration", XsdVersion.V11).Parse("P1Y#").Error)
+            .IsEqualTo(DatatypeError.InvalidCharacter);
 
     [Test]
-    public async Task Parse_SurroundingWhitespace_IsCollapsed()
-    {
+    public async Task Parse_SurroundingWhitespace_IsCollapsed() =>
         await Assert.That(Get("duration", XsdVersion.V11).Parse("  P1Y \n").Value.Months).IsEqualTo(12L);
-    }
 
     [Test]
     public async Task Parse_ComponentCap_Is17Digits()
@@ -194,7 +190,7 @@ public class XsdDurationTests
             .Value;
 
         await Assert.That(value.Months).IsEqualTo((12L * 99999999999999999L) + 99999999999999999L);
-        await Assert.That(value.Seconds.Mantissa).IsEqualTo(new BigInteger(99999999999999999L) * 86400);
+        await Assert.That(value.Seconds).IsEqualTo(new XsdDecimal(new BigInteger(99999999999999999L) * 86400, 0));
     }
 
     [Test]
