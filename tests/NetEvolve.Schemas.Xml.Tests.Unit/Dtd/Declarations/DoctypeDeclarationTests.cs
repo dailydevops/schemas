@@ -159,7 +159,7 @@ public class DoctypeDeclarationTests
         var expectedModel = DtdHarness.Dump(expectedHandler.Declarations!);
 
         await Assert.That(expected.Status).IsEqualTo(XmlReadStatus.Completed);
-        await Assert.That(expectedModel).Contains("E:doc:(#PCDATA");
+        await Assert.That(expectedModel).Contains("E:doc:(a|b)*");
 
         for (var split = 0; split <= xml.Length; split++)
         {

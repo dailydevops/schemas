@@ -90,7 +90,10 @@ internal static class DtdHarness
         return particle.Kind == DtdParticleKind.Name
             ? particle.Name + occurrence
             : "("
-                + string.Join(particle.Kind == DtdParticleKind.Sequence ? "," : "|", particle.Items.Select(DumpParticle))
+                + string.Join(
+                    particle.Kind == DtdParticleKind.Sequence ? "," : "|",
+                    particle.Items.Select(DumpParticle)
+                )
                 + ")"
                 + occurrence;
     }
