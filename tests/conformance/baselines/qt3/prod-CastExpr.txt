@@ -677,7 +677,6 @@ prod-CastExpr/CastAs692
 prod-CastExpr/CastAs693
 prod-CastExpr/CastFOCA0001-1
 prod-CastExpr/CastFOCA0003-1
-prod-CastExpr/K-SeqExprCast-1
 prod-CastExpr/K-SeqExprCast-100
 prod-CastExpr/K-SeqExprCast-1000
 prod-CastExpr/K-SeqExprCast-1001
@@ -1275,7 +1274,6 @@ prod-CastExpr/K-SeqExprCast-196
 prod-CastExpr/K-SeqExprCast-197
 prod-CastExpr/K-SeqExprCast-198
 prod-CastExpr/K-SeqExprCast-199
-prod-CastExpr/K-SeqExprCast-2
 prod-CastExpr/K-SeqExprCast-20
 prod-CastExpr/K-SeqExprCast-200
 prod-CastExpr/K-SeqExprCast-201

@@ -3,6 +3,7 @@ namespace NetEvolve.Schemas.XPath.Tests.Integration.Qt3.Runner;
 using NetEvolve.Schemas.Conformance.Baseline;
 using NetEvolve.Schemas.Conformance.Fetch;
 using NetEvolve.Schemas.Conformance.Manifest;
+using NetEvolve.Schemas.Conformance.Results;
 
 /// <summary>The pinned QT3 suite: manifest, fetched catalog, selection, and baselines.</summary>
 internal static class Qt3Suite
@@ -50,9 +51,13 @@ internal static class Qt3Suite
         return baselines;
     }
 
-    /// <summary>Rewrites the baseline files: one file per test set with selected cases, none for any other set.</summary>
+    /// <summary>
+    /// Rewrites the baseline files: one file per test set with selected cases, none for any other set, each listing
+    /// the cases that do not pass with the engine.
+    /// </summary>
     /// <param name="selection">The selection to record.</param>
-    public static void RegenerateBaselines(Qt3Selection selection)
+    /// <param name="engine">The engine that decides which cases pass.</param>
+    public static void RegenerateBaselines(Qt3Selection selection, IQt3Engine engine)
     {
         if (Directory.Exists(BaselineDirectory))
         {
@@ -66,7 +71,10 @@ internal static class Qt3Suite
             var ids = new List<string>();
             foreach (var testCase in selection.SelectedIn(testSet))
             {
-                ids.Add(testCase.Id);
+                if (Qt3Runner.Run(testCase, engine).Outcome != CaseOutcome.Pass)
+                {
+                    ids.Add(testCase.Id);
+                }
             }
             BaselineFiles.Save(BaselineDirectory, testSet, ids);
         }

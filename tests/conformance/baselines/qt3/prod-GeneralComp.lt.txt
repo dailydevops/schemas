@@ -1,5 +1,3 @@
-prod-GeneralComp.lt/GenCompLT-12
-prod-GeneralComp.lt/GenCompLT-13
 prod-GeneralComp.lt/GenCompLT-14
 prod-GeneralComp.lt/K-GenCompLT-1
 prod-GeneralComp.lt/K-GenCompLT-10
@@ -14,7 +12,6 @@ prod-GeneralComp.lt/K-GenCompLT-18
 prod-GeneralComp.lt/K-GenCompLT-19
 prod-GeneralComp.lt/K-GenCompLT-2
 prod-GeneralComp.lt/K-GenCompLT-3
-prod-GeneralComp.lt/K-GenCompLT-4
 prod-GeneralComp.lt/K-GenCompLT-5
 prod-GeneralComp.lt/K-GenCompLT-6
 prod-GeneralComp.lt/K-GenCompLT-7

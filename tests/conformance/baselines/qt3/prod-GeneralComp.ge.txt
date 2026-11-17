@@ -1,7 +1,6 @@
 prod-GeneralComp.ge/K-GenCompGTEQ-1
 prod-GeneralComp.ge/K-GenCompGTEQ-2
 prod-GeneralComp.ge/K-GenCompGTEQ-3
-prod-GeneralComp.ge/K-GenCompGTEQ-4
 prod-GeneralComp.ge/K-GenCompGTEQ-5
 prod-GeneralComp.ge/K-GenCompGTEQ-6
 prod-GeneralComp.ge/K-GenCompGTEQ-7

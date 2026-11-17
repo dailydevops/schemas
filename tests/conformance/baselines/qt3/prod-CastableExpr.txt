@@ -649,7 +649,6 @@ prod-CastableExpr/CastableAs648
 prod-CastableExpr/CastableAs649
 prod-CastableExpr/CastableAs650
 prod-CastableExpr/CastableAs663
-prod-CastableExpr/K-SeqExprCastable-1
 prod-CastableExpr/K-SeqExprCastable-10
 prod-CastableExpr/K-SeqExprCastable-11
 prod-CastableExpr/K-SeqExprCastable-14
@@ -658,7 +657,6 @@ prod-CastableExpr/K-SeqExprCastable-16
 prod-CastableExpr/K-SeqExprCastable-17
 prod-CastableExpr/K-SeqExprCastable-18
 prod-CastableExpr/K-SeqExprCastable-19
-prod-CastableExpr/K-SeqExprCastable-2
 prod-CastableExpr/K-SeqExprCastable-20
 prod-CastableExpr/K-SeqExprCastable-21
 prod-CastableExpr/K-SeqExprCastable-22
@@ -669,7 +667,6 @@ prod-CastableExpr/K-SeqExprCastable-26
 prod-CastableExpr/K-SeqExprCastable-27
 prod-CastableExpr/K-SeqExprCastable-28
 prod-CastableExpr/K-SeqExprCastable-29
-prod-CastableExpr/K-SeqExprCastable-3
 prod-CastableExpr/K-SeqExprCastable-30
 prod-CastableExpr/K-SeqExprCastable-31
 prod-CastableExpr/K-SeqExprCastable-32

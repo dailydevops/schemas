@@ -39,7 +39,6 @@ op-numeric-equal/K-NumericEqual-43
 op-numeric-equal/K-NumericEqual-44
 op-numeric-equal/K-NumericEqual-45
 op-numeric-equal/K-NumericEqual-46
-op-numeric-equal/K-NumericEqual-47
 op-numeric-equal/K-NumericEqual-5
 op-numeric-equal/K-NumericEqual-6
 op-numeric-equal/K-NumericEqual-7

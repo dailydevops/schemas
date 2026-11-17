@@ -1,14 +1,7 @@
 op-node-before/K-NodeBefore-1
-op-node-before/K-NodeBefore-10
-op-node-before/K-NodeBefore-11
 op-node-before/K-NodeBefore-2
 op-node-before/K-NodeBefore-3
 op-node-before/K-NodeBefore-4
-op-node-before/K-NodeBefore-5
-op-node-before/K-NodeBefore-6
-op-node-before/K-NodeBefore-7
-op-node-before/K-NodeBefore-8
-op-node-before/K-NodeBefore-9
 op-node-before/nodecomparisonerr-2
 op-node-before/nodeexpression17
 op-node-before/nodeexpression19

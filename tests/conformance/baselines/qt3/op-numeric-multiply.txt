@@ -15,9 +15,6 @@ op-numeric-multiply/K-NumericMultiply-21
 op-numeric-multiply/K-NumericMultiply-22
 op-numeric-multiply/K-NumericMultiply-23
 op-numeric-multiply/K-NumericMultiply-24
-op-numeric-multiply/K-NumericMultiply-25
-op-numeric-multiply/K-NumericMultiply-26
-op-numeric-multiply/K-NumericMultiply-27
 op-numeric-multiply/K-NumericMultiply-28
 op-numeric-multiply/K-NumericMultiply-29
 op-numeric-multiply/K-NumericMultiply-3
