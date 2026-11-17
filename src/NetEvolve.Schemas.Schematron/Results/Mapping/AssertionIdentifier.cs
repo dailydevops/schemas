@@ -1,8 +1,13 @@
 namespace NetEvolve.Schemas.Schematron.Results.Mapping;
 
-using NetEvolve.Schemas.Schematron.Diagnostics;
+using System.Globalization;
 
 /// <summary>Builds the stable assertion identifier of design #137 AP-13.</summary>
+/// <remarks>
+/// The hash sign is not an NCName character, so a generated identifier never collides with an author identifier.
+/// Limitation: a rule-based identifier of an expanded copy also carries the expansion suffix, which the design text states for
+/// author identifiers only; without it two instances of one abstract rule would share an identifier.
+/// </remarks>
 internal static class AssertionIdentifier
 {
     /// <summary>Creates the identifier of one assertion of the effective model.</summary>
@@ -20,5 +25,23 @@ internal static class AssertionIdentifier
         int rule,
         int assertion,
         int expansion = 0
-    ) => throw NotImplementedFailure.For("assertion identifier");
+    )
+    {
+        if (assertionId is { Length: > 0 })
+        {
+            return Expanded(assertionId, expansion);
+        }
+
+        if (ruleId is { Length: > 0 })
+        {
+            return Expanded(ruleId + "#a" + Text(assertion), expansion);
+        }
+
+        // The ordinals already make the identifier unique in the effective model.
+        return "#p" + Text(pattern) + ".r" + Text(rule) + ".a" + Text(assertion);
+    }
+
+    private static string Expanded(string id, int expansion) => expansion > 0 ? id + "#i" + Text(expansion) : id;
+
+    private static string Text(int value) => value.ToString(CultureInfo.InvariantCulture);
 }

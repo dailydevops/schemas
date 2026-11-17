@@ -433,30 +433,61 @@ public class SvrlReportSinkTests
         await Assert.That(bytes[1]).IsEqualTo((byte)0xFE);
     }
 
-    private sealed class AsyncOnlyStream : MemoryStream
+    private sealed class AsyncOnlyStream : Stream
     {
+        private readonly MemoryStream _inner = new();
+
         internal int AsyncWrites { get; private set; }
+
+        public override bool CanRead => false;
+
+        public override bool CanSeek => false;
+
+        public override bool CanWrite => true;
+
+        public override long Length => _inner.Length;
+
+        public override long Position
+        {
+            get => _inner.Position;
+            set => throw new NotSupportedException();
+        }
+
+        public override void Flush() { }
+
+        public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+
+        public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+
+        public override void SetLength(long value) => throw new NotSupportedException();
 
         public override void Write(byte[] buffer, int offset, int count) =>
             throw new InvalidOperationException("synchronous write");
-
-        public override void Write(ReadOnlySpan<byte> buffer) =>
-            throw new InvalidOperationException("synchronous write");
-
-        public override void WriteByte(byte value) => throw new InvalidOperationException("synchronous write");
 
         public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
             AsyncWrites++;
-            return base.WriteAsync(buffer, offset, count, cancellationToken);
+            _inner.Write(buffer, offset, count);
+            return Task.CompletedTask;
         }
 
         public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
             AsyncWrites++;
-            return base.WriteAsync(buffer, cancellationToken);
+            _inner.Write(buffer.Span);
+            return default;
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _inner.Dispose();
+            }
+
+            base.Dispose(disposing);
         }
     }
 }
