@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Xsd.Tests.Integration.Xsts;
+﻿namespace NetEvolve.Schemas.Xsd.Tests.Integration.Xsts;
 
 using NetEvolve.Schemas.Conformance.Reporting;
 using NetEvolve.Schemas.Conformance.Results;
@@ -37,8 +37,12 @@ public class XstsRateReportTests
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        XstsRateReport.Publish([new("a", "ibmMeta-allGroup", CaseOutcome.Pass)], null);
+        var before = Directory.GetFileSystemEntries(Directory.GetCurrentDirectory());
+        CaseResult[] results = [new("a", "ibmMeta-allGroup", CaseOutcome.Pass)];
 
-        await Assert.That(XstsRateReport.Package).IsEqualTo("NetEvolve.Schemas.Xsd");
+        XstsRateReport.Publish(results, null);
+        XstsRateReport.Publish(results, string.Empty);
+
+        await Assert.That(Directory.GetFileSystemEntries(Directory.GetCurrentDirectory())).IsEquivalentTo(before);
     }
 }
