@@ -40,7 +40,15 @@ public class AllGroupTests
     public async Task ThreeMembers_AcceptEveryPermutation()
     {
         var g = Group(false, false, false, false);
-        int[][] permutations = [[A, B, C], [A, C, B], [B, A, C], [B, C, A], [C, A, B], [C, B, A]];
+        int[][] permutations =
+        [
+            [A, B, C],
+            [A, C, B],
+            [B, A, C],
+            [B, C, A],
+            [C, A, B],
+            [C, B, A],
+        ];
 
         foreach (var permutation in permutations)
         {
@@ -116,7 +124,14 @@ public class AllGroupTests
     [Test]
     public async Task MemberWithSeveralNames_MatchesAnyOfThem_AsOneMember()
     {
-        var g = new AllGroup(false, [[A, B], [C]], [false, false]);
+        var g = new AllGroup(
+            false,
+            [
+                [A, B],
+                [C],
+            ],
+            [false, false]
+        );
 
         await Assert.That(Accepts(g, B, C)).IsTrue();
         await Assert.That(Accepts(g, C, A)).IsTrue();
@@ -203,10 +218,50 @@ public class AllGroupTests
     public async Task Constructor_RejectsInvalidArguments()
     {
         await Assert.That(() => new AllGroup(false, null!, [])).Throws<ArgumentNullException>();
-        await Assert.That(() => new AllGroup(false, [[A]], null!)).Throws<ArgumentNullException>();
-        await Assert.That(() => new AllGroup(false, [[A]], [])).Throws<ArgumentException>();
+        await Assert
+            .That(() =>
+                new AllGroup(
+                    false,
+                    [
+                        [A],
+                    ],
+                    null!
+                )
+            )
+            .Throws<ArgumentNullException>();
+        await Assert
+            .That(() =>
+                new AllGroup(
+                    false,
+                    [
+                        [A],
+                    ],
+                    []
+                )
+            )
+            .Throws<ArgumentException>();
         await Assert.That(() => new AllGroup(false, [null!], [false])).Throws<ArgumentNullException>();
-        await Assert.That(() => new AllGroup(false, [[]], [false])).Throws<ArgumentOutOfRangeException>();
-        await Assert.That(() => new AllGroup(false, [[-1]], [false])).Throws<ArgumentOutOfRangeException>();
+        await Assert
+            .That(() =>
+                new AllGroup(
+                    false,
+                    [
+                        [],
+                    ],
+                    [false]
+                )
+            )
+            .Throws<ArgumentOutOfRangeException>();
+        await Assert
+            .That(() =>
+                new AllGroup(
+                    false,
+                    [
+                        [-1],
+                    ],
+                    [false]
+                )
+            )
+            .Throws<ArgumentOutOfRangeException>();
     }
 }
