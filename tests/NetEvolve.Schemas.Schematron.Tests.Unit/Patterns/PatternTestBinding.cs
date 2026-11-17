@@ -93,14 +93,12 @@ internal sealed class PatternTestBinding : IQueryBinding
             if (text.StartsWith("position() = ", StringComparison.Ordinal))
             {
                 var operand = text.Substring("position() = ".Length);
-                operand = operand.StartsWith('(', StringComparison.Ordinal)
-                    ? operand.Substring(1, operand.Length - 2)
-                    : operand;
+                operand = operand is ['(', ..] ? operand.Substring(1, operand.Length - 2) : operand;
                 var expected = string.Equals(operand, "last()", StringComparison.Ordinal) ? focus.Size : Sum(operand);
                 return focus.Position == expected;
             }
 
-            if (text.StartsWith('@', StringComparison.Ordinal))
+            if (text is ['@', ..])
             {
                 var parts = text.Split([" = "], 2, StringSplitOptions.None);
                 return HasAttribute(focus.Node, parts[0].Substring(1), parts.Length == 2 ? parts[1].Trim('\'') : null);
