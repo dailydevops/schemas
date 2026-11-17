@@ -1,0 +1,8 @@
+op-anyURI-less-than/K2-AnyURILtGt-1
+op-anyURI-less-than/K2-AnyURILtGt-2
+op-anyURI-less-than/K2-AnyURILtGt-3
+op-anyURI-less-than/K2-AnyURILtGt-4
+op-anyURI-less-than/K2-AnyURILtGt-5
+op-anyURI-less-than/K2-AnyURILtGt-6
+op-anyURI-less-than/K2-AnyURILtGt-7
+op-anyURI-less-than/K2-AnyURILtGt-8

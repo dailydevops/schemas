@@ -7,11 +7,12 @@ using NetEvolve.Schemas.Conformance.Results;
 public class Qt3ConformanceTests
 {
     // The XPath engine is bound in XP-14; until then every active case fails and the baseline lists it.
-    private static readonly IQt3Engine Engine = new UnboundEngine();
+    private static readonly UnboundEngine Engine = new();
 
+    /// <summary>The test sets are the baseline files, so discovery needs no download; a missing file fails the baseline test.</summary>
     public static IEnumerable<Func<string>> TestSets()
     {
-        foreach (var name in Qt3Suite.Selection.SelectedTestSets)
+        foreach (var name in Qt3Suite.LoadBaselines().Keys.Order(StringComparer.Ordinal))
         {
             yield return () => name;
         }
@@ -19,12 +20,14 @@ public class Qt3ConformanceTests
 
     [Test]
     [MethodDataSource(nameof(TestSets))]
-    public async Task TestSet_MatchesBaseline(string testSet)
+    public async Task TestSet_MatchesBaseline(string testSet, CancellationToken cancellationToken)
     {
-        var results = Qt3Runner.Run(Qt3Suite.Selection.SelectedIn(testSet), Engine);
+        cancellationToken.ThrowIfCancellationRequested();
+        var selection = await Qt3Suite.GetSelectionAsync(cancellationToken);
+        var results = Qt3Runner.Run(selection.SelectedIn(testSet), Engine);
         var baselines = new Dictionary<string, KnownFailureBaseline>(StringComparer.Ordinal)
         {
-            [testSet] = Qt3Suite.Baselines.GetValueOrDefault(testSet) ?? KnownFailureBaseline.Empty,
+            [testSet] = Qt3Suite.LoadBaselines()[testSet],
         };
 
         var report = ConformanceReport.Compare(results, baselines);

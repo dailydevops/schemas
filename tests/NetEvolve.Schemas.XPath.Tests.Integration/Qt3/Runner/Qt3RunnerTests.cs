@@ -25,7 +25,9 @@ public class Qt3RunnerTests
         await Assert.That(Run(assertion, EngineResult.Value(true, true)).Outcome).IsEqualTo(CaseOutcome.Fail);
         await Assert.That(Run(assertion, EngineResult.Value()).Outcome).IsEqualTo(CaseOutcome.Fail);
         await Assert.That(Run(assertion, EngineResult.Value("true")).Outcome).IsEqualTo(CaseOutcome.Fail);
-        await Assert.That(Run(assertion, EngineResult.Error(new QName(ErrNs, "FOER0000"))).Outcome).IsEqualTo(CaseOutcome.Fail);
+        await Assert
+            .That(Run(assertion, EngineResult.Error(new QName(ErrNs, "FOER0000"))).Outcome)
+            .IsEqualTo(CaseOutcome.Fail);
     }
 
     [Test]
@@ -38,7 +40,9 @@ public class Qt3RunnerTests
         await Assert.That(Run(assertion, EngineResult.Value(false, false)).Outcome).IsEqualTo(CaseOutcome.Fail);
         await Assert.That(Run(assertion, EngineResult.Value()).Outcome).IsEqualTo(CaseOutcome.Fail);
         await Assert.That(Run(assertion, EngineResult.Value(0)).Outcome).IsEqualTo(CaseOutcome.Fail);
-        await Assert.That(Run(assertion, EngineResult.Error(new QName(ErrNs, "FOER0000"))).Outcome).IsEqualTo(CaseOutcome.Fail);
+        await Assert
+            .That(Run(assertion, EngineResult.Error(new QName(ErrNs, "FOER0000"))).Outcome)
+            .IsEqualTo(CaseOutcome.Fail);
     }
 
     [Test]
@@ -48,7 +52,9 @@ public class Qt3RunnerTests
 
         await Assert.That(Run(assertion, EngineResult.Value()).Outcome).IsEqualTo(CaseOutcome.Pass);
         await Assert.That(Run(assertion, EngineResult.Value(1)).Outcome).IsEqualTo(CaseOutcome.Fail);
-        await Assert.That(Run(assertion, EngineResult.Error(new QName(ErrNs, "FOER0000"))).Outcome).IsEqualTo(CaseOutcome.Fail);
+        await Assert
+            .That(Run(assertion, EngineResult.Error(new QName(ErrNs, "FOER0000"))).Outcome)
+            .IsEqualTo(CaseOutcome.Fail);
     }
 
     [Test]
@@ -61,9 +67,11 @@ public class Qt3RunnerTests
         await Assert.That(Run(Error("*"), actual).Outcome).IsEqualTo(CaseOutcome.Pass);
         await Assert.That(Run(Error($"Q{{{ErrNs}}}XPST0003"), actual).Outcome).IsEqualTo(CaseOutcome.Pass);
         await Assert.That(Run(Error("Q{urn:other}XPST0003"), actual).Outcome).IsEqualTo(CaseOutcome.Fail);
-        await Assert.That(Run(Error("XPST0003"), EngineResult.Error(new QName("urn:other", "XPST0003"))).Outcome)
+        await Assert
+            .That(Run(Error("XPST0003"), EngineResult.Error(new QName("urn:other", "XPST0003"))).Outcome)
             .IsEqualTo(CaseOutcome.Fail);
-        await Assert.That(Run(Error("Q{}USER9999"), EngineResult.Error(new QName("", "USER9999"))).Outcome)
+        await Assert
+            .That(Run(Error("Q{}USER9999"), EngineResult.Error(new QName("", "USER9999"))).Outcome)
             .IsEqualTo(CaseOutcome.Pass);
     }
 

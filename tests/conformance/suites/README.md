@@ -42,3 +42,20 @@ same `key` fail the load.
 - The cache is keyed by checksum: a second fetch with a filled cache performs no download.
 - The cache folder is the environment variable `SCHEMAS_CONFORMANCE_CACHE` when set, otherwise the git-ignored
   `artifacts/conformance-cache` folder in the repository.
+
+## QT3 (`qt3.json`)
+
+The W3C QT3 test suite is pinned by commit, not by branch. The archive is the GitHub commit-SHA archive
+`https://github.com/w3c/qt3tests/archive/<commit>.zip`; the manifest carries its SHA-256 and the `subPath`
+`qt3tests-<commit>`. The runner lives in `tests/NetEvolve.Schemas.XPath.Tests.Integration/Qt3`.
+
+- **Limitation, byte stability:** GitHub generates these archives on request and does not promise
+  byte-identical output over time. If GitHub changes its archive format, the fetch fails with a checksum
+  mismatch even though the commit is unchanged. Re-pin by downloading the archive for the same commit,
+  verifying its content against the commit, and updating `sha256`.
+- **Selection:** XPath 2.0 cases (`XP20`, `XP20+`, `XP10+`). XQuery and XSLT cases are never selected.
+  Cases that need XSD 1.1, XML 1.1, schema import, schema validation, static typing, the namespace axis, or
+  a non-codepoint collation are excluded; each exclusion keeps its reason in the selection result.
+- **Baseline:** `tests/conformance/baselines/qt3/<test-set>.txt` lists every selected case of one test set as
+  `<test-set>/<case-name>`, one per line. Test sets without a selected case have no file. Regenerate the files
+  with the explicit test `Qt3BaselineTests.Baseline_Regenerate` after a deliberate filter change.

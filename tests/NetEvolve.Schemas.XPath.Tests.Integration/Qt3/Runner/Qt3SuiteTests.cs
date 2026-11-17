@@ -11,15 +11,19 @@ public class Qt3SuiteTests
         var manifest = Qt3Suite.Manifest;
 
         await Assert.That(manifest.Key).IsEqualTo("qt3");
-        await Assert.That(manifest.SourceUrl.AbsoluteUri)
+        await Assert
+            .That(manifest.SourceUrl.AbsoluteUri)
             .IsEqualTo("https://github.com/w3c/qt3tests/archive/201a6e466940cdfc727f4babfedcde5332b9f578.zip");
-        await Assert.That(manifest.Sha256).IsEqualTo("ba9032e4fa5b71da574e3eab7ff16320b7294f6ba586a5cd060430c55974cf29");
+        await Assert
+            .That(manifest.Sha256)
+            .IsEqualTo("ba9032e4fa5b71da574e3eab7ff16320b7294f6ba586a5cd060430c55974cf29");
         await Assert.That(manifest.ArchiveType).IsEqualTo(ArchiveType.Zip);
     }
 
     [Test]
     public async Task Fetch_ArchiveWithDifferentBytes_FailsWithChecksumMismatch(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         using var temp = new TempDirectory();
         var fetcher = new SuiteFetcher(new FakeTransport([1, 2, 3]), temp.Path);
 
