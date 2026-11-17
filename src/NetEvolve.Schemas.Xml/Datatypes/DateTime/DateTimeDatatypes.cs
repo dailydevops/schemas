@@ -4,9 +4,10 @@ using System;
 using System.Collections.Generic;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xml.Datatypes.Core;
+using NetEvolve.Schemas.Xml.Datatypes.Ordering;
 
 /// <summary>The primitive types dateTime, date, and time (XSD 1.1 Part 2, sections 3.3.7 to 3.3.9).</summary>
-/// <remarks>Limitation: the values are reported as unordered (<see cref="XsdOrder.Incomparable"/>) until the timeline order is added (DT-54); identity compares the seven properties.</remarks>
+/// <remarks>Limitation: the order is partial, a value without timezone is incomparable to a zoned value within 14 hours; identity compares the seven properties, so equal instants with different offsets are equal but not identical.</remarks>
 internal static class DateTimeDatatypes
 {
     internal static IReadOnlyList<DatatypeRegistration> Registrations { get; } =
@@ -27,7 +28,7 @@ internal static class DateTimeDatatypes
 
         public WhitespaceMode Whitespace => WhitespaceMode.Collapse;
 
-        public bool IsOrdered => false;
+        public bool IsOrdered => true;
 
         public DatatypeError Check(ReadOnlySpan<char> normalized, XsdVersion version, out int errorOffset)
         {
@@ -39,7 +40,8 @@ internal static class DateTimeDatatypes
         public XsdDateTime Map(ReadOnlySpan<char> normalized, WhitespaceMode mode, XsdVersion version) =>
             XsdDateTime.Parse(normalized, _kind, version).Value;
 
-        public XsdOrder Compare(in XsdDateTime a, in XsdDateTime b, XsdVersion version) => XsdOrder.Incomparable;
+        public XsdOrder Compare(in XsdDateTime a, in XsdDateTime b, XsdVersion version) =>
+            DateTimeTimeline.Compare(in a, in b);
 
         public bool IsIdentical(in XsdDateTime a, in XsdDateTime b, XsdVersion version) => a.Equals(b);
     }
