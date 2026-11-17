@@ -89,7 +89,7 @@ public class DecimalArithmeticTests
         var modulo = DecimalArithmetic.Remainder(P(a), P(b));
 
         await Assert.That(integerDivide.Success).IsTrue();
-        await Assert.That(integerDivide.Value).IsEqualTo(BigInteger.Parse(quotient));
+        await Assert.That(integerDivide.Value).IsEqualTo(BigInteger.Parse(quotient, CultureInfo.InvariantCulture));
         await Assert.That(modulo.Success).IsTrue();
         await Assert.That(modulo.Value.ToString()).IsEqualTo(remainder);
     }
@@ -178,7 +178,9 @@ public class DecimalArithmeticTests
     {
         var big = BigInteger.Parse("-123456789012345678901234567890", CultureInfo.InvariantCulture);
 
-        await Assert.That(DecimalArithmetic.FromBigInteger(big).ToString()).IsEqualTo("-123456789012345678901234567890");
+        await Assert
+            .That(DecimalArithmetic.FromBigInteger(big).ToString())
+            .IsEqualTo("-123456789012345678901234567890");
         await Assert.That(DecimalArithmetic.ToBigInteger(DecimalArithmetic.FromBigInteger(big)).Value).IsEqualTo(big);
         await Assert.That(DecimalArithmetic.ToBigInteger(P("-2.9")).Value).IsEqualTo(new BigInteger(-2));
         await Assert.That(DecimalArithmetic.ToBigInteger(P("1200")).Value).IsEqualTo(new BigInteger(1200));

@@ -316,6 +316,9 @@ namespace NetEvolve.Schemas.Xml.Datatypes.Contracts
         FacetViolation = 2,
         InvalidListItem = 3,
         NoUnionMember = 4,
+        DivisionByZero = 5,
+        Overflow = 6,
+        InvalidNumericOperand = 7,
         DigitCap = 10,
         YearOrComponentCap = 11,
         InvalidCharacter = 13,
@@ -513,6 +516,35 @@ namespace NetEvolve.Schemas.Xml.Datatypes.Core
         public XsdUnion(NetEvolve.Schemas.Xml.Datatypes.Contracts.TextRange range, int memberIndex) { }
         public int MemberIndex { get; }
         public NetEvolve.Schemas.Xml.Datatypes.Contracts.TextRange Range { get; }
+    }
+}
+namespace NetEvolve.Schemas.Xml.Datatypes.Decimals.Arithmetic
+{
+    public readonly struct ArithmeticResult<TValue> : System.IEquatable<NetEvolve.Schemas.Xml.Datatypes.Decimals.Arithmetic.ArithmeticResult<TValue>>
+    {
+        public ArithmeticResult(NetEvolve.Schemas.Xml.Datatypes.Contracts.DatatypeError error) { }
+        public ArithmeticResult(TValue value) { }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.DatatypeError Error { get; }
+        public bool Success { get; }
+        public TValue Value { get; }
+    }
+    public static class DecimalArithmetic
+    {
+        public const int DefaultFractionDigits = 18;
+        public static NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal Abs(NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal value) { }
+        public static NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal Ceiling(NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal value) { }
+        public static NetEvolve.Schemas.Xml.Datatypes.Decimals.Arithmetic.ArithmeticResult<NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal> Divide(NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal dividend, NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal divisor, int fractionDigits = 18) { }
+        public static NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal Floor(NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal value) { }
+        public static NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal FromBigInteger(System.Numerics.BigInteger value) { }
+        public static NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal FromDecimal(decimal value) { }
+        public static NetEvolve.Schemas.Xml.Datatypes.Decimals.Arithmetic.ArithmeticResult<NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal> FromDouble(double value) { }
+        public static NetEvolve.Schemas.Xml.Datatypes.Decimals.Arithmetic.ArithmeticResult<System.Numerics.BigInteger> IntegerDivide(NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal dividend, NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal divisor) { }
+        public static NetEvolve.Schemas.Xml.Datatypes.Decimals.Arithmetic.ArithmeticResult<NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal> Remainder(NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal dividend, NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal divisor) { }
+        public static NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal Round(NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal value, int precision = 0) { }
+        public static NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal RoundHalfToEven(NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal value, int precision = 0) { }
+        public static NetEvolve.Schemas.Xml.Datatypes.Decimals.Arithmetic.ArithmeticResult<System.Numerics.BigInteger> ToBigInteger(NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal value) { }
+        public static NetEvolve.Schemas.Xml.Datatypes.Decimals.Arithmetic.ArithmeticResult<decimal> ToDecimal(NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal value) { }
+        public static double ToDouble(NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal value) { }
     }
 }
 namespace NetEvolve.Schemas.Xml.Datatypes.Decimals

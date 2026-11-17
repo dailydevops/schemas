@@ -22,6 +22,15 @@ public enum DatatypeError
     /// <summary><c>DT0004</c>: no member type of a union accepts the lexical form.</summary>
     NoUnionMember = 4,
 
+    /// <summary><c>DT0005</c>: a division, integer division, or remainder by zero.</summary>
+    DivisionByZero = 5,
+
+    /// <summary><c>DT0006</c>: a result or conversion does not fit its target, for example a scale beyond the 32-bit range or a <see cref="decimal"/> range.</summary>
+    Overflow = 6,
+
+    /// <summary><c>DT0007</c>: a numeric operand has no value in the target value space, for example NaN or an infinity as a decimal.</summary>
+    InvalidNumericOperand = 7,
+
     /// <summary><c>DT0010</c>: a lexical number exceeds the digit cap.</summary>
     DigitCap = 10,
 
