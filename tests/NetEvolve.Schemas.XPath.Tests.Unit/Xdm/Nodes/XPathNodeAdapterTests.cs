@@ -218,6 +218,26 @@ public class XPathNodeAdapterTests
     }
 
     [Test]
+    public async Task FromUntypedAtomic_Null_Throws() =>
+        await Assert.That(() => XdmItem.FromUntypedAtomic(null!)).Throws<ArgumentNullException>();
+
+    [Test]
+    public async Task GetTypeAnnotation_NullSource_Throws()
+    {
+        var node = new XPathNode(Build().Document);
+
+        await Assert.That(() => node.GetTypeAnnotation(null!)).Throws<ArgumentNullException>();
+    }
+
+    [Test]
+    public async Task TypedValue_NullSource_Throws()
+    {
+        var node = new XPathNode(Build().Document);
+
+        await Assert.That(() => node.TypedValue(null!)).Throws<ArgumentNullException>();
+    }
+
+    [Test]
     public async Task FromUntypedAtomic_EqualityIgnoresStringInstance()
     {
         var left = XdmItem.FromUntypedAtomic("a");
