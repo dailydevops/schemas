@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Xml.Tests.Unit.Datatypes.Binary;
+﻿namespace NetEvolve.Schemas.Xml.Tests.Unit.Datatypes.Binary;
 
 using NetEvolve.Schemas.Xml.Datatypes.Binary;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
