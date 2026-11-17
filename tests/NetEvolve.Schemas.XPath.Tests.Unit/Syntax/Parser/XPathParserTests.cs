@@ -35,10 +35,10 @@ public class XPathParserTests
     [Arguments("/", "Path")]
     [Arguments("/*", "Path")]
     [Arguments("(/)", "Paren")]
-    [Arguments("/ union a", "Path")]
-    [Arguments("string(1)", "Call")]
-    [Arguments("my:element(1)", "Call")]
-    [Arguments("fn:item()", "Call")]
+    [Arguments("/union", "Path")]
+    [Arguments("string(1)", "Function")]
+    [Arguments("my:element(1)", "Function")]
+    [Arguments("fn:item()", "Function")]
     [Arguments("1 instance of xs:integer+", "InstanceOf")]
     [Arguments("1 instance of item()* , 2", "Seq")]
     public async Task Parse_ExtraGrammaticalConstraint_AcceptsTheValidForm(string text, string kind)
@@ -171,6 +171,8 @@ public class XPathParserTests
         var call = (FunctionCall)ParseOrFail(" f(1) ");
         var binding = ((ForExpression)ParseOrFail("for $x in 1 return $x")).Bindings[0];
         var unary = (UnaryExpression)ParseOrFail("- 1");
+        var conditional = (IfExpression)ParseOrFail("if (a) then b else c");
+        var quantified = (QuantifiedExpression)ParseOrFail("some $x in 1 satisfies $x");
 
         await Assert.That(sum.Location).IsEqualTo(new SourceSpan(0, 6));
         await Assert.That(sum.Left.Location).IsEqualTo(new SourceSpan(0, 1));
@@ -181,6 +183,8 @@ public class XPathParserTests
         await Assert.That(call.Name.Location).IsEqualTo(new SourceSpan(1, 1));
         await Assert.That(binding.Location).IsEqualTo(new SourceSpan(4, 7));
         await Assert.That(unary.Location).IsEqualTo(new SourceSpan(0, 3));
+        await Assert.That(conditional.Location).IsEqualTo(new SourceSpan(0, 20));
+        await Assert.That(quantified.Location).IsEqualTo(new SourceSpan(0, 25));
     }
 
     [Test]

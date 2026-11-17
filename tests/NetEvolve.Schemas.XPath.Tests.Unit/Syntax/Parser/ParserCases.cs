@@ -214,7 +214,8 @@ internal static class ParserCases
             ["1 + 2 to 3"] = Range(Arith(ArithmeticOperator.Add, Int("1"), Int("2")), Int("3")),
             ["-a | b"] = Set(SetOperator.Union, Unary(UnaryOperator.Minus, A), B),
             ["a | b intersect c"] = Set(SetOperator.Union, A, Set(SetOperator.Intersect, B, C)),
-            ["a union b except c"] = Set(SetOperator.Except, Set(SetOperator.Union, A, B), C),
+            ["a union b except c"] = Set(SetOperator.Union, A, Set(SetOperator.Except, B, C)),
+            ["a except b intersect c"] = Set(SetOperator.Intersect, Set(SetOperator.Except, A, B), C),
             ["1 * 2 | 3"] = Arith(ArithmeticOperator.Multiply, Int("1"), Set(SetOperator.Union, Int("2"), Int("3"))),
             ["1 + 2 instance of xs:integer"] = Arith(
                 ArithmeticOperator.Add,
