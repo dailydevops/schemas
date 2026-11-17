@@ -18,10 +18,10 @@ internal readonly record struct QName(string Namespace, string LocalName)
     {
         if (code.StartsWith("Q{", StringComparison.Ordinal))
         {
-            var close = code.IndexOf('}', 2);
-            if (close > 0)
+            var length = code.AsSpan(2).IndexOf('}');
+            if (length >= 0)
             {
-                return new QName(code[2..close], code[(close + 1)..]);
+                return new QName(code.Substring(2, length), code[(length + 3)..]);
             }
         }
         return new QName(ErrorNamespace, code);
