@@ -111,6 +111,8 @@ internal sealed class SandboxedFileSystemResourceResolverTests : IDisposable
     [Arguments("..%2foutside.xml")]
     [Arguments("sub%2f..%2f..%2foutside.xml")]
     [Arguments("..%5coutside.xml")]
+    [Arguments("%2e/a.xml")]
+    [Arguments("sub/%2E/b.xml")]
     [Arguments("%2e%2e%5coutside.xml")]
     [Arguments("..\\outside.xml")]
     [Arguments("sub\\..\\..\\outside.xml")]
@@ -321,6 +323,92 @@ internal sealed class SandboxedFileSystemResourceResolverTests : IDisposable
         using var result = Resolve("loop-a.xml");
 
         await Assert.That(result.Status).IsNotEqualTo(ResourceStatus.Found);
+    }
+
+    [Test]
+    [Arguments("file://localhost/", "")]
+    [Arguments("file:/", "")]
+    [Arguments("FILE:///", "")]
+    [Arguments("file:///", "#fragment")]
+    public async Task Resolve_ResolvedUriForm_IsServed(
+        string prefix,
+        string suffix,
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var uri =
+            new Uri(Path.Combine(_root, "a.xml")).AbsoluteUri.Replace("file:///", prefix, StringComparison.Ordinal)
+            + suffix;
+
+        using var result = Resolve("ignored.xml", resolvedUri: uri);
+
+        await Assert.That(result.Status).IsEqualTo(ResourceStatus.Found);
+        await Assert.That(result.SystemId!).DoesNotContain("#");
+    }
+
+    [Test]
+    [Arguments("file:///", "?q=1")]
+    [Arguments("file:///", "é")]
+    [Arguments("file://example.org/", "")]
+    [Arguments("http://example.org/", "")]
+    public async Task Resolve_ResolvedUriForm_IsDenied(
+        string prefix,
+        string suffix,
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var uri =
+            new Uri(Path.Combine(_root, "a.xml")).AbsoluteUri.Replace("file:///", prefix, StringComparison.Ordinal)
+            + suffix;
+
+        using var result = Resolve("ignored.xml", resolvedUri: uri);
+
+        await AssertDenied(result);
+    }
+
+    [Test]
+    [Arguments("file:")]
+    [Arguments("file://")]
+    [Arguments("file://localhost")]
+    [Arguments("file:relative.xml")]
+    [Arguments("a.xml")]
+    public async Task Resolve_ResolvedUriWithoutAbsolutePath_IsDenied(string uri, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        using var result = Resolve("ignored.xml", resolvedUri: uri);
+
+        await AssertDenied(result);
+    }
+
+    [Test]
+    public async Task Resolve_RootWithSpaceAndNonAsciiName_ServesEncodedReferences(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var root = Path.Combine(_workspace, "röot dir");
+        _ = Directory.CreateDirectory(root);
+        await File.WriteAllTextAsync(Path.Combine(root, "ä b.xml"), "<u/>", cancellationToken);
+        var resolver = new SandboxedFileSystemResourceResolver(root + Path.DirectorySeparatorChar);
+
+        foreach (var reference in new[] { "%C3%A4%20b.xml", "ä b.xml" })
+        {
+            var request = new ResourceRequest(ResourceKind.SchemaDocument, reference, null, null);
+            using var result = resolver.Resolve(in request, cancellationToken);
+
+            await Assert.That(result.Status).IsEqualTo(ResourceStatus.Found);
+        }
+    }
+
+    [Test]
+    public async Task Resolve_MissingDirectoryInsideRoot_IsNotFound(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        using var result = Resolve("missing/deeper/x.xml");
+
+        await Assert.That(result.Status).IsEqualTo(ResourceStatus.NotFound);
     }
 
     [Test]
