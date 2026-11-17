@@ -89,6 +89,8 @@ public class XsdFloatingTests
     {
         await Assert.That(Double(XsdVersion.V11).Parse("1e").ErrorOffset).IsEqualTo(2);
         await Assert.That(Double(XsdVersion.V11).Parse("12x").ErrorOffset).IsEqualTo(2);
+        await Assert.That(Double(XsdVersion.V11).Parse("1e2x").ErrorOffset).IsEqualTo(3);
+        await Assert.That(Double(XsdVersion.V11).Parse(new string('1', 5000)).Error).IsEqualTo(DatatypeError.DigitCap);
     }
 
     [Test]
