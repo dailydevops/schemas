@@ -65,7 +65,7 @@ public class XmlTreePumpTests
         }
     }
 
-    // <a xmlns="urn:d" xmlns:p="urn:p" id="1"><b xmlns="" xmlns:p="urn:q">t</b><!--c--><?pi d?><p:c/></a>
+    // <a xmlns="urn:d" xmlns:p="urn:p" id="1"><b xmlns:p="urn:q" xmlns="">t</b><!--c--><?pi d?><p:c/></a>
     private static (XmlNameTable Names, List<XmlEventRecord> Script) Sample()
     {
         var n = new SpanInterningNameTable(1000);
@@ -85,8 +85,8 @@ public class XmlTreePumpTests
             Attr(n.Intern("", "id", ""), "1"),
             Ev(XmlEventKind.EndAttributes),
             Ev(XmlEventKind.StartElement, b, new XmlPosition(2, 3, 20)),
-            Ns(default, default),
             Ns(p, uq),
+            Ns(default, default),
             Ev(XmlEventKind.EndAttributes),
             Txt("t"),
             Ev(XmlEventKind.EndElement, b),

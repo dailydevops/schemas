@@ -128,6 +128,19 @@ public sealed class XmlDocumentTree : XmlTree
         return false;
     }
 
+    /// <summary>Gets the characters of a text node, or the value of an attribute, comment or processing instruction node, without allocating.</summary>
+    /// <param name="index">The node index.</param>
+    /// <returns>The characters.</returns>
+    internal ReadOnlySpan<char> GetValueSpan(int index) =>
+        (XmlNodeKind)_kinds[index] == XmlNodeKind.Text
+            ? _text.AsSpan(_textStarts[index], _textStarts[index + 1] - _textStarts[index])
+            : _other.AsSpan(_otherStarts[index], _otherStarts[index + 1] - _otherStarts[index]);
+
+    /// <summary>Gets the namespace URI symbol bound by a namespace node.</summary>
+    /// <param name="index">The index of a namespace node.</param>
+    /// <returns>The symbol.</returns>
+    internal XmlSymbol GetNamespaceUri(int index) => _names[index].NamespaceUri;
+
     /// <inheritdoc />
     protected internal override XmlNodeKind GetKind(int index) => (XmlNodeKind)_kinds[index];
 
