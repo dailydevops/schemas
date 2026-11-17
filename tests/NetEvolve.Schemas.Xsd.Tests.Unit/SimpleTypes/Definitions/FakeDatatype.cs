@@ -28,11 +28,3 @@ internal sealed class FakeDatatype : IDatatypeDescriptor
 
     public ValidationResult Validate(ReadOnlySpan<char> lexical) => ValidationResult.Valid;
 }
-
-/// <summary>A facet that is only identified by its kind.</summary>
-internal sealed class FakeFacet : IFacet
-{
-    public FakeFacet(FacetKind kind) => Kind = kind;
-
-    public FacetKind Kind { get; }
-}

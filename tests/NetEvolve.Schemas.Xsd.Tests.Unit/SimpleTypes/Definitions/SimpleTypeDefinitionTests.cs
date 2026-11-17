@@ -4,8 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using NetEvolve.Schemas.Formats;
-using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
+using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.SimpleTypes.Definitions;
@@ -49,14 +49,7 @@ public class SimpleTypeDefinitionTests
     {
         var baseType = Builtin("string", DatatypeVariety.Atomic);
 
-        var type = SimpleTypeDefinition.Restrict(
-            Named,
-            Where,
-            XsdDerivationMethod.None,
-            baseType,
-            NoFacets,
-            Reporter
-        );
+        var type = SimpleTypeDefinition.Restrict(Named, Where, XsdDerivationMethod.None, baseType, NoFacets, Reporter);
 
         await Assert.That(type).IsNotNull();
         await Assert.That(type!.Variety).IsEqualTo(DatatypeVariety.Atomic);
@@ -343,10 +336,11 @@ public class SimpleTypeDefinitionTests
     }
 
     [Test]
-    [Arguments(XsdDerivationMethod.List)]
-    [Arguments(XsdDerivationMethod.Union)]
-    public async Task Final_OtherMethods_DoNotBlockRestriction(XsdDerivationMethod final)
+    [Arguments(4)]
+    [Arguments(8)]
+    public async Task Final_OtherMethods_DoNotBlockRestriction(int finalMask)
     {
+        var final = (XsdDerivationMethod)finalMask;
         var type = SimpleTypeDefinition.Restrict(
             Named,
             Where,
@@ -437,14 +431,17 @@ public class SimpleTypeDefinitionTests
         var offenders = new List<string>();
         foreach (var type in typeof(SimpleTypeDefinition).Assembly.GetTypes())
         {
-            if (type.Namespace != typeof(SimpleTypeDefinition).Namespace)
+            if (!string.Equals(type.Namespace, typeof(SimpleTypeDefinition).Namespace, StringComparison.Ordinal))
             {
                 continue;
             }
 
             foreach (var used in UsedTypes(type))
             {
-                if (used.Assembly == xml && used.Namespace != typeof(IDatatypeDescriptor).Namespace)
+                if (
+                    used.Assembly == xml
+                    && !string.Equals(used.Namespace, typeof(IDatatypeDescriptor).Namespace, StringComparison.Ordinal)
+                )
                 {
                     offenders.Add($"{type.Name} uses {used.FullName}");
                 }
