@@ -45,8 +45,8 @@ public class ReferenceDirectionTests
     }
 
     [Test]
-    public async Task Fixture_ReadsNameFromXmlProbe() =>
-        await Assert.That(HigherLayerReferenceFixture.Name).IsEqualTo("XmlProbe");
+    public async Task Fixture_ReadsNameFromXmlSymbol() =>
+        await Assert.That(HigherLayerReferenceFixture.Name).IsEqualTo("XmlSymbol");
 
     [Test]
     [MethodDataSource(typeof(SourceAssemblies), nameof(SourceAssemblies.Names))]
