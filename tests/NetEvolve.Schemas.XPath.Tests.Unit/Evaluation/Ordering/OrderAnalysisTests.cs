@@ -9,51 +9,51 @@ public class OrderAnalysisTests
 {
     // Hand-written expectations, derived from the shape of each step sequence evaluated from one context node.
     [Test]
-    [Arguments("Child", XPathOrderRequirement.None)]
-    [Arguments("Attribute", XPathOrderRequirement.None)]
-    [Arguments("Self", XPathOrderRequirement.None)]
-    [Arguments("Parent", XPathOrderRequirement.None)]
-    [Arguments("Descendant", XPathOrderRequirement.None)]
-    [Arguments("DescendantOrSelf", XPathOrderRequirement.None)]
-    [Arguments("FollowingSibling", XPathOrderRequirement.None)]
-    [Arguments("Following", XPathOrderRequirement.None)]
-    [Arguments("Ancestor", XPathOrderRequirement.Reverse)]
-    [Arguments("AncestorOrSelf", XPathOrderRequirement.Reverse)]
-    [Arguments("PrecedingSibling", XPathOrderRequirement.Reverse)]
-    [Arguments("Preceding", XPathOrderRequirement.Reverse)]
-    [Arguments("Child,Child", XPathOrderRequirement.None)]
-    [Arguments("Child,Child,Child", XPathOrderRequirement.None)]
-    [Arguments("Child,Attribute", XPathOrderRequirement.None)]
-    [Arguments("Child,Descendant", XPathOrderRequirement.None)]
-    [Arguments("Descendant,Attribute", XPathOrderRequirement.None)]
-    [Arguments("Descendant,Self", XPathOrderRequirement.None)]
-    [Arguments("Descendant,Child", XPathOrderRequirement.Sort)]
-    [Arguments("DescendantOrSelf,Child", XPathOrderRequirement.Sort)]
-    [Arguments("Descendant,Descendant", XPathOrderRequirement.Sort)]
-    [Arguments("Ancestor,Child", XPathOrderRequirement.Sort)]
-    [Arguments("Descendant,FollowingSibling", XPathOrderRequirement.Sort)]
-    [Arguments("Descendant,Parent", XPathOrderRequirement.Sort)]
-    [Arguments("Child,Parent", XPathOrderRequirement.Sort)]
-    [Arguments("Child,FollowingSibling", XPathOrderRequirement.Sort)]
-    [Arguments("Child,Ancestor", XPathOrderRequirement.Sort)]
-    [Arguments("Descendant,Following", XPathOrderRequirement.Sort)]
-    [Arguments("Descendant,Preceding", XPathOrderRequirement.Sort)]
-    [Arguments("Parent,Child", XPathOrderRequirement.None)]
-    [Arguments("Parent,Parent", XPathOrderRequirement.None)]
-    [Arguments("Parent,Ancestor", XPathOrderRequirement.Reverse)]
-    [Arguments("Self,Descendant", XPathOrderRequirement.None)]
-    [Arguments("Child,Self,Child", XPathOrderRequirement.None)]
-    [Arguments("Ancestor,Self", XPathOrderRequirement.Reverse)]
-    public async Task Compose_FromOneContextNode_YieldsTheExpectedRequirement(
-        string axes,
-        XPathOrderRequirement expected
-    )
+    [Arguments("Child", "None")]
+    [Arguments("Attribute", "None")]
+    [Arguments("Self", "None")]
+    [Arguments("Parent", "None")]
+    [Arguments("Descendant", "None")]
+    [Arguments("DescendantOrSelf", "None")]
+    [Arguments("FollowingSibling", "None")]
+    [Arguments("Following", "None")]
+    [Arguments("Ancestor", "Reverse")]
+    [Arguments("AncestorOrSelf", "Reverse")]
+    [Arguments("PrecedingSibling", "Reverse")]
+    [Arguments("Preceding", "Reverse")]
+    [Arguments("Child,Child", "None")]
+    [Arguments("Child,Child,Child", "None")]
+    [Arguments("Child,Attribute", "None")]
+    [Arguments("Child,Descendant", "None")]
+    [Arguments("Descendant,Attribute", "None")]
+    [Arguments("Descendant,Self", "None")]
+    [Arguments("Descendant,Child", "Sort")]
+    [Arguments("DescendantOrSelf,Child", "Sort")]
+    [Arguments("Descendant,Descendant", "Sort")]
+    [Arguments("Ancestor,Child", "Sort")]
+    [Arguments("Descendant,FollowingSibling", "Sort")]
+    [Arguments("Descendant,Parent", "Sort")]
+    [Arguments("Child,Parent", "Sort")]
+    [Arguments("Child,FollowingSibling", "Sort")]
+    [Arguments("Child,Ancestor", "Sort")]
+    [Arguments("Descendant,Following", "Sort")]
+    [Arguments("Descendant,Preceding", "Sort")]
+    [Arguments("Parent,Child", "None")]
+    [Arguments("Parent,Parent", "None")]
+    [Arguments("Parent,Ancestor", "Reverse")]
+    [Arguments("Self,Descendant", "None")]
+    [Arguments("Child,Self,Child", "None")]
+    [Arguments("Ancestor,Self", "Reverse")]
+    public async Task Compose_FromOneContextNode_YieldsTheExpectedRequirement(string axes, string expected)
     {
+        ArgumentNullException.ThrowIfNull(axes);
         var sequence = ParseAxes(axes);
 
         var properties = XPathOrderAnalysis.Compose(XPathOrderAnalysis.SingleNode, sequence);
 
-        await Assert.That(XPathOrderAnalysis.GetRequirement(properties)).IsEqualTo(expected);
+        await Assert
+            .That(XPathOrderAnalysis.GetRequirement(properties))
+            .IsEqualTo(Enum.Parse<XPathOrderRequirement>(expected));
     }
 
     [Test]

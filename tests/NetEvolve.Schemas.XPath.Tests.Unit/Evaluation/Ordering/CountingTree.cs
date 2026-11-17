@@ -8,62 +8,6 @@ using NetEvolve.Schemas.Xml.Text.NameTable;
 using NetEvolve.Schemas.XPath.Evaluation.Ordering;
 using NetEvolve.Schemas.XPath.Xdm.Nodes;
 
-/// <summary>A node source over an array that can throw after a number of nodes.</summary>
-internal struct ArraySource : IXPathNodeSource
-{
-    private readonly XPathNode[] _nodes;
-    private readonly int _throwAt;
-    private int _next;
-
-    public ArraySource(XPathNode[] nodes, int throwAt = -1)
-    {
-        _nodes = nodes;
-        _throwAt = throwAt;
-        _next = 0;
-    }
-
-    public bool TryGetNext(out XPathNode node)
-    {
-        if (_next == _throwAt)
-        {
-            throw new InvalidOperationException("The source failed.");
-        }
-
-        if (_next < _nodes.Length)
-        {
-            node = _nodes[_next++];
-            return true;
-        }
-
-        node = default;
-        return false;
-    }
-}
-
-/// <summary>A pool that counts the arrays it has handed out and not yet got back.</summary>
-internal sealed class TrackingPool : ArrayPool<XPathNode>
-{
-    private readonly ArrayPool<XPathNode> _inner = Create();
-
-    public int Rented { get; private set; }
-
-    public int Returned { get; private set; }
-
-    public int Outstanding => Rented - Returned;
-
-    public override XPathNode[] Rent(int minimumLength)
-    {
-        Rented++;
-        return _inner.Rent(minimumLength);
-    }
-
-    public override void Return(XPathNode[] array, bool clearArray = false)
-    {
-        Returned++;
-        _inner.Return(array, clearArray);
-    }
-}
-
 /// <summary>A flat tree of a document and a number of elements that counts its document order comparisons.</summary>
 internal class CountingTree : XmlTree
 {
@@ -114,11 +58,4 @@ internal class CountingTree : XmlTree
     }
 
     protected virtual int OnCompare(int first, int second) => first.CompareTo(second);
-}
-
-/// <summary>A tree whose comparison fails.</summary>
-internal sealed class ThrowingCompareTree(int elements) : CountingTree(elements)
-{
-    protected override int OnCompare(int first, int second) =>
-        throw new InvalidOperationException("The comparison failed.");
 }
