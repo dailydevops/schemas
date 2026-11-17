@@ -42,6 +42,15 @@ public class SvrlReportSinkTests
 
     private static readonly string[] TopLevelOrder = ["error", "ns-prefix-in-attribute-values", "active-pattern"];
 
+    private static readonly string[] DeclaredNamespaces =
+    [
+        "svrl=http://purl.oclc.org/dsdl/svrl",
+        "dup=urn:1",
+        "ok=urn:ok",
+    ];
+
+    private static readonly string[] ReportedPrefixes = ["svrl", "xml", "xmlns", "dup", "dup", "ok"];
+
     private static readonly SvrlWriterOptions Indented = new(indent: true);
 
     private static string Normalize(string text) => text.Replace("\r\n", "\n", StringComparison.Ordinal);
@@ -431,6 +440,141 @@ public class SvrlReportSinkTests
 
         await Assert.That(bytes[0]).IsEqualTo((byte)0xFF);
         await Assert.That(bytes[1]).IsEqualTo((byte)0xFE);
+    }
+
+    [Test]
+    public async Task Svrl_BeginTwice_Throws()
+    {
+        using var sink = new SvrlReportSink(new ArrayBufferWriter<byte>());
+        SvrlRuns.Begin(sink, "#ALL", SchematronEdition.Iso2016);
+
+        await Assert
+            .That(() => SvrlRuns.Begin(sink, "#ALL", SchematronEdition.Iso2016))
+            .Throws<InvalidOperationException>();
+    }
+
+    [Test]
+    public async Task Svrl_RuleOrFindingWithoutActivePattern_Throws()
+    {
+        using var sink = new SvrlReportSink(new ArrayBufferWriter<byte>());
+        SvrlRuns.Begin(sink, "#ALL", SchematronEdition.Iso2016);
+
+        await Assert.That(() => SvrlRuns.FiredRule(sink, "r", "a")).Throws<InvalidOperationException>();
+        await Assert.That(() => SvrlRuns.Assert(sink, "a1", "m")).Throws<InvalidOperationException>();
+    }
+
+    [Test]
+    public async Task Svrl_AfterOverflow_LaterFindingsAndErrorsOfThePatternAreDropped()
+    {
+        var text = Write(
+            s =>
+            {
+                SvrlRuns.Begin(s, "#ALL", SchematronEdition.Iso2016);
+                SvrlRuns.Pattern(s, "big");
+                for (var i = 0; i < 100; i++)
+                {
+                    SvrlRuns.FiredRule(s, "r", "context-" + i);
+                }
+
+                SvrlRuns.Assert(s, "late", "dropped");
+                SvrlRuns.Error(s, "NES3301", "dropped too");
+                SvrlRuns.Finish(s, false);
+            },
+            new SvrlWriterOptions(maxBufferedBytes: 256)
+        );
+
+        var root = Root(text);
+        var errors = root.Descendants(Svrl + "error").ToArray();
+
+        await Assert.That(errors.Length).IsEqualTo(1);
+        await Assert.That(errors[0].Attribute("code")!.Value).IsEqualTo("NES3500");
+        await Assert.That(root.Descendants(Svrl + "failed-assert").Count()).IsEqualTo(0);
+        await Assert.That(root.Descendants(Svrl + "fired-rule").Count()).IsEqualTo(0);
+    }
+
+    [Test]
+    public async Task Svrl_SchemaNamespaces_AreFilteredForDeclarationsButAllReported()
+    {
+        var text = Write(s =>
+        {
+            SvrlRuns.Begin(
+                s,
+                "#ALL",
+                SchematronEdition.Iso2016,
+                [
+                    SvrlRuns.Namespace("", "urn:empty-prefix"),
+                    SvrlRuns.Namespace("empty-uri", ""),
+                    SvrlRuns.Namespace("svrl", "urn:other"),
+                    SvrlRuns.Namespace("xml", "urn:other"),
+                    SvrlRuns.Namespace("xmlns", "urn:other"),
+                    SvrlRuns.Namespace("dup", "urn:1"),
+                    SvrlRuns.Namespace("dup", "urn:2"),
+                    SvrlRuns.Namespace("ok", "urn:ok"),
+                ]
+            );
+            SvrlRuns.Pattern(s, "p");
+            SvrlRuns.Finish(s, false);
+        });
+
+        var root = Root(text);
+        var declared = root.Attributes()
+            .Where(a => a.IsNamespaceDeclaration)
+            .Select(a => a.Name.LocalName + "=" + a.Value)
+            .ToArray();
+        var reported = root.Elements(Svrl + "ns-prefix-in-attribute-values").Select(e => e.Attribute("prefix")!.Value);
+
+        await Assert.That(declared).IsEquivalentTo(DeclaredNamespaces);
+        await Assert.That(reported).IsEquivalentTo(ReportedPrefixes);
+    }
+
+    [Test]
+    public async Task Svrl_CompleteAsync_OnTheBufferWriterPath_IsImmediate_AndThrowsAfterDispose(
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var sink = new SvrlReportSink(new ArrayBufferWriter<byte>());
+        SvrlRuns.Fixed(sink);
+
+        await sink.CompleteAsync(cancellationToken);
+        await Assert.That(sink.IsCompleted).IsTrue();
+
+        await sink.DisposeAsync();
+        await Assert.That(async () => await sink.CompleteAsync(cancellationToken)).Throws<ObjectDisposedException>();
+    }
+
+    [Test]
+    public async Task Svrl_ErrorWithoutCode_OmitsTheCodeAttribute()
+    {
+        var text = Write(s =>
+        {
+            SvrlRuns.Begin(s, "#ALL", SchematronEdition.Iso2016);
+            SvrlRuns.ErrorWithoutCode(s);
+            SvrlRuns.Finish(s, false);
+        });
+
+        var error = Root(text).Element(Svrl + "error")!;
+
+        await Assert.That(error.Attribute("code")).IsNull();
+        await Assert.That(error.Value).IsEqualTo("no code");
+    }
+
+    [Test]
+    public async Task Svrl_PatternAttributes_AreWritten()
+    {
+        var text = Write(s =>
+        {
+            SvrlRuns.Begin(s, "#ALL", SchematronEdition.Iso2016);
+            SvrlRuns.PatternWithAttributes(s);
+            SvrlRuns.Finish(s, false);
+        });
+
+        var pattern = Root(text).Element(Svrl + "active-pattern")!;
+
+        await Assert.That(pattern.Attribute("id")!.Value).IsEqualTo("p");
+        await Assert.That(pattern.Attribute("documents")!.Value).IsEqualTo("doc.xml");
+        await Assert.That(pattern.Attribute("name")!.Value).IsEqualTo("Named");
+        await Assert.That(pattern.Attribute("role")!.Value).IsEqualTo("audit");
     }
 
     private sealed class AsyncOnlyStream : Stream

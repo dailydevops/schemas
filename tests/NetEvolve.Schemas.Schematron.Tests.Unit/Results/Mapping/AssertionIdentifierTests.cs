@@ -63,11 +63,12 @@ public class AssertionIdentifierTests
     }
 
     [Test]
-    public async Task Create_ExpandedRuleBasedId_CarriesTheExpansionSuffix()
+    public async Task Create_RuleBasedId_IgnoresTheExpansion()
     {
+        // AP-13 gives the expansion suffix to author assertion ids only.
         var id = AssertionIdentifier.Create(null, "r1", 1, 1, 2, expansion: 3);
 
-        await Assert.That(id).IsEqualTo("r1#a2#i3");
+        await Assert.That(id).IsEqualTo("r1#a2");
     }
 
     [Test]

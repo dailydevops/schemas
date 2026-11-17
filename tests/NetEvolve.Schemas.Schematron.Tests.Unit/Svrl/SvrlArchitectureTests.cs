@@ -40,11 +40,13 @@ public class SvrlArchitectureTests
 
             foreach (var method in type.GetMethods(All))
             {
+                CollectSignature(method, type, violations);
                 usesWriter |= Scan(method, type, violations);
             }
 
             foreach (var ctor in type.GetConstructors(All))
             {
+                CollectSignature(ctor, type, violations);
                 usesWriter |= Scan(ctor, type, violations);
             }
         }
@@ -54,11 +56,36 @@ public class SvrlArchitectureTests
         await Assert.That(violations).IsEmpty();
     }
 
+    // The writer contract: the writer itself, the sink contract types, and the name table the writer resolves symbols with.
+    private static readonly string[] AllowedXml =
+    [
+        "NetEvolve.Schemas.Xml.Writer",
+        "NetEvolve.Schemas.Xml.Contracts",
+        "NetEvolve.Schemas.Xml.Text.NameTable",
+    ];
+
     private static void Collect(Type used, Type owner, List<string> violations)
     {
-        if (used.Namespace?.StartsWith("System.Xml", StringComparison.Ordinal) ?? false)
+        var ns = used.Namespace ?? string.Empty;
+        var isSystemXml = ns.StartsWith("System.Xml", StringComparison.Ordinal);
+        var isOtherXml =
+            ns.StartsWith("NetEvolve.Schemas.Xml", StringComparison.Ordinal) && Array.IndexOf(AllowedXml, ns) < 0;
+        if (isSystemXml || isOtherXml)
         {
             violations.Add($"{owner.Name} references {used.FullName}");
+        }
+    }
+
+    private static void CollectSignature(MethodBase method, Type owner, List<string> violations)
+    {
+        foreach (var parameter in method.GetParameters())
+        {
+            Collect(parameter.ParameterType, owner, violations);
+        }
+
+        if (method is MethodInfo info)
+        {
+            Collect(info.ReturnType, owner, violations);
         }
     }
 

@@ -65,17 +65,32 @@ internal static class SvrlRuns
         Finish(sink, false);
     }
 
-    internal static void Begin(ISchematronReportSink sink, string phase, SchematronEdition edition)
+    internal static void Begin(ISchematronReportSink sink, string phase, SchematronEdition edition) =>
+        Begin(sink, phase, edition, [new SchematronNamespace(Origin, "inv", "urn:inv")]);
+
+    internal static void Begin(
+        ISchematronReportSink sink,
+        string phase,
+        SchematronEdition edition,
+        SchematronNamespace[] namespaces
+    )
     {
-        var info = new SchematronRunInfo(
-            "Order checks",
-            phase,
-            "1.0",
-            edition,
-            [new SchematronNamespace(Origin, "inv", "urn:inv")],
-            Document
-        );
+        var info = new SchematronRunInfo("Order checks", phase, "1.0", edition, namespaces, Document);
         sink.Begin(in info);
+    }
+
+    internal static SchematronNamespace Namespace(string prefix, string uri) => new(Origin, prefix, uri);
+
+    internal static void PatternWithAttributes(ISchematronReportSink sink)
+    {
+        var pattern = new SchematronPatternEvent("p", "doc.xml", "Named", "audit", false);
+        sink.ActivePattern(in pattern);
+    }
+
+    internal static void ErrorWithoutCode(ISchematronReportSink sink)
+    {
+        var error = new SchematronErrorEvent(Document, "/", "", "no code", null);
+        sink.ErrorOccurred(in error);
     }
 
     internal static void Pattern(ISchematronReportSink sink, string id)

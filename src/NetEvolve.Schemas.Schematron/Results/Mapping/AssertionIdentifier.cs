@@ -5,8 +5,8 @@ using System.Globalization;
 /// <summary>Builds the stable assertion identifier of design #137 AP-13.</summary>
 /// <remarks>
 /// The hash sign is not an NCName character, so a generated identifier never collides with an author identifier.
-/// Limitation: a rule-based identifier of an expanded copy also carries the expansion suffix, which the design text states for
-/// author identifiers only; without it two instances of one abstract rule would share an identifier.
+/// Limitation: only an author assertion id carries the expansion suffix (design AP-13), so the rule-based form
+/// <c>{ruleId}#a{A}</c> repeats for two instances of one expanded rule.
 /// </remarks>
 internal static class AssertionIdentifier
 {
@@ -16,7 +16,7 @@ internal static class AssertionIdentifier
     /// <param name="pattern">The one-based ordinal of the pattern or group.</param>
     /// <param name="rule">The one-based ordinal of the rule within its pattern.</param>
     /// <param name="assertion">The one-based ordinal of the assertion within its rule.</param>
-    /// <param name="expansion">The one-based ordinal of the expansion the assertion was copied by, 0 for an authored assertion.</param>
+    /// <param name="expansion">The one-based ordinal of the expansion that copied an assertion with an author id, 0 for an authored assertion.</param>
     /// <returns>The identifier.</returns>
     internal static string Create(
         string? assertionId,
@@ -34,7 +34,7 @@ internal static class AssertionIdentifier
 
         if (ruleId is { Length: > 0 })
         {
-            return Expanded(ruleId + "#a" + Text(assertion), expansion);
+            return ruleId + "#a" + Text(assertion);
         }
 
         // The ordinals already make the identifier unique in the effective model.
