@@ -1,0 +1,274 @@
+namespace NetEvolve.Schemas.Xml.Model;
+
+using System;
+using System.Collections.Generic;
+using NetEvolve.Arguments;
+using NetEvolve.Schemas.Xml.Contracts;
+
+/// <summary>
+/// The immutable struct-of-arrays arena that backs every tree built by <see cref="XmlTreeBuilder"/>.
+/// </summary>
+/// <remarks>
+/// <para>
+/// Rows are stored in document order: an element row is followed by its namespace rows, its attribute rows and then its
+/// descendants, so the row index is the document-order key and a subtree is the half-open range
+/// <c>[index, end)</c>. A tree built without a document node (a fragment) starts with its first top-level node at row 0;
+/// <see cref="XmlTree.Document"/> then returns that node.
+/// </para>
+/// <para>
+/// Every array is written once by the builder and never changed afterwards, so any number of threads can read one
+/// tree at the same time without synchronization.
+/// </para>
+/// <para>
+/// Limitation: the implicit <c>xml</c> namespace node of XDM is not materialized; only declared bindings are in scope.
+/// </para>
+/// </remarks>
+public sealed class XmlDocumentTree : XmlTree
+{
+    private const string XmlNamespaceUri = "http://www.w3.org/XML/1998/namespace";
+
+    private readonly byte[] _kinds;
+    private readonly int[] _parents;
+    private readonly int[] _ends;
+    private readonly int[] _firstChildren;
+    private readonly int[] _firstAttributes;
+    private readonly XmlName[] _names;
+    private readonly int[] _textStarts; // length + 1; text-buffer offset when the row was appended
+    private readonly int[] _otherStarts; // length + 1; value-buffer offset when the row was appended
+    private readonly char[] _text;
+    private readonly char[] _other;
+    private readonly XmlPosition[]? _positions;
+    private readonly Uri? _documentUri;
+    private readonly Dictionary<string, int>? _ids;
+    private readonly XmlNameTable _nameTable;
+    private readonly IReadOnlyList<XmlUnparsedEntity> _unparsedEntities;
+    private readonly IReadOnlyList<XmlNotation> _notations;
+    private readonly bool _hasXmlBase;
+    private readonly XmlSymbol _xmlBaseLocal;
+    private readonly XmlSymbol _xmlNamespace;
+
+    internal XmlDocumentTree(
+        XmlNameTable names,
+        byte[] kinds,
+        int[] parents,
+        int[] ends,
+        int[] firstChildren,
+        int[] firstAttributes,
+        XmlName[] nodeNames,
+        int[] textStarts,
+        int[] otherStarts,
+        char[] text,
+        char[] other,
+        XmlPosition[]? positions,
+        Uri? documentUri,
+        Dictionary<string, int>? ids,
+        XmlUnparsedEntity[] unparsedEntities,
+        XmlNotation[] notations
+    )
+    {
+        _nameTable = names;
+        _kinds = kinds;
+        _parents = parents;
+        _ends = ends;
+        _firstChildren = firstChildren;
+        _firstAttributes = firstAttributes;
+        _names = nodeNames;
+        _textStarts = textStarts;
+        _otherStarts = otherStarts;
+        _text = text;
+        _other = other;
+        _positions = positions;
+        _documentUri = documentUri;
+        _ids = ids;
+        _unparsedEntities = Array.AsReadOnly(unparsedEntities);
+        _notations = Array.AsReadOnly(notations);
+        _hasXmlBase =
+            names.TryGet("base".AsSpan(), out _xmlBaseLocal)
+            && names.TryGet(XmlNamespaceUri.AsSpan(), out _xmlNamespace);
+    }
+
+    /// <summary>Gets the number of nodes (rows) of this tree, namespace and attribute nodes included.</summary>
+    public int Count => _kinds.Length;
+
+    /// <inheritdoc />
+    public override XmlNameTable Names => _nameTable;
+
+    /// <inheritdoc />
+    public override IReadOnlyList<XmlUnparsedEntity> UnparsedEntities => _unparsedEntities;
+
+    /// <inheritdoc />
+    public override IReadOnlyList<XmlNotation> Notations => _notations;
+
+    /// <summary>Gets the source position recorded for a node.</summary>
+    /// <param name="index">The node index, see <see cref="XmlNode.Index"/>.</param>
+    /// <returns>The start position of an element; <see langword="default"/> for other kinds and for trees built without positions.</returns>
+    public XmlPosition GetPosition(int index)
+    {
+        Argument.ThrowIfLessThan(index, 0);
+        Argument.ThrowIfGreaterThanOrEqual(index, _kinds.Length);
+
+        return _positions is null ? default : _positions[index];
+    }
+
+    /// <summary>Looks up the element registered for an ID value; the first registration in document order wins.</summary>
+    /// <param name="id">The ID value.</param>
+    /// <param name="element">The element, or an empty node when no element carries the ID.</param>
+    /// <returns><see langword="true"/> when an element was found.</returns>
+    public bool TryGetElementById(string id, out XmlNode element)
+    {
+        Argument.ThrowIfNull(id);
+
+        if (_ids is not null && _ids.TryGetValue(id, out var index))
+        {
+            element = new XmlNode(this, index);
+            return true;
+        }
+
+        element = default;
+        return false;
+    }
+
+    /// <inheritdoc />
+    protected internal override XmlNodeKind GetKind(int index) => (XmlNodeKind)_kinds[index];
+
+    /// <inheritdoc />
+    protected internal override XmlName GetName(int index) =>
+        (XmlNodeKind)_kinds[index] == XmlNodeKind.Namespace
+            ? new XmlName(default, _names[index].Local, default)
+            : _names[index];
+
+    /// <inheritdoc />
+    protected internal override int GetParent(int index) => _parents[index];
+
+    /// <inheritdoc />
+    protected internal override int GetFirstChild(int index) => _firstChildren[index];
+
+    /// <inheritdoc />
+    protected internal override int GetNextSibling(int index)
+    {
+        if ((XmlNodeKind)_kinds[index] is XmlNodeKind.Attribute or XmlNodeKind.Namespace)
+        {
+            return NoNode;
+        }
+
+        var next = _ends[index];
+        return next < _kinds.Length && _parents[next] == _parents[index] ? next : NoNode;
+    }
+
+    /// <inheritdoc />
+    protected internal override int GetFirstAttribute(int index) => _firstAttributes[index];
+
+    /// <inheritdoc />
+    protected internal override int GetNextAttribute(int index) => Adjacent(index, XmlNodeKind.Attribute);
+
+    /// <inheritdoc />
+    protected internal override int GetFirstNamespace(int index) =>
+        (XmlNodeKind)_kinds[index] == XmlNodeKind.Element
+            ? AdjacentOf(index, index + 1, XmlNodeKind.Namespace)
+            : NoNode;
+
+    /// <inheritdoc />
+    protected internal override int GetNextNamespace(int index) => Adjacent(index, XmlNodeKind.Namespace);
+
+    /// <inheritdoc />
+    protected internal override string GetStringValue(int index)
+    {
+        switch ((XmlNodeKind)_kinds[index])
+        {
+            case XmlNodeKind.Document:
+            case XmlNodeKind.Element:
+                return new string(_text, _textStarts[index], _textStarts[_ends[index]] - _textStarts[index]);
+            case XmlNodeKind.Text:
+                return new string(_text, _textStarts[index], _textStarts[index + 1] - _textStarts[index]);
+            case XmlNodeKind.Namespace:
+                return _nameTable.GetString(_names[index].NamespaceUri);
+            case XmlNodeKind.Attribute:
+            case XmlNodeKind.Comment:
+            case XmlNodeKind.ProcessingInstruction:
+            default:
+                return new string(_other, _otherStarts[index], _otherStarts[index + 1] - _otherStarts[index]);
+        }
+    }
+
+    /// <inheritdoc />
+    protected internal override Uri? GetBaseUri(int index)
+    {
+        // Namespace, attribute, text, comment and processing instruction nodes take the base URI of their parent.
+        List<string>? chain = null;
+        for (var current = index; current >= 0; current = _parents[current])
+        {
+            if ((XmlNodeKind)_kinds[current] != XmlNodeKind.Element)
+            {
+                continue;
+            }
+
+            var value = FindXmlBase(current);
+            if (value is null)
+            {
+                continue;
+            }
+
+            (chain ??= []).Add(value);
+            if (Uri.TryCreate(value, UriKind.Absolute, out _))
+            {
+                break;
+            }
+        }
+
+        var result = _documentUri;
+        if (chain is not null)
+        {
+            for (var i = chain.Count - 1; i >= 0; i--)
+            {
+                result = Resolve(result, chain[i]);
+            }
+        }
+
+        return result;
+    }
+
+    /// <inheritdoc />
+    protected internal override Uri? GetDocumentUri(int index) => _documentUri;
+
+    /// <inheritdoc />
+    protected internal override int CompareDocumentOrder(int first, int second) => first.CompareTo(second);
+
+    private static Uri? Resolve(Uri? baseUri, string value)
+    {
+        if (Uri.TryCreate(value, UriKind.Absolute, out var absolute))
+        {
+            return absolute;
+        }
+
+        return baseUri is not null && baseUri.IsAbsoluteUri && Uri.TryCreate(baseUri, value, out var resolved)
+            ? resolved
+            : baseUri;
+    }
+
+    private int Adjacent(int index, XmlNodeKind kind) =>
+        (XmlNodeKind)_kinds[index] == kind ? AdjacentOf(_parents[index], index + 1, kind) : NoNode;
+
+    private int AdjacentOf(int parent, int candidate, XmlNodeKind kind) =>
+        candidate < _kinds.Length && (XmlNodeKind)_kinds[candidate] == kind && _parents[candidate] == parent
+            ? candidate
+            : NoNode;
+
+    private string? FindXmlBase(int element)
+    {
+        if (!_hasXmlBase)
+        {
+            return null;
+        }
+
+        for (var attribute = _firstAttributes[element]; attribute != NoNode; attribute = GetNextAttribute(attribute))
+        {
+            var name = _names[attribute];
+            if (name.Local == _xmlBaseLocal && name.NamespaceUri == _xmlNamespace)
+            {
+                return GetStringValue(attribute);
+            }
+        }
+
+        return null;
+    }
+}

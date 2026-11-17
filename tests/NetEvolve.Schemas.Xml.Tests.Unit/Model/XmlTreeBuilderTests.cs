@@ -128,9 +128,12 @@ public class XmlTreeBuilderTests
         var kids = Children(a);
         await Assert
             .That(kids.Select(k => k.Kind).ToArray())
-            .IsEquivalentTo(
-                [XmlNodeKind.Element, XmlNodeKind.Comment, XmlNodeKind.ProcessingInstruction, XmlNodeKind.Element]
-            );
+            .IsEquivalentTo([
+                XmlNodeKind.Element,
+                XmlNodeKind.Comment,
+                XmlNodeKind.ProcessingInstruction,
+                XmlNodeKind.Element,
+            ]);
         await Assert.That(kids[0].FirstChild.Kind).IsEqualTo(XmlNodeKind.Text);
         await Assert.That(kids[0].FirstChild.StringValue).IsEqualTo("t1");
         await Assert.That(kids[0].StringValue).IsEqualTo("t1");
@@ -148,20 +151,16 @@ public class XmlTreeBuilderTests
     {
         using var b = new XmlTreeBuilder();
         b.StartDocument(new XmlDeclaration("1.0", "", null));
-        Element(
-            b,
-            "r",
-            () =>
-            {
-                b.Text("a", XmlTextKind.Text);
-                b.Text("&", XmlTextKind.Reference);
-                b.Text("b", XmlTextKind.CData);
-                b.Text("", XmlTextKind.Text);
-                b.Comment("x");
-                b.Text("", XmlTextKind.Text);
-                b.Text("c", XmlTextKind.Text);
-            }
-        );
+        Element(b, "r", () =>
+        {
+            b.Text("a", XmlTextKind.Text);
+            b.Text("&", XmlTextKind.Reference);
+            b.Text("b", XmlTextKind.CData);
+            b.Text("", XmlTextKind.Text);
+            b.Comment("x");
+            b.Text("", XmlTextKind.Text);
+            b.Text("c", XmlTextKind.Text);
+        });
         b.EndDocument();
         var tree = b.Complete();
 
@@ -200,9 +199,9 @@ public class XmlTreeBuilderTests
         b.EndDocument();
         var tree = b.Complete();
 
-        Dictionary<string, string> Scope(XmlNode element)
+        string[] Scope(XmlNode element)
         {
-            var map = new Dictionary<string, string>();
+            var list = new List<string>();
             for (var ns = element.FirstNamespace; !ns.IsEmpty; ns = ns.NextNamespace)
             {
                 if (ns.Kind != XmlNodeKind.Namespace || ns.Parent != element)
@@ -210,23 +209,20 @@ public class XmlTreeBuilderTests
                     throw new InvalidOperationException("Namespace node must belong to its element.");
                 }
 
-                map.Add(tree.Names.GetString(ns.Name.Local), ns.StringValue);
+                list.Add(tree.Names.GetString(ns.Name.Local) + "=" + ns.StringValue);
             }
 
-            return map;
+            list.Sort(StringComparer.Ordinal);
+            return [.. list];
         }
 
         var ea = tree.Document.FirstChild;
         var eb = ea.FirstChild;
         var ec = eb.FirstChild;
 
-        await Assert.That(Scope(ea)).IsEquivalentTo(new Dictionary<string, string> { [""] = "urn:d", ["p"] = "urn:p" });
-        await Assert
-            .That(Scope(eb))
-            .IsEquivalentTo(new Dictionary<string, string> { [""] = "urn:d", ["p"] = "urn:p2", ["q"] = "urn:q" });
-        await Assert
-            .That(Scope(ec))
-            .IsEquivalentTo(new Dictionary<string, string> { ["p"] = "urn:p2", ["q"] = "urn:q" });
+        await Assert.That(Scope(ea)).IsEquivalentTo(["=urn:d", "p=urn:p"]);
+        await Assert.That(Scope(eb)).IsEquivalentTo(["=urn:d", "p=urn:p2", "q=urn:q"]);
+        await Assert.That(Scope(ec)).IsEquivalentTo(["p=urn:p2", "q=urn:q"]);
     }
 
     [Test]
@@ -272,9 +268,9 @@ public class XmlTreeBuilderTests
         var ab = a1.CompareDocumentOrder(a2);
         await Assert.That(ab).IsNotEqualTo(0);
         await Assert.That(Math.Sign(a2.CompareDocumentOrder(a1))).IsEqualTo(-Math.Sign(ab));
-        await Assert.That(Math.Sign(first.Document.CompareDocumentOrder(second.Document.FirstChild))).IsEqualTo(
-            Math.Sign(ab)
-        );
+        await Assert
+            .That(Math.Sign(first.Document.CompareDocumentOrder(second.Document.FirstChild)))
+            .IsEqualTo(Math.Sign(ab));
     }
 
     [Test]
@@ -284,26 +280,22 @@ public class XmlTreeBuilderTests
         using var b = new XmlTreeBuilder(documentUri: DocumentUri);
         b.StartDocument(new XmlDeclaration("1.0", "", null));
         var xmlBase = Name(b, "base", "xml", XmlNs);
-        Element(
-            b,
-            "r",
-            () =>
-            {
-                var s = Name(b, "s");
-                b.StartElement(s, default);
-                b.Attribute(xmlBase, "sub/");
-                b.EndAttributes();
-                var t = Name(b, "t");
-                b.StartElement(t, default);
-                b.Attribute(xmlBase, "http://example.org/x/");
-                b.EndAttributes();
-                Element(b, "u");
-                b.EndElement(t);
-                Element(b, "v");
-                b.EndElement(s);
-                Element(b, "w");
-            }
-        );
+        Element(b, "r", () =>
+        {
+            var s = Name(b, "s");
+            b.StartElement(s, default);
+            b.Attribute(xmlBase, "sub/");
+            b.EndAttributes();
+            var t = Name(b, "t");
+            b.StartElement(t, default);
+            b.Attribute(xmlBase, "http://example.org/x/");
+            b.EndAttributes();
+            Element(b, "u");
+            b.EndElement(t);
+            Element(b, "v");
+            b.EndElement(s);
+            Element(b, "w");
+        });
         b.EndDocument();
         var tree = b.Complete();
 
@@ -360,15 +352,11 @@ public class XmlTreeBuilderTests
     public async Task Fragment_WithoutDocumentNode_HasElementRootAndOrder()
     {
         using var b = new XmlTreeBuilder();
-        Element(
-            b,
-            "root",
-            () =>
-            {
-                Element(b, "x", () => b.Text("1", XmlTextKind.Text));
-                Element(b, "y");
-            }
-        );
+        Element(b, "root", () =>
+        {
+            Element(b, "x", () => b.Text("1", XmlTextKind.Text));
+            Element(b, "y");
+        });
         var tree = b.Complete();
 
         var root = tree.Document;
@@ -403,24 +391,20 @@ public class XmlTreeBuilderTests
     {
         using var b = new XmlTreeBuilder();
         b.StartDocument(new XmlDeclaration("1.0", "", null));
-        Element(
-            b,
-            "r",
-            () =>
-            {
-                var e1 = Name(b, "e");
-                b.StartElement(e1, default);
-                b.RegisterId("one");
-                b.EndAttributes();
-                b.EndElement(e1);
-                var e2 = Name(b, "e");
-                b.StartElement(e2, default);
-                b.RegisterId("one");
-                b.RegisterId("two");
-                b.EndAttributes();
-                b.EndElement(e2);
-            }
-        );
+        Element(b, "r", () =>
+        {
+            var e1 = Name(b, "e");
+            b.StartElement(e1, default);
+            b.RegisterId("one");
+            b.EndAttributes();
+            b.EndElement(e1);
+            var e2 = Name(b, "e");
+            b.StartElement(e2, default);
+            b.RegisterId("one");
+            b.RegisterId("two");
+            b.EndAttributes();
+            b.EndElement(e2);
+        });
         b.EndDocument();
         var tree = b.Complete();
 
@@ -570,7 +554,11 @@ public class XmlTreeBuilderTests
                 node = node.IsEmpty ? node : node.NextSibling;
             }
 
-            GC.KeepAlive(count);
+            if (count == int.MinValue)
+            {
+                throw new InvalidOperationException();
+            }
+
             _ = tree.Document.CompareDocumentOrder(tree.Document.FirstChild);
         });
 
@@ -601,15 +589,14 @@ public class XmlTreeBuilderTests
 
         BuildShared();
         _ = shared.Complete();
-        BuildShared();
         var baseline = AllocationAssert.Measure(() =>
         {
             BuildShared();
             _ = shared.Complete();
         });
 
-        // Final arrays are the only allocations: 10 columns of 52 rows plus the tree object itself.
-        await Assert.That(baseline).IsLessThan(12_000);
+        // Final arrays are the only allocations: the columns of 52 rows plus the tree object itself.
+        await Assert.That(baseline).IsLessThan(4_000);
     }
 
     [Test]
@@ -621,7 +608,7 @@ public class XmlTreeBuilderTests
         var results = await Task.WhenAll(
             Enumerable
                 .Range(0, 16)
-                .Select(_ =>
+                .Select(worker =>
                     Task.Run(() =>
                     {
                         var last = string.Empty;
@@ -661,7 +648,10 @@ public class XmlTreeBuilderTests
                     break;
                 case MethodInfo { IsSpecialName: false } method:
                     await Assert
-                        .That(method.Name.StartsWith("Get", StringComparison.Ordinal) || method.Name.StartsWith("TryGet", StringComparison.Ordinal))
+                        .That(
+                            method.Name.StartsWith("Get", StringComparison.Ordinal)
+                                || method.Name.StartsWith("TryGet", StringComparison.Ordinal)
+                        )
                         .IsTrue();
                     break;
                 default:
