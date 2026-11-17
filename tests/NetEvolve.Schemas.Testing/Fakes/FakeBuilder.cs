@@ -7,8 +7,8 @@ using NetEvolve.Schemas.Resources;
 
 /// <summary>Builder derived from <see cref="SchemaValidatorBuilder{TBuilder, TValidator}"/> that creates a <see cref="FakeValidator"/>.</summary>
 /// <remarks>
-/// Limitation: <c>Build</c> and the limits and resolver members of the base throw until FND-55 lands, so the
-/// protected creation hooks are exposed directly. The fake ignores the limits and resolver it is given.
+/// The protected creation hooks are exposed directly, so tests can call them without building. The fake ignores
+/// the limits and resolver it is given.
 /// </remarks>
 public sealed class FakeBuilder : SchemaValidatorBuilder<FakeBuilder, FakeValidator>
 {
