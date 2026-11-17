@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.Xsd.Diagnostics;
 
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Formats;
+using NetEvolve.Schemas.Xsd.Components;
 
 /// <summary>Turns rule violations into issues of the shared collector, so the drop policy lives once.</summary>
 internal sealed class XsdIssueReporter
@@ -27,4 +28,11 @@ internal sealed class XsdIssueReporter
 
         _collector.Add(new ValidationIssue(rule.Code, rule.DefaultSeverity, message, location, clause ?? rule.Id));
     }
+
+    /// <summary>Reports a violation of the rule with a code; a code missing from the catalog is a defect and throws.</summary>
+    /// <param name="code">The code of the violated rule.</param>
+    /// <param name="location">The location of the violation.</param>
+    /// <param name="message">The message.</param>
+    internal void Report(DiagnosticCode code, DocumentLocation location, string message) =>
+        Report(XsdRuleLookup.Find(code), location, message);
 }
