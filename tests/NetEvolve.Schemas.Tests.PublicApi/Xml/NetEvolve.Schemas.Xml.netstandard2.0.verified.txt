@@ -313,6 +313,9 @@ namespace NetEvolve.Schemas.Xml.Datatypes.Contracts
     {
         None = 0,
         InvalidLexicalForm = 1,
+        FacetViolation = 2,
+        InvalidListItem = 3,
+        NoUnionMember = 4,
         DigitCap = 10,
         YearOrComponentCap = 11,
         InvalidCharacter = 13,
@@ -410,6 +413,106 @@ namespace NetEvolve.Schemas.Xml.Datatypes.Contracts
     {
         V10 = 0,
         V11 = 1,
+    }
+}
+namespace NetEvolve.Schemas.Xml.Datatypes.Core
+{
+    public sealed class AtomicDescriptor<TValue> : NetEvolve.Schemas.Xml.Datatypes.Contracts.IDatatypeDescriptor, NetEvolve.Schemas.Xml.Datatypes.Contracts.IDatatypeDescriptor<TValue>
+    {
+        public AtomicDescriptor(string name, NetEvolve.Schemas.Xml.Datatypes.Contracts.XsdVersion lexicalMode, NetEvolve.Schemas.Xml.Datatypes.Core.ILexicalMapping<TValue> mapping) { }
+        public AtomicDescriptor(string name, NetEvolve.Schemas.Xml.Datatypes.Core.AtomicDescriptor<TValue> baseType, NetEvolve.Schemas.Xml.Datatypes.Core.WhitespaceMode? whitespace, System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Xml.Datatypes.Contracts.IFacet> facets) { }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.IDatatypeDescriptor? BaseType { get; }
+        public System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Xml.Datatypes.Contracts.IFacet> Facets { get; }
+        public bool IsOrdered { get; }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.XsdVersion LexicalMode { get; }
+        public string Name { get; }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.DatatypeVariety Variety { get; }
+        public NetEvolve.Schemas.Xml.Datatypes.Core.WhitespaceMode Whitespace { get; }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.XsdOrder Compare(in TValue a, in TValue b) { }
+        public bool IsIdentical(in TValue a, in TValue b) { }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.ParseResult<TValue> Parse(System.ReadOnlySpan<char> lexical) { }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.ValidationResult Validate(System.ReadOnlySpan<char> lexical) { }
+    }
+    public static class BuiltInDatatypes
+    {
+        public static NetEvolve.Schemas.Xml.Datatypes.Core.DatatypeRegistry For(NetEvolve.Schemas.Xml.Datatypes.Contracts.XsdVersion version) { }
+    }
+    public sealed class DatatypeRegistration
+    {
+        public DatatypeRegistration(string name, NetEvolve.Schemas.Xml.Datatypes.Contracts.XsdVersion firstVersion, System.Func<NetEvolve.Schemas.Xml.Datatypes.Core.DatatypeRegistry, NetEvolve.Schemas.Xml.Datatypes.Contracts.IDatatypeDescriptor> create) { }
+        public System.Func<NetEvolve.Schemas.Xml.Datatypes.Core.DatatypeRegistry, NetEvolve.Schemas.Xml.Datatypes.Contracts.IDatatypeDescriptor> Create { get; }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.XsdVersion FirstVersion { get; }
+        public string Name { get; }
+    }
+    public sealed class DatatypeRegistry
+    {
+        public DatatypeRegistry(NetEvolve.Schemas.Xml.Datatypes.Contracts.XsdVersion version, System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Xml.Datatypes.Core.DatatypeRegistration> registrations) { }
+        public System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Xml.Datatypes.Contracts.IDatatypeDescriptor> All { get; }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.XsdVersion Version { get; }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.IDatatypeDescriptor Get(string name) { }
+        public bool TryGet(string name, out NetEvolve.Schemas.Xml.Datatypes.Contracts.IDatatypeDescriptor? descriptor) { }
+    }
+    public interface ILexicalMapping<TValue>
+    {
+        bool IsOrdered { get; }
+        NetEvolve.Schemas.Xml.Datatypes.Core.WhitespaceMode Whitespace { get; }
+        NetEvolve.Schemas.Xml.Datatypes.Contracts.DatatypeError Check(System.ReadOnlySpan<char> normalized, NetEvolve.Schemas.Xml.Datatypes.Contracts.XsdVersion version, out int errorOffset);
+        NetEvolve.Schemas.Xml.Datatypes.Contracts.XsdOrder Compare(in TValue a, in TValue b, NetEvolve.Schemas.Xml.Datatypes.Contracts.XsdVersion version);
+        bool IsIdentical(in TValue a, in TValue b, NetEvolve.Schemas.Xml.Datatypes.Contracts.XsdVersion version);
+        TValue Map(System.ReadOnlySpan<char> normalized, NetEvolve.Schemas.Xml.Datatypes.Contracts.XsdVersion version);
+    }
+    public sealed class ListDescriptor : NetEvolve.Schemas.Xml.Datatypes.Contracts.IDatatypeDescriptor
+    {
+        public ListDescriptor(string name, NetEvolve.Schemas.Xml.Datatypes.Contracts.IDatatypeDescriptor itemType) { }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.IDatatypeDescriptor? BaseType { get; }
+        public System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Xml.Datatypes.Contracts.IFacet> Facets { get; }
+        public bool IsOrdered { get; }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.IDatatypeDescriptor ItemType { get; }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.XsdVersion LexicalMode { get; }
+        public string Name { get; }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.DatatypeVariety Variety { get; }
+        public NetEvolve.Schemas.Xml.Datatypes.Core.WhitespaceMode Whitespace { get; }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.ParseResult<NetEvolve.Schemas.Xml.Datatypes.Core.XsdList> Parse(System.ReadOnlySpan<char> lexical) { }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.ParseResult<NetEvolve.Schemas.Xml.Datatypes.Core.XsdList> Parse(System.ReadOnlySpan<char> lexical, out int itemIndex) { }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.ValidationResult Validate(System.ReadOnlySpan<char> lexical) { }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.ValidationResult Validate(System.ReadOnlySpan<char> lexical, out int itemIndex) { }
+    }
+    public sealed class UnionDescriptor : NetEvolve.Schemas.Xml.Datatypes.Contracts.IDatatypeDescriptor
+    {
+        public UnionDescriptor(string name, System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Xml.Datatypes.Contracts.IDatatypeDescriptor> members) { }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.IDatatypeDescriptor? BaseType { get; }
+        public System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Xml.Datatypes.Contracts.IFacet> Facets { get; }
+        public bool IsOrdered { get; }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.XsdVersion LexicalMode { get; }
+        public System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Xml.Datatypes.Contracts.IDatatypeDescriptor> Members { get; }
+        public string Name { get; }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.DatatypeVariety Variety { get; }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.ParseResult<NetEvolve.Schemas.Xml.Datatypes.Core.XsdUnion> Parse(System.ReadOnlySpan<char> lexical) { }
+        public bool TryGetMemberIndex(System.ReadOnlySpan<char> lexical, out int memberIndex) { }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.ValidationResult Validate(System.ReadOnlySpan<char> lexical) { }
+    }
+    public enum WhitespaceMode
+    {
+        Preserve = 0,
+        Replace = 1,
+        Collapse = 2,
+    }
+    public readonly struct XsdList : System.IEquatable<NetEvolve.Schemas.Xml.Datatypes.Core.XsdList>
+    {
+        public XsdList(NetEvolve.Schemas.Xml.Datatypes.Contracts.TextRange range, int itemCount) { }
+        public int ItemCount { get; }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.TextRange Range { get; }
+    }
+    public ref struct XsdListCursor
+    {
+        public XsdListCursor(NetEvolve.Schemas.Xml.Datatypes.Contracts.TextRange range) { }
+        public bool TryNext(System.ReadOnlySpan<char> source, out NetEvolve.Schemas.Xml.Datatypes.Contracts.TextRange item) { }
+    }
+    public readonly struct XsdUnion : System.IEquatable<NetEvolve.Schemas.Xml.Datatypes.Core.XsdUnion>
+    {
+        public XsdUnion(NetEvolve.Schemas.Xml.Datatypes.Contracts.TextRange range, int memberIndex) { }
+        public int MemberIndex { get; }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.TextRange Range { get; }
     }
 }
 namespace NetEvolve.Schemas.Xml.Datatypes.Decimals
