@@ -242,3 +242,11 @@ namespace NetEvolve.Schemas.Resources
         NotFound = 2,
     }
 }
+namespace NetEvolve.Schemas.Resources.FileSystem
+{
+    public sealed class SandboxedFileSystemResourceResolver : NetEvolve.Schemas.Resources.IResourceResolver
+    {
+        public SandboxedFileSystemResourceResolver(string rootDirectory) { }
+        public NetEvolve.Schemas.Resources.ResourceResult Resolve(in NetEvolve.Schemas.Resources.ResourceRequest request, System.Threading.CancellationToken cancellationToken) { }
+    }
+}
