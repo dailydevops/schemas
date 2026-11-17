@@ -92,10 +92,6 @@ public class XsdDecimalTests
     }
 
     [Test]
-    public async Task Parse_NonPositiveMaxDigits_Throws() =>
-        await Assert.That(() => XsdDecimal.Parse("1".AsSpan(), 0)).Throws<ArgumentOutOfRangeException>();
-
-    [Test]
     [Arguments("1", "1.0")]
     [Arguments("1", "1.00")]
     [Arguments("0", "-0.000")]

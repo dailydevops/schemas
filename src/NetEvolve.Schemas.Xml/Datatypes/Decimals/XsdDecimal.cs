@@ -5,7 +5,6 @@ using System.Globalization;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 
 /// <summary>
@@ -64,6 +63,7 @@ public readonly struct XsdDecimal : IEquatable<XsdDecimal>, IComparable<XsdDecim
     /// <summary>Initializes a new instance of the <see cref="XsdDecimal"/> struct as <paramref name="mantissa"/> x 10^-<paramref name="scale"/>, normalized.</summary>
     /// <param name="mantissa">The mantissa.</param>
     /// <param name="scale">The scale, negative for a multiple of a power of ten.</param>
+    /// <remarks>Arithmetic aligns operands by scaling with a power of ten, so the cost grows with the scale difference; callers handling untrusted scales must bound them.</remarks>
     /// <exception cref="OverflowException">The normalized scale does not fit a 32-bit integer.</exception>
     public XsdDecimal(BigInteger mantissa, int scale)
     {
@@ -156,11 +156,8 @@ public readonly struct XsdDecimal : IEquatable<XsdDecimal>, IComparable<XsdDecim
     /// <param name="lexical">The lexical form.</param>
     /// <param name="maxDigits">The maximum number of digits, leading and trailing zeros included.</param>
     /// <returns>The value, or <see cref="DatatypeError.InvalidLexicalForm"/>, <see cref="DatatypeError.InvalidCharacter"/>, or <see cref="DatatypeError.DigitCap"/> with the offset.</returns>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="maxDigits"/> is less than one.</exception>
     public static ParseResult<XsdDecimal> Parse(ReadOnlySpan<char> lexical, int maxDigits = DefaultMaxDigits)
     {
-        Argument.ThrowIfLessThan(maxDigits, 1);
-
         var negative = lexical.Length > 0 && lexical[0] == '-';
         var start = lexical.Length > 0 && (lexical[0] == '+' || negative) ? 1 : 0;
         var error = Scan(lexical, start, maxDigits, out var digits, out var errorOffset);
