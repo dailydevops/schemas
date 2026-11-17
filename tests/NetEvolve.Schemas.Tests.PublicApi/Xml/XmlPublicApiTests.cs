@@ -18,6 +18,7 @@ public class XmlPublicApiTests
                 "NetEvolve.Schemas.Xml.Datatypes",
                 "NetEvolve.Schemas.Xml.Interop",
                 "NetEvolve.Schemas.Xml.Regex",
+                "NetEvolve.Schemas.Xml.Writer",
             ]
         );
 }
