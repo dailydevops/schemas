@@ -209,7 +209,7 @@ public sealed class XmlDocumentTree : XmlTree
             }
 
             (chain ??= []).Add(value);
-            if (Uri.TryCreate(value, UriKind.Absolute, out _))
+            if (IsAbsolute(value, out _))
             {
                 break;
             }
@@ -233,9 +233,13 @@ public sealed class XmlDocumentTree : XmlTree
     /// <inheritdoc />
     protected internal override int CompareDocumentOrder(int first, int second) => first.CompareTo(second);
 
+    // A rooted path such as "/dir/" parses as an absolute file URI on Unix but as relative on Windows; treat it as relative everywhere.
+    private static bool IsAbsolute(string value, out Uri? uri) =>
+        Uri.TryCreate(value, UriKind.Absolute, out uri) && value.Length > 0 && value[0] != '/';
+
     private static Uri? Resolve(Uri? baseUri, string value)
     {
-        if (Uri.TryCreate(value, UriKind.Absolute, out var absolute))
+        if (IsAbsolute(value, out var absolute))
         {
             return absolute;
         }

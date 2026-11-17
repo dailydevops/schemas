@@ -221,6 +221,7 @@ public sealed class XmlTreeBuilder : IXmlSink, IDisposable
     /// <summary>Finishes the tree, freezes an owned name table, and resets the builder for the next tree.</summary>
     /// <returns>The immutable tree.</returns>
     /// <exception cref="InvalidOperationException">No node was built, or an element is still open.</exception>
+    /// <remarks>A failed call does not reset the builder; discard it or finish the open nodes and call again.</remarks>
     public XmlDocumentTree Complete()
     {
         FlushTag();
