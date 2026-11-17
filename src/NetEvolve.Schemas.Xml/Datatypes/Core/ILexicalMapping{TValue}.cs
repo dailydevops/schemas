@@ -22,9 +22,10 @@ public interface ILexicalMapping<TValue>
 
     /// <summary>Maps a form that passed <see cref="Check"/> to its value.</summary>
     /// <param name="normalized">The normalized lexical form.</param>
+    /// <param name="mode">The whitespace mode that produced <paramref name="normalized"/>, for values that are views of the caller span.</param>
     /// <param name="version">The XSD version whose value-space rules apply.</param>
     /// <returns>The value.</returns>
-    TValue Map(ReadOnlySpan<char> normalized, XsdVersion version);
+    TValue Map(ReadOnlySpan<char> normalized, WhitespaceMode mode, XsdVersion version);
 
     /// <summary>Compares two values.</summary>
     /// <param name="a">The first value.</param>

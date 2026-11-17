@@ -74,7 +74,8 @@ internal static class NumericDatatypes
             return result.Error;
         }
 
-        public XsdDecimal Map(ReadOnlySpan<char> normalized, XsdVersion version) => XsdDecimal.Parse(normalized).Value;
+        public XsdDecimal Map(ReadOnlySpan<char> normalized, WhitespaceMode mode, XsdVersion version) =>
+            XsdDecimal.Parse(normalized).Value;
 
         public XsdOrder Compare(in XsdDecimal a, in XsdDecimal b, XsdVersion version)
         {
@@ -122,7 +123,7 @@ internal static class NumericDatatypes
         }
 
         // The decimal parser drops trailing zeros into a negative scale; the integer value restores them.
-        public XsdInteger Map(ReadOnlySpan<char> normalized, XsdVersion version)
+        public XsdInteger Map(ReadOnlySpan<char> normalized, WhitespaceMode mode, XsdVersion version)
         {
             var value = XsdDecimal.Parse(normalized).Value;
             return new(value.Scale < 0 ? value.Mantissa * BigInteger.Pow(10, -value.Scale) : value.Mantissa);
