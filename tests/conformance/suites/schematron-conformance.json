@@ -1,0 +1,7 @@
+{
+  "key": "schematron-conformance",
+  "url": "https://github.com/Schematron/schematron-conformance/archive/refs/tags/v2.0.zip",
+  "sha256": "3a3a6d3025ae8c5b8da74de5d1b73beb5f7bca4f490d1f316c585d3810047ac1",
+  "archive": "zip",
+  "subPath": "schematron-conformance-2.0/src/main/resources/testcases"
+}
