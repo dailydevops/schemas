@@ -101,4 +101,34 @@ public class CorpusScannerTests
         await Assert.That(scan.Elements).IsEmpty();
         await Assert.That(scan.Unresolved.Count).IsEqualTo(3);
     }
+
+    [Test]
+    public async Task Scan_RootWithDifferentCasing_OnCaseInsensitiveFileSystem_StillFollowsInsideInclude(
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        if (!OperatingSystem.IsWindows())
+        {
+            return;
+        }
+
+        using var temp = new TempDirectory();
+        var root = Directory.CreateDirectory(Path.Combine(temp.Path, "root")).FullName;
+        await File.WriteAllTextAsync(
+            Path.Combine(root, "part.xml"),
+            "<function xmlns=\"http://www.w3.org/1999/XSL/Transform\"/>",
+            cancellationToken
+        );
+        var path = Path.Combine(root, "rules.sch");
+        await File.WriteAllTextAsync(
+            path,
+            "<schema xmlns=\"http://purl.oclc.org/dsdl/schematron\"><include href=\"part.xml\"/></schema>",
+            cancellationToken
+        );
+
+        var scan = CorpusScanner.Scan(path, root.ToUpperInvariant(), "rules.sch");
+
+        await Assert.That(scan.Unresolved).IsEmpty();
+    }
 }
