@@ -80,48 +80,6 @@ public class StubContractTests
     }
 
     [Test]
-    public async Task XmlReaderLimits_EveryMemberThrowsUntilXml08Lands()
-    {
-        var type = typeof(XmlReaderLimits);
-        var failures = new List<string>();
-        var instance = (XmlReaderLimits)System.Runtime.CompilerServices.RuntimeHelpers.GetUninitializedObject(type);
-
-        foreach (var (name, limitType) in Limits)
-        {
-            var getter = type.GetProperty(name)!.GetMethod!;
-            var with = type.GetMethod("With" + name, [limitType])!;
-            var argument = Convert.ChangeType(1, limitType, System.Globalization.CultureInfo.InvariantCulture);
-            if (Unwrap(() => getter.Invoke(instance, null)) is not NotImplementedException)
-            {
-                failures.Add(name);
-            }
-
-            if (Unwrap(() => with.Invoke(instance, [argument])) is not NotImplementedException)
-            {
-                failures.Add("With" + name);
-            }
-        }
-
-        await Assert.That(failures).IsEmpty();
-        await AssertStub(() => XmlReaderLimits.Default, "XML-08");
-    }
-
-    [Test]
-    public async Task XmlReaderOptions_IsSealedAndEveryMemberThrowsUntilXml08Lands()
-    {
-        var options = (XmlReaderOptions)
-            System.Runtime.CompilerServices.RuntimeHelpers.GetUninitializedObject(typeof(XmlReaderOptions));
-
-        await Assert.That(typeof(XmlReaderOptions).IsSealed).IsTrue();
-        await Assert.That(typeof(XmlReaderOptions).GetConstructors()).IsEmpty();
-        await AssertStub(() => XmlReaderOptions.Default, "XML-08");
-        await AssertStub(() => options.Limits, "XML-08");
-        await AssertStub(() => options.NameTable, "XML-08");
-        await AssertStub(() => options.WithLimits(null!), "XML-08");
-        await AssertStub(() => options.WithNameTable(null), "XML-08");
-    }
-
-    [Test]
     public async Task XmlInterop_EveryMemberThrowsUntilXml18Lands()
     {
         var node = new XmlNode(new Fakes.FakeXmlTree(), 0);

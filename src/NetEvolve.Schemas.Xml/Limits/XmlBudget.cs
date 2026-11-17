@@ -1,37 +1,63 @@
-#pragma warning disable CA1065, MA0025 // Stub per #155: throwing bodies stay until the implementation commit of XML-08 replaces them.
-
 namespace NetEvolve.Schemas.Xml.Limits;
 
 using NetEvolve.Schemas.Xml.Contracts;
 
 /// <summary>One budget for one resource that hostile input can inflate; the reader and the entity stack charge it.</summary>
+/// <remarks>A mutable value type: copy it only deliberately. A refused charge leaves <see cref="Used"/> unchanged; the caller reports <see cref="Code"/>.</remarks>
 internal struct XmlBudget
 {
-    internal XmlBudget(long limit, XmlErrorCode code) => throw Stub.For("XML-08");
+    private long _used;
 
-    internal readonly long Limit => throw Stub.For("XML-08");
+    internal XmlBudget(long limit, XmlErrorCode code)
+    {
+        Limit = limit;
+        Code = code;
+        _used = 0;
+    }
 
-    internal readonly long Used => throw Stub.For("XML-08");
+    /// <summary>Gets the most that may be charged.</summary>
+    internal readonly long Limit { get; }
 
-    internal readonly XmlErrorCode Code => throw Stub.For("XML-08");
+    /// <summary>Gets the amount charged so far.</summary>
+    internal readonly long Used => _used;
 
-    internal bool TryCharge(long amount) => throw Stub.For("XML-08");
+    /// <summary>Gets the diagnostic code to report on overrun.</summary>
+    internal readonly XmlErrorCode Code { get; }
 
-    internal void Release(long amount) => throw Stub.For("XML-08");
+    /// <summary>Charges <paramref name="amount"/> (not negative); returns <see langword="false"/> when it would exceed the limit.</summary>
+    internal bool TryCharge(long amount)
+    {
+        if (amount > Limit - _used)
+        {
+            return false;
+        }
 
-    internal void Reset() => throw Stub.For("XML-08");
+        _used += amount;
+        return true;
+    }
 
-    internal static XmlBudget ElementDepth(XmlReaderLimits limits) => throw Stub.For("XML-08");
+    /// <summary>Gives back <paramref name="amount"/> previously charged, for budgets that track a level such as a depth.</summary>
+    internal void Release(long amount) => _used -= amount;
 
-    internal static XmlBudget NameLength(XmlReaderLimits limits) => throw Stub.For("XML-08");
+    /// <summary>Gives back everything, for per-item budgets such as a name length.</summary>
+    internal void Reset() => _used = 0;
 
-    internal static XmlBudget AttributeCount(XmlReaderLimits limits) => throw Stub.For("XML-08");
+    internal static XmlBudget ElementDepth(XmlReaderLimits limits) =>
+        new(limits.MaxElementDepth, XmlErrorCodes.XML1102);
 
-    internal static XmlBudget TextLength(XmlReaderLimits limits) => throw Stub.For("XML-08");
+    internal static XmlBudget NameLength(XmlReaderLimits limits) => new(limits.MaxNameLength, XmlErrorCodes.XML1105);
 
-    internal static XmlBudget DocumentCharacters(XmlReaderLimits limits) => throw Stub.For("XML-08");
+    internal static XmlBudget AttributeCount(XmlReaderLimits limits) =>
+        new(limits.MaxAttributesPerElement, XmlErrorCodes.XML1103);
 
-    internal static XmlBudget ExpansionCharacters(XmlReaderLimits limits) => throw Stub.For("XML-08");
+    internal static XmlBudget TextLength(XmlReaderLimits limits) =>
+        new(limits.MaxTextNodeLength, XmlErrorCodes.XML1107);
 
-    internal static XmlBudget EntityDepth(XmlReaderLimits limits) => throw Stub.For("XML-08");
+    internal static XmlBudget DocumentCharacters(XmlReaderLimits limits) =>
+        new(limits.MaxDocumentCharacters, XmlErrorCodes.XML1101);
+
+    internal static XmlBudget ExpansionCharacters(XmlReaderLimits limits) =>
+        new(limits.MaxEntityExpansionCharacters, XmlErrorCodes.XML1109);
+
+    internal static XmlBudget EntityDepth(XmlReaderLimits limits) => new(limits.MaxEntityDepth, XmlErrorCodes.XML1110);
 }
