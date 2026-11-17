@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Xsd.Tests.Unit.Versioning.Constructs;
+﻿namespace NetEvolve.Schemas.Xsd.Tests.Unit.Versioning.Constructs;
 
 using System;
 using System.Collections.Generic;
@@ -104,7 +104,8 @@ public class Strict10ConstructTests
     [Arguments(Open + "  <xs:complexType name=\"c\">^<xs:assert test=\"a &lt; b\"/></xs:complexType>", 4020)]
     [Arguments(Open + "  <xs:element name=\"e\">^<xs:alternative test=\"@k = 1\" type=\"t\"/></xs:element>", 4022)]
     [Arguments(
-        Open + "  <xs:complexType name=\"c\">^<xs:openContent mode=\"suffix\"><xs:any/></xs:openContent></xs:complexType>",
+        Open
+            + "  <xs:complexType name=\"c\">^<xs:openContent mode=\"suffix\"><xs:any/></xs:openContent></xs:complexType>",
         4023
     )]
     [Arguments(Open + "  ^<xs:defaultOpenContent><xs:any/></xs:defaultOpenContent>", 4024)]
@@ -138,6 +139,7 @@ public class Strict10ConstructTests
     )]
     public async Task Check_Strict10_ConstructIsLocatedSchemaError(string marked, int code)
     {
+        ArgumentNullException.ThrowIfNull(marked);
         var (text, line, column) = Unmark(marked);
         var document = Parse(text).Document;
 
@@ -172,6 +174,7 @@ public class Strict10ConstructTests
     )]
     public async Task Check_Version11_ReportsNothing(string text)
     {
+        ArgumentNullException.ThrowIfNull(text);
         var document = Parse(text.StartsWith(Open, StringComparison.Ordinal) ? text + Close : text).Document;
 
         var issues = Run(document.Root!, XsdVersion.V11);
