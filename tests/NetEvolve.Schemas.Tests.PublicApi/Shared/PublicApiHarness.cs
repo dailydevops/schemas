@@ -61,6 +61,8 @@ internal static class PublicApiHarness
             {
                 IncludeTypes = [.. assembly.GetExportedTypes().Where(type => IsIn(type, namespacePrefixes))],
                 IncludeAssemblyAttributes = false,
+                // Extension classes of the DI contract live in Microsoft.Extensions.DependencyInjection, a namespace the generator denies by default.
+                UseDenyNamespacePrefixesForExtensionMethods = false,
             }
         );
     }

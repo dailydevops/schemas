@@ -1,0 +1,10 @@
+﻿namespace Microsoft.Extensions.DependencyInjection
+{
+    public static class SchemaValidatorServiceCollectionExtensions
+    {
+        public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddKeyedSchemaValidator<TValidator>(this Microsoft.Extensions.DependencyInjection.IServiceCollection services, object serviceKey, System.Func<System.IServiceProvider, object?, TValidator> factory)
+            where TValidator :  class, NetEvolve.Schemas.ISchemaValidator { }
+        public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddSchemaValidator<TValidator>(this Microsoft.Extensions.DependencyInjection.IServiceCollection services, System.Func<System.IServiceProvider, TValidator> factory)
+            where TValidator :  class, NetEvolve.Schemas.ISchemaValidator { }
+    }
+}
