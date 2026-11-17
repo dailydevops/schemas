@@ -19,7 +19,7 @@ internal static class DateTimeDatatypes
     private static DatatypeRegistration Register(string name, XsdDateTimeKind kind) =>
         new(name, XsdVersion.V10, r => new AtomicDescriptor<XsdDateTime>(name, r.Version, new Mapping(kind)));
 
-    private sealed class Mapping : ILexicalMapping<XsdDateTime>
+    internal sealed class Mapping : ILexicalMapping<XsdDateTime>
     {
         private readonly XsdDateTimeKind _kind;
 
