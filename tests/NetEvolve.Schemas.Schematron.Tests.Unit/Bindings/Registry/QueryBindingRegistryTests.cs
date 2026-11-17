@@ -12,7 +12,26 @@ public class QueryBindingRegistryTests
     private static readonly DocumentLocation SchemaAt = new("binding.sch", 4, 7);
 
     private static SchematronSchema Schema(string? queryBinding) =>
-        new(SchemaAt, null, [], [], [], [], null, null, null, null, null, SchematronEdition.Iso2016, null, queryBinding, [], [], [], []);
+        new(
+            SchemaAt,
+            null,
+            [],
+            [],
+            [],
+            [],
+            null,
+            null,
+            null,
+            null,
+            null,
+            SchematronEdition.Iso2016,
+            null,
+            queryBinding,
+            [],
+            [],
+            [],
+            []
+        );
 
     [Test]
     [Arguments("xpath2")]
@@ -36,7 +55,9 @@ public class QueryBindingRegistryTests
         var ok = QueryBindingRegistry.Default.TryResolve(Schema(name), out var binding, out _);
 
         await Assert.That(ok).IsTrue();
-        await Assert.That(binding.AllowsXsltInstructions).IsEqualTo(name != "xpath");
+        await Assert
+            .That(binding.AllowsXsltInstructions)
+            .IsEqualTo(!string.Equals(name, "xpath", StringComparison.Ordinal));
     }
 
     [Test]
@@ -140,8 +161,6 @@ public class QueryBindingRegistryTests
     }
 
     [Test]
-    public async Task Constructor_Null_Throws()
-    {
+    public async Task Constructor_Null_Throws() =>
         await Assert.That(() => new QueryBindingRegistry(null!)).Throws<ArgumentNullException>();
-    }
 }
