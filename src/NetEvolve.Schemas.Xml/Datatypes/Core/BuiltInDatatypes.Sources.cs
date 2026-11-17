@@ -9,6 +9,7 @@ using NetEvolve.Schemas.Xml.Datatypes.Gregorian;
 using NetEvolve.Schemas.Xml.Datatypes.Numeric;
 using NetEvolve.Schemas.Xml.Datatypes.QNames;
 using NetEvolve.Schemas.Xml.Datatypes.Strings;
+using NetEvolve.Schemas.Xml.Datatypes.Uri;
 
 public static partial class BuiltInDatatypes
 {
@@ -25,5 +26,6 @@ public static partial class BuiltInDatatypes
             GregorianDatatypes.Registrations,
             BinaryDatatypes.Registrations,
             QNameDatatypes.Registrations,
+            UriDatatypes.Registrations,
         ];
 }
