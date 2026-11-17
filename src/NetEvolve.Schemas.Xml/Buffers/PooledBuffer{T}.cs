@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.Xml.Buffers;
 
 using System;
 using System.Buffers;
+using NetEvolve.Arguments;
 
 /// <summary>
 /// Growable scratch buffer that rents its backing array from an <see cref="ArrayPool{T}"/> and returns it on dispose.
@@ -12,8 +13,8 @@ using System.Buffers;
 /// <see cref="Dispose"/> is idempotent. Limit accounting for growth is out of scope (XML-08).
 /// </remarks>
 /// <typeparam name="T">The element type.</typeparam>
-// ThrowIf helpers (CA1512/CA1513) do not exist on netstandard; explicit throws keep behavior identical on every target.
-#pragma warning disable CA1512, CA1513
+// Decision (#449): ThrowIfDisposed has no NetEvolve.Arguments.Argument equivalent and ObjectDisposedException.ThrowIf does not exist on netstandard; it stays the single explicit throw.
+#pragma warning disable CA1513
 internal sealed class PooledBuffer<T> : IDisposable
 {
     private const int DefaultCapacity = 256;
@@ -28,10 +29,7 @@ internal sealed class PooledBuffer<T> : IDisposable
     /// <param name="pool">The pool to rent from, or <see langword="null"/> for <see cref="ArrayPool{T}.Shared"/>.</param>
     internal PooledBuffer(int initialCapacity = DefaultCapacity, ArrayPool<T>? pool = null)
     {
-        if (initialCapacity < 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(initialCapacity));
-        }
+        Argument.ThrowIfLessThan(initialCapacity, 0);
 
         _pool = pool ?? ArrayPool<T>.Shared;
         _array = _pool.Rent(initialCapacity);
@@ -91,10 +89,7 @@ internal sealed class PooledBuffer<T> : IDisposable
     /// <param name="additionalCount">The number of free elements required.</param>
     internal void EnsureCapacity(int additionalCount)
     {
-        if (additionalCount < 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(additionalCount));
-        }
+        Argument.ThrowIfLessThan(additionalCount, 0);
 
         var array = Array();
         if (array.Length - _length < additionalCount)
@@ -116,10 +111,8 @@ internal sealed class PooledBuffer<T> : IDisposable
     internal void Advance(int count)
     {
         var array = Array();
-        if (count < 0 || count > array.Length - _length)
-        {
-            throw new ArgumentOutOfRangeException(nameof(count));
-        }
+        Argument.ThrowIfLessThan(count, 0);
+        Argument.ThrowIfGreaterThan(count, array.Length - _length);
 
         _length += count;
     }
@@ -184,4 +177,4 @@ internal sealed class PooledBuffer<T> : IDisposable
         }
     }
 }
-#pragma warning restore CA1512, CA1513
+#pragma warning restore CA1513

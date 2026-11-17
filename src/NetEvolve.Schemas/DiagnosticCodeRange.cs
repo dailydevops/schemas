@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas;
 
 using System;
 using System.Runtime.InteropServices;
+using NetEvolve.Arguments;
 
 /// <summary>An inclusive range of diagnostic code numbers owned by one package.</summary>
 [StructLayout(LayoutKind.Auto)]
@@ -13,19 +14,10 @@ public readonly struct DiagnosticCodeRange : IEquatable<DiagnosticCodeRange>
     /// <exception cref="ArgumentOutOfRangeException">The bounds violate <c>1 &lt;= first &lt;= last &lt;= 9999</c>.</exception>
     public DiagnosticCodeRange(int first, int last)
     {
-        if (first < 1 || first > DiagnosticCode.MaxNumber)
-        {
-            throw new ArgumentOutOfRangeException(nameof(first), first, "The first number must be between 1 and 9999.");
-        }
-
-        if (last < first || last > DiagnosticCode.MaxNumber)
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(last),
-                last,
-                "The last number must be between first and 9999."
-            );
-        }
+        Argument.ThrowIfLessThan(first, 1);
+        Argument.ThrowIfGreaterThan(first, DiagnosticCode.MaxNumber);
+        Argument.ThrowIfLessThan(last, first);
+        Argument.ThrowIfGreaterThan(last, DiagnosticCode.MaxNumber);
 
         First = first;
         Last = last;
