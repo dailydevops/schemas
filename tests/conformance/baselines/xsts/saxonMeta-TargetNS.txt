@@ -1,0 +1,10 @@
+1.1/target001/target001.n1.xml
+1.1/target001/target001.v1.xml
+1.1/target001/target001.xsd
+1.1/target002/target002.xsd
+1.1/target003/target003.n1.xml
+1.1/target003/target003.n2.xml
+1.1/target003/target003.v1.xml
+1.1/target003/target003.xsd
+1.1/target004/target004.xsd
+1.1/target007/target007.xsd

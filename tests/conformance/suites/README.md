@@ -63,3 +63,17 @@ The W3C QT3 test suite is pinned by commit, not by branch. The archive is the Gi
 - **Baseline:** `tests/conformance/baselines/qt3/<test-set>.txt` lists every selected case of one test set as
   `<test-set>/<case-name>`, one per line. Test sets without a selected case have no file. Regenerate the files
   with the explicit test `Qt3BaselineTests.Baseline_Regenerate` after a deliberate filter change.
+
+## Suites without releases
+
+Some suites publish no tags or releases, so there is no release asset to pin. `xsts.json` pins the commit
+archive of the suite repository (`.../archive/<commit-sha>.zip`) instead. The commit is immutable, and the
+archive is the file that GitHub generates for it on request.
+
+Limitation: GitHub does not promise byte-identical generated archives over time. A change of its archive
+tool would change the SHA-256 and make the fetch fail with a checksum mismatch that names the suite key; the
+content of the commit is unaffected. In that case, download the archive for the same commit again, verify
+the extracted content against the commit, and update the checksum in the manifest.
+
+`xsts.json` pins the W3C XML Schema Test Suite at the head of the default branch (commit `7bc3365c`) because
+the repository has neither tags nor releases, and the dated 2007 release contains XSD 1.0 tests only.
