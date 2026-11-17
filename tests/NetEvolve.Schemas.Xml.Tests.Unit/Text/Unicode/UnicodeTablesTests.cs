@@ -264,6 +264,104 @@ public class UnicodeTablesTests
     }
 
     [Test]
+    [Arguments("Blocks-3.1.txt", "00CDECB26876E7576ABB724E39FAFB78BE24C2F34FE59B94DEB70E8262F7BBA5")]
+    [Arguments("Blocks-4.0.0.txt", "9CC457320B30C411DADA320D98A8A83B5DB551225A598637473C851861E75496")]
+    public async Task HistoricBlocksFixture_MatchesTheUnicodeOrgFile(
+        string file,
+        string sha256,
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var bytes = await File.ReadAllBytesAsync(HistoricFixturePath(file), cancellationToken);
+
+        await Assert.That(Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(bytes))).IsEqualTo(sha256);
+    }
+
+    [Test]
+    [Arguments("Blocks-3.1.txt")]
+    [Arguments("Blocks-4.0.0.txt")]
+    public async Task FindBlock_EveryHistoricBlockName_ResolvesDirectlyOrViaAlias(
+        string file,
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var ucd = await UcdData.GetAsync(cancellationToken);
+        var pinned = new HashSet<string>(ucd.Blocks.ConvertAll(b => UcdData.Normalize(b.Name)), StringComparer.Ordinal);
+        var failures = new List<string>();
+        foreach (var line in await File.ReadAllLinesAsync(HistoricFixturePath(file), cancellationToken))
+        {
+            if (line.Length == 0 || line[0] == '#')
+            {
+                continue;
+            }
+
+            var semicolon = line.IndexOf(';', StringComparison.Ordinal);
+            var range = line[..semicolon].Split("..");
+            var first = int.Parse(
+                range[0],
+                System.Globalization.NumberStyles.AllowHexSpecifier,
+                System.Globalization.CultureInfo.InvariantCulture
+            );
+            var last = int.Parse(
+                range[1],
+                System.Globalization.NumberStyles.AllowHexSpecifier,
+                System.Globalization.CultureInfo.InvariantCulture
+            );
+            var name = UcdData.Normalize(line[(semicolon + 1)..].Trim());
+            var handle = UnicodeTables.FindBlock(name.AsSpan());
+            // A name the pinned file lacks is an alias row and must denote exactly the historic range; a name
+            // the pinned file has resolves to the pinned range.
+            if (
+                handle == UnicodeTables.NoBlock
+                || (
+                    !pinned.Contains(name)
+                    && (
+                        !UnicodeTables.IsInBlock(handle, first)
+                        || !UnicodeTables.IsInBlock(handle, last)
+                        || UnicodeTables.IsInBlock(handle, first - 1)
+                        || UnicodeTables.IsInBlock(handle, last + 1)
+                    )
+                )
+            )
+            {
+                failures.Add($"{file}: {name} {first:X}..{last:X}");
+            }
+        }
+
+        await AssertNoMismatch(failures);
+    }
+
+    [Test]
+    [Arguments("CyrillicSupplementary", 0x04FF, false)]
+    [Arguments("CyrillicSupplementary", 0x0500, true)]
+    [Arguments("CyrillicSupplementary", 0x052F, true)]
+    [Arguments("CyrillicSupplementary", 0x0530, false)]
+    public async Task FindBlock_CyrillicSupplementaryOfUnicode4_ResolvesToItsRange(
+        string name,
+        int codePoint,
+        bool expected
+    )
+    {
+        var handle = UnicodeTables.FindBlock(name.AsSpan());
+
+        await Assert.That(handle).IsNotEqualTo(UnicodeTables.NoBlock);
+        await Assert.That(UnicodeTables.IsInBlock(handle, codePoint)).IsEqualTo(expected);
+    }
+
+    private static string HistoricFixturePath(string file) =>
+        Path.Combine(
+            UcdData.RepositoryRoot(),
+            "tests",
+            "NetEvolve.Schemas.Xml.Tests.Unit",
+            "Text",
+            "Unicode",
+            "Fixtures",
+            file
+        );
+
+    [Test]
     public async Task Lookups_AllocateNothing()
     {
         var sink = 0;
