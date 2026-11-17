@@ -9,7 +9,7 @@ using NetEvolve.Schemas.Xml.Contracts;
 /// </summary>
 /// <remarks>
 /// Limitation: a version <c>1.x</c> is accepted and reported but processed with XML 1.0 rules. Line and column of the
-/// reported positions are unknown (zero); the reader owns line tracking.
+/// reported positions are zero by design; the reader (XML-08) composes them with XmlLineTracker.
 /// </remarks>
 internal static class XmlDeclarationParser
 {

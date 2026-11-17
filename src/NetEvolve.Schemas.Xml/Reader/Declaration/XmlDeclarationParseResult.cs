@@ -6,7 +6,7 @@ using NetEvolve.Schemas.Xml.Contracts;
 /// <summary>The outcome of <see cref="XmlDeclarationParser.Parse"/>: absent, valid with the pseudo-attribute values, or invalid with a code.</summary>
 /// <remarks>
 /// The value spans point into the parsed input. Positions carry the zero-based offset of the first value character
-/// (after the opening quote); line and column are zero (unknown), the reader owns line tracking.
+/// (after the opening quote); line and column are zero by design; the reader (XML-08) composes them with XmlLineTracker.
 /// </remarks>
 internal readonly ref struct XmlDeclarationParseResult
 {
