@@ -13,7 +13,10 @@ internal sealed class SchematronLibrary : SchematronContainer
         IReadOnlyList<SchematronLet> lets,
         IReadOnlyList<SchematronPatternBase> patterns,
         SchematronDiagnostics? diagnostics,
-        SchematronProperties? properties
+        SchematronProperties? properties,
+        IReadOnlyList<SchematronRules> rules,
+        IReadOnlyList<SchematronForeignElement> foreignElements
     )
-        : base(location, title, paragraphs, parameters, lets, patterns, diagnostics, properties) { }
+        : base(location, title, paragraphs, parameters, lets, patterns, diagnostics, properties, rules, foreignElements)
+    { }
 }

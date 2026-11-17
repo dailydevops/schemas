@@ -11,6 +11,12 @@ internal enum CoreElement
 
     /// <summary>A known Schematron element that a later work package parses.</summary>
     Deferred,
+    Library,
+    Rules,
+    Group,
+    Param,
+    Properties,
+    Property,
     Schema,
     Ns,
     Pattern,
