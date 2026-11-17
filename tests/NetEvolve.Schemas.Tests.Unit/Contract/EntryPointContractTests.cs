@@ -33,4 +33,15 @@ public class EntryPointContractTests
         await Assert.That(method!.ReturnType).IsEqualTo(typeof(FakeBuilder));
         await Assert.That(viaMember.GetType()).IsEqualTo(viaClass.GetType());
     }
+
+    [Test]
+    public async Task NamedExtensionClass_IsPublicStaticInEntryPointNamespace()
+    {
+        var type = typeof(FakeSchemaValidatorExtensions);
+
+        await Assert.That(type.IsPublic).IsTrue();
+        await Assert.That(type.IsAbstract && type.IsSealed).IsTrue();
+        await Assert.That(type.Name).IsEqualTo("FakeSchemaValidatorExtensions");
+        await Assert.That(type.Namespace).IsEqualTo("NetEvolve.Schemas");
+    }
 }
