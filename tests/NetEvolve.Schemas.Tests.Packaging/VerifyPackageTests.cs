@@ -39,6 +39,18 @@ public sealed class VerifyPackageTests
         await Assert.That(await ExitCode(Package(dependencies: ["Newtonsoft.Json"]), cancellationToken)).IsEqualTo(1);
 
     [Test]
+    public async Task Verify_UngroupedDisallowedDependency_Fails(CancellationToken cancellationToken) =>
+        await Assert
+            .That(await ExitCode(Package(dependencies: ["Newtonsoft.Json"], grouped: false), cancellationToken))
+            .IsEqualTo(1);
+
+    [Test]
+    public async Task Verify_UngroupedSiblingDependency_Passes(CancellationToken cancellationToken) =>
+        await Assert
+            .That(await ExitCode(Package(dependencies: ["NetEvolve.Schemas"], grouped: false), cancellationToken))
+            .IsEqualTo(0);
+
+    [Test]
     public async Task Verify_DependencyInjectionAbstractionsOnOtherPackage_Fails(CancellationToken cancellationToken) =>
         await Assert
             .That(await ExitCode(Package(dependencies: [DependencyInjectionAbstractions]), cancellationToken))
@@ -122,7 +134,8 @@ public sealed class VerifyPackageTests
         bool readme = true,
         string license = "MIT",
         bool requireAcceptance = false,
-        string[]? extraFiles = null
+        string[]? extraFiles = null,
+        bool grouped = true
     )
     {
         var directory = Directory.CreateTempSubdirectory("verify-package-").FullName;
@@ -139,13 +152,22 @@ public sealed class VerifyPackageTests
             _ = nuspec.Append("<readme>README.md</readme>");
         }
 
-        _ = nuspec.Append(CultureInfo.InvariantCulture, $"<dependencies><group targetFramework=\"{dependencyGroup}\">");
+        _ = nuspec.Append("<dependencies>");
+        if (grouped)
+        {
+            _ = nuspec.Append(CultureInfo.InvariantCulture, $"<group targetFramework=\"{dependencyGroup}\">");
+        }
         foreach (var dependency in dependencies ?? [])
         {
             _ = nuspec.Append(CultureInfo.InvariantCulture, $"<dependency id=\"{dependency}\" version=\"1.0.0\" />");
         }
 
-        _ = nuspec.Append("</group></dependencies></metadata></package>");
+        if (grouped)
+        {
+            _ = nuspec.Append("</group>");
+        }
+
+        _ = nuspec.Append("</dependencies></metadata></package>");
 
         using (var stream = File.Create(Path.Combine(directory, $"{id}.1.0.0.nupkg")))
         using (var zip = new ZipArchive(stream, ZipArchiveMode.Create))
