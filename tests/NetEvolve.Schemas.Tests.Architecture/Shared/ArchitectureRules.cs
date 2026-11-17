@@ -28,7 +28,7 @@ internal static partial class ArchitectureRules
     };
 
     // Third-party references allowed per assembly. Framework and System.* packages (e.g. System.Memory) pass via the
-    // 'System.' prefix; the only other polyfill allowed everywhere is Microsoft.Bcl.AsyncInterfaces (hard-coded in the switch of FindDisallowedReferences).
+    // 'System.' prefix; the only other packages allowed everywhere are Microsoft.Bcl.AsyncInterfaces and NetEvolve.Arguments (the guard package, #464) (hard-coded in the switch of FindDisallowedReferences).
     // A new non-System polyfill package must be added to that switch explicitly.
     private static readonly Dictionary<string, string[]> AllowedExternalReferences = new(StringComparer.Ordinal)
     {
@@ -52,7 +52,7 @@ internal static partial class ArchitectureRules
             var allowed = name switch
             {
                 "System.Text.Json" => false,
-                "netstandard" or "mscorlib" or "Microsoft.Bcl.AsyncInterfaces" => true,
+                "netstandard" or "mscorlib" or "Microsoft.Bcl.AsyncInterfaces" or "NetEvolve.Arguments" => true,
                 _ when name.StartsWith("System.", StringComparison.Ordinal) => true,
                 _ when name.StartsWith("NetEvolve.Schemas", StringComparison.Ordinal) => Array.IndexOf(
                     allowedLibraries,

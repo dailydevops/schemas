@@ -3,6 +3,7 @@ namespace NetEvolve.Schemas;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using NetEvolve.Arguments;
 
 /// <summary>Compile-time probe proving the polyfilled API surface on every target framework.</summary>
 internal static class PolyfillProbe
@@ -16,6 +17,12 @@ internal static class PolyfillProbe
         }
 
         return sum;
+    }
+
+    internal static int RequirePositive(int value)
+    {
+        Argument.ThrowIfLessThan(value, 1);
+        return value;
     }
 
     internal static ValueTask<int> SumAsync(int a, int b) => new(a + b);
