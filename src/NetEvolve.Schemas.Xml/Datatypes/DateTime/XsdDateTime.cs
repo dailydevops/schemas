@@ -82,27 +82,25 @@ public readonly struct XsdDateTime : IEquatable<XsdDateTime>
     public static ParseResult<XsdDateTime> Parse(ReadOnlySpan<char> lexical, XsdDateTimeKind kind, XsdVersion version)
     {
         var pos = 0;
-        long year = 0;
-        var month = 0;
-        var day = 0;
-        if (kind != XsdDateTimeKind.Time)
+        var leading = ScanLeading(
+            lexical,
+            kind,
+            version,
+            ref pos,
+            out var year,
+            out var month,
+            out var day,
+            out var at
+        );
+        if (leading != DatatypeError.None)
         {
-            var error = ScanDate(lexical, version, ref pos, out year, out month, out day, out var errorOffset);
-            if (error != DatatypeError.None)
-            {
-                return new(error, errorOffset);
-            }
-
-            if (kind == XsdDateTimeKind.DateTime && !Expect(lexical, ref pos, 'T'))
-            {
-                return new(DatatypeError.InvalidLexicalForm, pos);
-            }
+            return new(leading, at);
         }
 
         var hour = 0;
         var minute = 0;
         var second = XsdDecimal.Zero;
-        if (kind != XsdDateTimeKind.Date)
+        if (kind is XsdDateTimeKind.DateTime or XsdDateTimeKind.Time)
         {
             var error = ScanTime(lexical, ref pos, out hour, out minute, out second, out var errorOffset);
             if (error != DatatypeError.None)
@@ -140,24 +138,8 @@ public readonly struct XsdDateTime : IEquatable<XsdDateTime>
     public override string ToString()
     {
         var builder = new StringBuilder(32);
-        if (Kind != XsdDateTimeKind.Time)
-        {
-            if (Year < 0)
-            {
-                _ = builder.Append('-');
-            }
-
-            var year = Math.Abs(Year).ToString(CultureInfo.InvariantCulture);
-            _ = builder.Append('0', Math.Max(0, 4 - year.Length)).Append(year).Append('-');
-            _ = AppendTwo(builder, Month).Append('-');
-            _ = AppendTwo(builder, Day);
-            if (Kind == XsdDateTimeKind.DateTime)
-            {
-                _ = builder.Append('T');
-            }
-        }
-
-        if (Kind != XsdDateTimeKind.Date)
+        AppendDate(builder);
+        if (Kind is XsdDateTimeKind.DateTime or XsdDateTimeKind.Time)
         {
             _ = AppendTwo(builder, Hour).Append(':');
             _ = AppendTwo(builder, Minute).Append(':');
@@ -167,6 +149,58 @@ public readonly struct XsdDateTime : IEquatable<XsdDateTime>
             _ = builder.Append('0', wholeDigits == 1 ? 1 : 0).Append(second);
         }
 
+        AppendOffset(builder);
+        return builder.ToString();
+    }
+
+    private void AppendDate(StringBuilder builder)
+    {
+        if (Kind >= XsdDateTimeKind.GMonth)
+        {
+            _ = builder.Append(Kind == XsdDateTimeKind.GDay ? "---" : "--");
+            if (Kind != XsdDateTimeKind.GDay)
+            {
+                _ = AppendTwo(builder, Month);
+            }
+
+            if (Kind == XsdDateTimeKind.GMonthDay)
+            {
+                _ = builder.Append('-');
+            }
+
+            if (Kind != XsdDateTimeKind.GMonth)
+            {
+                _ = AppendTwo(builder, Day);
+            }
+        }
+        else if (Kind != XsdDateTimeKind.Time)
+        {
+            if (Year < 0)
+            {
+                _ = builder.Append('-');
+            }
+
+            var year = Math.Abs(Year).ToString(CultureInfo.InvariantCulture);
+            _ = builder.Append('0', Math.Max(0, 4 - year.Length)).Append(year);
+            if (Kind != XsdDateTimeKind.GYear)
+            {
+                _ = AppendTwo(builder.Append('-'), Month);
+            }
+
+            if (Kind is XsdDateTimeKind.DateTime or XsdDateTimeKind.Date)
+            {
+                _ = AppendTwo(builder.Append('-'), Day);
+            }
+
+            if (Kind == XsdDateTimeKind.DateTime)
+            {
+                _ = builder.Append('T');
+            }
+        }
+    }
+
+    private void AppendOffset(StringBuilder builder)
+    {
         if (_hasOffset)
         {
             if (_offset == 0)
@@ -181,8 +215,6 @@ public readonly struct XsdDateTime : IEquatable<XsdDateTime>
                 _ = AppendTwo(builder, magnitude % 60);
             }
         }
-
-        return builder.ToString();
     }
 
     /// <inheritdoc />
@@ -262,8 +294,9 @@ public readonly struct XsdDateTime : IEquatable<XsdDateTime>
             _ => 31,
         };
 
-    private static DatatypeError ScanDate(
+    private static DatatypeError ScanLeading(
         ReadOnlySpan<char> text,
+        XsdDateTimeKind kind,
         XsdVersion version,
         ref int pos,
         out long year,
@@ -275,6 +308,100 @@ public readonly struct XsdDateTime : IEquatable<XsdDateTime>
         year = 0;
         month = 0;
         day = 0;
+        errorOffset = 0;
+        if (kind >= XsdDateTimeKind.GYear)
+        {
+            return ScanPartial(text, kind, version, ref pos, out year, out month, out day, out errorOffset);
+        }
+
+        if (kind == XsdDateTimeKind.Time)
+        {
+            return DatatypeError.None;
+        }
+
+        var error = ScanDate(text, version, ref pos, out year, out month, out day, out errorOffset);
+        if (error == DatatypeError.None && kind == XsdDateTimeKind.DateTime && !Expect(text, ref pos, 'T'))
+        {
+            errorOffset = pos;
+            return DatatypeError.InvalidLexicalForm;
+        }
+
+        return error;
+    }
+
+    private static DatatypeError ScanPartial(
+        ReadOnlySpan<char> text,
+        XsdDateTimeKind kind,
+        XsdVersion version,
+        ref int pos,
+        out long year,
+        out int month,
+        out int day,
+        out int errorOffset
+    )
+    {
+        year = 0;
+        month = 0;
+        day = 0;
+        errorOffset = 0;
+        bool valid;
+        if (kind is XsdDateTimeKind.GYear or XsdDateTimeKind.GYearMonth)
+        {
+            var error = ScanYear(text, version, ref pos, out year, out errorOffset);
+            if (error != DatatypeError.None)
+            {
+                return error;
+            }
+
+            valid =
+                kind == XsdDateTimeKind.GYear
+                || (Expect(text, ref pos, '-') && TwoDigits(text, ref pos, out month) && month is >= 1 and <= 12);
+        }
+        else if (kind == XsdDateTimeKind.GDay)
+        {
+            valid =
+                Expect(text, ref pos, '-')
+                && Expect(text, ref pos, '-')
+                && Expect(text, ref pos, '-')
+                && TwoDigits(text, ref pos, out day)
+                && day is >= 1 and <= 31;
+        }
+        else
+        {
+            valid =
+                Expect(text, ref pos, '-')
+                && Expect(text, ref pos, '-')
+                && TwoDigits(text, ref pos, out month)
+                && month is >= 1 and <= 12;
+            if (valid && kind == XsdDateTimeKind.GMonthDay)
+            {
+                // Year 2000 is a leap year, so --02-29 is accepted and --02-30 is not.
+                valid =
+                    Expect(text, ref pos, '-')
+                    && TwoDigits(text, ref pos, out day)
+                    && day >= 1
+                    && day <= DaysInMonth(2000, month);
+            }
+        }
+
+        if (valid)
+        {
+            return DatatypeError.None;
+        }
+
+        errorOffset = pos;
+        return DatatypeError.InvalidLexicalForm;
+    }
+
+    private static DatatypeError ScanYear(
+        ReadOnlySpan<char> text,
+        XsdVersion version,
+        ref int pos,
+        out long year,
+        out int errorOffset
+    )
+    {
+        year = 0;
         errorOffset = 0;
         var negative = Expect(text, ref pos, '-');
         var start = pos;
@@ -300,6 +427,27 @@ public readonly struct XsdDateTime : IEquatable<XsdDateTime>
         if (negative)
         {
             year = -year;
+        }
+
+        return DatatypeError.None;
+    }
+
+    private static DatatypeError ScanDate(
+        ReadOnlySpan<char> text,
+        XsdVersion version,
+        ref int pos,
+        out long year,
+        out int month,
+        out int day,
+        out int errorOffset
+    )
+    {
+        month = 0;
+        day = 0;
+        var yearError = ScanYear(text, version, ref pos, out year, out errorOffset);
+        if (yearError != DatatypeError.None)
+        {
+            return yearError;
         }
 
         if (!Expect(text, ref pos, '-') || !TwoDigits(text, ref pos, out month) || month is < 1 or > 12)
