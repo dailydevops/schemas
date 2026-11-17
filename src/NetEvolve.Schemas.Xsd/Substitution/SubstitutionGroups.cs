@@ -16,7 +16,9 @@ using NetEvolve.Schemas.Xsd.Diagnostics;
 /// extension and restriction only; the block of the head element and of its type applies to every member of the head,
 /// as Structures 1.0 words it, not to each link of the chain; all violations are reported with the rule
 /// <c>cos-equiv-derived-ok-rec</c>, which exists in both versions; a declaration whose chain of affiliations does not end
-/// is never a member, and only the declarations on the cycle are reported.
+/// is never a member, and only the declarations on the cycle are reported; a declaration whose own affiliation is
+/// invalid is reported and is not a member of its head, but declarations affiliated with it keep their own membership
+/// in its group and in the groups of the transitive heads.
 /// </remarks>
 internal sealed class SubstitutionGroups
 {

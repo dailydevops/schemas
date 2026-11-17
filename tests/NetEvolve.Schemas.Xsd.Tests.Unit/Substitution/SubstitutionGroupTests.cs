@@ -54,6 +54,21 @@ public class SubstitutionGroupTests
     }
 
     [Test]
+    public async Task Members_MemberOfInvalidMid_IsStillMemberOfMidAndHead()
+    {
+        var head = new FakeElement("head", Base) { Final = Ext };
+        var mid = new FakeElement("mid", ByExt, head);
+        var leaf = new FakeElement("leaf", Deep, mid);
+
+        var (groups, issues) = Build(head, mid, leaf);
+
+        await Assert.That(issues.Count).IsEqualTo(1);
+        await Assert.That(issues[0].Location).IsEqualTo(mid.Location);
+        await Assert.That(Names(groups.GetMembers(mid))).IsEqualTo("mid,leaf");
+        await Assert.That(Names(groups.GetMembers(head))).IsEqualTo("head,leaf");
+    }
+
+    [Test]
     public async Task Cycle_IsLocatedSchemaError_AndNoMembers()
     {
         var a = new FakeElement("a", Base, line: 3);
