@@ -307,6 +307,110 @@
         public string SystemId { get; }
     }
 }
+namespace NetEvolve.Schemas.Xml.Datatypes.Contracts
+{
+    public enum DatatypeError
+    {
+        None = 0,
+        DigitCap = 10,
+        YearOrComponentCap = 11,
+        InvalidCharacter = 13,
+    }
+    public enum DatatypeVariety
+    {
+        Atomic = 0,
+        List = 1,
+        Union = 2,
+    }
+    public enum FacetKind
+    {
+        None = 0,
+        Length = 1,
+        MinLength = 2,
+        MaxLength = 3,
+        Pattern = 4,
+        Enumeration = 5,
+        WhiteSpace = 6,
+        MaxInclusive = 7,
+        MaxExclusive = 8,
+        MinExclusive = 9,
+        MinInclusive = 10,
+        TotalDigits = 11,
+        FractionDigits = 12,
+        Assertions = 13,
+        ExplicitTimezone = 14,
+    }
+    public interface IDatatypeDescriptor
+    {
+        NetEvolve.Schemas.Xml.Datatypes.Contracts.IDatatypeDescriptor? BaseType { get; }
+        System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Xml.Datatypes.Contracts.IFacet> Facets { get; }
+        bool IsOrdered { get; }
+        NetEvolve.Schemas.Xml.Datatypes.Contracts.XsdVersion LexicalMode { get; }
+        string Name { get; }
+        NetEvolve.Schemas.Xml.Datatypes.Contracts.DatatypeVariety Variety { get; }
+        NetEvolve.Schemas.Xml.Datatypes.Contracts.ValidationResult Validate(System.ReadOnlySpan<char> lexical);
+    }
+    public interface IDatatypeDescriptor<TValue> : NetEvolve.Schemas.Xml.Datatypes.Contracts.IDatatypeDescriptor
+    {
+        NetEvolve.Schemas.Xml.Datatypes.Contracts.XsdOrder Compare(in TValue a, in TValue b);
+        bool IsIdentical(in TValue a, in TValue b);
+        NetEvolve.Schemas.Xml.Datatypes.Contracts.ParseResult<TValue> Parse(System.ReadOnlySpan<char> lexical);
+    }
+    public interface IFacet
+    {
+        NetEvolve.Schemas.Xml.Datatypes.Contracts.FacetKind Kind { get; }
+    }
+    public interface ILexicalFacet : NetEvolve.Schemas.Xml.Datatypes.Contracts.IFacet
+    {
+        bool IsSatisfiedBy(System.ReadOnlySpan<char> lexical);
+    }
+    public interface IValueFacet<TValue> : NetEvolve.Schemas.Xml.Datatypes.Contracts.IFacet
+    {
+        bool IsSatisfiedBy(in TValue value);
+    }
+    public readonly struct ParseResult<TValue> : System.IEquatable<NetEvolve.Schemas.Xml.Datatypes.Contracts.ParseResult<TValue>>
+    {
+        public ParseResult(TValue value) { }
+        public ParseResult(NetEvolve.Schemas.Xml.Datatypes.Contracts.DatatypeError error, int errorOffset) { }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.DatatypeError Error { get; }
+        public int ErrorOffset { get; }
+        public bool Success { get; }
+        public TValue Value { get; }
+    }
+    public readonly struct TextRange : System.IEquatable<NetEvolve.Schemas.Xml.Datatypes.Contracts.TextRange>
+    {
+        public TextRange(int offset, int length) { }
+        public int Length { get; }
+        public int Offset { get; }
+        public bool Equals(NetEvolve.Schemas.Xml.Datatypes.Contracts.TextRange other) { }
+        public override bool Equals(object? obj) { }
+        public override int GetHashCode() { }
+        public System.ReadOnlySpan<char> Slice(System.ReadOnlySpan<char> source) { }
+        public static bool operator !=(NetEvolve.Schemas.Xml.Datatypes.Contracts.TextRange left, NetEvolve.Schemas.Xml.Datatypes.Contracts.TextRange right) { }
+        public static bool operator ==(NetEvolve.Schemas.Xml.Datatypes.Contracts.TextRange left, NetEvolve.Schemas.Xml.Datatypes.Contracts.TextRange right) { }
+    }
+    public readonly struct ValidationResult : System.IEquatable<NetEvolve.Schemas.Xml.Datatypes.Contracts.ValidationResult>
+    {
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.DatatypeError Error { get; }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.FacetKind FailedFacet { get; }
+        public bool IsValid { get; }
+        public int Offset { get; }
+        public static NetEvolve.Schemas.Xml.Datatypes.Contracts.ValidationResult Valid { get; }
+        public static NetEvolve.Schemas.Xml.Datatypes.Contracts.ValidationResult Invalid(NetEvolve.Schemas.Xml.Datatypes.Contracts.DatatypeError error, NetEvolve.Schemas.Xml.Datatypes.Contracts.FacetKind failedFacet, int offset) { }
+    }
+    public enum XsdOrder
+    {
+        Less = 0,
+        Equal = 1,
+        Greater = 2,
+        Incomparable = 3,
+    }
+    public enum XsdVersion
+    {
+        V10 = 0,
+        V11 = 1,
+    }
+}
 namespace NetEvolve.Schemas.Xml.Interop
 {
     public static class XmlInterop
@@ -322,5 +426,104 @@ namespace NetEvolve.Schemas.Xml.Interop
     {
         public XmlInteropOptions(bool allowDocumentType = false) { }
         public bool AllowDocumentType { get; }
+    }
+}
+namespace NetEvolve.Schemas.Xml.Regex.Contracts
+{
+    public interface IRegexMatcher
+    {
+        NetEvolve.Schemas.Xml.Regex.Contracts.RegexDialect Dialect { get; }
+        NetEvolve.Schemas.Xml.Regex.Contracts.RegexMatchResult Match(System.ReadOnlySpan<char> input, NetEvolve.Schemas.Xml.Regex.Contracts.RegexStepLimits limits);
+    }
+    public interface IRegexNodeVisitor
+    {
+        void VisitAlternation(in NetEvolve.Schemas.Xml.Regex.Contracts.RegexNode node);
+        void VisitAnchor(in NetEvolve.Schemas.Xml.Regex.Contracts.RegexNode node);
+        void VisitAnyChar(in NetEvolve.Schemas.Xml.Regex.Contracts.RegexNode node);
+        void VisitBackReference(in NetEvolve.Schemas.Xml.Regex.Contracts.RegexNode node);
+        void VisitCharacter(in NetEvolve.Schemas.Xml.Regex.Contracts.RegexNode node);
+        void VisitConcat(in NetEvolve.Schemas.Xml.Regex.Contracts.RegexNode node);
+        void VisitEmpty(in NetEvolve.Schemas.Xml.Regex.Contracts.RegexNode node);
+        void VisitGroup(in NetEvolve.Schemas.Xml.Regex.Contracts.RegexNode node);
+        void VisitRepeat(in NetEvolve.Schemas.Xml.Regex.Contracts.RegexNode node);
+        void VisitSet(in NetEvolve.Schemas.Xml.Regex.Contracts.RegexNode node);
+    }
+    public enum RegexAnchor
+    {
+        Start = 0,
+        End = 1,
+    }
+    public enum RegexDialect
+    {
+        Xsd = 0,
+        XPath = 1,
+    }
+    public enum RegexError
+    {
+        None = 0,
+        UnexpectedEnd = 1,
+        Unbalanced = 2,
+        InvalidQuantifier = 3,
+        InvalidEscape = 4,
+        UnknownCategoryOrBlock = 5,
+        InvalidCharacterClass = 6,
+        ConstructNotAllowed = 7,
+        InvalidBackReference = 8,
+        LimitExceeded = 9,
+        InvalidFlag = 10,
+        InvalidUtf16 = 11,
+    }
+    public enum RegexMatchResult
+    {
+        NoMatch = 0,
+        Match = 1,
+        Aborted = 2,
+    }
+    public readonly struct RegexNode : System.IEquatable<NetEvolve.Schemas.Xml.Regex.Contracts.RegexNode>
+    {
+        public const int NoGroup = -1;
+        public const int NoNode = -1;
+        public const int Unbounded = -1;
+        public int FirstChild { get; }
+        public bool IsLazy { get; }
+        public NetEvolve.Schemas.Xml.Regex.Contracts.RegexNodeKind Kind { get; }
+        public int Max { get; }
+        public int Min { get; }
+        public int NextSibling { get; }
+        public int Value { get; }
+        public void Accept<TVisitor>(ref TVisitor visitor)
+            where TVisitor : NetEvolve.Schemas.Xml.Regex.Contracts.IRegexNodeVisitor { }
+        public NetEvolve.Schemas.Xml.Regex.Contracts.RegexNode WithNextSibling(int nextSibling) { }
+        public static NetEvolve.Schemas.Xml.Regex.Contracts.RegexNode Alternation(int firstChild) { }
+        public static NetEvolve.Schemas.Xml.Regex.Contracts.RegexNode Anchor(NetEvolve.Schemas.Xml.Regex.Contracts.RegexAnchor anchor) { }
+        public static NetEvolve.Schemas.Xml.Regex.Contracts.RegexNode AnyChar() { }
+        public static NetEvolve.Schemas.Xml.Regex.Contracts.RegexNode BackReference(int groupNumber) { }
+        public static NetEvolve.Schemas.Xml.Regex.Contracts.RegexNode Character(int codePoint) { }
+        public static NetEvolve.Schemas.Xml.Regex.Contracts.RegexNode Concat(int firstChild) { }
+        public static NetEvolve.Schemas.Xml.Regex.Contracts.RegexNode Empty() { }
+        public static NetEvolve.Schemas.Xml.Regex.Contracts.RegexNode Group(int child, int groupNumber) { }
+        public static NetEvolve.Schemas.Xml.Regex.Contracts.RegexNode Repeat(int child, int min, int max, bool lazy) { }
+        public static NetEvolve.Schemas.Xml.Regex.Contracts.RegexNode Set(int setIndex) { }
+    }
+    public enum RegexNodeKind
+    {
+        Empty = 0,
+        Character = 1,
+        Set = 2,
+        Concat = 3,
+        Alternation = 4,
+        Repeat = 5,
+        Group = 6,
+        AnyChar = 7,
+        BackReference = 8,
+        Anchor = 9,
+    }
+    public sealed class RegexStepLimits
+    {
+        public long MaxBacktrackSteps { get; }
+        public long MaxNfaSteps { get; }
+        public static NetEvolve.Schemas.Xml.Regex.Contracts.RegexStepLimits Default { get; }
+        public NetEvolve.Schemas.Xml.Regex.Contracts.RegexStepLimits WithMaxBacktrackSteps(long value) { }
+        public NetEvolve.Schemas.Xml.Regex.Contracts.RegexStepLimits WithMaxNfaSteps(long value) { }
     }
 }
