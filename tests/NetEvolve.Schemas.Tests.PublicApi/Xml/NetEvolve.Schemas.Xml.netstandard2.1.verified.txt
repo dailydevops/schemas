@@ -518,6 +518,33 @@ namespace NetEvolve.Schemas.Xml.Datatypes.Core
         public NetEvolve.Schemas.Xml.Datatypes.Contracts.TextRange Range { get; }
     }
 }
+namespace NetEvolve.Schemas.Xml.Datatypes.DateTime
+{
+    public readonly struct XsdDateTime : System.IEquatable<NetEvolve.Schemas.Xml.Datatypes.DateTime.XsdDateTime>
+    {
+        public int Day { get; }
+        public int Hour { get; }
+        public NetEvolve.Schemas.Xml.Datatypes.DateTime.XsdDateTimeKind Kind { get; }
+        public int Minute { get; }
+        public int Month { get; }
+        public NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal Second { get; }
+        public int? TimezoneOffsetMinutes { get; }
+        public long Year { get; }
+        public bool Equals(NetEvolve.Schemas.Xml.Datatypes.DateTime.XsdDateTime other) { }
+        public override bool Equals(object? obj) { }
+        public override int GetHashCode() { }
+        public override string ToString() { }
+        public static NetEvolve.Schemas.Xml.Datatypes.Contracts.ParseResult<NetEvolve.Schemas.Xml.Datatypes.DateTime.XsdDateTime> Parse(System.ReadOnlySpan<char> lexical, NetEvolve.Schemas.Xml.Datatypes.DateTime.XsdDateTimeKind kind, NetEvolve.Schemas.Xml.Datatypes.Contracts.XsdVersion version) { }
+        public static bool operator !=(NetEvolve.Schemas.Xml.Datatypes.DateTime.XsdDateTime left, NetEvolve.Schemas.Xml.Datatypes.DateTime.XsdDateTime right) { }
+        public static bool operator ==(NetEvolve.Schemas.Xml.Datatypes.DateTime.XsdDateTime left, NetEvolve.Schemas.Xml.Datatypes.DateTime.XsdDateTime right) { }
+    }
+    public enum XsdDateTimeKind
+    {
+        DateTime = 0,
+        Date = 1,
+        Time = 2,
+    }
+}
 namespace NetEvolve.Schemas.Xml.Datatypes.Decimals.Arithmetic
 {
     public readonly struct ArithmeticResult<TValue> : System.IEquatable<NetEvolve.Schemas.Xml.Datatypes.Decimals.Arithmetic.ArithmeticResult<TValue>>
