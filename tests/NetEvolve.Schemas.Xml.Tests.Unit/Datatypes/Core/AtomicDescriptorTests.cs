@@ -105,6 +105,17 @@ public class AtomicDescriptorTests
     }
 
     [Test]
+    public async Task Parse_PassesTheEffectiveWhitespaceModeToTheMapping()
+    {
+        var mapping = new FakeDigitsMapping();
+        var restricted = new AtomicDescriptor<int>("r", new AtomicDescriptor<int>("p", XsdVersion.V11, mapping), WhitespaceMode.Preserve, []);
+
+        _ = restricted.Parse("12");
+
+        await Assert.That(mapping.LastMode).IsEqualTo(WhitespaceMode.Preserve);
+    }
+
+    [Test]
     public async Task Restriction_WhitespaceOverride_ReplacesTheInheritedMode()
     {
         var preserved = new AtomicDescriptor<int>("p", Primitive(), WhitespaceMode.Preserve, []);
