@@ -13,6 +13,17 @@ internal static class Segments
         return new ReadOnlySequence<T>(head, 0, tail, tail.Memory.Length);
     }
 
+    internal static ReadOnlySequence<T> Create<T>(
+        ReadOnlyMemory<T> first,
+        ReadOnlyMemory<T> second,
+        ReadOnlyMemory<T> third
+    )
+    {
+        var head = new Segment<T>(first, 0);
+        var tail = head.Append(second).Append(third);
+        return new ReadOnlySequence<T>(head, 0, tail, tail.Memory.Length);
+    }
+
     private sealed class Segment<T> : ReadOnlySequenceSegment<T>
     {
         internal Segment(ReadOnlyMemory<T> memory, long runningIndex)
