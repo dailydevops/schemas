@@ -264,4 +264,13 @@ public class AllGroupTests
             )
             .Throws<ArgumentOutOfRangeException>();
     }
+
+    [Test]
+    public async Task IsSeen_OutOfRangeMember_Throws()
+    {
+        var run = Group(false, false, false).CreateRun();
+
+        await Assert.That(() => run.IsSeen(-1)).Throws<ArgumentOutOfRangeException>();
+        await Assert.That(() => run.IsSeen(2)).Throws<ArgumentOutOfRangeException>();
+    }
 }
