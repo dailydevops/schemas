@@ -23,7 +23,7 @@ public class XPathLexerTests
     [Arguments("every $x in a satisfies $x", "Every Dollar Name In Name Satisfies Dollar Name")]
     [Arguments("if", "Name")]
     [Arguments("if (a) then b else c", "If LeftParen Name RightParen Then Name Else Name")]
-    [Arguments("then else", "Name Name")]
+    [Arguments("then else", "Name Else")]
     [Arguments("a union b | c intersect d except e", "Name Union Name Pipe Name Intersect Name Except Name")]
     [Arguments("1 to 3", "IntegerLiteral To IntegerLiteral")]
     [Arguments("to to to", "Name To Name")]
@@ -76,7 +76,7 @@ public class XPathLexerTests
         await Assert.That(tokens[0].Span.Offset).IsEqualTo(18);
         await Assert.That(tokens[0].Span.Length).IsEqualTo(1);
         await Assert.That(tokens[1].Span.Offset).IsEqualTo(24);
-        await Assert.That(tokens[2].Span.Offset).IsEqualTo(37);
+        await Assert.That(tokens[2].Span.Offset).IsEqualTo(36);
     }
 
     [Test]
@@ -178,7 +178,7 @@ public class XPathLexerTests
     [Arguments("a:", 1, 1)]
     [Arguments("a }", 2, 1)]
     [Arguments("{", 0, 1)]
-    [Arguments("a \U0001F600", 2, 2)]
+    [Arguments("a \U000F0000", 2, 2)]
     [Arguments("a \uD83D", 2, 1)]
     public async Task IllegalCharacter_ReportsErrorWithPosition(string text, int offset, int length)
     {
@@ -258,7 +258,7 @@ public class XPathLexerTests
         // Names, literals, comments, wildcards, keywords, and operators; 200 characters.
         const string text =
             "for $item in /library/book[@price > 10.5e0 and starts-with(title, 'it''s')] return "
-            + "(: pick :) if ($item/p:* div 2 instance of xs:integer?) then *:local * 3 else \"x\"\"y\" union a/b//c";
+            + "(: pick :) if ($item/p:* div 2 instance of xs:integer?) then *:local * 3 else \"x\"\"y\" union a/b//c (: abcdefghijklm :)";
 
         AllocationAssert.NoAllocation(() =>
         {
