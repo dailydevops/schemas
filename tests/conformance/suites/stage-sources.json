@@ -1,0 +1,25 @@
+{
+  "stage4": {
+    "suite": "schematron-conformance",
+    "cases": [
+      "iso-rule-based-validation/let-value-element-content.xml",
+      "iso-rule-based-validation/rule-context-global-variable.xml",
+      "iso-rule-based-validation/rule-context-pattern-variable.xml",
+      "iso-rule-based-validation/rule-context-phase-variable.xml"
+    ],
+    "ownSchemas": [
+      "tests/NetEvolve.Schemas.Schematron.Tests.Integration/Goldens/Stage4Globals/global-variable.sch",
+      "tests/NetEvolve.Schemas.Schematron.Tests.Integration/Goldens/Stage4Globals/global-param.sch",
+      "tests/NetEvolve.Schemas.Schematron.Tests.Integration/Goldens/Stage4Globals/temporary-tree.sch"
+    ]
+  },
+  "stage5": {
+    "ownSchemas": [
+      "tests/NetEvolve.Schemas.Schematron.Tests.Integration/Goldens/Stage5Grouping/group-by.sch",
+      "tests/NetEvolve.Schemas.Schematron.Tests.Integration/Goldens/Stage5Grouping/group-adjacent.sch",
+      "tests/NetEvolve.Schemas.Schematron.Tests.Integration/Goldens/Stage5Grouping/group-starting-with.sch",
+      "tests/NetEvolve.Schemas.Schematron.Tests.Integration/Goldens/Stage5Grouping/group-ending-with.sch",
+      "tests/NetEvolve.Schemas.Schematron.Tests.Integration/Goldens/Stage5Grouping/analyze-string.sch"
+    ]
+  }
+}
