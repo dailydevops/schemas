@@ -527,3 +527,47 @@ namespace NetEvolve.Schemas.Xml.Regex.Contracts
         public NetEvolve.Schemas.Xml.Regex.Contracts.RegexStepLimits WithMaxNfaSteps(long value) { }
     }
 }
+namespace NetEvolve.Schemas.Xml.Writer
+{
+    public sealed class XmlWriteException : System.Exception
+    {
+        public XmlWriteException() { }
+        public XmlWriteException(NetEvolve.Schemas.Xml.Contracts.XmlErrorCode code) { }
+        public XmlWriteException(string message) { }
+        public XmlWriteException(string message, System.Exception innerException) { }
+        public NetEvolve.Schemas.Xml.Contracts.XmlErrorCode? Code { get; }
+    }
+    public sealed class XmlWriter : NetEvolve.Schemas.Xml.Contracts.IXmlSink, System.IDisposable
+    {
+        public XmlWriter(System.Buffers.IBufferWriter<byte> output, NetEvolve.Schemas.Xml.Contracts.XmlNameTable names, NetEvolve.Schemas.Xml.Writer.XmlWriterOptions? options = null) { }
+        public XmlWriter(System.Buffers.IBufferWriter<char> output, NetEvolve.Schemas.Xml.Contracts.XmlNameTable names, NetEvolve.Schemas.Xml.Writer.XmlWriterOptions? options = null) { }
+        public XmlWriter(System.IO.Stream stream, NetEvolve.Schemas.Xml.Contracts.XmlNameTable names, NetEvolve.Schemas.Xml.Writer.XmlWriterOptions? options = null) { }
+        public NetEvolve.Schemas.Xml.Contracts.XmlNameTable Names { get; }
+        public void Attribute(NetEvolve.Schemas.Xml.Contracts.XmlName name, System.ReadOnlySpan<char> value) { }
+        public void Comment(System.ReadOnlySpan<char> text) { }
+        public void Dispose() { }
+        public void Doctype(in NetEvolve.Schemas.Xml.Contracts.XmlDoctypeInfo doctype) { }
+        public void EndAttributes() { }
+        public void EndDocument() { }
+        public void EndElement(NetEvolve.Schemas.Xml.Contracts.XmlName name) { }
+        public System.Threading.Tasks.Task FlushAsync(System.Threading.CancellationToken cancellationToken = default) { }
+        public void NamespaceDeclaration(NetEvolve.Schemas.Xml.Contracts.XmlSymbol prefix, NetEvolve.Schemas.Xml.Contracts.XmlSymbol uri) { }
+        public void ProcessingInstruction(NetEvolve.Schemas.Xml.Contracts.XmlSymbol target, System.ReadOnlySpan<char> data) { }
+        public void StartDocument(in NetEvolve.Schemas.Xml.Contracts.XmlDeclaration declaration) { }
+        public void StartElement(NetEvolve.Schemas.Xml.Contracts.XmlName name, NetEvolve.Schemas.Xml.Contracts.XmlPosition position) { }
+        public void Text(System.ReadOnlySpan<char> text, NetEvolve.Schemas.Xml.Contracts.XmlTextKind kind) { }
+    }
+    public enum XmlWriterEncoding
+    {
+        Utf8 = 0,
+        Utf16 = 1,
+    }
+    public sealed class XmlWriterOptions
+    {
+        public XmlWriterOptions(bool canonical = false, NetEvolve.Schemas.Xml.Writer.XmlWriterEncoding encoding = 0, bool omitXmlDeclaration = false) { }
+        public bool Canonical { get; }
+        public NetEvolve.Schemas.Xml.Writer.XmlWriterEncoding Encoding { get; }
+        public bool OmitXmlDeclaration { get; }
+        public static NetEvolve.Schemas.Xml.Writer.XmlWriterOptions Default { get; }
+    }
+}
