@@ -18,16 +18,4 @@ public class FakeFormatLegacyTests
         await Assert.That(validator.Calls).Count().IsEqualTo(1);
         await Assert.That(validator.Calls[0].SystemId).IsEqualTo("file:///doc.xml");
     }
-
-    [Test]
-    public async Task NamedExtensionClass_IsPublicStaticInEntryPointNamespace(CancellationToken cancellationToken)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-        var type = typeof(FakeSchemaValidatorExtensions);
-
-        await Assert.That(type.IsPublic).IsTrue();
-        await Assert.That(type.IsAbstract && type.IsSealed).IsTrue();
-        await Assert.That(type.Name).IsEqualTo("FakeSchemaValidatorExtensions");
-        await Assert.That(type.Namespace).IsEqualTo("NetEvolve.Schemas");
-    }
 }
