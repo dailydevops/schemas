@@ -1,0 +1,273 @@
+namespace NetEvolve.Schemas.Xml.Reader.Core;
+
+using System;
+using System.Runtime.InteropServices;
+using NetEvolve.Schemas.Xml.Buffers;
+using NetEvolve.Schemas.Xml.Contracts;
+using NetEvolve.Schemas.Xml.Limits;
+using NetEvolve.Schemas.Xml.Namespaces;
+
+internal sealed partial class XmlParser
+{
+    // One attribute of the buffered start tag: the name and the normalized value are slices of the tag buffer.
+    [StructLayout(LayoutKind.Auto)]
+    private struct AttributeEntry
+    {
+        internal int NameStart;
+        internal int NameLength;
+        internal int ValueStart;
+        internal int ValueLength;
+        internal bool IsDeclaration;
+        internal XmlPosition Position;
+        internal XmlName Name;
+        internal XmlNamespaceBinding Binding;
+    }
+
+    private readonly PooledBuffer<char> _tag = new(256);
+    private AttributeEntry[] _attributes = new AttributeEntry[8];
+    private XmlName[] _stack = new XmlName[16];
+    private XmlBudget _elementDepth;
+    private int _attributeCount;
+    private int _plainAttributeCount;
+    private int _declarationCount;
+    private int _elementNameLength;
+    private int _depth;
+    private int _tagCharacters;
+    private bool _inTag;
+    private XmlPosition _startPosition;
+
+    private void InitializeTag(XmlReaderLimits limits) => _elementDepth = XmlBudget.ElementDepth(limits);
+
+    private void DisposeTag() => _tag.Dispose();
+
+    // The raw characters of a start tag, from the opening bracket to the closing one, are bounded by MaxStartTagCharacters.
+    private bool ChargeStartTag(bool starts, int consumed, XmlPosition position)
+    {
+        _tagCharacters = starts ? consumed : _tagCharacters + consumed;
+        return _tagCharacters <= _limits.MaxStartTagCharacters || Fail(XmlErrorCodes.XML1113, position);
+    }
+
+    private bool StartTag(ReadOnlySpan<char> name, XmlPosition position)
+    {
+        if (_phase == Phase.Epilog)
+        {
+            return Fail(XmlErrorCodes.XML0012, position);
+        }
+
+        if (!_elementDepth.TryCharge(1))
+        {
+            return Fail(XmlErrorCodes.XML1102, position);
+        }
+
+        if (!_nodes.TryCharge(1))
+        {
+            return Fail(XmlErrorCodes.XML1108, position);
+        }
+
+        EndText();
+        _phase = Phase.Content;
+        _tag.Clear();
+        _tag.Append(name);
+        _elementNameLength = name.Length;
+        _attributeCount = 0;
+        _plainAttributeCount = 0;
+        _declarationCount = 0;
+        _startPosition = position;
+        _inTag = true;
+        return true;
+    }
+
+    private bool AttributeName(ReadOnlySpan<char> name, XmlPosition position)
+    {
+        var isDeclaration = XmlNamespaceScope.IsDeclaration(name);
+        if (isDeclaration)
+        {
+            if (++_declarationCount > _limits.MaxNamespaceDeclarationsPerElement)
+            {
+                return Fail(XmlErrorCodes.XML1104, position);
+            }
+        }
+        else
+        {
+            if (++_plainAttributeCount > _limits.MaxAttributesPerElement)
+            {
+                return Fail(XmlErrorCodes.XML1103, position);
+            }
+
+            if (!_nodes.TryCharge(1))
+            {
+                return Fail(XmlErrorCodes.XML1108, position);
+            }
+        }
+
+        // ponytail: linear scan, quadratic in the attributes of one element, which MaxAttributesPerElement bounds.
+        var tag = _tag.WrittenSpan;
+        for (var i = 0; i < _attributeCount; i++)
+        {
+            if (tag.Slice(_attributes[i].NameStart, _attributes[i].NameLength).SequenceEqual(name))
+            {
+                return Fail(XmlErrorCodes.XML0006, position);
+            }
+        }
+
+        if (_attributeCount == _attributes.Length)
+        {
+            Array.Resize(ref _attributes, _attributeCount * 2);
+        }
+
+        var start = _tag.Length;
+        _tag.Append(name);
+        _attributes[_attributeCount++] = new AttributeEntry
+        {
+            NameStart = start,
+            NameLength = name.Length,
+            ValueStart = _tag.Length,
+            IsDeclaration = isDeclaration,
+            Position = position,
+        };
+        return true;
+    }
+
+    private bool AppendValue(ReadOnlySpan<char> text, XmlPosition position)
+    {
+        ref var attribute = ref _attributes[_attributeCount - 1];
+        if (text.Length > _limits.MaxAttributeValueLength - attribute.ValueLength)
+        {
+            return Fail(XmlErrorCodes.XML1112, position);
+        }
+
+        _tag.Append(text);
+        attribute.ValueLength += text.Length;
+        return true;
+    }
+
+    // Namespace layer: push the scope, declare every namespace attribute (they may follow the names that use them), then
+    // resolve the element name and the other attribute names; the first error is reported at its attribute or the tag.
+    private bool ResolveStartTag(ReadOnlySpan<char> tag, out XmlName name)
+    {
+        var scope = _scope!;
+        scope.PushElement();
+        name = default;
+        for (var i = 0; i < _attributeCount; i++)
+        {
+            ref var attribute = ref _attributes[i];
+            if (attribute.IsDeclaration)
+            {
+                var error = scope.Declare(
+                    tag.Slice(attribute.NameStart, attribute.NameLength),
+                    tag.Slice(attribute.ValueStart, attribute.ValueLength),
+                    out attribute.Binding
+                );
+                if (error is not null)
+                {
+                    return Fail(error, attribute.Position);
+                }
+            }
+        }
+
+        var elementError = scope.ResolveElement(tag.Slice(0, _elementNameLength), out name);
+        if (elementError is not null)
+        {
+            return Fail(elementError, _startPosition);
+        }
+
+        for (var i = 0; i < _attributeCount; i++)
+        {
+            ref var attribute = ref _attributes[i];
+            var error = attribute.IsDeclaration
+                ? null
+                : scope.ResolveAttribute(tag.Slice(attribute.NameStart, attribute.NameLength), out attribute.Name);
+            if (error is not null)
+            {
+                return Fail(error, attribute.Position);
+            }
+        }
+
+        return true;
+    }
+
+    private bool FinishStartTag<TSink>(ref TSink sink, bool isEmpty)
+        where TSink : IXmlSink
+    {
+        _inTag = false;
+        var tag = _tag.WrittenSpan;
+        if (!ResolveStartTag(tag, out var name))
+        {
+            return false;
+        }
+
+        EndText();
+        sink.StartElement(name, _startPosition);
+        for (var i = 0; i < _attributeCount; i++)
+        {
+            if (_attributes[i].IsDeclaration)
+            {
+                sink.NamespaceDeclaration(_attributes[i].Binding.Prefix, _attributes[i].Binding.Uri);
+            }
+        }
+
+        for (var i = 0; i < _attributeCount; i++)
+        {
+            if (!_attributes[i].IsDeclaration)
+            {
+                sink.Attribute(_attributes[i].Name, tag.Slice(_attributes[i].ValueStart, _attributes[i].ValueLength));
+            }
+        }
+
+        sink.EndAttributes();
+        if (_depth == _stack.Length)
+        {
+            Array.Resize(ref _stack, _depth * 2);
+        }
+
+        _stack[_depth++] = name;
+        if (isEmpty)
+        {
+            sink.EndElement(name);
+            CloseElement();
+        }
+
+        return true;
+    }
+
+    // An end tag repeats the raw name of its start tag, so the prefix and local name are compared, not the namespace URI.
+    // A name that is not in the table cannot match, so lookups never intern.
+    private bool EndTagName(ReadOnlySpan<char> name, XmlPosition position)
+    {
+        if (_depth == 0)
+        {
+            return Fail(XmlErrorCodes.XML0005, position);
+        }
+
+        var colon = name.IndexOf(':');
+        var prefix = colon < 0 ? ReadOnlySpan<char>.Empty : name.Slice(0, colon);
+        var local = name.Slice(colon + 1);
+        var open = _stack[_depth - 1];
+        return (
+                _names!.TryGet(prefix, out var prefixSymbol)
+                && _names.TryGet(local, out var localSymbol)
+                && prefixSymbol == open.Prefix
+                && localSymbol == open.Local
+            ) || Fail(XmlErrorCodes.XML0005, position);
+    }
+
+    private bool EndTagEnd<TSink>(ref TSink sink)
+        where TSink : IXmlSink
+    {
+        EndText();
+        sink.EndElement(_stack[_depth - 1]);
+        CloseElement();
+        return true;
+    }
+
+    private void CloseElement()
+    {
+        _depth--;
+        _scope!.PopElement();
+        _elementDepth.Release(1);
+        if (_depth == 0)
+        {
+            _phase = Phase.Epilog;
+        }
+    }
+}
