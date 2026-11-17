@@ -17,8 +17,22 @@ public sealed class SchematronGroup : SchematronPatternBase
         IReadOnlyList<SchematronParameter> parameters,
         IReadOnlyList<SchematronLet> lets,
         IReadOnlyList<SchematronRule> rules,
-        DocumentLocation? expandedFrom
+        DocumentLocation? expandedFrom,
+        IReadOnlyList<SchematronInclude>? includes = null
     )
-        : base(location, id, isAbstract, isA, documents, role, title, paragraphs, parameters, lets, rules, expandedFrom)
-    { }
+        : base(
+            location,
+            id,
+            isAbstract,
+            isA,
+            documents,
+            role,
+            title,
+            paragraphs,
+            parameters,
+            lets,
+            rules,
+            expandedFrom,
+            includes
+        ) { }
 }

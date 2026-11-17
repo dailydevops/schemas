@@ -1,5 +1,6 @@
 namespace NetEvolve.Schemas.Schematron.Model;
 
+using System;
 using System.Collections.Generic;
 
 /// <summary>Base of the elements that hold patterns, parameters, variables, diagnostics, and properties: <c>schema</c> and <c>library</c>.</summary>
@@ -15,7 +16,8 @@ public abstract class SchematronContainer : SchematronNode
         SchematronDiagnostics? diagnostics,
         SchematronProperties? properties,
         IReadOnlyList<SchematronRules> rules,
-        IReadOnlyList<SchematronForeignElement> foreignElements
+        IReadOnlyList<SchematronForeignElement> foreignElements,
+        IReadOnlyList<SchematronInclude>? includes = null
     )
         : base(location)
     {
@@ -28,6 +30,7 @@ public abstract class SchematronContainer : SchematronNode
         Properties = properties;
         Rules = rules;
         ForeignElements = foreignElements;
+        Includes = includes ?? Array.Empty<SchematronInclude>();
     }
 
     /// <summary>Gets the title, or <see langword="null"/> when absent.</summary>
@@ -56,4 +59,7 @@ public abstract class SchematronContainer : SchematronNode
 
     // Direct foreign children (design #137 AP-3 as narrowed by #150 EP-11), kept for the XSLT registry.
     internal IReadOnlyList<SchematronForeignElement> ForeignElements { get; }
+
+    // The include elements of the container, placed by their indices; replaced by stage Resolve.
+    internal IReadOnlyList<SchematronInclude> Includes { get; }
 }

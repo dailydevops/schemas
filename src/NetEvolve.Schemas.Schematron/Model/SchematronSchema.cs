@@ -23,9 +23,22 @@ public sealed class SchematronSchema : SchematronContainer
         IReadOnlyList<SchematronNamespace> namespaces,
         IReadOnlyList<SchematronPhase> phases,
         IReadOnlyList<SchematronRules> rules,
-        IReadOnlyList<SchematronForeignElement> foreignElements
+        IReadOnlyList<SchematronForeignElement> foreignElements,
+        IReadOnlyList<SchematronInclude>? includes = null
     )
-        : base(location, title, paragraphs, parameters, lets, patterns, diagnostics, properties, rules, foreignElements)
+        : base(
+            location,
+            title,
+            paragraphs,
+            parameters,
+            lets,
+            patterns,
+            diagnostics,
+            properties,
+            rules,
+            foreignElements,
+            includes
+        )
     {
         Id = id;
         SchemaVersion = schemaVersion;

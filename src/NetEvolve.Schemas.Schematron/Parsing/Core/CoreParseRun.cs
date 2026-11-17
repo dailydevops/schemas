@@ -91,7 +91,8 @@ internal sealed partial class CoreParseRun
             parts.Namespaces.ToArray(),
             parts.Phases.ToArray(),
             parts.Rules.ToArray(),
-            parts.Foreign.ToArray()
+            parts.Foreign.ToArray(),
+            parts.Includes.ToArray()
         );
     }
 
@@ -126,6 +127,17 @@ internal sealed partial class CoreParseRun
                     break;
                 case CoreElement.Pattern:
                     parts.Patterns.Add(ParsePattern(child, isGroup: false));
+                    break;
+                case CoreElement.Include:
+                    parts.Includes.Add(
+                        ParseInclude(
+                            child,
+                            parts.Patterns.Count,
+                            parts.Lets.Count,
+                            parts.Parameters.Count,
+                            parts.Foreign.Count
+                        )
+                    );
                     break;
                 default:
                     ReadEditionElement(child, kind, parts, parent);
@@ -177,6 +189,7 @@ internal sealed partial class CoreParseRun
         var parameters = parts.Parameters.ToArray();
         var lets = parts.Lets.ToArray();
         var rules = parts.PatternRules.ToArray();
+        var includes = parts.Includes.ToArray();
         return isGroup
             ? new SchematronGroup(
                 Location(element),
@@ -190,7 +203,8 @@ internal sealed partial class CoreParseRun
                 parameters,
                 lets,
                 rules,
-                null
+                null,
+                includes
             )
             : new SchematronPattern(
                 Location(element),
@@ -204,7 +218,8 @@ internal sealed partial class CoreParseRun
                 parameters,
                 lets,
                 rules,
-                null
+                null,
+                includes
             );
     }
 
@@ -229,6 +244,9 @@ internal sealed partial class CoreParseRun
                     break;
                 case CoreElement.Rule:
                     parts.PatternRules.Add(ParseRule(child));
+                    break;
+                case CoreElement.Include:
+                    parts.Includes.Add(ParseInclude(child, parts.PatternRules.Count));
                     break;
                 default:
                     Reject(child, kind, parent);
@@ -269,6 +287,12 @@ internal sealed partial class CoreParseRun
                     break;
                 case CoreElement.Report:
                     items.Add(ParseReport(child));
+                    break;
+                case CoreElement.Include:
+                    items.Add(ParseInclude(child));
+                    break;
+                case CoreElement.Extends:
+                    items.Add(ParseExtends(child));
                     break;
                 default:
                     Reject(child, kind, "rule");
@@ -557,7 +581,8 @@ internal sealed partial class CoreParseRun
             "param" => CoreElement.Param,
             "properties" => CoreElement.Properties,
             "property" => CoreElement.Property,
-            "include" or "extends" => CoreElement.Deferred,
+            "include" => CoreElement.Include,
+            "extends" => CoreElement.Extends,
             _ => CoreElement.Unknown,
         };
     }
@@ -573,7 +598,7 @@ internal sealed partial class CoreParseRun
                 Location(element)
             );
         }
-        else if (kind == CoreElement.Deferred)
+        else if (kind is CoreElement.Include or CoreElement.Extends)
         {
             Report(
                 SchematronDiagnosticCodes.Unsupported,
