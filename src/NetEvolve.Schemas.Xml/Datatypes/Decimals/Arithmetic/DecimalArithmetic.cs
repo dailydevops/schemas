@@ -7,7 +7,7 @@ using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 
 /// <summary>
 /// Division, rounding, and numeric conversions for <see cref="XsdDecimal"/> (XQuery 1.0 and XPath 2.0 Functions and Operators,
-/// sections 6.2 and 6.4). Invalid input never throws: a fallible operation returns an <see cref="ArithmeticResult{TValue}"/> with a coded error.
+/// sections 6.2 and 6.4). Invalid input never throws: a fallible operation returns an <see cref="ArithmeticResult{TValue}"/> with a coded error. The one exception is the rounding family (<see cref="Round"/>, <see cref="RoundHalfToEven"/>, <see cref="Floor"/>, <see cref="Ceiling"/>), which throws <see cref="OverflowException"/> when the normalized scale does not fit a 32-bit integer.
 /// </summary>
 /// <remarks>
 /// Limitations: the result precision of a decimal division is implementation-defined in the specification; <see cref="Divide"/> rounds
