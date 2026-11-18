@@ -1,13 +1,1 @@
-eduni-errata-3e/rmt-e3e-05a
-eduni-errata-3e/rmt-e3e-05b
-eduni-errata-3e/rmt-e3e-06a
-eduni-errata-3e/rmt-e3e-06b
-eduni-errata-3e/rmt-e3e-06c
-eduni-errata-3e/rmt-e3e-06d
-eduni-errata-3e/rmt-e3e-06e
-eduni-errata-3e/rmt-e3e-06f
-eduni-errata-3e/rmt-e3e-06g
-eduni-errata-3e/rmt-e3e-06h
-eduni-errata-3e/rmt-e3e-06i
 eduni-errata-3e/rmt-e3e-12
-eduni-errata-3e/rmt-e3e-13

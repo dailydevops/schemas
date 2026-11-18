@@ -21,7 +21,14 @@ public sealed class XmlReaderOptions
     public XmlNameTable? NameTable => _nameTable;
 
     /// <summary>Gets a value indicating whether a document type declaration is processed; <see langword="false"/> by default, which rejects it with <see cref="XmlErrorCodes.XML2001"/>.</summary>
-    /// <remarks>Limitation: only the declarations of the internal subset are parsed (XML-14); the external subset is not read.</remarks>
+    /// <remarks>
+    /// With the option on, references to the internal general entities of the document type declaration are expanded in
+    /// content and in attribute values, bounded by <see cref="XmlReaderLimits.MaxEntityExpansionCharacters"/> and
+    /// <see cref="XmlReaderLimits.MaxEntityDepth"/>. Limitations: only the declarations of the internal subset are parsed
+    /// (XML-14); the external subset and external entities are not read (XML-20, XML-61, XML-62), so a reference to an
+    /// external parsed entity in content is <see cref="XmlErrorCodes.XML2002"/>; an undeclared entity is skipped, not an
+    /// error, when an external subset or a parameter-entity reference could have declared it (section 4.1).
+    /// </remarks>
     public bool DtdProcessing => _dtdProcessing;
 
     /// <summary>Returns a copy with another <see cref="DtdProcessing"/>.</summary>

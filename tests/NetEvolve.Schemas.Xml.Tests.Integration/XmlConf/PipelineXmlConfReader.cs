@@ -6,9 +6,12 @@ using NetEvolve.Schemas.Xml.Text.NameTable;
 
 /// <summary>Reads the document of a case through <see cref="XmlPipelineReader"/> (XML-53).</summary>
 /// <remarks>
-/// Limitations: these cases are <see cref="XmlConfObservation.NotImplemented"/> so they never pass by accident: a case
-/// that needs namespace processing switched off, a document with a document type declaration (rejected with
-/// <c>XML2001</c> until XML-15), and a case whose document is missing from the pinned archive (<c>eduni/namespaces/misc</c>).
+/// Document type declarations are read with DTD processing on (XML-14), and references to the internal general entities
+/// it declares are expanded (XML-15). Limitations: these cases are <see cref="XmlConfObservation.NotImplemented"/> so they
+/// never pass by accident: a case that needs namespace processing switched off, and a case whose document is missing from
+/// the pinned archive (<c>eduni/namespaces/misc</c>). External entities, the external subset, parameter entities inside
+/// declarations, and attribute defaults are not read yet (XML-20, XML-61, XML-62, XML-16), so cases that need them stay in
+/// the baseline.
 /// </remarks>
 /// <param name="suiteRoot">The suite root directory.</param>
 internal sealed class PipelineXmlConfReader(string suiteRoot) : IXmlConfReader
@@ -27,14 +30,15 @@ internal sealed class PipelineXmlConfReader(string suiteRoot) : IXmlConfReader
             : XmlConfObservation.NotImplemented;
     }
 
+    private static readonly XmlReaderOptions Options = XmlReaderOptions.Default.WithDtdProcessing(true);
+
     private static XmlConfObservation Observe(byte[] bytes)
     {
-        using var reader = XmlPipelineReader.Create(bytes.AsSpan());
+        using var reader = XmlPipelineReader.Create(bytes.AsSpan(), Options);
         var sink = new DiscardingXmlSink();
         return reader.Pump(ref sink) switch
         {
             XmlReadStatus.Completed => XmlConfObservation.Accepted,
-            _ when ReferenceEquals(reader.Diagnostic?.Code, XmlErrorCodes.XML2001) => XmlConfObservation.NotImplemented,
             _ => XmlConfObservation.FatalError,
         };
     }

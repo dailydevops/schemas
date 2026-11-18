@@ -105,6 +105,9 @@ namespace NetEvolve.Schemas.Xml.Contracts
         public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML0017;
         public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML0018;
         public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML0019;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML0020;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML0021;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML0022;
         public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML1101;
         public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML1102;
         public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML1103;
