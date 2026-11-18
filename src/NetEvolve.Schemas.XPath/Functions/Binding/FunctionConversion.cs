@@ -10,7 +10,7 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>
 /// The function conversion rules (XPath 2.0, 3.1.5, with the type promotion of B.1): the argument is atomized, each
-/// <c>xs:untypedAtomic</c> item is cast to the expected atomic type, each numeric item is promoted, each <c>xs:anyURI</c> item is
+/// <c>xs:untypedAtomic</c> item is cast to the expected atomic type through the casting table (<see cref="UntypedAtomicCast"/>), each numeric item is promoted, each <c>xs:anyURI</c> item is
 /// promoted to <c>xs:string</c>, and the result must match the expected type, or XPTY0004 is raised.
 /// </summary>
 /// <remarks>
@@ -26,7 +26,7 @@ internal static class FunctionConversion
     /// <param name="argument">The argument as evaluated.</param>
     /// <param name="type">The expected type.</param>
     /// <returns>The converted argument; the argument itself when nothing changes.</returns>
-    /// <exception cref="XPathException">The argument does not match the type (XPTY0004), or an <c>xs:untypedAtomic</c> value cannot be cast (FORG0001, FOCA0003).</exception>
+    /// <exception cref="XPathException">The argument does not match the type (XPTY0004), or an <c>xs:untypedAtomic</c> value cannot be cast (FORG0001, FOCA0001, FOCA0003).</exception>
     public static XdmSequence Convert(in XdmSequence argument, XPathParameterType type)
     {
         // item()* takes every sequence as it is, so a lazy argument is not read here: fn:count, fn:exists, and fn:empty read it themselves.
