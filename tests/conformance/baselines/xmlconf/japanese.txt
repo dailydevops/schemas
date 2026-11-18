@@ -1,6 +1,0 @@
-japanese/pr-xml-little
-japanese/pr-xml-utf-16
-japanese/pr-xml-utf-8
-japanese/weekly-little
-japanese/weekly-utf-16
-japanese/weekly-utf-8

@@ -106,25 +106,41 @@ public class XmlParserSeamTests
     }
 
     [Test]
-    public async Task EntityReference_WithStack_CallsTheSeamWithNameAndOuterPosition()
+    public async Task EntityReference_WithStack_CallsTheSeamWithNameAndContext()
     {
         var stack = new FakeEntityInputStack();
         var run = ReaderHarness.Run("<a>\n x&foo;<b y=\"&bar;\"/></a>", stack: stack);
 
-        // The stack accepts the first reference but no frame can be entered yet, so the reader reports XML0008.
-        await Assert.That(run.Code).IsSameReferenceAs(XmlErrorCodes.XML0008);
-        await Assert.That(stack.Calls.Count).IsEqualTo(1);
-        await Assert.That(stack.Calls[0]).IsEqualTo(("foo", new XmlPosition(2, 3, 6)));
+        // The stack accepts both references without a replacement text, so the reader skips them.
+        await Assert.That(run.Status).IsEqualTo(XmlReadStatus.Completed);
+        await Assert.That(run.Events).IsEqualTo("SD()|<a|>|T'\n x'|<b|@y=|>|/b|/a|ED");
+        await Assert.That(stack.Calls.Count).IsEqualTo(2);
+        await Assert.That(stack.Calls[0]).IsEqualTo(("foo", false, false));
+        await Assert.That(stack.Calls[1]).IsEqualTo(("bar", true, false));
+        await Assert.That(stack.Leaves).IsEqualTo(0);
     }
 
     [Test]
-    public async Task EntityReference_InAnAttributeValue_CallsTheSeam()
+    public async Task EntityReference_WithStack_ReadsTheReplacementTextAndLeavesTheFrame()
     {
-        var stack = new FakeEntityInputStack();
-        var run = ReaderHarness.Run("<a y=\"&bar;\"/>", stack: stack);
+        var stack = new FakeEntityInputStack(replacement: "<c/>t");
+        var run = ReaderHarness.Run("<a>&foo;</a>", stack: stack);
 
-        await Assert.That(run.Code).IsSameReferenceAs(XmlErrorCodes.XML0008);
-        await Assert.That(stack.Calls[0]).IsEqualTo(("bar", new XmlPosition(1, 7, 6)));
+        await Assert.That(run.Status).IsEqualTo(XmlReadStatus.Completed);
+        await Assert.That(run.Events).IsEqualTo("SD()|<a|>|<c|>|/c|T't'|/a|ED");
+        await Assert.That(stack.Leaves).IsEqualTo(1);
+    }
+
+    [Test]
+    public async Task EntityReference_InAnAttributeValue_PassesTheStandaloneFlag()
+    {
+        var stack = new FakeEntityInputStack(replacement: "v");
+        var run = ReaderHarness.Run("<?xml version=\"1.0\" standalone=\"yes\"?><a y=\"&bar;\"/>", stack: stack);
+
+        await Assert.That(run.Status).IsEqualTo(XmlReadStatus.Completed);
+        await Assert.That(run.Events).IsEqualTo("SD(1.0)|<a|@y=v|>|/a|ED");
+        await Assert.That(stack.Calls[0]).IsEqualTo(("bar", true, true));
+        await Assert.That(stack.Leaves).IsEqualTo(1);
     }
 
     [Test]

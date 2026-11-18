@@ -51,10 +51,10 @@ public sealed class XmlReaderLimits
     /// <summary>Gets the maximum number of nodes of a document; the default is 10,000,000 and the error is <see cref="XmlErrorCodes.XML1108"/>.</summary>
     public int MaxNodeCount => _maxNodeCount;
 
-    /// <summary>Gets the maximum number of characters produced by entity expansion (reserved for XML-59); the default is 10,485,760 and the error is <see cref="XmlErrorCodes.XML1109"/>.</summary>
+    /// <summary>Gets the maximum number of characters produced by entity expansion, charged for the replacement text of every entity reference; the default is 10,485,760 and the error is <see cref="XmlErrorCodes.XML1109"/>.</summary>
     public long MaxEntityExpansionCharacters => _maxEntityExpansionCharacters;
 
-    /// <summary>Gets the maximum nesting depth of entity references (reserved for XML-59); the default is 16 and the error is <see cref="XmlErrorCodes.XML1110"/>.</summary>
+    /// <summary>Gets the maximum nesting depth of entity references; the default is 16 and the error is <see cref="XmlErrorCodes.XML1110"/>.</summary>
     public int MaxEntityDepth => _maxEntityDepth;
 
     /// <summary>Gets the maximum number of distinct names in a name table; the default is 1,048,576 and the error is <see cref="XmlErrorCodes.XML1111"/>.</summary>

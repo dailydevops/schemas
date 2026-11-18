@@ -4,7 +4,8 @@ using System.Collections.Generic;
 
 /// <summary>
 /// The error code table of the XML package: the catalog approved in the XML core design (XML0001 to XML4003 with the
-/// limit codes XML1101 to XML1116), each with an explicit <c>NES</c> constant, one constraint name, and a message.
+/// limit codes XML1101 to XML1116), each with an explicit <c>NES</c> constant, one constraint name, and a message. The
+/// well-formedness constraints of entity references (XML0019 to XML0022) were added by the declaration and entity packages.
 /// </summary>
 /// <remarks>
 /// The <c>NES</c> number is <c>1000 + (100 * first digit) + last two digits</c> of the alias, so every code lies in
@@ -166,6 +167,30 @@ public static class XmlErrorCodes
         1019,
         "WFC: PEs in Internal Subset",
         "A parameter-entity reference is not allowed inside a markup declaration of the internal subset."
+    );
+
+    /// <summary>Reference to an entity that is already being expanded.</summary>
+    public static readonly XmlErrorCode XML0020 = Define(
+        "XML0020",
+        1020,
+        "WFC: No Recursion",
+        "A parsed entity must not contain a recursive reference to itself, directly or indirectly."
+    );
+
+    /// <summary>Reference to an unparsed entity.</summary>
+    public static readonly XmlErrorCode XML0021 = Define(
+        "XML0021",
+        1021,
+        "WFC: Parsed Entity",
+        "An entity reference must not name an unparsed entity."
+    );
+
+    /// <summary>Reference to an external entity inside an attribute value.</summary>
+    public static readonly XmlErrorCode XML0022 = Define(
+        "XML0022",
+        1022,
+        "WFC: No External Entity References",
+        "An attribute value must not contain a direct or indirect reference to an external entity."
     );
 
     /// <summary><c>MaxDocumentCharacters</c> exceeded.</summary>

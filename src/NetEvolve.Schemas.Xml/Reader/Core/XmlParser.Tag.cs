@@ -234,7 +234,8 @@ internal sealed partial class XmlParser
     // A name that is not in the table cannot match, so lookups never intern.
     private bool EndTagName(ReadOnlySpan<char> name, XmlPosition position)
     {
-        if (_depth == 0)
+        // An end tag inside the replacement text of an entity cannot close an element that was opened outside of it.
+        if (_depth <= FrameElementDepth)
         {
             return Fail(XmlErrorCodes.XML0005, position);
         }
