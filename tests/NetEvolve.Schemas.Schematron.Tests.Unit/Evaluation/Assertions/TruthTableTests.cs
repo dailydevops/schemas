@@ -1,6 +1,8 @@
 namespace NetEvolve.Schemas.Schematron.Tests.Unit.Evaluation.Assertions;
 
 using NetEvolve.Schemas.Schematron.Evaluation.Assertions;
+using NetEvolve.Schemas.Schematron.Seams;
+using NetEvolve.Schemas.Testing.Allocations;
 using static NetEvolve.Schemas.Schematron.Tests.Unit.Evaluation.Assertions.AssertionModel;
 
 /// <summary>Assert fires on a false test, report on a true test; the empty sequence is false (ISO/IEC 19757-3:2016, clause 6).</summary>
@@ -96,11 +98,9 @@ public class TruthTableTests
         using var h = new AssertionHarness();
         h.Binding.Record = false;
         var assertion = h.Compile(MakeAssert("true", Message(Text("a "), ValueOf("v"))));
-        var focus = new NetEvolve.Schemas.Schematron.Seams.QueryFocus(AssertionTree.Node("order1"), 1, 1);
+        var focus = new QueryFocus(AssertionTree.Node("order1"), 1, 1);
 
-        NetEvolve.Schemas.Testing.Allocations.AllocationAssert.NoAllocation(() =>
-            _ = h.Evaluator.Evaluate(assertion, in focus)
-        );
+        AllocationAssert.NoAllocation(() => _ = h.Evaluator.Evaluate(assertion, in focus));
 
         await Assert.That(h.Sink.Findings.Count).IsEqualTo(0);
     }
