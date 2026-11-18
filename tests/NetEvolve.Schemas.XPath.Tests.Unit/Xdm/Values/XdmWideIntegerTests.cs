@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Numerics;
 using NetEvolve.Schemas.Xml.Datatypes.Decimals;
 using NetEvolve.Schemas.XPath.Evaluation.Atomization;
+using NetEvolve.Schemas.XPath.Tests.Unit.Types;
 using NetEvolve.Schemas.XPath.Types;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
@@ -98,6 +99,16 @@ public class XdmWideIntegerTests
         await Assert.That(XdmTypes.IsDerivedFrom(item.TypeId, XdmTypeId.XsInteger)).IsTrue();
         await Assert.That(XdmTypes.IsDerivedFrom(item.TypeId, XdmTypeId.XsDecimal)).IsTrue();
         await Assert.That(XdmTypes.IsDerivedFrom(item.TypeId, XdmTypeId.XsDouble)).IsFalse();
+    }
+
+    [Test]
+    public async Task WideInteger_MatchesTheSequenceTypeXsInteger_AndNotXsDouble()
+    {
+        var sequence = XdmSequence.Create(XdmItem.FromBigInteger(Beyond));
+
+        await Assert.That(TypeFixture.Matcher("xs:integer").Matches(sequence)).IsTrue();
+        await Assert.That(TypeFixture.Matcher("xs:decimal").Matches(sequence)).IsTrue();
+        await Assert.That(TypeFixture.Matcher("xs:double").Matches(sequence)).IsFalse();
     }
 
     [Test]
