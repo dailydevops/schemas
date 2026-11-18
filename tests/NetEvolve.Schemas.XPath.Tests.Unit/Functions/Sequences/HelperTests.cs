@@ -4,6 +4,7 @@ using System;
 using System.Threading.Tasks;
 using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Functions.Sequences;
+using NetEvolve.Schemas.XPath.Tests.Unit.Fakes;
 using NetEvolve.Schemas.XPath.Xdm.Nodes;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
@@ -70,6 +71,17 @@ public class HelperTests
 
         await Assert.That(() => NodeEquality.DeepEqual(in none, in real)).Throws<ArgumentNullException>();
         await Assert.That(() => NodeEquality.DeepEqual(in real, in none)).Throws<ArgumentNullException>();
+    }
+
+    [Test]
+    public async Task DeepEqual_NodesOfATreeWithoutSpanAccess_AreComparedByTheirStringValues()
+    {
+        var first = new XPathNode(new FakeNodeSource().Text);
+        var second = new XPathNode(new FakeNodeSource().Text);
+        var attribute = new XPathNode(new FakeNodeSource().Attribute);
+
+        await Assert.That(NodeEquality.DeepEqual(in first, in second)).IsTrue();
+        await Assert.That(NodeEquality.DeepEqual(in first, in attribute)).IsFalse();
     }
 
     [Test]
