@@ -29,6 +29,12 @@ internal static class FunctionConversion
     /// <exception cref="XPathException">The argument does not match the type (XPTY0004), or an <c>xs:untypedAtomic</c> value cannot be cast (FORG0001, FOCA0003).</exception>
     public static XdmSequence Convert(in XdmSequence argument, XPathParameterType type)
     {
+        // item()* takes every sequence as it is, so a lazy argument is not read here: fn:count, fn:exists, and fn:empty read it themselves.
+        if (type is { ItemType: XPathItemType.Item, Occurrence: Occurrence.ZeroOrMore })
+        {
+            return argument;
+        }
+
         var count = argument.Count;
         if (!MatchesOccurrence(count, type.Occurrence))
         {

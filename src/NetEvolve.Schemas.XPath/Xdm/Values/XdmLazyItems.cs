@@ -13,6 +13,9 @@ internal sealed class XdmLazyItems
 
     internal XdmItem[] Items => _items ??= Drain();
 
+    /// <summary>Gets the source while nobody has read the sequence; <see langword="null"/> afterwards, when <see cref="Items"/> holds the items.</summary>
+    internal IEnumerable<XdmItem>? UnreadSource => _items is null ? _source : null;
+
     private XdmItem[] Drain()
     {
         var list = new List<XdmItem>(_source!);
