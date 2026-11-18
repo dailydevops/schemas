@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.Xml.Dtd.Contracts;
 
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 
 /// <summary>
 /// The code table of DTD validity (design #122, sections 6 and 7): one code for each of the 26 validity constraints
@@ -372,7 +373,7 @@ public static class DtdValidityCodes
     )
     {
         var code = new DtdValidityCode(
-            "XML" + alias.ToString("D4", System.Globalization.CultureInfo.InvariantCulture),
+            "XML" + alias.ToString("D4", CultureInfo.InvariantCulture),
             number,
             kind,
             name,

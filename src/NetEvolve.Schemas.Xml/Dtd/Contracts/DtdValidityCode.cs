@@ -28,6 +28,7 @@ public sealed class DtdValidityCode
         Argument.ThrowIfNullOrEmpty(owner);
         Argument.ThrowIfNullOrEmpty(message);
         Argument.ThrowIfGreaterThan((int)kind, (int)DtdValidityCodeKind.Report);
+        Argument.ThrowIfLessThan((int)kind, (int)DtdValidityCodeKind.ValidityConstraint);
         Argument.ThrowIfGreaterThan((int)defaultSeverity, (int)IssueSeverity.Error);
 
         Alias = alias;
