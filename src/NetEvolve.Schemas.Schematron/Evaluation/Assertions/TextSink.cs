@@ -41,6 +41,9 @@ internal sealed class TextSink : ISequenceSink, IDisposable
     /// <inheritdoc />
     public IXmlSink Content => throw new InvalidOperationException("Only a tree sink has content.");
 
+    /// <summary>Gets the number of characters written so far; a later <see cref="Rewind"/> returns to it.</summary>
+    internal int Length => _length;
+
     /// <summary>Gets the most characters the sink holds.</summary>
     internal int MaxLength => _maxLength;
 
@@ -103,6 +106,17 @@ internal sealed class TextSink : ISequenceSink, IDisposable
     {
         _lastAtomic = false;
         AppendInteger(value);
+    }
+
+    /// <summary>Drops what was written after <paramref name="length"/> characters, so a part that failed leaves nothing of itself behind.</summary>
+    /// <param name="length">A value that <see cref="Length"/> returned earlier.</param>
+    internal void Rewind(int length)
+    {
+        Argument.ThrowIfLessThan(length, 0);
+        Argument.ThrowIfGreaterThan(length, _length);
+
+        _length = length;
+        _lastAtomic = false;
     }
 
     /// <summary>Empties the sink and keeps its buffer for the next message.</summary>

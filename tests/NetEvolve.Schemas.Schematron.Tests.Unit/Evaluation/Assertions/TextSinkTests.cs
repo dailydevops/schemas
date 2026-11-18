@@ -171,6 +171,33 @@ public class TextSinkTests
     }
 
     [Test]
+    public async Task Rewind_DropsTheTextWrittenAfterTheMark_AndResetsAdjacency()
+    {
+        using var sink = new TextSink(100);
+        var one = Item(1);
+        var two = Item(2);
+        sink.Text("ab".AsSpan());
+        var mark = sink.Length;
+        sink.Item(in one);
+
+        sink.Rewind(mark);
+        sink.Item(in two);
+
+        await Assert.That(mark).IsEqualTo(2);
+        await Assert.That(sink.ToString()).IsEqualTo("ab2");
+    }
+
+    [Test]
+    public async Task Rewind_OutsideTheWrittenText_Throws()
+    {
+        using var sink = new TextSink(100);
+        sink.Text("ab".AsSpan());
+
+        await Assert.That(() => sink.Rewind(-1)).Throws<ArgumentOutOfRangeException>();
+        await Assert.That(() => sink.Rewind(3)).Throws<ArgumentOutOfRangeException>();
+    }
+
+    [Test]
     public async Task Written_IsTheSameTextAsToString()
     {
         using var sink = new TextSink(100);

@@ -118,19 +118,22 @@ internal sealed class MessageBuilder
             return QueryStatus.Problem;
         }
 
+        // A value-of that fails leaves nothing of itself behind: the items pushed before the failure are dropped.
+        var mark = into.Length;
         _values.Begin(into);
         if (_run.TryEvaluate(expression, in focus, _values) != QueryStatus.Ok)
         {
+            into.Rewind(mark);
             ReportRun();
             return QueryStatus.Problem;
         }
 
         if (into.Failure is { } failure)
         {
+            into.Rewind(mark);
             Report(failure, part);
             return QueryStatus.Problem;
         }
-
         return QueryStatus.Ok;
     }
 
