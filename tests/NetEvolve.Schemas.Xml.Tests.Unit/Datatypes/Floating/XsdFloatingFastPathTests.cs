@@ -9,7 +9,7 @@ using NetEvolve.Schemas.Xml.Datatypes.Floating;
 /// <summary>The allocation-free path rounds exactly like the runtime parser, which is correctly rounded on every tested runtime.</summary>
 public class XsdFloatingFastPathTests
 {
-    private static string Lexical(Random random)
+    private static string Lexical(Sequence random)
     {
         var digits = random.Next(1, 21);
         var builder = new StringBuilder();
@@ -43,7 +43,7 @@ public class XsdFloatingFastPathTests
     [Test]
     public async Task Parse_OfRandomLexicalForms_EqualsTheRuntimeParser()
     {
-        var random = new Random(591);
+        var random = new Sequence(591);
         for (var i = 0; i < 20000; i++)
         {
             var lexical = Lexical(random);
@@ -94,5 +94,23 @@ public class XsdFloatingFastPathTests
         await Assert
             .That(BitConverter.SingleToInt32Bits(XsdFloatingPoint.ParseSingle(lexical, XsdVersion.V11).Value))
             .IsEqualTo(BitConverter.SingleToInt32Bits(expectedSingle));
+    }
+
+    // A fixed xorshift sequence: the same lexical forms on every run and runtime.
+    private sealed class Sequence
+    {
+        private ulong _state;
+
+        internal Sequence(ulong seed) => _state = (seed * 0x9E3779B97F4A7C15UL) | 1;
+
+        internal int Next(int minimum, int maximum)
+        {
+            _state ^= _state << 13;
+            _state ^= _state >> 7;
+            _state ^= _state << 17;
+            return minimum + (int)((_state >> 11) % (ulong)(maximum - minimum));
+        }
+
+        internal int Next(int maximum) => Next(0, maximum);
     }
 }
