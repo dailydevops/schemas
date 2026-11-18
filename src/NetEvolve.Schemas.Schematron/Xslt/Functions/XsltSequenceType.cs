@@ -19,7 +19,7 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// Limitations: the item types are the built-in ones (schema-aware types await DEF-11, #23); the conversion (atomization, the cast
 /// of <c>xs:untypedAtomic</c>, and the type promotion) covers the item types <c>item()</c>, <c>node()</c>, and the built-in atomic
 /// types that the XPath conversion names, and any other item type, such as a kind test with a name or a type derived from a built-in
-/// one, is only matched without conversion.
+/// one, is only matched without conversion (#635).
 /// </remarks>
 internal sealed class XsltSequenceType
 {
