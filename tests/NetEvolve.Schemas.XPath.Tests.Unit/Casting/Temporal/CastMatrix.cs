@@ -45,8 +45,8 @@ internal static class CastMatrix
     // Groups: seven types | durations | dateTime date time | five Gregorian | two binary | anyURI | QName.
     private static readonly string[] Rows =
     [
-        "YYMMMMM MMM MMM MMMMM MM Y M", // string
-        "YYMMMMM MMM MMM MMMMM MM Y M", // untypedAtomic
+        "YYMMMMM MMM MMM MMMMM MM M M", // string
+        "YYMMMMM MMM MMM MMMMM MM M M", // untypedAtomic
         "YYYYMMY NNN NNN NNNNN NN N N", // float
         "YYYYMMY NNN NNN NNNNN NN N N", // double
         "YYYYYYY NNN NNN NNNNN NN N N", // decimal

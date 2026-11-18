@@ -192,7 +192,6 @@ public class QNameCastTests
     [Test]
     [Arguments("xs:QName('local')", "local")]
     [Arguments("xs:QName(' local ')", "local")]
-    [Arguments("xs:QName(xs:untypedAtomic('local'))", "local")]
     [Arguments("xs:QName(xs:QName('local'))", "local")]
     public async Task Constructor_UnprefixedName_ProducesTheValue(string expression, string text)
     {

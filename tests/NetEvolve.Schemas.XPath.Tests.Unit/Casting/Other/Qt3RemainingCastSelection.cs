@@ -7,8 +7,8 @@ namespace NetEvolve.Schemas.XPath.Tests.Unit.Casting.Other;
 /// <c>cast as</c>, <c>castable as</c>, and the value comparisons <c>eq</c> and <c>ne</c>, so that every case runs through the lowerings of the
 /// production code. The cases are taken from the pinned commit of the suite (tests/conformance/suites/qt3.json); the expectation is a
 /// tab-separated list of alternatives: <c>T</c> or <c>F</c> for a boolean, <c>S:</c> and <c>N:</c> for a string value (<c>N:</c> with normalized
-/// space), <c>E:</c> for a value equal to an expression, <c>R:</c> for a numeric value between a lower and an upper bound, and <c>X:</c> for an
-/// error code.
+/// space), <c>P:</c> for a string value that starts with a prefix, <c>E:</c> for a value equal to an expression, <c>R:</c> for a numeric value between a
+/// lower and an upper bound, and <c>X:</c> for an error code.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -24,6 +24,11 @@ namespace NetEvolve.Schemas.XPath.Tests.Unit.Casting.Other;
 /// static context of the call, which the lowering of a function call has yet to hand over (#644); the lexical check of <c>xs:anyURI</c> is lax
 /// until the strict checkers land (#411, #412); the datatype layer accepts a third digit in the seconds of a time (#643); and a year of 17 digits
 /// is within the range of the datatype layer, where the case expects a smaller implementation-defined range.
+/// </para>
+/// <para>
+/// Every XPath 2.0 case of the two sets that names one of these types is accounted for: it is in <see cref="Cases"/>, in <see cref="Excluded"/>, or in
+/// <see cref="OutOfShape"/>, whose expression is not made of literals, constructors, and the operators above and has the reason beside it: a function
+/// of a group that has not landed, a for expression, the context item, or a derived type (XP-23, #299).
 /// </para>
 /// </remarks>
 internal static class Qt3RemainingCastSelection
@@ -721,6 +726,11 @@ internal static class Qt3RemainingCastSelection
             "prod-CastExpr/CastAs646",
             "xs:anyURI(\"http://www.ietf.org/rfc/rfc2396.txt\") cast as xs:anyURI",
             "S:http://www.ietf.org/rfc/rfc2396.txt"
+        ),
+        (
+            "prod-CastExpr/CastAs676",
+            "xs:dateTime(\"9999-12-31T23:59:59.9999999\") cast as xs:string",
+            "P:9999-12-31T23:59:59.999\tS:10000-01-01T00:00:00\tX:FODT0001"
         ),
         ("prod-CastExpr/CastAs679", "xs:dateTime('2017-07-19T12:00:00-00:30')", "S:2017-07-19T12:00:00-00:30"),
         ("prod-CastExpr/CastAs680", "xs:time('12:00:00-00:30')", "S:12:00:00-00:30"),
@@ -3442,6 +3452,167 @@ internal static class Qt3RemainingCastSelection
         (
             "prod-CastableExpr/cbcl-castable-dateTime-002",
             "A year of 17 digits is within the range of the datatype layer; the case expects a smaller implementation-defined range."
+        ),
+    ];
+
+    public static readonly (string Id, string Reason)[] OutOfShape =
+    [
+        ("prod-CastExpr/K-SeqExprCast-100", "The function fn:exists belongs to a function group that has not landed."),
+        (
+            "prod-CastExpr/K-SeqExprCast-1003",
+            "The function fn:subsequence belongs to a function group that has not landed."
+        ),
+        (
+            "prod-CastExpr/K-SeqExprCast-1007",
+            "The function fn:boolean belongs to a function group that has not landed."
+        ),
+        ("prod-CastExpr/K-SeqExprCast-101", "The function fn:count belongs to a function group that has not landed."),
+        (
+            "prod-CastExpr/K-SeqExprCast-1055",
+            "The function fn:subsequence belongs to a function group that has not landed."
+        ),
+        (
+            "prod-CastExpr/K-SeqExprCast-1059",
+            "The function fn:boolean belongs to a function group that has not landed."
+        ),
+        (
+            "prod-CastExpr/K-SeqExprCast-1107",
+            "The function fn:subsequence belongs to a function group that has not landed."
+        ),
+        (
+            "prod-CastExpr/K-SeqExprCast-1111",
+            "The function fn:boolean belongs to a function group that has not landed."
+        ),
+        (
+            "prod-CastExpr/K-SeqExprCast-1159",
+            "The function fn:subsequence belongs to a function group that has not landed."
+        ),
+        (
+            "prod-CastExpr/K-SeqExprCast-1163",
+            "The function fn:boolean belongs to a function group that has not landed."
+        ),
+        (
+            "prod-CastExpr/K-SeqExprCast-1263",
+            "The function fn:subsequence belongs to a function group that has not landed."
+        ),
+        (
+            "prod-CastExpr/K-SeqExprCast-1267",
+            "The function fn:boolean belongs to a function group that has not landed."
+        ),
+        (
+            "prod-CastExpr/K-SeqExprCast-1315",
+            "The function fn:subsequence belongs to a function group that has not landed."
+        ),
+        (
+            "prod-CastExpr/K-SeqExprCast-1319",
+            "The function fn:boolean belongs to a function group that has not landed."
+        ),
+        (
+            "prod-CastExpr/K-SeqExprCast-1367",
+            "The function fn:subsequence belongs to a function group that has not landed."
+        ),
+        (
+            "prod-CastExpr/K-SeqExprCast-1371",
+            "The function fn:boolean belongs to a function group that has not landed."
+        ),
+        (
+            "prod-CastExpr/K-SeqExprCast-1419",
+            "The function fn:subsequence belongs to a function group that has not landed."
+        ),
+        (
+            "prod-CastExpr/K-SeqExprCast-1422",
+            "The function fn:boolean belongs to a function group that has not landed."
+        ),
+        ("prod-CastExpr/K-SeqExprCast-143", "The function fn:remove belongs to a function group that has not landed."),
+        ("prod-CastExpr/K-SeqExprCast-349", "The function fn:string belongs to a function group that has not landed."),
+        ("prod-CastExpr/K-SeqExprCast-350", "The function fn:string belongs to a function group that has not landed."),
+        ("prod-CastExpr/K-SeqExprCast-364", "The function fn:string belongs to a function group that has not landed."),
+        ("prod-CastExpr/K-SeqExprCast-374", "The function fn:string belongs to a function group that has not landed."),
+        (
+            "prod-CastExpr/K-SeqExprCast-639",
+            "The function fn:subsequence belongs to a function group that has not landed."
+        ),
+        ("prod-CastExpr/K-SeqExprCast-643", "The function fn:boolean belongs to a function group that has not landed."),
+        ("prod-CastExpr/K-SeqExprCast-66", "The function fn:QName belongs to a function group that has not landed."),
+        ("prod-CastExpr/K-SeqExprCast-69", "The context item is not set by the casting fixture."),
+        (
+            "prod-CastExpr/K-SeqExprCast-691",
+            "The function fn:subsequence belongs to a function group that has not landed."
+        ),
+        ("prod-CastExpr/K-SeqExprCast-695", "The function fn:boolean belongs to a function group that has not landed."),
+        (
+            "prod-CastExpr/K-SeqExprCast-743",
+            "The function fn:subsequence belongs to a function group that has not landed."
+        ),
+        ("prod-CastExpr/K-SeqExprCast-747", "The function fn:boolean belongs to a function group that has not landed."),
+        (
+            "prod-CastExpr/K-SeqExprCast-795",
+            "The function fn:subsequence belongs to a function group that has not landed."
+        ),
+        ("prod-CastExpr/K-SeqExprCast-799", "The function fn:boolean belongs to a function group that has not landed."),
+        (
+            "prod-CastExpr/K-SeqExprCast-847",
+            "The function fn:subsequence belongs to a function group that has not landed."
+        ),
+        ("prod-CastExpr/K-SeqExprCast-851", "The function fn:boolean belongs to a function group that has not landed."),
+        (
+            "prod-CastExpr/K-SeqExprCast-899",
+            "The function fn:subsequence belongs to a function group that has not landed."
+        ),
+        ("prod-CastExpr/K-SeqExprCast-903", "The function fn:boolean belongs to a function group that has not landed."),
+        (
+            "prod-CastExpr/K-SeqExprCast-951",
+            "The function fn:subsequence belongs to a function group that has not landed."
+        ),
+        ("prod-CastExpr/K-SeqExprCast-955", "The function fn:boolean belongs to a function group that has not landed."),
+        ("prod-CastExpr/K-SeqExprCast-98", "The function fn:exists belongs to a function group that has not landed."),
+        ("prod-CastExpr/K-SeqExprCast-99", "The function fn:exists belongs to a function group that has not landed."),
+        ("prod-CastExpr/K2-SeqExprCast-1", "The function fn:QName belongs to a function group that has not landed."),
+        ("prod-CastExpr/K2-SeqExprCast-2", "The function fn:empty belongs to a function group that has not landed."),
+        (
+            "prod-CastExpr/K2-SeqExprCast-201",
+            "The function fn:namespace-uri-from-QName belongs to a function group that has not landed."
+        ),
+        ("prod-CastExpr/K2-SeqExprCast-208", "The function fn:concat belongs to a function group that has not landed."),
+        (
+            "prod-CastExpr/K2-SeqExprCast-425",
+            "The function fn:string-join belongs to a function group that has not landed."
+        ),
+        (
+            "prod-CastExpr/K2-SeqExprCast-426",
+            "The function fn:string-join belongs to a function group that has not landed."
+        ),
+        ("prod-CastExpr/K2-SeqExprCast-480", "The case names a derived type, which belongs to XP-23 (#299)."),
+        ("prod-CastExpr/K2-SeqExprCast-488", "The function fn:QName belongs to a function group that has not landed."),
+        ("prod-CastExpr/K2-SeqExprCast-489", "The case names a derived type, which belongs to XP-23 (#299)."),
+        ("prod-CastExpr/K2-SeqExprCast-490", "The case names a derived type, which belongs to XP-23 (#299)."),
+        ("prod-CastExpr/K2-SeqExprCast-491", "The case names a derived type, which belongs to XP-23 (#299)."),
+        ("prod-CastExpr/K2-SeqExprCast-492", "The case names a derived type, which belongs to XP-23 (#299)."),
+        ("prod-CastExpr/K2-SeqExprCast-493", "The case names a derived type, which belongs to XP-23 (#299)."),
+        ("prod-CastExpr/K2-SeqExprCast-494", "The case names a derived type, which belongs to XP-23 (#299)."),
+        ("prod-CastExpr/K2-SeqExprCast-501", "The case names a derived type, which belongs to XP-23 (#299)."),
+        ("prod-CastExpr/K2-SeqExprCast-502", "The case names a derived type, which belongs to XP-23 (#299)."),
+        ("prod-CastExpr/K2-SeqExprCast-503", "The case names a derived type, which belongs to XP-23 (#299)."),
+        ("prod-CastableExpr/CastableAs648", "A for expression has no lowering yet."),
+        (
+            "prod-CastableExpr/K-SeqExprCastable-17",
+            "The function fn:QName belongs to a function group that has not landed."
+        ),
+        (
+            "prod-CastableExpr/K-SeqExprCastable-18",
+            "The function fn:QName belongs to a function group that has not landed."
+        ),
+        (
+            "prod-CastableExpr/K2-SeqExprCastable-1",
+            "The function fn:QName belongs to a function group that has not landed."
+        ),
+        (
+            "prod-CastableExpr/K2-SeqExprCastable-2",
+            "The function fn:QName belongs to a function group that has not landed."
+        ),
+        (
+            "prod-CastableExpr/K2-SeqExprCastable-4",
+            "The function fn:concat belongs to a function group that has not landed."
         ),
     ];
 }

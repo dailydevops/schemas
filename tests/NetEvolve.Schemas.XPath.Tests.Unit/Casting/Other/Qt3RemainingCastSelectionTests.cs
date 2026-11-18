@@ -67,6 +67,20 @@ public class Qt3RemainingCastSelectionTests
             await Assert.That(id.StartsWith("xs-", StringComparison.Ordinal)).IsTrue();
         }
 
+        foreach (var (id, reason) in Qt3RemainingCastSelection.OutOfShape)
+        {
+            await Assert.That(ids.Add(id)).IsTrue().Because($"{id} is listed twice");
+            await Assert.That(reason).IsNotEmpty();
+        }
+
+        // Every XPath 2.0 case of the two sets that names one of the new types is in one of the three lists.
+        await Assert
+            .That(
+                Qt3RemainingCastSelection.Cases.Length
+                    + Qt3RemainingCastSelection.Excluded.Length
+                    + Qt3RemainingCastSelection.OutOfShape.Length
+            )
+            .IsEqualTo(2444);
         await Assert.That(Qt3RemainingCastSelection.Cases.Length).IsGreaterThan(1500);
         await Assert.That(Qt3RemainingCastSelection.XsCases.Length).IsGreaterThan(40);
     }
@@ -165,6 +179,7 @@ public class Qt3RemainingCastSelectionTests
         return alternative[0] switch
         {
             'Z' => result.Count == 0,
+            'P' => StringValue(result).StartsWith(alternative.Substring(2), StringComparison.Ordinal),
             'T' => result.Count == 1 && result[0].TryGetBoolean(out var yes) && yes,
             'F' => result.Count == 1 && result[0].TryGetBoolean(out var no) && !no,
             'S' => string.Equals(StringValue(result), alternative.Substring(2), StringComparison.Ordinal),
