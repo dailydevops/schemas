@@ -24,7 +24,7 @@ public readonly struct XsdDecimal : IEquatable<XsdDecimal>, IComparable<XsdDecim
 
     private const int ChunkDigits = 18;
 
-    private static readonly ulong[] Pow10 =
+    internal static readonly ulong[] Pow10 =
     [
         1UL,
         10UL,
@@ -151,6 +151,15 @@ public readonly struct XsdDecimal : IEquatable<XsdDecimal>, IComparable<XsdDecim
     public int FractionDigits => Scale > 0 ? Scale : 0;
 
     private BigInteger Magnitude => _big.IsZero ? new BigInteger(_mag) : _big;
+
+    /// <summary>Gets the magnitude of the mantissa without creating a <see cref="BigInteger"/>.</summary>
+    /// <param name="magnitude">The magnitude, when it is kept inline.</param>
+    /// <returns><see langword="true"/> when the magnitude fits 64 bits.</returns>
+    internal bool TryGetInlineMagnitude(out ulong magnitude)
+    {
+        magnitude = _mag;
+        return _big.IsZero;
+    }
 
     /// <summary>Parses the <c>xs:decimal</c> lexical space: an optional sign, digits, and at most one decimal point with at least one digit; no exponent and no whitespace.</summary>
     /// <param name="lexical">The lexical form.</param>
