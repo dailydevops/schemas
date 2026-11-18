@@ -336,6 +336,15 @@ public class FunctionConversionTests
         await BindingHarness.AssertConverts(Type(XPathItemType.Float), One(Decimal(lexical)), One(expected));
     }
 
+    // The decimal is valid but has no float counterpart below infinity: the promotion answers like the one to a double and does not yield zero.
+    [Test]
+    public async Task Promotion_DecimalBeyondTheDigitCapToFloat_IsInfinity() =>
+        await BindingHarness.AssertConverts(
+            Type(XPathItemType.Float),
+            One(XdmItem.FromDecimal(new XsdDecimal(BigInteger.Pow(10, 6000) - 1, 0))),
+            One(XdmItem.FromFloat(float.PositiveInfinity))
+        );
+
     // Numeric promotion, subtype substitution, and URI promotion
 
     [Test]
