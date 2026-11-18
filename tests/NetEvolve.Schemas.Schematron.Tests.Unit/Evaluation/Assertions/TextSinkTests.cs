@@ -91,6 +91,20 @@ public class TextSinkTests
     }
 
     [Test]
+    public async Task Text_ElementAndDocument_AppendTheirDescendantText_WithoutComments()
+    {
+        using var sink = new TextSink(100);
+        var root = AssertionHarness.NodeItem("root");
+        var document = AssertionHarness.NodeItem("doc");
+
+        sink.Item(in root);
+        sink.Text("|".AsSpan());
+        sink.Item(in document);
+
+        await Assert.That(sink.ToString()).IsEqualTo("txt12|txt12");
+    }
+
+    [Test]
     public async Task Text_NodeAfterAtomic_IsNotSeparated_AndResetsAdjacency()
     {
         using var sink = new TextSink(100);

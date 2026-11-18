@@ -1,43 +1,267 @@
 namespace NetEvolve.Schemas.Schematron.Evaluation.Assertions;
 
 using System;
-using NetEvolve.Schemas.Schematron.Diagnostics;
+using System.Buffers;
+using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Xml.Contracts;
+using NetEvolve.Schemas.Xml.Model;
+using NetEvolve.Schemas.XPath.Xdm.Nodes;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
-/// <summary>The <see cref="SequenceSinkKind.Text"/> sink: a pooled character buffer that holds the text of one message.</summary>
+/// <summary>
+/// The <see cref="SequenceSinkKind.Text"/> sink (design #150 EP-8): a pooled character buffer that holds the text of one message,
+/// so building it needs no intermediate string. Adjacent atomic values are separated by one space and a <see cref="Text"/> call or a
+/// node resets that adjacency, as in a tree sink.
+/// </summary>
+/// <remarks>
+/// Limitation: only string, untyped atomic, URI, boolean, integer, and decimal values have a text form here. Double, float,
+/// date and time, duration, and the remaining kinds need the XPath casting rules, which the XPath package does not offer yet, so
+/// they record a <see cref="Failure"/> instead of a guessed lexical form. Not thread-safe.
+/// </remarks>
 internal sealed class TextSink : ISequenceSink, IDisposable
 {
-    internal TextSink(int maxLength) => throw NotImplementedFailure.For(GetType().Name);
+    private readonly int _maxLength;
+    private char[] _buffer = [];
+    private int _length;
+    private bool _lastAtomic;
 
-    public SequenceSinkKind Kind => throw NotImplementedFailure.For(GetType().Name);
+    /// <summary>Initializes a new instance of the <see cref="TextSink"/> class.</summary>
+    /// <param name="maxLength">The most characters the sink holds; the rest is cut and flagged.</param>
+    internal TextSink(int maxLength)
+    {
+        Argument.ThrowIfLessThan(maxLength, 0);
 
-    public IXmlSink Content => throw NotImplementedFailure.For(GetType().Name);
+        _maxLength = maxLength;
+    }
+
+    /// <inheritdoc />
+    public SequenceSinkKind Kind => SequenceSinkKind.Text;
+
+    /// <inheritdoc />
+    public IXmlSink Content => throw new InvalidOperationException("Only a tree sink has content.");
+
+    /// <summary>Gets the most characters the sink holds.</summary>
+    internal int MaxLength => _maxLength;
 
     /// <summary>Gets the text written so far; valid until the next write or <see cref="Clear"/>.</summary>
-    internal ReadOnlySpan<char> Written => throw NotImplementedFailure.For(GetType().Name);
+    internal ReadOnlySpan<char> Written => new(_buffer, 0, _length);
 
     /// <summary>Gets a value indicating whether text was cut at the maximum length.</summary>
-    internal bool IsTruncated => throw NotImplementedFailure.For(GetType().Name);
+    internal bool IsTruncated { get; private set; }
 
     /// <summary>Gets the reason the last atomic value could not be converted, or <see langword="null"/>.</summary>
-    internal string? Failure => throw NotImplementedFailure.For(GetType().Name);
+    internal string? Failure { get; private set; }
 
-    public void Item(in XdmItem item) => throw NotImplementedFailure.For(GetType().Name);
+    /// <inheritdoc />
+    public void Item(in XdmItem item)
+    {
+        if (item.TryGetNode(out var node))
+        {
+            _lastAtomic = false;
+            AppendNode(in node);
+            return;
+        }
 
-    public void Text(ReadOnlySpan<char> text) => throw NotImplementedFailure.For(GetType().Name);
+        if (!HasTextForm(in item))
+        {
+            Failure ??= $"A value of kind {item.Kind} has no text form yet (limitation).";
+            return;
+        }
 
-    public IXmlSink BeginTree() => throw NotImplementedFailure.For(GetType().Name);
+        if (_lastAtomic)
+        {
+            Append(" ".AsSpan());
+        }
 
-    public XdmItem EndTree(IXmlSink tree) => throw NotImplementedFailure.For(GetType().Name);
+        _lastAtomic = true;
+        AppendAtomic(in item);
+    }
+
+    /// <inheritdoc />
+    public void Text(ReadOnlySpan<char> text)
+    {
+        _lastAtomic = false;
+        Append(text);
+    }
+
+    /// <inheritdoc />
+    public IXmlSink BeginTree() =>
+        throw new InvalidOperationException(
+            "Message text is built as text only; a temporary tree is a programming error."
+        );
+
+    /// <inheritdoc />
+    public XdmItem EndTree(IXmlSink tree) =>
+        throw new InvalidOperationException(
+            "Message text is built as text only; a temporary tree is a programming error."
+        );
+
+    /// <summary>Appends a number without allocating; resets the adjacency like <see cref="Text"/>.</summary>
+    /// <param name="value">The number.</param>
+    internal void Integer(long value)
+    {
+        _lastAtomic = false;
+        AppendInteger(value);
+    }
 
     /// <summary>Empties the sink and keeps its buffer for the next message.</summary>
-    internal void Clear() => throw NotImplementedFailure.For(GetType().Name);
+    internal void Clear()
+    {
+        _length = 0;
+        _lastAtomic = false;
+        IsTruncated = false;
+        Failure = null;
+    }
 
     /// <inheritdoc />
-    public override string ToString() => throw NotImplementedFailure.For(GetType().Name);
+    public override string ToString() => _length == 0 ? string.Empty : new string(_buffer, 0, _length);
 
     /// <inheritdoc />
-    public void Dispose() => throw NotImplementedFailure.For(GetType().Name);
+    public void Dispose()
+    {
+        var buffer = _buffer;
+        _buffer = [];
+        _length = 0;
+        if (buffer.Length > 0)
+        {
+            ArrayPool<char>.Shared.Return(buffer);
+        }
+    }
+
+    private static bool HasTextForm(in XdmItem item) =>
+        item.Kind
+            is XdmItemKind.XsString
+                or XdmItemKind.UntypedAtomic
+                or XdmItemKind.AnyUri
+                or XdmItemKind.Boolean
+                or XdmItemKind.XsInteger
+                or XdmItemKind.XsDecimal;
+
+    private void AppendAtomic(in XdmItem item)
+    {
+        switch (item.Kind)
+        {
+            case XdmItemKind.XsString:
+                _ = item.TryGetString(out var text);
+                Append(text.AsSpan());
+                break;
+            case XdmItemKind.UntypedAtomic:
+                _ = item.TryGetUntypedAtomic(out var untyped);
+                Append(untyped.AsSpan());
+                break;
+            case XdmItemKind.AnyUri:
+                _ = item.TryGetAnyUri(out var uri);
+                Append(uri.AsSpan());
+                break;
+            case XdmItemKind.Boolean:
+                _ = item.TryGetBoolean(out var flag);
+                Append((flag ? "true" : "false").AsSpan());
+                break;
+            case XdmItemKind.XsInteger:
+                _ = item.TryGetInteger(out var integer);
+                AppendInteger(integer);
+                break;
+            default:
+                _ = item.TryGetDecimal(out var number);
+                Append(number.ToString().AsSpan());
+                break;
+        }
+    }
+
+    private void AppendNode(in XPathNode node)
+    {
+        if (node.TryGetStringValueSpan(out var span))
+        {
+            Append(span);
+        }
+        else if (node.Kind is XdmNodeKind.Element or XdmNodeKind.Document && node.Tree is XmlDocumentTree)
+        {
+            AppendDescendantText(node.Node);
+        }
+        else
+        {
+            Append(node.StringValue().AsSpan());
+        }
+    }
+
+    // The string value of an element or a document is its descendant text in document order; walking it spares the string.
+    private void AppendDescendantText(XmlNode root)
+    {
+        var node = root.FirstChild;
+        while (!node.IsEmpty)
+        {
+            if (node.Kind == XmlNodeKind.Text && new XPathNode(node).TryGetStringValueSpan(out var span))
+            {
+                Append(span);
+            }
+
+            if (node.Kind == XmlNodeKind.Element && !node.FirstChild.IsEmpty)
+            {
+                node = node.FirstChild;
+                continue;
+            }
+
+            while (node.NextSibling.IsEmpty)
+            {
+                node = node.Parent;
+                if (node.IsEmpty || node == root)
+                {
+                    return;
+                }
+            }
+
+            node = node.NextSibling;
+        }
+    }
+
+    private void AppendInteger(long value)
+    {
+        Span<char> digits = stackalloc char[20];
+        var at = digits.Length;
+        var negative = value < 0;
+        var rest = negative ? unchecked((ulong)(-(value + 1)) + 1UL) : (ulong)value;
+        do
+        {
+            digits[--at] = (char)('0' + (int)(rest % 10UL));
+            rest /= 10UL;
+        } while (rest != 0UL);
+
+        if (negative)
+        {
+            digits[--at] = '-';
+        }
+
+        Append(digits.Slice(at));
+    }
+
+    private void Append(ReadOnlySpan<char> text)
+    {
+        var room = _maxLength - _length;
+        if (text.Length > room)
+        {
+            text = text.Slice(0, room);
+            IsTruncated = true;
+        }
+
+        if (text.IsEmpty)
+        {
+            return;
+        }
+
+        if (_buffer.Length - _length < text.Length)
+        {
+            var grown = ArrayPool<char>.Shared.Rent(Math.Max(Math.Max(256, _buffer.Length * 2), _length + text.Length));
+            _buffer.AsSpan(0, _length).CopyTo(grown);
+            if (_buffer.Length > 0)
+            {
+                ArrayPool<char>.Shared.Return(_buffer);
+            }
+
+            _buffer = grown;
+        }
+
+        text.CopyTo(_buffer.AsSpan(_length));
+        _length += text.Length;
+    }
 }
