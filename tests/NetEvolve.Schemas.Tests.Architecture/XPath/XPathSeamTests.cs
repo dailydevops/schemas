@@ -18,6 +18,9 @@ public class XPathSeamTests
         "NetEvolve.Schemas.XPath.Syntax.Parser",
         "NetEvolve.Schemas.XPath.Evaluation.Axes",
         "NetEvolve.Schemas.XPath.Xdm.Nodes",
+        // The Schematron function instructions apply the function conversion rules and match sequence types of an xsl:function with the XPath code, instead of a second copy (SCH-60, #249).
+        "NetEvolve.Schemas.XPath.Functions.Binding",
+        "NetEvolve.Schemas.XPath.Types",
     ];
 
     private static readonly string[] AllowedFriends =
