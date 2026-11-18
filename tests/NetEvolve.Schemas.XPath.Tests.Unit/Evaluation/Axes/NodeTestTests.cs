@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.XPath.Tests.Unit.Evaluation.Axes;
 
 using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Evaluation.Axes;
+using NetEvolve.Schemas.XPath.Syntax.Tree;
 using static AxisFixture;
 
 public class NodeTestTests
@@ -112,5 +113,49 @@ public class NodeTestTests
         );
 
         await Assert.That(failure.Diagnostic.QName).IsEqualTo(XPathErrorCodes.XPST0081);
+    }
+
+    // The static error carries the location of the node test, like the other static errors of the compile pipeline.
+    [Test]
+    [Arguments((int)NameTestKind.QualifiedName, "q", "x", (int)Axis.Child)]
+    [Arguments((int)NameTestKind.QualifiedName, "q", "x", (int)Axis.Attribute)]
+    [Arguments((int)NameTestKind.AnyLocalName, "q", null, (int)Axis.Child)]
+    public async Task TryFromSyntax_UnboundPrefixInNameTest_ReportsTheLocationOfTheTest(
+        int kind,
+        string prefix,
+        string? localName,
+        int axis
+    )
+    {
+        var test = new NameTest(new SourceSpan(2, 3), (NameTestKind)kind, prefix, localName);
+
+        var failure = Assert.Throws<XPathException>(() =>
+            XPathNodeTest.TryFromSyntax(test, (Axis)axis, Statics, out _)
+        );
+
+        await Assert.That(failure.Diagnostic.QName).IsEqualTo(XPathErrorCodes.XPST0081);
+        await Assert.That(failure.Diagnostic.Offset).IsEqualTo(2);
+        await Assert.That(failure.Diagnostic.Length).IsEqualTo(3);
+    }
+
+    [Test]
+    [Arguments("child::element(q:x)", 7, 12)]
+    [Arguments("attribute::attribute(q:x)", 11, 14)]
+    [Arguments("self::document-node(element(q:x))", 6, 27)]
+    public async Task TryFromSyntax_UnboundPrefixInKindTest_ReportsTheLocationOfTheTest(
+        string step,
+        int offset,
+        int length
+    )
+    {
+        var parsed = Parse(step);
+
+        var failure = Assert.Throws<XPathException>(() =>
+            XPathNodeTest.TryFromSyntax(parsed.Test, parsed.Axis, Statics, out _)
+        );
+
+        await Assert.That(failure.Diagnostic.QName).IsEqualTo(XPathErrorCodes.XPST0081);
+        await Assert.That(failure.Diagnostic.Offset).IsEqualTo(offset);
+        await Assert.That(failure.Diagnostic.Length).IsEqualTo(length);
     }
 }
