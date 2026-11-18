@@ -107,6 +107,7 @@ namespace NetEvolve.Schemas.XPath.Api
         RegexGroups = 4,
         DecimalFormats = 8,
         Keys = 16,
+        Xslt20Host = 32,
     }
     public readonly struct XPathQName : System.IEquatable<NetEvolve.Schemas.XPath.Api.XPathQName>
     {
