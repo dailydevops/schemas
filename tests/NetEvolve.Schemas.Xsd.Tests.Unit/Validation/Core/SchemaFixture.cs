@@ -163,9 +163,14 @@ internal sealed class SchemaFixture
     }
 
     /// <summary>Registers a global attribute, so a wildcard finds it by name.</summary>
-    public AttributeDeclaration GlobalAttribute(string name, SimpleTypeDefinition type, string namespaceName = "")
+    public AttributeDeclaration GlobalAttribute(
+        string name,
+        SimpleTypeDefinition type,
+        string namespaceName = "",
+        AttributeValueConstraint constraint = default
+    )
     {
-        var declaration = AttrDecl(name, type, default, namespaceName);
+        var declaration = AttrDecl(name, type, constraint, namespaceName);
         _registry.Add(declaration);
         return declaration;
     }

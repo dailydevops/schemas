@@ -239,6 +239,27 @@ public class AttributeAssessmentTests
     }
 
     [Test]
+    [Arguments(true)]
+    [Arguments(false)]
+    public async Task FixedAttribute_ReachedThroughAnAttributeWildcard_WithAnotherValue_IsAnError(bool strict)
+    {
+        var schema = RootWith(s =>
+            s.WithAttributes(SchemaFixture.Wild("##any", strict ? XsdProcessContents.Strict : XsdProcessContents.Lax))
+        );
+        _ = schema.GlobalAttribute(
+            "f",
+            SchemaFixture.Simple("string"),
+            constraint: new AttributeValueConstraint(AttributeValueConstraintKind.Fixed, "one")
+        );
+
+        var ok = ValidationHarness.Run(schema, "<r f=\"one\"/>");
+        var bad = ValidationHarness.Run(schema, "<r f=\"two\"/>");
+
+        await Assert.That(ok.Count).IsEqualTo(0);
+        await AssertIssue(bad, "cvc-au", "cvc-au", 1, "'f'");
+    }
+
+    [Test]
     public async Task AbsentAttribute_WithADefault_IsAppliedAndReportedToListeners()
     {
         var schema = RootWith(s =>
