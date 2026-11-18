@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.Schematron.Evaluation.Assertions;
 
 using System;
+using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.XPath.Xdm.Values;
@@ -21,6 +22,8 @@ internal sealed class ValueOfSink : ISequenceSink
     /// <param name="into">The text sink of the message.</param>
     internal void Begin(TextSink into)
     {
+        Argument.ThrowIfNull(into);
+
         _into = into;
         _items = 0;
 
