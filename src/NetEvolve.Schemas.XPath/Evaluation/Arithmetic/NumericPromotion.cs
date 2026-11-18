@@ -1,5 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Evaluation.Arithmetic;
 
+using System.Numerics;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xml.Datatypes.Decimals;
 using NetEvolve.Schemas.Xml.Datatypes.Decimals.Arithmetic;
@@ -10,7 +11,8 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// The numeric type promotion of XPath 2.0, B.1, in one place for the arithmetic and the function conversion: <c>xs:float</c> to
 /// <c>xs:double</c>, and <c>xs:decimal</c> and <c>xs:integer</c> (inline or beyond 64 bits, an item of the decimal family) to
 /// <c>xs:float</c> or <c>xs:double</c>. A value is rounded once: a decimal or a wide integer is promoted to <c>xs:float</c> through
-/// its exact lexical form and not through a double.
+/// its exact lexical form and not through a double. A decimal beyond the digit cap of the datatype layer is rounded from its exact value
+/// as well, so a promotion has no failure: it yields the nearest float, which is an infinity or a zero outside the float range.
 /// </summary>
 internal static class NumericPromotion
 {
@@ -53,6 +55,30 @@ internal static class NumericPromotion
     internal static ParseResult<float> DecimalToSingle(XsdDecimal number) =>
         XsdFloatingPoint.ParseSingle(number.ToString(), XsdVersion.V10);
 
+    /// <summary>Promotes a decimal to the nearest <c>xs:float</c>: promotion is not a cast and has no failure status.</summary>
+    /// <param name="number">The decimal.</param>
+    /// <returns>The float, rounded once from the exact value; an infinity or a signed zero when the value is outside the float range.</returns>
+    /// <remarks>
+    /// The common case is the step of the cast. A lexical form beyond the digit cap is rounded from the mantissa and the scale instead,
+    /// without a lexical form and so without the cap.
+    /// </remarks>
+    internal static float DecimalToNearestSingle(XsdDecimal number)
+    {
+        var parsed = DecimalToSingle(number);
+        if (parsed.Success)
+        {
+            return parsed.Value;
+        }
+
+        var magnitude = (float)
+            BinaryFloat.Round(
+                BigInteger.Abs(number.Mantissa),
+                number.Scale == int.MinValue ? int.MaxValue : -number.Scale,
+                single: true
+            );
+        return number.Sign < 0 ? -magnitude : magnitude;
+    }
+
     /// <summary>Promotes a numeric item that is not a double to <c>xs:float</c>.</summary>
     /// <param name="item">The item.</param>
     /// <param name="value">The value, zero when the item is not a float, decimal, or integer.</param>
@@ -72,7 +98,7 @@ internal static class NumericPromotion
 
         if (item.TryGetDecimal(out var number))
         {
-            value = DecimalToSingle(number).Value;
+            value = DecimalToNearestSingle(number);
             return true;
         }
 
