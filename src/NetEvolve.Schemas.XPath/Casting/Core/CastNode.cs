@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.XPath.Casting.Core;
 
 using NetEvolve.Arguments;
+using NetEvolve.Schemas.Xml.Datatypes.QNames;
 using NetEvolve.Schemas.XPath.Compilation;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Errors;
@@ -20,6 +21,7 @@ internal sealed class CastNode : ExecutableNode
     private readonly XdmTypeId _target;
     private readonly bool _allowsEmpty;
     private readonly CastingTable _table;
+    private readonly INamespaceContext? _namespaces;
     private readonly SourceSpan _location;
 
     /// <summary>Initializes a new instance of the <see cref="CastNode"/> class.</summary>
@@ -28,9 +30,17 @@ internal sealed class CastNode : ExecutableNode
     /// <param name="allowsEmpty">Whether the optional marker is present.</param>
     /// <param name="table">The casting table.</param>
     /// <param name="location">The location of the expression, reported with a dynamic error.</param>
+    /// <param name="namespaces">The namespaces that resolve the prefix of a lexical form, <see langword="null"/> when the operand may not be cast from its lexical form.</param>
     /// <exception cref="System.ArgumentNullException"><paramref name="operand"/> or <paramref name="table"/> is <see langword="null"/>.</exception>
     /// <exception cref="System.ArgumentOutOfRangeException"><paramref name="target"/> is <see langword="default"/>.</exception>
-    public CastNode(ExecutableNode operand, XdmTypeId target, bool allowsEmpty, CastingTable table, SourceSpan location)
+    public CastNode(
+        ExecutableNode operand,
+        XdmTypeId target,
+        bool allowsEmpty,
+        CastingTable table,
+        SourceSpan location,
+        INamespaceContext? namespaces = null
+    )
     {
         Argument.ThrowIfNull(operand);
         Argument.ThrowIfLessThan(target.Value, 1);
@@ -41,6 +51,7 @@ internal sealed class CastNode : ExecutableNode
         _allowsEmpty = allowsEmpty;
         _table = table;
         _location = location;
+        _namespaces = namespaces;
     }
 
     /// <inheritdoc />
@@ -60,7 +71,7 @@ internal sealed class CastNode : ExecutableNode
             throw XPathErrors.Exception(XPathErrorCodes.XPTY0004, _location.Offset, _location.Length);
         }
 
-        var status = _table.TryCast(value[0], _target, out var result);
+        var status = _table.TryCast(value[0], _target, _namespaces, out var result);
         return status == CastStatus.Ok
             ? XdmSequence.Create(result)
             : throw XPathErrors.Exception(status.ToErrorCode(), _location.Offset, _location.Length);

@@ -43,10 +43,10 @@ public class CastTargetResolverTests
     [Test]
     public async Task UnprefixedTarget_WithoutARow_NamesTheTypeAsWritten()
     {
-        var compiled = Compile("'x' cast as date", out var diagnostic);
+        var compiled = Compile("'x' cast as long", out var diagnostic);
 
         await Assert.That(compiled).IsNull();
         await Assert.That(diagnostic.Code).IsEqualTo("XPST0051");
-        await Assert.That(diagnostic.Message).Contains("'date'");
+        await Assert.That(diagnostic.Message).Contains("'long'");
     }
 }

@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.XPath.Casting.Core;
 
 using NetEvolve.Arguments;
+using NetEvolve.Schemas.Xml.Datatypes.QNames;
 using NetEvolve.Schemas.XPath.Compilation;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Evaluation.Atomization;
@@ -17,15 +18,23 @@ internal sealed class CastableNode : ExecutableNode
     private readonly XdmTypeId _target;
     private readonly bool _allowsEmpty;
     private readonly CastingTable _table;
+    private readonly INamespaceContext? _namespaces;
 
     /// <summary>Initializes a new instance of the <see cref="CastableNode"/> class.</summary>
     /// <param name="operand">The operand.</param>
     /// <param name="target">The target type.</param>
     /// <param name="allowsEmpty">Whether the optional marker is present.</param>
     /// <param name="table">The casting table.</param>
+    /// <param name="namespaces">The namespaces that resolve the prefix of a lexical form, <see langword="null"/> when the operand may not be cast from its lexical form.</param>
     /// <exception cref="System.ArgumentNullException"><paramref name="operand"/> or <paramref name="table"/> is <see langword="null"/>.</exception>
     /// <exception cref="System.ArgumentOutOfRangeException"><paramref name="target"/> is <see langword="default"/>.</exception>
-    public CastableNode(ExecutableNode operand, XdmTypeId target, bool allowsEmpty, CastingTable table)
+    public CastableNode(
+        ExecutableNode operand,
+        XdmTypeId target,
+        bool allowsEmpty,
+        CastingTable table,
+        INamespaceContext? namespaces = null
+    )
     {
         Argument.ThrowIfNull(operand);
         Argument.ThrowIfLessThan(target.Value, 1);
@@ -35,6 +44,7 @@ internal sealed class CastableNode : ExecutableNode
         _target = target;
         _allowsEmpty = allowsEmpty;
         _table = table;
+        _namespaces = namespaces;
     }
 
     /// <inheritdoc />
@@ -46,7 +56,7 @@ internal sealed class CastableNode : ExecutableNode
         var castable = value.Count switch
         {
             0 => _allowsEmpty,
-            1 => _table.TryCast(value[0], _target, out _) == CastStatus.Ok,
+            1 => _table.TryCast(value[0], _target, _namespaces, out _) == CastStatus.Ok,
             _ => false,
         };
 

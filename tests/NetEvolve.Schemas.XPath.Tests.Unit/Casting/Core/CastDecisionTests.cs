@@ -70,12 +70,12 @@ public class CastDecisionTests
             .IsEqualTo(CastCell.Always);
     }
 
-    // Decision D4: a built-in atomic type without a row yet (its row arrives with XP-23 or XP-59) is rejected while compiling, with XPST0051 and a message that says why.
+    // Decision D4: a built-in atomic type without a row yet (its row arrives with XP-23) is rejected while compiling, with XPST0051 and a message that says why.
     [Test]
-    [Arguments("xs:date", "xs:date")]
     [Arguments("xs:int", "xs:int")]
-    [Arguments("xs:QName", "xs:QName")]
-    [Arguments("xs:anyURI", "xs:anyURI")]
+    [Arguments("xs:long", "xs:long")]
+    [Arguments("xs:NCName", "xs:NCName")]
+    [Arguments("xs:token", "xs:token")]
     public async Task BuiltInTypeWithoutARow_IsRejectedWithAMessageThatNamesTheLimit(string type, string named)
     {
         _ = Compile("'x' cast as " + type, out var diagnostic);

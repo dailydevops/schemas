@@ -13,7 +13,7 @@ internal static class CastStatusExtensions
     public static XPathErrorCode ToErrorCode(this CastStatus status)
     {
         Argument.ThrowIfLessThan((int)status, (int)CastStatus.NotAllowed);
-        Argument.ThrowIfGreaterThan((int)status, (int)CastStatus.IntegerOverflow);
+        Argument.ThrowIfGreaterThan((int)status, (int)CastStatus.UnboundPrefix);
 
         return status switch
         {
@@ -21,7 +21,10 @@ internal static class CastStatusExtensions
             CastStatus.InvalidLexical => XPathErrorCodes.FORG0001,
             CastStatus.InvalidValue => XPathErrorCodes.FOCA0002,
             CastStatus.DecimalOverflow => XPathErrorCodes.FOCA0001,
-            _ => XPathErrorCodes.FOCA0003,
+            CastStatus.IntegerOverflow => XPathErrorCodes.FOCA0003,
+            CastStatus.DateTimeOverflow => XPathErrorCodes.FODT0001,
+            CastStatus.DurationOverflow => XPathErrorCodes.FODT0002,
+            _ => XPathErrorCodes.FONS0004,
         };
     }
 }
