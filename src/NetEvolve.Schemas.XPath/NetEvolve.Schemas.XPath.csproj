@@ -3,6 +3,7 @@
   <ItemGroup>
     <InternalsVisibleTo Include="NetEvolve.Schemas.Schematron" />
     <InternalsVisibleTo Include="NetEvolve.Schemas.Xsd" />
+    <InternalsVisibleTo Include="NetEvolve.Schemas.Schematron.Tests.Unit" />
     <InternalsVisibleTo Include="NetEvolve.Schemas.XPath.Tests.Unit" />
   </ItemGroup>
   <!-- Function groups register through a module initializer (#123, AP8); netstandard has no ModuleInitializerAttribute, and only this project compiles the polyfill. -->

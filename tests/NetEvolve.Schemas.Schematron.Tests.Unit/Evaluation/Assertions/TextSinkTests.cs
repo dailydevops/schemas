@@ -3,6 +3,7 @@ namespace NetEvolve.Schemas.Schematron.Tests.Unit.Evaluation.Assertions;
 using System;
 using NetEvolve.Schemas.Schematron.Evaluation.Assertions;
 using NetEvolve.Schemas.Schematron.Seams;
+using NetEvolve.Schemas.Xml.Datatypes.Decimals;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>The text-only sink of design #150 EP-8, examples S2 and S6.</summary>
@@ -59,6 +60,55 @@ public class TextSinkTests
 
         await Assert.That(sink.ToString()).IsEqualTo("s true false -12");
         await Assert.That(sink.Failure).IsNull();
+    }
+
+    [Test]
+    [Arguments("1.50", "1.5")]
+    [Arguments("-0.25", "-0.25")]
+    [Arguments("7", "7")]
+    [Arguments("0", "0")]
+    public async Task Text_Decimal_ConvertsToItsCanonicalForm(string lexical, string expected)
+    {
+        using var sink = new TextSink(100);
+        var number = XdmItem.FromDecimal(XsdDecimal.Parse(lexical.AsSpan()).Value);
+
+        sink.Item(in number);
+
+        await Assert.That(sink.ToString()).IsEqualTo(expected);
+        await Assert.That(sink.Failure).IsNull();
+    }
+
+    [Test]
+    public async Task Text_AnyUriAndUntypedAtomic_ConvertToTheirLexicalForm()
+    {
+        using var sink = new TextSink(100);
+        var uri = XdmItem.FromAnyUri("urn:a:b");
+        var untyped = XdmItem.FromUntypedAtomic("raw");
+
+        sink.Item(in uri);
+        sink.Item(in untyped);
+
+        await Assert.That(sink.ToString()).IsEqualTo("urn:a:b raw");
+        await Assert.That(sink.Failure).IsNull();
+    }
+
+    [Test]
+    [Arguments(0L, "0")]
+    [Arguments(42L, "42")]
+    [Arguments(-12L, "-12")]
+    [Arguments(long.MaxValue, "9223372036854775807")]
+    [Arguments(long.MinValue, "-9223372036854775808")]
+    public async Task Text_Integer_ConvertsEveryEdge(long value, string expected)
+    {
+        using var viaItem = new TextSink(100);
+        using var direct = new TextSink(100);
+        var number = Item(value);
+
+        viaItem.Item(in number);
+        direct.Integer(value);
+
+        await Assert.That(viaItem.ToString()).IsEqualTo(expected);
+        await Assert.That(direct.ToString()).IsEqualTo(expected);
     }
 
     [Test]
@@ -143,6 +193,28 @@ public class TextSinkTests
 
         await Assert.That(sink.ToString()).IsEqualTo("abc");
         await Assert.That(sink.IsTruncated).IsTrue();
+    }
+
+    [Test]
+    public async Task Text_CutBetweenSurrogates_BacksOffTheHighSurrogate()
+    {
+        using var sink = new TextSink(3);
+
+        sink.Text("ab😀".AsSpan());
+
+        await Assert.That(sink.ToString()).IsEqualTo("ab");
+        await Assert.That(sink.IsTruncated).IsTrue();
+    }
+
+    [Test]
+    public async Task Text_SurrogatePairThatFits_IsKept()
+    {
+        using var sink = new TextSink(4);
+
+        sink.Text("ab😀".AsSpan());
+
+        await Assert.That(sink.ToString()).IsEqualTo("ab😀");
+        await Assert.That(sink.IsTruncated).IsFalse();
     }
 
     [Test]

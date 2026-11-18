@@ -26,6 +26,8 @@ public class XPathSeamTests
         SourceAssemblies.Xsd,
         SourceAssemblies.XPath + ".Tests.Architecture",
         SourceAssemblies.XPath + ".Tests.Unit",
+        // The text sink tests of the Schematron package build atomic items that only the XPath internals can create.
+        SourceAssemblies.Schematron + ".Tests.Unit",
         SourceAssemblies.XPath + ".Tests.Integration",
     ];
 
