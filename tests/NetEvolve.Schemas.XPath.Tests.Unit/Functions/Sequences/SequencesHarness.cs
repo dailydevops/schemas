@@ -352,7 +352,7 @@ internal static class SequencesHarness
         {
             if (xml[i] != '<')
             {
-                var end = xml.IndexOf('<', i);
+                var end = xml.IndexOf('<', i, StringComparison.Ordinal);
                 b.Text(xml.AsSpan(i, end - i), XmlTextKind.Text);
                 i = end;
             }
@@ -372,7 +372,7 @@ internal static class SequencesHarness
             }
             else if (xml[i + 1] == '/')
             {
-                var end = xml.IndexOf('>', i);
+                var end = xml.IndexOf('>', i, StringComparison.Ordinal);
                 b.EndElement(open.Pop());
                 i = end + 1;
             }
@@ -388,7 +388,7 @@ internal static class SequencesHarness
 
     private static int StartTag(XmlTreeBuilder b, string xml, int start, Stack<XmlName> open)
     {
-        var end = xml.IndexOf('>', start);
+        var end = xml.IndexOf('>', start, StringComparison.Ordinal);
         var selfClosing = xml[end - 1] == '/';
         var body = xml.Substring(start + 1, end - start - 1 - (selfClosing ? 1 : 0));
         var parts = body.Split(' ');
