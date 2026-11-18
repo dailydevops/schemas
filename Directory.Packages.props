@@ -35,7 +35,7 @@
     <PackageVersion Include="PublicApiGenerator" Version="11.5.4" />
     <PackageVersion Include="System.Memory" Version="4.6.3" />
     <PackageVersion Include="System.Threading.Tasks.Extensions" Version="4.6.3" />
-    <PackageVersion Include="TUnit" Version="1.86.0" />
+    <PackageVersion Include="TUnit" Version="1.86.6" />
     <PackageVersion Include="Verify.TUnit" Version="33.5.0" />
   </ItemGroup>
 </Project>
