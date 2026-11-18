@@ -24,8 +24,10 @@ using NetEvolve.Schemas.Xml.Namespaces;
 /// entity value reads as a line feed in content and CR LF written as two character references is one space, not two,
 /// in an attribute value (#645); white space outside the root element is not reported; <c>MaxNodeCount</c> counts elements,
 /// attributes, comments, processing instructions, and coalesced text runs (not namespace declarations); an unclosed
-/// element at the end of the input is <c>XML0001</c> and a missing root is <c>XML0012</c>. An exception thrown by a sink
-/// propagates and leaves the parser unusable. Not thread-safe.
+/// element at the end of the input is <c>XML0001</c> and a missing root is <c>XML0012</c>; the events before an error, the
+/// code, and the position of the diagnostic do not depend on the chunking (#598), but <see cref="Position"/> after an error
+/// ends at the last consumed token and follows its boundaries. An exception thrown by a sink propagates and leaves the
+/// parser unusable. Not thread-safe.
 /// </remarks>
 internal sealed partial class XmlParser : IXmlReader, IDisposable
 {
@@ -369,8 +371,14 @@ internal sealed partial class XmlParser : IXmlReader, IDisposable
     {
         if (_phase != Phase.Content)
         {
-            // White space outside the root element is valid but not part of the document.
-            return (blankAllowedOutside && IsBlank(text)) || Fail(XmlErrorCodes.XML0018, position);
+            // White space outside the root element is valid but not part of the document. The error is at the first character
+            // that is not white space (a text run holds no line break), so it does not depend on where a chunk edge splits the run.
+            var at = blankAllowedOutside ? FirstNonBlank(text) : 0;
+            return at < 0
+                || Fail(
+                    XmlErrorCodes.XML0018,
+                    new XmlPosition(position.Line, position.Column + at, position.CharOffset + at)
+                );
         }
 
         if (!_textOpen)
@@ -496,17 +504,18 @@ internal sealed partial class XmlParser : IXmlReader, IDisposable
         return _scratch.WrittenSpan;
     }
 
-    private static bool IsBlank(ReadOnlySpan<char> text)
+    // The index of the first character that is not white space, -1 when the text is blank.
+    private static int FirstNonBlank(ReadOnlySpan<char> text)
     {
         for (var i = 0; i < text.Length; i++)
         {
             if (text[i] is not (' ' or '\t' or '\r' or '\n'))
             {
-                return false;
+                return i;
             }
         }
 
-        return true;
+        return -1;
     }
 
     private static XmlErrorCode NameTableError(XmlNameTableStatus status) =>

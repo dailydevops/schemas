@@ -68,10 +68,16 @@ internal partial struct XmlTokenizer
             return Scan.Continue;
         }
 
+        // The characters before an invalid one are a token of their own, so the events before the error do not depend on the chunk edges.
         var bad = XmlCharClass.IndexOfNonChar(input.Slice(pos, end - pos));
-        if (bad >= 0)
+        if (bad == 0)
         {
-            return Fail(input, pos + bad, XmlErrorCodes.XML0002);
+            return Fail(input, pos, XmlErrorCodes.XML0002);
+        }
+
+        if (bad > 0)
+        {
+            end = pos + bad;
         }
 
         token = new XmlToken(cdata ? XmlTokenKind.CData : XmlTokenKind.Text, pos, end - pos);
@@ -262,9 +268,14 @@ internal partial struct XmlTokenizer
         }
 
         var bad = XmlCharClass.IndexOfNonChar(input.Slice(pos, end - pos));
-        if (bad >= 0)
+        if (bad == 0)
         {
-            return Fail(input, pos + bad, XmlErrorCodes.XML0002);
+            return Fail(input, pos, XmlErrorCodes.XML0002);
+        }
+
+        if (bad > 0)
+        {
+            end = pos + bad;
         }
 
         token = new XmlToken(XmlTokenKind.Text, pos, end - pos);
