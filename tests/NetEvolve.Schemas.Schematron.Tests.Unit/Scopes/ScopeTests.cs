@@ -403,4 +403,34 @@ public class ScopeTests
             .That(() => ScopePlanner.TryPlan(schema, selection, binding, null!, out _))
             .Throws<ArgumentNullException>();
     }
+
+    [Test]
+    public async Task Namespaces_DuplicatePrefix_ArePassedUnchanged_ToEveryScope()
+    {
+        var schema = Schema(
+            namespaces: [Ns("p", "urn:first"), Ns("p", "urn:second")],
+            patterns: Pattern("pt", [], Rule("r", "a"))
+        );
+
+        var f = Create(schema);
+
+        await Assert.That(f.Ok).IsTrue();
+        await Assert.That(f.Plan.Patterns[0].Rules[0].Scope.Namespaces.Count).IsEqualTo(2);
+        await Assert.That(f.Plan.Patterns[0].Rules[0].Scope.Namespaces[1].NamespaceName).IsEqualTo("urn:second");
+    }
+
+    [Test]
+    public async Task PlanRun_RejectsNullArguments()
+    {
+        var schema = Schema();
+        var binding = new ScopeTestBinding();
+        var sink = new FakeProblemSink();
+
+        await Assert.That(() => new PlanRun(null!, binding, sink)).Throws<ArgumentNullException>();
+        await Assert.That(() => new PlanRun(schema, null!, sink)).Throws<ArgumentNullException>();
+        await Assert.That(() => new PlanRun(schema, binding, null!)).Throws<ArgumentNullException>();
+        await Assert
+            .That(() => new PlanRun(schema, binding, sink).Execute(null!, out _))
+            .Throws<ArgumentNullException>();
+    }
 }

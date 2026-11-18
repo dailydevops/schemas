@@ -23,7 +23,7 @@ public class AsTypeTests
     [Arguments("xs:double(5)", "xs:double")]
     public async Task Constant_Definition_IsLexicalLiteralOrTypedConstructor(string text, string type)
     {
-        var constant = ConstantValue.TryGetType(text, out var actual);
+        var constant = ConstantValue.TryGetType(text, [], out var actual);
 
         await Assert.That(constant).IsTrue();
         await Assert.That(actual).IsEqualTo(type);
@@ -45,7 +45,7 @@ public class AsTypeTests
     [Arguments("'abc")]
     public async Task Constant_Definition_RejectsEverythingElse(string text)
     {
-        var constant = ConstantValue.TryGetType(text, out var type);
+        var constant = ConstantValue.TryGetType(text, [], out var type);
 
         await Assert.That(constant).IsFalse();
         await Assert.That(type).IsNull();
@@ -76,8 +76,13 @@ public class AsTypeTests
     [Arguments("xs:boolean")]
     [Arguments("xs:double")]
     [Arguments("xs:integer")]
-    public async Task SupportedTypes_AreExactlyTheFourOfDecisionQ2(string type) =>
-        await Assert.That(ConstantValue.IsSupportedType(type)).IsTrue();
+    public async Task SupportedTypes_AreExactlyTheFourOfDecisionQ2(string type)
+    {
+        var supported = ConstantValue.TryGetSupportedType(type, [], out var canonical);
+
+        await Assert.That(supported).IsTrue();
+        await Assert.That(canonical).IsEqualTo(type);
+    }
 
     [Test]
     [Arguments("xs:date")]
@@ -86,8 +91,13 @@ public class AsTypeTests
     [Arguments("item()")]
     [Arguments("integer")]
     [Arguments("")]
-    public async Task UnsupportedTypes_AreRejected(string type) =>
-        await Assert.That(ConstantValue.IsSupportedType(type)).IsFalse();
+    public async Task UnsupportedTypes_AreRejected(string type)
+    {
+        var supported = ConstantValue.TryGetSupportedType(type, [], out var canonical);
+
+        await Assert.That(supported).IsFalse();
+        await Assert.That(canonical).IsNull();
+    }
 
     [Test]
     public async Task UnsupportedAsType_ReportsUnsupported_NamingTheType()
@@ -189,5 +199,88 @@ public class AsTypeTests
         await Assert
             .That(f.Plan.Patterns[0].Rules[0].Lets[0].StaticProblem!.Value.Code)
             .IsEqualTo(SchematronDiagnosticCodes.LetType);
+    }
+
+    private const string XmlSchema = "http://www.w3.org/2001/XMLSchema";
+
+    [Test]
+    public async Task SupportedType_ThroughAnotherPrefixBoundToTheSchemaNamespace_IsRecognizedByNamespace()
+    {
+        var f = Create(Schema(lets: [Let("n", "count(//a)", "xsd:integer")], namespaces: [Ns("xsd", XmlSchema)]));
+
+        await Assert.That(f.Ok).IsTrue();
+        await Assert.That(f.Binding.Compiled[0].Scope.DeclaredType).IsEqualTo("xs:integer");
+    }
+
+    [Test]
+    public async Task SupportedType_PrefixXs_IsPredeclared_WithoutANsElement()
+    {
+        var f = Create(Schema(lets: [Let("n", "count(//a)", "xs:integer")]));
+
+        await Assert.That(f.Ok).IsTrue();
+        await Assert.That(f.Binding.Compiled[0].Scope.DeclaredType).IsEqualTo("xs:integer");
+    }
+
+    [Test]
+    public async Task SupportedType_PrefixXsBoundToAnotherNamespace_IsUnsupported()
+    {
+        var f = Create(Schema(lets: [Let("n", "count(//a)", "xs:integer")], namespaces: [Ns("xs", "urn:other")]));
+
+        await Assert.That(f.Ok).IsFalse();
+        await Assert.That(Codes(f.Problems)).IsEqualTo("NES3007");
+    }
+
+    [Test]
+    public async Task SupportedType_UnboundPrefix_IsUnsupported()
+    {
+        var f = Create(Schema(lets: [Let("n", "count(//a)", "xsd:integer")]));
+
+        await Assert.That(f.Ok).IsFalse();
+        await Assert.That(Codes(f.Problems)).IsEqualTo("NES3007");
+    }
+
+    [Test]
+    [Arguments(true)]
+    [Arguments(false)]
+    public async Task DuplicatePrefix_LastDeclarationWins_AsInTheXPathStaticContext(bool schemaNamespaceLast)
+    {
+        var good = Ns("xs", XmlSchema);
+        var other = Ns("xs", "urn:other");
+
+        var found = ConstantValue.TryGetSupportedType(
+            "xs:integer",
+            schemaNamespaceLast ? [other, good] : [good, other],
+            out _
+        );
+
+        await Assert.That(found).IsEqualTo(schemaNamespaceLast);
+    }
+
+    [Test]
+    public async Task Constant_ConstructorThroughAnotherPrefix_IsRecognizedByNamespace()
+    {
+        var constant = ConstantValue.TryGetType("xsd:integer('5')", [Ns("xsd", XmlSchema)], out var type);
+
+        await Assert.That(constant).IsTrue();
+        await Assert.That(type).IsEqualTo("xs:integer");
+    }
+
+    [Test]
+    public async Task Constant_ConstructorWithPrefixBoundToAnotherNamespace_IsNotAConstant()
+    {
+        var other = ConstantValue.TryGetType("xs:integer('5')", [Ns("xs", "urn:other")], out _);
+        var unbound = ConstantValue.TryGetType("xsd:integer('5')", [], out _);
+
+        await Assert.That(other).IsFalse();
+        await Assert.That(unbound).IsFalse();
+    }
+
+    [Test]
+    public async Task Scope_AsTypeMismatch_ConstantThroughAnotherPrefix_ThrowsAtBuild()
+    {
+        var f = Create(Schema(lets: [Let("n", "'abc'", "xsd:integer")], namespaces: [Ns("xsd", XmlSchema)]));
+
+        await Assert.That(f.Ok).IsFalse();
+        await Assert.That(Codes(f.Problems)).IsEqualTo("NES3201");
     }
 }

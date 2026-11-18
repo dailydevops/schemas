@@ -428,6 +428,18 @@ public class SlotBinderTests
         await Assert.That(() => new SlotBinder(f.Plan, run, focus, null!)).Throws<ArgumentNullException>();
     }
 
+    [Test]
+    public async Task BeginPatternAndBeginFiring_RejectNullArguments()
+    {
+        var h = Start(Schema(patterns: Pattern("p", [], Rule("r", "a"))));
+        var focus = new QueryFocus(A1, 1, 1);
+
+        await Assert.That(() => h.Binder.BeginPattern(null!)).Throws<ArgumentNullException>();
+        await Assert.That(() => h.Binder.BeginFiring(null!, focus)).Throws<ArgumentNullException>();
+        await Assert.That(() => h.Binder.SetParameter(null!, "x")).Throws<ArgumentNullException>();
+        await Assert.That(() => h.Binder.SetParameter("x", null!)).Throws<ArgumentNullException>();
+    }
+
     private static ScopePlan ManualPlan(params ScopeTestExpression[] expressions)
     {
         var globals = new VariableSlot[expressions.Length];
