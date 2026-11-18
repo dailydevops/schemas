@@ -152,6 +152,7 @@ internal sealed class FunctionRegistry
     /// <summary>Creates the registry of the built-in functions.</summary>
     /// <param name="functions">The functions.</param>
     /// <returns>The registry.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="functions"/> or one of its entries is <see langword="null"/>.</exception>
     /// <exception cref="InvalidOperationException">Two functions register the same expanded name for an overlapping arity and version.</exception>
     internal static FunctionRegistry Create(IReadOnlyList<XPathFunction> functions)
     {
@@ -161,6 +162,8 @@ internal sealed class FunctionRegistry
         for (var i = 0; i < functions.Count; i++)
         {
             var function = functions[i];
+            Argument.ThrowIfNull(function);
+
             if (!byName.TryGetValue(function.Name, out var same))
             {
                 same = [];
