@@ -429,7 +429,7 @@ public class FunctionCompileTests
     public async Task Compile_WithoutABinding_IsAProgrammingError()
     {
         var fixture = Create();
-        var node = Declaration(Function("f:s", null, 10, Sequence("1", 11)));
+        var node = Declaration(Sequence("1", 10));
         var context = new XsltCompileContext(
             node,
             fixture.FunctionScope,
@@ -440,7 +440,7 @@ public class FunctionCompileTests
         );
 
         await Assert
-            .That(() => new XsltFunctionInstruction().TryCompile(context, out _, out _))
+            .That(() => new XsltSequenceInstruction().TryCompile(context, out _, out _))
             .Throws<InvalidOperationException>();
     }
 
