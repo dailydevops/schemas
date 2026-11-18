@@ -22,8 +22,8 @@ namespace NetEvolve.Schemas.XPath.Tests.Unit.Casting.Other;
 /// <see cref="Excluded"/> lists every case of the same shape that is left out, with the reason: a comparison of dates, times, durations,
 /// Gregorian values, binary values, or QNames needs the operators of XP-26 (#300); a constructor function of a QName with a prefix needs the
 /// static context of the call, which the lowering of a function call has yet to hand over (#644); the lexical check of <c>xs:anyURI</c> is lax
-/// until the strict checkers land (#411, #412); the datatype layer accepts a third digit in the seconds of a time (#643); and a year of 17 digits
-/// is within the range of the datatype layer, where the case expects a smaller implementation-defined range.
+/// until the strict checkers land (#411, #412); and a year of 17 digits is within the range of the datatype layer, where the case expects a smaller
+/// implementation-defined range.
 /// </para>
 /// <para>
 /// Every XPath 2.0 case of the two sets that names one of these types is accounted for: it is in <see cref="Cases"/>, in <see cref="Excluded"/>, or in
@@ -2454,6 +2454,7 @@ internal static class Qt3RemainingCastSelection
         ("prod-CastExpr/K2-SeqExprCast-441", "xs:time(\"11:11:1b0\")", "X:FORG0001"),
         ("prod-CastExpr/K2-SeqExprCast-442", "xs:time(\"11:11: 10\")", "X:FORG0001"),
         ("prod-CastExpr/K2-SeqExprCast-443", "xs:time(\"11:11:11b33\")", "X:FORG0001"),
+        ("prod-CastExpr/K2-SeqExprCast-444", "xs:time(\"11:11:111\")", "X:FORG0001"),
         ("prod-CastExpr/K2-SeqExprCast-445", "xs:time(\"11:11:11.+11\")", "X:FORG0001"),
         ("prod-CastExpr/K2-SeqExprCast-446", "xs:time(\"11:11:11.-11\")", "X:FORG0001"),
         ("prod-CastExpr/K2-SeqExprCast-447", "xs:time(\"11:11:11. 11\")", "X:FORG0001"),
@@ -3420,10 +3421,6 @@ internal static class Qt3RemainingCastSelection
         (
             "prod-CastExpr/K2-SeqExprCast-424",
             "The lexical check of xs:anyURI is lax until the strict checkers land (#411, #412)."
-        ),
-        (
-            "prod-CastExpr/K2-SeqExprCast-444",
-            "The datatype layer accepts a third digit in the seconds of a time (#643)."
         ),
         (
             "prod-CastExpr/K2-SeqExprCast-505",

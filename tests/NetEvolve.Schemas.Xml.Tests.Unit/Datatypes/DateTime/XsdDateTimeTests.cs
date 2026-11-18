@@ -96,6 +96,21 @@ public class XsdDateTimeTests
     }
 
     [Test]
+    [Arguments("11:11:111", XsdDateTimeKind.Time, 8)]
+    [Arguments("11:11:1234", XsdDateTimeKind.Time, 8)]
+    [Arguments("11:11:111Z", XsdDateTimeKind.Time, 8)]
+    [Arguments("2004-10-13T11:11:111", XsdDateTimeKind.DateTime, 19)]
+    [Arguments("2004-10-13T11:11:111.5", XsdDateTimeKind.DateTime, 19)]
+    public async Task Parse_ThreeDigitSeconds_IsRejectedAtThirdDigit(string lexical, XsdDateTimeKind kind, int offset)
+    {
+        var result = XsdDateTime.Parse(lexical.AsSpan(), kind, XsdVersion.V10);
+
+        await Assert.That(result.Success).IsFalse();
+        await Assert.That(result.Error).IsEqualTo(DatatypeError.InvalidLexicalForm);
+        await Assert.That(result.ErrorOffset).IsEqualTo(offset);
+    }
+
+    [Test]
     [Arguments("2024-03-05T24:00:01")]
     [Arguments("2024-03-05T24:01:00")]
     [Arguments("2024-03-05T24:00:00.1")]
