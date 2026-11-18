@@ -179,7 +179,7 @@ public class CastingTableTests
         await Assert.That(() => catalog.Stage(null!)).Throws<ArgumentNullException>();
         await Assert.That(() => builder.Add(null!)).Throws<ArgumentNullException>();
         await Assert
-            .That(() => new CastRow(XdmTypeId.XsString, XdmTypeId.Date, CastCell.Always, null!))
+            .That(() => new CastRow(XdmTypeId.XsString, XdmTypeId.Date, CastCell.Always, (CastConversion)null!))
             .Throws<ArgumentNullException>();
         await Assert
             .That(() => CastingCatalog.Default.Table.TryCast(XdmItem.FromString("x"), default, out _))

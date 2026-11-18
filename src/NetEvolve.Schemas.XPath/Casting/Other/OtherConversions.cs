@@ -75,7 +75,7 @@ internal static class OtherConversions
     }
 
     /// <summary>Converts to <c>xs:string</c>.</summary>
-    /// <param name="source">The source value, a binary or URI value.</param>
+    /// <param name="source">The source value, a binary, URI, or QName value.</param>
     /// <param name="result">The result.</param>
     /// <returns>The status.</returns>
     public static CastStatus ToStringType(in XdmItem source, out XdmItem result)
@@ -91,7 +91,7 @@ internal static class OtherConversions
     }
 
     /// <summary>Converts to <c>xs:untypedAtomic</c>.</summary>
-    /// <param name="source">The source value, a binary or URI value.</param>
+    /// <param name="source">The source value, a binary, URI, or QName value.</param>
     /// <param name="result">The result.</param>
     /// <returns>The status.</returns>
     public static CastStatus ToUntypedAtomic(in XdmItem source, out XdmItem result)
@@ -106,9 +106,9 @@ internal static class OtherConversions
         return CastStatus.NotAllowed;
     }
 
-    /// <summary>Gets the canonical lexical form of a binary or URI value.</summary>
+    /// <summary>Gets the canonical lexical form of a binary, URI, or QName value.</summary>
     /// <param name="source">The item.</param>
-    /// <param name="text">The canonical form; <see langword="null"/> when the item is neither.</param>
+    /// <param name="text">The canonical form; <see langword="null"/> when the item is none of them.</param>
     /// <returns><see langword="true"/> when the item has one of these types.</returns>
     internal static bool TryFormat(in XdmItem source, out string? text)
     {
@@ -117,6 +117,10 @@ internal static class OtherConversions
             text = binary.ToString(
                 source.Kind == XdmItemKind.HexBinary ? BinaryKind.HexBinary : BinaryKind.Base64Binary
             );
+        }
+        else if (source.TryGetQName(out var name))
+        {
+            text = name!.ToString();
         }
         else
         {

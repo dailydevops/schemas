@@ -192,13 +192,13 @@ public class QNameSeamTests
     }
 
     [Test]
-    [Arguments(CastStatus.DateTimeOverflow, "FODT0001")]
-    [Arguments(CastStatus.DurationOverflow, "FODT0002")]
-    [Arguments(CastStatus.UnboundPrefix, "FONS0004")]
-    [Arguments(CastStatus.InvalidLexical, "FORG0001")]
-    [Arguments(CastStatus.NotAllowed, "XPTY0004")]
-    public async Task Status_MapsToItsErrorCode(CastStatus status, string code) =>
-        await Assert.That(status.ToErrorCode().LocalName).IsEqualTo(code);
+    [Arguments(6, "FODT0001")]
+    [Arguments(7, "FODT0002")]
+    [Arguments(8, "FONS0004")]
+    [Arguments(2, "FORG0001")]
+    [Arguments(1, "XPTY0004")]
+    public async Task Status_MapsToItsErrorCode(int status, string code) =>
+        await Assert.That(((CastStatus)status).ToErrorCode().LocalName).IsEqualTo(code);
 
     [Test]
     public async Task Status_BeyondTheLastMember_IsRejected() =>

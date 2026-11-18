@@ -7,7 +7,7 @@ using NetEvolve.Schemas.XPath.Types;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>
-/// The registration file of this folder: the rows of <c>xs:hexBinary</c>, <c>xs:base64Binary</c>, and <c>xs:anyURI</c> as data. Its module
+/// The registration file of this folder: the rows of <c>xs:hexBinary</c>, <c>xs:base64Binary</c>, <c>xs:anyURI</c>, and <c>xs:QName</c> as data. Its module
 /// initializer stages <see cref="RegisterRows"/> into the default casting catalog, which the constructor functions of these types follow
 /// (<see cref="CastingRegistration"/>).
 /// </summary>
@@ -18,7 +18,18 @@ internal static class OtherRegistration
 {
     // The types of the rows, in the order of the matrix and of the conversions: the two string types come first, because they are the
     // source of every cast from a lexical form and the target of every cast to a string.
-    private static readonly string[] Names = ["string", "untypedAtomic", "hexBinary", "base64Binary", "anyURI"];
+    private static readonly string[] Names =
+    [
+        "string",
+        "untypedAtomic",
+        "hexBinary",
+        "base64Binary",
+        "anyURI",
+        "QName",
+    ];
+
+    // The column of xs:QName: its conversion takes the namespaces of the cast and is not part of Conversions.
+    private const int QNameColumn = 5;
 
     // The conversion into each type; the string types are the targets of every source of this folder.
     private static readonly CastConversion[] Conversions =
@@ -32,17 +43,19 @@ internal static class OtherRegistration
 
     // XQuery 1.0 and XPath 2.0 Functions and Operators, 17.1: one row per source type, one column per target type; Y always succeeds, M depends
     // on the value, N is not allowed (XPTY0004, no row), and - is a cell of the seven types of the casting core. A string reaches
-    // xs:anyURI with certainty: every string is a URI.
+    // xs:anyURI with certainty: every string is a URI. A string or an untyped value reaches xs:QName for the value to decide: XPath 2.0 narrows
+    // the cell to a string literal while lowering (CastingLowerings), so the table keeps the cell of the later versions.
     private static readonly string[] Matrix =
     [
-        "--MMY", // xs:string
-        "--MMY", // xs:untypedAtomic
-        "YYYYN", // xs:hexBinary
-        "YYYYN", // xs:base64Binary
-        "YYNNY", // xs:anyURI
+        "--MMYM", // xs:string
+        "--MMYM", // xs:untypedAtomic
+        "YYYYNN", // xs:hexBinary
+        "YYYYNN", // xs:base64Binary
+        "YYNNYN", // xs:anyURI
+        "YYNNNY", // xs:QName
     ];
 
-    /// <summary>Adds the rows of <c>xs:hexBinary</c>, <c>xs:base64Binary</c>, and <c>xs:anyURI</c>.</summary>
+    /// <summary>Adds the rows of <c>xs:hexBinary</c>, <c>xs:base64Binary</c>, <c>xs:anyURI</c>, and <c>xs:QName</c>.</summary>
     /// <param name="builder">The builder.</param>
     /// <exception cref="System.ArgumentNullException"><paramref name="builder"/> is <see langword="null"/>.</exception>
     public static void RegisterRows(CastingTableBuilder builder)
@@ -60,17 +73,17 @@ internal static class OtherRegistration
             for (var target = 0; target < types.Length; target++)
             {
                 var cell = Matrix[source][target];
-                if (cell is 'Y' or 'M')
+                if (cell is not ('Y' or 'M'))
                 {
-                    builder.Add(
-                        new CastRow(
-                            types[source],
-                            types[target],
-                            cell == 'Y' ? CastCell.Always : CastCell.ValueDependent,
-                            Conversions[target]
-                        )
-                    );
+                    continue;
                 }
+
+                var kind = cell == 'Y' ? CastCell.Always : CastCell.ValueDependent;
+                builder.Add(
+                    target == QNameColumn
+                        ? new CastRow(types[source], types[target], kind, QNameConversions.ToQName)
+                        : new CastRow(types[source], types[target], kind, Conversions[target])
+                );
             }
         }
     }
