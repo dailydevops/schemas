@@ -32,6 +32,16 @@ public class ConstructorFunctionTests
         }
     }
 
+    // Staging order: the staging of the constructors reads the casting table when the function catalog freezes, so the casting table is
+    // frozen from then on, and a package that stages rows later is refused instead of being missed silently.
+    [Test]
+    public async Task DefaultCastingCatalog_StagedAfterTheFunctionCatalogFroze_Throws()
+    {
+        _ = FunctionCatalog.Default.Registry;
+
+        await Assert.That(() => CastingCatalog.Default.Stage(static _ => { })).Throws<InvalidOperationException>();
+    }
+
     [Test]
     [MethodDataSource(nameof(TypeNames))]
     public async Task DefaultCatalog_HoldsTheConstructor_ForEveryVersion(string name)

@@ -9,7 +9,11 @@ using NetEvolve.Arguments;
 /// <c>RegisterRows(CastingTableBuilder)</c> method, and the first read of <see cref="Table"/> freezes the table. There is no shared list
 /// of rows. An instance per test keeps the global <see cref="Default"/> untouched.
 /// </summary>
-/// <remarks>Thread-safe and lock-free, like the function catalog. Limitation: a registration that never runs is not found; the module initializer of its registration file runs it (#123 AP8).</remarks>
+/// <remarks>
+/// Thread-safe and lock-free, like the function catalog. Limitation: a registration that never runs is not found; the module initializer of its registration file runs it (#123 AP8).
+/// Staging order: the function catalog stages the constructor functions with a registration that reads <see cref="Table"/> when the function
+/// catalog freezes, so the first read of the function catalog freezes this table too, and <see cref="Stage"/> throws afterwards.
+/// </remarks>
 internal sealed class CastingCatalog
 {
     private State _state = new([], null);

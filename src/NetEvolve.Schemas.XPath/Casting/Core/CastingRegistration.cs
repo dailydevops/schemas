@@ -11,7 +11,10 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// </summary>
 /// <remarks>
 /// The constructor functions are built when the function catalog freezes, from the table as it is then, so a row that a later package
-/// stages for another target type gets its constructor without a change here.
+/// stages for another target type gets its constructor without a change here. Staging order: that build reads the casting table, so the
+/// first read of the function catalog freezes the casting table too, and a module initializer of another package that stages rows
+/// afterwards gets an <see cref="System.InvalidOperationException"/> from <see cref="CastingCatalog.Stage"/>. A package that owns rows stages them from its
+/// module initializer, which runs before any use of either catalog.
 /// </remarks>
 internal static class CastingRegistration
 {
