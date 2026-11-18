@@ -59,7 +59,8 @@ internal sealed class ScopeTestBinding : IQueryBinding
             }
 
             slots.Add(slot);
-            at = source.IndexOf('$', end);
+            var next = source.AsSpan(end).IndexOf('$');
+            at = next < 0 ? -1 : end + next;
         }
 
         expression = new ScopeTestExpression(source, scope.DeclaredType, [.. slots]);
