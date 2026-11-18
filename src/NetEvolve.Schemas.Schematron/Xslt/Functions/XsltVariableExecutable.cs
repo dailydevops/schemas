@@ -36,6 +36,7 @@ internal sealed class XsltVariableExecutable : XsltExecutable, IXsltSlotReader
     internal override QueryStatus TryExecute(XsltFrame frame, ISequenceSink sink)
     {
         Argument.ThrowIfNull(frame);
+        Argument.ThrowIfNull(sink);
 
         return frame.Run.TryBindVariable(Slot, _value, XsltFunctionFocus.None);
     }
