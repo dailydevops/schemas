@@ -21,6 +21,8 @@ internal sealed partial class XmlParser
 
     private static readonly char[] AttributeStops = ['&', '<', '\t', '\r', '\n'];
 
+    // Built once: the guard of the factory allocates on netstandard2.0, so it must not run for every frame.
+    private readonly XmlTokenizer _replacementTokenizer;
     private EntityFrame[] _frames = [];
     private int _frameCount;
     private XmlPosition _referencePosition;
@@ -64,7 +66,7 @@ internal sealed partial class XmlParser
         PushFrame(text);
         _frames[_frameCount - 1].Saved = _tokenizer;
         _frames[_frameCount - 1].ElementDepth = _depth;
-        _tokenizer = XmlTokenizer.ForReplacementText(_limits);
+        _tokenizer = _replacementTokenizer;
 
         return true;
     }

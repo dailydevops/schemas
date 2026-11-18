@@ -72,6 +72,7 @@ internal sealed partial class XmlParser : IXmlReader, IDisposable
         _doctypeHandler = doctypeHandler;
         _entityStack = entityStack;
         _tokenizer = new XmlTokenizer(limits, doctypeHandler is not null, entityStack is not null);
+        _replacementTokenizer = XmlTokenizer.ForReplacementText(limits);
         _documentCharacters = XmlBudget.DocumentCharacters(limits);
         _nodes = new XmlBudget(limits.MaxNodeCount, XmlErrorCodes.XML1108);
         _text = XmlBudget.TextLength(limits);
