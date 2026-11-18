@@ -6,6 +6,7 @@ using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xml.Datatypes.Decimals.Arithmetic;
 using NetEvolve.Schemas.Xml.Datatypes.Floating;
 using NetEvolve.Schemas.XPath.Errors;
+using NetEvolve.Schemas.XPath.Evaluation.Arithmetic;
 using NetEvolve.Schemas.XPath.Evaluation.Atomization;
 using NetEvolve.Schemas.XPath.Syntax.Tree;
 using NetEvolve.Schemas.XPath.Xdm.Values;
@@ -185,31 +186,16 @@ internal static class FunctionConversion
         switch (target)
         {
             case XPathItemType.Double:
-                if (item.TryGetFloat(out var single))
+                if (NumericPromotion.TryToDouble(item, out var number))
                 {
-                    promoted = XdmItem.FromDouble(single);
-                }
-                else if (item.TryGetDecimal(out var decimalValue))
-                {
-                    promoted = XdmItem.FromDouble(DecimalArithmetic.ToDouble(decimalValue));
-                }
-                else if (item.TryGetInteger(out var integer))
-                {
-                    promoted = XdmItem.FromDouble(integer);
+                    promoted = XdmItem.FromDouble(number);
                 }
 
                 break;
             case XPathItemType.Float:
-                if (item.TryGetDecimal(out var toFloat))
+                if (NumericPromotion.TryToSingle(item, out var single))
                 {
-                    // Parsed from the exact decimal, so that the value is rounded once and not through a double.
-                    promoted = XdmItem.FromFloat(
-                        XsdFloatingPoint.ParseSingle(toFloat.ToString(), XsdVersion.V10).Value
-                    );
-                }
-                else if (item.TryGetInteger(out var wide))
-                {
-                    promoted = XdmItem.FromFloat(wide);
+                    promoted = XdmItem.FromFloat(single);
                 }
 
                 break;

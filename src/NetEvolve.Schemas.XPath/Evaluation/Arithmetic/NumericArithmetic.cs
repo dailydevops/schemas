@@ -25,7 +25,9 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// <para>
 /// Limitations: a decimal <c>div</c> is rounded half to even at 18 fraction digits, because the precision is implementation-defined
 /// (#100 AP-7); the decimal operations align scales with a power of ten, so their cost grows with the scale difference until the
-/// evaluation limits (XP-75) bound it; a decimal beyond the scale range of the Xml package raises FOAR0002. <c>idiv</c> of float
+/// evaluation limits (XP-75) bound it, and an integer beyond 64 bits grows without bound, so a product or sum of large operands costs
+/// memory and time in proportion to its width until the same limits apply; a decimal beyond the scale range of the Xml package
+/// raises FOAR0002. <c>idiv</c> of float
 /// and double is the truncated quotient of the division, as the specification equates it with <c>($a div $b) cast as xs:integer</c>,
 /// so it can differ from the exact quotient by the rounding of the division. Steady state allocates nothing for the 64-bit
 /// integer, float, and double paths; decimals and integers beyond 64 bits allocate, as the data model documents.
@@ -327,33 +329,16 @@ internal static class NumericArithmetic
             ? value
             : new XsdDecimal(item.TryGetInteger(out var integer) ? integer : 0, 0);
 
-    private static float ToSingle(in XdmItem item)
-    {
-        if (item.TryGetFloat(out var single))
-        {
-            return single;
-        }
+    // The promotion of B.1 lives in NumericPromotion, shared with the function conversion; the operator table maps numeric types only.
+    private static float ToSingle(in XdmItem item) =>
+        NumericPromotion.TryToSingle(item, out var value)
+            ? value
+            : throw XPathErrors.Exception(XPathErrorCodes.XPTY0004);
 
-        // Promotion rounds once: a decimal or a wide integer goes through its exact lexical form, not through a double.
-        return item.TryGetInteger(out var integer)
-            ? integer
-            : XsdFloatingPoint.ParseSingle(ToDecimal(item).ToString().AsSpan(), XsdVersion.V10).Value;
-    }
-
-    private static double ToDouble(in XdmItem item)
-    {
-        if (item.TryGetDouble(out var number))
-        {
-            return number;
-        }
-
-        if (item.TryGetFloat(out var single))
-        {
-            return single;
-        }
-
-        return item.TryGetInteger(out var integer) ? integer : DecimalArithmetic.ToDouble(ToDecimal(item));
-    }
+    private static double ToDouble(in XdmItem item) =>
+        NumericPromotion.TryToDouble(item, out var value)
+            ? value
+            : throw XPathErrors.Exception(XPathErrorCodes.XPTY0004);
 
     private static TValue Unwrap<TValue>(ArithmeticResult<TValue> result) =>
         result.Success ? result.Value : throw (result.Error == DatatypeError.DivisionByZero ? Zero() : Overflow());
