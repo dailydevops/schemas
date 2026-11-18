@@ -22,7 +22,7 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// </para>
 /// <para>
 /// This table mirrors the shape of the table of the arithmetic operators, which is keyed by the arithmetic operator enumeration
-/// and lives in the folder of another work package; the two share no code until a follow-up unifies them.
+/// and lives in the folder of another work package; the two tables share no code, and unifying them is a change to that folder.
 /// </para>
 /// </remarks>
 internal sealed class ComparisonOperatorTable
