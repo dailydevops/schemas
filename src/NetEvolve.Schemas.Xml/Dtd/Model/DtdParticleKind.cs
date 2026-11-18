@@ -1,7 +1,7 @@
 namespace NetEvolve.Schemas.Xml.Dtd.Model;
 
 /// <summary>The kind of a content particle (production 48).</summary>
-internal enum DtdParticleKind : byte
+public enum DtdParticleKind
 {
     /// <summary>An element type name.</summary>
     Name,

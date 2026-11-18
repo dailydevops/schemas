@@ -1,7 +1,7 @@
 namespace NetEvolve.Schemas.Xml.Dtd.Model;
 
 /// <summary>The kind of content an element declaration allows (production 46).</summary>
-internal enum DtdContentKind : byte
+public enum DtdContentKind
 {
     /// <summary><c>EMPTY</c>.</summary>
     Empty,
