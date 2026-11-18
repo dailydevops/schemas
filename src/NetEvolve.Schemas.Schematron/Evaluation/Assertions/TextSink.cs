@@ -15,9 +15,11 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// node resets that adjacency, as in a tree sink.
 /// </summary>
 /// <remarks>
-/// Limitation: only string, untyped atomic, URI, boolean, integer, and decimal values have a text form here. Double, float,
-/// and the remaining kinds need the XPath casting rules, which the XPath package does not offer yet, so they record a
-/// <see cref="Failure"/> instead of a guessed lexical form. The date, time, and duration kinds already convert in the XSLT
+/// Limitation: only string, boolean, integer, and decimal values have a text form here. Untyped atomic and URI values would
+/// convert as their string, but the XPath package keeps both kinds internal, so no test of this package can build one and an
+/// arm for them would stay uncovered; they wait with double, float, and the remaining kinds for the XPath casting rules, which
+/// the XPath package does not offer yet (#624). All of them record a <see cref="Failure"/>
+/// instead of a guessed lexical form. The date, time, and duration kinds already convert in the XSLT
 /// <c>AtomicText</c> converter (#562); this sink has its own conversion only because the Assertions namespace must not depend
 /// on <c>Xslt.Construction</c> (design #137 AP-14, #150 EP-8), so those kinds record a <see cref="Failure"/> here until the
 /// converter moves to a neutral location. Not thread-safe.
@@ -149,8 +151,6 @@ internal sealed class TextSink : ISequenceSink, IDisposable
     private static bool HasTextForm(in XdmItem item) =>
         item.Kind
             is XdmItemKind.XsString
-                or XdmItemKind.UntypedAtomic
-                or XdmItemKind.AnyUri
                 or XdmItemKind.Boolean
                 or XdmItemKind.XsInteger
                 or XdmItemKind.XsDecimal;
@@ -162,14 +162,6 @@ internal sealed class TextSink : ISequenceSink, IDisposable
             case XdmItemKind.XsString:
                 _ = item.TryGetString(out var text);
                 Append(text.AsSpan());
-                break;
-            case XdmItemKind.UntypedAtomic:
-                _ = item.TryGetUntypedAtomic(out var untyped);
-                Append(untyped.AsSpan());
-                break;
-            case XdmItemKind.AnyUri:
-                _ = item.TryGetAnyUri(out var uri);
-                Append(uri.AsSpan());
                 break;
             case XdmItemKind.Boolean:
                 _ = item.TryGetBoolean(out var flag);

@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.Schematron.Evaluation.Assertions;
 
 using System.Runtime.InteropServices;
+using NetEvolve.Arguments;
 
 /// <summary>The ordinals of an assertion in the effective model, which <see cref="Results.Mapping.AssertionIdentifier"/> turns into its identifier.</summary>
 [StructLayout(LayoutKind.Auto)]
@@ -8,6 +9,11 @@ internal readonly struct AssertionPosition
 {
     internal AssertionPosition(int pattern, int rule, int assertion, int expansion = 0)
     {
+        Argument.ThrowIfLessThan(pattern, 1);
+        Argument.ThrowIfLessThan(rule, 1);
+        Argument.ThrowIfLessThan(assertion, 1);
+        Argument.ThrowIfLessThan(expansion, 0);
+
         Pattern = pattern;
         Rule = rule;
         Assertion = assertion;

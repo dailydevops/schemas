@@ -12,7 +12,9 @@ using NetEvolve.Schemas.XPath.Xdm.Nodes;
 /// node reports the position of its parent element, and a document node reports 0, 0. The location path is built recursively, so
 /// its depth is bounded by the nesting depth that the reader limits. Each step counts its preceding siblings, so reporting every
 /// child of one parent costs O(n²) in the child count; the path of a rare report is cheap, and a cached sibling index is the
-/// upgrade when a schema reports on very wide parents.
+/// upgrade when a schema reports on very wide parents. A literal in the path uses the quote that its text does not contain and
+/// XPath 1.0 has no escape, so a namespace name that holds both an apostrophe and a quotation mark is written with the
+/// apostrophe quote and the path then does not parse; it is not rewritten because no escape exists.
 /// </remarks>
 internal static class NodeLocation
 {
