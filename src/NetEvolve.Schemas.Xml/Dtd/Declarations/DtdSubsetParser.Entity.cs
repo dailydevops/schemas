@@ -24,7 +24,7 @@ internal sealed partial class DtdSubsetParser
         }
 
         if (
-            !ScanName(out var name)
+            !ScanNcName(out var name)
             || !RequireSpace()
             || !ParseEntityDefinition(name, isParameter, out var declaration)
         )
@@ -65,7 +65,7 @@ internal sealed partial class DtdSubsetParser
         var afterId = _pos;
         if (!isParameter && SkipSpaces() && Match("NDATA"))
         {
-            if (!RequireSpace() || !ScanName(out notation))
+            if (!RequireSpace() || !ScanNcName(out notation))
             {
                 return false;
             }
@@ -84,7 +84,7 @@ internal sealed partial class DtdSubsetParser
     {
         if (
             !RequireSpace()
-            || !ScanName(out var name)
+            || !ScanNcName(out var name)
             || !RequireSpace()
             || !ScanExternalId(true, out var publicId, out var systemId)
             || !ExpectClose()

@@ -68,6 +68,10 @@ internal sealed partial class DtdSubsetParser
         return true;
     }
 
+    // Namespaces in XML 1.0: an entity name and a notation name are NCNames, so a colon is an error.
+    private bool ScanNcName(out string name) =>
+        ScanName(out name) && (name.AsSpan().IndexOf(':') < 0 || Fail(XmlErrorCodes.XML3004));
+
     // Production 7.
     private bool ScanNmtoken(out string token)
     {
