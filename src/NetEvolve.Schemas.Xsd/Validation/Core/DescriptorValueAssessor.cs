@@ -115,6 +115,4 @@ internal sealed class DescriptorValueAssessor : ISimpleValueAssessor
         memberIndex = -1;
         return DatatypeResult.Invalid(DatatypeError.NoUnionMember, FacetKind.None, 0);
     }
-
-    private static bool IsWhitespace(char c) => c is ' ' or '\t' or '\n' or '\r';
 }
