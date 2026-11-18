@@ -52,6 +52,17 @@ public class AssertionGuardTests
     }
 
     [Test]
+    [Arguments(0, 1, 1, 0)]
+    [Arguments(1, 0, 1, 0)]
+    [Arguments(1, 1, 0, 0)]
+    [Arguments(-1, 1, 1, 0)]
+    [Arguments(1, 1, 1, -1)]
+    public async Task Position_OrdinalBelowItsMinimum_Throws(int pattern, int rule, int assertion, int expansion) =>
+        await Assert
+            .That(() => new AssertionPosition(pattern, rule, assertion, expansion))
+            .Throws<ArgumentOutOfRangeException>();
+
+    [Test]
     public async Task Compiler_NullArguments_Throw()
     {
         using var h = new AssertionHarness();

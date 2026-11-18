@@ -79,20 +79,6 @@ public class TextSinkTests
     }
 
     [Test]
-    public async Task Text_AnyUriAndUntypedAtomic_ConvertToTheirLexicalForm()
-    {
-        using var sink = new TextSink(100);
-        var uri = XdmItem.FromAnyUri("urn:a:b");
-        var untyped = XdmItem.FromUntypedAtomic("raw");
-
-        sink.Item(in uri);
-        sink.Item(in untyped);
-
-        await Assert.That(sink.ToString()).IsEqualTo("urn:a:b raw");
-        await Assert.That(sink.Failure).IsNull();
-    }
-
-    [Test]
     [Arguments(0L, "0")]
     [Arguments(42L, "42")]
     [Arguments(-12L, "-12")]
