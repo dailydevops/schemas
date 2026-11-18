@@ -1,12 +1,14 @@
 namespace NetEvolve.Schemas.XPath.Xdm.Values;
 
 using System;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Datatypes.DateTime;
 using NetEvolve.Schemas.Xml.Datatypes.Decimals;
+using NetEvolve.Schemas.Xml.Datatypes.Decimals.Arithmetic;
 using NetEvolve.Schemas.Xml.Datatypes.Duration;
 using NetEvolve.Schemas.XPath.Xdm.Nodes;
 
@@ -49,6 +51,15 @@ public readonly struct XdmItem : IEquatable<XdmItem>
     /// <param name="value">The value.</param>
     /// <returns>The item.</returns>
     public static XdmItem FromInteger(long value) => new(XdmItemKind.XsInteger, XdmTypeId.XsInteger, value, null);
+
+    /// <summary>Creates an <c>xs:integer</c> item of any width.</summary>
+    /// <param name="value">The value.</param>
+    /// <returns>The inline integer when the value fits 64 bits; otherwise an item of the decimal family that carries the <c>xs:integer</c> type.</returns>
+    /// <remarks>Limitation: a value beyond 64 bits is boxed, and <see cref="TryGetInteger"/> does not read it; use <see cref="TryGetBigInteger"/> (#123 AP2).</remarks>
+    internal static XdmItem FromBigInteger(BigInteger value) =>
+        value >= long.MinValue && value <= long.MaxValue
+            ? FromInteger((long)value)
+            : new(XdmItemKind.XsDecimal, XdmTypeId.XsInteger, 0, new XsdDecimal(value, 0));
 
     /// <summary>Creates a double item.</summary>
     /// <param name="value">The value.</param>
@@ -158,6 +169,28 @@ public readonly struct XdmItem : IEquatable<XdmItem>
     {
         value = _bits;
         return Kind == XdmItemKind.XsInteger;
+    }
+
+    /// <summary>Gets the value of an <c>xs:integer</c> item of any width.</summary>
+    /// <param name="value">The value, zero unless the item is an integer.</param>
+    /// <returns><see langword="true"/> when the item is an integer, inline or beyond 64 bits.</returns>
+    internal bool TryGetBigInteger(out BigInteger value)
+    {
+        if (Kind == XdmItemKind.XsInteger)
+        {
+            value = _bits;
+            return true;
+        }
+
+        if (Kind == XdmItemKind.XsDecimal && TypeId == XdmTypeId.XsInteger)
+        {
+            // The value was built from an integer, so the conversion cannot fail.
+            value = DecimalArithmetic.ToBigInteger((XsdDecimal)_reference!).Value;
+            return true;
+        }
+
+        value = default;
+        return false;
     }
 
     /// <summary>Gets the double value.</summary>
