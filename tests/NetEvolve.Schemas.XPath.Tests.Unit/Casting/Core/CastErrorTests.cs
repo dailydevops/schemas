@@ -134,6 +134,22 @@ public class CastErrorTests
     public async Task Castable_ReturnsWhetherTheCastSucceeds(string expression, bool expected) =>
         await Assert.That(EvaluateRendered(expression)).IsEqualTo(expected ? "boolean:true" : "boolean:false");
 
+    // The operators, the comparisons, and the aggregates cast an untyped operand through the same casting table, so a lexical form beyond
+    // the digit cap is an implementation limit for them too (#621), not an invalid form.
+    [Test]
+    [Arguments("xs:untypedAtomic('", "') + 1", "FOCA0001", 5000)]
+    [Arguments("1 + xs:untypedAtomic('", "')", "FOCA0001", 5000)]
+    [Arguments("xs:untypedAtomic('", "') = 1", "FOCA0001", 5000)]
+    [Arguments("xs:untypedAtomic('", "') = xs:decimal(1)", "FOCA0001", 5000)]
+    [Arguments("sum(xs:untypedAtomic('", "'))", "FOCA0001", 5000)]
+    [Arguments("xs:untypedAtomic('", "') + 1", "FORG0001", 0)]
+    public async Task UntypedOperandBeyondTheDigitCap_RaisesTheCodeOfTheCastingTable(
+        string before,
+        string after,
+        string code,
+        int digits
+    ) => await Assert.That(Code(before + (digits == 0 ? "abc" : Digits(digits)) + after)).IsEqualTo(code);
+
     [Test]
     public async Task Castable_OnTheLimit_Succeeds()
     {
