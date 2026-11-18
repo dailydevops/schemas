@@ -506,15 +506,26 @@ public readonly struct XsdDateTime : IEquatable<XsdDateTime>
         }
 
         var start = pos;
-        if (!TwoDigits(text, ref pos, out var whole) || (Expect(text, ref pos, '.') && !IsDigit(text, pos)))
+        if (!TwoDigits(text, ref pos, out var whole))
         {
             errorOffset = pos;
             return DatatypeError.InvalidLexicalForm;
         }
 
-        while (IsDigit(text, pos))
+        // Only a fraction may extend the two whole-second digits; any further digit without a decimal point is left
+        // for the caller to reject at its offset.
+        if (Expect(text, ref pos, '.'))
         {
-            pos++;
+            if (!IsDigit(text, pos))
+            {
+                errorOffset = pos;
+                return DatatypeError.InvalidLexicalForm;
+            }
+
+            while (IsDigit(text, pos))
+            {
+                pos++;
+            }
         }
 
         var parsed = XsdDecimal.Parse(text.Slice(start, pos - start));
