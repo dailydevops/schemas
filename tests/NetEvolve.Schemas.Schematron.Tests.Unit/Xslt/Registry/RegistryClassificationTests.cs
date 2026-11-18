@@ -1,5 +1,6 @@
 namespace NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Registry;
 
+using System;
 using System.Collections.Generic;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Schematron.Tests.Unit.Fakes;
@@ -297,7 +298,7 @@ public class RegistryClassificationTests
     [Test]
     public async Task AllNames_ListsXslt20And30Elements_EachOnce()
     {
-        var seen = new HashSet<string>();
+        var seen = new HashSet<string>(StringComparer.Ordinal);
         foreach (var name in AllNames())
         {
             await Assert.That(seen.Add(name)).IsTrue();
