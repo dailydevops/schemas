@@ -3190,6 +3190,110 @@ internal static class Qt3RemainingCastSelection
         ),
     ];
 
+    /// <summary>
+    /// The cases of the QT3 sets <c>xs/anyURI</c>, <c>xs/base64Binary</c>, and <c>xs/hexBinary</c>, the <c>xs/*</c> sets of the types of this
+    /// package that XPath 2.0 covers, in the same form. Out: <c>xs/dateTimeStamp</c> (XSD 1.1, XPath 3.1), <c>xs/error</c> (XPath 3.0),
+    /// <c>xs/normalizedString</c> and <c>xs/token</c> (derived types, XP-23), <c>xs/numeric</c> (not a type of this package), and the four
+    /// cases that call <c>fn:count</c> or <c>fn:codepoints-to-string</c> (<c>base64-908</c>, <c>base64-909</c>, <c>cbcl-base64binary-001</c>,
+    /// <c>cbcl-hexbinary-001</c>), whose functions have not landed. <c>Z</c> is the empty sequence.
+    /// </summary>
+    public static readonly (string Id, string Expression, string Expectation)[] XsCases =
+    [
+        ("xs-anyURI/cbcl-anyURI-001", "xs:anyURI(())", "Z"),
+        (
+            "xs-anyURI/cbcl-anyURI-002",
+            "xs:anyURI(\"odd-scheme+1.://www.example.org/\")",
+            "S:odd-scheme+1.://www.example.org/"
+        ),
+        (
+            "xs-anyURI/cbcl-anyURI-003",
+            "xs:anyURI(\"http://%0Ad%E2%9C%90%F0%98%9A%A0/\")",
+            "S:http://%0Ad%E2%9C%90%F0%98%9A%A0/"
+        ),
+        ("xs-anyURI/cbcl-anyURI-004b", "xs:anyURI(\"http://!$&'()*+,;=/\")", "S:http://!$&'()*+,;=/"),
+        (
+            "xs-anyURI/cbcl-anyURI-005",
+            "xs:anyURI(\"http://www.example.org/%0Ad%E2%9C%90%F0%98%9A%A0/\")",
+            "S:http://www.example.org/%0Ad%E2%9C%90%F0%98%9A%A0/"
+        ),
+        (
+            "xs-anyURI/cbcl-anyURI-006b",
+            "xs:anyURI(\"http://www.example.org/!/$/&/'/(/)/*/+/,/;/=/\")",
+            "S:http://www.example.org/!/$/&/'/(/)/*/+/,/;/=/"
+        ),
+        ("xs-anyURI/cbcl-anyURI-007", "xs:anyURI(\"http://www.example.org/:/@/\")", "S:http://www.example.org/:/@/"),
+        (
+            "xs-anyURI/cbcl-anyURI-008",
+            "xs:anyURI(\"http://www.example.org/?%0Ad%E2%9C%90%F0%98%9A%A0/\")",
+            "S:http://www.example.org/?%0Ad%E2%9C%90%F0%98%9A%A0/"
+        ),
+        (
+            "xs-anyURI/cbcl-anyURI-009b",
+            "xs:anyURI(\"http://www.example.org/?!$&'()*+,;=\")",
+            "S:http://www.example.org/?!$&'()*+,;="
+        ),
+        ("xs-anyURI/cbcl-anyURI-010", "xs:anyURI(\"http://www.example.org/?:@\")", "S:http://www.example.org/?:@"),
+        (
+            "xs-anyURI/cbcl-anyURI-011",
+            "xs:anyURI(\"http://www.example.org/#%0Ad%E2%9C%90%F0%98%9A%A0/\")",
+            "S:http://www.example.org/#%0Ad%E2%9C%90%F0%98%9A%A0/"
+        ),
+        (
+            "xs-anyURI/cbcl-anyURI-012b",
+            "xs:anyURI(\"http://www.example.org/#!$&'()*+,;=\")",
+            "S:http://www.example.org/#!$&'()*+,;="
+        ),
+        ("xs-anyURI/cbcl-anyURI-013", "xs:anyURI(\"http://www.example.org/#:@\")", "S:http://www.example.org/#:@"),
+        ("xs-base64Binary/base64-001", "xs:base64Binary(xs:hexBinary(\"\"))", "S:"),
+        ("xs-base64Binary/base64-002", "xs:base64Binary(xs:hexBinary(\"00\"))", "S:AA=="),
+        ("xs-base64Binary/base64-003", "xs:base64Binary(xs:hexBinary(\"01\"))", "S:AQ=="),
+        ("xs-base64Binary/base64-004", "xs:base64Binary(xs:hexBinary(\"ff\"))", "S:/w=="),
+        ("xs-base64Binary/base64-005", "xs:base64Binary(xs:hexBinary(\"0000\"))", "S:AAA="),
+        ("xs-base64Binary/base64-006", "xs:base64Binary(xs:hexBinary(\"00ff\"))", "S:AP8="),
+        ("xs-base64Binary/base64-007", "xs:base64Binary(xs:hexBinary(\"80c0\"))", "S:gMA="),
+        ("xs-base64Binary/base64-008", "xs:base64Binary(xs:hexBinary(\"aabbcc\"))", "S:qrvM"),
+        ("xs-base64Binary/base64-009", "xs:base64Binary(xs:hexBinary(\"010203\"))", "S:AQID"),
+        ("xs-base64Binary/base64-010", "xs:base64Binary(xs:hexBinary(\"01020304\"))", "S:AQIDBA=="),
+        ("xs-base64Binary/base64-011", "xs:base64Binary(xs:hexBinary(\"0102030405\"))", "S:AQIDBAU="),
+        ("xs-base64Binary/base64-012", "xs:base64Binary(xs:hexBinary(\"010203040506\"))", "S:AQIDBAUG"),
+        ("xs-base64Binary/base64-013", "xs:base64Binary(xs:hexBinary(\"01020304050607\"))", "S:AQIDBAUGBw=="),
+        (
+            "xs-base64Binary/base64-014",
+            "xs:base64Binary(xs:hexBinary(\"0102030405060708090A0B0C0D0E0F10111213131415161718191A1B1C1D1F202122232425262728292A2B2C2D2E2F\"))",
+            "S:AQIDBAUGBwgJCgsMDQ4PEBESExMUFRYXGBkaGxwdHyAhIiMkJSYnKCkqKywtLi8="
+        ),
+        ("xs-base64Binary/base64-101", "xs:base64Binary(\"\")", "S:"),
+        ("xs-base64Binary/base64-102", "xs:hexBinary(xs:base64Binary(\"AA==\"))", "S:00"),
+        ("xs-base64Binary/base64-103", "xs:hexBinary(xs:base64Binary(\"AQ==\"))", "S:01"),
+        ("xs-base64Binary/base64-104", "xs:hexBinary(xs:base64Binary(\"/w==\"))", "S:FF"),
+        ("xs-base64Binary/base64-105", "xs:hexBinary(xs:base64Binary(\"AAA=\"))", "S:0000"),
+        ("xs-base64Binary/base64-106", "xs:hexBinary(xs:base64Binary(\"AP8=\"))", "S:00FF"),
+        ("xs-base64Binary/base64-107", "xs:hexBinary(xs:base64Binary(\"gMA=\"))", "S:80C0"),
+        ("xs-base64Binary/base64-108", "xs:hexBinary(xs:base64Binary(\"qrvM\"))", "S:AABBCC"),
+        ("xs-base64Binary/base64-109", "xs:hexBinary(xs:base64Binary(\"AQID\"))", "S:010203"),
+        ("xs-base64Binary/base64-110", "xs:hexBinary(xs:base64Binary(\"AQIDBA==\"))", "S:01020304"),
+        ("xs-base64Binary/base64-111", "xs:hexBinary(xs:base64Binary(\"AQIDBAU=\"))", "S:0102030405"),
+        ("xs-base64Binary/base64-112", "xs:hexBinary(xs:base64Binary(\"AQIDBAUG\"))", "S:010203040506"),
+        ("xs-base64Binary/base64-113", "xs:hexBinary(xs:base64Binary(\"AQIDBAUGBw==\"))", "S:01020304050607"),
+        (
+            "xs-base64Binary/base64-114",
+            "xs:hexBinary(xs:base64Binary(\"AQIDBAUGBwgJCgsMDQ4PEBESExMUFRYXGBkaGxwdHyAhIiMkJSYnKCkqKywtLi8=\"))",
+            "S:0102030405060708090A0B0C0D0E0F10111213131415161718191A1B1C1D1F202122232425262728292A2B2C2D2E2F"
+        ),
+        (
+            "xs-base64Binary/base64-115",
+            "xs:hexBinary(xs:base64Binary(\" AQIDBAUG BwgJCgsM DQ4PEBES ExMUFRYX \n GBkaGxwdH yAhIiMkJ SYnKCkqK y w t L i 8 = \"))",
+            "S:0102030405060708090A0B0C0D0E0F10111213131415161718191A1B1C1D1F202122232425262728292A2B2C2D2E2F"
+        ),
+        ("xs-base64Binary/base64-901", "xs:base64Binary(\"AQI\")", "X:FORG0001"),
+        ("xs-base64Binary/base64-902", "xs:base64Binary(\"AQ=I\")", "X:FORG0001"),
+        ("xs-base64Binary/base64-903", "xs:base64Binary(\"=AQI\")", "X:FORG0001"),
+        ("xs-base64Binary/base64-904", "xs:base64Binary(\"qrvM====\")", "X:FORG0001"),
+        ("xs-base64Binary/base64-905", "xs:base64Binary(\"gMA-\")", "X:FORG0001"),
+        ("xs-base64Binary/base64-906", "xs:base64Binary(\"AP9=\")", "X:FORG0001"),
+        ("xs-base64Binary/base64-907", "xs:base64Binary(\"Ay==\")", "X:FORG0001"),
+    ];
+
     public static readonly (string Id, string Reason)[] Excluded =
     [
         ("prod-CastExpr/K-SeqExprCast-1004", "The comparison of these types needs the operators of XP-26 (#300)."),

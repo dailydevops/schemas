@@ -29,6 +29,15 @@ public class Qt3RemainingCastSelectionTests
         }
     }
 
+    public static IEnumerable<Func<(string Id, string Expression, string Expectation)>> XsCases()
+    {
+        foreach (var entry in Qt3RemainingCastSelection.XsCases)
+        {
+            var captured = entry;
+            yield return () => captured;
+        }
+    }
+
     [Test]
     public async Task Selection_NamesEachCaseOnce_AndEachExclusionOnce()
     {
@@ -52,7 +61,14 @@ public class Qt3RemainingCastSelectionTests
             await Assert.That(reason).IsNotEmpty();
         }
 
+        foreach (var (id, _, _) in Qt3RemainingCastSelection.XsCases)
+        {
+            await Assert.That(ids.Add(id)).IsTrue().Because($"{id} is listed twice");
+            await Assert.That(id.StartsWith("xs-", StringComparison.Ordinal)).IsTrue();
+        }
+
         await Assert.That(Qt3RemainingCastSelection.Cases.Length).IsGreaterThan(1500);
+        await Assert.That(Qt3RemainingCastSelection.XsCases.Length).IsGreaterThan(40);
     }
 
     [Test]
@@ -71,6 +87,11 @@ public class Qt3RemainingCastSelectionTests
             .IsTrue()
             .Because($"{id}: {expression} gave {(code.Length > 0 ? code : Describe(result))}, expected {expectation}");
     }
+
+    [Test]
+    [MethodDataSource(nameof(XsCases))]
+    public async Task XsCase_SatisfiesItsAssertion(string id, string expression, string expectation) =>
+        await Case_SatisfiesItsAssertion(id, expression, expectation);
 
     private static ComparisonOperatorTable CreateOperators()
     {
@@ -143,6 +164,7 @@ public class Qt3RemainingCastSelectionTests
 
         return alternative[0] switch
         {
+            'Z' => result.Count == 0,
             'T' => result.Count == 1 && result[0].TryGetBoolean(out var yes) && yes,
             'F' => result.Count == 1 && result[0].TryGetBoolean(out var no) && !no,
             'S' => string.Equals(StringValue(result), alternative.Substring(2), StringComparison.Ordinal),
