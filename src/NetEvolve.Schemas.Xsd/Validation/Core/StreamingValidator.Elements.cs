@@ -369,7 +369,7 @@ internal sealed partial class StreamingValidator
 
     private void AcquireRun(ElementFrame frame, ComplexTypeDefinition complex)
     {
-        if (!_model.TryGetProgram(complex, out var program) || !program!.IsUsable)
+        if (!_model.TryGetProgram(complex, out var program) || !program.IsUsable)
         {
             return;
         }

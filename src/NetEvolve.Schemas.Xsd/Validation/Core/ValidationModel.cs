@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.Xsd.Validation.Core;
 
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;
@@ -78,7 +79,7 @@ internal sealed class ValidationModel
     /// <param name="type">The type.</param>
     /// <param name="program">The program, for a type with element-only or mixed content.</param>
     /// <returns><see langword="true"/> when the type has a program.</returns>
-    public bool TryGetProgram(ComplexTypeDefinition type, out ContentProgram? program)
+    public bool TryGetProgram(ComplexTypeDefinition type, [NotNullWhen(true)] out ContentProgram? program)
     {
         Argument.ThrowIfNull(type);
 
