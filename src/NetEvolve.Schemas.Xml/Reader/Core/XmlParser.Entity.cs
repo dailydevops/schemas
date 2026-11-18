@@ -99,9 +99,10 @@ internal sealed partial class XmlParser
     }
 
     // Section 3.3.3 for the replacement text of an entity in an attribute value: references expand recursively, a literal
-    // '<' is rejected (WFC No < in Attribute Values), TAB, CR, LF, and CRLF become one space each, character references
-    // stay unnormalized, and quotes are ordinary characters. The frames live on the same stack as the content frames and
-    // are all closed again when the walk returns.
+    // '<' is rejected (WFC No < in Attribute Values), TAB, CR, LF, and CRLF become one space each (limitation: CR LF
+    // written as two character references should be two spaces, #645), character references stay unnormalized, and
+    // quotes are ordinary characters. The frames live on the same stack as the content frames and are all closed again
+    // when the walk returns.
     private bool ExpandInAttributeValue(string replacement, XmlPosition position)
     {
         var floor = _frameCount;

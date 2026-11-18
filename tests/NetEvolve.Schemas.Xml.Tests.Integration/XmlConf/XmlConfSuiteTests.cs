@@ -201,11 +201,14 @@ public class XmlConfSuiteTests
     private static readonly string[] NotWellFormedEntityCases =
     [
         "xmltest/not-wf-sa-071",
+        "xmltest/not-wf-sa-072",
         "xmltest/not-wf-sa-073",
         "xmltest/not-wf-sa-074",
         "xmltest/not-wf-sa-075",
+        "xmltest/not-wf-sa-076",
         "xmltest/not-wf-sa-077",
         "xmltest/not-wf-sa-081",
+        "xmltest/not-wf-sa-083",
         "xmltest/not-wf-sa-088",
         "xmltest/not-wf-sa-090",
         "xmltest/not-wf-sa-092",

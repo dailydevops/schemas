@@ -21,7 +21,8 @@ using NetEvolve.Schemas.Xml.Namespaces;
 /// a reference to another entity is <c>XML0008</c> without an entity input stack; a diagnostic inside a frame carries the
 /// outer reference position but not the frame depth (<see cref="XmlDiagnostic"/> has no such member, #646); the
 /// replacement text is read with line end normalization, so a carriage return written as a character reference in an
-/// entity value reads as a line feed (#645); white space outside the root element is not reported; <c>MaxNodeCount</c> counts elements,
+/// entity value reads as a line feed in content and CR LF written as two character references is one space, not two,
+/// in an attribute value (#645); white space outside the root element is not reported; <c>MaxNodeCount</c> counts elements,
 /// attributes, comments, processing instructions, and coalesced text runs (not namespace declarations); an unclosed
 /// element at the end of the input is <c>XML0001</c> and a missing root is <c>XML0012</c>. An exception thrown by a sink
 /// propagates and leaves the parser unusable. Not thread-safe.
