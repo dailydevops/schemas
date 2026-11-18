@@ -5,6 +5,7 @@ using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xml.Datatypes.DateTime;
 using NetEvolve.Schemas.Xml.Datatypes.Decimals;
 using NetEvolve.Schemas.Xml.Datatypes.Duration;
+using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Functions.Binding;
 using NetEvolve.Schemas.XPath.Syntax.Tree;
 using NetEvolve.Schemas.XPath.Tests.Unit.Fakes;
@@ -28,6 +29,12 @@ public class FunctionConversionTests
         new(type, occurrence);
 
     private static XdmItem Decimal(string lexical) => XdmItem.FromDecimal(XsdDecimal.Parse(lexical).Value);
+
+    private static XdmItem Moment(string lexical, XsdDateTimeKind kind) =>
+        XdmItem.FromDateTime(XsdDateTime.Parse(lexical, kind, XsdVersion.V10).Value);
+
+    private static XdmItem Span(string lexical, DurationKind kind) =>
+        XdmItem.FromDuration(XsdDuration.Parse(lexical, kind).Value, kind);
 
     // Atomization
 
@@ -120,6 +127,46 @@ public class FunctionConversionTests
             One(XdmItem.FromUntypedAtomic("PT1H")),
             One(XdmItem.FromDuration(XsdDuration.Parse("PT1H", DurationKind.DayTime).Value, DurationKind.DayTime))
         );
+
+    [Test]
+    public async Task UntypedAtomic_ToDateTime_IsCastToTheDateTimeValue() =>
+        await BindingHarness.AssertConverts(
+            Type(XPathItemType.DateTime),
+            One(XdmItem.FromUntypedAtomic("2026-01-02T03:04:05")),
+            One(Moment("2026-01-02T03:04:05", XsdDateTimeKind.DateTime))
+        );
+
+    [Test]
+    public async Task UntypedAtomic_ToTime_IsCastToTheTimeValue() =>
+        await BindingHarness.AssertConverts(
+            Type(XPathItemType.Time),
+            One(XdmItem.FromUntypedAtomic("03:04:05")),
+            One(Moment("03:04:05", XsdDateTimeKind.Time))
+        );
+
+    [Test]
+    public async Task UntypedAtomic_ToDuration_IsCastToTheDurationValue() =>
+        await BindingHarness.AssertConverts(
+            Type(XPathItemType.Duration),
+            One(XdmItem.FromUntypedAtomic("P1Y2M3DT4H")),
+            One(Span("P1Y2M3DT4H", DurationKind.Duration))
+        );
+
+    [Test]
+    public async Task UntypedAtomic_ToYearMonthDuration_IsCastToTheDurationValue() =>
+        await BindingHarness.AssertConverts(
+            Type(XPathItemType.YearMonthDuration),
+            One(XdmItem.FromUntypedAtomic("P1Y2M")),
+            One(Span("P1Y2M", DurationKind.YearMonth))
+        );
+
+    [Test]
+    public async Task UntypedAtomic_CastToATypeWithoutACastTarget_RaisesXPTY0004()
+    {
+        var failure = await Assert.That(() => UntypedAtomicCast.Cast("x", XPathItemType.Node)).Throws<XPathException>();
+
+        await Assert.That(failure!.Diagnostic.Code).IsEqualTo("XPTY0004");
+    }
 
     [Test]
     public async Task UntypedAtomic_ToAnyUri_IsCastToTheUri() =>
@@ -247,6 +294,94 @@ public class FunctionConversionTests
             One(XdmItem.FromString("urn:a"))
         );
 
+    [Test]
+    public async Task Substitution_DateTimeForDateTime_StaysADateTime()
+    {
+        var moment = One(Moment("2026-01-02T03:04:05", XsdDateTimeKind.DateTime));
+
+        await BindingHarness.AssertConverts(Type(XPathItemType.DateTime), moment, moment);
+    }
+
+    [Test]
+    public async Task Substitution_DateForDate_StaysADate()
+    {
+        var date = One(Moment("2026-01-02", XsdDateTimeKind.Date));
+
+        await BindingHarness.AssertConverts(Type(XPathItemType.Date), date, date);
+    }
+
+    [Test]
+    public async Task Substitution_TimeForTime_StaysATime()
+    {
+        var time = One(Moment("03:04:05", XsdDateTimeKind.Time));
+
+        await BindingHarness.AssertConverts(Type(XPathItemType.Time), time, time);
+    }
+
+    [Test]
+    public async Task Substitution_DurationForDuration_StaysADuration()
+    {
+        var duration = One(Span("P1Y2M3DT4H", DurationKind.Duration));
+
+        await BindingHarness.AssertConverts(Type(XPathItemType.Duration), duration, duration);
+    }
+
+    [Test]
+    public async Task Substitution_YearMonthDurationForDuration_StaysAYearMonthDuration()
+    {
+        var duration = One(Span("P1Y2M", DurationKind.YearMonth));
+
+        await BindingHarness.AssertConverts(Type(XPathItemType.Duration), duration, duration);
+    }
+
+    [Test]
+    public async Task Substitution_DayTimeDurationForDuration_StaysADayTimeDuration()
+    {
+        var duration = One(Span("PT1H", DurationKind.DayTime));
+
+        await BindingHarness.AssertConverts(Type(XPathItemType.Duration), duration, duration);
+    }
+
+    [Test]
+    public async Task Substitution_YearMonthDurationForYearMonthDuration_StaysAYearMonthDuration()
+    {
+        var duration = One(Span("P1Y2M", DurationKind.YearMonth));
+
+        await BindingHarness.AssertConverts(Type(XPathItemType.YearMonthDuration), duration, duration);
+    }
+
+    [Test]
+    public async Task Substitution_DurationForYearMonthDuration_IsATypeError() =>
+        await BindingHarness.AssertFails(
+            Type(XPathItemType.YearMonthDuration),
+            One(Span("P1Y2M3DT4H", DurationKind.Duration)),
+            "XPTY0004"
+        );
+
+    [Test]
+    public async Task Substitution_DateForDateTime_IsATypeError() =>
+        await BindingHarness.AssertFails(
+            Type(XPathItemType.DateTime),
+            One(Moment("2026-01-02", XsdDateTimeKind.Date)),
+            "XPTY0004"
+        );
+
+    [Test]
+    public async Task Substitution_DateTimeForTime_IsATypeError() =>
+        await BindingHarness.AssertFails(
+            Type(XPathItemType.Time),
+            One(Moment("2026-01-02T03:04:05", XsdDateTimeKind.DateTime)),
+            "XPTY0004"
+        );
+
+    [Test]
+    public async Task Substitution_TimeForDate_IsATypeError() =>
+        await BindingHarness.AssertFails(
+            Type(XPathItemType.Date),
+            One(Moment("03:04:05", XsdDateTimeKind.Time)),
+            "XPTY0004"
+        );
+
     // XPTY0004
 
     [Test]
@@ -284,6 +419,14 @@ public class FunctionConversionTests
             XdmSequence.Empty,
             "XPTY0004"
         );
+
+    [Test]
+    public async Task TypeError_StringForNumeric_RaisesXPTY0004() =>
+        await BindingHarness.AssertFails(Type(XPathItemType.Numeric), One(XdmItem.FromString("1")), "XPTY0004");
+
+    [Test]
+    public async Task TypeError_IntegerForBoolean_RaisesXPTY0004() =>
+        await BindingHarness.AssertFails(Type(XPathItemType.Boolean), One(XdmItem.FromInteger(1)), "XPTY0004");
 
     [Test]
     public async Task TypeError_AtomicValueWhereNodeIsExpected_RaisesXPTY0004() =>

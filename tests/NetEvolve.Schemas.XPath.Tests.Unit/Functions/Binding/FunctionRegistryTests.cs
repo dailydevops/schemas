@@ -452,6 +452,10 @@ public class FunctionRegistryTests
     public async Task WithUserFunctions_NullElement_Throws() =>
         await Assert.That(() => BuiltIn().WithUserFunctions([null!])).Throws<ArgumentNullException>();
 
+    [Test]
+    public async Task Create_NullElement_Throws() =>
+        await Assert.That(() => FunctionRegistry.Create([null!])).Throws<ArgumentNullException>();
+
     private static bool Found(
         FunctionRegistry registry,
         string local,
