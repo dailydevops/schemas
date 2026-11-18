@@ -18,7 +18,9 @@ using NetEvolve.Schemas.XPath.Xdm.Nodes;
 /// Limitations: the content form (a sequence constructor in place of <see langword="select"/>, which builds a temporary tree) is SCH-67; the
 /// <see langword="as"/> type is limited to the types the scopes of the package check (<c>xs:string</c>, <c>xs:boolean</c>, <c>xs:double</c>, and
 /// <c>xs:integer</c>, #392) and is checked by the binding through the declared type of the scope; the global <c>xsl:variable</c>
-/// belongs to SCH-66 (#252), which extends the positions of this entry together with the registration file.
+/// belongs to SCH-66 (#252), which extends the positions of this entry together with the registration file. Without select and content the
+/// variable is the empty string whether or not <see langword="as"/> is present; XSLT 2.0 section 9.3 gives the empty sequence when
+/// <see langword="as"/> is present, so a variable such as <c>as="xs:string"</c> that should fail with XTTE0570 does not (SCH-67).
 /// </remarks>
 internal sealed class XsltVariableInstruction : IXsltInstruction
 {

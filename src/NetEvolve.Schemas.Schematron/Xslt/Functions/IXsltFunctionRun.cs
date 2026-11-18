@@ -14,6 +14,13 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// Limitation: <see cref="IQueryRun"/> binds only the value of an expression, and a stylesheet function receives its arguments as
 /// evaluated values, so the run of a binding implements this interface too. The run of the XPath binding does not exist yet (XP-19,
 /// #297, and the typed host state P-X4 of design #150); until then only the test run implements it.
+/// <para>
+/// Contract of the host-function adapter: a stylesheet function is called from inside an evaluation, through
+/// <c>XsltFunctionCaller.TryCall</c>. When the call fails, the problem of the callee (<c>XsltFunctionCaller.GetProblem</c>) must
+/// become the problem of the run, so the <see cref="IQueryRun.GetProblem"/> of the outermost evaluation reports the nested failure
+/// with its own code and location and not a generic one; the test run does this when a nested call fails, and the run of the XPath
+/// binding does it in #628.
+/// </para>
 /// </remarks>
 internal interface IXsltFunctionRun : IQueryRun
 {

@@ -74,7 +74,7 @@ internal sealed class XsltFunctionCaller
     /// <param name="arguments">The arguments as evaluated, one sequence each; their number is the arity.</param>
     /// <param name="result">The result when the status is <see cref="QueryStatus.Ok"/>.</param>
     /// <returns><see cref="QueryStatus.Problem"/> when a conversion, the body, or a limit failed; the problem is read with <see cref="GetProblem"/>.</returns>
-    /// <exception cref="OperationCanceledException">The token of the caller is cancelled.</exception>
+    /// <exception cref="OperationCanceledException">The token of the caller is canceled.</exception>
     internal QueryStatus TryCall(
         XsltFunctionComponent function,
         ReadOnlySpan<XdmSequence> arguments,
