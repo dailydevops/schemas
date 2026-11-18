@@ -18,6 +18,9 @@ internal sealed class ScriptedMatcher(List<string> log) : IPatternMatcher
 {
     internal int MatchCalls { get; private set; }
 
+    /// <summary>Gets or sets a value indicating whether every call is written to the log; switched off by the allocation tests.</summary>
+    internal bool Record { get; set; } = true;
+
     internal Action<int>? OnMatch { get; set; }
 
     internal List<(string Text, PatternUse Use, QueryStaticScope Scope)> Compiled { get; } = [];
@@ -72,7 +75,10 @@ internal sealed class ScriptedMatcher(List<string> log) : IPatternMatcher
         OnMatch?.Invoke(MatchCalls);
         var text = ((ScriptedPattern)compiled).Text;
         var node = candidate.Node;
-        log.Add("match:" + text);
+        if (Record)
+        {
+            log.Add("match:" + text);
+        }
         matched = false;
         if (text.StartsWith("err:", StringComparison.Ordinal))
         {

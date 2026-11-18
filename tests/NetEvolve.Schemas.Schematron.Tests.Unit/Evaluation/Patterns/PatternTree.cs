@@ -9,6 +9,18 @@ internal static class PatternTree
 {
     internal static PatternElement E(string name, params object[] content) => new(name, content);
 
+    /// <summary>Creates a root element with <paramref name="children"/> empty child elements named <c>item</c>.</summary>
+    internal static PatternElement Wide(int children)
+    {
+        var content = new object[children];
+        for (var i = 0; i < children; i++)
+        {
+            content[i] = E("item");
+        }
+
+        return E("r", content);
+    }
+
     internal static PatternAttribute A(string name, string value) => new(name, value);
 
     /// <summary>Builds the document; <paramref name="namespacePrefix"/> declares one extra namespace on the root element.</summary>

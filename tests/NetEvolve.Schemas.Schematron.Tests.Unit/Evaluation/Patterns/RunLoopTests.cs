@@ -7,17 +7,6 @@ using static NetEvolve.Schemas.Schematron.Tests.Unit.Evaluation.Patterns.Pattern
 /// <summary>Cancellation and the issue limit of the run loop (design #150 EP-16, #137 OQ-1).</summary>
 public class RunLoopTests
 {
-    private static PatternElement Wide(int children)
-    {
-        var content = new object[children];
-        for (var i = 0; i < children; i++)
-        {
-            content[i] = E("item");
-        }
-
-        return E("r", content);
-    }
-
     [Test]
     public async Task Cancellation_AlreadyCancelled_ThrowsBeforeAnyEvent()
     {

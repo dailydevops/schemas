@@ -1,5 +1,6 @@
 namespace NetEvolve.Schemas.Schematron.Tests.Unit.Evaluation.Patterns;
 
+using NetEvolve.Schemas.Testing.Allocations;
 using static NetEvolve.Schemas.Schematron.Tests.Unit.Evaluation.Patterns.PatternModel;
 using static NetEvolve.Schemas.Schematron.Tests.Unit.Evaluation.Patterns.PatternTree;
 
@@ -109,6 +110,23 @@ public class TraversalTests
     }
 
     [Test]
+    public async Task Traversal_PerNode_SteadyState_AllocatesNothing()
+    {
+        var schema = Schema(Pattern("p", Rule("r1", "none", Holds())));
+        using var small = new PatternHarness(schema, Wide(10));
+        using var large = new PatternHarness(schema, Wide(2_000));
+        small.Matcher.Record = false;
+        large.Matcher.Record = false;
+
+        var perPassSmall = AllocationAssert.Measure(() => Pass(small), warmups: 20);
+        var perPassLarge = AllocationAssert.Measure(() => Pass(large), warmups: 20);
+
+        // A pass allocates what its events cost, whatever the number of visited nodes: nothing per node.
+        await Assert.That(perPassLarge).IsEqualTo(perPassSmall);
+        await Assert.That(large.Matcher.MatchCalls).IsGreaterThan(2_000);
+    }
+
+    [Test]
     public async Task Traversal_KindPrefilter_SkipsNodesThatCannotMatch()
     {
         var schema = Schema(Pattern("p", Rule("r1", "@x", Holds())));
@@ -183,5 +201,12 @@ public class TraversalTests
 
         await Assert.That(h.Log.Events).DoesNotContain("begin");
         await Assert.That(h.Log.Events).DoesNotContain("finish");
+    }
+
+    private static void Pass(PatternHarness h)
+    {
+        h.Log.Events.Clear();
+        h.Log.Patterns.Clear();
+        _ = h.Evaluate();
     }
 }
