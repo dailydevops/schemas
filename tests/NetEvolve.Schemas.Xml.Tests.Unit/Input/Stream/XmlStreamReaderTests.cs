@@ -21,6 +21,9 @@ public class XmlStreamReaderTests
         + "<r xmlns=\"urn:d\" xmlns:p=\"urn:p\" a=\"x&amp;y\t\r\nz&#10;\" p:b='\U0001F600'>\r\n  café \U0001D11E &lt; &#x1F600;\r"
         + "<p:e/><x\U0001F600y/><![CDATA[a]b]]c]]]]><![CDATA[\r\nq]]>t<!-- - --><?pi2 ? ??>?>d?>  </r>\r\n<!--tail-->\n";
 
+    private static readonly int[] AllBufferSizes = [1, 3, 4096];
+    private static readonly int[] DefaultBufferSizes = [4096];
+
     private static byte[] Utf8(string xml) => Encoding.UTF8.GetBytes(xml);
 
     private static string Big()
@@ -60,27 +63,38 @@ public class XmlStreamReaderTests
         yield return () => ("declared us-ascii", Utf8("<?xml version='1.0' encoding='us-ascii'?><a>plain</a>"));
     }
 
-    public static IEnumerable<Func<(string Name, byte[] Bytes)>> Failures()
+    public static IEnumerable<Func<(string Name, byte[] Bytes, bool DefaultBufferOnly)>> Failures()
     {
-        yield return () => ("conflicting declared encoding", Utf8("<?xml version=\"1.0\" encoding=\"UTF-16\"?><a/>"));
         yield return () =>
-            ("unsupported declared encoding", Utf8("<?xml version=\"1.0\" encoding=\"windows-1252\"?><a/>"));
-        yield return () => ("invalid utf-8 after valid prefix", [.. Utf8("<a>ok"), 0xFF, .. Utf8("</a>")]);
-        yield return () => ("truncated utf-8 at the end", [.. Utf8("<a>ok</a>"), 0xC3]);
-        yield return () => ("not well-formed before invalid bytes", [.. Utf8("<a></b>"), 0xFF]);
-        yield return () => ("unclosed element", Utf8("<a><b>"));
-        yield return () => ("empty stream", []);
-        yield return () => ("byte order mark only", [0xEF, 0xBB, 0xBF]);
-        yield return () => ("three bytes", Utf8("<a/"));
-        yield return () => ("ebcdic detection", [0x4C, 0x6F, 0xA7, 0x94, 0x40]);
-        yield return () => ("declaration with a bad version", Utf8("<?xml version=\"x\"?><a/>"));
-        yield return () => ("doctype without opt-in", Utf8("<!DOCTYPE a><a/>"));
+            ("conflicting declared encoding", Utf8("<?xml version=\"1.0\" encoding=\"UTF-16\"?><a/>"), false);
+        yield return () =>
+            ("unsupported declared encoding", Utf8("<?xml version=\"1.0\" encoding=\"windows-1252\"?><a/>"), false);
+        yield return () => ("invalid utf-8 after valid prefix", [.. Utf8("<a>ok"), 0xFF, .. Utf8("</a>")], false);
+        yield return () => ("truncated utf-8 at the end", [.. Utf8("<a>ok</a>"), 0xC3], false);
+        yield return () => ("not well-formed before invalid bytes", [.. Utf8("<a></b>"), 0xFF], false);
+        yield return () => ("unclosed element", Utf8("<a><b>"), false);
+        yield return () => ("empty stream", [], false);
+        yield return () => ("byte order mark only", [0xEF, 0xBB, 0xBF], false);
+        yield return () => ("three bytes", Utf8("<a/"), false);
+        yield return () => ("ebcdic detection", [0x4C, 0x6F, 0xA7, 0x94, 0x40], false);
+        yield return () => ("declaration with a bad version", Utf8("<?xml version=\"x\"?><a/>"), false);
+        yield return () => ("doctype without opt-in", Utf8("<!DOCTYPE a><a/>"), false);
+
+        // The first pump must see a buffer of characters (AP2), not just the head bytes. Buffer sizes below the head differ
+        // in the core tokenizer by chunk size, so these two compare at the default size only.
+        yield return () => ("whitespace before the declaration", Utf8(" <?xml version=\"1.0\"?><a/>"), true);
+        yield return () =>
+            (
+                "invalid byte after the declaration start",
+                [.. Utf8(" <?xml"), 0xFF, .. Utf8(" version=\"1.0\"?><a/>")],
+                true
+            );
     }
 
     [Test]
     [MethodDataSource(nameof(Samples))]
     public async Task ReadAsync_OneByteStreams_GiveTheEventsOfTheSpanPath(
-        string name,
+        string _,
         byte[] bytes,
         CancellationToken cancellationToken
     )
@@ -96,13 +110,12 @@ public class XmlStreamReaderTests
         await Assert.That(expected.Status).IsEqualTo(XmlReadStatus.Completed);
         await Assert.That(tiny).IsEqualTo(expected);
         await Assert.That(coalesced).IsEqualTo(expected);
-        await Assert.That(name).IsNotEmpty();
     }
 
     [Test]
     [MethodDataSource(nameof(Samples))]
     public async Task ReadAsync_SeededRandomChunkSizes_GiveTheEventsOfTheSpanPath(
-        string name,
+        string _,
         byte[] bytes,
         CancellationToken cancellationToken
     )
@@ -126,15 +139,14 @@ public class XmlStreamReaderTests
                 await Assert.That(actual).IsEqualTo(expected);
             }
         }
-
-        await Assert.That(name).IsNotEmpty();
     }
 
     [Test]
     [MethodDataSource(nameof(Failures))]
     public async Task ReadAsync_Failures_GiveTheCodePositionAndEventsOfTheSpanPath(
-        string name,
+        string _,
         byte[] bytes,
+        bool defaultBufferOnly,
         CancellationToken cancellationToken
     )
     {
@@ -144,7 +156,7 @@ public class XmlStreamReaderTests
         var expected = StreamRuns.Span(bytes, options);
 
         await Assert.That(expected.Status).IsEqualTo(XmlReadStatus.Error);
-        foreach (var bufferSize in new[] { 1, 3, 4096 })
+        foreach (var bufferSize in defaultBufferOnly ? DefaultBufferSizes : AllBufferSizes)
         {
             var oneByte = await StreamRuns.StreamAsync(bytes, _ => 1, bufferSize, options, cancellationToken);
             var whole = await StreamRuns.StreamAsync(bytes, _ => int.MaxValue, bufferSize, options, cancellationToken);
@@ -154,8 +166,6 @@ public class XmlStreamReaderTests
             await Assert.That(oneByte.Events).IsEqualTo(expected.Events);
             await Assert.That(whole).IsEqualTo(expected);
         }
-
-        await Assert.That(name).IsNotEmpty();
     }
 
     [Test]
@@ -365,6 +375,8 @@ public class XmlStreamReaderTests
         );
 
         await Assert.That(async () => await reader.ReadAsync(source.Token)).Throws<OperationCanceledException>();
+        await Assert.That(bytePool.Rented.Count).IsEqualTo(0);
+        await Assert.That(charPool.Rented.Count).IsEqualTo(0);
         var status = await reader.ReadAsync(cancellationToken);
 
         await Assert.That(stream.Reads).IsGreaterThan(0);
