@@ -27,11 +27,13 @@ internal sealed class PathNode : ExecutableNode, IOrderedNodeSequence
     private readonly PathRoot _root;
     private readonly PathStep[] _steps;
     private readonly XPathOrderRequirement[] _requirements;
+    private readonly SourceSpan _location;
 
     /// <summary>Initializes a new instance of the <see cref="PathNode"/> class.</summary>
     /// <param name="root">How the path starts; <see cref="PathRoot.RootDescendants"/> is handled by the lowering, which adds its step.</param>
     /// <param name="steps">The steps, at least one unless the path starts at the root.</param>
-    public PathNode(PathRoot root, PathStep[] steps)
+    /// <param name="location">The location of the path in the expression, reported when a result exceeds the sequence size limit; unknown when <see langword="null"/>.</param>
+    public PathNode(PathRoot root, PathStep[] steps, SourceSpan? location = null)
     {
         Argument.ThrowIfLessThan((int)root, (int)PathRoot.Relative, nameof(root));
         Argument.ThrowIfGreaterThan((int)root, (int)PathRoot.RootDescendants, nameof(root));
@@ -44,6 +46,7 @@ internal sealed class PathNode : ExecutableNode, IOrderedNodeSequence
         _root = root;
         _steps = steps;
         _requirements = Analyze(steps);
+        _location = location ?? new SourceSpan(-1, 0);
     }
 
     /// <summary>Gets what each step needs after it ran: nothing, a reversal, duplicate removal, or a sort.</summary>
@@ -62,8 +65,9 @@ internal sealed class PathNode : ExecutableNode, IOrderedNodeSequence
     {
         Argument.ThrowIfNull(context);
 
-        var current = default(XdmItemList);
-        var next = default(XdmItemList);
+        var limit = context.Limits.MaxSequenceSize;
+        var current = new XdmItemList(limit, _location);
+        var next = new XdmItemList(limit, _location);
         try
         {
             var index = 0;
