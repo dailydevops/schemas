@@ -64,6 +64,7 @@ namespace NetEvolve.Schemas.Schematron
         public static readonly NetEvolve.Schemas.DiagnosticCode ElementMisplaced;
         public static readonly NetEvolve.Schemas.DiagnosticCode ElementUnknown;
         public static readonly NetEvolve.Schemas.DiagnosticCode EvaluationFailed;
+        public static readonly NetEvolve.Schemas.DiagnosticCode EvaluationLimitStop;
         public static readonly NetEvolve.Schemas.DiagnosticCode ExpressionInvalid;
         public static readonly NetEvolve.Schemas.DiagnosticCode IdDuplicate;
         public static readonly NetEvolve.Schemas.DiagnosticCode IdrefUnresolved;
