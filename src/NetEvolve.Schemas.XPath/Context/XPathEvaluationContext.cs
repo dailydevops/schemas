@@ -4,6 +4,7 @@ using System;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Abstractions;
 using NetEvolve.Schemas.XPath.Errors;
+using NetEvolve.Schemas.XPath.Limits;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>The dynamic context of an evaluation (XPath 2.0, 2.1.2). Not thread-safe and reusable; use one per thread.</summary>
@@ -14,6 +15,7 @@ public sealed class XPathEvaluationContext : IDisposable
     private bool _disposed;
     private int _implicitTimezoneMinutes;
     private DateTimeOffset? _currentDateTime;
+    private XPathLimits _limits = XPathLimits.Default;
 
     /// <summary>Initializes a new instance of the <see cref="XPathEvaluationContext"/> class.</summary>
     public XPathEvaluationContext()
@@ -30,6 +32,23 @@ public sealed class XPathEvaluationContext : IDisposable
 
     /// <summary>Gets or sets the resolver for external resources; <see langword="null"/> denies them (FODC0002).</summary>
     public IXPathResourceResolver? ResourceResolver { get; set; }
+
+    /// <summary>
+    /// Gets or sets the evaluation limits: the recursion depth, the size of a sequence and of a range, and the length of a string. They
+    /// start as <see cref="XPathLimits.Default"/>, the flow of the core validation limits, and stay through <see cref="Reset"/>.
+    /// </summary>
+    /// <remarks>Limitation: internal until the public evaluation API (XP-19) exposes the limits.</remarks>
+    /// <exception cref="ArgumentNullException">The value is <see langword="null"/>.</exception>
+    internal XPathLimits Limits
+    {
+        get => _limits;
+        set
+        {
+            Argument.ThrowIfNull(value);
+
+            _limits = value;
+        }
+    }
 
     internal XPathFocus Focus { get; private set; }
 
@@ -91,7 +110,7 @@ public sealed class XPathEvaluationContext : IDisposable
         Focus = new XPathFocus(item, position, size);
     }
 
-    /// <summary>Clears the focus, the variables, and the host slots; the resource resolver stays.</summary>
+    /// <summary>Clears the focus, the variables, and the host slots; the resource resolver and the limits stay.</summary>
     /// <exception cref="ObjectDisposedException">The context is disposed.</exception>
     public void Reset()
     {

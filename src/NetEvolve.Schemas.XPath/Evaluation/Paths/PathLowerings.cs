@@ -31,7 +31,7 @@ internal static class PathLowerings
 
         registry.Register<PathExpression>(static (node, context) => LowerPath(node, context));
         registry.Register<AxisStep>(
-            static (node, context) => new PathNode(PathRoot.Relative, [LowerAxisStep(node, context)])
+            static (node, context) => new PathNode(PathRoot.Relative, [LowerAxisStep(node, context)], node.Location)
         );
         registry.Register<FilterExpression>(
             static (node, context) =>
@@ -72,7 +72,7 @@ internal static class PathLowerings
             }
         }
 
-        return new PathNode(node.Root, steps.ToArray());
+        return new PathNode(node.Root, steps.ToArray(), node.Location);
     }
 
     // descendant-or-self::node()/child::T, with no predicate on either step.

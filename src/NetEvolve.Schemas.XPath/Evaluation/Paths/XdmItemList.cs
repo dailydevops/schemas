@@ -4,17 +4,42 @@ using System;
 using System.Buffers;
 using System.Runtime.InteropServices;
 using NetEvolve.Arguments;
+using NetEvolve.Schemas.XPath.Limits;
+using NetEvolve.Schemas.XPath.Syntax.Tree;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>
 /// A growable list of items in a pooled array; dispose it to return the array. A struct, so that holding one allocates nothing: pass it
 /// by <see langword="ref"/>, never copy it while it is in use.
 /// </summary>
-/// <remarks>Limitation: the list is not bounded; sequence size is limited by XP-75 (#229).</remarks>
+/// <remarks>
+/// A list made with <see cref="XdmItemList(int, in SourceSpan)"/> holds at most that many items; one more raises
+/// <see cref="XPathLimitErrors.SequenceSizeExceeded"/> with the given location. The bound costs nothing per item: the usable capacity is
+/// the smaller of the rented array and the limit, so the comparison that tells a full array from room also tells the limit. Limitation:
+/// a <see langword="default"/> list is not bounded; the nodes that multiply items create their lists from the limits of the context.
+/// </remarks>
 [StructLayout(LayoutKind.Auto)]
 internal struct XdmItemList : IDisposable
 {
     private XdmItem[]? _array;
+    private int _capacity;
+    private readonly int _limit;
+    private readonly SourceSpan _location;
+
+    /// <summary>Initializes a new instance of the <see cref="XdmItemList"/> struct that holds at most <paramref name="limit"/> items.</summary>
+    /// <param name="limit">The most items the list holds, at least one.</param>
+    /// <param name="location">The location reported when the list would grow beyond the limit.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="limit"/> is below one.</exception>
+    public XdmItemList(int limit, in SourceSpan location)
+    {
+        Argument.ThrowIfLessThan(limit, 1);
+
+        _array = null;
+        _capacity = 0;
+        _limit = limit;
+        _location = location;
+        Count = 0;
+    }
 
     /// <summary>Gets the number of items.</summary>
     public int Count { get; private set; }
@@ -30,7 +55,7 @@ internal struct XdmItemList : IDisposable
     /// <param name="item">The item.</param>
     public void Add(in XdmItem item)
     {
-        if (_array is null || Count == _array.Length)
+        if (Count == _capacity)
         {
             Grow(Count + 1);
         }
@@ -47,7 +72,7 @@ internal struct XdmItemList : IDisposable
             return;
         }
 
-        if (_array is null || Count + items.Length > _array.Length)
+        if (Count + items.Length > _capacity)
         {
             Grow(Count + items.Length);
         }
@@ -95,6 +120,7 @@ internal struct XdmItemList : IDisposable
         if (_array is { } array)
         {
             _array = null;
+            _capacity = 0;
             Count = 0;
             // Cleared: the array holds tree references that a pooled array must not keep alive.
             ArrayPool<XdmItem>.Shared.Return(array, clearArray: true);
@@ -103,8 +129,15 @@ internal struct XdmItemList : IDisposable
 
     private void Grow(int needed)
     {
+        // A list without a limit (default) is bounded by the array size only.
+        var limit = _limit == 0 ? int.MaxValue : _limit;
+        if (needed > limit)
+        {
+            throw XPathLimitErrors.SequenceSize(limit, _location);
+        }
+
         var pool = ArrayPool<XdmItem>.Shared;
-        var bigger = pool.Rent(Math.Max(needed, Count * 2));
+        var bigger = pool.Rent(Math.Min(Math.Max(needed, Count * 2), limit));
         if (_array is not null)
         {
             Array.Copy(_array, bigger, Count);
@@ -112,5 +145,6 @@ internal struct XdmItemList : IDisposable
         }
 
         _array = bigger;
+        _capacity = Math.Min(bigger.Length, limit);
     }
 }

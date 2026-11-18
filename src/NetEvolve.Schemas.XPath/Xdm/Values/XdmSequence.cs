@@ -8,7 +8,7 @@ using NetEvolve.Arguments;
 /// <summary>A flat sequence of items: never nested, and a singleton equals its item.</summary>
 /// <remarks>
 /// The empty sequence is <see langword="default"/>, and a singleton keeps its item inline, so neither allocates. Limitation:
-/// two or more items are copied into an array; sequence size is not limited (XP-75). Lazy sequences and concatenation are internal.
+/// two or more items are copied into an array. The size of a sequence an evaluation builds is bounded by the sequence size limit of the evaluation (XP-75, #229) where results are collected (path steps); a sequence a host passes in is not checked. Lazy sequences and concatenation are internal.
 /// </remarks>
 [StructLayout(LayoutKind.Auto)]
 public readonly struct XdmSequence : IEquatable<XdmSequence>

@@ -6,6 +6,7 @@ using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Errors;
+using NetEvolve.Schemas.XPath.Limits;
 using NetEvolve.Schemas.XPath.Syntax.Tree;
 
 /// <summary>
@@ -15,21 +16,29 @@ using NetEvolve.Schemas.XPath.Syntax.Tree;
 /// </summary>
 /// <remarks>
 /// Limitation: function lookup covers host functions of the static context; the built-in library and the conversion
-/// rules arrive with XP-53. Static typing is not performed (DEF-41).
+/// rules arrive with XP-53. Static typing is not performed (DEF-41). The lowering recurses once per syntax level, so it counts
+/// the levels and stops at <see cref="XPathLimits.MaxRecursionDepth"/>; the parser does not bound the depth of a left-deep chain
+/// such as <c>1+1+1</c>.
 /// </remarks>
 internal sealed class LoweringContext
 {
     // Engine error for a syntax node kind without a lowering; the engine range is XP0xxx.
-    internal static readonly XPathErrorCode NoLowering = new("urn:netevolve:schemas:xpath", "XP0002");
+    internal static readonly XPathErrorCode NoLowering = new(XPathLimitErrors.EngineNamespace, "XP0002");
 
     private readonly LoweringRegistry _registry;
+    private readonly XPathLimits _limits;
     private readonly List<XPathQName> _scope = [];
+    private int _depth;
 
-    internal LoweringContext(XPathStaticContext staticContext, LoweringRegistry registry)
+    internal LoweringContext(XPathStaticContext staticContext, LoweringRegistry registry, XPathLimits? limits = null)
     {
         StaticContext = staticContext;
         _registry = registry;
+        _limits = limits ?? XPathLimits.Default;
     }
+
+    /// <summary>Gets the deepest level the lowering reached, the root being one.</summary>
+    public int MaxDepth { get; private set; }
 
     /// <summary>Gets the static context.</summary>
     public XPathStaticContext StaticContext { get; }
@@ -37,10 +46,17 @@ internal sealed class LoweringContext
     /// <summary>Lowers a node through the lowering registered for its kind.</summary>
     /// <param name="node">The node.</param>
     /// <returns>The executable node.</returns>
-    /// <exception cref="XPathException">No lowering is registered for the node kind, or a static error is found.</exception>
+    /// <exception cref="XPathException">No lowering is registered for the node kind, a static error is found, or the nesting is deeper than the recursion depth limit.</exception>
     public ExecutableNode Lower(SyntaxNode node)
     {
         Argument.ThrowIfNull(node);
+
+        // A failure ends the compilation, so the level is not restored on the way out.
+        _limits.ThrowIfTooDeep(++_depth, node.Location);
+        if (_depth > MaxDepth)
+        {
+            MaxDepth = _depth;
+        }
 
         if (!_registry.TryGet(node.GetType(), out var lowering))
         {
@@ -55,7 +71,9 @@ internal sealed class LoweringContext
             );
         }
 
-        return lowering!(node, this);
+        var lowered = lowering!(node, this);
+        _depth--;
+        return lowered;
     }
 
     /// <summary>Resolves a variable name to an expanded name; it must be declared in the static context or in scope.</summary>

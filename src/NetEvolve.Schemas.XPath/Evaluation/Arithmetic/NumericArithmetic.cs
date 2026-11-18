@@ -23,9 +23,9 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// </para>
 /// <para>
 /// Limitations: a decimal <c>div</c> is rounded half to even at 18 fraction digits, because the precision is implementation-defined
-/// (#100 AP-7); the decimal operations align scales with a power of ten, so their cost grows with the scale difference until the
-/// evaluation limits (XP-75) bound it, and an integer beyond 64 bits grows without bound, so a product or sum of large operands costs
-/// memory and time in proportion to its width until the same limits apply; a decimal beyond the scale range of the Xml package
+/// (#100 AP-7); the decimal operations align scales with a power of ten, so their cost grows with the scale difference, and an integer beyond 64 bits grows without bound, so a product or sum of large
+/// operands costs memory and time in proportion to its width; the evaluation limits of XP-75 (#229) do not cover numeric growth, which
+/// is left to #639; a decimal beyond the scale range of the Xml package
 /// raises FOAR0002. <c>idiv</c> of float
 /// and double is the truncated quotient of the division, as the specification equates it with <c>($a div $b) cast as xs:integer</c>,
 /// so it can differ from the exact quotient by the rounding of the division. Steady state allocates nothing for the 64-bit
