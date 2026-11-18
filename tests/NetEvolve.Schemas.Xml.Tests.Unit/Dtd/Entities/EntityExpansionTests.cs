@@ -114,4 +114,72 @@ public class EntityExpansionTests
         await Assert.That(run.Code).IsNull();
         await Assert.That(run.Events).IsEqualTo("<a|<b|@x=v|/b|/a");
     }
+
+    // XML 1.0 section 4.5: the replacement text keeps a carriage return written as a character reference; raw line ends of
+    // the literal are normalized (section 2.11) before character references are expanded (#645).
+    [Test]
+    [Arguments("<!ENTITY e \"&#13;\">", "<doc>&e;</doc>", "<doc|'\r'|/doc")]
+    [Arguments("<!ENTITY e \"&#xD;\">", "<doc>&e;</doc>", "<doc|'\r'|/doc")]
+    [Arguments("<!ENTITY e \"a&#13;&#10;b\">", "<doc>&e;</doc>", "<doc|'a\r\nb'|/doc")]
+    [Arguments("<!ENTITY e \"a\r\nb\rc&#13;d\">", "<doc>&e;</doc>", "<doc|'a\nb\nc\rd'|/doc")]
+    [Arguments("<!ENTITY e \"&f;\"><!ENTITY f \"&#13;\">", "<doc>&e;</doc>", "<doc|'\r'|/doc")]
+    [Arguments("<!ENTITY e \"&#38;#13;\">", "<doc>&e;</doc>", "<doc|'\r'|/doc")]
+    [Arguments("<!ENTITY e \"<![CDATA[x&#13;y]]>\">", "<doc>&e;</doc>", "<doc|'x\ry'|/doc")]
+    public async Task Content_CarriageReturnFromACharacterReference_IsKept(
+        string declarations,
+        string content,
+        string expected
+    )
+    {
+        ArgumentNullException.ThrowIfNull(declarations);
+        ArgumentNullException.ThrowIfNull(content);
+        var run = EntityHarness.Read($"<!DOCTYPE doc [{declarations}]>{content}");
+
+        await Assert.That(run.Code).IsNull();
+        await Assert.That(run.Events).IsEqualTo(expected);
+    }
+
+    [Test]
+    [Arguments("<!ENTITY e \"&#13;&#10;\">", "<doc a=\"x&e;y\"/>", "<doc|@a=x  y|/doc")]
+    [Arguments("<!ENTITY e \"&#13;\">", "<doc a=\"x&e;y\"/>", "<doc|@a=x y|/doc")]
+    [Arguments("<!ENTITY e \"&#10;&#13;\">", "<doc a=\"x&e;y\"/>", "<doc|@a=x  y|/doc")]
+    [Arguments(
+        "<!ENTITY e \"&f;&g;\"><!ENTITY f \"&#13;\"><!ENTITY g \"&#10;\">",
+        "<doc a=\"&e;\"/>",
+        "<doc|@a=  |/doc"
+    )]
+    [Arguments("<!ENTITY e \"x\r\ny\">", "<doc a=\"&e;\"/>", "<doc|@a=x y|/doc")]
+    [Arguments("<!ENTITY e \"<b a='&#13;&#10;'/>\">", "<doc>&e;</doc>", "<doc|<b|@a=  |/b|/doc")]
+    public async Task Attribute_WhiteSpaceFromCharacterReferences_BecomesOneSpaceEach(
+        string declarations,
+        string content,
+        string expected
+    )
+    {
+        ArgumentNullException.ThrowIfNull(declarations);
+        ArgumentNullException.ThrowIfNull(content);
+        var run = EntityHarness.Read($"<!DOCTYPE doc [{declarations}]>{content}");
+
+        await Assert.That(run.Code).IsNull();
+        await Assert.That(run.Events).IsEqualTo(expected);
+    }
+
+    // W3C xmltest valid/sa/068 and valid/sa/110: the conformance harness only checks acceptance.
+    [Test]
+    public async Task XmlTestValidSa068_CarriageReturnEntity_ReadsACarriageReturn()
+    {
+        var run = EntityHarness.Read("<!DOCTYPE doc [\n<!ENTITY e \"&#13;\">\n]>\n<doc>&e;</doc>\n");
+
+        await Assert.That(run.Code).IsNull();
+        await Assert.That(run.Events).IsEqualTo("<doc|'\r'|/doc");
+    }
+
+    [Test]
+    public async Task XmlTestValidSa110_CarriageReturnLineFeedEntity_InAnAttributeIsTwoSpaces()
+    {
+        var run = EntityHarness.Read("<!DOCTYPE doc [\n<!ENTITY e \"&#13;&#10;\">\n]>\n<doc a=\"x&e;y\"></doc>\n");
+
+        await Assert.That(run.Code).IsNull();
+        await Assert.That(run.Events).IsEqualTo("<doc|@a=x  y|/doc");
+    }
 }
