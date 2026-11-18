@@ -2,11 +2,13 @@ namespace NetEvolve.Schemas.Xsd.Validation.Core;
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;
 using NetEvolve.Schemas.Xsd.Components;
+using NetEvolve.Schemas.Xsd.ContentModels.Automaton;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Elements;
 
@@ -214,6 +216,25 @@ internal sealed partial class StreamingValidator
 
         if (!TryStep(parent, id, qname, out var matched))
         {
+            // Limitation: the run ceiling has no catalog code of its own; the nearest engine limit is reported (#610).
+            if (parent.Counting is { CeilingExceeded: true })
+            {
+                Reject(
+                    parent,
+                    location,
+                    ValidationRules.RunCeiling,
+                    "The content of element "
+                        + Display(parent.QName)
+                        + " could not be assessed at the child element "
+                        + Display(qname)
+                        + ": the counted occurrences nest deeper than the internal ceiling of "
+                        + CountingRun.MaxConfigurations.ToString(CultureInfo.InvariantCulture)
+                        + " simultaneous configurations.",
+                    null
+                );
+                return;
+            }
+
             Reject(
                 parent,
                 location,
@@ -420,7 +441,7 @@ internal sealed partial class StreamingValidator
         }
     }
 
-    private void Reject(ElementFrame parent, DocumentLocation location, XsdRule rule, string message, string clause)
+    private void Reject(ElementFrame parent, DocumentLocation location, XsdRule rule, string message, string? clause)
     {
         Report(rule, location, message, clause);
         parent.IsValid = false;
