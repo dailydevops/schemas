@@ -152,10 +152,15 @@ internal static class CastMatrix
     // The first index of each group of new types.
     public const int FirstTemporal = 7;
     public const int FirstOther = 18;
+    public const int FirstQName = 21;
 
     public static bool IsTemporal(int index) => index >= FirstTemporal && index < FirstOther;
 
     public static bool IsOther(int index) => index >= FirstOther;
+
+    public static bool IsBinaryOrUri(int index) => index >= FirstOther && index < FirstQName;
+
+    public static bool IsQName(int index) => index == FirstQName;
 
     /// <summary>The character of a cell: Y, M, or N.</summary>
     public static char Cell(int source, int target)
