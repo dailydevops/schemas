@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.Xml.Dtd.Contracts;
 
 using System;
 using NetEvolve.Schemas.Xml.Contracts;
+using NetEvolve.Schemas.Xml.Dtd.Model;
 
 /// <summary>
 /// One independent validation step over reader events (design #122, D1 and D2). A step shares no state with another step;
@@ -9,23 +10,23 @@ using NetEvolve.Schemas.Xml.Contracts;
 /// </summary>
 /// <remarks>
 /// <para>
-/// Order: <see cref="Begin"/> fires once after the document type declaration and, when allowed, the external subset are
+/// Order: <see cref="BeginDocument"/> fires once after the document type declaration and, when allowed, the external subset are
 /// read, and before the first <see cref="StartElement"/>, also for a document without a document type declaration. Events
 /// then follow reader order; <see cref="StartElement"/> fires when the start tag is complete and after defaults are applied,
 /// <see cref="EntityReference"/> before the replacement events of that reference, comments and processing instructions only
-/// inside the root element. Every event reaches the steps in their fixed registration order. <see cref="End"/> fires after
+/// inside the root element. Every event reaches the steps in their fixed registration order. <see cref="EndDocument"/> fires after
 /// the last reader event and not after a fatal well-formedness error. Validity issues never stop the run.
 /// </para>
 /// <para>
-/// Limitation: the composition of the steps into the validating reader is XML-68; the interface is internal like the
-/// declaration model it exposes (see the decision on #223).
+/// Limitation: the composition of the steps into the validating reader is XML-68. The interface is public over the
+/// read-only <see cref="IDtdDeclarations"/> view (maintainer decision on #223, design #122 D2); the parser model behind the view stays internal.
 /// </para>
 /// </remarks>
-internal interface IDtdValidationStep
+public interface IDtdValidationStep
 {
     /// <summary>Starts a document; the declarations are complete and declaration-time checks run here.</summary>
-    /// <param name="context">The context; it stays valid until <see cref="End"/>.</param>
-    void Begin(DtdValidationContext context);
+    /// <param name="context">The context; it stays valid until <see cref="EndDocument"/>.</param>
+    void BeginDocument(DtdValidationContext context);
 
     /// <summary>Reports a start tag.</summary>
     /// <param name="element">The element with its attributes.</param>
@@ -54,5 +55,5 @@ internal interface IDtdValidationStep
     void EndElement(in ValidationElement element);
 
     /// <summary>Ends the document; deferred checks such as unresolved IDREF values run here.</summary>
-    void End();
+    void EndDocument();
 }

@@ -13,7 +13,7 @@ internal sealed class ScriptedDtdValidationStep : IDtdValidationStep
     /// <summary>Gets the received events in arrival order, for example <c>Begin</c> or <c>StartElement:root</c>.</summary>
     internal List<string> Events { get; } = [];
 
-    /// <summary>Gets the context received by <see cref="Begin"/>.</summary>
+    /// <summary>Gets the context received by <see cref="BeginDocument"/>.</summary>
     internal DtdValidationContext? Context { get; private set; }
 
     /// <summary>Gets the last start element, as received.</summary>
@@ -36,7 +36,7 @@ internal sealed class ScriptedDtdValidationStep : IDtdValidationStep
         return this;
     }
 
-    public void Begin(DtdValidationContext context)
+    public void BeginDocument(DtdValidationContext context)
     {
         Context = context;
         Record("Begin");
@@ -74,7 +74,7 @@ internal sealed class ScriptedDtdValidationStep : IDtdValidationStep
 
     public void EndElement(in ValidationElement element) => Record("EndElement:" + element.Name.ToString());
 
-    public void End() => Record("End");
+    public void EndDocument() => Record("End");
 
     private void Record(string eventName)
     {

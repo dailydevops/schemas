@@ -915,6 +915,12 @@ namespace NetEvolve.Schemas.Xml.Datatypes.Uri
 }
 namespace NetEvolve.Schemas.Xml.Dtd.Contracts
 {
+    public enum DtdEntityOutcome
+    {
+        DeclaredInternal = 0,
+        DeclaredExternal = 1,
+        Undeclared = 2,
+    }
     public static class DtdLimitCodes
     {
         public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML1117;
@@ -927,6 +933,19 @@ namespace NetEvolve.Schemas.Xml.Dtd.Contracts
         Accept = 0,
         Warn = 1,
         Reject = 2,
+    }
+    public sealed class DtdValidationContext
+    {
+        public DtdValidationContext(NetEvolve.Schemas.Xml.Dtd.Model.IDtdDeclarations declarations, NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidationOptions options, NetEvolve.Schemas.Formats.ValidationIssueCollector issues, bool isStandalone, string? systemId) { }
+        public NetEvolve.Schemas.Xml.Dtd.Model.IDtdDeclarations Declarations { get; }
+        public bool IsStandalone { get; }
+        public bool IsStopped { get; }
+        public NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidationOptions Options { get; }
+        public string? SystemId { get; }
+        public NetEvolve.Schemas.DocumentLocation Locate(in NetEvolve.Schemas.Xml.Contracts.XmlPosition position) { }
+        public void Report(NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidityCode code, NetEvolve.Schemas.IssueSeverity severity, NetEvolve.Schemas.DocumentLocation location, string? argument = null) { }
+        public void ReportStandalone(NetEvolve.Schemas.Xml.Dtd.Contracts.XmlStandaloneClause clause, NetEvolve.Schemas.DocumentLocation location, string? argument = null) { }
+        public void Stop(NetEvolve.Schemas.Xml.Contracts.XmlErrorCode code, NetEvolve.Schemas.DocumentLocation location) { }
     }
     public sealed class DtdValidationLimits
     {
@@ -1011,6 +1030,133 @@ namespace NetEvolve.Schemas.Xml.Dtd.Contracts
         public static System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidityCode> All { get; }
         public static System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidityCode> Constraints { get; }
         public static System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidityCode> Reports { get; }
+    }
+    public interface IDtdValidationStep
+    {
+        void BeginDocument(NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidationContext context);
+        void Comment(in NetEvolve.Schemas.Xml.Contracts.XmlPosition position);
+        void EndDocument();
+        void EndElement(in NetEvolve.Schemas.Xml.Dtd.Contracts.ValidationElement element);
+        void EntityReference(in NetEvolve.Schemas.Xml.Dtd.Contracts.ValidationEntityReference reference);
+        void ProcessingInstruction(in NetEvolve.Schemas.Xml.Contracts.XmlPosition position);
+        void StartElement(in NetEvolve.Schemas.Xml.Dtd.Contracts.ValidationElement element);
+        void Text(System.ReadOnlySpan<char> text, NetEvolve.Schemas.Xml.Contracts.XmlTextKind kind, in NetEvolve.Schemas.Xml.Contracts.XmlPosition position);
+    }
+    public readonly struct ValidationAttributeInfo : System.IEquatable<NetEvolve.Schemas.Xml.Dtd.Contracts.ValidationAttributeInfo>
+    {
+        public ValidationAttributeInfo(System.ReadOnlyMemory<char> name, System.ReadOnlyMemory<char> value, NetEvolve.Schemas.Xml.Dtd.Model.DtdAttributeType? declaredType, bool isSpecified, NetEvolve.Schemas.Xml.Contracts.XmlPosition position) { }
+        public NetEvolve.Schemas.Xml.Dtd.Model.DtdAttributeType? DeclaredType { get; }
+        public bool IsSpecified { get; }
+        public System.ReadOnlyMemory<char> Name { get; }
+        public NetEvolve.Schemas.Xml.Contracts.XmlPosition Position { get; }
+        public System.ReadOnlyMemory<char> Value { get; }
+    }
+    public readonly struct ValidationElement : System.IEquatable<NetEvolve.Schemas.Xml.Dtd.Contracts.ValidationElement>
+    {
+        public ValidationElement(System.ReadOnlyMemory<char> name, NetEvolve.Schemas.Xml.Contracts.XmlPosition position, System.ReadOnlyMemory<NetEvolve.Schemas.Xml.Dtd.Contracts.ValidationAttributeInfo> attributes = default) { }
+        public System.ReadOnlyMemory<NetEvolve.Schemas.Xml.Dtd.Contracts.ValidationAttributeInfo> Attributes { get; }
+        public System.ReadOnlyMemory<char> Name { get; }
+        public NetEvolve.Schemas.Xml.Contracts.XmlPosition Position { get; }
+    }
+    public readonly struct ValidationEntityReference : System.IEquatable<NetEvolve.Schemas.Xml.Dtd.Contracts.ValidationEntityReference>
+    {
+        public ValidationEntityReference(System.ReadOnlyMemory<char> name, NetEvolve.Schemas.Xml.Contracts.XmlPosition position, NetEvolve.Schemas.Xml.Dtd.Contracts.DtdEntityOutcome outcome) { }
+        public System.ReadOnlyMemory<char> Name { get; }
+        public NetEvolve.Schemas.Xml.Dtd.Contracts.DtdEntityOutcome Outcome { get; }
+        public NetEvolve.Schemas.Xml.Contracts.XmlPosition Position { get; }
+    }
+    public enum XmlStandaloneClause
+    {
+        Defaults = 0,
+        Entities = 1,
+        Normalization = 2,
+        WhiteSpace = 3,
+    }
+}
+namespace NetEvolve.Schemas.Xml.Dtd.Model
+{
+    public sealed class DtdAttributeDefinition
+    {
+        public NetEvolve.Schemas.Xml.Dtd.Model.DtdDefaultKind DefaultKind { get; }
+        public string? DefaultValue { get; }
+        public string Name { get; }
+        public NetEvolve.Schemas.Xml.Dtd.Model.DtdAttributeType Type { get; }
+        public System.Collections.Generic.IReadOnlyList<string> Values { get; }
+    }
+    public enum DtdAttributeType
+    {
+        Cdata = 0,
+        Id = 1,
+        IdRef = 2,
+        IdRefs = 3,
+        Entity = 4,
+        Entities = 5,
+        NmToken = 6,
+        NmTokens = 7,
+        Notation = 8,
+        Enumeration = 9,
+    }
+    public enum DtdContentKind
+    {
+        Empty = 0,
+        Any = 1,
+        Mixed = 2,
+        Children = 3,
+    }
+    public sealed class DtdContentParticle
+    {
+        public System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Xml.Dtd.Model.DtdContentParticle> Items { get; }
+        public NetEvolve.Schemas.Xml.Dtd.Model.DtdParticleKind Kind { get; }
+        public string? Name { get; }
+        public NetEvolve.Schemas.Xml.Dtd.Model.DtdOccurrence Occurrence { get; }
+    }
+    public enum DtdDefaultKind
+    {
+        Implied = 0,
+        Required = 1,
+        Fixed = 2,
+        Default = 3,
+    }
+    public sealed class DtdElementDeclaration
+    {
+        public NetEvolve.Schemas.Xml.Dtd.Model.DtdContentParticle? Content { get; }
+        public NetEvolve.Schemas.Xml.Dtd.Model.DtdContentKind ContentKind { get; }
+        public string Name { get; }
+    }
+    public sealed class DtdEntityDeclaration
+    {
+        public bool IsParameter { get; }
+        public string Name { get; }
+        public string? NotationName { get; }
+        public string? PublicId { get; }
+        public string? SystemId { get; }
+        public string? Value { get; }
+    }
+    public enum DtdOccurrence
+    {
+        Once = 0,
+        Optional = 1,
+        ZeroOrMore = 2,
+        OneOrMore = 3,
+    }
+    public enum DtdParticleKind
+    {
+        Name = 0,
+        Sequence = 1,
+        Choice = 2,
+    }
+    public interface IDtdDeclarations
+    {
+        System.Collections.Generic.IReadOnlyDictionary<string, System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Xml.Dtd.Model.DtdAttributeDefinition>> AttributeLists { get; }
+        System.Collections.Generic.IReadOnlyDictionary<string, NetEvolve.Schemas.Xml.Dtd.Model.DtdElementDeclaration> Elements { get; }
+        System.Collections.Generic.IReadOnlyDictionary<string, NetEvolve.Schemas.Xml.Dtd.Model.DtdEntityDeclaration> GeneralEntities { get; }
+        bool HasExternalSubset { get; }
+        bool HasParameterEntityReferences { get; }
+        string Name { get; }
+        System.Collections.Generic.IReadOnlyDictionary<string, NetEvolve.Schemas.Xml.Contracts.XmlNotation> Notations { get; }
+        System.Collections.Generic.IReadOnlyDictionary<string, NetEvolve.Schemas.Xml.Dtd.Model.DtdEntityDeclaration> ParameterEntities { get; }
+        string? PublicId { get; }
+        string? SystemId { get; }
     }
 }
 namespace NetEvolve.Schemas.Xml.Input.Stream

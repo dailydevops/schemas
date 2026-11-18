@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.Xml.Dtd.Contracts;
 
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using NetEvolve.Schemas.Xml.Contracts;
 
 /// <summary>
@@ -15,6 +16,9 @@ public static class DtdLimitCodes
 {
     // Declared before the code fields: their initializers register into it.
     private static readonly List<XmlErrorCode> Table = [];
+
+    // Read-only wrapper over the list above: callers cannot cast it back to a mutable list.
+    private static readonly ReadOnlyCollection<XmlErrorCode> TableView = new(Table);
 
     /// <summary>The number of resolver calls per document exceeds <see cref="DtdValidationLimits.MaxExternalEntityRequests"/>; raised by the entity loader (XML-61).</summary>
     public static readonly XmlErrorCode XML1117 = Define(
@@ -41,7 +45,7 @@ public static class DtdLimitCodes
     );
 
     /// <summary>Gets every limit code, in code order.</summary>
-    public static IReadOnlyList<XmlErrorCode> All => Table;
+    public static IReadOnlyList<XmlErrorCode> All => TableView;
 
     private static XmlErrorCode Define(string alias, int number, string constraint, string message)
     {

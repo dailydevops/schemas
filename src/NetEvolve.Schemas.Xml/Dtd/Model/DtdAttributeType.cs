@@ -1,7 +1,7 @@
 namespace NetEvolve.Schemas.Xml.Dtd.Model;
 
 /// <summary>The type of an attribute definition (production 54).</summary>
-internal enum DtdAttributeType : byte
+public enum DtdAttributeType
 {
     /// <summary><c>CDATA</c>.</summary>
     Cdata,

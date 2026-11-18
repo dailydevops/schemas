@@ -20,7 +20,7 @@ public class DtdValidationStepContractTests
             c.Report(DtdValidityCodes.XML5004, IssueSeverity.Error, c.Locate(Position), "character data in EMPTY")
         );
 
-        step.Begin(context);
+        step.BeginDocument(context);
         step.Text("x".AsSpan(), XmlTextKind.Text, in Position);
 
         var issue = issues.ToResult().Issues[0];
@@ -61,9 +61,9 @@ public class DtdValidationStepContractTests
 
         foreach (var step in new[] { first, second })
         {
-            step.Begin(context);
+            step.BeginDocument(context);
             step.Comment(in Position);
-            step.End();
+            step.EndDocument();
         }
 
         await Assert.That(issues.IsStopped).IsFalse();
@@ -190,14 +190,14 @@ public class DtdValidationStepContractTests
     {
         var attributes = new[]
         {
-            new ValidationAttribute(
+            new ValidationAttributeInfo(
                 "id".AsMemory(),
                 "a1".AsMemory(),
                 DtdAttributeType.Id,
                 isSpecified: true,
                 new XmlPosition(3, 15, 50)
             ),
-            new ValidationAttribute(
+            new ValidationAttributeInfo(
                 "kind".AsMemory(),
                 "x".AsMemory(),
                 declaredType: null,
@@ -279,7 +279,7 @@ public class DtdValidationStepContractTests
             .Throws<ArgumentOutOfRangeException>();
         await Assert
             .That(() =>
-                new ValidationAttribute(
+                new ValidationAttributeInfo(
                     "a".AsMemory(),
                     "b".AsMemory(),
                     (DtdAttributeType)99,
@@ -299,7 +299,7 @@ public class DtdValidationStepContractTests
                 typeof(IDtdValidationStep),
                 typeof(DtdValidationContext),
                 typeof(ValidationElement),
-                typeof(ValidationAttribute),
+                typeof(ValidationAttributeInfo),
                 typeof(ValidationEntityReference),
                 typeof(DtdEntityOutcome),
                 typeof(XmlStandaloneClause),

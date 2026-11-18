@@ -6,26 +6,26 @@ using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Dtd.Model;
 
 /// <summary>
-/// What a validation step sees besides the events: the declaration model, the options, the facts of the document, and the
+/// What a validation step sees besides the events: the declaration view, the options, the facts of the document, and the
 /// reporter. Issues go to the shared collector, so the drop policy at <c>MaxIssues</c> lives once.
 /// </summary>
 /// <remarks>
-/// Limitation: the declaration model records neither the position of each declaration nor the anomalies that only the
+/// Limitation: the declaration view records neither the position of each declaration nor the anomalies that only the
 /// declaration parser can see (the three nesting constraints and a dropped second element declaration, design #122, D4);
 /// until it does, declaration-time checks report the location of the document type declaration.
 /// </remarks>
-internal sealed class DtdValidationContext
+public sealed class DtdValidationContext
 {
     private readonly ValidationIssueCollector _issues;
 
     /// <summary>Initializes a new instance of the <see cref="DtdValidationContext"/> class.</summary>
-    /// <param name="declarations">The declaration model; built by <c>DtdDeclarationBuilder</c> for the parser and for tests alike.</param>
+    /// <param name="declarations">The read-only declaration view.</param>
     /// <param name="options">The options.</param>
     /// <param name="issues">The collector that receives the issues.</param>
     /// <param name="isStandalone"><see langword="true"/> when the XML declaration says <c>standalone="yes"</c>.</param>
     /// <param name="systemId">The system identifier of the document, <see langword="null"/> when unknown.</param>
-    internal DtdValidationContext(
-        DtdDeclarations declarations,
+    public DtdValidationContext(
+        IDtdDeclarations declarations,
         DtdValidationOptions options,
         ValidationIssueCollector issues,
         bool isStandalone,
@@ -43,34 +43,29 @@ internal sealed class DtdValidationContext
         SystemId = systemId;
     }
 
-    /// <summary>Gets the declaration model.</summary>
-    internal DtdDeclarations Declarations { get; }
+    /// <summary>Gets the read-only view of the declarations.</summary>
+    public IDtdDeclarations Declarations { get; }
 
     /// <summary>Gets the options.</summary>
-    internal DtdValidationOptions Options { get; }
+    public DtdValidationOptions Options { get; }
 
     /// <summary>Gets a value indicating whether the XML declaration says <c>standalone="yes"</c>.</summary>
-    internal bool IsStandalone { get; }
+    public bool IsStandalone { get; }
 
     /// <summary>Gets the system identifier of the document, <see langword="null"/> when unknown.</summary>
-    internal string? SystemId { get; }
+    public string? SystemId { get; }
 
     /// <summary>Converts a position of the reader to a location in the document.</summary>
     /// <param name="position">The position.</param>
     /// <returns>The location with the system identifier of the document.</returns>
-    internal DocumentLocation Locate(in XmlPosition position) => new(SystemId, position.Line, position.Column);
+    public DocumentLocation Locate(in XmlPosition position) => new(SystemId, position.Line, position.Column);
 
     /// <summary>Reports one violation of a validity constraint or one other report.</summary>
     /// <param name="code">The code.</param>
     /// <param name="severity">The severity.</param>
     /// <param name="location">The location of the violation.</param>
     /// <param name="argument">The offending item, for example a token or a name, or <see langword="null"/>.</param>
-    internal void Report(
-        DtdValidityCode code,
-        IssueSeverity severity,
-        DocumentLocation location,
-        string? argument = null
-    )
+    public void Report(DtdValidityCode code, IssueSeverity severity, DocumentLocation location, string? argument = null)
     {
         Argument.ThrowIfNull(code);
         Argument.ThrowIfGreaterThan((int)severity, (int)IssueSeverity.Error);
@@ -83,7 +78,7 @@ internal sealed class DtdValidationContext
     /// <param name="clause">The violated clause.</param>
     /// <param name="location">The location of the violation.</param>
     /// <param name="argument">The offending item, or <see langword="null"/>.</param>
-    internal void ReportStandalone(XmlStandaloneClause clause, DocumentLocation location, string? argument = null)
+    public void ReportStandalone(XmlStandaloneClause clause, DocumentLocation location, string? argument = null)
     {
         Argument.ThrowIfGreaterThan((int)clause, (int)XmlStandaloneClause.WhiteSpace);
         Argument.ThrowIfLessThan((int)clause, (int)XmlStandaloneClause.Defaults);
@@ -93,12 +88,12 @@ internal sealed class DtdValidationContext
     }
 
     /// <summary>Gets a value indicating whether <see cref="Stop"/> was called; the run ends and later issues are ignored.</summary>
-    internal bool IsStopped => _issues.IsStopped;
+    public bool IsStopped => _issues.IsStopped;
 
     /// <summary>Stops the run with a fatal status, for example a limit of <see cref="DtdLimitCodes"/>; validity issues never stop the run.</summary>
     /// <param name="code">The code of the fatal status.</param>
     /// <param name="location">The location where the status was found.</param>
-    internal void Stop(XmlErrorCode code, DocumentLocation location)
+    public void Stop(XmlErrorCode code, DocumentLocation location)
     {
         Argument.ThrowIfNull(code);
 

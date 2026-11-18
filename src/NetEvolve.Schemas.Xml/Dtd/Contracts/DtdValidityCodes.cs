@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.Xml.Dtd.Contracts;
 
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 /// <summary>
 /// The code table of DTD validity (design #122, sections 6 and 7): one code for each of the 26 validity constraints
@@ -16,6 +17,11 @@ public static class DtdValidityCodes
     private static readonly List<DtdValidityCode> AllRows = [];
     private static readonly List<DtdValidityCode> ConstraintRows = [];
     private static readonly List<DtdValidityCode> ReportRows = [];
+
+    // Read-only wrappers over the lists above: callers cannot cast them back to a mutable list.
+    private static readonly ReadOnlyCollection<DtdValidityCode> AllView = new(AllRows);
+    private static readonly ReadOnlyCollection<DtdValidityCode> ConstraintView = new(ConstraintRows);
+    private static readonly ReadOnlyCollection<DtdValidityCode> ReportView = new(ReportRows);
 
     /// <summary>Root Element Type, section 2.8: the root element type matches the name of the document type declaration.</summary>
     public static readonly DtdValidityCode XML5001 = Constraint(
@@ -312,13 +318,13 @@ public static class DtdValidityCodes
     );
 
     /// <summary>Gets every code in code order: the validity constraints, then the other reports.</summary>
-    public static IReadOnlyList<DtdValidityCode> All => AllRows;
+    public static IReadOnlyList<DtdValidityCode> All => AllView;
 
     /// <summary>Gets the 26 validity constraints of XML 1.0 (Fifth Edition) in specification order.</summary>
-    public static IReadOnlyList<DtdValidityCode> Constraints => ConstraintRows;
+    public static IReadOnlyList<DtdValidityCode> Constraints => ConstraintView;
 
     /// <summary>Gets the reports that are not validity constraints.</summary>
-    public static IReadOnlyList<DtdValidityCode> Reports => ReportRows;
+    public static IReadOnlyList<DtdValidityCode> Reports => ReportView;
 
     private static DtdValidityCode Constraint(int alias, string name, string section, string owner, string message) =>
         Define(

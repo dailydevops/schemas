@@ -3,7 +3,6 @@
 namespace NetEvolve.Schemas;
 
 using System;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Resources;
 using NetEvolve.Schemas.Xml.Dtd.Contracts;
@@ -15,46 +14,36 @@ using NetEvolve.Schemas.Xml.Dtd.Contracts;
 /// </remarks>
 public sealed class DtdValidatorBuilder : SchemaValidatorBuilder<DtdValidatorBuilder, IDtdValidator>
 {
-    private bool _allowExternalSubset;
-    private bool _allowExternalGeneralEntities;
-    private bool _allowExternalParameterEntities;
-    private DtdNonDeterminism _nonDeterministicContentModels = DtdNonDeterminism.Warn;
-    private DtdValidationLimits _dtdLimits = DtdValidationLimits.Default;
+    // The one place of the DTD settings; the guards live in the options, not here. The resolver and the core limits
+    // belong to the base builder and are combined into the options when they are read.
+    private DtdValidationOptions _options = DtdValidationOptions.Default;
 
     internal DtdValidatorBuilder() { }
 
     /// <summary>Gets a value indicating whether the external subset may be requested; <see langword="false"/> unless set.</summary>
-    public bool AllowExternalSubset => _allowExternalSubset;
+    public bool AllowExternalSubset => _options.AllowExternalSubset;
 
     /// <summary>Gets a value indicating whether external general entities may be requested; <see langword="false"/> unless set.</summary>
-    public bool AllowExternalGeneralEntities => _allowExternalGeneralEntities;
+    public bool AllowExternalGeneralEntities => _options.AllowExternalGeneralEntities;
 
     /// <summary>Gets a value indicating whether external parameter entities may be requested; <see langword="false"/> unless set.</summary>
-    public bool AllowExternalParameterEntities => _allowExternalParameterEntities;
+    public bool AllowExternalParameterEntities => _options.AllowExternalParameterEntities;
 
     /// <summary>Gets the treatment of non-deterministic content models, <see cref="DtdNonDeterminism.Warn"/> unless set.</summary>
-    public DtdNonDeterminism NonDeterministicContentModels => _nonDeterministicContentModels;
+    public DtdNonDeterminism NonDeterministicContentModels => _options.NonDeterministicContentModels;
 
     /// <summary>Gets the limits of DTD validation, <see cref="DtdValidationLimits.Default"/> unless set.</summary>
-    public DtdValidationLimits DtdLimits => _dtdLimits;
+    public DtdValidationLimits DtdLimits => _options.DtdLimits;
 
     /// <summary>Gets the options a validator built now would use: the resolver, the limits, and the DTD settings of this builder.</summary>
-    public DtdValidationOptions Options =>
-        DtdValidationOptions
-            .Default.WithResolver(Resolver)
-            .WithLimits(Limits)
-            .WithDtdLimits(_dtdLimits)
-            .WithAllowExternalSubset(_allowExternalSubset)
-            .WithAllowExternalGeneralEntities(_allowExternalGeneralEntities)
-            .WithAllowExternalParameterEntities(_allowExternalParameterEntities)
-            .WithNonDeterministicContentModels(_nonDeterministicContentModels);
+    public DtdValidationOptions Options => _options.WithResolver(Resolver).WithLimits(Limits);
 
     /// <summary>Lets the external subset be requested; the request still needs a resolver that allows it.</summary>
     /// <param name="value"><see langword="true"/> to allow the request.</param>
     /// <returns>This builder.</returns>
     public DtdValidatorBuilder WithAllowExternalSubset(bool value)
     {
-        _allowExternalSubset = value;
+        _options = _options.WithAllowExternalSubset(value);
         return this;
     }
 
@@ -63,7 +52,7 @@ public sealed class DtdValidatorBuilder : SchemaValidatorBuilder<DtdValidatorBui
     /// <returns>This builder.</returns>
     public DtdValidatorBuilder WithAllowExternalGeneralEntities(bool value)
     {
-        _allowExternalGeneralEntities = value;
+        _options = _options.WithAllowExternalGeneralEntities(value);
         return this;
     }
 
@@ -72,7 +61,7 @@ public sealed class DtdValidatorBuilder : SchemaValidatorBuilder<DtdValidatorBui
     /// <returns>This builder.</returns>
     public DtdValidatorBuilder WithAllowExternalParameterEntities(bool value)
     {
-        _allowExternalParameterEntities = value;
+        _options = _options.WithAllowExternalParameterEntities(value);
         return this;
     }
 
@@ -81,10 +70,7 @@ public sealed class DtdValidatorBuilder : SchemaValidatorBuilder<DtdValidatorBui
     /// <returns>This builder.</returns>
     public DtdValidatorBuilder WithNonDeterministicContentModels(DtdNonDeterminism value)
     {
-        Argument.ThrowIfGreaterThan((int)value, (int)DtdNonDeterminism.Reject);
-        Argument.ThrowIfLessThan((int)value, (int)DtdNonDeterminism.Accept);
-
-        _nonDeterministicContentModels = value;
+        _options = _options.WithNonDeterministicContentModels(value);
         return this;
     }
 
@@ -93,9 +79,7 @@ public sealed class DtdValidatorBuilder : SchemaValidatorBuilder<DtdValidatorBui
     /// <returns>This builder.</returns>
     public DtdValidatorBuilder WithDtdLimits(DtdValidationLimits value)
     {
-        Argument.ThrowIfNull(value);
-
-        _dtdLimits = value;
+        _options = _options.WithDtdLimits(value);
         return this;
     }
 

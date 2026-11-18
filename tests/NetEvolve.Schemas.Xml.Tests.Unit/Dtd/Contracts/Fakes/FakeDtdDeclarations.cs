@@ -1,5 +1,6 @@
 namespace NetEvolve.Schemas.Xml.Tests.Unit.Dtd.Contracts.Fakes;
 
+using System;
 using System.Collections.Generic;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Dtd.Model;
@@ -18,16 +19,17 @@ internal sealed class FakeDtdDeclarations : IDtdDeclarations
     public bool HasParameterEntityReferences => false;
 
     public IReadOnlyDictionary<string, DtdElementDeclaration> Elements { get; } =
-        new Dictionary<string, DtdElementDeclaration>();
+        new Dictionary<string, DtdElementDeclaration>(StringComparer.Ordinal);
 
     public IReadOnlyDictionary<string, IReadOnlyList<DtdAttributeDefinition>> AttributeLists { get; } =
-        new Dictionary<string, IReadOnlyList<DtdAttributeDefinition>>();
+        new Dictionary<string, IReadOnlyList<DtdAttributeDefinition>>(StringComparer.Ordinal);
 
     public IReadOnlyDictionary<string, DtdEntityDeclaration> GeneralEntities { get; } =
-        new Dictionary<string, DtdEntityDeclaration>();
+        new Dictionary<string, DtdEntityDeclaration>(StringComparer.Ordinal);
 
     public IReadOnlyDictionary<string, DtdEntityDeclaration> ParameterEntities { get; } =
-        new Dictionary<string, DtdEntityDeclaration>();
+        new Dictionary<string, DtdEntityDeclaration>(StringComparer.Ordinal);
 
-    public IReadOnlyDictionary<string, XmlNotation> Notations { get; } = new Dictionary<string, XmlNotation>();
+    public IReadOnlyDictionary<string, XmlNotation> Notations { get; } =
+        new Dictionary<string, XmlNotation>(StringComparer.Ordinal);
 }
