@@ -23,6 +23,9 @@ public class SlotBinderTests
     private static readonly XPathNode A1 = PatternFixture.Node("a1");
     private static readonly XPathNode A2 = PatternFixture.Node("a2");
 
+    private static readonly int[] Chain = [0, 1, 2];
+    private static readonly int[] FirstAndThird = [0, 2];
+
     private sealed class Harness
     {
         internal Harness(ScopeFixture fixture)
@@ -166,7 +169,7 @@ public class SlotBinderTests
         var status = h.Ensure(2);
 
         await Assert.That(status).IsEqualTo(QueryStatus.Ok);
-        await Assert.That(h.Run.Binds.ConvertAll(b => b.Slot)).IsEquivalentTo(new[] { 0, 1, 2 });
+        await Assert.That(h.Run.Binds.ConvertAll(b => b.Slot)).IsEquivalentTo(Chain);
     }
 
     [Test]
@@ -212,7 +215,7 @@ public class SlotBinderTests
         await Assert.That(failed).IsEqualTo(QueryStatus.Problem);
         await Assert.That(other).IsEqualTo(QueryStatus.Ok);
         await Assert.That(h.Problems.Problems.Count).IsEqualTo(1);
-        await Assert.That(h.Run.Binds.ConvertAll(b => b.Slot)).IsEquivalentTo(new[] { 0, 2 });
+        await Assert.That(h.Run.Binds.ConvertAll(b => b.Slot)).IsEquivalentTo(FirstAndThird);
     }
 
     [Test]
@@ -316,7 +319,7 @@ public class SlotBinderTests
             new ScopeTestExpression("b", null, [0]),
             new ScopeTestExpression("c", null, [])
         );
-        var run = new ScopeTestRun();
+        using var run = new ScopeTestRun();
         var problems = new FakeProblemSink();
         var binder = new SlotBinder(plan, run, new QueryFocus(Doc, 1, 1), problems);
 
@@ -343,7 +346,7 @@ public class SlotBinderTests
         }
 
         var plan = ManualPlan(expressions);
-        var run = new ScopeTestRun();
+        using var run = new ScopeTestRun();
         var problems = new FakeProblemSink();
         var status = QueryStatus.Problem;
 
@@ -416,7 +419,7 @@ public class SlotBinderTests
     public async Task Binder_RejectsNullArguments()
     {
         var f = Create(Schema());
-        var run = new ScopeTestRun();
+        using var run = new ScopeTestRun();
         var sink = new FakeProblemSink();
         var focus = new QueryFocus(Doc, 1, 1);
 

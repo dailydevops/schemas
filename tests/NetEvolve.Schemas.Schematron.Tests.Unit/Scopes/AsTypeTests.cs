@@ -6,7 +6,7 @@ using static NetEvolve.Schemas.Schematron.Tests.Unit.Scopes.ScopeFixture;
 using static NetEvolve.Schemas.Schematron.Tests.Unit.Scopes.ScopeModel;
 
 /// <summary>
-/// The <c>as</c> attribute of <c>let</c> (design #150 EP-5, #106 Q2): only <c>xs:string</c>, <c>xs:boolean</c>,
+/// The <see langword="as"/> attribute of <see langword="let"/> (design #150 EP-5, #106 Q2): only <c>xs:string</c>, <c>xs:boolean</c>,
 /// <c>xs:double</c>, and <c>xs:integer</c> are supported. A constant is checked at Build for the schema and phase level, a
 /// non-constant value by the binding at first use, and a constant at pattern or rule level is reported at evaluation.
 /// </summary>

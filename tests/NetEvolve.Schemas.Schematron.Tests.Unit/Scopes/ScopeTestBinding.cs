@@ -68,6 +68,7 @@ internal sealed class ScopeTestBinding : IQueryBinding
 
     public IQueryRun BeginRun(QueryResources resources, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         RunsBegun++;
         LastRun = new ScopeTestRun();
         return LastRun;

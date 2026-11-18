@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.Schematron.Tests.Unit.Scopes;
 
 using NetEvolve.Schemas.Schematron;
+using NetEvolve.Schemas.Schematron.Model;
 using NetEvolve.Schemas.Schematron.Phases;
 using NetEvolve.Schemas.Schematron.Scopes;
 using NetEvolve.Schemas.Schematron.Seams;
@@ -14,6 +15,8 @@ using static NetEvolve.Schemas.Schematron.Tests.Unit.Scopes.ScopeModel;
 /// </summary>
 public class ScopeTests
 {
+    private static readonly int[] FirstSlot = [0];
+
     private static SchematronProblem Single(ScopeFixture f)
     {
         if (f.Problems.Problems.Count != 1)
@@ -167,7 +170,7 @@ public class ScopeTests
         var f = Create(schema);
 
         await Assert.That(f.Ok).IsTrue();
-        await Assert.That(f.Plan.Globals[1].Value!.ReferencedSlots.ToArray()).IsEquivalentTo(new[] { 0 });
+        await Assert.That(f.Plan.Globals[1].Value!.ReferencedSlots.ToArray()).IsEquivalentTo(FirstSlot);
     }
 
     [Test]
