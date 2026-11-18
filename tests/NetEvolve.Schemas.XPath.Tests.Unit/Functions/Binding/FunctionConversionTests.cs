@@ -1,5 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Tests.Unit.Functions.Binding;
 
+using System.Numerics;
 using System.Threading.Tasks;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xml.Datatypes.DateTime;
@@ -260,6 +261,22 @@ public class FunctionConversionTests
             Type(XPathItemType.Float),
             One(Decimal("2.5")),
             One(XdmItem.FromFloat(2.5f))
+        );
+
+    [Test]
+    public async Task Promotion_IntegerBeyondSixtyFourBitsToDouble_IsExactToTheDouble() =>
+        await BindingHarness.AssertConverts(
+            Type(XPathItemType.Double),
+            One(XdmItem.FromBigInteger(BigInteger.Pow(10, 20))),
+            One(XdmItem.FromDouble(1e20))
+        );
+
+    [Test]
+    public async Task Promotion_IntegerBeyondSixtyFourBitsToFloat_IsExactToTheFloat() =>
+        await BindingHarness.AssertConverts(
+            Type(XPathItemType.Float),
+            One(XdmItem.FromBigInteger(BigInteger.Pow(10, 20))),
+            One(XdmItem.FromFloat(1e20f))
         );
 
     [Test]
