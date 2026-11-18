@@ -92,8 +92,8 @@ public class DtdValidationOptionsTests
     )
     {
         cancellationToken.ThrowIfCancellationRequested();
-        var byFlag = DtdValidationOptions.Default.Resolve(Request(kind), cancellationToken);
-        var byResolver = DtdValidationOptions
+        using var byFlag = DtdValidationOptions.Default.Resolve(Request(kind), cancellationToken);
+        using var byResolver = DtdValidationOptions
             .Default.WithResolver(new FakeDtdResolver(content: null))
             .WithAllowExternalSubset(true)
             .WithAllowExternalGeneralEntities(true)
@@ -108,6 +108,22 @@ public class DtdValidationOptionsTests
             await Assert.That(result.Message).Contains("http://example.org/ext.dtd");
             await Assert.That(result.Message).Contains("http://example.org/doc.xml");
         }
+    }
+
+    [Test]
+    public async Task Options_DeniedRequest_WithoutResolvedUriAndBaseUri_NamesTheReferenceAndNoBase(
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var request = new ResourceRequest(ResourceKind.ExternalSubset, "ext.dtd", baseUri: null, resolvedUri: null);
+
+        using var result = DtdValidationOptions.Default.Resolve(request, cancellationToken);
+
+        await Assert.That(result.Status).IsEqualTo(ResourceStatus.Denied);
+        await Assert.That(result.Message).Contains("XML2002");
+        await Assert.That(result.Message).Contains("'ext.dtd'");
+        await Assert.That(result.Message).Contains("(none)");
     }
 
     [Test]

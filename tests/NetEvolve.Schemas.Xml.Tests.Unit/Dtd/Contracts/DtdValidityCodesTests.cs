@@ -200,18 +200,18 @@ public class DtdValidityCodesTests
     }
 
     [Test]
-    public async Task Codes_Limits_AreReaderTableRowsAndNeverIssues()
+    public async Task Codes_Limits_MatchTheTable_WithAliasNumbersInTheXmlRange()
     {
         var actual = new List<(string, string)>();
         foreach (var code in DtdLimitCodes.All)
         {
             actual.Add((code.Alias, code.Constraint));
             await Assert.That(code.Message).IsNotEmpty();
+            await Assert.That(code.Code.Number).IsEqualTo(Number(code.Alias));
+            await Assert.That(DiagnosticRanges.Xml.Contains(code.Code)).IsTrue();
         }
         await Assert.That(actual).IsEquivalentTo(Limits);
-        await Assert.That(typeof(DtdLimitCodes).GetFields().Length).IsEqualTo(3);
-        await Assert.That(DtdLimitCodes.XML1117.Code).IsEqualTo(new DiagnosticCode(1117));
-        await Assert.That(DtdLimitCodes.XML1119.Code).IsEqualTo(new DiagnosticCode(1119));
+        await Assert.That(typeof(DtdLimitCodes).GetFields().Length).IsEqualTo(Limits.Length);
     }
 
     [Test]

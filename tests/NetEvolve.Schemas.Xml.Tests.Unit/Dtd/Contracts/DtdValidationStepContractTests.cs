@@ -144,6 +144,18 @@ public class DtdValidationStepContractTests
     }
 
     [Test]
+    public async Task Issue_StandaloneClause_WithoutArgument_NamesOnlyTheClause()
+    {
+        var issues = new ValidationIssueCollector(ValidationLimits.Default);
+        var context = DtdContractFixture.Context(issues, isStandalone: true);
+
+        context.ReportStandalone(XmlStandaloneClause.Defaults, context.Locate(Position));
+
+        var issue = issues.ToResult().Issues[0];
+        await Assert.That(issue.Message).EndsWith("(clause: " + XmlStandaloneClause.Defaults + ")");
+    }
+
+    [Test]
     public async Task Context_ExposesDeclarationsOptionsStandaloneFlagAndSystemId()
     {
         var issues = new ValidationIssueCollector(ValidationLimits.Default);
