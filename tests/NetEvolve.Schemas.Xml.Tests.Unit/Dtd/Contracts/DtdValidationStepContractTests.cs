@@ -291,7 +291,7 @@ public class DtdValidationStepContractTests
     }
 
     [Test]
-    public async Task Surface_StepSeams_AreInternalAndTheOptionsAndCodesArePublic()
+    public async Task Surface_StepSeamsAndTheirModelView_ArePublic()
     {
         foreach (
             var type in new[]
@@ -303,15 +303,16 @@ public class DtdValidationStepContractTests
                 typeof(ValidationEntityReference),
                 typeof(DtdEntityOutcome),
                 typeof(XmlStandaloneClause),
-            }
-        )
-        {
-            await Assert.That(type.IsPublic).IsFalse();
-        }
-
-        foreach (
-            var type in new[]
-            {
+                typeof(IDtdDeclarations),
+                typeof(DtdElementDeclaration),
+                typeof(DtdAttributeDefinition),
+                typeof(DtdContentParticle),
+                typeof(DtdEntityDeclaration),
+                typeof(DtdContentKind),
+                typeof(DtdAttributeType),
+                typeof(DtdDefaultKind),
+                typeof(DtdOccurrence),
+                typeof(DtdParticleKind),
                 typeof(DtdValidationOptions),
                 typeof(DtdValidationLimits),
                 typeof(DtdNonDeterminism),
@@ -324,5 +325,55 @@ public class DtdValidationStepContractTests
         {
             await Assert.That(type.IsPublic).IsTrue();
         }
+    }
+
+    [Test]
+    public async Task Surface_DeclarationModelBehindTheView_StaysInternal()
+    {
+        foreach (var type in new[] { typeof(DtdDeclarations), typeof(DtdDeclarationBuilder) })
+        {
+            await Assert.That(type.IsPublic).IsFalse();
+        }
+
+        foreach (
+            var type in new[]
+            {
+                typeof(DtdElementDeclaration),
+                typeof(DtdAttributeDefinition),
+                typeof(DtdContentParticle),
+                typeof(DtdEntityDeclaration),
+            }
+        )
+        {
+            await Assert.That(type.IsSealed).IsTrue();
+            await Assert.That(type.GetConstructors()).IsEmpty();
+        }
+
+        await Assert.That(typeof(IDtdDeclarations).IsAssignableFrom(typeof(DtdDeclarations))).IsTrue();
+    }
+
+    [Test]
+    public async Task Context_AcceptsAnyDeclarationView_NotOnlyTheParserModel()
+    {
+        var issues = new ValidationIssueCollector(ValidationLimits.Default);
+        IDtdDeclarations view = new FakeDtdDeclarations();
+
+        var context = new DtdValidationContext(view, DtdValidationOptions.Default, issues, false, null);
+
+        await Assert.That(context.Declarations).IsSameReferenceAs(view);
+        await Assert.That(context.Declarations.Name).IsEqualTo("fake");
+    }
+
+    [Test]
+    public async Task Events_PublicConstructors_BuildTheEventsOfAConsumerFakeStep()
+    {
+        var element = new ValidationElement("a".AsMemory(), Position);
+        var reference = new ValidationEntityReference("e".AsMemory(), Position, DtdEntityOutcome.Undeclared);
+
+        await Assert.That(element.Attributes.IsEmpty).IsTrue();
+        await Assert.That(element.Name.ToString()).IsEqualTo("a");
+        await Assert.That(reference.Outcome).IsEqualTo(DtdEntityOutcome.Undeclared);
+        await Assert.That(typeof(ValidationElement).GetConstructors()).IsNotEmpty();
+        await Assert.That(typeof(DtdValidationContext).GetConstructors()).IsNotEmpty();
     }
 }

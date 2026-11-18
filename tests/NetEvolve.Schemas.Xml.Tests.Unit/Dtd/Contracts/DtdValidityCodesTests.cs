@@ -271,4 +271,15 @@ public class DtdValidityCodesTests
 
         await Assert.That(fields).IsEquivalentTo(DtdValidityCodes.All);
     }
+
+    [Test]
+    public async Task Codes_Tables_AreReadOnlyViews_NotTheBackingLists()
+    {
+        await Assert.That(DtdValidityCodes.All is List<DtdValidityCode>).IsFalse();
+        await Assert.That(DtdValidityCodes.Constraints is List<DtdValidityCode>).IsFalse();
+        await Assert.That(DtdValidityCodes.Reports is List<DtdValidityCode>).IsFalse();
+        await Assert.That(DtdLimitCodes.All is List<XmlErrorCode>).IsFalse();
+        await Assert.That(DtdValidityCodes.All is ICollection<DtdValidityCode> { IsReadOnly: true }).IsTrue();
+        await Assert.That(DtdLimitCodes.All is ICollection<XmlErrorCode> { IsReadOnly: true }).IsTrue();
+    }
 }
