@@ -9,21 +9,26 @@ using NetEvolve.Schemas.XPath.Casting.Core;
 using NetEvolve.Schemas.XPath.Compilation;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Errors;
+using NetEvolve.Schemas.XPath.Evaluation.Arithmetic;
 using NetEvolve.Schemas.XPath.Functions.Binding;
 using NetEvolve.Schemas.XPath.Syntax.Parser;
 using NetEvolve.Schemas.XPath.Syntax.Tree;
+using NetEvolve.Schemas.XPath.Tests.Unit.Evaluation.Arithmetic;
 using NetEvolve.Schemas.XPath.Tests.Unit.Types;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>
-/// Helpers for the casting tests: a registry with test-local lowerings for the literals, function calls, and the decimal sum,
+/// Helpers for the casting tests: a registry with test-local lowerings for the literals and function calls, the arithmetic lowerings of the
+/// operator package,
 /// the lowerings under test, and a text form of an item that carries its type.
 /// </summary>
 internal static class CastFixture
 {
     public static readonly XPathStaticContext Statics = TypeFixture.Statics;
 
-    /// <summary>The registry of the casting tests: literals and calls are test-local, cast and castable are the production lowerings.</summary>
+    private static readonly ArithmeticOperatorTable ArithmeticOperators = ArithmeticFixture.Table();
+
+    /// <summary>The registry of the casting tests: literals and calls are test-local; arithmetic, cast, and castable are the production lowerings.</summary>
     public static LoweringRegistry Registry(CastingTable? table = null, FunctionRegistry? functions = null)
     {
         var resolved = table ?? CastingCatalog.Default.Table;
@@ -40,8 +45,7 @@ internal static class CastFixture
                 )
         );
         registry.Register<FunctionCall>((n, c) => LowerCall(n, c, library));
-        registry.Register<ArithmeticExpression>(static (n, c) => new DecimalSumNode(c.Lower(n.Left), c.Lower(n.Right)));
-        registry.Register<UnaryExpression>(static (n, c) => new SignNode(c.Lower(n.Operand), n.Operator));
+        ArithmeticLowerings.Register(registry, ArithmeticOperators);
         CastingLowerings.Register(registry, resolved);
         return registry;
     }
@@ -210,48 +214,6 @@ internal static class CastFixture
             }
 
             return function.Call(context, values);
-        }
-    }
-
-    // Stands in for the unary operators of the operator package: the sign of one numeric value.
-    private sealed class SignNode(ExecutableNode operand, UnaryOperator sign) : ExecutableNode
-    {
-        public override XdmSequence Evaluate(XPathEvaluationContext context)
-        {
-            var value = operand.Evaluate(context)[0];
-            if (sign == UnaryOperator.Plus)
-            {
-                return XdmSequence.Create(value);
-            }
-
-            if (value.TryGetInteger(out var integer))
-            {
-                return XdmSequence.Create(XdmItem.FromInteger(-integer));
-            }
-
-            if (value.TryGetDecimal(out var number))
-            {
-                return XdmSequence.Create(XdmItem.FromDecimal(number.Negate()));
-            }
-
-            if (value.TryGetFloat(out var narrow))
-            {
-                return XdmSequence.Create(XdmItem.FromFloat(-narrow));
-            }
-
-            _ = value.TryGetDouble(out var wide);
-            return XdmSequence.Create(XdmItem.FromDouble(-wide));
-        }
-    }
-
-    // Stands in for the numeric arithmetic of the operator package: both operands are decimals, and the sum is exact.
-    private sealed class DecimalSumNode(ExecutableNode left, ExecutableNode right) : ExecutableNode
-    {
-        public override XdmSequence Evaluate(XPathEvaluationContext context)
-        {
-            _ = left.Evaluate(context)[0].TryGetDecimal(out var a);
-            _ = right.Evaluate(context)[0].TryGetDecimal(out var b);
-            return XdmSequence.Create(XdmItem.FromDecimal(a.Add(b)));
         }
     }
 }

@@ -13,7 +13,7 @@ public class CastDecisionTests
     [Test]
     public async Task DecimalSum_OfTwoConstructorResults_IsExact()
     {
-        // The sum comes from the test-local lowering of the operator; the operator itself belongs to the numeric arithmetic package.
+        // The sum goes through the arithmetic lowering and the operator table of the numeric arithmetic package, not a stand-in.
         var sum = Evaluate("xs:decimal('1.10') + xs:decimal('2.20')");
         var expected = Evaluate("xs:decimal('3.30')");
 

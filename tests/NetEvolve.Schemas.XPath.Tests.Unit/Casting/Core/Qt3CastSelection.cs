@@ -14,15 +14,16 @@ namespace NetEvolve.Schemas.XPath.Tests.Unit.Casting.Core;
 /// </summary>
 /// <remarks>
 /// <para>
-/// Limitation: the QT3 runner of the integration tests still has no evaluator behind it (#295), so these cases run through the test-local
-/// lowerings of <see cref="CastFixture"/> and not through the runner. The end-to-end run stays open until #295.
+/// Limitation: the QT3 runner of the integration tests still has no evaluator behind it (#295), so these cases run through the lowerings of
+/// <see cref="CastFixture"/> (test-local for the literals and function calls, production for arithmetic, cast, and castable) and not through the runner. The end-to-end run stays open until #295.
 /// </para>
 /// <para>
 /// Cases of the two sets whose source and target are among the seven types, and that are left out on purpose:
 /// </para>
 /// <list type="bullet">
-/// <item>Arithmetic and range lowering missing, which are not part of this package: <c>casthc1</c> to <c>casthc6</c> (<c>(5 + 5) cast as ...</c>),
-/// <c>K2-SeqExprCastable-3</c> (<c>1 div 0</c>), and <c>CastableAs663</c> (<c>1 to 5</c>).</item>
+/// <item>Range lowering missing, which is not part of this package: <c>CastableAs663</c> (<c>(1 to 5) castable as xs:integer</c>). The
+/// arithmetic cases <c>casthc1</c> to <c>casthc6</c> (<c>(5 + 5) cast as ...</c>) and <c>K2-SeqExprCastable-3</c> (<c>1 div 0</c>) are part of the
+/// selection and run through the arithmetic lowering of the operator package.</item>
 /// <item>Parser error for the target: <c>K-SeqExprCast-1</c>, <c>K-SeqExprCast-2</c>, <c>K-SeqExprCastable-1</c>, <c>K-SeqExprCastable-2</c>,
 /// and <c>K-SeqExprCastable-3</c> use <c>xs:string*</c> or <c>xs:string+</c>; a single type allows only the <c>?</c> indicator, so these end in a
 /// syntax error before any cast is built.</item>
