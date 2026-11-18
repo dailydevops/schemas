@@ -54,7 +54,6 @@ public sealed class XmlStreamReader<TSink> : IDisposable
     private readonly int _bufferSize;
     private readonly ArrayPool<byte> _bytePool;
     private readonly ArrayPool<char> _charPool;
-    private readonly DtdDoctypeHandler? _doctype;
     private readonly XmlParser _parser;
     private TSink _sink;
     private byte[]? _bytes;
@@ -107,8 +106,7 @@ public sealed class XmlStreamReader<TSink> : IDisposable
         _bufferSize = bufferSize;
         _bytePool = bytePool ?? ArrayPool<byte>.Shared;
         _charPool = charPool ?? ArrayPool<char>.Shared;
-        _doctype = options.DtdProcessing ? new DtdDoctypeHandler(_limits) : null;
-        _parser = new XmlParser(_limits, _doctype);
+        _parser = new XmlParser(_limits, options.DtdProcessing ? new DtdDoctypeHandler(_limits) : null);
     }
 
     /// <summary>Gets the sink by reference; read it after <see cref="ReadAsync"/> returned.</summary>
@@ -119,9 +117,6 @@ public sealed class XmlStreamReader<TSink> : IDisposable
 
     /// <summary>Gets the error, <see langword="null"/> unless <see cref="ReadAsync"/> returned <see cref="XmlReadStatus.Error"/>.</summary>
     public XmlDiagnostic? Diagnostic => _parser.Diagnostic ?? _diagnostic;
-
-    /// <summary>Gets the declarations of the document type declaration, <see langword="null"/> without one or when <see cref="XmlReaderOptions.DtdProcessing"/> is off.</summary>
-    internal DtdDeclarations? Declarations => _doctype?.Declarations;
 
     /// <summary>Reads the stream to its end, or until the first error, and pushes the events into the sink.</summary>
     /// <param name="cancellationToken">The token that cancels the read.</param>
@@ -192,6 +187,12 @@ public sealed class XmlStreamReader<TSink> : IDisposable
         _chars = new PooledBuffer<char>(_bufferSize, _charPool);
 
         var ended = await StartAsync(cancellationToken).ConfigureAwait(false);
+        if (!ended && _decodeError is null)
+        {
+            // The first pump sees a buffer of characters like every later one (AP2), not only the head bytes.
+            ended = await FillAsync(cancellationToken).ConfigureAwait(false);
+        }
+
         while (true)
         {
             var status = Step(ended);
@@ -205,11 +206,6 @@ public sealed class XmlStreamReader<TSink> : IDisposable
                 // The characters before the decoding error ended without an error of their own.
                 _diagnostic = new XmlDiagnostic(_decodeError, _parser.Position);
                 return XmlReadStatus.Error;
-            }
-
-            if (ended)
-            {
-                return Fail(XmlErrorCodes.XML0001);
             }
 
             ended = await FillAsync(cancellationToken).ConfigureAwait(false);
@@ -312,9 +308,9 @@ public sealed class XmlStreamReader<TSink> : IDisposable
 
     private ValueTask<int> ReadBytesAsync(CancellationToken cancellationToken) =>
 #if NETSTANDARD2_0
-        new(_stream.ReadAsync(_bytes!, 0, _bytes!.Length, cancellationToken));
+        new(_stream.ReadAsync(_bytes!, 0, _bufferSize, cancellationToken));
 #else
-        _stream.ReadAsync(_bytes.AsMemory(), cancellationToken);
+        _stream.ReadAsync(_bytes.AsMemory(0, _bufferSize), cancellationToken);
 #endif
 
     // Feeds the pending characters to the parser and pumps; the parser copies what it keeps, so the buffer is reused.
@@ -326,12 +322,6 @@ public sealed class XmlStreamReader<TSink> : IDisposable
         var status = _parser.Pump(ref _sink);
         characters.Clear();
         return status;
-    }
-
-    private XmlReadStatus Fail(XmlErrorCode code)
-    {
-        _diagnostic = new XmlDiagnostic(code, _parser.Position);
-        return XmlReadStatus.Error;
     }
 
     private void Release()
