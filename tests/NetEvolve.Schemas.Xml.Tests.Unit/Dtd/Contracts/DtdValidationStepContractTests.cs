@@ -117,6 +117,46 @@ public class DtdValidationStepContractTests
     }
 
     [Test]
+    public async Task DocumentTypeLocation_IsReadableByABeginStep_AndIsWhereItReports()
+    {
+        var doctype = new DocumentLocation("doc.xml", 2, 1);
+        var issues = new ValidationIssueCollector(ValidationLimits.Default);
+        var context = DtdContractFixture.Context(issues, documentTypeLocation: doctype);
+        var step = new ScriptedDtdValidationStep().On("Begin", c =>
+            c.Report(DtdValidityCodes.XML5910, IssueSeverity.Error, c.DocumentTypeLocation)
+        );
+
+        step.BeginDocument(context);
+
+        await Assert.That(step.Context!.DocumentTypeLocation).IsEqualTo(doctype);
+        await Assert.That(issues.ToResult().Issues[0].Location).IsEqualTo(doctype);
+    }
+
+    [Test]
+    public async Task DocumentTypeLocation_IsTheFallback_ForAnUnknownLocation()
+    {
+        var doctype = new DocumentLocation("doc.xml", 2, 1);
+        var issues = new ValidationIssueCollector(ValidationLimits.Default);
+        var context = DtdContractFixture.Context(issues, isStandalone: true, documentTypeLocation: doctype);
+
+        context.Report(DtdValidityCodes.XML5004, IssueSeverity.Error, default);
+        context.Report(DtdValidityCodes.XML5004, IssueSeverity.Error, context.Locate(default));
+        context.ReportStandalone(XmlStandaloneClause.Defaults, default);
+        context.Report(DtdValidityCodes.XML5004, IssueSeverity.Error, context.Locate(Position));
+        context.Stop(DtdLimitCodes.XML1118, default);
+
+        var result = issues.ToResult();
+        await Assert.That(result.Issues).Count().IsEqualTo(5);
+        for (var i = 0; i < 3; i++)
+        {
+            await Assert.That(result.Issues[i].Location).IsEqualTo(doctype);
+        }
+
+        await Assert.That(result.Issues[3].Location).IsEqualTo(new DocumentLocation("doc.xml", 3, 7));
+        await Assert.That(result.Issues[4].Location).IsEqualTo(doctype);
+    }
+
+    [Test]
     public async Task Stop_EndsTheRunWithAFatalLimitCode_AndLaterIssuesAreIgnored()
     {
         var issues = new ValidationIssueCollector(ValidationLimits.Default);
@@ -179,13 +219,15 @@ public class DtdValidationStepContractTests
         var declarations = DtdContractFixture.Declarations();
 
         await Assert
-            .That(() => new DtdValidationContext(null!, DtdValidationOptions.Default, issues, false, null))
+            .That(() => new DtdValidationContext(null!, DtdValidationOptions.Default, issues, false, null, default))
             .Throws<ArgumentNullException>();
         await Assert
-            .That(() => new DtdValidationContext(declarations, null!, issues, false, null))
+            .That(() => new DtdValidationContext(declarations, null!, issues, false, null, default))
             .Throws<ArgumentNullException>();
         await Assert
-            .That(() => new DtdValidationContext(declarations, DtdValidationOptions.Default, null!, false, null))
+            .That(() =>
+                new DtdValidationContext(declarations, DtdValidationOptions.Default, null!, false, null, default)
+            )
             .Throws<ArgumentNullException>();
         await Assert.That(() => context.Report(null!, IssueSeverity.Error, default)).Throws<ArgumentNullException>();
         await Assert.That(() => context.Stop(null!, default)).Throws<ArgumentNullException>();
@@ -381,7 +423,7 @@ public class DtdValidationStepContractTests
         var issues = new ValidationIssueCollector(ValidationLimits.Default);
         IDtdDeclarations view = new FakeDtdDeclarations();
 
-        var context = new DtdValidationContext(view, DtdValidationOptions.Default, issues, false, null);
+        var context = new DtdValidationContext(view, DtdValidationOptions.Default, issues, false, null, default);
 
         await Assert.That(context.Declarations).IsSameReferenceAs(view);
         await Assert.That(context.Declarations.Name).IsEqualTo("fake");

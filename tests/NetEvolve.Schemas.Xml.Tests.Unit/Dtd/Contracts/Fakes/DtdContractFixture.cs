@@ -21,6 +21,15 @@ internal static class DtdContractFixture
         ValidationIssueCollector issues,
         DtdValidationOptions? options = null,
         bool isStandalone = false,
-        string? systemId = "doc.xml"
-    ) => new(Declarations(), options ?? DtdValidationOptions.Default, issues, isStandalone, systemId);
+        string? systemId = "doc.xml",
+        DocumentLocation documentTypeLocation = default
+    ) =>
+        new(
+            Declarations(),
+            options ?? DtdValidationOptions.Default,
+            issues,
+            isStandalone,
+            systemId,
+            documentTypeLocation
+        );
 }
