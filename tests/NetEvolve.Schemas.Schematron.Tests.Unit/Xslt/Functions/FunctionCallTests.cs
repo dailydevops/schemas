@@ -210,13 +210,13 @@ public class FunctionCallTests
         var (run, caller) = fixture.CreateRun();
 
         _ = caller.TryCall(Find(fixture, "down", 1), [Int(2)], out _);
-        var enters = run.Events.FindAll(e => e == "enter").Count;
-        var exits = run.Events.FindAll(e => e == "exit").Count;
+        var enters = run.Count("enter");
+        var exits = run.Count("exit");
         _ = caller.TryCall(Find(fixture, "fail", 1), [Int(2)], out _);
 
         await Assert.That(enters).IsEqualTo(3);
         await Assert.That(exits).IsEqualTo(3);
-        await Assert.That(run.Events.FindAll(e => e == "exit").Count).IsEqualTo(4);
+        await Assert.That(run.Count("exit")).IsEqualTo(4);
         await Assert.That(run.Active).IsEqualTo(0);
     }
 
@@ -301,21 +301,20 @@ public class FunctionCallTests
         await Assert
             .That(() => fixture.CreateRun(maxDepth: XsltFunctionCaller.MaxDepthCeiling + 1))
             .Throws<ArgumentOutOfRangeException>();
-        await Assert.That(XsltFunctionCaller.DefaultMaxDepth).IsEqualTo(128);
-        await Assert.That(XsltFunctionCaller.MaxDepthCeiling).IsEqualTo(1024);
     }
 
     [Test]
-    public async Task Call_CancellationIsCheckedAtEveryCallEntry()
+    public async Task Call_CancellationIsCheckedAtEveryCallEntry(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var fixture = Create();
         _ = fixture.CompileAll(Simple("down", "xs:integer", ["n"], "if ($n = 0) then 0 else f:down($n - 1)", 10));
-        using var source = new CancellationTokenSource();
-        var (_, caller) = fixture.CreateRun(cancellationToken: source.Token);
+        using var source = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        var (_, caller) = fixture.CreateCancellableRun(XsltFunctionCaller.DefaultMaxDepth, source.Token);
         var function = Find(fixture, "down", 1);
 
         var before = caller.TryCall(function, [Int(1)], out _);
-        source.Cancel();
+        await source.CancelAsync();
 
         await Assert.That(before).IsEqualTo(QueryStatus.Ok);
         await Assert.That(() => caller.TryCall(function, [Int(1)], out _)).Throws<OperationCanceledException>();

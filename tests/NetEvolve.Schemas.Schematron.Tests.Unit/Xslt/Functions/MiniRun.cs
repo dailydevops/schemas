@@ -7,19 +7,6 @@ using NetEvolve.Schemas.Schematron.Xslt.Functions;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
-/// <summary>An expression of the mini binding: its tree, the declared type of the variable it feeds, and the slots it reads.</summary>
-internal sealed class MiniExpression(string text, MiniQuery.Node node, string? declaredType, int[] slots)
-    : QueryExpression
-{
-    internal string Text { get; } = text;
-
-    internal MiniQuery.Node Node { get; } = node;
-
-    internal string? DeclaredType { get; } = declaredType;
-
-    internal override ReadOnlySpan<int> ReferencedSlots => slots;
-}
-
 /// <summary>
 /// A run over <see cref="MiniQuery"/> with one table of slot values. It records the focus of every evaluation and the calls of the
 /// function entry hooks, and calls stylesheet functions through the caller and the table of the fixture.
@@ -38,6 +25,20 @@ internal sealed class MiniRun : IXsltFunctionRun
     internal List<string> Events { get; } = [];
 
     internal int Active { get; private set; }
+
+    internal int Count(string eventName)
+    {
+        var count = 0;
+        foreach (var recorded in Events)
+        {
+            if (string.Equals(recorded, eventName, System.StringComparison.Ordinal))
+            {
+                count++;
+            }
+        }
+
+        return count;
+    }
 
     internal int MaxActive { get; private set; }
 

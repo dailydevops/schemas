@@ -24,9 +24,21 @@ internal static class MiniQuery
     }
 
     /// <summary>A failure of the evaluation, carried as exception inside the evaluator only.</summary>
-    internal sealed class Failure(SchematronProblem problem) : Exception("mini evaluation failure")
+    internal sealed class Failure : Exception
     {
-        internal SchematronProblem Problem { get; } = problem;
+        internal Failure()
+            : this(default(SchematronProblem)) { }
+
+        internal Failure(string message)
+            : base(message) { }
+
+        internal Failure(string message, Exception innerException)
+            : base(message, innerException) { }
+
+        internal Failure(SchematronProblem problem)
+            : base("mini evaluation failure") => Problem = problem;
+
+        internal SchematronProblem Problem { get; }
     }
 
     internal static bool TryParse(
@@ -179,12 +191,12 @@ internal static class MiniQuery
         internal override XdmSequence Evaluate(MiniRun run, in QueryFocus focus)
         {
             var l = left.Evaluate(run, in focus);
-            if (op == "or")
+            if (string.Equals(op, "or", StringComparison.Ordinal))
             {
                 return One(XdmItem.FromBoolean(Effective(l) || Effective(right.Evaluate(run, in focus))));
             }
 
-            if (op == "and")
+            if (string.Equals(op, "and", StringComparison.Ordinal))
             {
                 return One(XdmItem.FromBoolean(Effective(l) && Effective(right.Evaluate(run, in focus))));
             }
@@ -323,7 +335,7 @@ internal static class MiniQuery
                     var result = new StringBuilder();
                     foreach (var character in source)
                     {
-                        var at = from.IndexOf(character);
+                        var at = from.IndexOf(character, StringComparison.Ordinal);
                         if (at < 0)
                         {
                             _ = result.Append(character);
@@ -484,58 +496,73 @@ internal static class MiniQuery
             var c = Peek();
             if (char.IsDigit(c))
             {
-                var start = _at;
-                while (char.IsDigit(Peek()))
-                {
-                    _at++;
-                }
-
-                var number = long.Parse(text.Substring(start, _at - start), CultureInfo.InvariantCulture);
-                return new Literal(One(XdmItem.FromInteger(number)));
+                return ParseNumber();
             }
 
             if (c is '\'' or '"')
             {
-                var end = text.IndexOf(c, _at + 1);
-                if (end < 0)
-                {
-                    throw new FormatException("Unterminated string literal.");
-                }
-
-                var literal = text.Substring(_at + 1, end - _at - 1);
-                _at = end + 1;
-                return new Literal(One(XdmItem.FromString(literal)));
+                return ParseString(c);
             }
 
-            if (c == '$')
+            switch (c)
             {
-                _at++;
-                var name = ReadName();
-                var slot = resolveVariable(name);
-                return slot < 0 ? throw new FormatException($"VAR:{name}") : new Variable(name, slot);
-            }
-
-            if (c == '.')
-            {
-                _at++;
-                return new ContextItem();
-            }
-
-            if (c == '(')
-            {
-                _at++;
-                Skip();
-                if (Peek() == ')')
-                {
+                case '$':
                     _at++;
-                    return new Literal(XdmSequence.Empty);
-                }
+                    var name = ReadName();
+                    var slot = resolveVariable(name);
+                    return slot < 0 ? throw new FormatException($"VAR:{name}") : new Variable(name, slot);
+                case '.':
+                    _at++;
+                    return new ContextItem();
+                case '(':
+                    return ParseParenthesized();
+                default:
+                    return ParseNameOrCall(c);
+            }
+        }
 
-                var inner = ParseSequence();
-                Expect(')');
-                return inner;
+        private Literal ParseNumber()
+        {
+            var start = _at;
+            while (char.IsDigit(Peek()))
+            {
+                _at++;
             }
 
+            var number = long.Parse(text.AsSpan(start, _at - start), CultureInfo.InvariantCulture);
+            return new Literal(One(XdmItem.FromInteger(number)));
+        }
+
+        private Literal ParseString(char quote)
+        {
+            var end = text.IndexOf(quote.ToString(), _at + 1, StringComparison.Ordinal);
+            if (end < 0)
+            {
+                throw new FormatException("Unterminated string literal.");
+            }
+
+            var literal = text.Substring(_at + 1, end - _at - 1);
+            _at = end + 1;
+            return new Literal(One(XdmItem.FromString(literal)));
+        }
+
+        private Node ParseParenthesized()
+        {
+            _at++;
+            Skip();
+            if (Peek() == ')')
+            {
+                _at++;
+                return new Literal(XdmSequence.Empty);
+            }
+
+            var inner = ParseSequence();
+            Expect(')');
+            return inner;
+        }
+
+        private Node ParseNameOrCall(char c)
+        {
             var word = ReadName();
             if (word.Length == 0)
             {
@@ -543,7 +570,7 @@ internal static class MiniQuery
             }
 
             Skip();
-            if (word == "if" && Peek() == '(')
+            if (string.Equals(word, "if", StringComparison.Ordinal) && Peek() == '(')
             {
                 _at++;
                 var test = ParseSequence();
@@ -554,31 +581,8 @@ internal static class MiniQuery
                 return new Conditional(test, whenTrue, ParseOr());
             }
 
-            Expect('(');
-            var arguments = new List<Node>();
-            Skip();
-            if (Peek() == ')')
-            {
-                _at++;
-            }
-            else
-            {
-                while (true)
-                {
-                    arguments.Add(ParseOr());
-                    Skip();
-                    if (Peek() == ',')
-                    {
-                        _at++;
-                        continue;
-                    }
-
-                    Expect(')');
-                    break;
-                }
-            }
-
-            var colon = word.IndexOf(':');
+            var arguments = ParseArguments();
+            var colon = word.IndexOf(':', StringComparison.Ordinal);
             if (colon < 0)
             {
                 return new Call(word, null, arguments);
@@ -587,7 +591,35 @@ internal static class MiniQuery
             var prefix = word.Substring(0, colon);
             var local = word.Substring(colon + 1);
             var uri = resolvePrefix(prefix) ?? throw new FormatException($"PREFIX:{prefix}");
-            return prefix == "xs" ? new Call(local, null, arguments) : new Call(local, uri, arguments);
+            return string.Equals(prefix, "xs", StringComparison.Ordinal)
+                ? new Call(local, null, arguments)
+                : new Call(local, uri, arguments);
+        }
+
+        private List<Node> ParseArguments()
+        {
+            Expect('(');
+            var arguments = new List<Node>();
+            Skip();
+            if (Peek() == ')')
+            {
+                _at++;
+                return arguments;
+            }
+
+            while (true)
+            {
+                arguments.Add(ParseOr());
+                Skip();
+                if (Peek() == ',')
+                {
+                    _at++;
+                    continue;
+                }
+
+                Expect(')');
+                return arguments;
+            }
         }
 
         private string ReadName()

@@ -7,7 +7,7 @@ using static NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Functions.FunctionTree
 /// <summary>Short builders of the XSLT elements the function tests use.</summary>
 internal static class Fx
 {
-    /// <summary>An <c>xsl:function</c>; <paramref name="type"/> is the <c>as</c> attribute and <paramref name="name"/> is written as given.</summary>
+    /// <summary>An <c>xsl:function</c>; <paramref name="type"/> is the <see langword="as"/> attribute and <paramref name="name"/> is written as given.</summary>
     internal static XmlElem Function(string? name, string? type, int line, params object[] content)
     {
         var all = new List<object>();
@@ -43,7 +43,7 @@ internal static class Fx
         return X("param", line, [.. all]);
     }
 
-    /// <summary>An <c>xsl:variable</c> with a <c>select</c>.</summary>
+    /// <summary>An <c>xsl:variable</c> with a <see langword="select"/>.</summary>
     internal static XmlElem Variable(string name, string? select, string? type, int line, params object[] content)
     {
         var all = new List<object> { A("name", name) };

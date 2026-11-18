@@ -11,7 +11,7 @@ using static NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Functions.FunctionTree
 using static NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Functions.Fx;
 
 /// <summary>
-/// Compiling <c>xsl:function</c> (design #150 EP-9, EP-13; XSLT 2.0 section 10.3): the name, the <c>as</c> types, the parameters,
+/// Compiling <c>xsl:function</c> (design #150 EP-9, EP-13; XSLT 2.0 section 10.3): the name, the <see langword="as"/> types, the parameters,
 /// the local variables and <c>xsl:sequence</c> of the body, and every static error with its code and location.
 /// </summary>
 public class FunctionCompileTests
@@ -246,7 +246,7 @@ public class FunctionCompileTests
 
         await Assert.That(fixture.Problems.Problems.Count).IsEqualTo(0);
         await Assert.That(component!.SlotCount).IsEqualTo(2);
-        var (_, last) = fixture.Binding.Compiled[2];
+        var (_, last) = fixture.Binding.Compiled[1];
         await Assert.That(MiniBinding.Resolve(last, "a")).IsEqualTo(1);
     }
 

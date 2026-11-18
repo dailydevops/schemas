@@ -11,9 +11,9 @@ using static NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Functions.FunctionTree
 using static NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Functions.Fx;
 
 /// <summary>
-/// What a function body sees (design #150 EP-4, EP-5, section 13): the schema-level <c>let</c> and <c>param</c>, bound lazily once
+/// What a function body sees (design #150 EP-4, EP-5, section 13): the schema-level <see langword="let"/> and <c>param</c>, bound lazily once
 /// per run through the shared slot binder when the function is entered, and nothing of a phase, a pattern, or a rule. A global
-/// pattern <c>let</c> in the wording of issue 249 is a schema-level <c>let</c> (design #150 section 13).
+/// pattern <see langword="let"/> in the wording of issue 249 is a schema-level <see langword="let"/> (design #150 section 13).
 /// </summary>
 public class FunctionScopeTests
 {
@@ -44,7 +44,7 @@ public class FunctionScopeTests
         await Assert.That(second).IsEqualTo(QueryStatus.Ok);
         await Assert.That(MiniQuery.Integer(again)).IsEqualTo(17);
         var baseSlot = fixture.Plan!.Globals[1].Slot;
-        await Assert.That(run.Events.FindAll(e => e == "bind:" + baseSlot).Count).IsEqualTo(1);
+        await Assert.That(run.Count("bind:" + baseSlot)).IsEqualTo(1);
     }
 
     [Test]

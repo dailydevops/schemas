@@ -66,6 +66,7 @@ internal sealed class MiniBinding : IQueryBinding
 
     public IQueryRun BeginRun(QueryResources resources, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         LastRun = new MiniRun();
         return LastRun;
     }

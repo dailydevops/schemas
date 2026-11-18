@@ -140,11 +140,16 @@ internal sealed class FunctionFixture
     }
 
     /// <summary>Creates a run and a caller wired to the table; the binder binds the schema-level slots when a plan exists.</summary>
-    internal (MiniRun Run, XsltFunctionCaller Caller) CreateRun(
-        int maxDepth = XsltFunctionCaller.DefaultMaxDepth,
-        CancellationToken cancellationToken = default
+    internal (MiniRun Run, XsltFunctionCaller Caller) CreateRun(int maxDepth = XsltFunctionCaller.DefaultMaxDepth) =>
+        CreateCancellableRun(maxDepth, CancellationToken.None);
+
+    internal (MiniRun Run, XsltFunctionCaller Caller) CreateCancellableRun(
+        int maxDepth,
+        CancellationToken cancellationToken
     )
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var run = new MiniRun { Table = Table };
         ISlotBinder binder = Plan is null
             ? new NoSlotBinder()

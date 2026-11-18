@@ -105,4 +105,10 @@ public static class SchematronDiagnosticCodes
     /// comment, never as an issue. <c>SCH-ISSUE-LIMIT-STOP</c>, stage evaluate.
     /// </summary>
     public static readonly DiagnosticCode IssueLimitStop = new(3502);
+
+    /// <summary>
+    /// An evaluation limit was breached, such as the depth of nested stylesheet function calls; the run ends with one error issue
+    /// (design #150 EP-16). <c>SCH-EVAL-LIMIT-STOP</c>, stage evaluate.
+    /// </summary>
+    public static readonly DiagnosticCode EvaluationLimitStop = new(3503);
 }
