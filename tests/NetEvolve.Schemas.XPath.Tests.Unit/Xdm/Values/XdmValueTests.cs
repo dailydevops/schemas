@@ -133,6 +133,19 @@ public class XdmValueTests
     }
 
     [Test]
+    [Arguments("2004-05", XsdDateTimeKind.GYearMonth)]
+    [Arguments("2004", XsdDateTimeKind.GYear)]
+    [Arguments("--05-12", XsdDateTimeKind.GMonthDay)]
+    [Arguments("---12", XsdDateTimeKind.GDay)]
+    [Arguments("--05", XsdDateTimeKind.GMonth)]
+    public async Task FromDateTime_GregorianValue_IsRejected(string lexical, XsdDateTimeKind kind)
+    {
+        var value = XsdDateTime.Parse(lexical.AsSpan(), kind, XsdVersion.V10).Value;
+
+        await Assert.That(() => XdmItem.FromDateTime(value)).Throws<ArgumentOutOfRangeException>();
+    }
+
+    [Test]
     public async Task UntypedAtomic_IsDistinctFromString()
     {
         var untyped = XdmItem.FromUntypedAtomic("a");

@@ -161,13 +161,20 @@ public readonly struct XdmItem : IEquatable<XdmItem>
     /// <summary>Creates an <c>xs:dateTime</c>, <c>xs:date</c>, or <c>xs:time</c> item, chosen by the kind of the value.</summary>
     /// <param name="value">The value.</param>
     /// <returns>The item.</returns>
-    public static XdmItem FromDateTime(in XsdDateTime value) =>
-        value.Kind switch
+    /// <exception cref="ArgumentOutOfRangeException">The kind of <paramref name="value"/> is none of <see cref="XsdDateTimeKind.DateTime"/>, <see cref="XsdDateTimeKind.Date"/>, and <see cref="XsdDateTimeKind.Time"/>.</exception>
+    public static XdmItem FromDateTime(in XsdDateTime value)
+    {
+        var kind = value.Kind;
+        Argument.ThrowIfLessThan((int)kind, (int)XsdDateTimeKind.DateTime);
+        Argument.ThrowIfGreaterThan((int)kind, (int)XsdDateTimeKind.Time);
+
+        return kind switch
         {
             XsdDateTimeKind.Date => new(XdmItemKind.Date, XdmTypeId.Date, 0, value),
             XsdDateTimeKind.Time => new(XdmItemKind.Time, XdmTypeId.Time, 0, value),
             _ => new(XdmItemKind.DateTime, XdmTypeId.DateTime, 0, value),
         };
+    }
 
     /// <summary>Creates an <c>xs:duration</c>, <c>xs:yearMonthDuration</c>, or <c>xs:dayTimeDuration</c> item.</summary>
     /// <param name="value">The value.</param>
