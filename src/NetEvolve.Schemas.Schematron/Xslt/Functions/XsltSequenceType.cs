@@ -63,7 +63,13 @@ internal sealed class XsltSequenceType
 
         if (tree is not InstanceOfExpression { Type: { } syntax })
         {
-            diagnostic = XPathErrors.Exception(XPathErrorCodes.XPST0003).Diagnostic;
+            diagnostic = new XPathDiagnostic(
+                new XPathErrorCode("XPST0003"),
+                XPathErrorKind.Static,
+                "The text is not exactly one sequence type.",
+                -1,
+                0
+            );
             return false;
         }
 
@@ -107,7 +113,13 @@ internal sealed class XsltSequenceType
             return true;
         }
 
-        diagnostic = XPathErrors.Exception(XPathErrorCodes.XPTY0004).Diagnostic;
+        diagnostic = new XPathDiagnostic(
+            new XPathErrorCode("XPTY0004"),
+            XPathErrorKind.Type,
+            "The value does not match the required sequence type.",
+            -1,
+            0
+        );
         return false;
     }
 
