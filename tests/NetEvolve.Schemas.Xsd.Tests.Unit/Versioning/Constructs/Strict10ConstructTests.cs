@@ -102,6 +102,11 @@ public class Strict10ConstructTests
 
     [Test]
     [Arguments(Open + "  <xs:complexType name=\"c\">^<xs:assert test=\"a &lt; b\"/></xs:complexType>", 4020)]
+    [Arguments(
+        Open
+            + "  <xs:simpleType name=\"t\"><xs:restriction base=\"xs:int\">^<xs:assertion test=\"$value gt 0\"/></xs:restriction></xs:simpleType>",
+        4021
+    )]
     [Arguments(Open + "  <xs:element name=\"e\">^<xs:alternative test=\"@k = 1\" type=\"t\"/></xs:element>", 4022)]
     [Arguments(
         Open
@@ -154,6 +159,10 @@ public class Strict10ConstructTests
 
     [Test]
     [Arguments(Open + "  <xs:complexType name=\"c\"><xs:assert test=\"a &lt; b\"/></xs:complexType>")]
+    [Arguments(
+        Open
+            + "  <xs:simpleType name=\"t\"><xs:restriction base=\"xs:int\"><xs:assertion test=\"$value gt 0\"/></xs:restriction></xs:simpleType>"
+    )]
     [Arguments(Open + "  <xs:element name=\"e\"><xs:alternative test=\"@k = 1\" type=\"t\"/></xs:element>")]
     [Arguments(Open + "  <xs:complexType name=\"c\"><xs:openContent><xs:any/></xs:openContent></xs:complexType>")]
     [Arguments(Open + "  <xs:defaultOpenContent><xs:any/></xs:defaultOpenContent>")]

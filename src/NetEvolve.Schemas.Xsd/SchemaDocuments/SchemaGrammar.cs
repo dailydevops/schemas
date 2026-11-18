@@ -18,7 +18,7 @@ internal static class SchemaGrammar
     internal const string Namespace = "http://www.w3.org/2001/XMLSchema";
 
     private const string Facets =
-        "minExclusive minInclusive maxExclusive maxInclusive totalDigits fractionDigits length minLength maxLength enumeration whiteSpace pattern explicitTimezone assert";
+        "minExclusive minInclusive maxExclusive maxInclusive totalDigits fractionDigits length minLength maxLength enumeration whiteSpace pattern explicitTimezone assertion";
     private const string Particles = "element group choice sequence any";
     private const string Definitions = "simpleType complexType group attributeGroup";
     private const string Id = "id";
@@ -181,11 +181,12 @@ internal static class SchemaGrammar
             "annotation",
             Id + " value:set=optional|required|prohibited! fixed:bool"
         );
-        Add(rules, "assert", XsdRuleCodes.SrcCt, "annotation", Id + " test! xpathDefaultNamespace");
+        Add(rules, "assertion", XsdRuleCodes.SrcSimpleType, "annotation", Id + " test! xpathDefaultNamespace");
     }
 
     private static void AddComplexTypeElements(Dictionary<string, SchemaElementRule> rules)
     {
+        Add(rules, "assert", XsdRuleCodes.SrcCt, "annotation", Id + " test! xpathDefaultNamespace");
         Add(
             rules,
             "complexType",
@@ -200,7 +201,7 @@ internal static class SchemaGrammar
             rules,
             "restriction@simpleContent",
             XsdRuleCodes.SrcCt,
-            "annotation simpleType " + Facets + " attribute attributeGroup anyAttribute",
+            "annotation simpleType " + Facets + " attribute attributeGroup anyAttribute assert",
             Id + " base:qname!"
         );
         Add(rules, "restriction@complexContent", XsdRuleCodes.SrcCt, ContentChildren, Id + " base:qname!");

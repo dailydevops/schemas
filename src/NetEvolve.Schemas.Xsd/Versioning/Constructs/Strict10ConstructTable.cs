@@ -8,8 +8,7 @@ using System.Collections.Generic;
 /// since version 1.0), each with its rule code.
 /// </summary>
 /// <remarks>
-/// Limitation: <c>assertion</c> is listed because it is the 1.1 facet element, but the schema grammar does not yet admit it
-/// (it admits <c>assert</c> as facet), so a parsed document never reaches this entry. Identity constraint <see langword="ref"/> and
+/// Limitation: identity constraint <see langword="ref"/> and
 /// substitution group lists are value rules of XSD-60, not part of this table.
 /// </remarks>
 internal static class Strict10ConstructTable
