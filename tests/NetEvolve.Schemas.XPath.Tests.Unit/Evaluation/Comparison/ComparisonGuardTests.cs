@@ -99,6 +99,25 @@ public class ComparisonGuardTests
     }
 
     [Test]
+    [Arguments(-1)]
+    [Arguments(6)]
+    public async Task Relations_RejectARelationThatIsNotDefined_WhenTestingAnOrder(int relation) =>
+        await Assert
+            .That(() => ComparisonRelations.Holds((ComparisonRelation)relation, 0))
+            .Throws<ArgumentOutOfRangeException>();
+
+    [Test]
+    public async Task Relations_TestEveryDefinedRelation_AgainstTheOrderOfTwoValues()
+    {
+        await Assert.That(ComparisonRelations.Holds(ComparisonRelation.Equal, 0)).IsTrue();
+        await Assert.That(ComparisonRelations.Holds(ComparisonRelation.NotEqual, 0)).IsFalse();
+        await Assert.That(ComparisonRelations.Holds(ComparisonRelation.LessThan, -1)).IsTrue();
+        await Assert.That(ComparisonRelations.Holds(ComparisonRelation.LessThanOrEqual, 1)).IsFalse();
+        await Assert.That(ComparisonRelations.Holds(ComparisonRelation.GreaterThan, 1)).IsTrue();
+        await Assert.That(ComparisonRelations.Holds(ComparisonRelation.GreaterThanOrEqual, -1)).IsFalse();
+    }
+
+    [Test]
     public async Task Relations_RejectAnOperatorOfTheNodeKind()
     {
         await Assert
