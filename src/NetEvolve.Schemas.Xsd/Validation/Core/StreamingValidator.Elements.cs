@@ -1,0 +1,516 @@
+namespace NetEvolve.Schemas.Xsd.Validation.Core;
+
+using System;
+using System.Collections.Generic;
+using System.Text;
+using NetEvolve.Schemas.Xml.Contracts;
+using NetEvolve.Schemas.XPath.Api;
+using NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;
+using NetEvolve.Schemas.Xsd.Components;
+using NetEvolve.Schemas.Xsd.Contracts;
+using NetEvolve.Schemas.Xsd.Elements;
+
+internal sealed partial class StreamingValidator
+{
+    /// <inheritdoc />
+    public void StartElement(XmlName name, XmlPosition position)
+    {
+        _ordinal++;
+        if (_skip > 0)
+        {
+            _skip++;
+            return;
+        }
+
+        _attributeCount = 0;
+        _attributeLength = 0;
+        var location = new DocumentLocation(_documentUri, position.Line, position.Column);
+        var id = _binding.Bind(name, out var qname);
+        if (_depth == 0)
+        {
+            StartRoot(name, qname, location);
+        }
+        else
+        {
+            StartChild(_frames[_depth - 1], name, id, qname, location);
+        }
+    }
+
+    /// <inheritdoc />
+    public void EndElement(XmlName name)
+    {
+        if (_skip > 0)
+        {
+            _skip--;
+            return;
+        }
+
+        var frame = _frames[_depth - 1];
+        switch (frame.Content)
+        {
+            case FrameContent.SimpleType:
+            case FrameContent.SimpleContent:
+                EndSimpleContent(frame);
+                break;
+            case FrameContent.ElementOnly:
+            case FrameContent.Mixed:
+                EndElementContent(frame);
+                break;
+            default:
+                break;
+        }
+
+        if (_onEnd.Length > 0)
+        {
+            var info = new ElementEndInfo(frame.Ordinal, frame.IsValid, false, frame.Type);
+            for (var i = 0; i < _onEnd.Length; i++)
+            {
+                _onEnd[i].EndElement(info);
+            }
+        }
+
+        Pop(frame);
+    }
+
+    /// <inheritdoc />
+    public void Text(ReadOnlySpan<char> text, XmlTextKind kind)
+    {
+        if (_skip > 0 || _depth == 0 || text.Length == 0)
+        {
+            return;
+        }
+
+        var frame = _frames[_depth - 1];
+        frame.HasText = true;
+        switch (frame.Content)
+        {
+            case FrameContent.SimpleType:
+            case FrameContent.SimpleContent:
+                if (!frame.ContentFailed)
+                {
+                    AppendText(text);
+                }
+
+                break;
+            case FrameContent.Empty:
+                if (!frame.TextReported)
+                {
+                    frame.TextReported = true;
+                    frame.ContentFailed = true;
+                    Invalid(
+                        frame,
+                        ValidationRules.ComplexType,
+                        "The content type of element "
+                            + Display(frame.QName)
+                            + " is empty, so it must not have character data.",
+                        "cvc-complex-type.2.1"
+                    );
+                }
+
+                break;
+            case FrameContent.ElementOnly:
+                if (!frame.TextReported && !IsWhitespace(text))
+                {
+                    frame.TextReported = true;
+                    Invalid(
+                        frame,
+                        ValidationRules.ComplexType,
+                        "The content type of element "
+                            + Display(frame.QName)
+                            + " is element-only, so it must not have character data other than white space.",
+                        "cvc-complex-type.2.3"
+                    );
+                }
+
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void StartRoot(XmlName name, XPathQName qname, DocumentLocation location)
+    {
+        if (TryGetGlobalElement(qname, out var declaration))
+        {
+            Open(name, qname, location, declaration);
+            return;
+        }
+
+        var frame = Push(name, qname, location);
+        frame.IsValid = false;
+        Report(
+            ValidationRules.AssessElt,
+            location,
+            "No declaration was found for the root element " + Display(qname) + ".",
+            "cvc-assess-elt.1"
+        );
+    }
+
+    private void StartChild(ElementFrame parent, XmlName name, int id, XPathQName qname, DocumentLocation location)
+    {
+        if (parent.ContentFailed)
+        {
+            _skip = 1;
+            return;
+        }
+
+        switch (parent.Content)
+        {
+            case FrameContent.Unassessed:
+                if (TryGetGlobalElement(qname, out var declaration))
+                {
+                    Open(name, qname, location, declaration);
+                }
+                else
+                {
+                    _ = Push(name, qname, location);
+                }
+
+                break;
+            case FrameContent.Empty:
+            case FrameContent.SimpleContent:
+            case FrameContent.SimpleType:
+                RejectChild(parent, qname, location);
+                break;
+            default:
+                MatchChild(parent, name, id, qname, location);
+                break;
+        }
+    }
+
+    private void RejectChild(ElementFrame parent, XPathQName qname, DocumentLocation location)
+    {
+        var (rule, clause, reason) = parent.Content switch
+        {
+            FrameContent.Empty => (ValidationRules.ComplexType, "cvc-complex-type.2.1", "is empty"),
+            FrameContent.SimpleContent => (ValidationRules.ComplexType, "cvc-complex-type.2.2", "is a simple type"),
+            _ => (ValidationRules.Type, "cvc-type.3.1.2", "is a simple type"),
+        };
+        var subject =
+            parent.Content == FrameContent.SimpleType ? "The type of element " : "The content type of element ";
+        Reject(
+            parent,
+            location,
+            rule,
+            subject
+                + Display(parent.QName)
+                + " "
+                + reason
+                + ", so it must not have the child element "
+                + Display(qname)
+                + ".",
+            clause
+        );
+    }
+
+    private void MatchChild(ElementFrame parent, XmlName name, int id, XPathQName qname, DocumentLocation location)
+    {
+        var program = parent.Program;
+        if (program is null)
+        {
+            _skip = 1;
+            return;
+        }
+
+        if (!TryStep(parent, id, qname, out var matched))
+        {
+            Reject(
+                parent,
+                location,
+                ValidationRules.ComplexType,
+                "Invalid content was found starting with element " + Display(qname) + ". " + Expected(parent, false),
+                "cvc-complex-type.2.4"
+            );
+            return;
+        }
+
+        var term = program.Terms[matched.ParticleIndex];
+        if (term is ElementDeclaration element)
+        {
+            Open(name, qname, location, element);
+        }
+        else
+        {
+            OpenWildcard(parent, (IWildcard)term, name, qname, location);
+        }
+    }
+
+    private static bool TryStep(ElementFrame frame, int id, XPathQName qname, out MatchedParticle matched)
+    {
+        if (frame.Counting is { } counting)
+        {
+            return counting.TryStep(id, qname, out matched);
+        }
+
+        return frame.AllRun!.TryStep(id, out matched);
+    }
+
+    private void OpenWildcard(
+        ElementFrame parent,
+        IWildcard wildcard,
+        XmlName name,
+        XPathQName qname,
+        DocumentLocation location
+    )
+    {
+        if (wildcard.ProcessContents == XsdProcessContents.Skip)
+        {
+            _skip = 1;
+        }
+        else if (TryGetGlobalElement(qname, out var declaration))
+        {
+            Open(name, qname, location, declaration);
+        }
+        else if (wildcard.ProcessContents == XsdProcessContents.Lax)
+        {
+            _ = Push(name, qname, location);
+        }
+        else
+        {
+            parent.IsValid = false;
+            Report(
+                ValidationRules.Wildcard,
+                location,
+                "The wildcard of element "
+                    + Display(parent.QName)
+                    + " is strict, but no declaration was found for the element "
+                    + Display(qname)
+                    + ".",
+                "cvc-wildcard.2"
+            );
+            _skip = 1;
+        }
+    }
+
+    private void Open(XmlName name, XPathQName qname, DocumentLocation location, ElementDeclaration declaration)
+    {
+        var frame = Push(name, qname, location);
+        frame.Declaration = declaration;
+        if (declaration.IsAbstract)
+        {
+            Invalid(
+                frame,
+                ValidationRules.Elt,
+                "The element declaration " + Display(declaration.Name) + " is abstract.",
+                "cvc-elt.2"
+            );
+        }
+
+        var type = declaration.TypeDefinition ?? ComplexTypeDefinition.AnyType;
+        frame.Type = type;
+        switch (type)
+        {
+            case ComplexTypeDefinition complex:
+                OpenComplex(frame, complex);
+                break;
+            case XsdBuiltInType { Kind: XsdComponentKind.ComplexType }:
+                OpenComplex(frame, ComplexTypeDefinition.AnyType);
+                break;
+            default:
+                frame.Content = FrameContent.SimpleType;
+                frame.SimpleType = type;
+                _textLength = 0;
+                break;
+        }
+    }
+
+    private void OpenComplex(ElementFrame frame, ComplexTypeDefinition complex)
+    {
+        frame.Complex = complex;
+        if (complex.IsAbstract)
+        {
+            Invalid(
+                frame,
+                ValidationRules.Type,
+                "The type " + Display(complex.Name) + " of element " + Display(frame.QName) + " is abstract.",
+                "cvc-type.2"
+            );
+        }
+
+        switch (complex.ContentKind)
+        {
+            case ComplexContentKind.Empty:
+                frame.Content = FrameContent.Empty;
+                break;
+            case ComplexContentKind.Simple:
+                frame.Content = FrameContent.SimpleContent;
+                frame.SimpleType = complex.SimpleContentType;
+                _textLength = 0;
+                break;
+            default:
+                frame.Content =
+                    complex.ContentKind == ComplexContentKind.Mixed ? FrameContent.Mixed : FrameContent.ElementOnly;
+                AcquireRun(frame, complex);
+                break;
+        }
+    }
+
+    private void AcquireRun(ElementFrame frame, ComplexTypeDefinition complex)
+    {
+        if (!_model.TryGetProgram(complex, out var program) || !program!.IsUsable)
+        {
+            return;
+        }
+
+        frame.Program = program;
+        var index = program.PoolIndex;
+        if (program.Automaton is { } automaton)
+        {
+            var pool = _countingPool[index];
+            var run = pool is { Count: > 0 } ? pool.Pop() : automaton.CreateRun();
+            run.Reset();
+            frame.Counting = run;
+        }
+        else
+        {
+            var pool = _allPool[index];
+            var run = pool is { Count: > 0 } ? pool.Pop() : program.AllGroup!.CreateRun();
+            run.Reset();
+            frame.AllRun = run;
+        }
+    }
+
+    private ElementFrame Push(XmlName name, XPathQName qname, DocumentLocation location)
+    {
+        if (_depth == _frames.Length)
+        {
+            Array.Resize(ref _frames, _depth * 2);
+        }
+
+        var frame = _frames[_depth] ??= new ElementFrame();
+        _depth++;
+        frame.Start(name, qname, location, _ordinal);
+        return frame;
+    }
+
+    private void Pop(ElementFrame frame)
+    {
+        if (frame.Counting is { } counting && frame.Program is { } countingProgram)
+        {
+            (_countingPool[countingProgram.PoolIndex] ??= new()).Push(counting);
+        }
+        else if (frame.AllRun is { } all && frame.Program is { } allProgram)
+        {
+            (_allPool[allProgram.PoolIndex] ??= new()).Push(all);
+        }
+
+        _depth--;
+        if (_depth > 0 && !frame.IsValid)
+        {
+            _frames[_depth - 1].IsValid = false;
+        }
+    }
+
+    private void EndElementContent(ElementFrame frame)
+    {
+        if (frame.ContentFailed || frame.Program is null)
+        {
+            return;
+        }
+
+        var complete = frame.Counting is { } counting ? counting.CanEnd() : frame.AllRun!.CanEnd();
+        if (!complete)
+        {
+            Invalid(
+                frame,
+                ValidationRules.ComplexType,
+                "The content of element " + Display(frame.QName) + " is not complete. " + Expected(frame, true),
+                "cvc-complex-type.2.4"
+            );
+        }
+    }
+
+    private void Reject(ElementFrame parent, DocumentLocation location, XsdRule rule, string message, string clause)
+    {
+        Report(rule, location, message, clause);
+        parent.IsValid = false;
+        parent.ContentFailed = true;
+        _skip = 1;
+    }
+
+    private string Expected(ElementFrame frame, bool incomplete)
+    {
+        Span<int> ids = stackalloc int[MaxExpectedNames];
+        var wildcard = false;
+        var written = 0;
+        if (frame.Counting is { } counting)
+        {
+            written = counting.CollectExpected(ids, out wildcard);
+        }
+        else if (frame.AllRun is { } all)
+        {
+            written = incomplete ? all.CollectMissing(ids) : all.CollectExpected(ids, out wildcard);
+        }
+
+        if (written == 0 && !wildcard)
+        {
+            return "No child element is expected.";
+        }
+
+        var builder = new StringBuilder("One of {");
+        for (var i = 0; i < written; i++)
+        {
+            _ = builder.Append(i == 0 ? string.Empty : ", ").Append(Display(_model.NameOf(ids[i])));
+        }
+
+        if (wildcard)
+        {
+            _ = builder.Append(written == 0 ? string.Empty : ", ").Append("any element the wildcard allows");
+        }
+
+        return builder.Append("} is expected.").ToString();
+    }
+
+    private bool TryGetGlobalElement(XPathQName name, out ElementDeclaration declaration)
+    {
+        if (
+            _model.Schema.TryGet(XsdComponentKind.ElementDeclaration, name, out var component)
+            && component is ElementDeclaration found
+        )
+        {
+            declaration = found;
+            return true;
+        }
+
+        declaration = null!;
+        return false;
+    }
+
+    private void Invalid(ElementFrame frame, XsdRule rule, string message, string clause)
+    {
+        Report(rule, frame.Location, message, clause);
+        frame.IsValid = false;
+    }
+
+    private void Report(XsdRule rule, DocumentLocation location, string message, string? clause) =>
+        _reporter.Report(rule, location, message, clause);
+
+    private static string Display(XPathQName name) =>
+        name.LocalName.Length == 0 ? "(anonymous)"
+        : name.NamespaceName.Length == 0 ? "'" + name.LocalName + "'"
+        : "'{" + name.NamespaceName + "}" + name.LocalName + "'";
+
+    private static bool IsWhitespace(ReadOnlySpan<char> text)
+    {
+        for (var i = 0; i < text.Length; i++)
+        {
+            if (text[i] is not (' ' or '\t' or '\n' or '\r'))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private void AppendText(ReadOnlySpan<char> text)
+    {
+        if (_textLength + text.Length > _text.Length)
+        {
+            Array.Resize(ref _text, Math.Max(256, (_textLength + text.Length) * 2));
+        }
+
+        text.CopyTo(_text.AsSpan(_textLength));
+        _textLength += text.Length;
+    }
+}
