@@ -75,7 +75,7 @@ internal static class GoldenHarness
         var fired = new HashSet<string>(StringComparer.Ordinal);
         foreach (var id in observed.FiredRuleIds)
         {
-            if (!string.IsNullOrEmpty(id))
+            if (!string.IsNullOrWhiteSpace(id))
             {
                 _ = fired.Add(id);
             }

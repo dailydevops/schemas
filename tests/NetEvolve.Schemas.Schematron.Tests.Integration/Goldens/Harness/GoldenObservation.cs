@@ -9,7 +9,7 @@ internal sealed record GoldenObservation
     /// <param name="isValid">Whether the document is valid.</param>
     /// <param name="firedRuleIds">
     /// The ids of the fired rules, in any order and with repeats. A rule without an id cannot be expected, so the
-    /// harness ignores an empty id.
+    /// harness ignores an empty or whitespace-only id.
     /// </param>
     public GoldenObservation(bool isValid, IReadOnlyList<string> firedRuleIds)
     {

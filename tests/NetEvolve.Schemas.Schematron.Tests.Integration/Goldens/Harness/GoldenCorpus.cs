@@ -19,7 +19,7 @@ internal sealed class GoldenCorpus
     /// <summary>Initializes a new instance of the <see cref="GoldenCorpus"/> class.</summary>
     /// <param name="manifests">The suite manifests, for example from <see cref="SuiteManifestLoader.LoadDirectory"/>.</param>
     /// <param name="fetcher">The fetcher that downloads, verifies, and caches the pinned archives.</param>
-    /// <exception cref="GoldenSourceException">A manifest has no well-formed SHA-256 checksum, or a suite key repeats.</exception>
+    /// <exception cref="GoldenSourceException">A manifest has no well-formed lowercase SHA-256 checksum, or a suite key repeats.</exception>
     public GoldenCorpus(IReadOnlyList<SuiteManifest> manifests, SuiteFetcher fetcher)
     {
         Argument.ThrowIfNull(manifests);
@@ -27,6 +27,7 @@ internal sealed class GoldenCorpus
         foreach (var manifest in manifests)
         {
             Argument.ThrowIfNull(manifest);
+            Argument.ThrowIfNullOrWhiteSpace(manifest.Key);
             if (!IsSha256(manifest.Sha256))
             {
                 throw new GoldenSourceException(
@@ -97,7 +98,7 @@ internal sealed class GoldenCorpus
 
         foreach (var c in value)
         {
-            if (!char.IsAsciiHexDigit(c))
+            if (!char.IsAsciiDigit(c) && !char.IsAsciiHexDigitLower(c))
             {
                 return false;
             }
