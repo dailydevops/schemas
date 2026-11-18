@@ -27,8 +27,8 @@ internal sealed class UnaryArithmeticNode : ExecutableNode
     /// <exception cref="System.ArgumentOutOfRangeException"><paramref name="operator"/> is not a defined operator.</exception>
     public UnaryArithmeticNode(UnaryOperator @operator, ExecutableNode operand, ArithmeticOperatorTable table)
     {
-        Argument.ThrowIfLessThan((int)@operator, (int)UnaryOperator.Plus);
-        Argument.ThrowIfGreaterThan((int)@operator, (int)UnaryOperator.Minus);
+        Argument.ThrowIfLessThan((int)@operator, (int)UnaryOperator.Plus, nameof(@operator));
+        Argument.ThrowIfGreaterThan((int)@operator, (int)UnaryOperator.Minus, nameof(@operator));
         Argument.ThrowIfNull(operand);
         Argument.ThrowIfNull(table);
 

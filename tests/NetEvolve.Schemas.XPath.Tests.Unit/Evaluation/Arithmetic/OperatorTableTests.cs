@@ -221,6 +221,27 @@ public class OperatorTableTests
     }
 
     [Test]
+    public async Task TryGet_WhenTwoEntriesMatchAndNeitherDerivesFromTheOther_TheFirstRegisteredWins()
+    {
+        // Two integers match (decimal, integer) and (integer, decimal); the type pairs are unrelated, so registration order decides.
+        var first = new ArithmeticOperatorTable();
+        first.Register(ArithmeticOperator.Add, XdmTypeId.XsDecimal, XdmTypeId.XsInteger, Marker);
+        first.Register(ArithmeticOperator.Add, XdmTypeId.XsInteger, XdmTypeId.XsDecimal, Concatenate);
+        var second = new ArithmeticOperatorTable();
+        second.Register(ArithmeticOperator.Add, XdmTypeId.XsInteger, XdmTypeId.XsDecimal, Concatenate);
+        second.Register(ArithmeticOperator.Add, XdmTypeId.XsDecimal, XdmTypeId.XsInteger, Marker);
+
+        await Assert
+            .That(first.TryGet(ArithmeticOperator.Add, XdmTypeId.XsInteger, XdmTypeId.XsInteger, out var a))
+            .IsTrue();
+        await Assert.That(a).IsEqualTo(new BinaryOperatorImplementation(Marker));
+        await Assert
+            .That(second.TryGet(ArithmeticOperator.Add, XdmTypeId.XsInteger, XdmTypeId.XsInteger, out var b))
+            .IsTrue();
+        await Assert.That(b).IsEqualTo(new BinaryOperatorImplementation(Concatenate));
+    }
+
+    [Test]
     public async Task TryGet_ForATypeWithoutARegisteredBase_FindsNothing()
     {
         var table = Table();

@@ -103,7 +103,11 @@ internal sealed class ArithmeticOperatorTable
     /// <param name="implementation">The implementation, <see langword="null"/> when there is none.</param>
     /// <returns><see langword="true"/> when an entry matches the types exactly or by subtype substitution.</returns>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="operator"/> is not a defined operator.</exception>
-    /// <remarks>Allocates nothing. The exact entry is one dictionary lookup; substitution scans the entries of the operator.</remarks>
+    /// <remarks>
+    /// Allocates nothing. The exact entry is one dictionary lookup; substitution scans the entries of the operator. When two entries
+    /// match and the types of neither derive from the types of the other (for example <c>(decimal, integer)</c> and
+    /// <c>(integer, decimal)</c> for two integers), the one registered first wins.
+    /// </remarks>
     public bool TryGet(
         ArithmeticOperator @operator,
         XdmTypeId left,
@@ -181,14 +185,14 @@ internal sealed class ArithmeticOperatorTable
 
     private static void CheckOperator(ArithmeticOperator @operator)
     {
-        Argument.ThrowIfLessThan((int)@operator, (int)ArithmeticOperator.Add);
-        Argument.ThrowIfGreaterThan((int)@operator, (int)ArithmeticOperator.Modulo);
+        Argument.ThrowIfLessThan((int)@operator, (int)ArithmeticOperator.Add, nameof(@operator));
+        Argument.ThrowIfGreaterThan((int)@operator, (int)ArithmeticOperator.Modulo, nameof(@operator));
     }
 
     private static void CheckOperator(UnaryOperator @operator)
     {
-        Argument.ThrowIfLessThan((int)@operator, (int)UnaryOperator.Plus);
-        Argument.ThrowIfGreaterThan((int)@operator, (int)UnaryOperator.Minus);
+        Argument.ThrowIfLessThan((int)@operator, (int)UnaryOperator.Plus, nameof(@operator));
+        Argument.ThrowIfGreaterThan((int)@operator, (int)UnaryOperator.Minus, nameof(@operator));
     }
 
     [StructLayout(LayoutKind.Auto)]

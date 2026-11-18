@@ -35,8 +35,8 @@ internal sealed class ArithmeticNode : ExecutableNode
         ArithmeticOperatorTable table
     )
     {
-        Argument.ThrowIfLessThan((int)@operator, (int)ArithmeticOperator.Add);
-        Argument.ThrowIfGreaterThan((int)@operator, (int)ArithmeticOperator.Modulo);
+        Argument.ThrowIfLessThan((int)@operator, (int)ArithmeticOperator.Add, nameof(@operator));
+        Argument.ThrowIfGreaterThan((int)@operator, (int)ArithmeticOperator.Modulo, nameof(@operator));
         Argument.ThrowIfNull(left);
         Argument.ThrowIfNull(right);
         Argument.ThrowIfNull(table);
