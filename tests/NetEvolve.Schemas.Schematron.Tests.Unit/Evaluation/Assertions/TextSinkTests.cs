@@ -266,6 +266,33 @@ public class TextSinkTests
     }
 
     [Test]
+    public async Task Text_NamespaceNode_AppendsItsUri()
+    {
+        using var sink = new TextSink(100);
+        var node = AssertionHarness.NodeItem("ns");
+
+        sink.Item(in node);
+
+        await Assert.That(sink.ToString()).IsEqualTo("urn:p");
+    }
+
+    [Test]
+    public async Task Text_GrowingPastTheFirstBuffer_KeepsTheEarlierText()
+    {
+        using var sink = new TextSink(1000);
+        var first = new string('a', 200);
+        var second = new string('b', 100);
+        var third = new string('c', 700);
+
+        sink.Text(first.AsSpan());
+        sink.Text(second.AsSpan());
+        sink.Text(third.AsSpan());
+
+        await Assert.That(sink.ToString()).IsEqualTo(first + second + third);
+        await Assert.That(sink.IsTruncated).IsFalse();
+    }
+
+    [Test]
     public async Task Text_BeginTree_Throws()
     {
         using var sink = new TextSink(100);

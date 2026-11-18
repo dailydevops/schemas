@@ -14,7 +14,7 @@ internal static class AssertionTree
 {
     private static readonly XmlDocumentTree Tree = Build();
 
-    /// <summary>The nodes by key: doc, root (1,1), order1 (2,3), id, txt, c, pi, item1 (3,5), item2 (4,5), order2 (5,3), px (6,3).</summary>
+    /// <summary>The nodes by key: doc, root (1,1), order1 (2,3), id, txt, c, pi, item1 (3,5), item2 (4,5), order2 (5,3), px (6,3), ns (the namespace node of px).</summary>
     private static readonly Dictionary<string, XPathNode> Nodes = Index(Tree);
 
     internal static XPathNode Node(string key) =>
@@ -77,6 +77,7 @@ internal static class AssertionTree
         var item2 = item1.NextSibling;
         var order2 = order1.NextSibling;
         var px = order2.NextSibling;
+        var ns = px.FirstNamespace;
         return new Dictionary<string, XPathNode>(StringComparer.Ordinal)
         {
             ["doc"] = new(doc),
@@ -90,6 +91,7 @@ internal static class AssertionTree
             ["item2"] = new(item2),
             ["order2"] = new(order2),
             ["px"] = new(px),
+            ["ns"] = new(ns),
         };
     }
 }
