@@ -194,6 +194,58 @@ public class XmlConfSuiteTests
     }
 
     /// <summary>
+    /// Not-well-formed xmltest cases that break a constraint of entity references or of entity replacement text
+    /// (Entity Declared, No Recursion, Parsed Entity, No External Entity References, content of replacement text).
+    /// Cases about attribute-list defaults (078, 079, 080, 082, 084, 180) are XML-16 and not listed.
+    /// </summary>
+    private static readonly string[] NotWellFormedEntityCases =
+    [
+        "xmltest/not-wf-sa-071",
+        "xmltest/not-wf-sa-073",
+        "xmltest/not-wf-sa-074",
+        "xmltest/not-wf-sa-075",
+        "xmltest/not-wf-sa-077",
+        "xmltest/not-wf-sa-081",
+        "xmltest/not-wf-sa-088",
+        "xmltest/not-wf-sa-090",
+        "xmltest/not-wf-sa-092",
+        "xmltest/not-wf-sa-104",
+        "xmltest/not-wf-sa-110",
+        "xmltest/not-wf-sa-111",
+        "xmltest/not-wf-sa-115",
+        "xmltest/not-wf-sa-116",
+        "xmltest/not-wf-sa-117",
+        "xmltest/not-wf-sa-118",
+        "xmltest/not-wf-sa-119",
+        "xmltest/not-wf-sa-120",
+        "xmltest/not-wf-sa-181",
+        "xmltest/not-wf-sa-182",
+        "xmltest/not-wf-sa-185",
+    ];
+
+    [Test]
+    public async Task Pipeline_NotWellFormedEntityCases_AreRejectedAndLeaveTheBaseline(
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var selection = await XmlConfSuite.LoadSelectionAsync(cancellationToken);
+        var baselines = XmlConfSuite.LoadBaselines(selection);
+        var cases = selection.Selected.Where(c => NotWellFormedEntityCases.Contains(c.Id)).ToList();
+
+        var results = await XmlConfRunner.RunAsync(
+            new XmlConfSelection(cases, []),
+            new PipelineXmlConfReader(XmlConfSuite.SuiteRoot),
+            cancellationToken
+        );
+
+        await Assert.That(cases.Select(c => c.Id)).IsEquivalentTo(NotWellFormedEntityCases);
+        await Assert.That(results.Where(r => r.Outcome == CaseOutcome.Fail).Select(r => r.CaseId)).IsEmpty();
+        await Assert.That(cases.Any(c => baselines[c.TestSet].Ids.Contains(c.Id, StringComparer.Ordinal))).IsFalse();
+    }
+
+    /// <summary>
     /// Valid cases without a document type declaration that need namespace processing switched off; the pipeline reader
     /// has no such mode (limitation), so they stay in the baseline.
     /// </summary>
