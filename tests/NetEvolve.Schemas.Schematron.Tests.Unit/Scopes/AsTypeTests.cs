@@ -154,6 +154,20 @@ public class AsTypeTests
     }
 
     [Test]
+    [Arguments("xs:long(5)", "xs:integer")]
+    [Arguments("xs:int('5')", "xs:integer")]
+    [Arguments("xs:nonNegativeInteger('5')", "xs:integer")]
+    [Arguments("xs:token('a')", "xs:string")]
+    [Arguments("xs:untypedAtomic('5')", "xs:integer")]
+    public async Task Scope_AsType_DerivedConstructor_IsLeftToTheBinding_AndNotABuildProblem(string value, string type)
+    {
+        var f = Create(Schema(lets: [Let("n", value, type)]));
+
+        await Assert.That(f.Ok).IsTrue();
+        await Assert.That(f.Problems.Problems.Count).IsEqualTo(0);
+    }
+
+    [Test]
     public async Task ConstantLet_Literal_IsNotEvaluatedAtBuild()
     {
         var f = Create(Schema(lets: [Let("n", "5", "xs:integer")]));
