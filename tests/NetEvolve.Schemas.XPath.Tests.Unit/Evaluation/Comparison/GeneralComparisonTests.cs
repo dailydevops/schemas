@@ -109,6 +109,16 @@ public class GeneralComparisonTests
         await Assert.That(Outcome(left, "!=", right)).IsEqualTo("FORG0001");
     }
 
+    // A lexical form beyond the digit cap of the datatype layer is an implementation limit, not an invalid form (#621).
+    [Test]
+    public async Task UntypedAtomic_BeyondTheDigitCap_RaisesFoca0001()
+    {
+        var digits = "u:" + new string('9', 5000);
+
+        await Assert.That(Outcome(digits, "=", "i:1")).IsEqualTo("FOCA0001");
+        await Assert.That(Outcome("d:1", "<", digits)).IsEqualTo("FOCA0001");
+    }
+
     [Test]
     [Arguments("u:abc", "s:abc", "true")]
     [Arguments("s:abc", "u:abc", "true")]

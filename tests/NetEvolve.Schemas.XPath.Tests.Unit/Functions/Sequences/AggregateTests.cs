@@ -34,6 +34,15 @@ public class AggregateTests
     public async Task Sum_AddsWithNumericPromotion(string argument, string expected) =>
         await Assert.That(SequencesHarness.Run("sum", argument)).IsEqualTo(expected);
 
+    // A lexical form beyond the digit cap of the datatype layer is an implementation limit, not an invalid form (#621).
+    [Test]
+    [Arguments("sum")]
+    [Arguments("avg")]
+    public async Task UntypedAtomic_BeyondTheDigitCap_RaisesFOCA0001(string function) =>
+        await Assert
+            .That(SequencesHarness.Run(function, "untypedAtomic:" + new string('9', 5000)))
+            .IsEqualTo("error:FOCA0001");
+
     [Test]
     [Arguments("()", "integer:7", "integer:7")]
     [Arguments("()", "double:0", "double:0")]
