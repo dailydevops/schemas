@@ -1,4 +1,35 @@
-﻿namespace NetEvolve.Schemas.Xml.Contracts
+﻿namespace NetEvolve.Schemas
+{
+    public static class DtdSchemaValidatorExtensions
+    {
+        public sealed class <G>$8181A2D17B7E404582A6E1871A86A2F2
+        {
+            public static NetEvolve.Schemas.DtdValidatorBuilder ForDtd() { }
+            public static class <M>$BA625B3221FA1E4BC76D571E2A3521B7 { }
+        }
+        extension(NetEvolve.Schemas.SchemaValidator)
+        {
+            public static NetEvolve.Schemas.DtdValidatorBuilder ForDtd() { }
+        }
+    }
+    public sealed class DtdValidatorBuilder : NetEvolve.Schemas.Formats.SchemaValidatorBuilder<NetEvolve.Schemas.DtdValidatorBuilder, NetEvolve.Schemas.IDtdValidator>
+    {
+        public bool AllowExternalGeneralEntities { get; }
+        public bool AllowExternalParameterEntities { get; }
+        public bool AllowExternalSubset { get; }
+        public NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidationLimits DtdLimits { get; }
+        public NetEvolve.Schemas.Xml.Dtd.Contracts.DtdNonDeterminism NonDeterministicContentModels { get; }
+        public NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidationOptions Options { get; }
+        protected override NetEvolve.Schemas.IDtdValidator CreateValidator(NetEvolve.Schemas.ValidationLimits limits, NetEvolve.Schemas.Resources.IResourceResolver resolver) { }
+        public NetEvolve.Schemas.DtdValidatorBuilder WithAllowExternalGeneralEntities(bool value) { }
+        public NetEvolve.Schemas.DtdValidatorBuilder WithAllowExternalParameterEntities(bool value) { }
+        public NetEvolve.Schemas.DtdValidatorBuilder WithAllowExternalSubset(bool value) { }
+        public NetEvolve.Schemas.DtdValidatorBuilder WithDtdLimits(NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidationLimits value) { }
+        public NetEvolve.Schemas.DtdValidatorBuilder WithNonDeterministicContentModels(NetEvolve.Schemas.Xml.Dtd.Contracts.DtdNonDeterminism value) { }
+    }
+    public interface IDtdValidator : NetEvolve.Schemas.ISchemaValidator { }
+}
+namespace NetEvolve.Schemas.Xml.Contracts
 {
     public interface IXmlReader
     {
@@ -882,6 +913,266 @@ namespace NetEvolve.Schemas.Xml.Datatypes.Uri
         Strict = 1,
     }
 }
+namespace NetEvolve.Schemas.Xml.Dtd.Contracts
+{
+    public enum DtdEntityOutcome
+    {
+        DeclaredInternal = 0,
+        DeclaredExternal = 1,
+        Undeclared = 2,
+    }
+    public static class DtdLimitCodes
+    {
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML1117;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML1118;
+        public static readonly NetEvolve.Schemas.Xml.Contracts.XmlErrorCode XML1119;
+        public static System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Xml.Contracts.XmlErrorCode> All { get; }
+    }
+    public enum DtdNonDeterminism
+    {
+        Accept = 0,
+        Warn = 1,
+        Reject = 2,
+    }
+    public sealed class DtdValidationContext
+    {
+        public DtdValidationContext(NetEvolve.Schemas.Xml.Dtd.Model.IDtdDeclarations declarations, NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidationOptions options, NetEvolve.Schemas.Formats.ValidationIssueCollector issues, bool isStandalone, string? systemId, NetEvolve.Schemas.DocumentLocation documentTypeLocation) { }
+        public NetEvolve.Schemas.Xml.Dtd.Model.IDtdDeclarations Declarations { get; }
+        public NetEvolve.Schemas.DocumentLocation DocumentTypeLocation { get; }
+        public bool IsStandalone { get; }
+        public bool IsStopped { get; }
+        public NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidationOptions Options { get; }
+        public string? SystemId { get; }
+        public NetEvolve.Schemas.DocumentLocation Locate(in NetEvolve.Schemas.Xml.Contracts.XmlPosition position) { }
+        public void Report(NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidityCode code, NetEvolve.Schemas.IssueSeverity severity, NetEvolve.Schemas.DocumentLocation location, string? argument = null) { }
+        public void ReportStandalone(NetEvolve.Schemas.Xml.Dtd.Contracts.XmlStandaloneClause clause, NetEvolve.Schemas.DocumentLocation location, string? argument = null) { }
+        public void Stop(NetEvolve.Schemas.Xml.Contracts.XmlErrorCode code, NetEvolve.Schemas.DocumentLocation location) { }
+    }
+    public sealed class DtdValidationLimits
+    {
+        public int MaxContentModelStates { get; }
+        public int MaxDeclarations { get; }
+        public int MaxExternalEntityRequests { get; }
+        public static NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidationLimits Default { get; }
+        public NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidationLimits WithMaxContentModelStates(int value) { }
+        public NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidationLimits WithMaxDeclarations(int value) { }
+        public NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidationLimits WithMaxExternalEntityRequests(int value) { }
+    }
+    public sealed class DtdValidationOptions
+    {
+        public bool AllowExternalGeneralEntities { get; }
+        public bool AllowExternalParameterEntities { get; }
+        public bool AllowExternalSubset { get; }
+        public NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidationLimits DtdLimits { get; }
+        public NetEvolve.Schemas.ValidationLimits Limits { get; }
+        public NetEvolve.Schemas.Xml.Dtd.Contracts.DtdNonDeterminism NonDeterministicContentModels { get; }
+        public NetEvolve.Schemas.Resources.IResourceResolver Resolver { get; }
+        public static NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidationOptions Default { get; }
+        public NetEvolve.Schemas.Resources.ResourceResult Resolve(in NetEvolve.Schemas.Resources.ResourceRequest request, System.Threading.CancellationToken cancellationToken) { }
+        public NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidationOptions WithAllowExternalGeneralEntities(bool value) { }
+        public NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidationOptions WithAllowExternalParameterEntities(bool value) { }
+        public NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidationOptions WithAllowExternalSubset(bool value) { }
+        public NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidationOptions WithDtdLimits(NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidationLimits value) { }
+        public NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidationOptions WithLimits(NetEvolve.Schemas.ValidationLimits value) { }
+        public NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidationOptions WithNonDeterministicContentModels(NetEvolve.Schemas.Xml.Dtd.Contracts.DtdNonDeterminism value) { }
+        public NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidationOptions WithResolver(NetEvolve.Schemas.Resources.IResourceResolver value) { }
+    }
+    public sealed class DtdValidityCode
+    {
+        public string Alias { get; }
+        public NetEvolve.Schemas.DiagnosticCode Code { get; }
+        public NetEvolve.Schemas.IssueSeverity DefaultSeverity { get; }
+        public NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidityCodeKind Kind { get; }
+        public string Message { get; }
+        public string Name { get; }
+        public string Owner { get; }
+        public string Section { get; }
+        public override string ToString() { }
+    }
+    public enum DtdValidityCodeKind
+    {
+        ValidityConstraint = 0,
+        Report = 1,
+    }
+    public static class DtdValidityCodes
+    {
+        public static readonly NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidityCode XML5001;
+        public static readonly NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidityCode XML5002;
+        public static readonly NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidityCode XML5003;
+        public static readonly NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidityCode XML5004;
+        public static readonly NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidityCode XML5005;
+        public static readonly NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidityCode XML5006;
+        public static readonly NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidityCode XML5007;
+        public static readonly NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidityCode XML5008;
+        public static readonly NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidityCode XML5009;
+        public static readonly NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidityCode XML5010;
+        public static readonly NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidityCode XML5011;
+        public static readonly NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidityCode XML5012;
+        public static readonly NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidityCode XML5013;
+        public static readonly NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidityCode XML5014;
+        public static readonly NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidityCode XML5015;
+        public static readonly NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidityCode XML5016;
+        public static readonly NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidityCode XML5017;
+        public static readonly NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidityCode XML5018;
+        public static readonly NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidityCode XML5019;
+        public static readonly NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidityCode XML5020;
+        public static readonly NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidityCode XML5021;
+        public static readonly NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidityCode XML5022;
+        public static readonly NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidityCode XML5023;
+        public static readonly NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidityCode XML5024;
+        public static readonly NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidityCode XML5025;
+        public static readonly NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidityCode XML5026;
+        public static readonly NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidityCode XML5901;
+        public static readonly NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidityCode XML5902;
+        public static readonly NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidityCode XML5903;
+        public static readonly NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidityCode XML5904;
+        public static readonly NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidityCode XML5910;
+        public static readonly NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidityCode XML5911;
+        public static System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidityCode> All { get; }
+        public static System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidityCode> Constraints { get; }
+        public static System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidityCode> Reports { get; }
+    }
+    public interface IDtdValidationStep
+    {
+        void BeginDocument(NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidationContext context);
+        void Comment(in NetEvolve.Schemas.Xml.Contracts.XmlPosition position);
+        void EndDocument();
+        void EndElement(in NetEvolve.Schemas.Xml.Dtd.Contracts.ValidationElement element);
+        void EntityReference(in NetEvolve.Schemas.Xml.Dtd.Contracts.ValidationEntityReference reference);
+        void ProcessingInstruction(in NetEvolve.Schemas.Xml.Contracts.XmlPosition position);
+        void StartElement(in NetEvolve.Schemas.Xml.Dtd.Contracts.ValidationElement element);
+        void Text(System.ReadOnlySpan<char> text, NetEvolve.Schemas.Xml.Contracts.XmlTextKind kind, in NetEvolve.Schemas.Xml.Contracts.XmlPosition position);
+    }
+    public readonly struct ValidationAttributeInfo : System.IEquatable<NetEvolve.Schemas.Xml.Dtd.Contracts.ValidationAttributeInfo>
+    {
+        public ValidationAttributeInfo(System.ReadOnlyMemory<char> name, System.ReadOnlyMemory<char> value, NetEvolve.Schemas.Xml.Dtd.Model.DtdAttributeType? declaredType, bool isSpecified, NetEvolve.Schemas.Xml.Contracts.XmlPosition position) { }
+        public NetEvolve.Schemas.Xml.Dtd.Model.DtdAttributeType? DeclaredType { get; }
+        public bool IsSpecified { get; }
+        public System.ReadOnlyMemory<char> Name { get; }
+        public NetEvolve.Schemas.Xml.Contracts.XmlPosition Position { get; }
+        public System.ReadOnlyMemory<char> Value { get; }
+    }
+    public readonly struct ValidationElement : System.IEquatable<NetEvolve.Schemas.Xml.Dtd.Contracts.ValidationElement>
+    {
+        public ValidationElement(System.ReadOnlyMemory<char> name, NetEvolve.Schemas.Xml.Contracts.XmlPosition position, System.ReadOnlyMemory<NetEvolve.Schemas.Xml.Dtd.Contracts.ValidationAttributeInfo> attributes = default) { }
+        public System.ReadOnlyMemory<NetEvolve.Schemas.Xml.Dtd.Contracts.ValidationAttributeInfo> Attributes { get; }
+        public System.ReadOnlyMemory<char> Name { get; }
+        public NetEvolve.Schemas.Xml.Contracts.XmlPosition Position { get; }
+    }
+    public readonly struct ValidationEntityReference : System.IEquatable<NetEvolve.Schemas.Xml.Dtd.Contracts.ValidationEntityReference>
+    {
+        public ValidationEntityReference(System.ReadOnlyMemory<char> name, NetEvolve.Schemas.Xml.Contracts.XmlPosition position, NetEvolve.Schemas.Xml.Dtd.Contracts.DtdEntityOutcome outcome) { }
+        public System.ReadOnlyMemory<char> Name { get; }
+        public NetEvolve.Schemas.Xml.Dtd.Contracts.DtdEntityOutcome Outcome { get; }
+        public NetEvolve.Schemas.Xml.Contracts.XmlPosition Position { get; }
+    }
+    public enum XmlStandaloneClause
+    {
+        Defaults = 0,
+        Entities = 1,
+        Normalization = 2,
+        WhiteSpace = 3,
+    }
+}
+namespace NetEvolve.Schemas.Xml.Dtd.Model
+{
+    public sealed class DtdAttributeDefinition
+    {
+        public NetEvolve.Schemas.Xml.Dtd.Model.DtdDefaultKind DefaultKind { get; }
+        public string? DefaultValue { get; }
+        public string Name { get; }
+        public NetEvolve.Schemas.Xml.Dtd.Model.DtdAttributeType Type { get; }
+        public System.Collections.Generic.IReadOnlyList<string> Values { get; }
+    }
+    public enum DtdAttributeType
+    {
+        Cdata = 0,
+        Id = 1,
+        IdRef = 2,
+        IdRefs = 3,
+        Entity = 4,
+        Entities = 5,
+        NmToken = 6,
+        NmTokens = 7,
+        Notation = 8,
+        Enumeration = 9,
+    }
+    public enum DtdContentKind
+    {
+        Empty = 0,
+        Any = 1,
+        Mixed = 2,
+        Children = 3,
+    }
+    public sealed class DtdContentParticle
+    {
+        public System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Xml.Dtd.Model.DtdContentParticle> Items { get; }
+        public NetEvolve.Schemas.Xml.Dtd.Model.DtdParticleKind Kind { get; }
+        public string? Name { get; }
+        public NetEvolve.Schemas.Xml.Dtd.Model.DtdOccurrence Occurrence { get; }
+    }
+    public enum DtdDefaultKind
+    {
+        Implied = 0,
+        Required = 1,
+        Fixed = 2,
+        Default = 3,
+    }
+    public sealed class DtdElementDeclaration
+    {
+        public NetEvolve.Schemas.Xml.Dtd.Model.DtdContentParticle? Content { get; }
+        public NetEvolve.Schemas.Xml.Dtd.Model.DtdContentKind ContentKind { get; }
+        public string Name { get; }
+    }
+    public sealed class DtdEntityDeclaration
+    {
+        public bool IsParameter { get; }
+        public string Name { get; }
+        public string? NotationName { get; }
+        public string? PublicId { get; }
+        public string? SystemId { get; }
+        public string? Value { get; }
+    }
+    public enum DtdOccurrence
+    {
+        Once = 0,
+        Optional = 1,
+        ZeroOrMore = 2,
+        OneOrMore = 3,
+    }
+    public enum DtdParticleKind
+    {
+        Name = 0,
+        Sequence = 1,
+        Choice = 2,
+    }
+    public interface IDtdDeclarations
+    {
+        System.Collections.Generic.IReadOnlyDictionary<string, System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Xml.Dtd.Model.DtdAttributeDefinition>> AttributeLists { get; }
+        System.Collections.Generic.IReadOnlyDictionary<string, NetEvolve.Schemas.Xml.Dtd.Model.DtdElementDeclaration> Elements { get; }
+        System.Collections.Generic.IReadOnlyDictionary<string, NetEvolve.Schemas.Xml.Dtd.Model.DtdEntityDeclaration> GeneralEntities { get; }
+        bool HasExternalSubset { get; }
+        bool HasParameterEntityReferences { get; }
+        string Name { get; }
+        System.Collections.Generic.IReadOnlyDictionary<string, NetEvolve.Schemas.Xml.Contracts.XmlNotation> Notations { get; }
+        System.Collections.Generic.IReadOnlyDictionary<string, NetEvolve.Schemas.Xml.Dtd.Model.DtdEntityDeclaration> ParameterEntities { get; }
+        string? PublicId { get; }
+        string? SystemId { get; }
+    }
+}
+namespace NetEvolve.Schemas.Xml.Input.Stream
+{
+    public sealed class XmlStreamReader<TSink> : System.IDisposable
+        where TSink : NetEvolve.Schemas.Xml.Contracts.IXmlSink
+    {
+        public XmlStreamReader(System.IO.Stream stream, TSink sink, NetEvolve.Schemas.Xml.Contracts.XmlReaderOptions? options = null, int bufferSize = 4096, bool leaveOpen = true) { }
+        public NetEvolve.Schemas.Xml.Contracts.XmlDiagnostic? Diagnostic { get; }
+        public NetEvolve.Schemas.Xml.Contracts.XmlPosition Position { get; }
+        public TSink& Sink { get; }
+        public void Dispose() { }
+        public System.Threading.Tasks.ValueTask<NetEvolve.Schemas.Xml.Contracts.XmlReadStatus> ReadAsync(System.Threading.CancellationToken cancellationToken = default) { }
+    }
+}
 namespace NetEvolve.Schemas.Xml.Interop
 {
     public static class XmlInterop
@@ -897,6 +1188,76 @@ namespace NetEvolve.Schemas.Xml.Interop
     {
         public XmlInteropOptions(bool allowDocumentType = false) { }
         public bool AllowDocumentType { get; }
+    }
+}
+namespace NetEvolve.Schemas.Xml.Model.Traversal
+{
+    public static class XmlTreePump
+    {
+        public static void Pump(NetEvolve.Schemas.Xml.Contracts.XmlNode node, NetEvolve.Schemas.Xml.Contracts.IXmlSink sink) { }
+        public static void Pump<TSink>(NetEvolve.Schemas.Xml.Contracts.XmlNode node, ref TSink sink)
+            where TSink : NetEvolve.Schemas.Xml.Contracts.IXmlSink { }
+    }
+}
+namespace NetEvolve.Schemas.Xml.Model
+{
+    public sealed class XmlDocumentTree : NetEvolve.Schemas.Xml.Contracts.XmlTree
+    {
+        public int Count { get; }
+        public override NetEvolve.Schemas.Xml.Contracts.XmlNameTable Names { get; }
+        public override System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Xml.Contracts.XmlNotation> Notations { get; }
+        public override System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Xml.Contracts.XmlUnparsedEntity> UnparsedEntities { get; }
+        protected override int CompareDocumentOrder(int first, int second) { }
+        protected override System.Uri? GetBaseUri(int index) { }
+        protected override System.Uri? GetDocumentUri(int index) { }
+        protected override int GetFirstAttribute(int index) { }
+        protected override int GetFirstChild(int index) { }
+        protected override int GetFirstNamespace(int index) { }
+        protected override NetEvolve.Schemas.Xml.Contracts.XmlNodeKind GetKind(int index) { }
+        protected override NetEvolve.Schemas.Xml.Contracts.XmlName GetName(int index) { }
+        protected override int GetNextAttribute(int index) { }
+        protected override int GetNextNamespace(int index) { }
+        protected override int GetNextSibling(int index) { }
+        protected override int GetParent(int index) { }
+        public NetEvolve.Schemas.Xml.Contracts.XmlPosition GetPosition(int index) { }
+        protected override string GetStringValue(int index) { }
+        public bool TryGetElementById(string id, out NetEvolve.Schemas.Xml.Contracts.XmlNode element) { }
+    }
+    public sealed class XmlTreeBuilder : NetEvolve.Schemas.Xml.Contracts.IXmlSink, System.IDisposable
+    {
+        public XmlTreeBuilder(NetEvolve.Schemas.Xml.Contracts.XmlNameTable? names = null, System.Uri? documentUri = null, bool trackPositions = true) { }
+        public NetEvolve.Schemas.Xml.Contracts.XmlNameTable Names { get; }
+        public void AddNotation(NetEvolve.Schemas.Xml.Contracts.XmlNotation notation) { }
+        public void AddUnparsedEntity(NetEvolve.Schemas.Xml.Contracts.XmlUnparsedEntity entity) { }
+        public void Attribute(NetEvolve.Schemas.Xml.Contracts.XmlName name, System.ReadOnlySpan<char> value) { }
+        public void Comment(System.ReadOnlySpan<char> text) { }
+        public NetEvolve.Schemas.Xml.Model.XmlDocumentTree Complete() { }
+        public void Dispose() { }
+        public void Doctype(in NetEvolve.Schemas.Xml.Contracts.XmlDoctypeInfo doctype) { }
+        public void EndAttributes() { }
+        public void EndDocument() { }
+        public void EndElement(NetEvolve.Schemas.Xml.Contracts.XmlName name) { }
+        public void NamespaceDeclaration(NetEvolve.Schemas.Xml.Contracts.XmlSymbol prefix, NetEvolve.Schemas.Xml.Contracts.XmlSymbol uri) { }
+        public void ProcessingInstruction(NetEvolve.Schemas.Xml.Contracts.XmlSymbol target, System.ReadOnlySpan<char> data) { }
+        public void RegisterId(string id) { }
+        public void StartDocument(in NetEvolve.Schemas.Xml.Contracts.XmlDeclaration declaration) { }
+        public void StartElement(NetEvolve.Schemas.Xml.Contracts.XmlName name, NetEvolve.Schemas.Xml.Contracts.XmlPosition position) { }
+        public void Text(System.ReadOnlySpan<char> text, NetEvolve.Schemas.Xml.Contracts.XmlTextKind kind) { }
+    }
+}
+namespace NetEvolve.Schemas.Xml.Reader.Pipeline
+{
+    public sealed class XmlPipelineReader : NetEvolve.Schemas.Xml.Contracts.IXmlReader, System.IDisposable
+    {
+        public NetEvolve.Schemas.Xml.Contracts.XmlDiagnostic? Diagnostic { get; }
+        public NetEvolve.Schemas.Xml.Contracts.XmlPosition Position { get; }
+        public void Dispose() { }
+        public NetEvolve.Schemas.Xml.Contracts.XmlReadStatus Pump<TSink>(ref TSink sink)
+            where TSink : NetEvolve.Schemas.Xml.Contracts.IXmlSink { }
+        public static NetEvolve.Schemas.Xml.Reader.Pipeline.XmlPipelineReader Create(System.ReadOnlySpan<byte> input, NetEvolve.Schemas.Xml.Contracts.XmlReaderOptions? options = null) { }
+        public static NetEvolve.Schemas.Xml.Reader.Pipeline.XmlPipelineReader Create(System.ReadOnlySpan<char> input, NetEvolve.Schemas.Xml.Contracts.XmlReaderOptions? options = null) { }
+        public static NetEvolve.Schemas.Xml.Reader.Pipeline.XmlPipelineReader CreateFromMemory(System.ReadOnlyMemory<byte> input, NetEvolve.Schemas.Xml.Contracts.XmlReaderOptions? options = null) { }
+        public static NetEvolve.Schemas.Xml.Reader.Pipeline.XmlPipelineReader CreateFromMemory(System.ReadOnlyMemory<char> input, NetEvolve.Schemas.Xml.Contracts.XmlReaderOptions? options = null) { }
     }
 }
 namespace NetEvolve.Schemas.Xml.Regex.Contracts
@@ -1049,6 +1410,28 @@ namespace NetEvolve.Schemas.Xml.Regex.Parsing
         public int Root { get; }
         public int SetCount { get; }
         public NetEvolve.Schemas.Xml.Regex.Matching.RegexCharacterSet GetSet(int index) { }
+    }
+}
+namespace NetEvolve.Schemas.Xml.Text.CharClasses
+{
+    public enum NameEdition
+    {
+        Xml10SecondEdition = 0,
+        Xml10FifthEdition = 1,
+    }
+}
+namespace NetEvolve.Schemas.Xml.Text.NameTable
+{
+    public sealed class SpanInterningNameTable : NetEvolve.Schemas.Xml.Contracts.XmlNameTable
+    {
+        public SpanInterningNameTable(int maxDistinctNames, int initialCapacity = 64) { }
+        public override int Count { get; }
+        public override bool IsFrozen { get; }
+        public override void Freeze() { }
+        public override string GetString(NetEvolve.Schemas.Xml.Contracts.XmlSymbol symbol) { }
+        public override bool TryGet(System.ReadOnlySpan<char> text, out NetEvolve.Schemas.Xml.Contracts.XmlSymbol symbol) { }
+        public override bool TryGetString(NetEvolve.Schemas.Xml.Contracts.XmlSymbol symbol, out string? text) { }
+        public override NetEvolve.Schemas.Xml.Contracts.XmlNameTableStatus TryIntern(System.ReadOnlySpan<char> text, out NetEvolve.Schemas.Xml.Contracts.XmlSymbol symbol) { }
     }
 }
 namespace NetEvolve.Schemas.Xml.Writer

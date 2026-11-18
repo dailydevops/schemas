@@ -1,7 +1,7 @@
 namespace NetEvolve.Schemas.Xml.Dtd.Model;
 
 /// <summary>The default declaration of an attribute definition (production 60).</summary>
-internal enum DtdDefaultKind : byte
+public enum DtdDefaultKind
 {
     /// <summary><c>#IMPLIED</c>.</summary>
     Implied,

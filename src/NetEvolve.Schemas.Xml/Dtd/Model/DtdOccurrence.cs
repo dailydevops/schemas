@@ -1,7 +1,7 @@
 namespace NetEvolve.Schemas.Xml.Dtd.Model;
 
 /// <summary>The occurrence indicator of a content particle (production 47).</summary>
-internal enum DtdOccurrence : byte
+public enum DtdOccurrence
 {
     /// <summary>No indicator: exactly once.</summary>
     Once,
