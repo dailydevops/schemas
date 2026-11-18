@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using NetEvolve.Schemas.Xml.Contracts;
+using NetEvolve.Schemas.Xml.Datatypes.Core;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;
 using NetEvolve.Schemas.Xsd.Components;
@@ -515,7 +516,7 @@ internal sealed partial class StreamingValidator
     {
         for (var i = 0; i < text.Length; i++)
         {
-            if (text[i] is not (' ' or '\t' or '\n' or '\r'))
+            if (!WhitespaceNormalizer.IsXmlSpace(text[i]))
             {
                 return false;
             }

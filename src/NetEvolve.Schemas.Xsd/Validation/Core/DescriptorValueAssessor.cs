@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
+using NetEvolve.Schemas.Xml.Datatypes.Core;
 using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.SchemaDocuments;
@@ -16,8 +17,7 @@ using DatatypeResult = NetEvolve.Schemas.Xml.Datatypes.Contracts.ValidationResul
 /// <remarks>
 /// Limitation: a <see cref="SimpleTypeDefinition"/> does not keep a datatype descriptor yet, so a restriction is assessed
 /// against its base type and the facets it adds are not evaluated, and a definition that wraps an unknown datatype is
-/// accepted; lists are assessed item by item and unions by their first accepting member. Evaluating own facets belongs to
-/// the checks of facet restrictions against the datatypes (#307).
+/// accepted; lists are assessed item by item and unions by their first accepting member. Evaluating own facets is #600.
 /// </remarks>
 internal sealed class DescriptorValueAssessor : ISimpleValueAssessor
 {
@@ -89,23 +89,12 @@ internal sealed class DescriptorValueAssessor : ISimpleValueAssessor
             return DatatypeResult.Valid;
         }
 
-        var position = 0;
-        while (position < lexical.Length)
+        var cursor = new XsdListCursor(new TextRange(0, lexical.Length));
+        while (cursor.TryNext(lexical, out var item))
         {
-            while (position < lexical.Length && IsWhitespace(lexical[position]))
+            if (!Assess(itemType, lexical.Slice(item.Offset, item.Length), out _).IsValid)
             {
-                position++;
-            }
-
-            var start = position;
-            while (position < lexical.Length && !IsWhitespace(lexical[position]))
-            {
-                position++;
-            }
-
-            if (position > start && !Assess(itemType, lexical.Slice(start, position - start), out _).IsValid)
-            {
-                return DatatypeResult.Invalid(DatatypeError.InvalidListItem, FacetKind.None, start);
+                return DatatypeResult.Invalid(DatatypeError.InvalidListItem, FacetKind.None, item.Offset);
             }
         }
 

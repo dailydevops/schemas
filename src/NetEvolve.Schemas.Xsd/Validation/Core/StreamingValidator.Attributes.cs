@@ -133,7 +133,7 @@ internal sealed partial class StreamingValidator
             if (index >= 0)
             {
                 _seen[index] = true;
-                AssessUse(frame, entry, qname, uses[index]);
+                AssessDeclared(frame, entry, qname, uses[index].Declaration, uses[index].ValueConstraint);
             }
             else
             {
@@ -166,30 +166,6 @@ internal sealed partial class StreamingValidator
                 ApplyDefault(frame, uses[u]);
             }
         }
-    }
-
-    private void AssessUse(ElementFrame frame, AttributeEntry entry, XPathQName qname, AttributeUse use)
-    {
-        var declaration = use.Declaration;
-        var value = ValueOf(entry);
-        var valid = AssessValue(declaration.TypeDefinition, value, frame.Location, qname, true, out _);
-        if (valid && !SatisfiesFixed(use.ValueConstraint, value))
-        {
-            Report(
-                ValidationRules.Au,
-                frame.Location,
-                "The value '" + Shorten(value) + "' of attribute " + Display(qname) + " is not its fixed value.",
-                null
-            );
-            valid = false;
-        }
-
-        if (!valid)
-        {
-            frame.IsValid = false;
-        }
-
-        FireAttribute(frame, entry, declaration, declaration.TypeDefinition, valid, false);
     }
 
     private void AssessByWildcard(ElementFrame frame, AttributeEntry entry, XPathQName qname, IWildcard? wildcard)
@@ -254,9 +230,21 @@ internal sealed partial class StreamingValidator
             return;
         }
 
+        AssessDeclared(frame, entry, qname, declaration, declaration.ValueConstraint);
+    }
+
+    // The value must be valid for the type of the declaration and equal to a fixed value.
+    private void AssessDeclared(
+        ElementFrame frame,
+        AttributeEntry entry,
+        XPathQName qname,
+        AttributeDeclaration declaration,
+        AttributeValueConstraint constraint
+    )
+    {
         var value = ValueOf(entry);
         var valid = AssessValue(declaration.TypeDefinition, value, frame.Location, qname, true, out _);
-        if (valid && !SatisfiesFixed(declaration.ValueConstraint, value))
+        if (valid && !SatisfiesFixed(constraint, value))
         {
             Report(
                 ValidationRules.Au,
