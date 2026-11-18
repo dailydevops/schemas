@@ -115,6 +115,7 @@ public class FunctionCompileTests
     [Arguments("xs:integer xs:string", "NES3202/XPST0003")]
     [Arguments("g:integer", "NES3202/XPST0081")]
     [Arguments("xs:nothing", "NES3202/XPST0051")]
+    [Arguments("xs:string, xs:integer", "NES3202/XPST0003")]
     public async Task Compile_InvalidAsType_ReportsExpressionInvalidWithTheXPathCode(string type, string expected)
     {
         var fixture = Create();
@@ -124,6 +125,230 @@ public class FunctionCompileTests
         await Assert.That(component).IsNull();
         await Assert.That(Codes(fixture.Problems)).IsEqualTo(expected);
         await Assert.That(fixture.Problems.Problems[0].Location.Line).IsEqualTo(10);
+    }
+
+    [Test]
+    [Arguments("xs:integer xs:string", "NES3202/XPST0003")]
+    [Arguments("g:integer", "NES3202/XPST0081")]
+    [Arguments("xs:nothing", "NES3202/XPST0051")]
+    [Arguments("xs:string, xs:integer", "NES3202/XPST0003")]
+    [Arguments("integer", "NES3202/XPST0051")]
+    public async Task Compile_InvalidParamAsType_ReportsExpressionInvalidWithTheXPathCodeAtTheParam(
+        string type,
+        string expected
+    )
+    {
+        var fixture = Create();
+
+        var component = fixture.CompileOne(Function("f:t", null, 10, Param("p", type, 11), Sequence("1", 12)));
+
+        await Assert.That(component).IsNull();
+        await Assert.That(Codes(fixture.Problems)).IsEqualTo(expected);
+        await Assert.That(fixture.Problems.Problems[0].Message).Contains("'p'");
+        await Assert.That(fixture.Problems.Problems[0].Location.Line).IsEqualTo(11);
+    }
+
+    [Test]
+    [Arguments("xs:anyAtomicType")]
+    [Arguments("xs:untypedAtomic")]
+    [Arguments("xs:string")]
+    [Arguments("xs:boolean")]
+    [Arguments("xs:integer")]
+    [Arguments("xs:decimal")]
+    [Arguments("xs:float")]
+    [Arguments("xs:double")]
+    [Arguments("xs:anyURI")]
+    [Arguments("xs:dateTime")]
+    [Arguments("xs:date")]
+    [Arguments("xs:time")]
+    [Arguments("xs:duration")]
+    [Arguments("xs:yearMonthDuration")]
+    [Arguments("xs:dayTimeDuration")]
+    [Arguments("xs:int")]
+    [Arguments("xs:token")]
+    [Arguments("xs:gYear")]
+    [Arguments("element()")]
+    [Arguments("attribute()?")]
+    [Arguments("text()*")]
+    public async Task Compile_ParamAsType_CoversEveryBuiltInAtomicTypeAndTheTypesWithoutConversion(string type)
+    {
+        var fixture = Create();
+
+        var component = fixture.CompileOne(Function("f:t", null, 10, Param("p", type, 11), Sequence("1", 12)));
+
+        await Assert.That(fixture.Problems.Problems.Count).IsEqualTo(0);
+        await Assert.That(component).IsNotNull();
+    }
+
+    [Test]
+    public async Task Compile_ParamThroughTheRegistryAtTheChildPosition_YieldsTheDeclarationWithTheNextSlot()
+    {
+        var fixture = Create("a", "b");
+        var node = Declaration(Param("p", "xs:integer", 10));
+
+        var executable = fixture.Compile(node, fixture.FunctionScope, XsltPosition.Child);
+        var (run, _) = fixture.CreateRun();
+
+        await Assert.That(fixture.Problems.Problems.Count).IsEqualTo(0);
+        var declaration = executable as XsltParamDeclaration;
+        await Assert.That(declaration).IsNotNull();
+        await Assert.That(declaration!.Parameter.Name).IsEqualTo("p");
+        await Assert.That(declaration.Parameter.Slot).IsEqualTo(2);
+        await Assert.That(declaration.TryExecute(new XsltFrame(run), new FakeSequenceSink())).IsEqualTo(QueryStatus.Ok);
+        await Assert.That(run.Focuses.Count).IsEqualTo(0);
+    }
+
+    [Test]
+    public async Task Compile_ParamThroughTheRegistryAtTheChildPosition_ReportsAnInvalidParamAndYieldsNothing()
+    {
+        var fixture = Create();
+        var node = Declaration(Param("p", "xs:nothing", 10));
+
+        var executable = fixture.Compile(node, fixture.FunctionScope, XsltPosition.Child);
+
+        await Assert.That(executable).IsNull();
+        await Assert.That(Codes(fixture.Problems)).IsEqualTo("NES3202/XPST0051");
+    }
+
+    [Test]
+    [Arguments("1x")]
+    [Arguments("a:b:c")]
+    public async Task Compile_ParamWithInvalidName_ReportsXtse0020AtTheParam(string name)
+    {
+        var fixture = Create();
+
+        var component = fixture.CompileOne(Function("f:p", null, 10, Param(name, null, 11), Sequence("1", 12)));
+
+        await Assert.That(component).IsNull();
+        await Assert.That(Codes(fixture.Problems)).IsEqualTo("NES3006/XTSE0020");
+        await Assert.That(fixture.Problems.Problems[0].Location.Line).IsEqualTo(11);
+    }
+
+    [Test]
+    [Arguments("1x")]
+    [Arguments("a:b:c")]
+    public async Task Compile_VariableWithInvalidName_ReportsXtse0020AtTheVariable(string name)
+    {
+        var fixture = Create();
+
+        var component = fixture.CompileOne(Function("f:v", null, 10, Variable(name, "1", null, 11), Sequence("1", 12)));
+
+        await Assert.That(component).IsNull();
+        await Assert.That(Codes(fixture.Problems)).IsEqualTo("NES3006/XTSE0020");
+        await Assert.That(fixture.Problems.Problems[0].Location.Line).IsEqualTo(11);
+    }
+
+    [Test]
+    public async Task Compile_SequenceWithFallback_IgnoresTheFallbackAndCompiles()
+    {
+        var fixture = Create();
+
+        var component = fixture.CompileOne(
+            Function("f:s", null, 10, Sequence("1", 11, "  ", X("fallback", 12, X("value-of", 13)), "\n"))
+        );
+
+        await Assert.That(fixture.Problems.Problems.Count).IsEqualTo(0);
+        await Assert.That(component).IsNotNull();
+    }
+
+    [Test]
+    public async Task Compile_SequenceWithOtherElementContent_ReportsXtse0010AtTheChild()
+    {
+        var fixture = Create();
+
+        var component = fixture.CompileOne(
+            Function("f:s", null, 10, Sequence("1", 11, X("value-of", 12, A("select", "1"))))
+        );
+
+        await Assert.That(component).IsNull();
+        await Assert.That(Codes(fixture.Problems)).IsEqualTo("NES3003/XTSE0010");
+        await Assert.That(fixture.Problems.Problems[0].Location.Line).IsEqualTo(12);
+    }
+
+    [Test]
+    public async Task Compile_SequenceWithAFallbackOfAnotherNamespace_ReportsXtse0010AtTheChild()
+    {
+        var fixture = Create();
+
+        var component = fixture.CompileOne(
+            Function("f:s", null, 10, Sequence("1", 11, Other("fallback", Functions, 12)))
+        );
+
+        await Assert.That(component).IsNull();
+        await Assert.That(Codes(fixture.Problems)).IsEqualTo("NES3003/XTSE0010");
+        await Assert.That(fixture.Problems.Problems[0].Location.Line).IsEqualTo(12);
+    }
+
+    [Test]
+    public async Task Compile_SequenceWithTextContent_ReportsXtse0010AtTheSequenceAndStillChecksTheSelect()
+    {
+        var fixture = Create();
+
+        var component = fixture.CompileOne(Function("f:s", null, 10, Sequence("$x", 11, "text")));
+
+        await Assert.That(component).IsNull();
+        await Assert.That(Codes(fixture.Problems)).IsEqualTo("NES3003/XTSE0010,NES3300/XPST0008");
+        await Assert.That(fixture.Problems.Problems[0].Location.Line).IsEqualTo(11);
+    }
+
+    [Test]
+    public async Task Compile_SequenceWithTextContentAndAValidSelect_FailsWithTheXtse0010Only()
+    {
+        var fixture = Create();
+
+        var component = fixture.CompileOne(Function("f:s", null, 10, Sequence("1", 11, "text")));
+
+        await Assert.That(component).IsNull();
+        await Assert.That(Codes(fixture.Problems)).IsEqualTo("NES3003/XTSE0010");
+    }
+
+    [Test]
+    public async Task Compile_VariableWithSelectAndContent_ReportsXtse0620()
+    {
+        var fixture = Create();
+
+        var component = fixture.CompileOne(
+            Function(
+                "f:v",
+                null,
+                10,
+                Variable("n", "1", null, 11, X("sequence", 12, A("select", "2"))),
+                Sequence("1", 13)
+            )
+        );
+
+        await Assert.That(component).IsNull();
+        await Assert.That(Codes(fixture.Problems)).IsEqualTo("NES3003/XTSE0620");
+        await Assert.That(fixture.Problems.Problems[0].Location.Line).IsEqualTo(11);
+    }
+
+    [Test]
+    public async Task Compile_VariableWithAFailingSelect_ReportsTheBindingProblemAndTheFunctionFails()
+    {
+        var fixture = Create();
+
+        var component = fixture.CompileOne(
+            Function("f:v", null, 10, Variable("n", "1 +", null, 11), Sequence("1", 12))
+        );
+
+        await Assert.That(component).IsNull();
+        await Assert.That(Codes(fixture.Problems)).IsEqualTo("NES3202/XPST0003");
+    }
+
+    [Test]
+    public async Task Compile_VariableWithAsAndNeitherSelectNorContent_TakesTheEmptyStringDefault()
+    {
+        var fixture = Create();
+
+        var component = fixture.CompileOne(
+            Function("f:v", null, 10, Variable("n", null, "xs:string", 11), Sequence("$n", 12))
+        );
+
+        // Limitation: XSLT 2.0 section 9.3 gives the empty sequence when there is an as attribute, which then fails the type check
+        // (XTTE0570); the variable takes the empty string in every case until the content form (SCH-67) compiles the empty constructor.
+        await Assert.That(fixture.Problems.Problems.Count).IsEqualTo(0);
+        await Assert.That(component).IsNotNull();
+        await Assert.That(fixture.Binding.Compiled[0].Text).IsEqualTo("''");
     }
 
     [Test]

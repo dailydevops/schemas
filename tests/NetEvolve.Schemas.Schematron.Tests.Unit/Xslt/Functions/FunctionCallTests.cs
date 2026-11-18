@@ -293,9 +293,75 @@ public class FunctionCallTests
     }
 
     [Test]
+    public async Task Call_ArgumentThatTheMatcherRejectsWithoutAConversion_RaisesTheXPathTypeError()
+    {
+        var fixture = Create();
+        _ = fixture.CompileAll(
+            Function("f:node", null, 10, Param("a", "element()", 11), Sequence("1", 12)),
+            Function("f:small", null, 20, Param("a", "xs:int", 21), Sequence("1", 22))
+        );
+        var (_, caller) = fixture.CreateRun();
+
+        var atomicForElement = caller.TryCall(Find(fixture, "node", 1), [Int(1)], out _);
+        var nodeProblem = caller.GetProblem();
+        var integerForDerivedType = caller.TryCall(Find(fixture, "small", 1), [Int(1)], out _);
+
+        await Assert.That(atomicForElement).IsEqualTo(QueryStatus.Problem);
+        await Assert.That(nodeProblem.Code).IsEqualTo(SchematronDiagnosticCodes.EvaluationFailed);
+        await Assert.That(nodeProblem.Constraint).IsEqualTo("XPTY0004");
+        await Assert.That(nodeProblem.Message).Contains("f:node").And.Contains("'a'");
+        await Assert.That(integerForDerivedType).IsEqualTo(QueryStatus.Problem);
+    }
+
+    [Test]
+    [Arguments("xs:anyAtomicType")]
+    [Arguments("xs:decimal")]
+    [Arguments("xs:double")]
+    [Arguments("xs:float")]
+    [Arguments("item()")]
+    public async Task Call_IntegerArgument_IsAcceptedByTheTypesItConvertsTo(string type)
+    {
+        var fixture = Create();
+        _ = fixture.CompileAll(Function("f:t", null, 10, Param("a", type, 11), Sequence("$a", 12)));
+        var (_, caller) = fixture.CreateRun();
+
+        var status = caller.TryCall(Find(fixture, "t", 1), [Int(3)], out var result);
+
+        await Assert.That(status).IsEqualTo(QueryStatus.Ok);
+        await Assert.That(result.Count).IsEqualTo(1);
+    }
+
+    [Test]
+    [Arguments("xs:string")]
+    [Arguments("xs:boolean")]
+    [Arguments("xs:anyURI")]
+    [Arguments("xs:dateTime")]
+    [Arguments("xs:date")]
+    [Arguments("xs:time")]
+    [Arguments("xs:duration")]
+    [Arguments("xs:yearMonthDuration")]
+    [Arguments("xs:dayTimeDuration")]
+    public async Task Call_IntegerArgument_IsRejectedByTheTypesItDoesNotConvertTo(string type)
+    {
+        var fixture = Create();
+        _ = fixture.CompileAll(Function("f:t", null, 10, Param("a", type, 11), Sequence("$a", 12)));
+        var (_, caller) = fixture.CreateRun();
+
+        var status = caller.TryCall(Find(fixture, "t", 1), [Int(3)], out _);
+
+        await Assert.That(status).IsEqualTo(QueryStatus.Problem);
+        await Assert.That(caller.GetProblem().Constraint).IsEqualTo("XPTY0004");
+    }
+
+    [Test]
     public async Task Call_DepthLimit_IsGuardedByTheCeiling()
     {
         var fixture = Create();
+        var defaultDepth = XsltFunctionCaller.DefaultMaxDepth;
+        var ceiling = XsltFunctionCaller.MaxDepthCeiling;
+
+        await Assert.That(defaultDepth).IsEqualTo(128);
+        await Assert.That(ceiling).IsEqualTo(1024);
 
         await Assert.That(() => fixture.CreateRun(maxDepth: 0)).Throws<ArgumentOutOfRangeException>();
         await Assert
