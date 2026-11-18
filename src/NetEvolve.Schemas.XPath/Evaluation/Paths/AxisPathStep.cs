@@ -39,6 +39,8 @@ internal sealed class AxisPathStep : PathStep
     /// <exception cref="XPathException"><paramref name="axis"/> is the namespace axis (XPST0010).</exception>
     public AxisPathStep(Axis axis, XPathNodeTest test, ItemTypeMatcher? typed, ExecutableNode[] predicates)
     {
+        Argument.ThrowIfLessThan((int)axis, (int)Axis.Child, nameof(axis));
+        Argument.ThrowIfGreaterThan((int)axis, (int)Axis.AncestorOrSelf, nameof(axis));
         Argument.ThrowIfNull(predicates);
 
         // Fails for the namespace axis before anything else is built.

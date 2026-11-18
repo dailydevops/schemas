@@ -3,6 +3,7 @@ namespace NetEvolve.Schemas.XPath.Evaluation.Paths;
 using System;
 using System.Buffers;
 using System.Runtime.InteropServices;
+using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>
@@ -71,7 +72,14 @@ internal struct XdmItemList : IDisposable
 
     /// <summary>Keeps the first items only.</summary>
     /// <param name="count">The number of items to keep, not more than <see cref="Count"/>.</param>
-    public void Truncate(int count) => Count = count;
+    /// <exception cref="System.ArgumentOutOfRangeException"><paramref name="count"/> is negative or above <see cref="Count"/>.</exception>
+    public void Truncate(int count)
+    {
+        Argument.ThrowIfLessThan(count, 0);
+        Argument.ThrowIfGreaterThan(count, Count);
+
+        Count = count;
+    }
 
     /// <summary>Copies the items into a sequence.</summary>
     /// <returns>The sequence; empty and singleton results allocate nothing.</returns>

@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.XPath.Evaluation.Paths;
 
 using System.Runtime.InteropServices;
+using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Evaluation.Ordering;
 using NetEvolve.Schemas.XPath.Xdm.Nodes;
 using NetEvolve.Schemas.XPath.Xdm.Values;
@@ -15,6 +16,8 @@ internal struct XdmItemListNodeSource : IXPathNodeSource
 
     internal XdmItemListNodeSource(XdmItem[]? items, int count)
     {
+        Argument.ThrowIfLessThan(count, 0);
+
         _items = items;
         _count = count;
         _index = 0;

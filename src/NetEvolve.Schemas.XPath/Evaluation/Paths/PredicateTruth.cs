@@ -1,5 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Evaluation.Paths;
 
+using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.Decimals;
 using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Evaluation.Atomization;
@@ -16,8 +17,11 @@ internal static class PredicateTruth
     /// that is not an integer, and NaN, therefore never selects an item.
     /// </returns>
     /// <exception cref="XPathException">The value has no effective boolean value (FORG0006).</exception>
+    /// <exception cref="System.ArgumentOutOfRangeException"><paramref name="position"/> is below one.</exception>
     public static bool Test(in XdmSequence value, int position)
     {
+        Argument.ThrowIfLessThan(position, 1);
+
         if (value.Count == 1)
         {
             var item = value[0];

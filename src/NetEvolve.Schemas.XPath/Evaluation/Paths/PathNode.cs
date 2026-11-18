@@ -33,6 +33,8 @@ internal sealed class PathNode : ExecutableNode, IOrderedNodeSequence
     /// <param name="steps">The steps, at least one unless the path starts at the root.</param>
     public PathNode(PathRoot root, PathStep[] steps)
     {
+        Argument.ThrowIfLessThan((int)root, (int)PathRoot.Relative, nameof(root));
+        Argument.ThrowIfGreaterThan((int)root, (int)PathRoot.RootDescendants, nameof(root));
         Argument.ThrowIfNull(steps);
         if (root == PathRoot.Relative)
         {
