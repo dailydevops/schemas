@@ -20,7 +20,9 @@ internal interface IXmlEntityInputStack
     /// <param name="standalone">Whether the XML declaration says <c>standalone="yes"</c>.</param>
     /// <param name="replacement">
     /// The replacement text to read when the reference is expanded, <see langword="null"/> when it is skipped. A
-    /// non-null text is a frame that the caller must close with <see cref="Leave"/>.
+    /// non-null text is a frame that the caller must close with <see cref="Leave"/>. Its line ends are already normalized
+    /// (CR LF and a lone CR written in the entity value became LF, section 2.11), so the parser reads every carriage return
+    /// in it as a character of its own, one that came from a character reference.
     /// </param>
     /// <returns>The error code to report, or <see langword="null"/> when the reference is accepted (expanded or skipped).</returns>
     XmlErrorCode? Enter(ReadOnlySpan<char> name, bool inAttributeValue, bool standalone, out string? replacement);
