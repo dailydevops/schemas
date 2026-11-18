@@ -43,12 +43,13 @@ internal static class OtherRegistration
 
     // XQuery 1.0 and XPath 2.0 Functions and Operators, 17.1: one row per source type, one column per target type; Y always succeeds, M depends
     // on the value, N is not allowed (XPTY0004, no row), and - is a cell of the seven types of the casting core. A string reaches
-    // xs:anyURI with certainty: every string is a URI. A string or an untyped value reaches xs:QName for the value to decide: XPath 2.0 narrows
-    // the cell to a string literal while lowering (CastingLowerings), so the table keeps the cell of the later versions.
+    // xs:anyURI for the value to decide, as the lexical space of xs:anyURI is checked (laxly, #411 and #412). A string or an untyped value reaches
+    // xs:QName for the value to decide as well: XPath 2.0 narrows the cell to a string literal while lowering (CastingLowerings), so the table keeps
+    // the cell of the later versions.
     private static readonly string[] Matrix =
     [
-        "--MMYM", // xs:string
-        "--MMYM", // xs:untypedAtomic
+        "--MMMM", // xs:string
+        "--MMMM", // xs:untypedAtomic
         "YYYYNN", // xs:hexBinary
         "YYYYNN", // xs:base64Binary
         "YYNNYN", // xs:anyURI

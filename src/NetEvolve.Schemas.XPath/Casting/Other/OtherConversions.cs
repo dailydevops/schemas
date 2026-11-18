@@ -19,9 +19,9 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// the characters of the alphabet without whitespace for <c>xs:base64Binary</c>.
 /// </para>
 /// <para>
-/// Limitation: the lexical check of <c>xs:anyURI</c> is lax (#411, #412), so every string of XML characters is a URI and the value is the
-/// string with its whitespace collapsed; a string with a character outside the XML <c>Char</c> production is rejected (FORG0001) although
-/// the table of the specification lets every string through.
+/// Limitation: the cell of a string to <c>xs:anyURI</c> is value dependent, but the lexical check of the datatype layer is lax until the strict
+/// checkers land (#411, #412): every string of XML characters is a URI, and the value is the string with its whitespace collapsed; only a string with a
+/// character outside the XML <c>Char</c> production is rejected (FORG0001).
 /// </para>
 /// </remarks>
 internal static class OtherConversions

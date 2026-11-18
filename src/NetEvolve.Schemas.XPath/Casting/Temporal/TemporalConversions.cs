@@ -15,7 +15,8 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// <remarks>
 /// <para>
 /// A lexical form goes through the built-in datatype of the target, which collapses whitespace and checks the lexical space by the XSD 1.0
-/// rules, as XPath 2.0 refers to XML Schema 1.0: the year 0000 is not a year, and <c>24:00:00</c> is the start of the next day. The two
+/// rules, as XPath 2.0 refers to XML Schema 1.0, for every language version until XPath 3.x is enabled: the year 0000 is not a year, and
+/// <c>24:00:00</c> is the start of the next day. The two
 /// derived duration types come from the XSD 1.1 registry, which is the only one that defines them; their lexical spaces are the ones of XPath
 /// 2.0. A year or a duration component beyond 17 digits, or a fraction beyond the digit cap of the decimal, is an implementation limit
 /// (FODT0001 and FODT0002), not an invalid lexical form.
