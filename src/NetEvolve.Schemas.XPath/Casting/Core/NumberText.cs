@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.XPath.Casting.Core;
 
 using System;
 using System.Globalization;
-using System.Text;
 using NetEvolve.Schemas.Xml.Datatypes.Floating;
 using NetEvolve.Schemas.Xml.Datatypes.Strings;
 using NetEvolve.Schemas.XPath.Xdm.Values;
@@ -109,43 +108,66 @@ internal static class NumberText
 
         exponent = exponentNegative ? -exponent : exponent;
 
-        // The digits without the point; the padding zero of a single digit and any trailing zero are dropped.
-        var digits = new StringBuilder(span.Length);
+        // The digits without the point; the padding zero of a single digit and any trailing zero are dropped. The shortest digits of a
+        // double are at most 17, and the plain range keeps the exponent between -6 and 5, so the buffers below always suffice.
+        Span<char> digits = stackalloc char[24];
+        var count = 0;
         for (var i = 0; i < e; i++)
         {
             if (span[i] != '.')
             {
-                _ = digits.Append(span[i]);
+                digits[count++] = span[i];
             }
         }
 
-        while (digits.Length > 1 && digits[digits.Length - 1] == '0')
+        while (count > 1 && digits[count - 1] == '0')
         {
-            digits.Length--;
+            count--;
         }
 
-        var result = new StringBuilder(digits.Length + Math.Abs(exponent) + 3);
+        Span<char> result = stackalloc char[48];
+        var length = 0;
         if (negative)
         {
-            _ = result.Append('-');
+            result[length++] = '-';
         }
 
+        length += WritePlain(digits.Slice(0, count), exponent, result.Slice(length));
+        return result.Slice(0, length).ToString();
+    }
+
+    // The point moves by the exponent: leading zeros for a negative one, trailing zeros when the digits end before the point.
+    private static int WritePlain(ReadOnlySpan<char> digits, int exponent, Span<char> result)
+    {
+        var length = 0;
         if (exponent < 0)
         {
-            _ = result.Append("0.").Append('0', -exponent - 1).Append(digits);
-        }
-        else if (digits.Length <= exponent + 1)
-        {
-            _ = result.Append(digits).Append('0', exponent + 1 - digits.Length);
-        }
-        else
-        {
-            _ = result
-                .Append(digits.ToString(0, exponent + 1))
-                .Append('.')
-                .Append(digits.ToString(exponent + 1, digits.Length - exponent - 1));
+            result[length++] = '0';
+            result[length++] = '.';
+            for (var i = -exponent - 1; i > 0; i--)
+            {
+                result[length++] = '0';
+            }
+
+            digits.CopyTo(result.Slice(length));
+            return length + digits.Length;
         }
 
-        return result.ToString();
+        var whole = Math.Min(digits.Length, exponent + 1);
+        digits.Slice(0, whole).CopyTo(result);
+        length = whole;
+        for (var i = exponent + 1 - whole; i > 0; i--)
+        {
+            result[length++] = '0';
+        }
+
+        if (whole < digits.Length)
+        {
+            result[length++] = '.';
+            digits.Slice(whole).CopyTo(result.Slice(length));
+            length += digits.Length - whole;
+        }
+
+        return length;
     }
 }
