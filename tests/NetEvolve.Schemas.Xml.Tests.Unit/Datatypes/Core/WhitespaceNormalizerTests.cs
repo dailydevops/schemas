@@ -97,6 +97,51 @@ public class WhitespaceNormalizerTests
     }
 
     [Test]
+    [Arguments(" a \t b ", WhitespaceMode.Collapse, "a b")]
+    [Arguments("a\tb", WhitespaceMode.Replace, "a b")]
+    [Arguments("a\t b", WhitespaceMode.Preserve, "a\t b")]
+    [Arguments("a b", WhitespaceMode.Collapse, "a b")]
+    public async Task Apply_WithScratchThatFits_NormalizesWithoutRenting(
+        string source,
+        WhitespaceMode mode,
+        string expected
+    )
+    {
+        var result = WhitespaceNormalizer.Apply(source.AsSpan(), mode, new char[16], out var rented).ToString();
+        using var owner = rented;
+
+        await Assert.That(rented).IsNull();
+        await Assert.That(result).IsEqualTo(expected);
+    }
+
+    [Test]
+    [Arguments(3)]
+    [Arguments(0)]
+    public async Task Apply_WithScratchThatIsTooShort_RentsABufferThatTheCallerDisposes(int scratchLength)
+    {
+        var result = WhitespaceNormalizer
+            .Apply(" a \t b ".AsSpan(), WhitespaceMode.Collapse, new char[scratchLength], out var rented)
+            .ToString();
+        using var owner = rented;
+
+        await Assert.That(rented).IsNotNull();
+        await Assert.That(result).IsEqualTo("a b");
+    }
+
+    [Test]
+    public void Apply_WithScratchThatFits_AllocatesZeroBytes()
+    {
+        const string source = "  alpha \t beta  ";
+        var scratch = new char[32];
+
+        AllocationAssert.NoAllocation(() =>
+        {
+            _ = WhitespaceNormalizer.Apply(source.AsSpan(), WhitespaceMode.Collapse, scratch, out var rented);
+            rented?.Dispose();
+        });
+    }
+
+    [Test]
     [Arguments("  a  b ", 0, 2)]
     [Arguments("  a  b ", 1, 3)]
     [Arguments("  a  b ", 2, 5)]
