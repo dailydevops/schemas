@@ -20,15 +20,24 @@ namespace NetEvolve.Schemas.XPath.Tests.Unit.Functions.Sequences;
 /// distinct-values 91, 82, 50; deep-equal 161, 159, 71; index-of 53, 51, 42; subsequence 98, 98, 68; exists 56, 56, 22; empty 52, 52, 16.
 /// </para>
 /// <para>
-/// Cases of the sets that are left out of the selection, with the reason: a constructor function of a type outside the casting table
-/// of the seven types (<c>xs:int</c>, <c>xs:long</c>, <c>xs:short</c>, the unsigned and the signed integer subtypes, <c>xs:anyURI</c>,
-/// <c>xs:date</c>, <c>xs:dateTime</c>, <c>xs:time</c>, the duration types, <c>xs:hexBinary</c>), 575 cases (XP-23 and XP-59 add the
-/// rows); a function of another work package (<c>fn:not</c>, <c>fn:true</c>, <c>fn:false</c>, <c>fn:boolean</c>, <c>fn:QName</c>,
-/// <c>fn:concat</c>, <c>fn:string-length</c>, <c>fn:error</c>, and others), 56 cases; an expression form that the lowerings of the
-/// fixture lack (for, if, quantified and logical expressions, variables, and path steps; the error is XP0002), 47 cases;
-/// a range of more than 10^6 items, which the eager range of the fixture does not build and which needs the lazy range of the range
-/// lowering (6 cases, among them <c>fn-count/cbcl-count-001</c> and <c>fn-subsequence/cbcl-subsequence-010</c> to <c>-014</c>); and an
-/// integer literal beyond 64 bits (<c>fn-avg/cbcl-avg-001</c>), which the literal lowering of the test registry does not read.
+/// Cases of the sets that are left out of the selection, with the reason (688 of 1374): a constructor function of a type outside the
+/// casting table of the seven types (<c>xs:int</c>, <c>xs:long</c>, <c>xs:short</c>, the unsigned and the signed integer subtypes,
+/// <c>xs:anyURI</c>, <c>xs:date</c>, <c>xs:dateTime</c>, <c>xs:time</c>, the duration types, <c>xs:hexBinary</c>), 575 cases (XP-23 and
+/// XP-59 add the rows); a function that belongs to another work package (<c>fn:not</c>, <c>fn:true</c>, <c>fn:false</c>,
+/// <c>fn:boolean</c>, <c>fn:QName</c>, <c>fn:concat</c>, <c>fn:string-length</c>, <c>fn:error</c>, and others), 52 cases; an expression
+/// form that the lowerings of the fixture lack (for, if, quantified and logical expressions, variables, and path steps; the error is
+/// XP0002), 47 cases; a range of more than 10^6 items, which the eager range of the fixture does not build and which needs the lazy range
+/// of the range lowering (6 cases, among them <c>fn-count/cbcl-count-001</c> and <c>fn-subsequence/cbcl-subsequence-010</c> to
+/// <c>-014</c>); a function of the date and time group that needs a host slot (the clock and the implicit timezone) that the fixture does
+/// not supply (<c>fn:current-time</c>, <c>fn:current-date</c>, <c>fn:implicit-timezone</c>, <c>fn:adjust-dateTime-to-timezone</c>), 4 cases;
+/// a case whose expected value is computed with <c>fn:true</c> or <c>fn:false</c> (<c>fn-subsequence/fn-subsequence-mix-args-017</c>,
+/// <c>-019</c>, <c>-020</c>), 3 cases; and an integer literal beyond 64 bits (<c>fn-avg/cbcl-avg-001</c>), which the literal lowering of
+/// the test registry does not read, 1 case.
+/// </para>
+/// <para>
+/// Cases that expect XPST0017 for a call with the wrong number of arguments (for example <c>count()</c> and <c>sum(1, 1, "wrong param")</c>)
+/// check the arity ranges of the registration; with the group not registered they passed, because an unknown function raises the same
+/// code, so they are among the tests that passed in the first commit of the pull request.
 /// </para>
 /// </remarks>
 internal static class Qt3SequenceSelection
