@@ -150,6 +150,57 @@ public class MessageTests
     }
 
     [Test]
+    public async Task Name_WithPath_ReadingAFailedSlot_ReportsNoSecondProblem_AndEndsTheText()
+    {
+        using var h = new AssertionHarness(variables: ["a"]);
+        h.Binder.Failing.Add(0);
+
+        var message = MessageOf(h, Message(Text("n="), Name("$a"), Text(" end")));
+
+        await Assert.That(message).IsEqualTo("n=");
+        await Assert.That(h.Problems.Problems.Count).IsEqualTo(0);
+        await Assert.That(h.Sink.Findings.Count).IsEqualTo(1);
+        await Assert.That(h.Binding.Evaluated).IsEquivalentTo(["false"]);
+    }
+
+    [Test]
+    public async Task Name_WithPath_DynamicError_ReportsOneProblem_AndKeepsTheTextBuiltBefore()
+    {
+        using var h = new AssertionHarness();
+
+        var message = MessageOf(h, Message(Text("n="), Name("bad"), Text(" end")));
+
+        await Assert.That(message).IsEqualTo("n=");
+        await Assert.That(h.Problems.Problems.Count).IsEqualTo(1);
+        await Assert.That(h.Problems.Problems[0].Code).IsEqualTo(SchematronDiagnosticCodes.EvaluationFailed);
+        await Assert.That(h.Sink.Findings.Count).IsEqualTo(1);
+    }
+
+    [Test]
+    public async Task Name_WithPath_TextResult_ReportsAProblem_AndEndsTheText()
+    {
+        using var h = new AssertionHarness();
+        h.Binding.Texts["text"] = "x";
+
+        var message = MessageOf(h, Message(Text("n="), Name("text"), Text(" end")));
+
+        await Assert.That(message).IsEqualTo("n=");
+        await Assert.That(h.Problems.Problems.Count).IsEqualTo(1);
+    }
+
+    [Test]
+    public async Task Name_WithPath_EmptyTextResult_InsertsNothing()
+    {
+        using var h = new AssertionHarness();
+        h.Binding.Texts["text"] = "";
+
+        var message = MessageOf(h, Message(Text("["), Name("text"), Text("]")));
+
+        await Assert.That(message).IsEqualTo("[]");
+        await Assert.That(h.Problems.Problems.Count).IsEqualTo(0);
+    }
+
+    [Test]
     public async Task EmphDirAndSpan_ContributeTheirTextWithoutMarkup()
     {
         using var h = new AssertionHarness();
@@ -299,6 +350,19 @@ public class MessageTests
 
         await Assert.That(message).IsEqualTo("d=");
         await Assert.That(h.Problems.Problems.Count).IsEqualTo(1);
+    }
+
+    [Test]
+    public async Task Message_LongerThan256Characters_IsBuiltWhole()
+    {
+        using var h = new AssertionHarness();
+        h.Binding.Texts["id"] = "tail";
+        var head = new string('a', 300);
+
+        var message = MessageOf(h, Message(Text(head), ValueOf("id")));
+
+        await Assert.That(message).IsEqualTo(head + "tail");
+        await Assert.That(h.Problems.Problems.Count).IsEqualTo(0);
     }
 
     [Test]

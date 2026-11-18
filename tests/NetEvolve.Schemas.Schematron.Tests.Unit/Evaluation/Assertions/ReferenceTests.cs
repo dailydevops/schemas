@@ -188,4 +188,23 @@ public class ReferenceTests
         await Assert.That(ok).IsFalse();
         await Assert.That(h.Problems.Problems.Count).IsEqualTo(5);
     }
+
+    [Test]
+    public async Task ReferenceBeyondTheMaximum_IsDropped_WhileTheMessageIsCutAndKept()
+    {
+        using var h = new AssertionHarness(
+            diagnostics: [Diagnostic("d", Message("xyzxyz"))],
+            properties: [Property("p", Message("pq"))],
+            maxTextLength: 3
+        );
+        var assertion = h.Compile(MakeAssert("false", Message("abcdef"), diagnostics: ["d"], properties: ["p"]));
+
+        _ = h.Evaluate(assertion);
+
+        var finding = h.Sink.Findings[0];
+        await Assert.That(finding.Message).IsEqualTo("abc");
+        await Assert.That(finding.Diagnostics.Count).IsEqualTo(0);
+        await Assert.That(finding.Properties).IsEquivalentTo([("p", "pq")]);
+        await Assert.That(h.Problems.Problems.Count).IsEqualTo(2);
+    }
 }
