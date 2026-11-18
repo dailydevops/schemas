@@ -96,11 +96,13 @@ internal sealed class SlotBinder : ISlotBinder
         ReportStatic(pattern.Lets);
     }
 
-    /// <summary>Starts a firing: the rule variables become unbound and the matched node is their focus. Hot path.</summary>
+    /// <summary>Starts a firing: the rule variables become unbound and the matched node is their focus. Once per firing, without allocation.</summary>
     /// <param name="rule">The rule that fired.</param>
     /// <param name="focus">The matched node.</param>
     internal void BeginFiring(RuleScope rule, in QueryFocus focus)
     {
+        Argument.ThrowIfNull(rule);
+
         _firingEpoch++;
         _focus = focus;
         if (!ReferenceEquals(_rule, rule))

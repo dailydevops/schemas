@@ -33,6 +33,9 @@ internal sealed class QueryStaticScope
 
     internal SchematronEdition Edition { get; }
 
-    /// <summary>Gets the <see langword="as"/> type of the variable the expression is the value of, or <see langword="null"/>; the binding checks the value against it.</summary>
+    /// <summary>
+    /// Gets the <see langword="as"/> type of the variable the expression is the value of, or <see langword="null"/>; the binding checks the
+    /// value against it. The name is canonical: <c>xs:</c> plus the local name, whatever prefix the schema used.
+    /// </summary>
     internal string? DeclaredType { get; }
 }

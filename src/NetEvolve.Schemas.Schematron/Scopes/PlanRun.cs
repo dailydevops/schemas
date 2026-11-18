@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.Schematron.Scopes;
 
 using System;
 using System.Collections.Generic;
+using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Model;
 using NetEvolve.Schemas.Schematron.Phases;
 using NetEvolve.Schemas.Schematron.Seams;
@@ -17,6 +18,10 @@ internal sealed class PlanRun
 
     internal PlanRun(SchematronSchema schema, IQueryBinding binding, IProblemSink problems)
     {
+        Argument.ThrowIfNull(schema);
+        Argument.ThrowIfNull(binding);
+        Argument.ThrowIfNull(problems);
+
         _schema = schema;
         _binding = binding;
         _problems = problems;
@@ -24,6 +29,8 @@ internal sealed class PlanRun
 
     internal bool Execute(PhaseSelection selection, out ScopePlan plan)
     {
+        Argument.ThrowIfNull(selection);
+
         var schemaCount = _schema.Parameters.Count + _schema.Lets.Count;
         var patternStart = schemaCount + selection.Lets.Count;
         var maxPatternLets = 0;
@@ -169,9 +176,9 @@ internal sealed class PlanRun
             return null;
         }
 
-        if (ConstantValue.IsSupportedType(let.DeclaredType))
+        if (ConstantValue.TryGetSupportedType(let.DeclaredType, _schema.Namespaces, out var supported))
         {
-            return let.DeclaredType;
+            return supported;
         }
 
         var problem = new SchematronProblem(
@@ -184,9 +191,9 @@ internal sealed class PlanRun
         return null;
     }
 
-    private static SchematronProblem? ConstantProblem(SchematronLet let, string? declared)
+    private SchematronProblem? ConstantProblem(SchematronLet let, string? declared)
     {
-        if (declared is null || !ConstantValue.TryGetType(let.Value.AsSpan(), out var constant))
+        if (declared is null || !ConstantValue.TryGetType(let.Value.AsSpan(), _schema.Namespaces, out var constant))
         {
             return null;
         }
