@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Casting.Core;
 using NetEvolve.Schemas.XPath.Functions.Binding;
+using NetEvolve.Schemas.XPath.Types;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 using static CastFixture;
 
@@ -61,7 +62,9 @@ public class ConstructorFunctionTests
     [Test]
     public async Task Create_GeneratesOneConstructorPerTargetOfTheTable()
     {
-        var functions = ConstructorFunctions.Create(CastingCatalog.Default.Table);
+        var catalog = new CastingCatalog();
+        catalog.Stage(CastingRegistration.RegisterRows);
+        var functions = ConstructorFunctions.Create(catalog.Table);
         var names = new List<string>();
         foreach (var function in functions)
         {
@@ -84,11 +87,11 @@ public class ConstructorFunctionTests
             builder.Add(
                 new CastRow(
                     XdmTypeId.XsString,
-                    XdmTypeId.Date,
+                    XdmTypes.Get("int"),
                     CastCell.ValueDependent,
                     static (in XdmItem source, out XdmItem result) =>
                     {
-                        result = XdmItem.FromString("a date");
+                        result = XdmItem.FromString("an int");
                         return CastStatus.Ok;
                     }
                 )
@@ -103,11 +106,11 @@ public class ConstructorFunctionTests
             }
         });
 
-        var result = Evaluate("xs:date('x')", catalog.Table, functions.Registry);
+        var result = Evaluate("xs:int('x')", catalog.Table, functions.Registry);
 
         await Assert.That(result.Count).IsEqualTo(1);
-        await Assert.That(Render(result[0])).IsEqualTo("string:a date");
-        await Assert.That(Code("xs:date('x')")).IsEqualTo("XPST0017");
+        await Assert.That(Render(result[0])).IsEqualTo("string:an int");
+        await Assert.That(Code("xs:int('x')")).IsEqualTo("XPST0017");
     }
 
     [Test]
@@ -133,7 +136,8 @@ public class ConstructorFunctionTests
     [Arguments("xs:integer('9223372036854775808')", "FOCA0003")]
     [Arguments("xs:integer()", "XPST0017")]
     [Arguments("xs:integer(1, 2)", "XPST0017")]
-    [Arguments("xs:date('2020-01-01')", "XPST0017")]
+    [Arguments("xs:int('1')", "XPST0017")]
+    [Arguments("xs:NOTATION('p:l')", "XPST0017")]
     public async Task Constructor_Error_RaisesItsCode(string expression, string code) =>
         await Assert.That(Code(expression)).IsEqualTo(code);
 }

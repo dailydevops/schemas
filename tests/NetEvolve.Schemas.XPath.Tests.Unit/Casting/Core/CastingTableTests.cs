@@ -69,9 +69,11 @@ public class CastingTableTests
     }
 
     [Test]
-    public async Task Table_HoldsExactlyTheRowsOfTheSevenTypes()
+    public async Task CoreRegistration_HoldsExactlyTheRowsOfTheSevenTypes()
     {
-        var table = CastingCatalog.Default.Table;
+        var catalog = new CastingCatalog();
+        catalog.Stage(CastingRegistration.RegisterRows);
+        var table = catalog.Table;
 
         await Assert.That(table.RowCount).IsEqualTo(49);
         await Assert.That(table.Targets.Count).IsEqualTo(7);
@@ -107,7 +109,7 @@ public class CastingTableTests
     [Arguments(10)] // yearMonthDuration
     [Arguments(11)] // dayTimeDuration
     [Arguments(15)] // anyURI
-    public async Task SourceWithoutRow_ToANumericOrBooleanTarget_IsNotAllowed(int source)
+    public async Task SourceOfAnotherFamily_ToANumericOrBooleanTarget_IsNotAllowed(int source)
     {
         var table = CastingCatalog.Default.Table;
         var sourceType = new XdmTypeId(source);
