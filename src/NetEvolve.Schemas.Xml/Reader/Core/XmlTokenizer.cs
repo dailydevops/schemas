@@ -15,6 +15,9 @@ using NetEvolve.Schemas.Xml.Text.CharClasses;
 /// An incomplete atomic token consumes nothing and returns <see cref="XmlTokenStatus.NeedMoreData"/> with <c>consumed</c>
 /// at its start; the caller re-presents that tail followed by more data. A pending token carries a scan-resume hint, so
 /// names, references, comments, and processing instructions are scanned in linear total work however the input is chunked.
+/// The tokens before a malformed construct, the first error code, and the position of that error do not depend on the chunking:
+/// a run of characters before an invalid character is a token of its own, and white space at the start is held until it is known
+/// whether an XML declaration follows (XML0007), up to <see cref="XmlReaderLimits.MaxXmlDeclarationLength"/> characters.
 /// Limitations: the document type declaration (only with a handler) is rescanned only after the pending tail has doubled
 /// (feeder rule of AP2 without a hint, because the subset scanner is XML-14); XML 1.1 line ends are not recognized.
 /// The tokenizer trusts the caller to re-present the same tail, so it stays internal. Not thread-safe.

@@ -368,8 +368,32 @@ internal partial struct XmlTokenizer
         return match == 0 || (match == 1 && (rest.Length == 5 || IsSpace(rest[5]) || rest[5] == '?'));
     }
 
-    // Productions 23 to 26 through the shared declaration scanner; only at the very start of the input.
+    // Whether the text may still turn out to start with "<?xml" followed by one more character: nothing yet, or up to the five characters of the target.
+    private static bool StartsDeclarationLater(ReadOnlySpan<char> rest) =>
+        rest.Length <= 5 && Match(rest, "<?xml") >= 0;
+
+    // Productions 23 to 26 through the shared declaration scanner; only at the very start of the input. White space before
+    // "<?xml" is XML0007 at the declaration, so the white space is held until the characters after it show whether they start a
+    // declaration; a longer run than the declaration limit is content, the same for every chunking.
     private Scan? ScanDeclaration(ReadOnlySpan<char> input, ref int pos, bool isFinal, out XmlToken token)
+    {
+        token = default;
+        var rest = input.Slice(pos);
+        var spaces = SkipSpaces(rest, 0);
+        if (spaces > _limits.MaxXmlDeclarationLength)
+        {
+            return null;
+        }
+
+        if (spaces > 0 && !isFinal && StartsDeclarationLater(rest.Slice(spaces)))
+        {
+            return Scan.NeedMore;
+        }
+
+        return ScanDeclarationText(input, ref pos, isFinal, out token);
+    }
+
+    private Scan? ScanDeclarationText(ReadOnlySpan<char> input, ref int pos, bool isFinal, out XmlToken token)
     {
         token = default;
         var rest = input.Slice(pos);
