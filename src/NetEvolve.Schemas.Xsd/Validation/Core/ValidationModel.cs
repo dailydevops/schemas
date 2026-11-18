@@ -111,7 +111,12 @@ internal sealed class ValidationModel
         private readonly HashSet<IXsdComponent> _seen = [];
         private readonly HashSet<ModelGroup> _active = [];
 
-        internal Builder(XsdIssueReporter reporter) => _reporter = reporter;
+        internal Builder(XsdIssueReporter reporter)
+        {
+            Argument.ThrowIfNull(reporter);
+
+            _reporter = reporter;
+        }
 
         internal Dictionary<XPathQName, int> Ids { get; } = [];
 
