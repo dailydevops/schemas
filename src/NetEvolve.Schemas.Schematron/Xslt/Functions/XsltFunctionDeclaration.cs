@@ -20,5 +20,11 @@ internal sealed class XsltFunctionDeclaration : XsltExecutable
     internal XsltFunctionComponent Component { get; }
 
     /// <inheritdoc />
-    internal override QueryStatus TryExecute(XsltFrame frame, ISequenceSink sink) => QueryStatus.Ok;
+    internal override QueryStatus TryExecute(XsltFrame frame, ISequenceSink sink)
+    {
+        Argument.ThrowIfNull(frame);
+        Argument.ThrowIfNull(sink);
+
+        return QueryStatus.Ok;
+    }
 }

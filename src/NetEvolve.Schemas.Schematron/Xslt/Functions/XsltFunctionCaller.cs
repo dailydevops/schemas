@@ -227,5 +227,16 @@ internal sealed class XsltFunctionCaller
         return QueryStatus.Problem;
     }
 
-    private readonly record struct SavedSlot(bool Bound, XdmSequence Value);
+    private readonly struct SavedSlot
+    {
+        internal SavedSlot(bool bound, XdmSequence value)
+        {
+            Bound = bound;
+            Value = value;
+        }
+
+        internal bool Bound { get; }
+
+        internal XdmSequence Value { get; }
+    }
 }

@@ -81,5 +81,16 @@ internal sealed class XsltFunctionTableBuilder
         return new XsltFunctionTable(byName, _count);
     }
 
-    private readonly record struct Entry(XsltFunctionComponent Function, int Precedence);
+    private readonly struct Entry
+    {
+        internal Entry(XsltFunctionComponent function, int precedence)
+        {
+            Function = function;
+            Precedence = precedence;
+        }
+
+        internal XsltFunctionComponent Function { get; }
+
+        internal int Precedence { get; }
+    }
 }

@@ -44,6 +44,9 @@ internal sealed class XsltBodyExecutable : XsltExecutable, IXsltSlotReader
     /// <inheritdoc />
     internal override QueryStatus TryExecute(XsltFrame frame, ISequenceSink sink)
     {
+        Argument.ThrowIfNull(frame);
+        Argument.ThrowIfNull(sink);
+
         for (var i = 0; i < _instructions.Length; i++)
         {
             if (_instructions[i].TryExecute(frame, sink) == QueryStatus.Problem)

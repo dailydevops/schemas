@@ -6,7 +6,9 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// <summary>
 /// What a run offers to the calls of stylesheet functions besides evaluating: bind an evaluated value to a variable slot, read a slot
 /// back to restore it, and enter and leave the scope of a function body (design #150 EP-5 and EP-13). The slots are one table
-/// shared by every activation, so a call saves the values of the slots it uses and restores them when it ends.
+/// shared by every activation, so a call saves the values of the slots it uses and restores them when it ends. The slots of a
+/// function start above every slot of the compiled schema (<c>ScopePlan.SlotCount</c>), so the slot table of the run must hold more
+/// slots than the plan declares.
 /// </summary>
 /// <remarks>
 /// Limitation: <see cref="IQueryRun"/> binds only the value of an expression, and a stylesheet function receives its arguments as
