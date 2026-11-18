@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.XPath.Evaluation.Arithmetic;
 
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
+using NetEvolve.Schemas.Xml.Datatypes.Decimals;
 using NetEvolve.Schemas.Xml.Datatypes.Decimals.Arithmetic;
 using NetEvolve.Schemas.Xml.Datatypes.Floating;
 using NetEvolve.Schemas.XPath.Xdm.Values;
@@ -46,6 +47,12 @@ internal static class NumericPromotion
         return false;
     }
 
+    /// <summary>Rounds the exact value of a decimal once to <c>xs:float</c>, through its lexical form and not through a double: the one step that the promotion and the cast of a decimal to a float share.</summary>
+    /// <param name="number">The decimal.</param>
+    /// <returns>The float; the result is a failure when the lexical form is beyond the digit cap of the datatype layer, and its value is then zero.</returns>
+    internal static ParseResult<float> DecimalToSingle(XsdDecimal number) =>
+        XsdFloatingPoint.ParseSingle(number.ToString(), XsdVersion.V10);
+
     /// <summary>Promotes a numeric item that is not a double to <c>xs:float</c>.</summary>
     /// <param name="item">The item.</param>
     /// <param name="value">The value, zero when the item is not a float, decimal, or integer.</param>
@@ -65,7 +72,7 @@ internal static class NumericPromotion
 
         if (item.TryGetDecimal(out var number))
         {
-            value = XsdFloatingPoint.ParseSingle(number.ToString(), XsdVersion.V10).Value;
+            value = DecimalToSingle(number).Value;
             return true;
         }
 

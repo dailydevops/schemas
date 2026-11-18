@@ -6,8 +6,8 @@ using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xml.Datatypes.Core;
 using NetEvolve.Schemas.Xml.Datatypes.Decimals;
 using NetEvolve.Schemas.Xml.Datatypes.Decimals.Arithmetic;
-using NetEvolve.Schemas.Xml.Datatypes.Floating;
 using NetEvolve.Schemas.Xml.Datatypes.Numeric;
+using NetEvolve.Schemas.XPath.Evaluation.Arithmetic;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>
@@ -102,8 +102,8 @@ internal static class PrimitiveConversions
         }
         else if (source.TryGetDecimal(out var number))
         {
-            // Parsed from the exact decimal, so that the value is rounded once and not through a double.
-            var parsed = XsdFloatingPoint.ParseSingle(number.ToString().AsSpan(), XsdVersion.V10);
+            // Rounded once from the exact decimal, by the step that the promotion shares.
+            var parsed = NumericPromotion.DecimalToSingle(number);
             if (!parsed.Success)
             {
                 return Failure(parsed.Error, CastStatus.DecimalOverflow);

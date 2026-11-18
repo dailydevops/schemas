@@ -1,11 +1,13 @@
 namespace NetEvolve.Schemas.XPath.Tests.Unit.Functions.Binding;
 
+using System;
 using System.Numerics;
 using System.Threading.Tasks;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xml.Datatypes.DateTime;
 using NetEvolve.Schemas.Xml.Datatypes.Decimals;
 using NetEvolve.Schemas.Xml.Datatypes.Duration;
+using NetEvolve.Schemas.XPath.Casting.Core;
 using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Functions.Binding;
 using NetEvolve.Schemas.XPath.Syntax.Tree;
@@ -29,7 +31,13 @@ public class FunctionConversionTests
     private static XPathParameterType Type(XPathItemType type, Occurrence occurrence = Occurrence.ExactlyOne) =>
         new(type, occurrence);
 
-    private static XdmItem Decimal(string lexical) => XdmItem.FromDecimal(XsdDecimal.Parse(lexical).Value);
+    private static XdmItem Decimal(string lexical)
+    {
+        var parsed = XsdDecimal.Parse(lexical);
+        return parsed.Success
+            ? XdmItem.FromDecimal(parsed.Value)
+            : throw new InvalidOperationException("Not a decimal: " + lexical);
+    }
 
     private static XdmItem Moment(string lexical, XsdDateTimeKind kind) =>
         XdmItem.FromDateTime(XsdDateTime.Parse(lexical, kind, XsdVersion.V10).Value);
@@ -220,6 +228,113 @@ public class FunctionConversionTests
             One(XdmItem.FromUntypedAtomic("99999999999999999999")),
             "FOCA0003"
         );
+
+    // The date, time, and duration types have limits of their own (a year or a component beyond 18 digits): FODT0001 and FODT0002, as the
+    // casting table reports them, and not FORG0001, which is for a form that is not in the lexical space.
+    [Test]
+    [Arguments(nameof(XPathItemType.DateTime), "123456789012345678-01-01T00:00:00", "FODT0001")]
+    [Arguments(nameof(XPathItemType.Date), "123456789012345678-01-01", "FODT0001")]
+    [Arguments(nameof(XPathItemType.Duration), "P123456789012345678Y", "FODT0002")]
+    [Arguments(nameof(XPathItemType.YearMonthDuration), "P123456789012345678M", "FODT0002")]
+    [Arguments(nameof(XPathItemType.DayTimeDuration), "P123456789012345678D", "FODT0002")]
+    public async Task UntypedAtomic_BeyondALimitOfTheTemporalTypes_RaisesTheLimitCode(
+        string targetName,
+        string lexical,
+        string code
+    ) =>
+        await BindingHarness.AssertFails(
+            Type(Enum.Parse<XPathItemType>(targetName)),
+            One(XdmItem.FromUntypedAtomic(lexical)),
+            code
+        );
+
+    // One cast path: an untyped value beyond the digit cap of the datatype layer (4,096 digits) is an implementation limit, so function
+    // conversion reports what the casting table reports (#621): FOCA0001 for a decimal, a float, or a double, FOCA0003 for an integer.
+
+    [Test]
+    [Arguments(nameof(XPathItemType.Decimal), "FOCA0001")]
+    [Arguments(nameof(XPathItemType.Float), "FOCA0001")]
+    [Arguments(nameof(XPathItemType.Double), "FOCA0001")]
+    [Arguments(nameof(XPathItemType.Integer), "FOCA0003")]
+    public async Task UntypedAtomic_BeyondTheDigitCap_RaisesTheCodeOfTheCastingTable(string targetName, string code) =>
+        await BindingHarness.AssertFails(
+            Type(Enum.Parse<XPathItemType>(targetName)),
+            One(XdmItem.FromUntypedAtomic(new string('9', 5000))),
+            code
+        );
+
+    [Test]
+    public async Task UntypedAtomic_FractionBeyondTheDigitCap_RaisesFOCA0001() =>
+        await BindingHarness.AssertFails(
+            Type(XPathItemType.Decimal),
+            One(XdmItem.FromUntypedAtomic("0." + new string('9', 5000))),
+            "FOCA0001"
+        );
+
+    [Test]
+    public async Task UntypedAtomic_WithinTheDigitCap_IsCast() =>
+        await BindingHarness.AssertConverts(
+            Type(XPathItemType.Decimal),
+            One(XdmItem.FromUntypedAtomic(new string('9', 4000))),
+            One(Decimal(new string('9', 4000)))
+        );
+
+    [Test]
+    [Arguments(nameof(XPathItemType.Boolean), "maybe")]
+    [Arguments(nameof(XPathItemType.Decimal), "1.5.2")]
+    [Arguments(nameof(XPathItemType.Integer), "1.5")]
+    [Arguments(nameof(XPathItemType.Float), "+INF")]
+    [Arguments(nameof(XPathItemType.Double), "")]
+    [Arguments(nameof(XPathItemType.DateTime), "2024-13-01T00:00:00")]
+    [Arguments(nameof(XPathItemType.Date), "yesterday")]
+    [Arguments(nameof(XPathItemType.Time), "25:00:00")]
+    [Arguments(nameof(XPathItemType.Duration), "1Y")]
+    [Arguments(nameof(XPathItemType.YearMonthDuration), "P1D")]
+    [Arguments(nameof(XPathItemType.DayTimeDuration), "P1Y")]
+    [Arguments(nameof(XPathItemType.Integer), "99999999999999999999")]
+    public async Task UntypedAtomic_Failure_RaisesTheCodeOfTheCastingTable(string targetName, string lexical)
+    {
+        var target = Enum.Parse<XPathItemType>(targetName);
+        var table = CastingCatalog.Default.Table;
+        var typeId = target switch
+        {
+            XPathItemType.Boolean => XdmTypeId.Boolean,
+            XPathItemType.Integer => XdmTypeId.XsInteger,
+            XPathItemType.Decimal => XdmTypeId.XsDecimal,
+            XPathItemType.Float => XdmTypeId.XsFloat,
+            XPathItemType.Double => XdmTypeId.XsDouble,
+            XPathItemType.DateTime => XdmTypeId.DateTime,
+            XPathItemType.Date => XdmTypeId.Date,
+            XPathItemType.Time => XdmTypeId.Time,
+            XPathItemType.Duration => XdmTypeId.Duration,
+            XPathItemType.YearMonthDuration => XdmTypeId.YearMonthDuration,
+            _ => XdmTypeId.DayTimeDuration,
+        };
+        var status = table.TryCast(XdmItem.FromUntypedAtomic(lexical), typeId, out _);
+
+        await Assert.That(status).IsNotEqualTo(CastStatus.Ok);
+        await BindingHarness.AssertFails(
+            Type(target),
+            One(XdmItem.FromUntypedAtomic(lexical)),
+            status.ToErrorCode().LocalName
+        );
+    }
+
+    // Promotion is not a cast (a double is not promoted down, a string is not promoted), but a decimal reaches a float by the same step as the
+    // cast: one rounding of its exact value.
+    [Test]
+    [Arguments("0.1")]
+    [Arguments("16777217")]
+    [Arguments("1.00000005960464477539062501")]
+    [Arguments("-340282360000000000000000000000000000000")]
+    [Arguments("123456789012345678901234567890.5")]
+    public async Task Promotion_DecimalToFloat_IsTheValueOfTheCast(string lexical)
+    {
+        var cast = CastingCatalog.Default.Table.TryCast(Decimal(lexical), XdmTypeId.XsFloat, out var expected);
+
+        await Assert.That(cast).IsEqualTo(CastStatus.Ok);
+        await BindingHarness.AssertConverts(Type(XPathItemType.Float), One(Decimal(lexical)), One(expected));
+    }
 
     // Numeric promotion, subtype substitution, and URI promotion
 
