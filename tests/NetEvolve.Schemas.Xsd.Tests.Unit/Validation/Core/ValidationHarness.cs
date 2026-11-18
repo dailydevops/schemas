@@ -20,6 +20,14 @@ internal static class ValidationHarness
         string xml,
         ISimpleValueAssessor? assessor = null,
         params ValidationListener[] listeners
+    ) => Run(schema, xml, XmlReaderOptions.Default, assessor, listeners);
+
+    public static IReadOnlyList<ValidationIssue> Run(
+        SchemaFixture schema,
+        string xml,
+        XmlReaderOptions options,
+        ISimpleValueAssessor? assessor = null,
+        params ValidationListener[] listeners
     )
     {
         var collector = new ValidationIssueCollector(ValidationLimits.Default);
@@ -32,7 +40,7 @@ internal static class ValidationHarness
             Source,
             listeners
         );
-        using var reader = XmlPipelineReader.Create(xml.AsSpan());
+        using var reader = XmlPipelineReader.Create(xml.AsSpan(), options);
         var status = reader.Pump(ref validator);
         if (status != XmlReadStatus.Completed)
         {

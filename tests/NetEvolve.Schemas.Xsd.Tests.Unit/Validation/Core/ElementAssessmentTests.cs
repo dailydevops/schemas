@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.Xsd.Tests.Unit.Validation.Core;
 
 using System.Collections.Generic;
+using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;
 using NetEvolve.Schemas.Xsd.Elements;
@@ -345,6 +346,52 @@ public class ElementAssessmentTests
         _ = schema.Global("r", null);
 
         var issues = ValidationHarness.Run(schema, "<r a=\"1\">text<b><c/></b>more</r>");
+
+        await Assert.That(issues.Count).IsEqualTo(0);
+    }
+
+    [Test]
+    public async Task DeclaredAnyType_AssessesItsContentLax_AndAcceptsAnyAttribute()
+    {
+        var schema = new SchemaFixture();
+        _ = schema.Global("r", SchemaFixture.AnyType);
+        _ = schema.Global("n", SchemaFixture.Simple("int"));
+
+        var ok = ValidationHarness.Run(schema, "<r a=\"1\">text<b><c/></b><n>12</n>more</r>");
+        var bad = ValidationHarness.Run(schema, "<r>\n<b/>\n<n>x</n></r>");
+
+        await Assert.That(ok.Count).IsEqualTo(0);
+        await AssertIssue(bad, "cvc-datatype-valid", "cvc-datatype-valid", 3, "'n'");
+    }
+
+    [Test]
+    public async Task Nesting_BeyondTheInitialFrameCapacity_KeepsEveryLevelAssessed()
+    {
+        var schema = new SchemaFixture();
+        _ = schema.Global("r", SchemaFixture.AnyType);
+        _ = schema.Global("n", SchemaFixture.Simple("int"));
+        var open = Repeat("<a>\n", 40);
+        var close = Repeat("</a>", 40);
+
+        var issues = ValidationHarness.Run(schema, "<r>\n" + open + "<n>x</n>" + close + "<n>1</n></r>");
+
+        await AssertIssue(issues, "cvc-datatype-valid", "cvc-datatype-valid", 42, "'n'");
+    }
+
+    [Test]
+    public async Task Doctype_IsIgnored()
+    {
+        var schema = new SchemaFixture();
+        schema.Global(
+            "r",
+            schema.ElementOnly(SchemaFixture.Seq(SchemaFixture.Part("a", SchemaFixture.Simple("string"))))
+        );
+
+        var issues = ValidationHarness.Run(
+            schema,
+            "<!DOCTYPE r>\n<r><a/></r>",
+            XmlReaderOptions.Default.WithDtdProcessing(true)
+        );
 
         await Assert.That(issues.Count).IsEqualTo(0);
     }

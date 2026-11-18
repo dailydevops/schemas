@@ -260,6 +260,30 @@ public class AttributeAssessmentTests
     }
 
     [Test]
+    public async Task Attributes_BeyondTheInitialBufferCapacity_KeepTheirOwnValues()
+    {
+        var schema = RootWith(s =>
+        {
+            var uses = new AttributeUse[24];
+            for (var i = 0; i < uses.Length; i++)
+            {
+                uses[i] = s.Use("a" + i, "int");
+            }
+
+            return s.Empty(uses);
+        });
+        var attributes = new System.Text.StringBuilder();
+        for (var i = 0; i < 24; i++)
+        {
+            _ = attributes.Append(" a").Append(i).Append("=\"").Append(i == 21 ? "x" : "1234567890").Append('"');
+        }
+
+        var issues = ValidationHarness.Run(schema, "<r" + attributes + "/>");
+
+        await AssertIssue(issues, "cvc-datatype-valid", "cvc-datatype-valid", 1, "'a21'");
+    }
+
+    [Test]
     public async Task AbsentAttribute_WithADefault_IsAppliedAndReportedToListeners()
     {
         var schema = RootWith(s =>
