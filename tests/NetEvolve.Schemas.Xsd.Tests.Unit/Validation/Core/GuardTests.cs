@@ -89,7 +89,7 @@ public class GuardTests
 
     [Test]
     public async Task Model_NullType_Throws() =>
-        await Assert.That(() => Model.TryGetProgram(null!, out _)).Throws<ArgumentNullException>();
+        await Assert.That(() => Model.GetProgram(null!)).Throws<ArgumentNullException>();
 
     [Test]
     public async Task Binding_NullModel_Throws() =>

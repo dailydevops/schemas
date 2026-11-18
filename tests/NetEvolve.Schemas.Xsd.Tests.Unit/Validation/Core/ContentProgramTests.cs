@@ -28,9 +28,9 @@ public class ContentProgramTests
         schema.Global("r", type);
         var model = schema.Model();
 
-        var found = model.TryGetProgram(type, out var program);
+        var program = model.GetProgram(type);
 
-        await Assert.That(found).IsTrue();
+        await Assert.That(program).IsNotNull();
         await Assert.That(program!.AllGroup).IsNull();
         await Assert.That(program.Terms.Count).IsEqualTo(3);
         var run = program.Automaton!.CreateRun();
@@ -59,9 +59,9 @@ public class ContentProgramTests
         schema.Global("r", type);
         var model = schema.Model();
 
-        var found = model.TryGetProgram(type, out var program);
+        var program = model.GetProgram(type);
 
-        await Assert.That(found).IsTrue();
+        await Assert.That(program).IsNotNull();
         await Assert.That(program!.Automaton).IsNull();
         await Assert.That(program.AllGroup!.MemberCount).IsEqualTo(2);
         await Assert.That(program.Terms.Count).IsEqualTo(2);
@@ -77,8 +77,8 @@ public class ContentProgramTests
         schema.Global("s", simple);
         var model = schema.Model();
 
-        await Assert.That(model.TryGetProgram(empty, out _)).IsFalse();
-        await Assert.That(model.TryGetProgram(simple, out _)).IsFalse();
+        await Assert.That(model.GetProgram(empty)).IsNull();
+        await Assert.That(model.GetProgram(simple)).IsNull();
     }
 
     [Test]
@@ -90,8 +90,8 @@ public class ContentProgramTests
         schema.Global("r", outer);
         var model = schema.Model();
 
-        await Assert.That(model.TryGetProgram(outer, out _)).IsTrue();
-        await Assert.That(model.TryGetProgram(inner, out _)).IsTrue();
+        await Assert.That(model.GetProgram(outer)).IsNotNull();
+        await Assert.That(model.GetProgram(inner)).IsNotNull();
     }
 
     [Test]
@@ -101,9 +101,9 @@ public class ContentProgramTests
         schema.Global("r", null);
         var model = schema.Model();
 
-        var found = model.TryGetProgram(ComplexTypeDefinition.AnyType, out var program);
+        var program = model.GetProgram(ComplexTypeDefinition.AnyType);
 
-        await Assert.That(found).IsTrue();
+        await Assert.That(program).IsNotNull();
         await Assert.That(program!.Terms.Count).IsEqualTo(1);
         await Assert.That(program.Terms[0]).IsAssignableTo<IWildcard>();
     }
@@ -131,7 +131,8 @@ public class ContentProgramTests
 
         var model = schema.Model();
 
-        await Assert.That(model.TryGetProgram(type, out var program)).IsTrue();
+        var program = model.GetProgram(type);
+        await Assert.That(program).IsNotNull();
         await Assert.That(program!.Terms.Count).IsEqualTo(1);
     }
 
@@ -141,6 +142,6 @@ public class ContentProgramTests
         var model = new SchemaFixture().Model();
 
         await Assert.That(model.TryGetNameId(new XPathQName(string.Empty, "a"), out _)).IsFalse();
-        await Assert.That(model.TryGetProgram(ComplexTypeDefinition.AnyType, out _)).IsFalse();
+        await Assert.That(model.GetProgram(ComplexTypeDefinition.AnyType)).IsNull();
     }
 }
