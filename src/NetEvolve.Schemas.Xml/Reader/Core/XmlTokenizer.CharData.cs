@@ -13,7 +13,9 @@ internal partial struct XmlTokenizer
     private static readonly char[] SingleQuoteStops = ['\'', '&', '<', '\t', '\r', '\n'];
 
     // A line break (CRLF, CR, or LF) is one token; a CR at the end of non-final input is held back until the next character is known.
-    private static Scan ScanLineBreak(
+    // In replacement text the line ends were normalized when the entity value was declared, so a CR is a character that came
+    // from a character reference and is reported as it is, without pairing with a following LF (section 4.5, #645).
+    private Scan ScanLineBreak(
         ReadOnlySpan<char> input,
         ref int pos,
         bool isFinal,
@@ -23,6 +25,12 @@ internal partial struct XmlTokenizer
     )
     {
         token = default;
+        if (_replacementText)
+        {
+            token = XmlToken.Inline(kind, input[pos++]);
+            return Scan.Token;
+        }
+
         if (input[pos] == '\r')
         {
             if (pos + 1 >= input.Length && !isFinal)
@@ -240,8 +248,9 @@ internal partial struct XmlTokenizer
                 return ScanReference(input, ref pos, isFinal, hint, out token);
             case '<':
                 return Fail(input, pos, XmlErrorCodes.XML0013);
-            case '\r':
+            case '\r' when !_replacementText:
                 return ScanLineBreak(input, ref pos, isFinal, XmlTokenKind.Reference, ' ', out token);
+            case '\r':
             case '\n':
             case '\t':
                 pos++;

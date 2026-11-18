@@ -101,9 +101,9 @@ internal sealed partial class XmlParser
     }
 
     // Section 3.3.3 for the replacement text of an entity in an attribute value: references expand recursively, a literal
-    // '<' is rejected (WFC No < in Attribute Values), TAB, CR, LF, and CRLF become one space each (limitation: CR LF
-    // written as two character references should be two spaces, #645), character references stay unnormalized, and
-    // quotes are ordinary characters. The frames live on the same stack as the content frames and are all closed again
+    // '<' is rejected (WFC No < in Attribute Values), TAB, CR, and LF become one space each (CR LF written as
+    // two character references is two spaces, #645), character references stay unnormalized, and quotes are ordinary
+    // characters. The frames live on the same stack as the content frames and are all closed again
     // when the walk returns.
     private bool ExpandInAttributeValue(string replacement, XmlPosition position)
     {
@@ -159,8 +159,9 @@ internal sealed partial class XmlParser
             case '&':
                 break;
             default:
-                // A CRLF pair is one white space character.
-                frame.Offset += rest[0] == '\r' && rest.Length > 1 && rest[1] == '\n' ? 2 : 1;
+                // The line ends of the entity value were normalized when it was declared: every CR or LF here is a white
+                // space character of its own, so CR LF written as two character references gives two spaces.
+                frame.Offset++;
                 var space = XmlToken.Inline(XmlTokenKind.Reference, ' ');
                 return AppendValue(InlineSpan(in space), position);
         }
