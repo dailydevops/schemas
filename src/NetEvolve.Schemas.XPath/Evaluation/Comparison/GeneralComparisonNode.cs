@@ -21,8 +21,9 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// </para>
 /// <para>
 /// Limitation: XPath 1.0 compatibility mode is not applied (XP-20). Both operands are atomized completely before the first pair is
-/// tried. The cast of an <c>xs:untypedAtomic</c> item to a number, boolean, or other type goes through the datatype descriptors of
-/// <see cref="Functions.Binding.UntypedAtomicCast"/>, which allocate; pairs of items that need no cast allocate nothing.
+/// tried. The cast of an <c>xs:untypedAtomic</c> item to <c>xs:double</c>, <c>xs:float</c>, <c>xs:boolean</c>, or <c>xs:integer</c>
+/// (<see cref="Functions.Binding.UntypedAtomicCast"/>) allocates nothing, pinned by <c>UntypedAtomicCastAllocationTests</c>; only a
+/// decimal, date and time, or duration target is boxed (#661). Pairs of items that need no cast allocate nothing.
 /// </para>
 /// </remarks>
 internal sealed class GeneralComparisonNode : ExecutableNode
