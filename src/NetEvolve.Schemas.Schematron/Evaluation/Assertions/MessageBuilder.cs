@@ -189,46 +189,4 @@ internal sealed class MessageBuilder
         );
         _problems.Add(in problem);
     }
-
-    /// <summary>Joins the items of one <c>value-of</c> with one space and hands them to the text sink; the sink adds no second separator.</summary>
-    private sealed class ValueOfSink : ISequenceSink
-    {
-        private TextSink? _into;
-        private int _items;
-
-        public SequenceSinkKind Kind => SequenceSinkKind.Text;
-
-        public IXmlSink Content => throw new InvalidOperationException("Only a tree sink has content.");
-
-        internal void Begin(TextSink into)
-        {
-            _into = into;
-            _items = 0;
-
-            // Each value-of joins its own items; the previous one must not leave an atomic value pending.
-            into.Text(ReadOnlySpan<char>.Empty);
-        }
-
-        public void Item(in XdmItem item)
-        {
-            if (_items++ > 0)
-            {
-                _into!.Text(" ".AsSpan());
-            }
-
-            _into!.Item(in item);
-        }
-
-        public void Text(ReadOnlySpan<char> text) => _into!.Text(text);
-
-        public IXmlSink BeginTree() =>
-            throw new InvalidOperationException(
-                "Message text is built as text only; a temporary tree is a programming error."
-            );
-
-        public XdmItem EndTree(IXmlSink tree) =>
-            throw new InvalidOperationException(
-                "Message text is built as text only; a temporary tree is a programming error."
-            );
-    }
 }
