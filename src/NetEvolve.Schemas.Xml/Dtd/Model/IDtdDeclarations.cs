@@ -11,6 +11,8 @@ using NetEvolve.Schemas.Xml.Contracts;
 /// Limitation: only the internal subset is read (the external subset is XML-20), and the view records neither the position
 /// of each declaration nor the anomalies that only the declaration parser can see (#608). The parser model behind the
 /// view stays internal; consumers depend on this interface only. Not intended for implementation by consumers.
+/// Adding a member to this interface later is a breaking change for every implementer; #608 (per-declaration locations
+/// and parse-time anomalies) may therefore need a second interface instead of new members here.
 /// </remarks>
 public interface IDtdDeclarations
 {

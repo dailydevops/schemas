@@ -936,8 +936,9 @@ namespace NetEvolve.Schemas.Xml.Dtd.Contracts
     }
     public sealed class DtdValidationContext
     {
-        public DtdValidationContext(NetEvolve.Schemas.Xml.Dtd.Model.IDtdDeclarations declarations, NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidationOptions options, NetEvolve.Schemas.Formats.ValidationIssueCollector issues, bool isStandalone, string? systemId) { }
+        public DtdValidationContext(NetEvolve.Schemas.Xml.Dtd.Model.IDtdDeclarations declarations, NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidationOptions options, NetEvolve.Schemas.Formats.ValidationIssueCollector issues, bool isStandalone, string? systemId, NetEvolve.Schemas.DocumentLocation documentTypeLocation) { }
         public NetEvolve.Schemas.Xml.Dtd.Model.IDtdDeclarations Declarations { get; }
+        public NetEvolve.Schemas.DocumentLocation DocumentTypeLocation { get; }
         public bool IsStandalone { get; }
         public bool IsStopped { get; }
         public NetEvolve.Schemas.Xml.Dtd.Contracts.DtdValidationOptions Options { get; }

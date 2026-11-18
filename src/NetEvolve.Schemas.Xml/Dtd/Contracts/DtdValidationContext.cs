@@ -12,7 +12,8 @@ using NetEvolve.Schemas.Xml.Dtd.Model;
 /// <remarks>
 /// Limitation: the declaration view records neither the position of each declaration nor the anomalies that only the
 /// declaration parser can see (the three nesting constraints and a dropped second element declaration, design #122, D4);
-/// until it does, declaration-time checks report the location of the document type declaration.
+/// until it does, declaration-time checks report at <see cref="DocumentTypeLocation"/>. A location whose line is unknown
+/// (zero, for example <see langword="default"/>) is replaced by <see cref="DocumentTypeLocation"/> in every report.
 /// </remarks>
 public sealed class DtdValidationContext
 {
@@ -24,12 +25,14 @@ public sealed class DtdValidationContext
     /// <param name="issues">The collector that receives the issues.</param>
     /// <param name="isStandalone"><see langword="true"/> when the XML declaration says <c>standalone="yes"</c>.</param>
     /// <param name="systemId">The system identifier of the document, <see langword="null"/> when unknown.</param>
+    /// <param name="documentTypeLocation">The location of the document type declaration, <see langword="default"/> when unknown.</param>
     public DtdValidationContext(
         IDtdDeclarations declarations,
         DtdValidationOptions options,
         ValidationIssueCollector issues,
         bool isStandalone,
-        string? systemId
+        string? systemId,
+        DocumentLocation documentTypeLocation
     )
     {
         Argument.ThrowIfNull(declarations);
@@ -41,6 +44,7 @@ public sealed class DtdValidationContext
         _issues = issues;
         IsStandalone = isStandalone;
         SystemId = systemId;
+        DocumentTypeLocation = documentTypeLocation;
     }
 
     /// <summary>Gets the read-only view of the declarations.</summary>
@@ -54,6 +58,12 @@ public sealed class DtdValidationContext
 
     /// <summary>Gets the system identifier of the document, <see langword="null"/> when unknown.</summary>
     public string? SystemId { get; }
+
+    /// <summary>
+    /// Gets the location of the document type declaration, <see langword="default"/> when unknown. It is where
+    /// declaration-time checks report until per-declaration locations exist (#608), and the fallback of every report.
+    /// </summary>
+    public DocumentLocation DocumentTypeLocation { get; }
 
     /// <summary>Converts a position of the reader to a location in the document.</summary>
     /// <param name="position">The position.</param>
@@ -71,7 +81,7 @@ public sealed class DtdValidationContext
         Argument.ThrowIfGreaterThan((int)severity, (int)IssueSeverity.Error);
 
         var message = argument is null ? code.Message : code.Message + " (" + argument + ")";
-        _issues.Add(new ValidationIssue(code.Code, severity, message, location, code.Name));
+        _issues.Add(new ValidationIssue(code.Code, severity, message, OrDocumentType(location), code.Name));
     }
 
     /// <summary>Reports a violation of Standalone Document Declaration; the clause discriminates the four cases under one code.</summary>
@@ -97,6 +107,11 @@ public sealed class DtdValidationContext
     {
         Argument.ThrowIfNull(code);
 
-        _issues.Stop(new ValidationIssue(code.Code, IssueSeverity.Error, code.Message, location, code.Constraint));
+        _issues.Stop(
+            new ValidationIssue(code.Code, IssueSeverity.Error, code.Message, OrDocumentType(location), code.Constraint)
+        );
     }
+
+    private DocumentLocation OrDocumentType(DocumentLocation location) =>
+        location.Line == 0 ? DocumentTypeLocation : location;
 }
