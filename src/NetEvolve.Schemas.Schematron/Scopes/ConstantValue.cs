@@ -17,7 +17,10 @@ using NetEvolve.Schemas.XPath.Syntax.Tree;
 /// A type name is recognized by its namespace, not by its prefix: the prefix is resolved through the <c>ns</c> elements of the
 /// schema, the last declaration of a prefix wins as in the static context of the XPath package, and the prefix <c>xs</c> is
 /// predeclared for the XML Schema namespace as XPath 2.0 predeclares it. The canonical form handed on is always <c>xs:</c> plus the
-/// local name.
+/// local name. A constructor is a constant only for the types <see cref="Satisfies"/> can decide (<c>xs:string</c>,
+/// <c>xs:boolean</c>, <c>xs:double</c>, <c>xs:float</c>, <c>xs:decimal</c>, <c>xs:integer</c>, <c>xs:anyURI</c>, and the temporal types
+/// <c>xs:date</c>, <c>xs:dateTime</c>, <c>xs:time</c>, and <c>xs:duration</c>); any other
+/// constructor, such as a type derived from a supported one, is not a constant here and is left to the binding (#392, #227).
 /// </remarks>
 internal static class ConstantValue
 {
@@ -82,6 +85,7 @@ internal static class ConstantValue
             type is null
             && tree is FunctionCall { Name.Prefix: { } prefix, Arguments.Count: 1 } constructor
             && IsXmlSchema(prefix, namespaces)
+            && IsDecidable(constructor.Name.LocalName)
             && LiteralType(constructor.Arguments[0]) is not null
         )
         {
@@ -112,6 +116,15 @@ internal static class ConstantValue
             _ => false,
         };
     }
+
+    // The constructors whose result Satisfies can decide; a constructor of any other type is left to the binding.
+    private static bool IsDecidable(string local) =>
+        local switch
+        {
+            "string" or "boolean" or "double" or "float" or "decimal" or "integer" or "anyURI" => true,
+            "date" or "dateTime" or "time" or "duration" => true,
+            _ => false,
+        };
 
     private static bool IsXmlSchema(string prefix, IReadOnlyList<SchematronNamespace> namespaces)
     {

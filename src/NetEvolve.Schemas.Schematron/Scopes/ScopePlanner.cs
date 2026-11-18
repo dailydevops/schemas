@@ -22,6 +22,8 @@ using NetEvolve.Schemas.Schematron.Seams;
 /// <c>xsl:param</c> declarations (SCH-66) are not part of the schema-level block yet. The <see langword="as"/> types are limited to
 /// <c>xs:string</c>, <c>xs:boolean</c>, <c>xs:double</c>, and <c>xs:integer</c> (#392); a constant is checked here, any other value
 /// by the binding through <see cref="QueryStaticScope.DeclaredType"/>, which the XPath binding does not do until it is implemented.
+/// A constructor of a type derived from a supported type, such as <c>xs:long(5)</c> or <c>xs:token('a')</c>, is not treated as a
+/// constant: it is left to the binding with the other values (#392, #227), so it is never a false Build problem.
 /// Each variable value is compiled against its own copy of the visible names, so the compile memory grows with the square of the
 /// number of variables declared at one level.
 /// </remarks>

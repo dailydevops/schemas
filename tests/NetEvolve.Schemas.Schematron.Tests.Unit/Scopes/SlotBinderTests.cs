@@ -219,6 +219,19 @@ public class SlotBinderTests
     }
 
     [Test]
+    public async Task RuleSlot_ReadWithoutAFiring_FailsWithoutANewIssue()
+    {
+        var h = Start(Schema(patterns: Pattern("p", [], Rule("r", "a", Let("v", "string(@n)")))));
+        h.Binder.BeginPattern(h.Plan.Patterns[0]);
+
+        var status = h.Ensure(h.Plan.RuleStart);
+
+        await Assert.That(status).IsEqualTo(QueryStatus.Problem);
+        await Assert.That(h.Run.Binds.Count).IsEqualTo(0);
+        await Assert.That(h.Problems.Problems.Count).IsEqualTo(0);
+    }
+
+    [Test]
     public async Task EnsureBound_OfSeveralSlots_BindsAllAndReportsProblemWhenOneFailed()
     {
         var h = Start(Schema(lets: [Let("a", "count(//a)"), Let("b", "bad"), Let("c", "count(//c)")]));
