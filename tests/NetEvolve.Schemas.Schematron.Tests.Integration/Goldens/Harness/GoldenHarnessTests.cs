@@ -292,4 +292,107 @@ public class GoldenHarnessTests
             await RunAsync(fixture, RuleSet("rules-a", validator, blankId), cancellationToken)
         );
     }
+
+    [Test]
+    public async Task Run_NullRuleSet_ThrowsArgumentNullException(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        using var fixture = new GoldenFixture();
+
+        _ = await Assert.ThrowsAsync<ArgumentNullException>(async () =>
+            await GoldenHarness.RunAsync(fixture.Corpus, [null!], cancellationToken)
+        );
+    }
+
+    [Test]
+    public async Task Run_NullExpectationEntry_ThrowsArgumentNullException(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        using var fixture = new GoldenFixture();
+        var validator = new FakeGoldenValidator(_ => new GoldenObservation(true, []));
+        var ruleSet = RuleSet("rules-a", validator) with { Expectations = [null!] };
+
+        _ = await Assert.ThrowsAsync<ArgumentNullException>(async () =>
+            await RunAsync(fixture, ruleSet, cancellationToken)
+        );
+    }
+
+    [Test]
+    public async Task Run_RuleSetWithNullMember_ThrowsArgumentNullException(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        using var fixture = new GoldenFixture();
+        var validator = new FakeGoldenValidator(_ => new GoldenObservation(true, []));
+        var valid = RuleSet("rules-a", validator, Expect("a", true));
+
+        _ = await Assert.ThrowsAsync<ArgumentNullException>(async () =>
+            await RunAsync(fixture, valid with { Name = null! }, cancellationToken)
+        );
+        _ = await Assert.ThrowsAsync<ArgumentNullException>(async () =>
+            await RunAsync(fixture, valid with { Validator = null! }, cancellationToken)
+        );
+        _ = await Assert.ThrowsAsync<ArgumentNullException>(async () =>
+            await RunAsync(fixture, valid with { Expectations = null! }, cancellationToken)
+        );
+    }
+
+    [Test]
+    public async Task Run_BlankRuleSetName_ThrowsArgumentException(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        using var fixture = new GoldenFixture();
+        var validator = new FakeGoldenValidator(_ => new GoldenObservation(true, []));
+        var blank = RuleSet("rules-a", validator, Expect("a", true)) with { Name = " " };
+
+        _ = await Assert.ThrowsAsync<ArgumentException>(async () => await RunAsync(fixture, blank, cancellationToken));
+    }
+
+    [Test]
+    public async Task Run_ExpectationWithNullMember_ThrowsArgumentNullException(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        using var fixture = new GoldenFixture();
+        var validator = new FakeGoldenValidator(_ => new GoldenObservation(true, []));
+
+        _ = await Assert.ThrowsAsync<ArgumentNullException>(async () =>
+            await RunAsync(
+                fixture,
+                RuleSet("rules-a", validator, Expect("a", true) with { Source = null! }),
+                cancellationToken
+            )
+        );
+        _ = await Assert.ThrowsAsync<ArgumentNullException>(async () =>
+            await RunAsync(
+                fixture,
+                RuleSet("rules-a", validator, Expect("a", true) with { ExpectedRuleIds = null! }),
+                cancellationToken
+            )
+        );
+    }
+
+    [Test]
+    public async Task Run_NullObservation_ThrowsArgumentNullException(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        using var fixture = new GoldenFixture();
+        var validator = new FakeGoldenValidator(_ => null!);
+
+        _ = await Assert.ThrowsAsync<ArgumentNullException>(async () =>
+            await RunAsync(fixture, RuleSet("rules-a", validator, Expect("a", true)), cancellationToken)
+        );
+    }
+
+    [Test]
+    public async Task Run_ObservationWithNullFiredRuleIds_ThrowsArgumentNullException(
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        using var fixture = new GoldenFixture();
+        var validator = new FakeGoldenValidator(_ => new GoldenObservation(true, []) with { FiredRuleIds = null! });
+
+        _ = await Assert.ThrowsAsync<ArgumentNullException>(async () =>
+            await RunAsync(fixture, RuleSet("rules-a", validator, Expect("a", true)), cancellationToken)
+        );
+    }
 }
