@@ -38,6 +38,9 @@ internal readonly struct ItemTypeMatcher
     /// <summary>Gets a value indicating whether every item matches.</summary>
     public bool IsAnyItem => _kind == ItemTypeKind.AnyItem;
 
+    /// <summary>Gets the type of an atomic type, or the type annotation that an element or attribute test names; <see langword="default"/> when there is none.</summary>
+    public XdmTypeId Type => _type;
+
     /// <summary>Binds an item type.</summary>
     /// <param name="itemType">The syntax of the item type.</param>
     /// <param name="context">The static context that resolves prefixes and the default namespace.</param>

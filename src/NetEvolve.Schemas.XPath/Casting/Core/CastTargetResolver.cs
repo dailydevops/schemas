@@ -31,19 +31,7 @@ internal static class CastTargetResolver
         var name = type.Name;
 
         // The binder of the item types reports an unbound prefix, a name that is not an atomic built-in type, and a version-gated type.
-        _ = ItemTypeMatcher.Bind(new AtomicType(name.Location, name), context);
-
-        var namespaceUri = string.Empty;
-        if (name.Prefix is null)
-        {
-            namespaceUri = context.DefaultElementNamespace ?? string.Empty;
-        }
-        else if (context.TryResolveNamespace(name.Prefix, out var resolved))
-        {
-            namespaceUri = resolved ?? string.Empty;
-        }
-
-        _ = XdmTypes.TryGet(namespaceUri, name.LocalName, out var id);
+        var id = ItemTypeMatcher.Bind(new AtomicType(name.Location, name), context).Type;
         if (
             id == XdmTypes.Get("anyAtomicType")
             || (
