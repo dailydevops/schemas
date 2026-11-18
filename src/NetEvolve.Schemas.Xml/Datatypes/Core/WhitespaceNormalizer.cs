@@ -103,6 +103,28 @@ internal static class WhitespaceNormalizer
         return rented.WrittenSpan;
     }
 
+    /// <summary>Applies the mode into <paramref name="scratch"/> when the changed text fits it, renting a buffer only when it does not.</summary>
+    /// <param name="source">The lexical form.</param>
+    /// <param name="mode">The whitespace mode.</param>
+    /// <param name="scratch">Caller-owned memory, typically on the stack, that backs the result of a short text.</param>
+    /// <param name="rented">The buffer that backs the result when it did not fit <paramref name="scratch"/>, <see langword="null"/> otherwise; the caller disposes it.</param>
+    /// <returns>The normalized text; it is backed by <paramref name="scratch"/> or <paramref name="rented"/> unless the source is returned.</returns>
+    internal static ReadOnlySpan<char> Apply(
+        ReadOnlySpan<char> source,
+        WhitespaceMode mode,
+        Span<char> scratch,
+        out PooledBuffer<char>? rented
+    )
+    {
+        if (source.Length <= scratch.Length && !IsNormalized(source, mode))
+        {
+            rented = null;
+            return scratch.Slice(0, Normalize(source, mode, scratch));
+        }
+
+        return Apply(source, mode, out rented);
+    }
+
     /// <summary>Maps an offset in the normalized text back to the offset in the original text.</summary>
     /// <param name="source">The original lexical form.</param>
     /// <param name="mode">The whitespace mode.</param>

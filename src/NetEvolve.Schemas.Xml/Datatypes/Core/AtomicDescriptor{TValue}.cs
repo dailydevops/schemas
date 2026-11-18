@@ -13,6 +13,8 @@ using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 /// <remarks>Limitation: a restriction may set any whitespace mode; the rule that it can only strengthen the base mode is not checked.</remarks>
 public sealed class AtomicDescriptor<TValue> : IDatatypeDescriptor<TValue>
 {
+    private const int ScratchLength = 128;
+
     private readonly ILexicalMapping<TValue> _mapping;
     private readonly bool _hasValueFacets;
 
@@ -166,7 +168,9 @@ public sealed class AtomicDescriptor<TValue> : IDatatypeDescriptor<TValue>
         failedFacet = FacetKind.None;
         offset = 0;
 
-        var normalized = WhitespaceNormalizer.Apply(lexical, Whitespace, out var rented);
+        // A lexical form that changes and is short is normalized on the stack, so the common case allocates nothing.
+        Span<char> scratch = stackalloc char[ScratchLength];
+        var normalized = WhitespaceNormalizer.Apply(lexical, Whitespace, scratch, out var rented);
         try
         {
             var error = _mapping.Check(normalized, LexicalMode, out var normalizedOffset);
