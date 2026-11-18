@@ -172,6 +172,10 @@ public class ConversionSourceTests
         await Assert.That(OtherConversions.Collapse(lexical)).IsEqualTo(expected);
 
     [Test]
+    public async Task Collapse_Guard_RejectsNull() =>
+        await Assert.That(() => OtherConversions.Collapse(null!)).Throws<ArgumentNullException>();
+
+    [Test]
     public async Task Collapse_ReturnsTheSameString_WhenNothingChanges()
     {
         var text = new string('x', 5);
