@@ -7,11 +7,14 @@ using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
-internal sealed class FakeXsltInstruction(XPathQName name) : IXsltInstruction
+internal sealed class FakeXsltInstruction(XPathQName name, XsltPosition position = XsltPosition.Instruction)
+    : IXsltInstruction
 {
     internal FakeXsltExecutable Executable { get; } = new();
 
     public XPathQName Name { get; } = name;
+
+    public XsltPosition Position { get; } = position;
 
     public bool TryCompile(XsltCompileContext context, out XsltExecutable executable, out SchematronProblem problem)
     {
