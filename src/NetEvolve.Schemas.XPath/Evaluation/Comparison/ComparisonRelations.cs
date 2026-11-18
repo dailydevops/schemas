@@ -29,11 +29,15 @@ internal static class ComparisonRelations
     }
 
     /// <summary>Tests a relation against the order of two values.</summary>
-    /// <param name="relation">The relation, a defined one.</param>
+    /// <param name="relation">The relation.</param>
     /// <param name="order">Less than zero when the first value is less, zero when both are equal, greater than zero otherwise.</param>
     /// <returns>Whether the relation holds.</returns>
-    public static bool Holds(ComparisonRelation relation, int order) =>
-        relation switch
+    /// <exception cref="System.ArgumentOutOfRangeException"><paramref name="relation"/> is not a defined relation.</exception>
+    public static bool Holds(ComparisonRelation relation, int order)
+    {
+        Check(relation);
+
+        return relation switch
         {
             ComparisonRelation.Equal => order == 0,
             ComparisonRelation.NotEqual => order != 0,
@@ -42,4 +46,5 @@ internal static class ComparisonRelations
             ComparisonRelation.GreaterThan => order > 0,
             _ => order >= 0,
         };
+    }
 }
