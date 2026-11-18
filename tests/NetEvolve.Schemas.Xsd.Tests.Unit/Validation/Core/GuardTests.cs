@@ -1,8 +1,10 @@
 namespace NetEvolve.Schemas.Xsd.Tests.Unit.Validation.Core;
 
 using System;
+using System.Reflection;
 using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
+using NetEvolve.Schemas.Xml.Text.NameTable;
 using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Diagnostics;
@@ -88,6 +90,33 @@ public class GuardTests
     [Test]
     public async Task Model_NullType_Throws() =>
         await Assert.That(() => Model.TryGetProgram(null!, out _)).Throws<ArgumentNullException>();
+
+    [Test]
+    public async Task Binding_NullModel_Throws() =>
+        await Assert.That(() => new NameBinding(null!, new SpanInterningNameTable(10))).Throws<ArgumentNullException>();
+
+    [Test]
+    public async Task Binding_NullNames_Throws() =>
+        await Assert.That(() => new NameBinding(Model, null!)).Throws<ArgumentNullException>();
+
+    [Test]
+    public async Task ModelBuilder_NullReporter_Throws()
+    {
+        var builder = typeof(ValidationModel).GetNestedType("Builder", BindingFlags.NonPublic)!;
+        var constructor = builder.GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)[0];
+
+        Exception? inner = null;
+        try
+        {
+            _ = constructor.Invoke([null]);
+        }
+        catch (TargetInvocationException ex)
+        {
+            inner = ex.InnerException;
+        }
+
+        await Assert.That(inner).IsTypeOf<ArgumentNullException>();
+    }
 
     [Test]
     public async Task Program_NullTerms_Throws() =>
