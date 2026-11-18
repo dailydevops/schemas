@@ -31,7 +31,13 @@ public class FunctionConversionTests
     private static XPathParameterType Type(XPathItemType type, Occurrence occurrence = Occurrence.ExactlyOne) =>
         new(type, occurrence);
 
-    private static XdmItem Decimal(string lexical) => XdmItem.FromDecimal(XsdDecimal.Parse(lexical).Value);
+    private static XdmItem Decimal(string lexical)
+    {
+        var parsed = XsdDecimal.Parse(lexical);
+        return parsed.Success
+            ? XdmItem.FromDecimal(parsed.Value)
+            : throw new InvalidOperationException("Not a decimal: " + lexical);
+    }
 
     private static XdmItem Moment(string lexical, XsdDateTimeKind kind) =>
         XdmItem.FromDateTime(XsdDateTime.Parse(lexical, kind, XsdVersion.V10).Value);
@@ -223,6 +229,25 @@ public class FunctionConversionTests
             "FOCA0003"
         );
 
+    // The date, time, and duration types have limits of their own (a year or a component beyond 18 digits): FODT0001 and FODT0002, as the
+    // casting table reports them, and not FORG0001, which is for a form that is not in the lexical space.
+    [Test]
+    [Arguments(nameof(XPathItemType.DateTime), "123456789012345678-01-01T00:00:00", "FODT0001")]
+    [Arguments(nameof(XPathItemType.Date), "123456789012345678-01-01", "FODT0001")]
+    [Arguments(nameof(XPathItemType.Duration), "P123456789012345678Y", "FODT0002")]
+    [Arguments(nameof(XPathItemType.YearMonthDuration), "P123456789012345678M", "FODT0002")]
+    [Arguments(nameof(XPathItemType.DayTimeDuration), "P123456789012345678D", "FODT0002")]
+    public async Task UntypedAtomic_BeyondALimitOfTheTemporalTypes_RaisesTheLimitCode(
+        string targetName,
+        string lexical,
+        string code
+    ) =>
+        await BindingHarness.AssertFails(
+            Type(Enum.Parse<XPathItemType>(targetName)),
+            One(XdmItem.FromUntypedAtomic(lexical)),
+            code
+        );
+
     // One cast path: an untyped value beyond the digit cap of the datatype layer (4,096 digits) is an implementation limit, so function
     // conversion reports what the casting table reports (#621): FOCA0001 for a decimal, a float, or a double, FOCA0003 for an integer.
 
@@ -301,7 +326,7 @@ public class FunctionConversionTests
     [Arguments("0.1")]
     [Arguments("16777217")]
     [Arguments("1.00000005960464477539062501")]
-    [Arguments("-3.4028236e38")]
+    [Arguments("-340282360000000000000000000000000000000")]
     [Arguments("123456789012345678901234567890.5")]
     public async Task Promotion_DecimalToFloat_IsTheValueOfTheCast(string lexical)
     {
