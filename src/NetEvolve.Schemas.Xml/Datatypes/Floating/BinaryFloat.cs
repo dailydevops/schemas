@@ -3,15 +3,20 @@ namespace NetEvolve.Schemas.Xml.Datatypes.Floating;
 using System;
 using System.Globalization;
 using System.Numerics;
+using NetEvolve.Schemas.Xml.Datatypes.Decimals;
 
 /// <summary>
 /// Exact conversion between decimal and binary floating point. Both directions use <see cref="BigInteger"/> arithmetic only, so the
 /// results are identical on every target framework and never depend on the runtime's own parser or formatter.
 /// </summary>
-/// <remarks>Limitation: every call uses arbitrary-precision arithmetic, there is no fast path for short inputs; the benchmarks are DT-58.</remarks>
+/// <remarks>Limitation: only <see cref="TryRound"/> is allocation-free; every other call uses arbitrary-precision arithmetic; the benchmarks are DT-58.</remarks>
 internal static class BinaryFloat
 {
     private const ulong HiddenBit = 1UL << 52;
+    private const ulong LowHalf = 0xFFFFFFFFUL;
+
+    // 10^19 is the largest power of ten that fits 64 bits; it bounds the decimal exponent of the allocation-free path.
+    private const int MaxFastExponent = 19;
 
     /// <summary>Rounds <c>mantissa x 10^exponent</c> to the nearest binary value, ties to even.</summary>
     /// <param name="mantissa">The positive mantissa.</param>
@@ -69,6 +74,54 @@ internal static class BinaryFloat
         }
 
         return e > maxExponent ? double.PositiveInfinity : Build((ulong)q, e);
+    }
+
+    /// <summary>Rounds <c>mantissa x 10^exponent</c> to the nearest binary value, ties to even, in 64-bit integer arithmetic without allocating.</summary>
+    /// <param name="mantissa">The positive mantissa.</param>
+    /// <param name="exponent">The decimal exponent.</param>
+    /// <param name="single">Round to 24 bits instead of 53; the result is still returned as the exactly equal double.</param>
+    /// <param name="result">The rounded magnitude.</param>
+    /// <returns><see langword="false"/> when the exponent is outside -19 to 19; <see cref="Round"/> then decides.</returns>
+    /// <remarks>
+    /// Within that window the value lies between 10^-19 and 2^128, far from the subnormal and overflow ranges of both types.
+    /// The mantissa is multiplied by 10^exponent exactly (128 bits), or shifted and divided by 10^-exponent so that the quotient has
+    /// at least one bit more than the precision; a remainder only adds a sticky bit.
+    /// </remarks>
+    internal static bool TryRound(ulong mantissa, int exponent, bool single, out double result)
+    {
+        result = 0.0;
+        if (exponent is < -MaxFastExponent or > MaxFastExponent)
+        {
+            return false;
+        }
+
+        var precision = single ? 24 : 53;
+        var scaled =
+            exponent >= 0
+                ? ScaleUp(mantissa, exponent, out var binaryExponent, out var sticky)
+                : ScaleDown(mantissa, -exponent, precision, out binaryExponent, out sticky);
+
+        var excess = Bits(scaled) - precision;
+        if (excess > 0)
+        {
+            var roundBit = ((scaled >> (excess - 1)) & 1) != 0;
+            sticky |= (scaled & ((1UL << (excess - 1)) - 1)) != 0;
+            scaled >>= excess;
+            binaryExponent += excess;
+            if (roundBit && (sticky || (scaled & 1) != 0))
+            {
+                scaled++;
+                if (scaled == 1UL << precision)
+                {
+                    scaled >>= 1;
+                    binaryExponent++;
+                }
+            }
+        }
+
+        // The scaled value has at most 53 bits and the exponent stays far inside the normal range, so both factors are exact.
+        result = (double)(long)scaled * BitConverter.Int64BitsToDouble((long)(binaryExponent + 1023) << 52);
+        return true;
     }
 
     /// <summary>Gets the shortest decimal digits that round-trip a finite positive value.</summary>
@@ -191,6 +244,126 @@ internal static class BinaryFloat
         exponent >= 0
             ? (BigInteger.Pow(10, exponent) * denominator).CompareTo(numerator)
             : denominator.CompareTo(numerator * BigInteger.Pow(10, -exponent));
+
+    // mantissa x 10^exponent as scaled x 2^binaryExponent plus a sticky bit for the dropped low bits; scaled has at most 64 bits.
+    private static ulong ScaleUp(ulong mantissa, int exponent, out int binaryExponent, out bool sticky)
+    {
+        Multiply(mantissa, XsdDecimal.Pow10[exponent], out var high, out var low);
+        var highBits = Bits(high);
+        if (highBits == 0)
+        {
+            binaryExponent = 0;
+            sticky = false;
+            return low;
+        }
+
+        // Keep the top 64 bits of the 64 + highBits bit product; the rest only decides ties.
+        binaryExponent = highBits;
+        sticky = (highBits == 64 ? low : low & ((1UL << highBits) - 1)) != 0;
+        return highBits == 64 ? high : (high << (64 - highBits)) | (low >> highBits);
+    }
+
+    // mantissa / 10^exponent as scaled x 2^binaryExponent plus a sticky bit for the remainder; scaled has at least precision + 1 bits.
+    private static ulong ScaleDown(ulong mantissa, int exponent, int precision, out int binaryExponent, out bool sticky)
+    {
+        var divisor = XsdDecimal.Pow10[exponent];
+        var shift = Math.Max(0, precision + 1 - (Bits(mantissa) - Bits(divisor)));
+        ulong high;
+        ulong low;
+        if (shift == 0)
+        {
+            high = 0;
+            low = mantissa;
+        }
+        else if (shift < 64)
+        {
+            high = mantissa >> (64 - shift);
+            low = mantissa << shift;
+        }
+        else
+        {
+            high = mantissa << (shift - 64);
+            low = 0;
+        }
+
+        var quotient = Divide(high, low, divisor, out var remainder);
+        binaryExponent = -shift;
+        sticky = remainder != 0;
+        return quotient;
+    }
+
+    // The 128-bit product of two 64-bit values.
+    private static void Multiply(ulong a, ulong b, out ulong high, out ulong low)
+    {
+        var a0 = a & LowHalf;
+        var a1 = a >> 32;
+        var b0 = b & LowHalf;
+        var b1 = b >> 32;
+        var p00 = a0 * b0;
+        var p01 = a0 * b1;
+        var p10 = a1 * b0;
+        var middle = (p00 >> 32) + (p01 & LowHalf) + (p10 & LowHalf);
+        low = (p00 & LowHalf) | (middle << 32);
+        high = (a1 * b1) + (p01 >> 32) + (p10 >> 32) + (middle >> 32);
+    }
+
+    // Divides the 128-bit value high:low by divisor; the quotient is known to fit 64 bits.
+    private static ulong Divide(ulong high, ulong low, ulong divisor, out ulong remainder)
+    {
+        if (high == 0)
+        {
+            remainder = low % divisor;
+            return low / divisor;
+        }
+
+        ulong quotient = 0;
+        ulong rest = 0;
+        for (var i = 63 + Bits(high); i >= 0; i--)
+        {
+            var bit = i >= 64 ? (high >> (i - 64)) & 1 : (low >> i) & 1;
+            var carry = rest >> 63;
+            rest = (rest << 1) | bit;
+            quotient <<= 1;
+            if (carry != 0 || rest >= divisor)
+            {
+                rest -= divisor;
+                quotient |= 1;
+            }
+        }
+
+        remainder = rest;
+        return quotient;
+    }
+
+    private static int Bits(ulong value)
+    {
+        var bits = 0;
+        if (value >= 1UL << 32)
+        {
+            bits = 32;
+            value >>= 32;
+        }
+
+        if (value >= 1UL << 16)
+        {
+            bits += 16;
+            value >>= 16;
+        }
+
+        if (value >= 1UL << 8)
+        {
+            bits += 8;
+            value >>= 8;
+        }
+
+        while (value != 0)
+        {
+            bits++;
+            value >>= 1;
+        }
+
+        return bits;
+    }
 
     private static int BitLength(BigInteger value)
     {

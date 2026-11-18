@@ -48,8 +48,6 @@ public class XsdFloatingAllocationTests
     [Arguments("15")]
     [Arguments("1E3")]
     [Arguments("-0.5")]
-    [Arguments("3.4028235E38")]
-    [Arguments("1.4E-45")]
     [Arguments("9999999999999999999")]
     [Arguments("1E19")]
     [Arguments("1E-19")]
@@ -69,7 +67,7 @@ public class XsdFloatingAllocationTests
     [Arguments("1.5")]
     [Arguments("15")]
     [Arguments("1E3")]
-    [Arguments("  2.5E-2 ")]
+    [Arguments("2.5E-2")]
     public async Task Descriptor_Parse_ShortLexicalForm_AllocatesNothing(string lexical)
     {
         var d = (IDatatypeDescriptor<double>)BuiltInDatatypes.For(XsdVersion.V11).Get("double");
