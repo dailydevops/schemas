@@ -18,9 +18,8 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// Limitation: only string, boolean, integer, and decimal values have a text form here. Untyped atomic and URI values would
 /// convert as their string, but the XPath package keeps both kinds internal, so no test of this package can build one and an
 /// arm for them would stay uncovered; they wait with double, float, and the remaining kinds for the XPath casting rules, which
-/// the XPath package does not offer yet (#624). All of them record a <see cref="Failure"/>
-/// instead of a guessed lexical form. The date, time, and duration kinds already convert in the XSLT
-/// <c>AtomicText</c> converter (#562); this sink has its own conversion only because the Assertions namespace must not depend
+/// the XPath package does not offer yet (#624). All of them record a <see cref="Failure"/> instead of a guessed lexical form. The date, time, and duration kinds
+/// already convert in the XSLT <c>AtomicText</c> converter (#562); this sink has its own conversion only because the Assertions namespace must not depend
 /// on <c>Xslt.Construction</c> (design #137 AP-14, #150 EP-8), so those kinds record a <see cref="Failure"/> here until the
 /// converter moves to a neutral location. Not thread-safe.
 /// </remarks>
@@ -149,11 +148,7 @@ internal sealed class TextSink : ISequenceSink, IDisposable
     }
 
     private static bool HasTextForm(in XdmItem item) =>
-        item.Kind
-            is XdmItemKind.XsString
-                or XdmItemKind.Boolean
-                or XdmItemKind.XsInteger
-                or XdmItemKind.XsDecimal;
+        item.Kind is XdmItemKind.XsString or XdmItemKind.Boolean or XdmItemKind.XsInteger or XdmItemKind.XsDecimal;
 
     private void AppendAtomic(in XdmItem item)
     {
