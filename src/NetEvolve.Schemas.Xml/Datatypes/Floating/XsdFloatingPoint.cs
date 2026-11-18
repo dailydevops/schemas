@@ -8,7 +8,8 @@ using NetEvolve.Schemas.Xml.Datatypes.Decimals;
 
 /// <summary>Framework-independent parsing and canonical output of <c>xs:float</c> and <c>xs:double</c> (XSD 1.1 Part 2, sections 3.3.4 and 3.3.5).</summary>
 /// <remarks>
-/// Parsing is correctly rounded (ties to even) and overflow becomes infinity. Limitations: the mantissa is scanned by
+/// Parsing is correctly rounded (ties to even) and overflow becomes infinity. A mantissa that fits 64 bits with a decimal exponent of at
+/// most 19 in magnitude is rounded without allocating; every other form uses <see cref="BigInteger"/> arithmetic. Limitations: the mantissa is scanned by
 /// <see cref="XsdDecimal"/>, so it is capped at <see cref="XsdDecimal.DefaultMaxDigits"/> digits (DT0010); an exponent beyond
 /// 1,000,000 saturates, which cannot change the result because it lies far outside the range of both types. The canonical form is the
 /// shortest decimal string that round-trips, and of the shortest candidates the one nearest to the value.
@@ -104,12 +105,24 @@ public static class XsdFloatingPoint
             }
         }
 
-        var magnitude =
-            mantissa.Value.Sign == 0
-                ? 0.0
-                : BinaryFloat.Round(BigInteger.Abs(mantissa.Value.Mantissa), exponent - mantissa.Value.Scale, single);
+        var magnitude = Magnitude(mantissa.Value, exponent, single);
         value = lexical.Length > 0 && lexical[0] == '-' ? -magnitude : magnitude;
         return DatatypeError.None;
+    }
+
+    private static double Magnitude(XsdDecimal mantissa, int exponent, bool single)
+    {
+        if (mantissa.Sign == 0)
+        {
+            return 0.0;
+        }
+
+        var scaleExponent = exponent - mantissa.Scale;
+        return
+            mantissa.TryGetInlineMagnitude(out var inline)
+            && BinaryFloat.TryRound(inline, scaleExponent, single, out var fast)
+            ? fast
+            : BinaryFloat.Round(BigInteger.Abs(mantissa.Mantissa), scaleExponent, single);
     }
 
     private static DatatypeError ParseExponent(ReadOnlySpan<char> lexical, int start, out int exponent, out int offset)
