@@ -16,6 +16,8 @@ public class EntityExpansionTests
     [Arguments("<!ENTITY e \"<!-- c --><?p d?>t\">", "<a>&e;</a>", "<a|'t'|/a")]
     [Arguments("<!ENTITY e \"<![CDATA[<x]]>\">", "<a>&e;</a>", "<a|'<x'|/a")]
     [Arguments("<!ENTITY e \"a\r\nb\">", "<a>&e;</a>", "<a|'a\nb'|/a")]
+    [Arguments("<!ENTITY e \"<p:b/>\">", "<a xmlns:p=\"u\">&e;</a>", "<a|<b|/b|/a")]
+    [Arguments("<!ENTITY e \"<b xmlns='u'><c/></b>\">", "<a>&e;<c/></a>", "<a|<b|<c|/c|/b|<c|/c|/a")]
     public async Task Content_InternalEntity_IsExpanded(string declarations, string content, string expected)
     {
         ArgumentNullException.ThrowIfNull(declarations);

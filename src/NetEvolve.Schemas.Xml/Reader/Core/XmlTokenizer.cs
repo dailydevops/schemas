@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.Xml.Reader.Core;
 
 using System;
 using System.Runtime.InteropServices;
+using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Reader.Declaration;
 using NetEvolve.Schemas.Xml.Text.CharClasses;
@@ -94,6 +95,16 @@ internal partial struct XmlTokenizer
         _tokenPosition = default;
         _diagnostic = null;
         _doctype = default;
+    }
+
+    /// <summary>Creates a tokenizer for the replacement text of an entity (production 43): content from its first character.</summary>
+    /// <param name="limits">The limits.</param>
+    /// <returns>A tokenizer that expects neither a byte order mark nor an XML declaration, rejects a document type declaration, and turns references to other entities into tokens.</returns>
+    internal static XmlTokenizer ForReplacementText(XmlReaderLimits limits)
+    {
+        Argument.ThrowIfNull(limits);
+
+        return new XmlTokenizer(limits, false, true) { _bomPending = false, _atStart = false };
     }
 
     /// <summary>Gets the position of the next unconsumed character; a leading byte order mark is not counted.</summary>

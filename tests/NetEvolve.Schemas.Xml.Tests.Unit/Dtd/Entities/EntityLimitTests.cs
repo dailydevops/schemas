@@ -57,7 +57,7 @@ public class EntityLimitTests
             ExponentialDocument(10).AsSpan(),
             XmlReaderOptions.Default.WithDtdProcessing(true)
         );
-        var sink = new CountingSink(new SpanInterningNameTable(XmlReaderLimits.Default.MaxDistinctNames));
+        var sink = new CountingXmlSink(new SpanInterningNameTable(XmlReaderLimits.Default.MaxDistinctNames));
 
         var status = reader.Pump(ref sink);
 
@@ -155,34 +155,5 @@ public class EntityLimitTests
 
         await Assert.That(run.Code).IsNull();
         await Assert.That(run.Events).IsEqualTo("<a|'xxx'|/a");
-    }
-
-    private sealed class CountingSink(XmlNameTable names) : IXmlSink
-    {
-        public XmlNameTable Names { get; } = names;
-
-        public long Characters { get; private set; }
-
-        public void StartDocument(in XmlDeclaration declaration) { }
-
-        public void EndDocument() { }
-
-        public void StartElement(XmlName name, XmlPosition position) { }
-
-        public void NamespaceDeclaration(XmlSymbol prefix, XmlSymbol uri) { }
-
-        public void Attribute(XmlName name, ReadOnlySpan<char> value) { }
-
-        public void EndAttributes() { }
-
-        public void EndElement(XmlName name) { }
-
-        public void Text(ReadOnlySpan<char> text, XmlTextKind kind) => Characters += text.Length;
-
-        public void Comment(ReadOnlySpan<char> text) { }
-
-        public void ProcessingInstruction(XmlSymbol target, ReadOnlySpan<char> data) { }
-
-        public void Doctype(in XmlDoctypeInfo doctype) { }
     }
 }

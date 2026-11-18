@@ -1,7 +1,13 @@
 namespace NetEvolve.Schemas.Xml.Tests.Unit.Dtd.Entities;
 
 using System;
+using System.Text;
 using NetEvolve.Schemas.Xml.Contracts;
+using NetEvolve.Schemas.Xml.Dtd.Declarations;
+using NetEvolve.Schemas.Xml.Reader.EntityInput;
+using NetEvolve.Schemas.Xml.Reader.Pipeline;
+using NetEvolve.Schemas.Xml.Tests.Unit.Reader.Core;
+using NetEvolve.Schemas.Xml.Text.NameTable;
 
 /// <summary>The entity input stack (design #108, AP20): frames over replacement text, outer positions, and state restore.</summary>
 public class EntityStackTests
@@ -85,5 +91,65 @@ public class EntityStackTests
         var run = EntityHarness.Read("<!DOCTYPE a [<!ENTITY e \"<b/><b/><b/>\">]><a>&e;</a>", limits);
 
         await Assert.That(run.Code).IsEqualTo("XML1108");
+    }
+
+    private static ReaderRun RunSplit(string xml, int split)
+    {
+        var limits = XmlReaderLimits.Default;
+        var handler = new DtdDoctypeHandler(limits);
+
+        return ReaderHarness.Run(xml, split: split, doctype: handler, stack: new XmlEntityInputStack(limits, handler));
+    }
+
+    [Test]
+    [Arguments(
+        "<!DOCTYPE a [<!ENTITY v \"v&w;\"><!ENTITY w \"w\"><!ENTITY m \"<b x='&v;'>t&v;</b>\">]>"
+            + "<a x=\"&v;\" y='[&w;]'>pre&m;&amp;&#65;<!-- c -->&v;<![CDATA[&m;]]></a>"
+    )]
+    [Arguments("<!DOCTYPE a [<!ENTITY e \"<b>\">]><a>&e;</a>")]
+    [Arguments("<!DOCTYPE a [<!ENTITY e \"&e;\">]><a x=\"&e;\"/>")]
+    [Arguments("<!DOCTYPE a [<!ENTITY e \"x\">]><a>&f;</a>")]
+    public async Task EntityStack_SplitAtEveryOffset_GivesTheSameEventsAndDiagnostic(string xml)
+    {
+        ArgumentNullException.ThrowIfNull(xml);
+        var expected = RunSplit(xml, -1);
+
+        for (var split = 0; split <= xml.Length; split++)
+        {
+            await Assert.That(RunSplit(xml, split)).IsEqualTo(expected);
+        }
+    }
+
+    // The characters and the references of a document with `count` references; everything else is constant.
+    private static long Allocated(int count)
+    {
+        var xml =
+            "<!DOCTYPE a [<!ENTITY e \"<b/>text\"><!ENTITY v \"value\">]><a x=\""
+            + new StringBuilder().Insert(0, "&v;", count)
+            + "\">"
+            + new StringBuilder().Insert(0, "&e;", count)
+            + "</a>";
+        var options = XmlReaderOptions.Default.WithDtdProcessing(true);
+        var sink = new CountingXmlSink(new SpanInterningNameTable(XmlReaderLimits.Default.MaxDistinctNames));
+        using var reader = XmlPipelineReader.Create(xml.AsSpan(), options);
+
+        var before = GC.GetAllocatedBytesForCurrentThread();
+        var status = reader.Pump(ref sink);
+
+        return status == XmlReadStatus.Completed
+            ? GC.GetAllocatedBytesForCurrentThread() - before
+            : throw new InvalidOperationException("The document must be read to the end.");
+    }
+
+    [Test]
+    public async Task EntityStack_ExpansionAllocatesNothingPerReference()
+    {
+        _ = Allocated(10);
+        _ = Allocated(1000);
+
+        var few = Allocated(10);
+        var many = Allocated(1000);
+
+        await Assert.That(many - few).IsLessThanOrEqualTo(0);
     }
 }

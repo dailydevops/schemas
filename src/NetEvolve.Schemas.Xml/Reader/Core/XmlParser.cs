@@ -14,9 +14,14 @@ using NetEvolve.Schemas.Xml.Namespaces;
 /// <remarks>
 /// Input arrives through <see cref="Feed"/>; <see cref="Pump{TSink}"/> consumes it and returns
 /// <see cref="XmlReadStatus.NeedMoreData"/> after keeping the unconsumed tail. A chunk is used in place until a tail has to be
-/// kept. Limitations: the document type declaration is rejected with <c>XML2001</c> unless a doctype handler is installed
-/// (deviation from XML 1.0 section 5.1); a reference to another entity is <c>XML0008</c> (the entity input stack seam
-/// cannot expand yet); white space outside the root element is not reported; <c>MaxNodeCount</c> counts elements,
+/// kept. An entity reference that the entity input stack accepts is read as a frame over the outer input: content frames
+/// run the tokenizer over the replacement text (balanced, no construct spans the frame end), attribute value frames are
+/// walked by section 3.3.3, and frame characters never advance the outer position. Limitations: the document type
+/// declaration is rejected with <c>XML2001</c> unless a doctype handler is installed (deviation from XML 1.0 section 5.1);
+/// a reference to another entity is <c>XML0008</c> without an entity input stack; a diagnostic inside a frame carries the
+/// outer reference position but not the frame depth (<see cref="XmlDiagnostic"/> has no such member, #646); the
+/// replacement text is read with line end normalization, so a carriage return written as a character reference in an
+/// entity value reads as a line feed (#645); white space outside the root element is not reported; <c>MaxNodeCount</c> counts elements,
 /// attributes, comments, processing instructions, and coalesced text runs (not namespace declarations); an unclosed
 /// element at the end of the input is <c>XML0001</c> and a missing root is <c>XML0012</c>. An exception thrown by a sink
 /// propagates and leaves the parser unusable. Not thread-safe.
@@ -73,7 +78,7 @@ internal sealed partial class XmlParser : IXmlReader, IDisposable
     }
 
     /// <inheritdoc />
-    public XmlPosition Position => _tokenizer.Position;
+    public XmlPosition Position => _frameCount > 0 ? _referencePosition : _tokenizer.Position;
 
     /// <inheritdoc />
     public XmlDiagnostic? Diagnostic => _diagnostic;
@@ -100,57 +105,57 @@ internal sealed partial class XmlParser : IXmlReader, IDisposable
     public XmlReadStatus Pump<TSink>(ref TSink sink)
         where TSink : IXmlSink
     {
-        if (_diagnostic is not null)
+        if (!TryStart(sink.Names, out var early))
         {
-            return XmlReadStatus.Error;
-        }
-
-        if (_phase == Phase.Done)
-        {
-            return XmlReadStatus.Completed;
-        }
-
-        if (_scope is null && !Initialize(sink.Names))
-        {
-            return XmlReadStatus.Error;
+            return early;
         }
 
         var fromCarry = _carry.Length > 0;
         var pos = 0;
         while (true)
         {
-            var span = (fromCarry ? _carry.WrittenSpan : _chunk.Span).Slice(pos);
-            var before = _tokenizer.Position;
-            var status = _tokenizer.Next(span, _isFinal, out var token, out var consumed);
-            if (status == XmlTokenStatus.Error)
-            {
-                _diagnostic = _tokenizer.Diagnostic;
-                return XmlReadStatus.Error;
-            }
-
-            var after = _tokenizer.Position;
-            if (!_documentCharacters.TryCharge(after.CharOffset - before.CharOffset))
-            {
-                _ = Fail(XmlErrorCodes.XML1101, after);
-                return XmlReadStatus.Error;
-            }
-
-            var startsTag = status == XmlTokenStatus.Token && token.Kind == XmlTokenKind.StartTagName;
-            if ((_inTag || startsTag) && !ChargeStartTag(startsTag, consumed, after))
+            // While a frame is open the tokenizer reads its replacement text, which is final by itself.
+            var inFrame = _frameCount > 0;
+            var span = inFrame ? FrameSpan() : (fromCarry ? _carry.WrittenSpan : _chunk.Span).Slice(pos);
+            if (!Tokenize(span, inFrame, out var status, out var token, out var consumed))
             {
                 return XmlReadStatus.Error;
             }
 
-            pos += consumed;
+            if (inFrame)
+            {
+                _frames[_frameCount - 1].Offset += consumed;
+            }
+            else
+            {
+                pos += consumed;
+            }
+
             if (status == XmlTokenStatus.NeedMoreData)
             {
+                if (inFrame)
+                {
+                    _ = Fail(XmlErrorCodes.XML0001, _referencePosition);
+                    return XmlReadStatus.Error;
+                }
+
                 KeepTail(fromCarry, pos);
                 return XmlReadStatus.NeedMoreData;
             }
 
             if (status == XmlTokenStatus.End)
             {
-                return Finish(ref sink) ? XmlReadStatus.Completed : XmlReadStatus.Error;
+                if (!inFrame)
+                {
+                    return Finish(ref sink) ? XmlReadStatus.Completed : XmlReadStatus.Error;
+                }
+
+                if (!PopFrame())
+                {
+                    return XmlReadStatus.Error;
+                }
+
+                continue;
             }
 
             if (!Handle(ref sink, in token, span))
@@ -158,6 +163,53 @@ internal sealed partial class XmlParser : IXmlReader, IDisposable
                 return XmlReadStatus.Error;
             }
         }
+    }
+
+    // False with the status to return when the parser has already failed or finished, or cannot take the name table.
+    private bool TryStart(XmlNameTable names, out XmlReadStatus status)
+    {
+        status = XmlReadStatus.Error;
+        if (_diagnostic is not null)
+        {
+            return false;
+        }
+
+        if (_phase == Phase.Done)
+        {
+            status = XmlReadStatus.Completed;
+            return false;
+        }
+
+        return _scope is not null || Initialize(names);
+    }
+
+    // One tokenizer step with the budgets charged for it; false when a diagnostic was set.
+    private bool Tokenize(
+        ReadOnlySpan<char> span,
+        bool inFrame,
+        out XmlTokenStatus status,
+        out XmlToken token,
+        out int consumed
+    )
+    {
+        var before = _tokenizer.Position;
+        status = _tokenizer.Next(span, inFrame || _isFinal, out token, out consumed);
+        if (status == XmlTokenStatus.Error)
+        {
+            var failure = _tokenizer.Diagnostic!;
+            return Fail(failure.Code, failure.Position);
+        }
+
+        var after = _tokenizer.Position;
+
+        // Frame characters are charged to the expansion budget when the frame opens, not to the document.
+        if (!inFrame && !_documentCharacters.TryCharge(after.CharOffset - before.CharOffset))
+        {
+            return Fail(XmlErrorCodes.XML1101, after);
+        }
+
+        var startsTag = status == XmlTokenStatus.Token && token.Kind == XmlTokenKind.StartTagName;
+        return !(_inTag || startsTag) || ChargeStartTag(startsTag, consumed, after);
     }
 
     /// <summary>Returns the buffers.</summary>
@@ -223,7 +275,7 @@ internal sealed partial class XmlParser : IXmlReader, IDisposable
     private bool Handle<TSink>(ref TSink sink, in XmlToken token, ReadOnlySpan<char> span)
         where TSink : IXmlSink
     {
-        var position = _tokenizer.TokenPosition;
+        var position = _frameCount > 0 ? _referencePosition : _tokenizer.TokenPosition;
         if (_phase == Phase.Start && StartDocument(ref sink, in token, span))
         {
             return true;
@@ -256,7 +308,7 @@ internal sealed partial class XmlParser : IXmlReader, IDisposable
                     ? AppendValue(InlineSpan(in token), position)
                     : EmitText(ref sink, InlineSpan(in token), XmlTextKind.Reference, false, position);
             case XmlTokenKind.EntityReference:
-                return Fail(_entityStack?.Enter(token.First(span), position) ?? XmlErrorCodes.XML0008, position);
+                return EnterEntity(token.First(span), position);
             case XmlTokenKind.CDataStart:
                 return _phase == Phase.Content || Fail(XmlErrorCodes.XML0018, position);
             case XmlTokenKind.CData:
@@ -287,6 +339,7 @@ internal sealed partial class XmlParser : IXmlReader, IDisposable
             return false;
         }
 
+        _standalone = token.Char0 == 'y';
         var declaration = new XmlDeclaration(
             token.First(span),
             token.Second(span),
@@ -457,9 +510,10 @@ internal sealed partial class XmlParser : IXmlReader, IDisposable
     private static XmlErrorCode NameTableError(XmlNameTableStatus status) =>
         status == XmlNameTableStatus.Frozen ? XmlErrorCodes.XML1116 : XmlErrorCodes.XML1111;
 
+    // An error inside a frame carries the position of the outer reference, never a position inside the replacement text.
     private bool Fail(XmlErrorCode code, XmlPosition position)
     {
-        _diagnostic = new XmlDiagnostic(code, position);
+        _diagnostic = new XmlDiagnostic(code, _frameCount > 0 ? _referencePosition : position);
         return false;
     }
 }
