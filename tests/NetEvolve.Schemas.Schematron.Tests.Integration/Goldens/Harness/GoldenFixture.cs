@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.Schematron.Tests.Integration.Goldens.Harness;
 
 using System.IO.Compression;
 using System.Security.Cryptography;
+using NetEvolve.Arguments;
 using NetEvolve.Schemas.Conformance.Fetch;
 using NetEvolve.Schemas.Conformance.Manifest;
 
@@ -43,7 +44,11 @@ internal sealed class GoldenFixture : IDisposable
 
     public GoldenCorpus Corpus => new([Manifest], Fetcher);
 
-    public static GoldenDocumentSource Source(string name) => new(SuiteKey, $"docs/{name}.xml");
+    public static GoldenDocumentSource Source(string name)
+    {
+        Argument.ThrowIfNullOrWhiteSpace(name);
+        return new(SuiteKey, $"docs/{name}.xml");
+    }
 
     public void Dispose() => Directory.Delete(_cache, recursive: true);
 

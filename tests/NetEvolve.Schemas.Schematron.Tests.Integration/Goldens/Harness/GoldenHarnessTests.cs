@@ -270,8 +270,10 @@ public class GoldenHarnessTests
         using var fixture = new GoldenFixture();
         var validator = new FakeGoldenValidator(_ => new GoldenObservation(true, []));
 
+        var blankId = Expect("a", true) with { ExpectedRuleIds = [" "] };
+
         _ = await Assert.ThrowsAsync<ArgumentException>(async () =>
-            await RunAsync(fixture, RuleSet("rules-a", validator, Expect("a", true, " ")), cancellationToken)
+            await RunAsync(fixture, RuleSet("rules-a", validator, blankId), cancellationToken)
         );
     }
 }

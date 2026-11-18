@@ -49,6 +49,7 @@ internal sealed class GoldenCorpus
     public void EnsurePinned(GoldenDocumentSource source)
     {
         Argument.ThrowIfNull(source);
+        Argument.ThrowIfNullOrWhiteSpace(source.SuiteKey);
         if (!_manifests.ContainsKey(source.SuiteKey))
         {
             throw new GoldenSourceException(
@@ -73,6 +74,7 @@ internal sealed class GoldenCorpus
     public async Task<GoldenDocument> ResolveAsync(GoldenDocumentSource source, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
+        Argument.ThrowIfNull(source);
         EnsurePinned(source);
         var root = await _fetcher.FetchAsync(_manifests[source.SuiteKey], cancellationToken);
         var path = Path.GetFullPath(Path.Combine(root, source.Path));
