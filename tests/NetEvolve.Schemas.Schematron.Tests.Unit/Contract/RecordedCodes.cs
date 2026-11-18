@@ -3,7 +3,7 @@ namespace NetEvolve.Schemas.Schematron.Tests.Unit.Contract;
 using System.Collections.Generic;
 
 /// <summary>
-/// The recorded code table of design #137 AP-24, plus NES3502 from the decision recorded on #180. A rename, removal,
+/// The recorded code table of design #137 AP-24, plus NES3502 from the decision recorded on #180 and NES3503 from design #150 EP-16 (added by #249, the first consumer). A rename, removal,
 /// renumbering, or addition fails the catalog tests until this table is changed deliberately.
 /// </summary>
 internal static class RecordedCodes
@@ -50,5 +50,6 @@ internal static class RecordedCodes
         new("SvrlBufferLimit", 3500, "SCH-SVRL-BUFFER-LIMIT", Output, "evaluate"),
         new("NoActivePattern", 3501, "SCH-NO-ACTIVE-PATTERN", Output, "evaluate"),
         new("IssueLimitStop", 3502, "SCH-ISSUE-LIMIT-STOP", Output, "evaluate"),
+        new("EvaluationLimitStop", 3503, "SCH-EVAL-LIMIT-STOP", Output, "evaluate"),
     ];
 }

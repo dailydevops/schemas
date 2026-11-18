@@ -96,7 +96,7 @@ internal static class XsltElementResolver
         : text.Length == 0 ? description
         : text + " or " + description;
 
-    private static DocumentLocation LocationOf(XPathNode element, string? moduleSystemId)
+    internal static DocumentLocation LocationOf(XPathNode element, string? moduleSystemId)
     {
         var position = element.Tree is XmlDocumentTree tree ? tree.GetPosition(element.Node.Index) : default;
         return new DocumentLocation(
