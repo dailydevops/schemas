@@ -1,5 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Casting.Other;
 
+using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.Binary;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xml.Datatypes.Core;
@@ -133,6 +134,8 @@ internal static class OtherConversions
     // The lexical form with the whitespace of the whiteSpace facet collapse; the string itself when nothing changes.
     internal static string Collapse(string lexical)
     {
+        Argument.ThrowIfNull(lexical);
+
         if (WhitespaceNormalizer.IsNormalized(lexical.AsSpan(), WhitespaceMode.Collapse))
         {
             return lexical;
