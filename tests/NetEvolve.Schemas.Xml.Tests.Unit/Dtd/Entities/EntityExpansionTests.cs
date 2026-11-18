@@ -182,4 +182,24 @@ public class EntityExpansionTests
         await Assert.That(run.Code).IsNull();
         await Assert.That(run.Events).IsEqualTo("<doc|@a=x  y|/doc");
     }
+
+    // A comment or processing instruction inside the replacement text is not normalized again either (#645).
+    [Test]
+    [Arguments("<!ENTITY e \"<!--a&#13;b-->\">", XmlEventKind.Comment, "a\rb")]
+    [Arguments("<!ENTITY e \"<!--a&#13;&#10;b-->\">", XmlEventKind.Comment, "a\r\nb")]
+    [Arguments("<!ENTITY e \"<!--a\r\nb-->\">", XmlEventKind.Comment, "a\nb")]
+    [Arguments("<!ENTITY e \"<?p a&#13;b?>\">", XmlEventKind.ProcessingInstruction, "a\rb")]
+    [Arguments("<!ENTITY e \"<?p a\r\nb?>\">", XmlEventKind.ProcessingInstruction, "a\nb")]
+    public async Task Content_CarriageReturnInACommentOrProcessingInstruction_IsKept(
+        string declarations,
+        XmlEventKind kind,
+        string expected
+    )
+    {
+        ArgumentNullException.ThrowIfNull(declarations);
+
+        var text = EntityHarness.FirstTextOf($"<!DOCTYPE doc [{declarations}]><doc>&e;</doc>", kind);
+
+        await Assert.That(text).IsEqualTo(expected);
+    }
 }

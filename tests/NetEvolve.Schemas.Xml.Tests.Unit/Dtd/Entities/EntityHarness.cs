@@ -31,6 +31,23 @@ internal static class EntityHarness
         return new EntityRun(status, reader.Diagnostic?.Code.Alias, reader.Diagnostic?.Position, Dump(sink), positions);
     }
 
+    /// <summary>Reads the document and returns the text of the first event of the given kind (a comment or a processing instruction).</summary>
+    internal static string? FirstTextOf(string xml, XmlEventKind kind)
+    {
+        using var reader = XmlPipelineReader.Create(xml.AsSpan(), OptIn);
+        var sink = new RecordingXmlSink(new SpanInterningNameTable(XmlReaderLimits.Default.MaxDistinctNames));
+        _ = reader.Pump(ref sink);
+        foreach (var e in sink.Events)
+        {
+            if (e.Kind == kind)
+            {
+                return e.Text;
+            }
+        }
+
+        return null;
+    }
+
     private static string Dump(RecordingXmlSink sink)
     {
         var parts = new List<string>();
