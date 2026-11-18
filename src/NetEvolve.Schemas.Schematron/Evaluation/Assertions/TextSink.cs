@@ -16,8 +16,11 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// </summary>
 /// <remarks>
 /// Limitation: only string, untyped atomic, URI, boolean, integer, and decimal values have a text form here. Double, float,
-/// date and time, duration, and the remaining kinds need the XPath casting rules, which the XPath package does not offer yet, so
-/// they record a <see cref="Failure"/> instead of a guessed lexical form. Not thread-safe.
+/// and the remaining kinds need the XPath casting rules, which the XPath package does not offer yet, so they record a
+/// <see cref="Failure"/> instead of a guessed lexical form. The date, time, and duration kinds already convert in the XSLT
+/// <c>AtomicText</c> converter (#562); this sink has its own conversion only because the Assertions namespace must not depend
+/// on <c>Xslt.Construction</c> (design #137 AP-14, #150 EP-8), so those kinds record a <see cref="Failure"/> here until the
+/// converter moves to a neutral location. Not thread-safe.
 /// </remarks>
 internal sealed class TextSink : ISequenceSink, IDisposable
 {
@@ -254,6 +257,12 @@ internal sealed class TextSink : ISequenceSink, IDisposable
         var room = _maxLength - _length;
         if (text.Length > room)
         {
+            // A cut between a high and a low surrogate would leave a lone high surrogate, so the pair goes whole.
+            if (room > 0 && char.IsHighSurrogate(text[room - 1]) && char.IsLowSurrogate(text[room]))
+            {
+                room--;
+            }
+
             text = text.Slice(0, room);
             IsTruncated = true;
         }

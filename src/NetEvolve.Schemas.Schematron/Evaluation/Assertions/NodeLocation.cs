@@ -10,7 +10,9 @@ using NetEvolve.Schemas.XPath.Xdm.Nodes;
 /// <remarks>
 /// Limitations: the Xml package records positions for elements only, so an attribute, text, comment, or processing instruction
 /// node reports the position of its parent element, and a document node reports 0, 0. The location path is built recursively, so
-/// its depth is bounded by the nesting depth that the reader limits.
+/// its depth is bounded by the nesting depth that the reader limits. Each step counts its preceding siblings, so reporting every
+/// child of one parent costs O(n²) in the child count; the path of a rare report is cheap, and a cached sibling index is the
+/// upgrade when a schema reports on very wide parents.
 /// </remarks>
 internal static class NodeLocation
 {
