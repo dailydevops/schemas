@@ -58,7 +58,7 @@ internal sealed class AssertionTestBinding : IQueryBinding
         }
 
         var slots = new List<int>();
-        if (source.StartsWith('$'))
+        if (source.Length > 0 && source[0] == '$')
         {
             var slot = Resolve(scope, source.Substring(1));
             if (slot < 0)
