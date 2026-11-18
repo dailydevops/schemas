@@ -405,6 +405,46 @@ public class FunctionCompileTests
     }
 
     [Test]
+    public async Task Compile_Failure_ReturnsFalseWithADefaultProblemBecauseEveryProblemIsAlreadyReported()
+    {
+        var fixture = Create();
+        var node = Declaration(Function("f:s", "xs:nothing", 10, Sequence("$b", 11)));
+        var context = new XsltCompileContext(
+            node,
+            fixture.FunctionScope,
+            static _ => null,
+            fixture.Problems,
+            fixture.Binding,
+            (child, scope) => fixture.Compile(child, scope, XsltPosition.Instruction)
+        );
+
+        var compiled = new XsltFunctionInstruction().TryCompile(context, out _, out var problem);
+
+        await Assert.That(compiled).IsFalse();
+        await Assert.That(problem.Code).IsEqualTo(default(DiagnosticCode));
+        await Assert.That(Codes(fixture.Problems)).IsEqualTo("NES3202/XPST0051,NES3300/XPST0008");
+    }
+
+    [Test]
+    public async Task Compile_WithoutABinding_IsAProgrammingError()
+    {
+        var fixture = Create();
+        var node = Declaration(Function("f:s", null, 10, Sequence("1", 11)));
+        var context = new XsltCompileContext(
+            node,
+            fixture.FunctionScope,
+            static _ => null,
+            fixture.Problems,
+            null,
+            (child, scope) => fixture.Compile(child, scope, XsltPosition.Instruction)
+        );
+
+        await Assert
+            .That(() => new XsltFunctionInstruction().TryCompile(context, out _, out _))
+            .Throws<InvalidOperationException>();
+    }
+
+    [Test]
     public async Task Component_Guards_RejectNullArguments()
     {
         await Assert.That(() => new XsltFunctionTableBuilder().TryAdd(null!, 0, out _)).Throws<ArgumentNullException>();
