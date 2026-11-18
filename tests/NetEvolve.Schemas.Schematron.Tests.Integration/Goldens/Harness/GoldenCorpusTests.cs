@@ -94,6 +94,44 @@ public class GoldenCorpusTests
     }
 
     [Test]
+    public async Task Constructor_UppercaseChecksum_IsRejected()
+    {
+        using var fixture = new GoldenFixture();
+        var uppercase = fixture.Manifest with { Sha256 = fixture.Manifest.Sha256.ToUpperInvariant() };
+
+        await Assert
+            .That(() => _ = new GoldenCorpus([uppercase], fixture.Fetcher))
+            .Throws<GoldenSourceException>()
+            .WithMessageContaining(GoldenFixture.SuiteKey, StringComparison.Ordinal);
+    }
+
+    [Test]
+    public async Task Constructor_NullManifestKey_ThrowsArgumentNullExceptionNamingTheKey()
+    {
+        using var fixture = new GoldenFixture();
+        var keyless = fixture.Manifest with { Key = null! };
+
+        var ex = await Assert.ThrowsAsync<ArgumentNullException>(() =>
+        {
+            _ = new GoldenCorpus([keyless], fixture.Fetcher);
+            return Task.CompletedTask;
+        });
+
+        await Assert.That(ex!.ParamName).Contains("Key");
+    }
+
+    [Test]
+    [Arguments("")]
+    [Arguments("   ")]
+    public async Task Constructor_ManifestKeyWithoutText_ThrowsArgumentException(string key)
+    {
+        using var fixture = new GoldenFixture();
+        var keyless = fixture.Manifest with { Key = key };
+
+        await Assert.That(() => _ = new GoldenCorpus([keyless], fixture.Fetcher)).Throws<ArgumentException>();
+    }
+
+    [Test]
     public async Task Constructor_DuplicateSuiteKey_IsRejected()
     {
         using var fixture = new GoldenFixture();

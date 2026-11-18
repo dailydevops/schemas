@@ -130,6 +130,22 @@ public class GoldenHarnessTests
     }
 
     [Test]
+    public async Task Run_FiredRuleWithWhitespaceId_IsIgnored(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        using var fixture = new GoldenFixture();
+        var validator = new FakeGoldenValidator(_ => new GoldenObservation(true, ["  ", "BR-01"]));
+
+        var results = await RunAsync(
+            fixture,
+            RuleSet("rules-a", validator, Expect("a", true, "BR-01")),
+            cancellationToken
+        );
+
+        await Assert.That(results.Single().Outcome).IsEqualTo(CaseOutcome.Pass);
+    }
+
+    [Test]
     public async Task Run_FiredRuleWithoutId_IsIgnored(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
