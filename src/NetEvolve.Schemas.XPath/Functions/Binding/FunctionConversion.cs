@@ -2,9 +2,6 @@ namespace NetEvolve.Schemas.XPath.Functions.Binding;
 
 using System;
 using System.Buffers;
-using NetEvolve.Schemas.Xml.Datatypes.Contracts;
-using NetEvolve.Schemas.Xml.Datatypes.Decimals.Arithmetic;
-using NetEvolve.Schemas.Xml.Datatypes.Floating;
 using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Evaluation.Arithmetic;
 using NetEvolve.Schemas.XPath.Evaluation.Atomization;
