@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xsd.Validation.Core;
 
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;
@@ -77,15 +76,12 @@ internal sealed class ValidationModel
 
     /// <summary>Gets the program of a complex type.</summary>
     /// <param name="type">The type.</param>
-    /// <param name="program">The program, for a type with element-only or mixed content.</param>
-    /// <returns><see langword="true"/> when the type has a program.</returns>
-    public bool TryGetProgram(ComplexTypeDefinition type, [NotNullWhen(true)] out ContentProgram? program)
+    /// <returns>The program, or <see langword="null"/> when the type has no element-only or mixed content.</returns>
+    public ContentProgram? GetProgram(ComplexTypeDefinition type)
     {
         Argument.ThrowIfNull(type);
 
-        var found = _programs.TryGetValue(type, out var value);
-        program = value;
-        return found;
+        return _programs.TryGetValue(type, out var program) ? program : null;
     }
 
     /// <summary>Gets the dense id of an element name that a content model mentions.</summary>
