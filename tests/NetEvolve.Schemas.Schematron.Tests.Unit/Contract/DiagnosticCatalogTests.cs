@@ -16,6 +16,7 @@ public class DiagnosticCatalogTests
         ["VariableUndefined"] = "SCH-VAR-UNDEFINED",
         ["EvaluationFailed"] = "SCH-EVAL-FAILED",
         ["AssertionFailed"] = "SCH-ASSERT-FAILED",
+        ["EvaluationLimitStop"] = "SCH-EVAL-LIMIT-STOP",
     };
 
     private static readonly Dictionary<int, string> TopicOfBlock = new()
@@ -91,13 +92,14 @@ public class DiagnosticCatalogTests
     }
 
     [Test]
-    public async Task Catalog_IssueLimitStop_IsNes3502_AndNes3503StaysOut()
+    public async Task Catalog_StopCodes_AreNes3502IssueLimitAndNes3503EvaluationLimit()
     {
         var numbers = Catalog().Select(entry => entry.Code.Number).ToArray();
 
         await Assert.That(SchematronDiagnosticCodes.IssueLimitStop.ToString()).IsEqualTo("NES3502");
-        await Assert.That(numbers.Contains(3503)).IsFalse();
-        await Assert.That(numbers.Max()).IsEqualTo(3502);
+        await Assert.That(SchematronDiagnosticCodes.EvaluationLimitStop.ToString()).IsEqualTo("NES3503");
+        await Assert.That(numbers.Max()).IsEqualTo(3503);
+        await Assert.That(numbers.Contains(3504)).IsFalse();
     }
 
     [Test]
