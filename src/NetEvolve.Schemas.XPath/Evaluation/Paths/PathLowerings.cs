@@ -96,21 +96,12 @@ internal static class PathLowerings
             throw XPathErrors.Exception(XPathErrorCodes.XPST0010, step.Location.Offset, step.Location.Length);
         }
 
-        XPathNodeTest test;
         ItemTypeMatcher? typed = null;
-        try
+        if (!XPathNodeTest.TryFromSyntax(step.Test, step.Axis, context.StaticContext, out var test))
         {
-            if (!XPathNodeTest.TryFromSyntax(step.Test, step.Axis, context.StaticContext, out test))
-            {
-                // A kind test that carries a type name, or names a schema declaration: the item type matcher knows both.
-                test = XPathNodeTest.AnyNode;
-                typed = ItemTypeMatcher.Bind(new KindItemType(location, (KindTest)step.Test), context.StaticContext);
-            }
-        }
-        catch (XPathException error) when (error.Diagnostic.Offset < 0)
-        {
-            // The node test reports no location of its own.
-            throw XPathErrors.Exception(error.Diagnostic.QName, location.Offset, location.Length);
+            // A kind test that carries a type name, or names a schema declaration: the item type matcher knows both.
+            test = XPathNodeTest.AnyNode;
+            typed = ItemTypeMatcher.Bind(new KindItemType(location, (KindTest)step.Test), context.StaticContext);
         }
 
         return new AxisPathStep(step.Axis, test, typed, LowerPredicates(step.Predicates, context));
