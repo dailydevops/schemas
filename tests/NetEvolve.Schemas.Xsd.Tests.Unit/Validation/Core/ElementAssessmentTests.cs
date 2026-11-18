@@ -153,6 +153,31 @@ public class ElementAssessmentTests
     }
 
     [Test]
+    public async Task CountedNesting_ExceedingTheRunCeiling_IsReportedAsAnEngineLimitAndNotAsInvalidContent()
+    {
+        var schema = new SchemaFixture();
+        schema.Global(
+            "r",
+            schema.ElementOnly(
+                SchemaFixture.Group(
+                    ModelGroupCompositor.Sequence,
+                    1,
+                    70,
+                    SchemaFixture.Part("a", SchemaFixture.Simple("string"), 1, 70)
+                )
+            )
+        );
+
+        var issues = ValidationHarness.Run(schema, "<r>\n" + Repeat("<a/>", 60) + "</r>");
+
+        await Assert.That(issues.Count).IsEqualTo(1);
+        await Assert.That(issues[0].Code).IsEqualTo(ValidationHarness.Code("engine-content-model-transitions"));
+        await Assert.That(issues[0].Severity).IsEqualTo(IssueSeverity.Error);
+        await Assert.That(issues[0].Location.Line).IsEqualTo(2);
+        await Assert.That(issues[0].Message).Contains("1024");
+    }
+
+    [Test]
     public async Task ElementOnlyContent_AllowsWhitespace()
     {
         var schema = new SchemaFixture();
