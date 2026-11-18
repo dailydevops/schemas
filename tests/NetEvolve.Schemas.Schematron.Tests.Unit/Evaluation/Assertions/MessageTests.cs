@@ -276,6 +276,32 @@ public class MessageTests
     }
 
     [Test]
+    public async Task Message_ValueOf_FailingAfterSomeItems_LeavesNoPartialText()
+    {
+        using var h = new AssertionHarness();
+        h.Binding.Items["partial"] = [XdmItem.FromString("a"), XdmItem.FromString("b")];
+        h.Binding.FailAfterPush.Add("partial");
+
+        var message = MessageOf(h, Message(Text("d="), ValueOf("partial"), Text(" end")));
+
+        await Assert.That(message).IsEqualTo("d=");
+        await Assert.That(h.Problems.Problems.Count).IsEqualTo(1);
+        await Assert.That(h.Sink.Findings.Count).IsEqualTo(1);
+    }
+
+    [Test]
+    public async Task Message_ValueOf_UnconvertibleItemMidSequence_LeavesNoPartialText()
+    {
+        using var h = new AssertionHarness();
+        h.Binding.Items["mixed"] = [XdmItem.FromString("a"), XdmItem.FromDouble(1.5), XdmItem.FromString("b")];
+
+        var message = MessageOf(h, Message(Text("d="), ValueOf("mixed"), Text(" end")));
+
+        await Assert.That(message).IsEqualTo("d=");
+        await Assert.That(h.Problems.Problems.Count).IsEqualTo(1);
+    }
+
+    [Test]
     public async Task Builder_BuildsIntoTheGivenSink_AndReportsTheStatus()
     {
         using var h = new AssertionHarness();

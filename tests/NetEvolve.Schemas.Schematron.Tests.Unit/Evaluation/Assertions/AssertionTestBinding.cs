@@ -19,6 +19,9 @@ internal sealed class AssertionTestBinding : IQueryBinding
 
     internal Dictionary<string, string> Texts { get; } = new(StringComparer.Ordinal);
 
+    /// <summary>Gets the value expressions that push their items and then fail, as a binding does that errors partway through a sequence.</summary>
+    internal HashSet<string> FailAfterPush { get; } = new(StringComparer.Ordinal);
+
     /// <summary>Gets the text of every compile call with the kind and the scope it was compiled in.</summary>
     internal List<(string Text, QueryExpressionKind Kind, QueryStaticScope Scope)> Compiled { get; } = [];
 
@@ -132,7 +135,7 @@ internal sealed class AssertionTestBinding : IQueryBinding
                 }
             }
 
-            return QueryStatus.Ok;
+            return owner.FailAfterPush.Contains(text) ? Fail() : QueryStatus.Ok;
         }
 
         public QueryStatus TryBindVariable(int slot, QueryExpression value, in QueryFocus focus) =>
