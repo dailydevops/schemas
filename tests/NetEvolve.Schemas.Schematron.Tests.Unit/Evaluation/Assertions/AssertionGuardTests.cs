@@ -111,4 +111,12 @@ public class AssertionGuardTests
             )
             .Throws<ArgumentNullException>();
     }
+
+    [Test]
+    public async Task ValueOfSink_Begin_NullSink_Throws()
+    {
+        var sink = new ValueOfSink();
+
+        await Assert.That(() => sink.Begin(null!)).Throws<ArgumentNullException>();
+    }
 }
