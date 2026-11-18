@@ -1,0 +1,19 @@
+namespace NetEvolve.Schemas.XPath.Functions.Sequences;
+
+using NetEvolve.Schemas.XPath.Api;
+using NetEvolve.Schemas.XPath.Xdm.Values;
+
+/// <summary><c>fn:empty</c>: whether the argument has no item. A lazy argument that nobody has read is asked for one item and no more.</summary>
+internal sealed class EmptyFunction : SequenceFunction
+{
+    /// <summary>Initializes a new instance of the <see cref="EmptyFunction"/> class.</summary>
+    public EmptyFunction()
+        : base("empty", 1, 1, [Items]) { }
+
+    /// <inheritdoc />
+    public override XPathEvaluationStatus Invoke(ref XPathFunctionCall invocation)
+    {
+        invocation.Result = XdmSequence.Create(XdmItem.FromBoolean(!invocation.Arguments[0].HasItems()));
+        return XPathEvaluationStatus.Ok;
+    }
+}

@@ -48,6 +48,40 @@ public readonly struct XdmSequence : IEquatable<XdmSequence>
     /// <summary>Gets a value indicating whether the sequence has no item.</summary>
     public bool IsEmpty => Count == 0;
 
+    /// <summary>Determines whether the sequence has an item; a lazy sequence that nobody has read is asked for one item and not read.</summary>
+    /// <returns><see langword="true"/> when there is an item.</returns>
+    /// <remarks>Limitation: such a lazy source is enumerated again when the sequence is read afterwards, because nothing is kept.</remarks>
+    internal bool HasItems()
+    {
+        if (_many is XdmLazyItems lazy && lazy.UnreadSource is { } source)
+        {
+            using var items = source.GetEnumerator();
+            return items.MoveNext();
+        }
+
+        return Count != 0;
+    }
+
+    /// <summary>Counts the items; a lazy sequence that nobody has read is counted as it is enumerated, and its items are not kept.</summary>
+    /// <returns>The number of items.</returns>
+    /// <remarks>Limitation: such a lazy source is enumerated again when the sequence is read afterwards, because nothing is kept.</remarks>
+    internal int CountItems()
+    {
+        if (_many is XdmLazyItems lazy && lazy.UnreadSource is { } source)
+        {
+            var count = 0;
+            using var items = source.GetEnumerator();
+            while (items.MoveNext())
+            {
+                count++;
+            }
+
+            return count;
+        }
+
+        return Count;
+    }
+
     /// <summary>Gets an item.</summary>
     /// <param name="index">The zero-based position.</param>
     /// <returns>The item.</returns>
