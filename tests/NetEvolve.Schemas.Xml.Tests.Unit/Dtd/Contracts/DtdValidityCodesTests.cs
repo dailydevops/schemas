@@ -42,14 +42,20 @@ public class DtdValidityCodesTests
     ];
 
     // The optional reports that are not validity constraints (design #122, section 7).
-    private static readonly (string Alias, string Section, string Owner, IssueSeverity Severity)[] Reports =
+    private static readonly (
+        string Alias,
+        string Name,
+        string Section,
+        string Owner,
+        IssueSeverity Severity
+    )[] Reports =
     [
-        ("XML5901", "3.2", "XML-67", IssueSeverity.Warning),
-        ("XML5902", "3.3", "XML-64", IssueSeverity.Warning),
-        ("XML5903", "3.3", "XML-64", IssueSeverity.Warning),
-        ("XML5904", "4.2", "XML-66", IssueSeverity.Warning),
-        ("XML5910", "2.8", "XML-67", IssueSeverity.Error),
-        ("XML5911", "3.2.1", "XML-63", IssueSeverity.Warning),
+        ("XML5901", "Undeclared Element Type Mentioned", "3.2", "XML-67", IssueSeverity.Warning),
+        ("XML5902", "Attributes Declared For Undeclared Element Type", "3.3", "XML-64", IssueSeverity.Warning),
+        ("XML5903", "Attribute Declared More Than Once", "3.3", "XML-64", IssueSeverity.Warning),
+        ("XML5904", "Entity Declared More Than Once", "4.2", "XML-66", IssueSeverity.Warning),
+        ("XML5910", "Missing Document Type Declaration", "2.8", "XML-67", IssueSeverity.Error),
+        ("XML5911", "Non-Deterministic Content Model", "3.2.1", "XML-63", IssueSeverity.Warning),
     ];
 
     // The limits added by design #122, section 9; exceeding one is a fatal status, never an issue.
@@ -137,11 +143,11 @@ public class DtdValidityCodesTests
     [Test]
     public async Task Codes_NonVcReports_AreInSeparateTable()
     {
-        var actual = new List<(string, string, string, IssueSeverity)>();
+        var actual = new List<(string, string, string, string, IssueSeverity)>();
         var misplaced = new List<string>();
         foreach (var code in DtdValidityCodes.Reports)
         {
-            actual.Add((code.Alias, code.Section, code.Owner, code.DefaultSeverity));
+            actual.Add((code.Alias, code.Name, code.Section, code.Owner, code.DefaultSeverity));
             if (code.Kind != DtdValidityCodeKind.Report)
             {
                 misplaced.Add(code.Alias);
@@ -158,6 +164,39 @@ public class DtdValidityCodesTests
 
         await Assert.That(actual).IsEquivalentTo(Reports);
         await Assert.That(misplaced).IsEmpty();
+    }
+
+    [Test]
+    public async Task Code_Guards_RejectOutOfRangeKind()
+    {
+        await Assert
+            .That(() =>
+                new DtdValidityCode(
+                    "XML5001",
+                    1501,
+                    (DtdValidityCodeKind)(-1),
+                    "n",
+                    "1",
+                    "XML-67",
+                    IssueSeverity.Error,
+                    "m"
+                )
+            )
+            .Throws<ArgumentOutOfRangeException>();
+        await Assert
+            .That(() =>
+                new DtdValidityCode(
+                    "XML5001",
+                    1501,
+                    (DtdValidityCodeKind)99,
+                    "n",
+                    "1",
+                    "XML-67",
+                    IssueSeverity.Error,
+                    "m"
+                )
+            )
+            .Throws<ArgumentOutOfRangeException>();
     }
 
     [Test]

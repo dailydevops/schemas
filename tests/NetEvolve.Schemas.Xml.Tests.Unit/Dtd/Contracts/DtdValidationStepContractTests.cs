@@ -288,6 +288,17 @@ public class DtdValidationStepContractTests
                 )
             )
             .Throws<ArgumentOutOfRangeException>();
+        await Assert
+            .That(() =>
+                new ValidationAttributeInfo(
+                    "a".AsMemory(),
+                    "b".AsMemory(),
+                    (DtdAttributeType)(-1),
+                    isSpecified: true,
+                    Position
+                )
+            )
+            .Throws<ArgumentOutOfRangeException>();
     }
 
     [Test]
