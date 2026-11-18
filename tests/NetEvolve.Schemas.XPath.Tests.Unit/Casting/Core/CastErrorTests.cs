@@ -143,16 +143,16 @@ public class CastErrorTests
     }
 
     [Test]
-    [Arguments("'x' cast as xs:date", "XPST0051")]
+    [Arguments("'x' cast as xs:long", "XPST0051")]
     [Arguments("'x' cast as xs:int", "XPST0051")]
-    [Arguments("'x' cast as xs:QName", "XPST0051")]
+    [Arguments("'x' cast as xs:token", "XPST0051")]
     [Arguments("'x' cast as xs:anyType", "XPST0051")]
     [Arguments("'x' cast as xs:anySimpleType", "XPST0051")]
     [Arguments("'x' cast as xs:IDREFS", "XPST0051")]
     [Arguments("'x' cast as xs:nothing", "XPST0051")]
     [Arguments("'x' cast as p:integer", "XPST0051")]
     [Arguments("'x' cast as integer", "XPST0051")]
-    [Arguments("'x' castable as xs:date", "XPST0051")]
+    [Arguments("'x' castable as xs:long", "XPST0051")]
     [Arguments("'x' castable as xs:nothing", "XPST0051")]
     [Arguments("'x' cast as xs:anyAtomicType", "XPST0080")]
     [Arguments("'x' cast as xs:NOTATION", "XPST0080")]
@@ -171,11 +171,11 @@ public class CastErrorTests
     [Test]
     public async Task StaticError_CarriesTheLocationOfTheTypeName()
     {
-        const string Expression = "'x' cast as xs:date";
+        const string Expression = "'x' cast as xs:long";
 
         _ = Compile(Expression, out var diagnostic);
 
-        await Assert.That(diagnostic.Offset).IsEqualTo(Expression.IndexOf("xs:date", StringComparison.Ordinal));
+        await Assert.That(diagnostic.Offset).IsEqualTo(Expression.IndexOf("xs:long", StringComparison.Ordinal));
     }
 
     [Test]

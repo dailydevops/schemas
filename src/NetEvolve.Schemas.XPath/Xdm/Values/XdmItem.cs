@@ -6,18 +6,21 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Contracts;
+using NetEvolve.Schemas.Xml.Datatypes.Binary;
 using NetEvolve.Schemas.Xml.Datatypes.DateTime;
 using NetEvolve.Schemas.Xml.Datatypes.Decimals;
 using NetEvolve.Schemas.Xml.Datatypes.Decimals.Arithmetic;
 using NetEvolve.Schemas.Xml.Datatypes.Duration;
+using NetEvolve.Schemas.Xml.Datatypes.QNames;
+using NetEvolve.Schemas.XPath.Types;
 using NetEvolve.Schemas.XPath.Xdm.Nodes;
 
 /// <summary>An item: a node or an atomic value. A tagged struct; boolean, integer, double, and node need no allocation.</summary>
 /// <remarks>
 /// Limitation: the public factories and accessors cover boolean, integer, double, string, node, decimal, date and time, and
-/// duration values; <c>xs:float</c>, <c>xs:untypedAtomic</c>, and <c>xs:anyURI</c> are internal, and <c>xs:QName</c>,
-/// <c>xs:NOTATION</c>, <c>xs:hexBinary</c>, <c>xs:base64Binary</c>, and the Gregorian types have no value type yet.
-/// Decimal, date and time, and duration values are boxed.
+/// duration values; <c>xs:float</c>, <c>xs:untypedAtomic</c>, <c>xs:anyURI</c>, the Gregorian types, <c>xs:hexBinary</c>,
+/// <c>xs:base64Binary</c>, and <c>xs:QName</c> are internal, and <c>xs:NOTATION</c> has no item because it is never the type of a
+/// value in XPath 2.0 (it is abstract). Decimal, date and time, Gregorian, duration, binary, and QName values are boxed.
 /// </remarks>
 [StructLayout(LayoutKind.Auto)]
 public readonly struct XdmItem : IEquatable<XdmItem>
@@ -99,6 +102,49 @@ public readonly struct XdmItem : IEquatable<XdmItem>
         Argument.ThrowIfNull(value);
 
         return new(XdmItemKind.AnyUri, XdmTypeId.AnyUri, 0, value);
+    }
+
+    /// <summary>Creates an item of one of the eight date and time types: <c>xs:dateTime</c>, <c>xs:date</c>, <c>xs:time</c>, or a Gregorian type.</summary>
+    /// <param name="value">The value; its kind selects the type of the item.</param>
+    /// <returns>The item.</returns>
+    /// <remarks>The public <see cref="FromDateTime"/> covers the first three kinds only.</remarks>
+    internal static XdmItem FromTemporal(in XsdDateTime value) =>
+        value.Kind switch
+        {
+            XsdDateTimeKind.DateTime => new(XdmItemKind.DateTime, XdmTypeId.DateTime, 0, value),
+            XsdDateTimeKind.Date => new(XdmItemKind.Date, XdmTypeId.Date, 0, value),
+            XsdDateTimeKind.Time => new(XdmItemKind.Time, XdmTypeId.Time, 0, value),
+            XsdDateTimeKind.GYearMonth => new(XdmItemKind.GYearMonth, GregorianTypes.YearMonth, 0, value),
+            XsdDateTimeKind.GYear => new(XdmItemKind.GYear, GregorianTypes.Year, 0, value),
+            XsdDateTimeKind.GMonthDay => new(XdmItemKind.GMonthDay, GregorianTypes.MonthDay, 0, value),
+            XsdDateTimeKind.GDay => new(XdmItemKind.GDay, GregorianTypes.Day, 0, value),
+            _ => new(XdmItemKind.GMonth, GregorianTypes.Month, 0, value),
+        };
+
+    /// <summary>Creates an <c>xs:hexBinary</c> or <c>xs:base64Binary</c> item.</summary>
+    /// <param name="value">The octets.</param>
+    /// <param name="kind">The type of the item.</param>
+    /// <returns>The item.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="kind"/> is not a defined kind.</exception>
+    internal static XdmItem FromBinary(in XsdBinary value, BinaryKind kind)
+    {
+        Argument.ThrowIfLessThan((int)kind, (int)BinaryKind.HexBinary);
+        Argument.ThrowIfGreaterThan((int)kind, (int)BinaryKind.Base64Binary);
+
+        return kind == BinaryKind.HexBinary
+            ? new(XdmItemKind.HexBinary, BinaryTypes.Hex, 0, value)
+            : new(XdmItemKind.Base64Binary, BinaryTypes.Base64, 0, value);
+    }
+
+    /// <summary>Creates an <c>xs:QName</c> item.</summary>
+    /// <param name="value">The expanded name with the prefix it was written with.</param>
+    /// <returns>The item.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="value"/> is <see langword="null"/>.</exception>
+    internal static XdmItem FromQName(XdmQName value)
+    {
+        Argument.ThrowIfNull(value);
+
+        return new(XdmItemKind.QName, BinaryTypes.QName, 0, value);
     }
 
     /// <summary>Creates an <c>xs:float</c> item.</summary>
@@ -241,6 +287,35 @@ public readonly struct XdmItem : IEquatable<XdmItem>
         return found;
     }
 
+    /// <summary>Gets the value of a date and time item of any of the eight types.</summary>
+    /// <param name="value">The value, <see langword="default"/> unless the item is one of them.</param>
+    /// <returns><see langword="true"/> when the item is an <c>xs:dateTime</c>, <c>xs:date</c>, <c>xs:time</c>, or a Gregorian type.</returns>
+    internal bool TryGetTemporal(out XsdDateTime value)
+    {
+        var found = Kind is >= XdmItemKind.DateTime and <= XdmItemKind.GMonth;
+        value = found ? (XsdDateTime)_reference! : default;
+        return found;
+    }
+
+    /// <summary>Gets the octets of an <c>xs:hexBinary</c> or <c>xs:base64Binary</c> item.</summary>
+    /// <param name="value">The octets, <see langword="default"/> unless the item is binary.</param>
+    /// <returns><see langword="true"/> when the item is <c>xs:hexBinary</c> or <c>xs:base64Binary</c>.</returns>
+    internal bool TryGetBinary(out XsdBinary value)
+    {
+        var found = Kind is XdmItemKind.HexBinary or XdmItemKind.Base64Binary;
+        value = found ? (XsdBinary)_reference! : default;
+        return found;
+    }
+
+    /// <summary>Gets the value of an <c>xs:QName</c> item.</summary>
+    /// <param name="value">The value, <see langword="null"/> unless the item is a QName.</param>
+    /// <returns><see langword="true"/> when the item is an <c>xs:QName</c>.</returns>
+    internal bool TryGetQName(out XdmQName? value)
+    {
+        value = Kind == XdmItemKind.QName ? (XdmQName?)_reference : null;
+        return value is not null;
+    }
+
     /// <summary>Gets the string value.</summary>
     /// <param name="value">The value, <see langword="null"/> unless the item is a string.</param>
     /// <returns><see langword="true"/> when the item is a string.</returns>
@@ -321,4 +396,21 @@ public readonly struct XdmItem : IEquatable<XdmItem>
     /// <param name="right">The second value.</param>
     /// <returns><see langword="true"/> when different.</returns>
     public static bool operator !=(XdmItem left, XdmItem right) => !left.Equals(right);
+
+    // The handles of the types that have no well-known handle, read from the type table on first use.
+    private static class GregorianTypes
+    {
+        internal static readonly XdmTypeId YearMonth = XdmTypes.Get("gYearMonth");
+        internal static readonly XdmTypeId Year = XdmTypes.Get("gYear");
+        internal static readonly XdmTypeId MonthDay = XdmTypes.Get("gMonthDay");
+        internal static readonly XdmTypeId Day = XdmTypes.Get("gDay");
+        internal static readonly XdmTypeId Month = XdmTypes.Get("gMonth");
+    }
+
+    private static class BinaryTypes
+    {
+        internal static readonly XdmTypeId Hex = XdmTypes.Get("hexBinary");
+        internal static readonly XdmTypeId Base64 = XdmTypes.Get("base64Binary");
+        internal static readonly XdmTypeId QName = XdmTypes.Get("QName");
+    }
 }

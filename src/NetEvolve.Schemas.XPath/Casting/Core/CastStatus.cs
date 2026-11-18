@@ -20,4 +20,13 @@ internal enum CastStatus
 
     /// <summary>The value does not fit the 64 bits of the integer item (FOCA0003).</summary>
     IntegerOverflow = 5,
+
+    /// <summary>The lexical form is valid, but a year or a fraction is beyond an implementation limit of the date and time types (FODT0001).</summary>
+    DateTimeOverflow = 6,
+
+    /// <summary>The lexical form is valid, but a component or a fraction is beyond an implementation limit of the duration types (FODT0002).</summary>
+    DurationOverflow = 7,
+
+    /// <summary>The prefix of a lexical QName is not bound in the namespaces of the expression (FONS0004).</summary>
+    UnboundPrefix = 8,
 }
