@@ -15,6 +15,8 @@ public class EntityDeclarationTests
     [Arguments("<!ENTITY g PUBLIC \"-//X//Y\" 's.xml'>", "GE:g -//X//Y s.xml")]
     [Arguments("<!ENTITY g SYSTEM \"s\" NDATA n>", "GE:g - s NDATA n")]
     [Arguments("<!ENTITY  g  SYSTEM\r\n\"s\"\tNDATA  n >", "GE:g - s NDATA n")]
+    [Arguments("<!ENTITY g \"a\r\nb\rc\nd\">", "GE:g=\"a\nb\nc\nd\"")]
+    [Arguments("<!ENTITY g \"a&#13;&#10;b&#13;\">", "GE:g=\"a\r\nb\r\"")]
     [Arguments("<!ENTITY % p \"v\">", "PE:p=\"v\"")]
     [Arguments("<!ENTITY % p SYSTEM \"s.ent\">", "PE:p - s.ent")]
     [Arguments("<!ENTITY % p PUBLIC \"a b\" \"s\">", "PE:p a b s")]

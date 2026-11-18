@@ -16,14 +16,13 @@ using NetEvolve.Schemas.Xml.Namespaces;
 /// <see cref="XmlReadStatus.NeedMoreData"/> after keeping the unconsumed tail. A chunk is used in place until a tail has to be
 /// kept. An entity reference that the entity input stack accepts is read as a frame over the outer input: content frames
 /// run the tokenizer over the replacement text (balanced, no construct spans the frame end), attribute value frames are
-/// walked by section 3.3.3, and frame characters never advance the outer position. Limitations: the document type
+/// walked by section 3.3.3, and frame characters never advance the outer position. The replacement text is read without
+/// line end normalization, because the entity input stack hands it out with its line ends already normalized (section
+/// 4.5): a carriage return in it came from a character reference and stays one. Limitations: the document type
 /// declaration is rejected with <c>XML2001</c> unless a doctype handler is installed (deviation from XML 1.0 section 5.1);
 /// a reference to another entity is <c>XML0008</c> without an entity input stack; a diagnostic inside a frame carries the
-/// outer reference position but not the frame depth (<see cref="XmlDiagnostic"/> has no such member, #646); the
-/// replacement text is read with line end normalization, so a carriage return written as a character reference in an
-/// entity value reads as a line feed in content and CR LF written as two character references is one space, not two,
-/// in an attribute value (#645); white space outside the root element is not reported; <c>MaxNodeCount</c> counts elements,
-/// attributes, comments, processing instructions, and coalesced text runs (not namespace declarations); an unclosed
+/// outer reference position but not the frame depth (<see cref="XmlDiagnostic"/> has no such member, #646); white space
+/// outside the root element is not reported; <c>MaxNodeCount</c> counts elements, attributes, comments, processing instructions, and coalesced text runs (not namespace declarations); an unclosed
 /// element at the end of the input is <c>XML0001</c> and a missing root is <c>XML0012</c>; the events before an error, the
 /// code, and the position of the diagnostic do not depend on the chunking (#598), but <see cref="Position"/> after an error
 /// ends at the last consumed token and follows its boundaries. An exception thrown by a sink propagates and leaves the
@@ -409,7 +408,7 @@ internal sealed partial class XmlParser : IXmlReader, IDisposable
             return Fail(XmlErrorCodes.XML1108, position);
         }
 
-        sink.Comment(NormalizeLineEnds(text));
+        sink.Comment(_frameCount > 0 ? text : NormalizeLineEnds(text));
         return true;
     }
 
@@ -439,7 +438,7 @@ internal sealed partial class XmlParser : IXmlReader, IDisposable
             return Fail(NameTableError(status), position);
         }
 
-        sink.ProcessingInstruction(symbol, NormalizeLineEnds(data));
+        sink.ProcessingInstruction(symbol, _frameCount > 0 ? data : NormalizeLineEnds(data));
         return true;
     }
 
@@ -476,7 +475,8 @@ internal sealed partial class XmlParser : IXmlReader, IDisposable
         _textOpen = false;
     }
 
-    // Line ends are normalized to LF (section 2.11) in atomic tokens; text and attribute values arrive normalized.
+    // Line ends are normalized to LF (section 2.11) in atomic tokens of the document; text and attribute values arrive normalized,
+    // and the replacement text of an entity was normalized when the entity was declared, so it is not touched again.
     private ReadOnlySpan<char> NormalizeLineEnds(ReadOnlySpan<char> text)
     {
         if (text.IndexOf('\r') < 0)
