@@ -75,7 +75,7 @@ internal readonly struct XPathNodeTest
     /// <param name="context">The static context that resolves prefixes and supplies the default element namespace.</param>
     /// <param name="result">The resolved test.</param>
     /// <returns><see langword="false"/> for a test this package does not handle yet (see the remarks of the type).</returns>
-    /// <exception cref="XPathException">A prefix is not bound (XPST0081).</exception>
+    /// <exception cref="XPathException">A prefix is not bound (XPST0081); the error carries the location of <paramref name="test"/>.</exception>
     public static bool TryFromSyntax(NodeTest test, Axis axis, XPathStaticContext context, out XPathNodeTest result)
     {
         Argument.ThrowIfNull(test);
@@ -99,16 +99,16 @@ internal readonly struct XPathNodeTest
                 result = ProcessingInstruction(pi.Target);
                 return true;
             case ElementTest { TypeName: null } element:
-                result = FromName(element.Name, context, isAttribute: false);
+                result = FromName(element.Name, context, isAttribute: false, test.Location);
                 return true;
             case AttributeTest { TypeName: null } attribute:
-                result = FromName(attribute.Name, context, isAttribute: true);
+                result = FromName(attribute.Name, context, isAttribute: true, test.Location);
                 return true;
             case DocumentTest { Element: null }:
                 result = Document;
                 return true;
             case DocumentTest { Element: ElementTest { TypeName: null } documentElement }:
-                var inner = FromName(documentElement.Name, context, isAttribute: false);
+                var inner = FromName(documentElement.Name, context, isAttribute: false, test.Location);
                 result = DocumentWithElement(inner._local, inner._namespaceUri);
                 return true;
             default:
@@ -159,21 +159,37 @@ internal readonly struct XPathNodeTest
         {
             NameTestKind.AnyName => ((string?)null, (string?)null),
             NameTestKind.AnyNamespace => (name.LocalName, null),
-            NameTestKind.AnyLocalName => (null, Resolve(name.Prefix, context, useDefaultElementNamespace: false)),
-            _ => (name.LocalName, Resolve(name.Prefix, context, useDefaultElementNamespace: !isAttribute)),
+            NameTestKind.AnyLocalName => (
+                null,
+                Resolve(name.Prefix, context, useDefaultElementNamespace: false, name.Location)
+            ),
+            _ => (
+                name.LocalName,
+                Resolve(name.Prefix, context, useDefaultElementNamespace: !isAttribute, name.Location)
+            ),
         };
         return isAttribute ? Attribute(local, namespaceUri) : Element(local, namespaceUri);
     }
 
     // element(*), element(), attribute(*) and attribute() carry no name.
-    private static XPathNodeTest FromName(QualifiedName? name, XPathStaticContext context, bool isAttribute)
+    private static XPathNodeTest FromName(
+        QualifiedName? name,
+        XPathStaticContext context,
+        bool isAttribute,
+        SourceSpan location
+    )
     {
         var local = name?.LocalName;
-        var namespaceUri = name is null ? null : Resolve(name.Prefix, context, !isAttribute);
+        var namespaceUri = name is null ? null : Resolve(name.Prefix, context, !isAttribute, location);
         return isAttribute ? Attribute(local, namespaceUri) : Element(local, namespaceUri);
     }
 
-    private static string Resolve(string? prefix, XPathStaticContext context, bool useDefaultElementNamespace)
+    private static string Resolve(
+        string? prefix,
+        XPathStaticContext context,
+        bool useDefaultElementNamespace,
+        SourceSpan location
+    )
     {
         if (prefix is null)
         {
@@ -182,6 +198,6 @@ internal readonly struct XPathNodeTest
 
         return context.TryResolveNamespace(prefix, out var namespaceUri)
             ? namespaceUri ?? string.Empty
-            : throw XPathErrors.Exception(XPathErrorCodes.XPST0081);
+            : throw XPathErrors.Exception(XPathErrorCodes.XPST0081, location.Offset, location.Length);
     }
 }
