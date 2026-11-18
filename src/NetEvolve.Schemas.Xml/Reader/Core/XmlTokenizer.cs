@@ -48,6 +48,7 @@ internal partial struct XmlTokenizer
     private readonly XmlReaderLimits _limits;
     private readonly bool _allowDoctype;
     private readonly bool _allowEntityReferences;
+    private bool _replacementText;
     private Mode _mode;
     private bool _sawSpace;
     private bool _bomPending;
@@ -78,6 +79,7 @@ internal partial struct XmlTokenizer
         _limits = limits;
         _allowDoctype = allowDoctype;
         _allowEntityReferences = allowEntityReferences;
+        _replacementText = false;
         _mode = Mode.Content;
         _sawSpace = false;
         _bomPending = true;
@@ -102,12 +104,17 @@ internal partial struct XmlTokenizer
 
     /// <summary>Creates a tokenizer for the replacement text of an entity (production 43): content from its first character.</summary>
     /// <param name="limits">The limits.</param>
-    /// <returns>A tokenizer that expects neither a byte order mark nor an XML declaration, rejects a document type declaration, and turns references to other entities into tokens.</returns>
+    /// <returns>A tokenizer that expects neither a byte order mark nor an XML declaration, rejects a document type declaration, turns references to other entities into tokens, and reads every CR and LF as a character of its own (line ends were normalized when the entity value was declared, section 4.5).</returns>
     internal static XmlTokenizer ForReplacementText(XmlReaderLimits limits)
     {
         Argument.ThrowIfNull(limits);
 
-        return new XmlTokenizer(limits, false, true) { _bomPending = false, _atStart = false };
+        return new XmlTokenizer(limits, false, true)
+        {
+            _bomPending = false,
+            _atStart = false,
+            _replacementText = true,
+        };
     }
 
     /// <summary>Gets the position of the next unconsumed character; a leading byte order mark is not counted.</summary>

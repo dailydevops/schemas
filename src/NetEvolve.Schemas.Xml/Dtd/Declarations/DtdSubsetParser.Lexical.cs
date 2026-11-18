@@ -279,16 +279,47 @@ internal sealed partial class DtdSubsetParser
         : hex && c is >= 'A' and <= 'F' ? c - 'A' + 10
         : -1;
 
+    // Section 2.11: CR LF and a lone CR become LF. The entity value does this before character references are expanded
+    // (section 4.5), so a carriage return in the replacement text comes only from a character reference.
+    private static string NormalizeLineEnds(string text)
+    {
+        var first = text.AsSpan().IndexOf('\r');
+        if (first < 0)
+        {
+            return text;
+        }
+
+        var builder = new StringBuilder(text.Length);
+        builder.Append(text, 0, first);
+        for (var i = first; i < text.Length; i++)
+        {
+            if (text[i] != '\r')
+            {
+                builder.Append(text[i]);
+                continue;
+            }
+
+            builder.Append('\n');
+            if (i + 1 < text.Length && text[i + 1] == '\n')
+            {
+                i++;
+            }
+        }
+
+        return builder.ToString();
+    }
+
     // Production 9: the replacement text has character references expanded; a parameter-entity reference is not allowed in the
     // internal subset and general-entity references are bypassed.
     private bool ScanEntityValue(out string value)
     {
-        if (!ScanQuoted(out var raw))
+        if (!ScanQuoted(out var literal))
         {
             value = string.Empty;
             return false;
         }
 
+        var raw = NormalizeLineEnds(literal);
         value = raw;
         var special = raw.IndexOfAny(ReferenceStarts);
         if (special < 0)
