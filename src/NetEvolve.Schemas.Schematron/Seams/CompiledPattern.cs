@@ -19,4 +19,7 @@ internal class CompiledPattern
 
     /// <summary>Gets the expanded names of the last step name tests; empty means any name.</summary>
     internal ReadOnlySpan<XPathQName> CandidateNames => _candidateNames;
+
+    /// <summary>Gets the variable slots the pattern reads directly (design #150 AP-19); empty when it reads none.</summary>
+    internal virtual ReadOnlySpan<int> ReferencedSlots => default;
 }

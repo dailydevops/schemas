@@ -1,0 +1,48 @@
+namespace NetEvolve.Schemas.Schematron.Evaluation.Patterns;
+
+using NetEvolve.Arguments;
+using NetEvolve.Schemas.Schematron.Scopes;
+
+/// <summary>An active pattern or group with its compiled rules in document order. Immutable and shared by every run.</summary>
+internal sealed class CompiledRuleSet
+{
+    internal CompiledRuleSet(
+        PatternScope scope,
+        string id,
+        string documents,
+        string name,
+        bool isGroup,
+        CompiledRule[] rules
+    )
+    {
+        Argument.ThrowIfNull(scope);
+        Argument.ThrowIfNull(id);
+        Argument.ThrowIfNull(documents);
+        Argument.ThrowIfNull(name);
+        Argument.ThrowIfNull(rules);
+
+        Scope = scope;
+        Id = id;
+        Documents = documents;
+        Name = name;
+        IsGroup = isGroup;
+        Rules = rules;
+    }
+
+    /// <summary>Gets the pattern with its variables and the scope its rule contexts compile in.</summary>
+    internal PatternScope Scope { get; }
+
+    /// <summary>Gets the author id, empty when none.</summary>
+    internal string Id { get; }
+
+    /// <summary>Gets the <c>documents</c> expression, empty when none.</summary>
+    internal string Documents { get; }
+
+    /// <summary>Gets the title text, empty when none.</summary>
+    internal string Name { get; }
+
+    /// <summary>Gets a value indicating whether every matching rule fires (a <see langword="group"/>) instead of the first one only.</summary>
+    internal bool IsGroup { get; }
+
+    internal CompiledRule[] Rules { get; }
+}
