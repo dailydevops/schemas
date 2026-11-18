@@ -670,6 +670,19 @@ public class FunctionCompileTests
     }
 
     [Test]
+    public async Task Compile_VariableExecutable_RejectsNullFrameAndNullSink()
+    {
+        var fixture = Create();
+        var node = Declarations(Variable("v", "1", null, 10))[0];
+        var executable = fixture.Compile(node, fixture.FunctionScope, XsltPosition.Instruction);
+        var (run, _) = fixture.CreateRun();
+
+        await Assert.That(executable).IsNotNull();
+        await Assert.That(() => executable!.TryExecute(null!, new FakeSequenceSink())).Throws<ArgumentNullException>();
+        await Assert.That(() => executable!.TryExecute(new XsltFrame(run), null!)).Throws<ArgumentNullException>();
+    }
+
+    [Test]
     public async Task Component_Guards_RejectNullArguments()
     {
         await Assert.That(() => new XsltFunctionTableBuilder().TryAdd(null!, 0, out _)).Throws<ArgumentNullException>();
