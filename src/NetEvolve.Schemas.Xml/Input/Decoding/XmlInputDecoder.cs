@@ -4,6 +4,7 @@ using System;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Buffers;
 using NetEvolve.Schemas.Xml.Contracts;
+using NetEvolve.Schemas.Xml.Text.CharClasses;
 
 /// <summary>
 /// Resumable, strict decoder from bytes to UTF-16 characters. A sequence split across two calls decodes like one
@@ -33,15 +34,17 @@ internal sealed class XmlInputDecoder
     }
 
     private readonly XmlEncodingDetection _detection;
+    private readonly bool _reportNonChar;
     private readonly byte[] _carry = new byte[UnitLength - 1];
     private XmlInputEncoding _encoding;
     private int _carryCount;
     private int _skip;
     private long _fed;
 
-    private XmlInputDecoder(XmlEncodingDetection detection)
+    private XmlInputDecoder(XmlEncodingDetection detection, bool reportNonChar)
     {
         _detection = detection;
+        _reportNonChar = reportNonChar;
         Restart(detection.Encoding);
     }
 
@@ -52,11 +55,17 @@ internal sealed class XmlInputDecoder
     /// <param name="detection">The detection result.</param>
     /// <param name="decoder">The decoder, or <see langword="null"/> when the encoding is not supported.</param>
     /// <param name="error"><c>XML4001</c> at offset zero when the encoding is detected but not supported.</param>
+    /// <param name="reportNonChar">
+    /// Whether a scalar value that is not a <c>Char</c> (production 2) is <c>XML0002</c> at its byte offset. Leave it off when
+    /// the parser reads the characters, which reports it at the character, as for character input (#712); set it where no
+    /// parser checks the characters, such as an external entity.
+    /// </param>
     /// <returns><see langword="true"/> when a decoder was created.</returns>
     internal static bool TryCreate(
         XmlEncodingDetection detection,
         out XmlInputDecoder? decoder,
-        out XmlDecodingError error
+        out XmlDecodingError error,
+        bool reportNonChar = false
     )
     {
         if (
@@ -71,7 +80,7 @@ internal sealed class XmlInputDecoder
             return false;
         }
 
-        decoder = new XmlInputDecoder(detection);
+        decoder = new XmlInputDecoder(detection, reportNonChar);
         error = default;
         return true;
     }
@@ -115,7 +124,7 @@ internal sealed class XmlInputDecoder
         while (pos < bytes.Length)
         {
             var status = XmlCodePointReader.Read(_encoding, bytes.Slice(pos), out var consumed, out var codePoint);
-            if (status == XmlCodePointReader.ReadStatus.Ok)
+            if (status == XmlCodePointReader.ReadStatus.Ok && !IsReportedNonChar(codePoint))
             {
                 written += Write(codePoint, free.Slice(written));
                 pos += consumed;
@@ -128,7 +137,8 @@ internal sealed class XmlInputDecoder
             }
             else
             {
-                error = new XmlDecodingError(XmlErrorCodes.XML4003, baseOffset + pos);
+                var code = status == XmlCodePointReader.ReadStatus.Ok ? XmlErrorCodes.XML0002 : XmlErrorCodes.XML4003;
+                error = new XmlDecodingError(code, baseOffset + pos);
                 output.Advance(written);
                 return false;
             }
@@ -143,6 +153,8 @@ internal sealed class XmlInputDecoder
 
         return true;
     }
+
+    private bool IsReportedNonChar(int codePoint) => _reportNonChar && !XmlCharClass.IsChar(codePoint);
 
     // Completes the sequence left over from the previous chunk with the first new bytes.
     private bool TryCompleteCarry(
@@ -179,6 +191,12 @@ internal sealed class XmlInputDecoder
                 pos += take;
                 return true;
             default:
+                if (IsReportedNonChar(codePoint))
+                {
+                    error = new XmlDecodingError(XmlErrorCodes.XML0002, baseOffset + pos - carried);
+                    return false;
+                }
+
                 written += Write(codePoint, free.Slice(written));
                 pos += consumed - carried;
                 _carryCount = 0;

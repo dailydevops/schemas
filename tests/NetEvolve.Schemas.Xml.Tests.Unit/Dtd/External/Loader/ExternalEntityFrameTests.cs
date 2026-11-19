@@ -151,6 +151,29 @@ public class ExternalEntityFrameTests
         await Assert.That(resolver.Streams[0].IsDisposed).IsTrue();
     }
 
+    // A character that is not an XML Char is valid in the encoding, so it is XML0002 and not a decoding error (#712); nothing
+    // else checks the characters of an external entity, so the frame does.
+    [Test]
+    [Arguments(1)]
+    [Arguments(3)]
+    public async Task Frame_NonXmlCharacter_IsXml0002AfterTheCharactersBeforeIt_AndTheStreamIsDisposed(
+        int maxRead,
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var (resolver, loader) = Setup([0x61, 0x62, 0x01, 0x63], maxRead);
+
+        var (frame, _) = Load(loader, "e", "e.ent", DocumentUri, cancellationToken);
+        var read = Drain(frame!);
+
+        await Assert.That(read.Text).IsEqualTo("ab");
+        await Assert.That(read.Error).IsSameReferenceAs(XmlErrorCodes.XML0002);
+        await Assert.That(frame!.ErrorByteOffset).IsEqualTo(2);
+        await Assert.That(resolver.Streams[0].IsDisposed).IsTrue();
+    }
+
     [Test]
     [Arguments(1)]
     [Arguments(3)]

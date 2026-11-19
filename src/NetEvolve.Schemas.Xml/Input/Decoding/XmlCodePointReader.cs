@@ -1,9 +1,12 @@
 namespace NetEvolve.Schemas.Xml.Input.Decoding;
 
 using System;
-using NetEvolve.Schemas.Xml.Text.CharClasses;
 
-/// <summary>Reads one code point from the start of a byte span. Strict: invalid input is never replaced.</summary>
+/// <summary>
+/// Reads one code point from the start of a byte span. Strict: invalid input is never replaced. A scalar value that is
+/// not a <c>Char</c> (production 2) is valid in the encoding and is returned; the parser reports it as <c>XML0002</c>, as
+/// it does for characters (#712).
+/// </summary>
 internal static class XmlCodePointReader
 {
     /// <summary>The outcome of one read.</summary>
@@ -15,7 +18,7 @@ internal static class XmlCodePointReader
         /// <summary>The span ends inside a sequence that is valid so far.</summary>
         NeedMoreData,
 
-        /// <summary>The sequence is malformed, or its code point is not a <c>Char</c> (production 2).</summary>
+        /// <summary>The sequence is malformed in the encoding, or its value is not a Unicode scalar value.</summary>
         Invalid,
     }
 
@@ -39,7 +42,7 @@ internal static class XmlCodePointReader
             return ReadStatus.NeedMoreData;
         }
 
-        var status = encoding switch
+        return encoding switch
         {
             XmlInputEncoding.Utf8 => ReadUtf8(source, out consumed, out codePoint),
             XmlInputEncoding.Utf16LittleEndian => ReadUtf16(source, true, out consumed, out codePoint),
@@ -49,8 +52,6 @@ internal static class XmlCodePointReader
             XmlInputEncoding.UsAscii => ReadSingleByte(source, 0x7F, out consumed, out codePoint),
             _ => ReadSingleByte(source, 0xFF, out consumed, out codePoint),
         };
-
-        return status == ReadStatus.Ok && !XmlCharClass.IsChar(codePoint) ? ReadStatus.Invalid : status;
     }
 
     private static ReadStatus ReadSingleByte(ReadOnlySpan<byte> source, int max, out int consumed, out int codePoint)
@@ -180,7 +181,7 @@ internal static class XmlCodePointReader
         var value = littleEndian
             ? (uint)(source[0] | (source[1] << 8) | (source[2] << 16)) | ((uint)source[3] << 24)
             : ((uint)source[0] << 24) | (uint)((source[1] << 16) | (source[2] << 8) | source[3]);
-        if (value > 0x10FFFF)
+        if (value > 0x10FFFF || value is >= 0xD800 and <= 0xDFFF)
         {
             return ReadStatus.Invalid;
         }
