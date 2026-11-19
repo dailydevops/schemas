@@ -11,6 +11,8 @@ public class TemporalErrorTests
     [Arguments("xs:dateTime('99999999999999999-12-31T00:00:00') + xs:yearMonthDuration('P1M')")]
     [Arguments("xs:dateTime('-99999999999999999-01-01T00:00:00') - xs:yearMonthDuration('P1M')")]
     [Arguments("xs:date('99999999999999999-06-15') + xs:yearMonthDuration('P1Y')")]
+    [Arguments("xs:dateTime('99999999999999999-01-01T00:00:00Z') - xs:dateTime('-99999999999999999-01-01T00:00:00Z')")]
+    [Arguments("xs:date('99999999999999999-01-01Z') - xs:date('-99999999999999999-01-01Z')")]
     public async Task ADateOrTimeResultBeyondTheYearRange_RaisesFodt0001(string expression) =>
         await Assert.That(Code(expression)).IsEqualTo("FODT0001");
 
@@ -29,7 +31,6 @@ public class TemporalErrorTests
     [Arguments("xs:dayTimeDuration('PT1S') div 0")]
     [Arguments("xs:dayTimeDuration('PT1S') div xs:double('-0')")]
     [Arguments("xs:dayTimeDuration('PT0S') div 0")]
-    [Arguments("xs:dateTime('99999999999999999-01-01T00:00:00Z') - xs:dateTime('-99999999999999999-01-01T00:00:00Z')")]
     public async Task ADurationResultBeyondTheRange_RaisesFodt0002(string expression) =>
         await Assert.That(Code(expression)).IsEqualTo("FODT0002");
 

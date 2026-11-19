@@ -6,9 +6,10 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// <summary>
 /// <c>fn:sum</c>: the sum of the numbers of the argument with type promotion. <c>xs:untypedAtomic</c> values are cast to
 /// <c>xs:double</c>, and a value that is not a number is FORG0006. The empty sequence gives the zero value: the second argument, or
-/// the integer 0 without one.
+/// the integer 0 without one. A sequence of <c>xs:yearMonthDuration</c> or of <c>xs:dayTimeDuration</c> values is added through the
+/// entries of the arithmetic operator table.
 /// </summary>
-/// <remarks>Limitation: sums of durations are left to XP-26 (<see cref="AggregateInput"/>).</remarks>
+/// <remarks>Limitation: <c>xs:duration</c> and the dates and times have no sum and are FORG0006 (<see cref="AggregateInput"/>).</remarks>
 internal sealed class SumFunction : SequenceFunction
 {
     /// <summary>Initializes a new instance of the <see cref="SumFunction"/> class.</summary>
@@ -26,7 +27,7 @@ internal sealed class SumFunction : SequenceFunction
             return XPathEvaluationStatus.Ok;
         }
 
-        invocation.Result = XdmSequence.Create(AggregateInput.Sum(in items));
+        invocation.Result = XdmSequence.Create(AggregateInput.Sum(in items, invocation.Context));
         return XPathEvaluationStatus.Ok;
     }
 }

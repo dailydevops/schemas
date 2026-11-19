@@ -14,9 +14,9 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// family registers its own entries through its own registration file in the same table.
 /// </para>
 /// <para>
-/// Limitation: the types that compare by <c>eq</c> and <c>ne</c> only (<c>xs:QName</c>, <c>xs:NOTATION</c>, the binary and Gregorian
-/// types) have no value type yet, and the dates, times, and durations are left to XP-26; a comparison of them is XPTY0004 until
-/// their folders register entries.
+/// Limitation: the types that compare by <c>eq</c> and <c>ne</c> only and have no entries here are <c>xs:QName</c>, <c>xs:NOTATION</c>, and the
+/// binary types; a comparison of them is XPTY0004. The dates, times, durations, and Gregorian types
+/// register their entries through the registration file of the temporal folder (<c>TemporalOperators</c>), not through this one.
 /// </para>
 /// </remarks>
 internal static class ComparisonOperators

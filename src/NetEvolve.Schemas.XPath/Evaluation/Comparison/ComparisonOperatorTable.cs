@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using NetEvolve.Arguments;
+using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Types;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
@@ -24,10 +25,16 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// This table mirrors the shape of the table of the arithmetic operators, which is keyed by the arithmetic operator enumeration
 /// and lives in the folder of another work package; the two tables share no code, and unifying them is a change to that folder.
 /// </para>
+/// <para>
+/// An entry is registered with <see cref="ComparisonImplementation"/> when it needs the operands only, and with
+/// <see cref="ContextComparisonImplementation"/> when it reads the dynamic context, as the comparisons of dates and times do for the
+/// implicit timezone. The evaluation looks entries up with <c>TryGetContextual</c>, which finds both kinds; <c>TryGet</c> finds the
+/// entries registered without the context only.
+/// </para>
 /// </remarks>
 internal sealed class ComparisonOperatorTable
 {
-    private readonly Dictionary<(int Relation, int Left, int Right), ComparisonImplementation> _entries = [];
+    private readonly Dictionary<(int Relation, int Left, int Right), Entry> _entries = [];
     private readonly List<Entry>[] _byRelation;
 
     /// <summary>Initializes a new instance of the <see cref="ComparisonOperatorTable"/> class, empty.</summary>
@@ -58,16 +65,36 @@ internal sealed class ComparisonOperatorTable
         ComparisonRelations.Check(relation);
         Argument.ThrowIfNull(implementation);
 
-        var key = ((int)relation, left.Value, right.Value);
-        if (_entries.ContainsKey(key))
-        {
-            throw new InvalidOperationException(
-                $"An implementation of '{relation}' for the operand types {left.Value} and {right.Value} is already registered."
-            );
-        }
+        Add(
+            relation,
+            new Entry(
+                left,
+                right,
+                implementation,
+                (ComparisonRelation r, in XdmItem a, in XdmItem b, XPathEvaluationContext _) => implementation(r, a, b)
+            )
+        );
+    }
 
-        _entries.Add(key, implementation);
-        _byRelation[(int)relation].Add(new Entry(left, right, implementation));
+    /// <summary>Registers the implementation of a relation for a pair of operand types that reads the dynamic context.</summary>
+    /// <param name="relation">The relation.</param>
+    /// <param name="left">The type of the left operand.</param>
+    /// <param name="right">The type of the right operand.</param>
+    /// <param name="implementation">The implementation.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="implementation"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="relation"/> is not a defined relation.</exception>
+    /// <exception cref="InvalidOperationException">The relation and the pair of types already have an implementation.</exception>
+    public void RegisterContextual(
+        ComparisonRelation relation,
+        XdmTypeId left,
+        XdmTypeId right,
+        ContextComparisonImplementation implementation
+    )
+    {
+        ComparisonRelations.Check(relation);
+        Argument.ThrowIfNull(implementation);
+
+        Add(relation, new Entry(left, right, null, implementation));
     }
 
     /// <summary>Finds the implementation of a relation for a pair of operand types.</summary>
@@ -88,9 +115,50 @@ internal sealed class ComparisonOperatorTable
         out ComparisonImplementation? implementation
     )
     {
+        var found = TryFind(relation, left, right, out var entry);
+        implementation = found ? entry.Plain : null;
+        return implementation is not null;
+    }
+
+    /// <summary>Finds the implementation of a relation for a pair of operand types, whether it reads the dynamic context or not.</summary>
+    /// <param name="relation">The relation.</param>
+    /// <param name="left">The type of the left operand.</param>
+    /// <param name="right">The type of the right operand.</param>
+    /// <param name="implementation">The implementation, <see langword="null"/> when there is none; an entry registered without the context is wrapped once, at registration.</param>
+    /// <returns><see langword="true"/> when an entry matches the types exactly or by subtype substitution.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="relation"/> is not a defined relation.</exception>
+    /// <remarks>Allocates nothing; the lookup is the one of <c>TryGet</c>.</remarks>
+    public bool TryGetContextual(
+        ComparisonRelation relation,
+        XdmTypeId left,
+        XdmTypeId right,
+        out ContextComparisonImplementation? implementation
+    )
+    {
+        var found = TryFind(relation, left, right, out var entry);
+        implementation = found ? entry.Contextual : null;
+        return found;
+    }
+
+    private void Add(ComparisonRelation relation, in Entry entry)
+    {
+        var key = ((int)relation, entry.Left.Value, entry.Right.Value);
+        if (_entries.ContainsKey(key))
+        {
+            throw new InvalidOperationException(
+                $"An implementation of '{relation}' for the operand types {entry.Left.Value} and {entry.Right.Value} is already registered."
+            );
+        }
+
+        _entries.Add(key, entry);
+        _byRelation[(int)relation].Add(entry);
+    }
+
+    private bool TryFind(ComparisonRelation relation, XdmTypeId left, XdmTypeId right, out Entry entry)
+    {
         ComparisonRelations.Check(relation);
 
-        if (_entries.TryGetValue(((int)relation, left.Value, right.Value), out implementation))
+        if (_entries.TryGetValue(((int)relation, left.Value, right.Value), out entry))
         {
             return true;
         }
@@ -100,8 +168,8 @@ internal sealed class ComparisonOperatorTable
         var best = -1;
         for (var i = 0; i < entries.Count; i++)
         {
-            var entry = entries[i];
-            if (!XdmTypes.IsDerivedFrom(left, entry.Left) || !XdmTypes.IsDerivedFrom(right, entry.Right))
+            var candidate = entries[i];
+            if (!XdmTypes.IsDerivedFrom(left, candidate.Left) || !XdmTypes.IsDerivedFrom(right, candidate.Right))
             {
                 continue;
             }
@@ -109,8 +177,8 @@ internal sealed class ComparisonOperatorTable
             if (
                 best < 0
                 || (
-                    XdmTypes.IsDerivedFrom(entry.Left, entries[best].Left)
-                    && XdmTypes.IsDerivedFrom(entry.Right, entries[best].Right)
+                    XdmTypes.IsDerivedFrom(candidate.Left, entries[best].Left)
+                    && XdmTypes.IsDerivedFrom(candidate.Right, entries[best].Right)
                 )
             )
             {
@@ -118,17 +186,24 @@ internal sealed class ComparisonOperatorTable
             }
         }
 
-        implementation = best < 0 ? null : entries[best].Implementation;
+        entry = best < 0 ? default : entries[best];
         return best >= 0;
     }
 
     [StructLayout(LayoutKind.Auto)]
-    private readonly struct Entry(XdmTypeId left, XdmTypeId right, ComparisonImplementation implementation)
+    private readonly struct Entry(
+        XdmTypeId left,
+        XdmTypeId right,
+        ComparisonImplementation? plain,
+        ContextComparisonImplementation contextual
+    )
     {
         public XdmTypeId Left { get; } = left;
 
         public XdmTypeId Right { get; } = right;
 
-        public ComparisonImplementation Implementation { get; } = implementation;
+        public ComparisonImplementation? Plain { get; } = plain;
+
+        public ContextComparisonImplementation Contextual { get; } = contextual;
     }
 }

@@ -19,8 +19,8 @@ namespace NetEvolve.Schemas.XPath.Tests.Unit.Evaluation.Temporal;
 /// <see cref="TemporalFixture"/> and not through the runner; the end-to-end run stays open until #295, as for the casting rows (#265, #301).
 /// <see cref="NotXPath20"/> lists the cases that depend on XQuery 1.0 or 3.0 and are never selected for XPath 2.0 (the dependency rule of the QT3
 /// selector of the integration tests). <see cref="OutOfShape"/> lists every other case of the sets with the reason: the expression needs a logical
-/// operator, a conditional, a <c>for</c> expression, or a function of a group that has not landed (<c>fn:boolean</c>, <c>fn:number</c>,
-/// <c>fn:true</c>, <c>fn:false</c>), or an assertion of another shape; the cases that read <c>fn:implicit-timezone</c> are covered by the
+/// operator, a conditional, a <see langword="for"/> expression, or a function of a group that has not landed (<c>fn:boolean</c>, <c>fn:number</c>,
+/// <c>fn:true</c>, <c>fn:false</c>), or an assertion of another shape, or the negation of a value that is not a boolean (the effective boolean value, XP-58); the cases that read <c>fn:implicit-timezone</c> are covered by the
 /// hand-written tests of the implicit timezone. The lists are taken mechanically from the pinned suite.
 /// </para>
 /// </remarks>
@@ -59,11 +59,6 @@ internal static class Qt3TemporalSelection
             "op-add-dayTimeDuration-to-date/op-add-dayTimeDuration-to-date-1",
             "xs:date(\"2004-10-30Z\") + xs:dayTimeDuration(\"P2DT2H30M0S\")",
             "S:2004-11-01Z"
-        ),
-        (
-            "op-add-dayTimeDuration-to-date/op-add-dayTimeDuration-to-date-4",
-            "fn:string(xs:date(\"1998-09-12Z\") + xs:dayTimeDuration(\"P02DT07H01M\"))",
-            "T"
         ),
         (
             "op-add-dayTimeDuration-to-date/op-add-dayTimeDuration-to-date-7",
@@ -134,11 +129,6 @@ internal static class Qt3TemporalSelection
             "op-add-dayTimeDuration-to-dateTime/op-add-dayTimeDuration-to-dateTime-1",
             "xs:dateTime(\"2000-10-30T11:12:00\") + xs:dayTimeDuration(\"P3DT1H15M\")",
             "S:2000-11-02T12:27:00"
-        ),
-        (
-            "op-add-dayTimeDuration-to-dateTime/op-add-dayTimeDuration-to-dateTime-4",
-            "fn:string(xs:dateTime(\"1998-09-12T13:23:23Z\") + xs:dayTimeDuration(\"P02DT07H01M\"))",
-            "T"
         ),
         (
             "op-add-dayTimeDuration-to-dateTime/op-add-dayTimeDuration-to-dateTime-7",
@@ -226,11 +216,6 @@ internal static class Qt3TemporalSelection
             "S:02:27:00+03:00"
         ),
         (
-            "op-add-dayTimeDuration-to-time/op-add-dayTimeDuration-to-time-4",
-            "fn:string(xs:time(\"13:12:00Z\") + xs:dayTimeDuration(\"P02DT07H01M\"))",
-            "T"
-        ),
-        (
             "op-add-dayTimeDuration-to-time/op-add-dayTimeDuration-to-time-7",
             "fn:string(xs:time(\"10:02:03Z\") + xs:dayTimeDuration(\"P01DT09H02M\"))",
             "S:19:04:03Z"
@@ -304,11 +289,6 @@ internal static class Qt3TemporalSelection
             "op-add-dayTimeDurations/op-add-dayTimeDurations-1",
             "xs:dayTimeDuration(\"P2DT12H5M\") + xs:dayTimeDuration(\"P5DT12H\")",
             "S:P8DT5M"
-        ),
-        (
-            "op-add-dayTimeDurations/op-add-dayTimeDurations-4",
-            "fn:string(xs:dayTimeDuration(\"P11DT12H04M\") + xs:dayTimeDuration(\"P02DT07H01M\"))",
-            "T"
         ),
         (
             "op-add-dayTimeDurations/op-add-dayTimeDurations-7",
@@ -391,11 +371,6 @@ internal static class Qt3TemporalSelection
             "S:2001-12-30"
         ),
         (
-            "op-add-yearMonthDuration-to-date/op-add-yearMonthDuration-to-date-4",
-            "fn:string(xs:date(\"1998-09-12Z\") + xs:yearMonthDuration(\"P20Y03M\"))",
-            "T"
-        ),
-        (
             "op-add-yearMonthDuration-to-date/op-add-yearMonthDuration-to-date-7",
             "fn:string(xs:date(\"1989-07-05Z\") + xs:yearMonthDuration(\"P08Y04M\"))",
             "S:1997-11-05Z"
@@ -474,11 +449,6 @@ internal static class Qt3TemporalSelection
             "op-add-yearMonthDuration-to-dateTime/op-add-yearMonthDuration-to-dateTime-1",
             "xs:dateTime(\"2000-10-30T11:12:00\") + xs:yearMonthDuration(\"P1Y2M\")",
             "S:2001-12-30T11:12:00"
-        ),
-        (
-            "op-add-yearMonthDuration-to-dateTime/op-add-yearMonthDuration-to-dateTime-4",
-            "fn:string(xs:dateTime(\"1998-09-12T13:56:12Z\") + xs:yearMonthDuration(\"P20Y03M\"))",
-            "T"
         ),
         (
             "op-add-yearMonthDuration-to-dateTime/op-add-yearMonthDuration-to-dateTime-7",
@@ -569,11 +539,6 @@ internal static class Qt3TemporalSelection
             "op-add-yearMonthDurations/op-add-yearMonthDurations-1",
             "xs:yearMonthDuration(\"P2Y11M\") + xs:yearMonthDuration(\"P3Y3M\")",
             "S:P6Y2M"
-        ),
-        (
-            "op-add-yearMonthDurations/op-add-yearMonthDurations-4",
-            "fn:string(xs:yearMonthDuration(\"P11Y04M\") + xs:yearMonthDuration(\"P02Y11M\"))",
-            "T"
         ),
         (
             "op-add-yearMonthDurations/op-add-yearMonthDurations-7",
@@ -722,7 +687,6 @@ internal static class Qt3TemporalSelection
             "(xs:date(\"2004-12-25-12:00\") gt xs:date(\"2004-12-26+12:00\"))",
             "F"
         ),
-        ("op-date-greater-than/op-date-greater-than-3", "(xs:date(\"2005-12-26Z\") gt xs:date(\"2005-12-25Z\"))", "T"),
         ("op-date-greater-than/op-date-greater-than-4", "xs:date(\"2005-04-02Z\") ge xs:date(\"2005-04-02Z\")", "T"),
         ("op-date-greater-than/op-date-greater-than-5", "xs:date(\"2000-11-09Z\") gt xs:date(\"2000-11-10Z\")", "F"),
         ("op-date-greater-than/op-date-greater-than-6", "xs:date(\"2005-10-23Z\") ge xs:date(\"2005-10-25Z\")", "F"),
@@ -788,7 +752,6 @@ internal static class Qt3TemporalSelection
             "(xs:date(\"2004-12-25-12:00\") le xs:date(\"2004-12-26+12:00\"))",
             "T"
         ),
-        ("op-date-less-than/op-date-less-than-3", "(xs:date(\"2005-12-25Z\") lt xs:date(\"2005-12-26Z\"))", "T"),
         ("op-date-less-than/op-date-less-than-4", "xs:date(\"2005-04-02Z\") le xs:date(\"2005-04-02Z\")", "T"),
         ("op-date-less-than/op-date-less-than-5", "xs:date(\"2000-12-25Z\") lt xs:date(\"2000-11-25Z\")", "F"),
         ("op-date-less-than/op-date-less-than-6", "xs:date(\"2005-10-25Z\") le xs:date(\"2005-10-23Z\")", "F"),
@@ -1172,11 +1135,6 @@ internal static class Qt3TemporalSelection
             "T"
         ),
         (
-            "op-dateTime-greater-than/op-dateTime-greater-than-3",
-            "(xs:dateTime(\"2004-04-02T12:00:00Z\") gt xs:dateTime(\"2003-04-02T12:00:00Z\"))",
-            "T"
-        ),
-        (
             "op-dateTime-greater-than/op-dateTime-greater-than-4",
             "xs:dateTime(\"2002-04-02T12:00:00Z\") ge xs:dateTime(\"2002-04-02T12:00:00Z\")",
             "T"
@@ -1310,11 +1268,6 @@ internal static class Qt3TemporalSelection
             "op-dateTime-less-than/op-dateTime-less-than2args-10",
             "xs:dateTime(\"1970-01-01T00:00:00Z\") ge xs:dateTime(\"2030-12-31T23:59:59Z\")",
             "F"
-        ),
-        (
-            "op-dateTime-less-than/op-dateTime-less-than-3",
-            "(xs:dateTime(\"2002-04-02T12:00:00Z\") lt xs:dateTime(\"2003-04-02T12:00:00Z\"))",
-            "T"
         ),
         (
             "op-dateTime-less-than/op-dateTime-less-than-4",
@@ -1452,11 +1405,6 @@ internal static class Qt3TemporalSelection
             "T"
         ),
         (
-            "op-dayTimeDuration-greater-than/op-dayTimeDuration-greater-than-3",
-            "(xs:dayTimeDuration(\"P15DT12H\") gt xs:dayTimeDuration(\"P14DT11H\"))",
-            "T"
-        ),
-        (
             "op-dayTimeDuration-greater-than/op-dayTimeDuration-greater-than-4",
             "xs:dayTimeDuration(\"P10DT11H\") ge xs:dayTimeDuration(\"P10DT10H\")",
             "T"
@@ -1552,11 +1500,6 @@ internal static class Qt3TemporalSelection
             "F"
         ),
         (
-            "op-dayTimeDuration-less-than/op-dayTimeDuration-less-than-3",
-            "(xs:dayTimeDuration(\"P13DT12H\") lt xs:dayTimeDuration(\"P14DT11H\"))",
-            "T"
-        ),
-        (
             "op-dayTimeDuration-less-than/op-dayTimeDuration-less-than-4",
             "xs:dayTimeDuration(\"P10DT110H\") le xs:dayTimeDuration(\"P10DT11H\")",
             "F"
@@ -1627,11 +1570,6 @@ internal static class Qt3TemporalSelection
             "E:0"
         ),
         (
-            "op-divide-dayTimeDuration-by-dayTimeDuration/op-divide-dayTimeDuration-by-dTD-4",
-            "xs:dayTimeDuration(\"P11DT12H04M\") div xs:dayTimeDuration(\"P02DT07H01M\")",
-            "T"
-        ),
-        (
             "op-divide-dayTimeDuration-by-dayTimeDuration/op-divide-dayTimeDuration-by-dTD-7",
             "fn:string(xs:dayTimeDuration(\"P08DT06H08M\") div xs:dayTimeDuration(\"P08DT06H08M\"))",
             "E:\"1\""
@@ -1695,11 +1633,6 @@ internal static class Qt3TemporalSelection
             "op-divide-dayTimeDuration/op-divide-dayTimeDuration2args-5",
             "xs:dayTimeDuration(\"P0DT0H0M0S\") div xs:double(\"1.7976931348623157E308\")",
             "S:PT0S"
-        ),
-        (
-            "op-divide-dayTimeDuration/op-divide-dayTimeDuration-4",
-            "fn:string(xs:dayTimeDuration(\"P11DT12H04M\") div 2.0)",
-            "T"
         ),
         (
             "op-divide-dayTimeDuration/op-divide-dayTimeDuration-7",
@@ -1836,11 +1769,6 @@ internal static class Qt3TemporalSelection
             "E:-2.5"
         ),
         (
-            "op-divide-yearMonthDuration-by-yearMonthDuration/op-divide-yearMonthDuration-by-yMD-4",
-            "xs:yearMonthDuration(\"P11Y04M\") div xs:yearMonthDuration(\"P02Y11M\")",
-            "T"
-        ),
-        (
             "op-divide-yearMonthDuration-by-yearMonthDuration/op-divide-yearMonthDuration-by-yMD-7",
             "fn:string(xs:yearMonthDuration(\"P03Y08M\") div xs:yearMonthDuration(\"P03Y08M\"))",
             "E:\"1\""
@@ -1909,11 +1837,6 @@ internal static class Qt3TemporalSelection
             "op-divide-yearMonthDuration/op-divide-yearMonthDuration-1",
             "(xs:yearMonthDuration(\"P2Y11M\") div 1.5)",
             "S:P1Y11M"
-        ),
-        (
-            "op-divide-yearMonthDuration/op-divide-yearMonthDuration-4",
-            "fn:string(xs:yearMonthDuration(\"P11Y04M\") div 2.0)",
-            "T"
         ),
         (
             "op-divide-yearMonthDuration/op-divide-yearMonthDuration-7",
@@ -2493,7 +2416,6 @@ internal static class Qt3TemporalSelection
         ("op-gDay-equal/op-gDay-equal2args-9", "xs:gDay(\"---01Z\") ne xs:gDay(\"---14Z\")", "T"),
         ("op-gDay-equal/op-gDay-equal2args-10", "xs:gDay(\"---01Z\") ne xs:gDay(\"---31Z\")", "T"),
         ("op-gDay-equal/op-gDay-equal-2", "(xs:gDay(\"---12-05:00\") eq xs:gDay(\"---12Z\"))", "F"),
-        ("op-gDay-equal/op-gDay-equal-3", "(xs:gDay(\"---12Z\") eq xs:gDay(\"---12Z\"))", "T"),
         ("op-gDay-equal/op-gDay-equal-4", "xs:gDay(\"---05Z\") ne xs:gDay(\"---06Z\")", "T"),
         ("op-gDay-equal/op-gDay-equal-5", "xs:gDay(\"---11Z\") eq xs:gDay(\"---10Z\")", "F"),
         ("op-gDay-equal/op-gDay-equal-6", "xs:gDay(\"---05Z\") ne xs:gDay(\"---05Z\")", "F"),
@@ -2520,7 +2442,6 @@ internal static class Qt3TemporalSelection
         ("op-gMonth-equal/op-gMonth-equal2args-9", "xs:gMonth(\"--01Z\") ne xs:gMonth(\"--07Z\")", "T"),
         ("op-gMonth-equal/op-gMonth-equal2args-10", "xs:gMonth(\"--01Z\") ne xs:gMonth(\"--12Z\")", "T"),
         ("op-gMonth-equal/op-gMonth-equal-2", "(xs:gMonth(\"--12-05:00\") eq xs:gMonth(\"--12Z\"))", "F"),
-        ("op-gMonth-equal/op-gMonth-equal-3", "(xs:gMonth(\"--12Z\") eq xs:gMonth(\"--12Z\"))", "T"),
         ("op-gMonth-equal/op-gMonth-equal-4", "xs:gMonth(\"--05Z\") ne xs:gMonth(\"--06Z\")", "T"),
         ("op-gMonth-equal/op-gMonth-equal-5", "xs:gMonth(\"--11Z\") eq xs:gMonth(\"--10Z\")", "F"),
         ("op-gMonth-equal/op-gMonth-equal-6", "xs:gMonth(\"--05Z\") ne xs:gMonth(\"--05Z\")", "F"),
@@ -2583,7 +2504,6 @@ internal static class Qt3TemporalSelection
             "T"
         ),
         ("op-gMonthDay-equal/op-gMonthDay-equal-2", "(xs:gMonthDay(\"--12-25Z\") eq xs:gMonthDay(\"--12-26Z\"))", "F"),
-        ("op-gMonthDay-equal/op-gMonthDay-equal-3", "(xs:gMonthDay(\"--12-10Z\") eq xs:gMonthDay(\"--12-10Z\"))", "T"),
         ("op-gMonthDay-equal/op-gMonthDay-equal-4", "xs:gMonthDay(\"--05-01Z\") ne xs:gMonthDay(\"--06-12Z\")", "T"),
         ("op-gMonthDay-equal/op-gMonthDay-equal-5", "xs:gMonthDay(\"--11-10Z\") eq xs:gMonthDay(\"--10-02Z\")", "F"),
         ("op-gMonthDay-equal/op-gMonthDay-equal-6", "xs:gMonthDay(\"--05-10Z\") ne xs:gMonthDay(\"--05-10Z\")", "F"),
@@ -2631,7 +2551,6 @@ internal static class Qt3TemporalSelection
         ("op-gYear-equal/op-gYear-equal2args-10", "xs:gYear(\"1970Z\") ne xs:gYear(\"2030Z\")", "T"),
         ("op-gYear-equal/op-gYear-equal-1", "(xs:gYear(\"2005-12:00\") eq xs:gYear(\"2005+12:00\"))", "F"),
         ("op-gYear-equal/op-gYear-equal-2", "(xs:gYear(\"1976-05:00\") eq xs:gYear(\"1976-05:00\"))", "T"),
-        ("op-gYear-equal/op-gYear-equalNew-3", "(xs:gYear(\"1995Z\") eq xs:gYear(\"1995Z\"))", "T"),
         ("op-gYear-equal/op-gYear-equalNew-4", "xs:gYear(\"2005Z\") ne xs:gYear(\"2006Z\")", "T"),
         ("op-gYear-equal/op-gYear-equal-5", "xs:gYear(\"2000Z\") eq xs:gYear(\"2001Z\")", "F"),
         ("op-gYear-equal/op-gYear-equalNew-6", "xs:gYear(\"2005Z\") ne xs:gYear(\"2005Z\")", "F"),
@@ -2704,11 +2623,6 @@ internal static class Qt3TemporalSelection
             "F"
         ),
         (
-            "op-gYearMonth-equal/op-gYearMonth-equalNew-3",
-            "(xs:gYearMonth(\"1995-02Z\") eq xs:gYearMonth(\"1995-02Z\"))",
-            "T"
-        ),
-        (
             "op-gYearMonth-equal/op-gYearMonth-equalNew-4",
             "xs:gYearMonth(\"2005-02Z\") ne xs:gYearMonth(\"2006-03Z\")",
             "T"
@@ -2772,11 +2686,6 @@ internal static class Qt3TemporalSelection
             "op-multiply-dayTimeDuration/op-multiply-dayTimeDuration-1",
             "xs:dayTimeDuration(\"PT2H10M\") * 2.1",
             "S:PT4H33M"
-        ),
-        (
-            "op-multiply-dayTimeDuration/op-multiply-dayTimeDuration-4",
-            "fn:string(xs:dayTimeDuration(\"P11DT12H04M\") * 2.0)",
-            "T"
         ),
         (
             "op-multiply-dayTimeDuration/op-multiply-dayTimeDuration-7",
@@ -2892,11 +2801,6 @@ internal static class Qt3TemporalSelection
             "op-multiply-yearMonthDuration/op-multiply-yearMonthDuration-1",
             "xs:yearMonthDuration(\"P2Y11M\") * 2.3",
             "S:P6Y9M"
-        ),
-        (
-            "op-multiply-yearMonthDuration/op-multiply-yearMonthDuration-4",
-            "fn:string(xs:yearMonthDuration(\"P11Y04M\") * 2.0)",
-            "T"
         ),
         (
             "op-multiply-yearMonthDuration/op-multiply-yearMonthDuration-7",
@@ -3016,11 +2920,6 @@ internal static class Qt3TemporalSelection
             "S:P730D"
         ),
         (
-            "op-subtract-dateTimes/op-subtract-dateTimes-yielding-DTD-4",
-            "fn:string(xs:dateTime(\"1998-09-12T11:12:12Z\") - xs:dateTime(\"1996-02-02T01:01:01Z\"))",
-            "T"
-        ),
-        (
             "op-subtract-dateTimes/op-subtract-dateTimes-yielding-DTD-7",
             "fn:string(xs:dateTime(\"1989-07-05T02:02:02Z\") - xs:dateTime(\"1988-01-28T03:03:03Z\"))",
             "S:P523DT22H58M59S"
@@ -3114,11 +3013,6 @@ internal static class Qt3TemporalSelection
             "op-subtract-dates/op-subtract-dates-yielding-DTD-3",
             "xs:date(\"2000-10-15-05:00\") - xs:date(\"2000-10-10+02:00\")",
             "S:P5DT7H"
-        ),
-        (
-            "op-subtract-dates/op-subtract-dates-yielding-DTD-4",
-            "fn:string(xs:date(\"1998-09-12Z\") - xs:date(\"1998-09-21Z\"))",
-            "T"
         ),
         (
             "op-subtract-dates/op-subtract-dates-yielding-DTD-7",
@@ -3219,11 +3113,6 @@ internal static class Qt3TemporalSelection
             "S:2000-10-26"
         ),
         (
-            "op-subtract-dayTimeDuration-from-date/op-subtract-dayTimeDuration-from-date-4",
-            "fn:string(xs:date(\"1998-09-12Z\") - xs:dayTimeDuration(\"P02DT07H01M\"))",
-            "T"
-        ),
-        (
             "op-subtract-dayTimeDuration-from-date/op-subtract-dayTimeDuration-from-date-7",
             "fn:string(xs:date(\"1989-07-05Z\") - xs:dayTimeDuration(\"P01DT09H02M\"))",
             "S:1989-07-03Z"
@@ -3289,11 +3178,6 @@ internal static class Qt3TemporalSelection
             "S:2000-10-27T09:57:00"
         ),
         (
-            "op-subtract-dayTimeDuration-from-dateTime/op-subtract-dayTimeDuration-from-dateTime-4",
-            "fn:string(xs:dateTime(\"1998-09-12T13:23:23Z\") - xs:dayTimeDuration(\"P02DT07H01M\"))",
-            "T"
-        ),
-        (
             "op-subtract-dayTimeDuration-from-dateTime/op-subtract-dayTimeDuration-from-dateTime-7",
             "fn:string(xs:dateTime(\"1989-07-05T10:10:10Z\") - xs:dayTimeDuration(\"P01DT09H02M\"))",
             "S:1989-07-04T01:08:10Z"
@@ -3357,11 +3241,6 @@ internal static class Qt3TemporalSelection
             "op-subtract-dayTimeDuration-from-time/op-subtract-dayTimeDuration-from-time-2",
             "xs:time(\"08:20:00-05:00\") - xs:dayTimeDuration(\"P23DT10H10M\")",
             "S:22:10:00-05:00"
-        ),
-        (
-            "op-subtract-dayTimeDuration-from-time/op-subtract-dayTimeDuration-from-time-4",
-            "fn:string(xs:time(\"20:50:50Z\") - xs:dayTimeDuration(\"P02DT07H01M\"))",
-            "T"
         ),
         (
             "op-subtract-dayTimeDuration-from-time/op-subtract-dayTimeDuration-from-time-7",
@@ -3447,11 +3326,6 @@ internal static class Qt3TemporalSelection
             "op-subtract-dayTimeDurations/op-subtract-dayTimeDurations-1",
             "xs:dayTimeDuration(\"P2DT12H\") - xs:dayTimeDuration(\"P1DT10H30M\")",
             "S:P1DT1H30M"
-        ),
-        (
-            "op-subtract-dayTimeDurations/op-subtract-dayTimeDurations-4",
-            "fn:string(xs:dayTimeDuration(\"P11DT12H04M\") - xs:dayTimeDuration(\"P02DT07H01M\"))",
-            "T"
         ),
         (
             "op-subtract-dayTimeDurations/op-subtract-dayTimeDurations-7",
@@ -3561,7 +3435,6 @@ internal static class Qt3TemporalSelection
             "S:PT0S"
         ),
         ("op-subtract-times/op-subtract-times-3", "xs:time(\"17:00:00-06:00\") - xs:time(\"08:00:00+09:00\")", "S:P1D"),
-        ("op-subtract-times/op-subtract-times-4", "fn:string(xs:time(\"13:00:00Z\") - xs:time(\"14:00:00Z\"))", "T"),
         (
             "op-subtract-times/op-subtract-times-7",
             "fn:string(xs:time(\"13:00:00Z\") - xs:time(\"17:00:00Z\"))",
@@ -3649,11 +3522,6 @@ internal static class Qt3TemporalSelection
             "S:1999-09-30-05:00"
         ),
         (
-            "op-subtract-yearMonthDuration-from-date/op-subtract-yearMonthDuration-from-date-4",
-            "fn:string(xs:date(\"1998-09-12Z\") - xs:yearMonthDuration(\"P20Y03M\"))",
-            "T"
-        ),
-        (
             "op-subtract-yearMonthDuration-from-date/op-subtract-yearMonthDuration-from-date-7",
             "fn:string(xs:date(\"1989-07-05Z\") - xs:yearMonthDuration(\"P08Y04M\"))",
             "S:1981-03-05Z"
@@ -3719,11 +3587,6 @@ internal static class Qt3TemporalSelection
             "S:1999-08-30T11:12:00"
         ),
         (
-            "op-subtract-yearMonthDuration-from-dateTime/op-subtract-yearMonthDuration-from-dateTime-4",
-            "fn:string(xs:dateTime(\"1998-09-12T13:56:12Z\") - xs:yearMonthDuration(\"P20Y03M\"))",
-            "T"
-        ),
-        (
             "op-subtract-yearMonthDuration-from-dateTime/op-subtract-yearMonthDuration-from-dateTime-7",
             "fn:string(xs:dateTime(\"1989-07-05T14:34:36Z\") - xs:yearMonthDuration(\"P08Y04M\"))",
             "S:1981-03-05T14:34:36Z"
@@ -3787,11 +3650,6 @@ internal static class Qt3TemporalSelection
             "op-subtract-yearMonthDurations/op-subtract-yearMonthDurations-1",
             "(xs:yearMonthDuration(\"P2Y11M\") - xs:yearMonthDuration(\"P3Y3M\"))",
             "S:-P4M"
-        ),
-        (
-            "op-subtract-yearMonthDurations/op-subtract-yearMonthDurations-4",
-            "fn:string(xs:yearMonthDuration(\"P11Y04M\") - xs:yearMonthDuration(\"P02Y11M\"))",
-            "T"
         ),
         (
             "op-subtract-yearMonthDurations/op-subtract-yearMonthDurations-7",
@@ -3944,7 +3802,6 @@ internal static class Qt3TemporalSelection
             "(xs:time(\"08:00:00+09:00\") ge xs:time(\"17:00:00-06:00\"))",
             "F"
         ),
-        ("op-time-greater-than/op-time-greater-than-3", "(xs:time(\"14:00:00Z\") gt xs:time(\"13:00:00Z\"))", "T"),
         ("op-time-greater-than/op-time-greater-than-4", "xs:time(\"13:00:00Z\") ge xs:time(\"10:00:00Z\")", "T"),
         ("op-time-greater-than/op-time-greater-than-5", "xs:time(\"13:00:00Z\") gt xs:time(\"14:00:00Z\")", "F"),
         ("op-time-greater-than/op-time-greater-than-6", "xs:time(\"13:00:00Z\") ge xs:time(\"17:00:00Z\")", "F"),
@@ -3986,7 +3843,6 @@ internal static class Qt3TemporalSelection
         ("op-time-less-than/op-time-less-than2args-10", "xs:time(\"00:00:00Z\") ge xs:time(\"23:59:59Z\")", "F"),
         ("op-time-less-than/op-time-less-than-1", "(xs:time(\"12:00:00-05:00\") lt xs:time(\"23:00:00+06:00\"))", "F"),
         ("op-time-less-than/op-time-less-than-2", "xs:time(\"11:00:00-05:00\") lt xs:time(\"17:00:00Z\")", "T"),
-        ("op-time-less-than/op-time-less-than-3", "(xs:time(\"13:00:00Z\") lt xs:time(\"14:00:00Z\"))", "T"),
         ("op-time-less-than/op-time-less-than-4", "xs:time(\"13:00:00Z\") le xs:time(\"14:00:00Z\")", "T"),
         ("op-time-less-than/op-time-less-than-5", "xs:time(\"13:00:00Z\") lt xs:time(\"10:00:00Z\")", "F"),
         ("op-time-less-than/op-time-less-than-6", "xs:time(\"13:00:00Z\") le xs:time(\"12:00:00Z\")", "F"),
@@ -4048,11 +3904,6 @@ internal static class Qt3TemporalSelection
         (
             "op-yearMonthDuration-greater-than/op-yearMonthDuration-greater-than2args-10",
             "xs:yearMonthDuration(\"P0Y0M\") le xs:yearMonthDuration(\"P2030Y12M\")",
-            "T"
-        ),
-        (
-            "op-yearMonthDuration-greater-than/op-yearMonthDuration-greater-than-3",
-            "(xs:yearMonthDuration(\"P20Y123M\") gt xs:yearMonthDuration(\"P20Y11M\"))",
             "T"
         ),
         (
@@ -4151,11 +4002,6 @@ internal static class Qt3TemporalSelection
             "F"
         ),
         (
-            "op-yearMonthDuration-less-than/op-yearMonthDuration-less-than-3",
-            "(xs:yearMonthDuration(\"P20Y10M\") lt xs:yearMonthDuration(\"P20Y11M\"))",
-            "T"
-        ),
-        (
             "op-yearMonthDuration-less-than/op-yearMonthDuration-less-than-4",
             "xs:yearMonthDuration(\"P20Y10M\") le xs:yearMonthDuration(\"P20Y10M\")",
             "T"
@@ -4213,6 +4059,10 @@ internal static class Qt3TemporalSelection
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
         (
+            "op-add-dayTimeDuration-to-date/op-add-dayTimeDuration-to-date-4",
+            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
+        ),
+        (
             "op-add-dayTimeDuration-to-date/op-add-dayTimeDuration-to-date-5",
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
@@ -4241,6 +4091,10 @@ internal static class Qt3TemporalSelection
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
         (
+            "op-add-dayTimeDuration-to-dateTime/op-add-dayTimeDuration-to-dateTime-4",
+            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
+        ),
+        (
             "op-add-dayTimeDuration-to-dateTime/op-add-dayTimeDuration-to-dateTime-5",
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
@@ -4262,6 +4116,10 @@ internal static class Qt3TemporalSelection
         ),
         (
             "op-add-dayTimeDuration-to-time/op-add-dayTimeDuration-to-time-3",
+            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
+        ),
+        (
+            "op-add-dayTimeDuration-to-time/op-add-dayTimeDuration-to-time-4",
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
         (
@@ -4297,6 +4155,10 @@ internal static class Qt3TemporalSelection
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
         (
+            "op-add-dayTimeDurations/op-add-dayTimeDurations-4",
+            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
+        ),
+        (
             "op-add-dayTimeDurations/op-add-dayTimeDurations-5",
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
@@ -4322,6 +4184,10 @@ internal static class Qt3TemporalSelection
         ),
         (
             "op-add-yearMonthDuration-to-date/op-add-yearMonthDuration-to-date-3",
+            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
+        ),
+        (
+            "op-add-yearMonthDuration-to-date/op-add-yearMonthDuration-to-date-4",
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
         (
@@ -4353,6 +4219,10 @@ internal static class Qt3TemporalSelection
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
         (
+            "op-add-yearMonthDuration-to-dateTime/op-add-yearMonthDuration-to-dateTime-4",
+            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
+        ),
+        (
             "op-add-yearMonthDuration-to-dateTime/op-add-yearMonthDuration-to-dateTimealt-5",
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
@@ -4381,6 +4251,10 @@ internal static class Qt3TemporalSelection
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
         (
+            "op-add-yearMonthDurations/op-add-yearMonthDurations-4",
+            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
+        ),
+        (
             "op-add-yearMonthDurations/op-add-yearMonthDurations-5",
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
@@ -4406,6 +4280,10 @@ internal static class Qt3TemporalSelection
         ),
         (
             "op-date-equal/cbcl-date-ne-001",
+            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
+        ),
+        (
+            "op-date-greater-than/op-date-greater-than-3",
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
         (
@@ -4445,6 +4323,10 @@ internal static class Qt3TemporalSelection
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
         (
+            "op-date-less-than/op-date-less-than-3",
+            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
+        ),
+        (
             "op-date-less-than/op-date-less-than-7",
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
@@ -4481,6 +4363,10 @@ internal static class Qt3TemporalSelection
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
         (
+            "op-dateTime-greater-than/op-dateTime-greater-than-3",
+            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
+        ),
+        (
             "op-dateTime-greater-than/op-dateTime-greater-than-7",
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
@@ -4510,6 +4396,10 @@ internal static class Qt3TemporalSelection
         ),
         (
             "op-dateTime-greater-than/op-dateTime-greater-than-14",
+            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
+        ),
+        (
+            "op-dateTime-less-than/op-dateTime-less-than-3",
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
         (
@@ -4545,6 +4435,10 @@ internal static class Qt3TemporalSelection
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
         (
+            "op-dayTimeDuration-greater-than/op-dayTimeDuration-greater-than-3",
+            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
+        ),
+        (
             "op-dayTimeDuration-greater-than/op-dayTimeDuration-greater-than-7",
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
@@ -4574,6 +4468,10 @@ internal static class Qt3TemporalSelection
         ),
         (
             "op-dayTimeDuration-greater-than/op-dayTimeDuration-greater-than-14",
+            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
+        ),
+        (
+            "op-dayTimeDuration-less-than/op-dayTimeDuration-less-than-3",
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
         (
@@ -4621,6 +4519,10 @@ internal static class Qt3TemporalSelection
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
         (
+            "op-divide-dayTimeDuration-by-dayTimeDuration/op-divide-dayTimeDuration-by-dTD-4",
+            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
+        ),
+        (
             "op-divide-dayTimeDuration-by-dayTimeDuration/op-divide-dayTimeDuration-by-dTD-5",
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
@@ -4661,6 +4563,10 @@ internal static class Qt3TemporalSelection
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
         (
+            "op-divide-dayTimeDuration/op-divide-dayTimeDuration-4",
+            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
+        ),
+        (
             "op-divide-dayTimeDuration/op-divide-dayTimeDuration-5",
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
@@ -4686,6 +4592,10 @@ internal static class Qt3TemporalSelection
         ),
         (
             "op-divide-yearMonthDuration-by-yearMonthDuration/op-divide-yearMonthDuration-by-yMD-3",
+            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
+        ),
+        (
+            "op-divide-yearMonthDuration-by-yearMonthDuration/op-divide-yearMonthDuration-by-yMD-4",
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
         (
@@ -4718,6 +4628,10 @@ internal static class Qt3TemporalSelection
         ),
         (
             "op-divide-yearMonthDuration/op-divide-yearMonthDuration-3",
+            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
+        ),
+        (
+            "op-divide-yearMonthDuration/op-divide-yearMonthDuration-4",
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
         (
@@ -4782,6 +4696,10 @@ internal static class Qt3TemporalSelection
         ),
         (
             "op-duration-equal/distinct-duration-equal-2",
+            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
+        ),
+        (
+            "op-gDay-equal/op-gDay-equal-3",
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
         (
@@ -4857,6 +4775,10 @@ internal static class Qt3TemporalSelection
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
         (
+            "op-gMonth-equal/op-gMonth-equal-3",
+            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
+        ),
+        (
             "op-gMonth-equal/op-gMonth-equal-7",
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
@@ -4918,6 +4840,10 @@ internal static class Qt3TemporalSelection
         ),
         (
             "op-gMonth-equal/cbcl-gMonth-equal-010",
+            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
+        ),
+        (
+            "op-gMonthDay-equal/op-gMonthDay-equal-3",
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
         (
@@ -4993,6 +4919,10 @@ internal static class Qt3TemporalSelection
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
         (
+            "op-gYear-equal/op-gYear-equalNew-3",
+            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
+        ),
+        (
             "op-gYear-equal/op-gYear-equalNew-7",
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
@@ -5054,6 +4984,10 @@ internal static class Qt3TemporalSelection
         ),
         (
             "op-gYear-equal/cbcl-gYear-equal-010",
+            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
+        ),
+        (
+            "op-gYearMonth-equal/op-gYearMonth-equalNew-3",
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
         (
@@ -5129,6 +5063,10 @@ internal static class Qt3TemporalSelection
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
         (
+            "op-multiply-dayTimeDuration/op-multiply-dayTimeDuration-4",
+            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
+        ),
+        (
             "op-multiply-dayTimeDuration/op-multiply-dayTimeDuration-5",
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
@@ -5165,6 +5103,10 @@ internal static class Qt3TemporalSelection
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
         (
+            "op-multiply-yearMonthDuration/op-multiply-yearMonthDuration-4",
+            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
+        ),
+        (
             "op-multiply-yearMonthDuration/op-multiply-yearMonthDuration-5",
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
@@ -5198,6 +5140,10 @@ internal static class Qt3TemporalSelection
         ),
         (
             "op-multiply-yearMonthDuration/op-multiply-yearMonthDuration-20",
+            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
+        ),
+        (
+            "op-subtract-dateTimes/op-subtract-dateTimes-yielding-DTD-4",
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
         (
@@ -5238,6 +5184,10 @@ internal static class Qt3TemporalSelection
         ),
         (
             "op-subtract-dateTimes/cbcl-subtract-dateTimes-004",
+            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
+        ),
+        (
+            "op-subtract-dates/op-subtract-dates-yielding-DTD-4",
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
         (
@@ -5289,6 +5239,10 @@ internal static class Qt3TemporalSelection
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
         (
+            "op-subtract-dayTimeDuration-from-date/op-subtract-dayTimeDuration-from-date-4",
+            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
+        ),
+        (
             "op-subtract-dayTimeDuration-from-date/op-subtract-dayTimeDuration-from-date-5",
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
@@ -5317,6 +5271,10 @@ internal static class Qt3TemporalSelection
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
         (
+            "op-subtract-dayTimeDuration-from-dateTime/op-subtract-dayTimeDuration-from-dateTime-4",
+            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
+        ),
+        (
             "op-subtract-dayTimeDuration-from-dateTime/op-subtract-dayTimeDuration-from-dateTime-5",
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
@@ -5338,6 +5296,10 @@ internal static class Qt3TemporalSelection
         ),
         (
             "op-subtract-dayTimeDuration-from-time/op-subtract-dayTimeDuration-from-time-3",
+            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
+        ),
+        (
+            "op-subtract-dayTimeDuration-from-time/op-subtract-dayTimeDuration-from-time-4",
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
         (
@@ -5373,6 +5335,10 @@ internal static class Qt3TemporalSelection
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
         (
+            "op-subtract-dayTimeDurations/op-subtract-dayTimeDurations-4",
+            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
+        ),
+        (
             "op-subtract-dayTimeDurations/op-subtract-dayTimeDurations-5",
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
@@ -5398,6 +5364,10 @@ internal static class Qt3TemporalSelection
         ),
         (
             "op-subtract-dayTimeDurations/K2-DayTimeDurationSubtract-2",
+            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
+        ),
+        (
+            "op-subtract-times/op-subtract-times-4",
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
         (
@@ -5441,6 +5411,10 @@ internal static class Qt3TemporalSelection
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
         (
+            "op-subtract-yearMonthDuration-from-date/op-subtract-yearMonthDuration-from-date-4",
+            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
+        ),
+        (
             "op-subtract-yearMonthDuration-from-date/op-subtract-yearMonthDuration-from-date-5",
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
@@ -5477,6 +5451,10 @@ internal static class Qt3TemporalSelection
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
         (
+            "op-subtract-yearMonthDuration-from-dateTime/op-subtract-yearMonthDuration-from-dateTime-4",
+            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
+        ),
+        (
             "op-subtract-yearMonthDuration-from-dateTime/op-subtract-yearMonthDuration-from-dateTime-5",
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
@@ -5505,6 +5483,10 @@ internal static class Qt3TemporalSelection
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
         (
+            "op-subtract-yearMonthDurations/op-subtract-yearMonthDurations-4",
+            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
+        ),
+        (
             "op-subtract-yearMonthDurations/op-subtract-yearMonthDurations-5",
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
@@ -5526,6 +5508,10 @@ internal static class Qt3TemporalSelection
         ),
         (
             "op-time-equal/cbcl-time-equal-019",
+            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
+        ),
+        (
+            "op-time-greater-than/op-time-greater-than-3",
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
         (
@@ -5577,6 +5563,10 @@ internal static class Qt3TemporalSelection
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
         (
+            "op-time-less-than/op-time-less-than-3",
+            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
+        ),
+        (
             "op-time-less-than/op-time-less-than-7",
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
@@ -5625,6 +5615,10 @@ internal static class Qt3TemporalSelection
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
         (
+            "op-yearMonthDuration-greater-than/op-yearMonthDuration-greater-than-3",
+            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
+        ),
+        (
             "op-yearMonthDuration-greater-than/op-yearMonthDuration-greater-than-7",
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
@@ -5654,6 +5648,10 @@ internal static class Qt3TemporalSelection
         ),
         (
             "op-yearMonthDuration-greater-than/op-yearMonthDuration-greater-than-14",
+            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
+        ),
+        (
+            "op-yearMonthDuration-less-than/op-yearMonthDuration-less-than-3",
             "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
         ),
         (

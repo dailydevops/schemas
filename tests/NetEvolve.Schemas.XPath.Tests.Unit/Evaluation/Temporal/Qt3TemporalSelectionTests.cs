@@ -53,7 +53,7 @@ public class Qt3TemporalSelectionTests
     {
         var (result, code) = Run(expression);
         var passed = false;
-        foreach (var alternative in expectation.Split('\t'))
+        foreach (var alternative in (expectation ?? string.Empty).Split('\t'))
         {
             passed |= Satisfies(alternative, result, code);
         }

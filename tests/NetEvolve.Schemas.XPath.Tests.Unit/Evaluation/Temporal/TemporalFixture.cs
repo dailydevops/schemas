@@ -30,6 +30,13 @@ internal static class TemporalFixture
 
     public static readonly ComparisonOperatorTable Comparison = CreateComparison();
 
+    /// <summary>The static context of the tests: the prefixes <c>xs</c> and <c>fn</c> are declared.</summary>
+    public static readonly XPathStaticContext Statics = XPathStaticContext
+        .Default.ToBuilder()
+        .WithNamespace("xs", "http://www.w3.org/2001/XMLSchema")
+        .WithNamespace("fn", "http://www.w3.org/2005/xpath-functions")
+        .Build();
+
     /// <summary>The registry of the tests: the literals are test-local, everything else is production code.</summary>
     public static LoweringRegistry Registry()
     {
@@ -62,16 +69,7 @@ internal static class TemporalFixture
             return (default, diagnostic.Code);
         }
 
-        if (
-            !ExpressionCompiler.TryCompile(
-                syntax!,
-                expression,
-                TypeFixture.Statics,
-                Registry(),
-                out var compiled,
-                out diagnostic
-            )
-        )
+        if (!ExpressionCompiler.TryCompile(syntax!, expression, Statics, Registry(), out var compiled, out diagnostic))
         {
             return (default, diagnostic.Code);
         }

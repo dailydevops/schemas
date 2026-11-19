@@ -78,7 +78,7 @@ internal sealed class GeneralComparisonNode : ExecutableNode
         {
             for (var j = 0; j < rightCount; j++)
             {
-                if (Holds(left[i], right[j]))
+                if (Holds(left[i], right[j], context))
                 {
                     return XdmSequence.Create(XdmItem.FromBoolean(true));
                 }
@@ -88,12 +88,12 @@ internal sealed class GeneralComparisonNode : ExecutableNode
         return XdmSequence.Create(XdmItem.FromBoolean(false));
     }
 
-    private bool Holds(XdmItem left, XdmItem right)
+    private bool Holds(XdmItem left, XdmItem right, XPathEvaluationContext context)
     {
         ComparisonOperands.CastUntypedAtomic(ref left, ref right);
 
-        return _table.TryGet(_relation, left.TypeId, right.TypeId, out var implementation)
-            ? implementation!(_relation, left, right)
+        return _table.TryGetContextual(_relation, left.TypeId, right.TypeId, out var implementation)
+            ? implementation!(_relation, left, right, context)
             : throw XPathErrors.Exception(XPathErrorCodes.XPTY0004);
     }
 }

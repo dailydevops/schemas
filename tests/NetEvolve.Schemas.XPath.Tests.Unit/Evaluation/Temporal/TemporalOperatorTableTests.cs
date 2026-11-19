@@ -39,6 +39,10 @@ public class TemporalOperatorTableTests
         XdmTypes.Get("gMonth"),
     ];
 
+    private static readonly XdmTypeId[] EqualityOnly = [Duration, YearMonth, DayTime, .. Gregorian];
+
+    private static readonly XdmTypeId[] NoOrder = [Duration, .. Gregorian];
+
     public static IEnumerable<Func<(int Operator, int Left, int Right)>> ArithmeticEntries()
     {
         foreach (var (op, left, right) in ExpectedArithmetic())
@@ -172,7 +176,7 @@ public class TemporalOperatorTableTests
 
         foreach (var relation in new[] { ComparisonRelation.Equal, ComparisonRelation.NotEqual })
         {
-            foreach (var type in new[] { Duration, YearMonth, DayTime, ..Gregorian })
+            foreach (var type in EqualityOnly)
             {
                 if (!table.TryGetContextual(relation, type, type, out _))
                 {
@@ -195,7 +199,7 @@ public class TemporalOperatorTableTests
 
         for (var relation = ComparisonRelation.LessThan; relation <= ComparisonRelation.GreaterThanOrEqual; relation++)
         {
-            foreach (var type in new[] { Duration, ..Gregorian })
+            foreach (var type in NoOrder)
             {
                 found += table.TryGetContextual(relation, type, type, out _) ? 1 : 0;
             }
