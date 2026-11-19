@@ -17,7 +17,7 @@ using NetEvolve.Schemas.Schematron.Xslt.Registry;
 internal static class Registration
 {
     // Decision (#150, maintainer approval of 2026-11-17, point 2): the Schematron package registers its instruction folders through a
-    // module initializer as the XPath package does (#123, AP8), so CA2255 is suppressed in this file, once, and not in any other.
+    // module initializer as the XPath package does (#123, AP8), so CA2255 is suppressed once per registration file (EP-10, option A).
 #pragma warning disable CA2255
     [ModuleInitializer]
     internal static void Stage() => XsltRegistryCatalog.Shared.Stage(Register);

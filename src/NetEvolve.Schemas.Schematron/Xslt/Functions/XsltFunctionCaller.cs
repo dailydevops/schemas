@@ -36,7 +36,6 @@ internal sealed class XsltFunctionCaller
     private readonly int _maxDepth;
     private readonly XsltFrame _frame;
     private SchematronProblem _problem;
-    private bool _problemIsOfTheRun;
 
     /// <summary>Initializes a new instance of the <see cref="XsltFunctionCaller"/> class.</summary>
     /// <param name="run">The run that evaluates the bodies and holds the slot values.</param>
@@ -44,12 +43,14 @@ internal sealed class XsltFunctionCaller
     /// <param name="names">The name table of the run, for the sequence a body constructs.</param>
     /// <param name="cancellationToken">The token checked at the entry of every call.</param>
     /// <param name="maxDepth">The limit of nested calls, 1 to <see cref="MaxDepthCeiling"/>.</param>
+    /// <param name="messages">The diagnostic channel that the <c>xsl:message</c> instructions of the bodies send to, or <see langword="null"/> to drop the messages.</param>
     internal XsltFunctionCaller(
         IXsltFunctionRun run,
         ISlotBinder binder,
         XmlNameTable names,
         CancellationToken cancellationToken,
-        int maxDepth = DefaultMaxDepth
+        int maxDepth = DefaultMaxDepth,
+        IXsltMessageSink? messages = null
     )
     {
         Argument.ThrowIfNull(run);
@@ -63,7 +64,7 @@ internal sealed class XsltFunctionCaller
         _names = names;
         _cancellationToken = cancellationToken;
         _maxDepth = maxDepth;
-        _frame = new XsltFrame(run);
+        _frame = new XsltFrame(run, cancellationToken) { Messages = messages };
     }
 
     /// <summary>Gets the number of calls that are active now.</summary>
@@ -100,6 +101,11 @@ internal sealed class XsltFunctionCaller
         Depth++;
         var saved = function.SlotCount == 0 ? null : ArrayPool<SavedSlot>.Shared.Rent(function.SlotCount);
         var entered = false;
+
+        // The body of a function has no focus (XSLT 2.0 section 10.3): a call from inside an iteration must not see the focus
+        // of the iteration, and the iteration gets its focus back when the call ends.
+        var callerFocus = _frame.Focus;
+        _frame.Focus = XsltFunctionFocus.None;
         try
         {
             Save(function, saved);
@@ -126,6 +132,7 @@ internal sealed class XsltFunctionCaller
         }
         finally
         {
+            _frame.Focus = callerFocus;
             if (entered)
             {
                 _run.ExitFunction();
@@ -138,7 +145,7 @@ internal sealed class XsltFunctionCaller
 
     /// <summary>Gets the problem of the last call that returned <see cref="QueryStatus.Problem"/>.</summary>
     /// <returns>The problem.</returns>
-    internal SchematronProblem GetProblem() => _problemIsOfTheRun ? _run.GetProblem() : _problem;
+    internal SchematronProblem GetProblem() => _problem;
 
     private QueryStatus Bind(XsltFunctionComponent function, ReadOnlySpan<XdmSequence> arguments)
     {
@@ -217,13 +224,13 @@ internal sealed class XsltFunctionCaller
     private QueryStatus Fail(SchematronProblem problem)
     {
         _problem = problem;
-        _problemIsOfTheRun = false;
         return QueryStatus.Problem;
     }
 
+    // The problem is the one an instruction of the body recorded on the frame, or else the one of the run.
     private QueryStatus FailInRun()
     {
-        _problemIsOfTheRun = true;
+        _problem = _frame.TakeProblem();
         return QueryStatus.Problem;
     }
 

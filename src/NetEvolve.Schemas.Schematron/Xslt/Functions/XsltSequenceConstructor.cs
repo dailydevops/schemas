@@ -13,7 +13,7 @@ using NetEvolve.Schemas.XPath.Xdm.Nodes;
 /// </summary>
 /// <remarks>
 /// Limitation: character data other than white space in a sequence constructor creates a text node, which the instructions of
-/// SCH-82 (#255) and SCH-67 (#253) provide; until then it is reported as not supported. Comments and processing instructions are ignored.
+/// SCH-67 (#253) provides, with the literal result elements; until then it is reported as not supported. Comments and processing instructions are ignored.
 /// </remarks>
 internal static class XsltSequenceConstructor
 {
@@ -99,6 +99,16 @@ internal static class XsltSequenceConstructor
         if (compiled is not null)
         {
             instructions.Add(compiled);
+
+            // The locals of a nested body took slots above the visible names; no name reaches them after the instruction, but
+            // the function must save them, and the later variables of this constructor must not share them.
+            if (compiled is IXsltLocalSlots nested)
+            {
+                while (names.Count < nested.SlotEnd)
+                {
+                    names.Add(string.Empty);
+                }
+            }
         }
 
         if (XsltElementReader.IsXslt(node, VariableLocalName))

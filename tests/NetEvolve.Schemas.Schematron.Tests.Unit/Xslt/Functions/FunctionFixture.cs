@@ -18,6 +18,7 @@ using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Xdm.Nodes;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 using static NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Functions.FunctionTree;
+using FlowRegistration = NetEvolve.Schemas.Schematron.Xslt.Instructions.Flow.Registration;
 
 /// <summary>
 /// The compile driver of the function tests: it resolves every element through the registry that <see cref="Registration"/>
@@ -31,6 +32,7 @@ internal sealed class FunctionFixture
     {
         var builder = new XsltRegistryBuilder();
         Registration.Register(builder);
+        FlowRegistration.Register(builder);
         Registry = builder.Build();
         Plan = plan;
         var names = new List<string>(globals);
@@ -140,12 +142,15 @@ internal sealed class FunctionFixture
     }
 
     /// <summary>Creates a run and a caller wired to the table; the binder binds the schema-level slots when a plan exists.</summary>
-    internal (MiniRun Run, XsltFunctionCaller Caller) CreateRun(int maxDepth = XsltFunctionCaller.DefaultMaxDepth) =>
-        CreateCancellableRun(maxDepth, CancellationToken.None);
+    internal (MiniRun Run, XsltFunctionCaller Caller) CreateRun(
+        int maxDepth = XsltFunctionCaller.DefaultMaxDepth,
+        IXsltMessageSink? messages = null
+    ) => CreateCancellableRun(maxDepth, CancellationToken.None, messages);
 
     internal (MiniRun Run, XsltFunctionCaller Caller) CreateCancellableRun(
         int maxDepth,
-        CancellationToken cancellationToken
+        CancellationToken cancellationToken,
+        IXsltMessageSink? messages = null
     )
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -159,7 +164,8 @@ internal sealed class FunctionFixture
             binder,
             new SpanInterningNameTable(XmlReaderLimits.Default.MaxDistinctNames),
             cancellationToken,
-            maxDepth
+            maxDepth,
+            messages
         );
         run.Caller = caller;
         return (run, caller);
