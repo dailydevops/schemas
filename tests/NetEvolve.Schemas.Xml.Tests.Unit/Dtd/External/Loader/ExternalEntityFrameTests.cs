@@ -1,8 +1,10 @@
 namespace NetEvolve.Schemas.Xml.Tests.Unit.Dtd.External.Loader;
 
+using System;
 using System.IO;
 using System.Text;
 using System.Threading;
+using NetEvolve.Schemas.Resources;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Dtd.External.Loader;
 using static NetEvolve.Schemas.Xml.Tests.Unit.Dtd.External.Loader.LoaderHarness;
@@ -307,5 +309,34 @@ public class ExternalEntityFrameTests
 
         await Assert.That(() => Drain(frame!)).Throws<System.OperationCanceledException>();
         await Assert.That(resolver.Streams[0].IsDisposed).IsTrue();
+    }
+
+    [Test]
+    public async Task Guards_InvalidArguments_Throw(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var loader = Loader(new RecordingResolver());
+        var result = ResourceResult.Found(Utf8("x"));
+
+        await Assert
+            .That(() =>
+                ExternalEntityFrame.TryCreate(
+                    loader,
+                    (ResourceKind)99,
+                    "e",
+                    EntityUri,
+                    in result,
+                    XmlReaderLimits.Default,
+                    cancellationToken,
+                    out _,
+                    out _
+                )
+            )
+            .Throws<ArgumentOutOfRangeException>();
+        await Assert.That(() => new ExternalEntityFailure(null!, "message")).Throws<ArgumentNullException>();
+        await Assert
+            .That(() => new ExternalEntityFailure(XmlErrorCodes.XML2002, null!))
+            .Throws<ArgumentNullException>();
     }
 }

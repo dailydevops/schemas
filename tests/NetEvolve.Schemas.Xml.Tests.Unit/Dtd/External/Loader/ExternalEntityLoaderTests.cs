@@ -403,5 +403,18 @@ public class ExternalEntityLoaderTests
         await Assert
             .That(() => Load(loader, "a", null!, DocumentUri, cancellationToken))
             .Throws<ArgumentNullException>();
+        await Assert.That(() => loader.Leave(null!)).Throws<ArgumentNullException>();
+    }
+
+    [Test]
+    [Arguments(-1)]
+    [Arguments(int.MinValue)]
+    public async Task TryChargeExpansion_NegativeCount_Throws(int count, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var loader = Loader(new RecordingResolver());
+
+        await Assert.That(() => loader.TryChargeExpansion(count)).Throws<ArgumentOutOfRangeException>();
     }
 }
