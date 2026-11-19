@@ -26,6 +26,14 @@ public class Qt3DerivedCastSelectionTests
 {
     private const int CasesOfTheSets = 159 + 7 + 7 + 10;
 
+    private const string FunctionNamespace = "http://www.w3.org/2005/xpath-functions";
+
+    // The static context of the casting fixture with the prefix of the function namespace, which the cases that call fn:current-time use.
+    private static readonly XPathStaticContext Statics = CastFixture
+        .Statics.ToBuilder()
+        .WithNamespace("fn", FunctionNamespace)
+        .Build();
+
     private static readonly ComparisonOperatorTable Operators = CreateOperators();
 
     public static IEnumerable<Func<(string Id, string Expression, string Expectation)>> Cases()
@@ -94,7 +102,9 @@ public class Qt3DerivedCastSelectionTests
         ComparisonLowerings.Register(registry, Operators);
         SequenceTypeLowerings.Register(registry);
         CastingLowerings.Register(registry, CastingCatalog.Default.Table);
-        registry.Register<FunctionCall>(static (n, c) => CastFixture.LowerCall(n, c, FunctionCatalog.Default.Registry));
+        registry.Register<FunctionCall>(
+            static (n, c) => CastFixture.LowerCall(n, c, FunctionCatalog.Default.Registry, FunctionNamespace)
+        );
         return registry;
     }
 
@@ -105,16 +115,7 @@ public class Qt3DerivedCastSelectionTests
             return (default, diagnostic.Code);
         }
 
-        if (
-            !ExpressionCompiler.TryCompile(
-                syntax!,
-                expression,
-                CastFixture.Statics,
-                Registry(),
-                out var compiled,
-                out diagnostic
-            )
-        )
+        if (!ExpressionCompiler.TryCompile(syntax!, expression, Statics, Registry(), out var compiled, out diagnostic))
         {
             return (default, diagnostic.Code);
         }
@@ -152,6 +153,8 @@ public class Qt3DerivedCastSelectionTests
         {
             'T' => result.Count == 1 && result[0].TryGetBoolean(out var yes) && yes,
             'F' => result.Count == 1 && result[0].TryGetBoolean(out var no) && !no,
+            'G' => StringValue(result).Length
+                > int.Parse(alternative.AsSpan(2), NumberStyles.Integer, CultureInfo.InvariantCulture),
             'S' => string.Equals(StringValue(result), alternative.Substring(2), StringComparison.Ordinal),
             'N' => string.Equals(
                 Normalize(StringValue(result)),

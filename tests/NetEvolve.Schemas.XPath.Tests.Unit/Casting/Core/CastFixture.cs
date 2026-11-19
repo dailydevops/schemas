@@ -172,10 +172,15 @@ internal static class CastFixture
         : value == Math.Floor(value) && Math.Abs(value) < 1e18 ? ((long)value).ToString(CultureInfo.InvariantCulture)
         : value.ToString("R", CultureInfo.InvariantCulture);
 
-    internal static CallNode LowerCall(FunctionCall node, LoweringContext context, FunctionRegistry library)
+    internal static CallNode LowerCall(
+        FunctionCall node,
+        LoweringContext context,
+        FunctionRegistry library,
+        string defaultNamespace = ""
+    )
     {
         var name = node.Name;
-        var namespaceUri = string.Empty;
+        var namespaceUri = defaultNamespace;
         if (name.Prefix is not null && !context.StaticContext.TryResolveNamespace(name.Prefix, out namespaceUri))
         {
             throw XPathErrors.Exception(XPathErrorCodes.XPST0081, name.Location.Offset, name.Location.Length);
