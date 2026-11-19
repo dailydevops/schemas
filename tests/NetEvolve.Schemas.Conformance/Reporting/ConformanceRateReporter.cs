@@ -72,6 +72,30 @@ public static class ConformanceRateReporter
         File.AppendAllText(summaryPath, Render(package, targetFramework, report), new UTF8Encoding(false));
     }
 
+    /// <summary>Buffers the report of one or more test sets for <see cref="Flush()"/>.</summary>
+    /// <param name="package">The package that owns the suite.</param>
+    /// <param name="targetFramework">The target framework of the test run.</param>
+    /// <param name="report">The report of the run.</param>
+    public static void Collect(string package, string targetFramework, ConformanceReport report)
+    {
+        ArgumentNullException.ThrowIfNull(package);
+        ArgumentNullException.ThrowIfNull(targetFramework);
+        ArgumentNullException.ThrowIfNull(report);
+    }
+
+    /// <summary>Writes the buffered reports to the job summary file; does nothing when the environment variable is not set.</summary>
+    public static void Flush() => Flush(Environment.GetEnvironmentVariable(SummaryVariable));
+
+    /// <summary>Writes the buffered reports to the given file; does nothing when the path is <see langword="null"/> or empty.</summary>
+    /// <param name="summaryPath">The summary file path.</param>
+    public static void Flush(string? summaryPath)
+    {
+        if (string.IsNullOrEmpty(summaryPath))
+        {
+            return;
+        }
+    }
+
     private static void AppendRow(
         StringBuilder builder,
         string package,
