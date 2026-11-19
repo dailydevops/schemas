@@ -96,11 +96,28 @@ public class ParameterEntityReferenceTests
     }
 
     [Test]
-    public async Task SelfReferencingEntity_RaisesTheEntityDepthLimit()
+    public async Task SelfReferencingEntity_RaisesXml0020()
     {
         var (_, error) = DtdHarness.Parse("<!ENTITY % a \"&#37;a;\">%a;");
 
-        await Assert.That(error).IsSameReferenceAs(XmlErrorCodes.XML1110);
+        await Assert.That(error).IsSameReferenceAs(XmlErrorCodes.XML0020);
+    }
+
+    [Test]
+    public async Task MutuallyReferencingEntities_RaiseXml0020()
+    {
+        var (_, error) = DtdHarness.Parse("<!ENTITY % a \"&#37;b;\"><!ENTITY % b \"&#37;a;\">%a;");
+
+        await Assert.That(error).IsSameReferenceAs(XmlErrorCodes.XML0020);
+    }
+
+    [Test]
+    public async Task SequentialReferencesToTheSameEntity_AreNotRecursion()
+    {
+        var (model, error) = DtdHarness.Parse("<!ENTITY % d \"<!ELEMENT a EMPTY>\">%d;%d;");
+
+        await Assert.That(error).IsNull();
+        await Assert.That(model).Contains("E:a:EMPTY");
     }
 
     [Test]
