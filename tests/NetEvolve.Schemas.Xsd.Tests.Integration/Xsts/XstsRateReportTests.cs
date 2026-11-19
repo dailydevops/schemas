@@ -24,7 +24,8 @@ public class XstsRateReportTests
             var tfm = TargetFrameworkName.Of(typeof(XstsRateReportTests).Assembly);
             await Assert
                 .That(await File.ReadAllTextAsync(summary, cancellationToken))
-                .Contains($"| NetEvolve.Schemas.Xsd | {tfm} | ibmMeta-allGroup | 2 | 2 | 0 | 1 | 100.0% |\n");
+                .Contains($"| NetEvolve.Schemas.Xsd | {tfm} | 1 | 2 | 2 | 0 | 0 | 1 | 100.0% |\n")
+                .And.Contains("| ibmMeta-allGroup | 2 | 2 | 0 | 0 | 1 | 100.0% |\n");
         }
         finally
         {
