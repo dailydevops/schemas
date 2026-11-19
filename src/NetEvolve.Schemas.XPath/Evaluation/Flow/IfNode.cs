@@ -1,0 +1,46 @@
+namespace NetEvolve.Schemas.XPath.Evaluation.Flow;
+
+using NetEvolve.Arguments;
+using NetEvolve.Schemas.XPath.Compilation;
+using NetEvolve.Schemas.XPath.Context;
+using NetEvolve.Schemas.XPath.Errors;
+using NetEvolve.Schemas.XPath.Evaluation.Atomization;
+using NetEvolve.Schemas.XPath.Xdm.Values;
+
+/// <summary>
+/// The executable form of a conditional expression (XPath 2.0, 3.8): the effective boolean value of the condition picks one branch, and
+/// only that branch is evaluated.
+/// </summary>
+internal sealed class IfNode : ExecutableNode
+{
+    private readonly ExecutableNode _condition;
+    private readonly ExecutableNode _then;
+    private readonly ExecutableNode _else;
+
+    /// <summary>Initializes a new instance of the <see cref="IfNode"/> class.</summary>
+    /// <param name="condition">The condition.</param>
+    /// <param name="then">The branch taken when the condition is true.</param>
+    /// <param name="else">The branch taken when the condition is false.</param>
+    /// <exception cref="System.ArgumentNullException">An argument is <see langword="null"/>.</exception>
+    public IfNode(ExecutableNode condition, ExecutableNode then, ExecutableNode @else)
+    {
+        Argument.ThrowIfNull(condition);
+        Argument.ThrowIfNull(then);
+        Argument.ThrowIfNull(@else);
+
+        _condition = condition;
+        _then = then;
+        _else = @else;
+    }
+
+    /// <inheritdoc />
+    /// <exception cref="XPathException">The condition has no effective boolean value (FORG0006), or an evaluated operand raises an error.</exception>
+    public override XdmSequence Evaluate(XPathEvaluationContext context)
+    {
+        Argument.ThrowIfNull(context);
+
+        return XPathAtomization.EffectiveBooleanValue(_condition.Evaluate(context))
+            ? _then.Evaluate(context)
+            : _else.Evaluate(context);
+    }
+}
