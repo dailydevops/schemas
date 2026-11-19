@@ -15,7 +15,7 @@ internal static class ReferenceFixture
     private const string Body = "<xs:selector xpath=\"a\"/><xs:field xpath=\"@x\"/>";
 
     internal static string Definition(string kind, string name) =>
-        kind == "keyref"
+        string.Equals(kind, "keyref", StringComparison.Ordinal)
             ? $"<xs:keyref name=\"{name}\" refer=\"t:target\">{Body}</xs:keyref>"
             : $"<xs:{kind} name=\"{name}\">{Body}</xs:{kind}>";
 
