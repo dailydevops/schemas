@@ -401,6 +401,44 @@ public class XmlSequenceReaderTests
         await Assert.That(run.Events).Contains("Text'ok'");
     }
 
+    [Test]
+    public async Task Read_DeclarationInsideTheHead_ConfirmsTheDeclaredEncodingLikeTheSpanPath(
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        // The head is 4 x MaxXmlDeclarationLength + 4 bytes; a declaration inside it is read by the same rule as the span path.
+        var options = XmlReaderOptions.Default.WithLimits(XmlReaderLimits.Default.WithMaxXmlDeclarationLength(16));
+        var bytes = Utf8("<?xml version=\"1.0\" encoding=\"UTF-16\"?><a/>");
+
+        var span = StreamRuns.Span(bytes, options);
+        var sequence = SequenceRuns.Sequence(SequenceBuilder.Chunks(bytes, 3), options);
+
+        await Assert.That(span.Code).IsSameReferenceAs(XmlErrorCodes.XML4002);
+        await Assert.That(SequenceRuns.WithoutPosition(sequence)).IsEqualTo(SequenceRuns.WithoutPosition(span));
+    }
+
+    [Test]
+    public async Task Read_DeclarationBeyondTheHead_ReportsTheLimitInsteadOfTheEncodingConflict(
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        // Limitation (decision "encoding head"): a declaration whose end lies beyond 4 x MaxXmlDeclarationLength + 4
+        // bytes is not confirmed against the detected encoding; it exceeds the limit anyway.
+        var options = XmlReaderOptions.Default.WithLimits(XmlReaderLimits.Default.WithMaxXmlDeclarationLength(8));
+        var bytes = Utf8("<?xml version=\"1.0\"" + new string(' ', 100) + "encoding=\"UTF-16\"?><a/>");
+
+        var span = StreamRuns.Span(bytes, options);
+        var sequence = SequenceRuns.Sequence(SequenceBuilder.Chunks(bytes, 7), options);
+
+        await Assert.That(span.Code).IsSameReferenceAs(XmlErrorCodes.XML4002);
+        await Assert.That(sequence.Status).IsEqualTo(XmlReadStatus.Error);
+        await Assert.That(sequence.Code).IsSameReferenceAs(XmlErrorCodes.XML1114);
+    }
+
     // ---- limits, large tokens, sinks ----
 
     [Test]
