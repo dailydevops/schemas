@@ -20,12 +20,13 @@ using NetEvolve.Schemas.Xml.Dtd.Model;
 /// recognized in external text only (WFC PEs in Internal Subset), and in an entity value there it is included in the
 /// literal; the nesting validity constraints of parameter entities and conditional sections (Proper Declaration/PE Nesting,
 /// Proper Group/PE Nesting, Proper Conditional Section/PE Nesting) are not reported (XML-67, #608); a self-referencing
-/// internal parameter entity ends in the depth limit <c>XML1110</c>, not <c>XML0020</c>; an IGNORE section must end in the
+/// internal parameter entity ends in the depth limit <c>XML1110</c>, not <c>XML0020</c> (#701); an IGNORE section must end in the
 /// text that opened it; the external subset and an external parameter entity between declarations are read through a window
 /// of one unit (a declaration, a comment, a processing instruction, a conditional section opener, a reference) that is
 /// refilled chunk by chunk, so no external entity is buffered completely (design #122, D9 rule 5), and one unit is bounded
 /// by <c>MaxDoctypeLength</c> (<c>XML1115</c>); an external parameter entity that is included inside a declaration or an
-/// entity value is one unit with it and bounded the same way; the number of declarations is bounded by <c>MaxDeclarations</c> (<c>XML1119</c>), counted over both
+/// entity value is one unit with it and bounded the same way, and the end of a unit is found by a quote-aware scan of the
+/// raw text, so a unit whose quote or closing bracket a parameter entity supplies may be read past its end (#699); the number of declarations is bounded by <c>MaxDeclarations</c> (<c>XML1119</c>), counted over both
 /// subsets and every parsed replacement text; the first declaration of an element, attribute, entity, or notation binds, so the declarations of
 /// the internal subset win over the external ones, and later ones are ignored without a report; an error is reported at the
 /// document type declaration, not at the offending offset; a public or system identifier that is present but empty reads
