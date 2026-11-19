@@ -34,7 +34,7 @@ internal sealed class PatternTestBinding : IQueryBinding
     {
         var source = text.ToString();
         Compiled.Add(source);
-        expression = new FakeQueryExpression(source);
+        expression = new PatternTestExpression(source, SlotsOf(source, scope));
         problem = default;
         if (source.Contains("invalid", StringComparison.Ordinal))
         {
@@ -50,6 +50,32 @@ internal sealed class PatternTestBinding : IQueryBinding
         return true;
     }
 
+    // Every $name in the text reads the slot of that name; the last declaration of a name wins.
+    private static int[] SlotsOf(string source, QueryStaticScope scope)
+    {
+        var slots = new List<int>();
+        foreach (var part in source.Split('$').Skip(1))
+        {
+            var length = 0;
+            while (length < part.Length && char.IsLetterOrDigit(part[length]))
+            {
+                length++;
+            }
+
+            var name = part.Substring(0, length);
+            for (var slot = scope.VariableNames.Count - 1; slot >= 0; slot--)
+            {
+                if (string.Equals(scope.VariableNames[slot], name, StringComparison.Ordinal))
+                {
+                    slots.Add(slot);
+                    break;
+                }
+            }
+        }
+
+        return [.. slots];
+    }
+
     public IQueryRun BeginRun(QueryResources resources, CancellationToken cancellationToken) => new Run(this);
 
     private sealed class Run(PatternTestBinding owner) : IQueryRun
@@ -59,7 +85,7 @@ internal sealed class PatternTestBinding : IQueryBinding
         public QueryStatus TryEvaluateBoolean(QueryExpression expression, in QueryFocus focus, out bool value)
         {
             owner.EvaluateCalls++;
-            var text = ((FakeQueryExpression)expression).Text;
+            var text = ((PatternTestExpression)expression).Text;
             value = false;
             if (string.Equals(text, "bad", StringComparison.Ordinal))
             {
