@@ -3,6 +3,7 @@ namespace NetEvolve.Schemas.Xsd.Tests.Unit.IdentityConstraints.References;
 using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.XPath.Api;
+using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.IdentityConstraints.Definitions;
 using NetEvolve.Schemas.Xsd.IdentityConstraints.References;
@@ -26,7 +27,12 @@ public class IdentityConstraintReferenceTests
     private IdentityConstraintDefinition Register(string namespaceName, string kind)
     {
         var schema = ReferenceFixture.Schema(namespaceName, [ReferenceFixture.Definition(kind, "k")]);
-        return IdentityConstraintDefinition.Create(ReferenceFixture.Constraint(schema), _registry, Reporter)!;
+        return IdentityConstraintDefinition.Create(
+            ReferenceFixture.Constraint(schema),
+            new SchemaNamespaceScope(namespaceName, false),
+            _registry,
+            Reporter
+        )!;
     }
 
     private async Task AssertSingleIssue(string ruleId, string? clause, int line, int column)
