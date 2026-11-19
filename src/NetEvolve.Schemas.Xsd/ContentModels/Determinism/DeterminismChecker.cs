@@ -17,5 +17,5 @@ internal sealed class DeterminismChecker : IDeterminismCheck
         Func<int, XPathQName> nameOf,
         XsdIssueReporter reporter,
         DocumentLocation location
-    ) => true;
+    ) => DeterminismCheck.Check(model, terms, nameOf, reporter, location);
 }
