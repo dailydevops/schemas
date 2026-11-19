@@ -35,7 +35,7 @@ public class Qt3ConformanceTests
         };
 
         var report = ConformanceReport.Compare(results, baselines);
-        ConformanceRateReporter.Append(
+        ConformanceRateReporter.Collect(
             "NetEvolve.Schemas.XPath",
             TargetFrameworkName.Of(typeof(Qt3ConformanceTests).Assembly),
             report
