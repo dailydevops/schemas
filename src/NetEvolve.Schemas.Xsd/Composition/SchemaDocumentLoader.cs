@@ -10,10 +10,11 @@ using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Resources;
 using NetEvolve.Schemas.Resources.Default;
 using NetEvolve.Schemas.Xsd.Diagnostics;
+using NetEvolve.Schemas.Xsd.Override;
 using NetEvolve.Schemas.Xsd.SchemaDocuments;
 
 /// <summary>
-/// Loads the schema documents reached by <c>include</c>, <c>import</c>, and <c>redefine</c> through the resolver and applies
+/// Loads the schema documents reached by <c>include</c>, <c>import</c>, <c>redefine</c>, and <see langword="override"/> through the resolver and applies
 /// the composition on the syntax model, before any component exists (design #146 DP-3).
 /// </summary>
 /// <remarks>
@@ -23,15 +24,24 @@ using NetEvolve.Schemas.Xsd.SchemaDocuments;
 /// resolver with <see cref="ResourceKind.SchemaDocument"/>; each request counts against
 /// <see cref="ValidationLimits.MaxExternalResources"/>, also a refused one, and the size of a document against
 /// <see cref="ValidationLimits.MaxResourceSize"/>. A refusal, a miss, and a limit are reported with the core code at the
-/// directive, the namespace rules of the directives with <c>src-include</c>, <c>src-redefine</c>, and <c>src-import</c>.
+/// directive, the namespace rules of the directives with <c>src-include</c>, <c>src-redefine</c>, <c>src-import</c>, and
+/// <c>src-override</c>.
 /// </para>
 /// <para>
 /// Redefine is a rewrite equivalent to the transformation of Structures 1.1, 4.2.2 for both versions: the original
 /// component of the redefined document keeps living under a fresh name that only the self-reference of the redefinition
 /// uses, and the redefinition takes the place of the original in the redefining unit. Limitations: the loader works on the
 /// syntax only, so the restriction check for a group or attribute group redefined without a self-reference, and the checks
-/// of a redefined type against its original, belong to the component checks; <see langword="override"/> is XSD-18 and ignored here; the
-/// 1.1 specifics of <c>redefine</c> are not distinguished from the 1.0 rules.
+/// of a redefined type against its original, belong to the component checks; the 1.1
+/// specifics of <c>redefine</c> are not distinguished from the 1.0 rules.
+/// </para>
+/// <para>
+/// Override is the transformation of Structures 1.1, F.2: the overridden document, and every document of its target set (the
+/// documents it includes or overrides), becomes a unit of its own whose components are those of the document with the
+/// matching ones replaced by the overriding nodes (see <see cref="OverrideSet"/>). A document reached under another set of
+/// overriding nodes is another unit, so a document that is included or redefined and also overridden is present twice with
+/// conflicting components, as Structures 1.1, 4.2.5 describes; the component registry reports the duplicate. Limitation: a
+/// set that changes nothing in a document leaves it a plain unit, decided on the document and not on the documents it includes.
 /// </para>
 /// </remarks>
 internal sealed class SchemaDocumentLoader
@@ -40,6 +50,7 @@ internal sealed class SchemaDocumentLoader
     private static readonly XsdRule SrcRedefine = Rule("src-redefine");
     private static readonly XsdRule SrcExpredef = Rule("src-expredef");
     private static readonly XsdRule SrcImport = Rule("src-import");
+    private static readonly XsdRule SrcOverride = Rule("src-override");
     private static readonly XsdRule SchemaReference = Rule("schema_reference");
 
     private readonly IResourceResolver _resolver;
@@ -50,6 +61,7 @@ internal sealed class SchemaDocumentLoader
     private readonly List<SchemaUnit> _units = [];
     private readonly Queue<SchemaUnit> _pending = new();
     private readonly List<Redefinition> _redefinitions = [];
+    private readonly Dictionary<SchemaSyntaxNode, int> _nodeIdentities = [];
     private CancellationToken _cancellationToken;
     private int _requests;
     private bool _limitReported;
@@ -84,6 +96,7 @@ internal sealed class SchemaDocumentLoader
         _units.Clear();
         _pending.Clear();
         _redefinitions.Clear();
+        _nodeIdentities.Clear();
         _requests = 0;
         _limitReported = false;
 
@@ -119,18 +132,27 @@ internal sealed class SchemaDocumentLoader
 
     private static string Key(string uri, string effectiveNamespace) => uri + "\u0000" + effectiveNamespace;
 
+    /// <summary>Gives the namespace part of the key of a unit; a unit under an override set is not the plain unit of its document.</summary>
+    private static string Scope(string effectiveNamespace, OverrideSet? overrides) =>
+        overrides is null ? effectiveNamespace : effectiveNamespace + "\u0001" + overrides.Key;
+
     private static bool IsSchemaElement(SchemaSyntaxNode node, string localName) =>
         string.Equals(node.Name.NamespaceName, SchemaGrammar.Namespace, StringComparison.Ordinal)
         && string.Equals(node.Name.LocalName, localName, StringComparison.Ordinal);
 
-    private SchemaUnit Add(SchemaDocument document, string effectiveNamespace, string? baseUri)
+    private SchemaUnit Add(
+        SchemaDocument document,
+        string effectiveNamespace,
+        string? baseUri,
+        OverrideSet? overrides = null
+    )
     {
-        var unit = new SchemaUnit(document, document.Root!, effectiveNamespace);
+        var unit = new SchemaUnit(document, document.Root!, effectiveNamespace, overrides);
         _units.Add(unit);
         _pending.Enqueue(unit);
         if (baseUri is not null)
         {
-            _byKey[Key(baseUri, effectiveNamespace)] = unit;
+            _byKey[Key(baseUri, Scope(effectiveNamespace, overrides))] = unit;
         }
 
         return unit;
@@ -158,6 +180,9 @@ internal sealed class SchemaDocumentLoader
                 case "redefine":
                     Redefine(unit, child);
                     break;
+                case "override":
+                    Override(unit, child);
+                    break;
                 case "simpleType":
                 case "complexType":
                 case "group":
@@ -165,7 +190,7 @@ internal sealed class SchemaDocumentLoader
                 case "element":
                 case "attribute":
                 case "notation":
-                    unit.Components.Add(child);
+                    unit.Components.Add(unit.Overrides?.Replace(child) ?? child);
                     break;
                 default:
                     break;
@@ -181,7 +206,24 @@ internal sealed class SchemaDocumentLoader
             return;
         }
 
-        var target = Fetch(unit, node, location, unit.EffectiveNamespace, null, SrcInclude);
+        var target = Fetch(unit, node, location, unit.EffectiveNamespace, null, SrcInclude, unit.Overrides);
+        if (target is not null)
+        {
+            unit.Included.Add(target);
+        }
+    }
+
+    /// <summary>An override loads its target under the components it offers; the target set takes them on (F.2).</summary>
+    private void Override(SchemaUnit unit, SchemaSyntaxNode node)
+    {
+        var location = node.FindAttribute("schemaLocation");
+        if (location is null)
+        {
+            return;
+        }
+
+        var overrides = OverrideSet.Create(node, unit.Overrides, _nodeIdentities);
+        var target = Fetch(unit, node, location, unit.EffectiveNamespace, null, SrcOverride, overrides);
         if (target is not null)
         {
             unit.Included.Add(target);
@@ -235,7 +277,8 @@ internal sealed class SchemaDocumentLoader
         unit.Included.Add(target);
         for (var i = 0; i < node.ChildCount; i++)
         {
-            var child = node.GetChildNode(i);
+            var written = node.GetChildNode(i);
+            var child = unit.Overrides?.Replace(written) ?? written;
             var name = child.FindAttribute("name");
             if (name is null || !IsRedefinable(child))
             {
@@ -272,7 +315,8 @@ internal sealed class SchemaDocumentLoader
         string reference,
         string effectiveNamespace,
         string? importNamespace,
-        XsdRule rule
+        XsdRule rule,
+        OverrideSet? overrides = null
     )
     {
         var resolution = UriReference.Resolve(reference, unit.Document.BaseUri);
@@ -282,10 +326,22 @@ internal sealed class SchemaDocumentLoader
             return null;
         }
 
+        var scope = Scope(effectiveNamespace, overrides);
         var uri = resolution.Uri is null ? null : WithoutFragment(resolution.Uri);
-        if (uri is not null && _byKey.TryGetValue(Key(uri, effectiveNamespace), out var known))
+        if (uri is not null && _byKey.TryGetValue(Key(uri, scope), out var known))
         {
             return known;
+        }
+
+        if (
+            overrides is not null
+            && uri is not null
+            && _byKey.TryGetValue(Key(uri, effectiveNamespace), out var plain)
+            && overrides.LeavesUnchanged(plain.Root)
+        )
+        {
+            _byKey[Key(uri, scope)] = plain;
+            return plain;
         }
 
         if (_requests >= _limits.MaxExternalResources)
@@ -303,7 +359,7 @@ internal sealed class SchemaDocumentLoader
             resolution.Uri,
             namespaceUri: importNamespace
         );
-        var document = Retrieve(in request, uri, effectiveNamespace, node, rule, out var systemId, out known);
+        var document = Retrieve(in request, uri, scope, node, rule, out var systemId, out known);
         if (known is not null)
         {
             return known;
@@ -314,10 +370,10 @@ internal sealed class SchemaDocumentLoader
             return null;
         }
 
-        var loaded = Accept(document, effectiveNamespace, importNamespace is not null, systemId, node, rule);
+        var loaded = Accept(document, effectiveNamespace, importNamespace is not null, systemId, node, rule, overrides);
         if (loaded is not null && uri is not null)
         {
-            _byKey[Key(uri, effectiveNamespace)] = loaded;
+            _byKey[Key(uri, scope)] = loaded;
         }
 
         return loaded;
@@ -346,13 +402,22 @@ internal sealed class SchemaDocumentLoader
         bool exact,
         string? systemId,
         SchemaSyntaxNode node,
-        XsdRule rule
+        XsdRule rule,
+        OverrideSet? overrides
     )
     {
         var found = TargetNamespaceOf(document.Root!);
         if (NamespaceMatches(found, effectiveNamespace, exact))
         {
-            return Add(document, effectiveNamespace, systemId);
+            if (overrides is null || !overrides.LeavesUnchanged(document.Root!))
+            {
+                return Add(document, effectiveNamespace, systemId, overrides);
+            }
+
+            // The override changes nothing in this document: it is the plain unit of the document.
+            return systemId is not null && _byKey.TryGetValue(Key(systemId, effectiveNamespace), out var plain)
+                ? plain
+                : Add(document, effectiveNamespace, systemId);
         }
 
         _reporter.Report(
@@ -373,7 +438,7 @@ internal sealed class SchemaDocumentLoader
     private SchemaDocument? Retrieve(
         in ResourceRequest request,
         string? uri,
-        string effectiveNamespace,
+        string scope,
         SchemaSyntaxNode node,
         XsdRule rule,
         out string? systemId,
@@ -399,7 +464,7 @@ internal sealed class SchemaDocumentLoader
         }
 
         systemId = result.SystemId is null ? uri : WithoutFragment(result.SystemId);
-        return systemId is not null && _byKey.TryGetValue(Key(systemId, effectiveNamespace), out known)
+        return systemId is not null && _byKey.TryGetValue(Key(systemId, scope), out known)
             ? null
             : Read(in result, systemId, node, rule);
     }
