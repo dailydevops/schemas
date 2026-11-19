@@ -82,7 +82,7 @@ internal abstract class XmlSequenceFeeder : IDisposable
     /// <summary>Appends characters to <see cref="Characters"/> until there are <paramref name="wanted"/> of them, the sequence ends, or decoding fails.</summary>
     /// <param name="wanted">The number of characters to collect.</param>
     /// <returns><see langword="true"/> when the sequence ended or decoding stopped on an error.</returns>
-    private protected abstract bool Fill(int wanted);
+    internal abstract bool Fill(int wanted);
 
     /// <summary>Records the error that stops decoding; it is reported after the events of the characters before it.</summary>
     /// <param name="error">The decoding error.</param>

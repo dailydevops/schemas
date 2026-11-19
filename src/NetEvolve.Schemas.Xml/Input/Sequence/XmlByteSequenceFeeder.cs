@@ -75,7 +75,7 @@ internal sealed class XmlByteSequenceFeeder : XmlSequenceFeeder
         _decoder = decoder;
     }
 
-    private protected override bool Fill(int wanted)
+    internal override bool Fill(int wanted)
     {
         var decoder = _decoder;
         if (decoder is null || _exhausted)

@@ -14,7 +14,7 @@ internal sealed class XmlCharSequenceFeeder : XmlSequenceFeeder
 
     private protected override void Start() { }
 
-    private protected override bool Fill(int wanted)
+    internal override bool Fill(int wanted)
     {
         var characters = Characters;
         while (!_exhausted && characters.Length < wanted)
