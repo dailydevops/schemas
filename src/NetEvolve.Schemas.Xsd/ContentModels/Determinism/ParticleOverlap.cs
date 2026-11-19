@@ -35,6 +35,8 @@ internal sealed class ParticleOverlap
         _wildcards = new IWildcard?[model.PositionCount];
         for (var position = 0; position < _wildcards.Length; position++)
         {
+            Argument.ThrowIfNull(terms[position]);
+
             if (model.IsWildcard(position))
             {
                 var wildcard = terms[position] as IWildcard;

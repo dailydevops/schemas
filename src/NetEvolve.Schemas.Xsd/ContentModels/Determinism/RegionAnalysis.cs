@@ -21,8 +21,11 @@ using NetEvolve.Schemas.Xsd.ContentModels.Automaton;
 /// </remarks>
 internal sealed class RegionAnalysis
 {
-    /// <summary>The ceiling of explored states per content model.</summary>
-    internal const int MaxStates = 1 << 18;
+    /// <summary>
+    /// The ceiling of explored states per content model. It is at least the positions the compiler accepts times the classes
+    /// of one counter, so a flat model at the position ceiling is never rejected by it.
+    /// </summary>
+    internal const int MaxStates = 1 << 20;
 
     /// <summary>The ceiling of counters that one source reads again later; a class takes three bits of the state key.</summary>
     internal const int MaxLiveCounters = 15;
@@ -53,11 +56,7 @@ internal sealed class RegionAnalysis
         _model = model;
         _overlap = overlap;
         _regions = ScanCounters(model);
-        _live = ComputeLiveCounters(model);
-        foreach (var slots in _live)
-        {
-            _tooManyLiveCounters |= slots.Length > MaxLiveCounters;
-        }
+        _live = ComputeLiveCounters(model, out _tooManyLiveCounters);
 
         _stamp = new int[model.PositionCount];
         for (var i = 0; i < _stamp.Length; i++)
@@ -134,77 +133,110 @@ internal sealed class RegionAnalysis
     }
 
     /// <summary>
-    /// For every source, the counters that are read again before they are written: a counter is live at a source when a
-    /// guard of one of its transitions reads it, or when the target keeps it live and the transition does not reset it.
+    /// For every source, the counters that are read again before they are written, as a sorted list: a counter is live at a
+    /// source when a guard of one of its transitions reads it, or when the target keeps it live and the transition does not
+    /// reset it. A list that outgrows <see cref="MaxLiveCounters"/> ends the computation.
     /// </summary>
-    private static int[][] ComputeLiveCounters(CountingAutomaton model)
+    private static int[][] ComputeLiveCounters(CountingAutomaton model, out bool tooMany)
     {
-        var sources = model.PositionCount + 1;
-        var words = (model.CounterSlots + 63) / 64;
-        var live = new ulong[sources][];
-        for (var s = 0; s < sources; s++)
+        var live = new int[model.PositionCount + 1][];
+        for (var i = 0; i < live.Length; i++)
         {
-            live[s] = new ulong[words];
+            live[i] = [];
         }
 
-        var scratch = new ulong[words];
+        var scratch = new List<int>();
         bool changed;
         do
         {
             changed = false;
-            for (var s = sources - 1; s >= 0; s--)
+            for (var s = live.Length - 1; s >= 0; s--)
             {
                 for (var t = model.SourceStart(s); t < model.SourceEnd(s); t++)
                 {
-                    var transition = model.GetTransition(t);
-                    Array.Copy(live[transition.Target + 1], scratch, words);
-                    for (var a = transition.ActionStart; a < transition.ActionStart + transition.ActionCount; a++)
+                    LiveBefore(model, model.GetTransition(t), live, scratch);
+                    if (scratch.Count > MaxLiveCounters)
                     {
-                        var action = model.GetAction(a);
-                        var bit = 1UL << (action.Slot & 63);
-                        if (action.Kind == AutomatonActionKind.Enter)
-                        {
-                            scratch[action.Slot >> 6] &= ~bit;
-                        }
-                        else
-                        {
-                            scratch[action.Slot >> 6] |= bit;
-                        }
+                        tooMany = true;
+                        return live;
                     }
 
-                    for (var w = 0; w < words; w++)
+                    if (!IsSubset(scratch, live[s]))
                     {
-                        if ((live[s][w] | scratch[w]) != live[s][w])
-                        {
-                            live[s][w] |= scratch[w];
-                            changed = true;
-                        }
+                        live[s] = Union(live[s], scratch);
+                        changed = true;
                     }
                 }
             }
         } while (changed);
 
-        return ToSlotLists(live, model.CounterSlots);
+        tooMany = false;
+        return live;
     }
 
-    private static int[][] ToSlotLists(ulong[][] live, int slotCount)
+    /// <summary>Gets the counters live before a transition: its guards, and what the target keeps live and it does not reset.</summary>
+    private static void LiveBefore(
+        CountingAutomaton model,
+        AutomatonTransition transition,
+        int[][] live,
+        List<int> result
+    )
     {
-        var result = new int[live.Length][];
-        for (var s = 0; s < live.Length; s++)
+        result.Clear();
+        var end = transition.ActionStart + transition.ActionCount;
+        foreach (var slot in live[transition.Target + 1])
         {
-            var slots = new List<int>();
-            for (var slot = 0; slot < slotCount; slot++)
+            var reset = false;
+            for (var a = transition.ActionStart; a < end && !reset; a++)
             {
-                if ((live[s][slot >> 6] & (1UL << (slot & 63))) != 0)
-                {
-                    slots.Add(slot);
-                }
+                var action = model.GetAction(a);
+                reset = action.Kind == AutomatonActionKind.Enter && action.Slot == slot;
             }
 
-            result[s] = slots.ToArray();
+            if (!reset)
+            {
+                result.Add(slot);
+            }
         }
 
-        return result;
+        for (var a = transition.ActionStart; a < end; a++)
+        {
+            var action = model.GetAction(a);
+            if (action.Kind != AutomatonActionKind.Enter && !result.Contains(action.Slot))
+            {
+                result.Add(action.Slot);
+            }
+        }
+
+        result.Sort();
+    }
+
+    private static bool IsSubset(List<int> subset, int[] set)
+    {
+        foreach (var slot in subset)
+        {
+            if (Array.BinarySearch(set, slot) < 0)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static int[] Union(int[] set, List<int> other)
+    {
+        var merged = new List<int>(set);
+        foreach (var slot in other)
+        {
+            if (Array.BinarySearch(set, slot) < 0)
+            {
+                merged.Add(slot);
+            }
+        }
+
+        merged.Sort();
+        return merged.ToArray();
     }
 
     private void Process(int source, long classes)
