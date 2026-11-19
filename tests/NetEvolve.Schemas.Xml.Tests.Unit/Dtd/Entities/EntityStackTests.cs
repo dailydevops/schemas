@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.Xml.Tests.Unit.Dtd.Entities;
 
 using System;
 using System.Text;
+using NetEvolve.Schemas.Testing.Allocations;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Dtd.Declarations;
 using NetEvolve.Schemas.Xml.Reader.EntityInput;
@@ -120,8 +121,10 @@ public class EntityStackTests
         }
     }
 
-    // Unmeasured runs before the measured ones; a one-time allocation hook fires on the first measured run.
-    private const int WarmupRuns = 2;
+    // Unmeasured runs before the measured ones (a one-time allocation hook fires on the first measured run), and the
+    // measured runs of which the smallest counts: one-time allocations land in one run, a per-reference one in all.
+    private const int WarmupRuns = 5;
+    private const int MeasuredRuns = 5;
 
     // Keeps the deliberate allocations of the tests observable to the allocation counter.
     private static object? s_retained;
@@ -137,25 +140,24 @@ public class EntityStackTests
             + new StringBuilder().Insert(0, "&e;", count)
             + "</a>";
         var options = XmlReaderOptions.Default.WithDtdProcessing(true);
-        var measured = 0L;
+        var run = 0;
 
-        for (var run = 0; run <= WarmupRuns; run++)
-        {
-            var sink = new CountingXmlSink(new SpanInterningNameTable(XmlReaderLimits.Default.MaxDistinctNames));
-            using var reader = XmlPipelineReader.Create(xml.AsSpan(), options);
-
-            var before = GC.GetAllocatedBytesForCurrentThread();
-            var status = reader.Pump(ref sink);
-            disturb?.Invoke(run);
-            measured = GC.GetAllocatedBytesForCurrentThread() - before;
-
-            if (status != XmlReadStatus.Completed)
+        return AllocationAssert.Measure(
+            () =>
             {
-                throw new InvalidOperationException("The document must be read to the end.");
-            }
-        }
+                var sink = new CountingXmlSink(new SpanInterningNameTable(XmlReaderLimits.Default.MaxDistinctNames));
+                using var reader = XmlPipelineReader.Create(xml.AsSpan(), options);
 
-        return measured;
+                if (reader.Pump(ref sink) != XmlReadStatus.Completed)
+                {
+                    throw new InvalidOperationException("The document must be read to the end.");
+                }
+
+                disturb?.Invoke(run++);
+            },
+            WarmupRuns,
+            MeasuredRuns
+        );
     }
 
     [Test]
