@@ -15,6 +15,8 @@ internal enum SortCategory : byte
     /// <summary>A boolean.</summary>
     Boolean = 3,
 
-    /// <summary>A value of a type without an order, such as a QName.</summary>
+    /// <summary>
+    /// A value of a type without an order, such as a QName. Dates, times, and durations also land here until the XPath package compares them (XP-26).
+    /// </summary>
     Other = 4,
 }

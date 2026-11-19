@@ -16,6 +16,8 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// Limitation: two values are compared pairwise by the promotion of XPath 2.0, and not all by the most specific type to which every
 /// value converts, so a mix of integers beyond 2^53 and doubles can order differently from the specification. The only collation is
 /// the codepoint collation (DEF-43, #55).
+/// Keys of type xs:date, xs:dateTime, xs:time, or a duration are not sortable until the XPath package compares them (XP-26); a sort of two
+/// such values raises XTDE1030.
 /// </remarks>
 internal static class XsltSorter
 {
