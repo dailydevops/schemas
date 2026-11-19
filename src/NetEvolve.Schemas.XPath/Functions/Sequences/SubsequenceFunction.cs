@@ -76,7 +76,7 @@ internal sealed class SubsequenceFunction : SequenceFunction
 
     // fn:round: the closest integer, half toward positive infinity. The fraction is read from the floor, so that no value is
     // pushed over a boundary by an addition (0.49999999999999994 rounds to 0).
-    private static double Round(double value)
+    internal static double Round(double value)
     {
         if (double.IsNaN(value) || double.IsInfinity(value))
         {
