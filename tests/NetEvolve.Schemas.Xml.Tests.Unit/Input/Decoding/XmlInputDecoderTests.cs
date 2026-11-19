@@ -88,8 +88,6 @@ internal sealed class XmlInputDecoderTests
     [Arguments("FF", 0L)] // invalid byte
     [Arguments("61 E2 82 41", 1L)] // missing continuation byte
     [Arguments("61 62 63 E2 82", 3L)] // truncated at the end
-    [Arguments("61 EF BF BE", 1L)] // U+FFFE is not a Char
-    [Arguments("61 01", 1L)] // U+0001 is not a Char
     public Task Decode_MalformedUtf8_YieldsMalformedCodeAndOffset(string hex, long offset) =>
         AssertMalformed(Hex(hex), offset);
 
@@ -100,7 +98,6 @@ internal sealed class XmlInputDecoderTests
     [Arguments("FF FE 3D D8 3D D8", 2L)] // high surrogate followed by a high surrogate
     [Arguments("FF FE 41 00 00 DE", 4L)] // lone low surrogate
     [Arguments("FF FE 41", 2L)] // odd byte count
-    [Arguments("FF FE FE FF", 2L)] // U+FFFE
     [Arguments("FE FF D8 3D", 2L)] // big endian: high surrogate at the end
     [Arguments("FE FF D8 3D 00 41", 2L)] // high surrogate followed by a non-surrogate
     [Arguments("FE FF 00 41 DE 00", 4L)] // lone low surrogate
@@ -110,6 +107,41 @@ internal sealed class XmlInputDecoderTests
     [Arguments("00 00 FE FF 00 00 00", 4L)] // UCS-4 truncated
     public Task Decode_MalformedUtf16AndUcs4_YieldsMalformedCodeAndOffset(string hex, long offset) =>
         AssertMalformed(Hex(hex), offset);
+
+    // A scalar value that is not a Char (production 2) is well-formed in the encoding; the parser reports it as XML0002 (#712).
+    [Test]
+    [Arguments("61 01 62", "ab")] // UTF-8 control character
+    [Arguments("61 EF BF BE", "a￾")] // UTF-8 U+FFFE
+    [Arguments("EF BF BF", "￿")] // UTF-8 U+FFFF
+    [Arguments("FF FE FE FF", "￾")] // UTF-16 little endian U+FFFE
+    [Arguments("FE FF 00 01", "")] // UTF-16 big endian control character
+    [Arguments("00 00 FE FF 00 00 00 01", "")] // UCS-4 control character
+    [Arguments("00 00 FE FF 00 00 FF FF", "￿")] // UCS-4 U+FFFF
+    public async Task Decode_NonCharScalarValue_PassesThroughAtEverySplit(string hex, string expected)
+    {
+        var bytes = Hex(hex);
+        for (var split = 0; split <= bytes.Length; split++)
+        {
+            var (text, error) = split == 0 || split == bytes.Length ? Decode(bytes) : Decode(bytes, split);
+
+            await Assert.That(error).IsNull().Because($"split {split}");
+            await Assert.That(text).IsEqualTo(expected).Because($"split {split}");
+        }
+    }
+
+    [Test]
+    public async Task Decode_Latin1ControlCharacter_PassesThrough()
+    {
+        var bytes = Hex("61 01 62");
+        XmlInputDecoder.TryCreate(Detect(bytes), out var decoder, out _);
+        decoder!.TryConfirmEncoding("ISO-8859-1".AsSpan(), out _);
+        using var output = new PooledBuffer<char>();
+
+        var ok = decoder.TryDecode(bytes, true, output, out _);
+
+        await Assert.That(ok).IsTrue();
+        await Assert.That(output.WrittenSpan.ToString()).IsEqualTo("ab");
+    }
 
     private static async Task AssertMalformed(byte[] bytes, long offset)
     {

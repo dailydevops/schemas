@@ -164,6 +164,26 @@ public class ExternalSubsetStreamingTests
         await Assert.That(error).IsSameReferenceAs(XmlErrorCodes.XML4003);
     }
 
+    // A character that is not an XML Char is valid in the encoding, so it is XML0002 and not a decoding error (#712); the
+    // declaration parser does not check the characters of a comment, an instruction, or a literal, so the decoder does.
+    [Test]
+    [Arguments("<!ELEMENT a EMPTY>", 1)]
+    [Arguments("<!ELEMENT a EMPTY>", 3)]
+    [Arguments("<!-- c -->", 1)]
+    [Arguments("<?p c?>", 3)]
+    [Arguments("<!ENTITY e 'ab'>", 1)]
+    [Arguments("<!ELEMENT a EMPTY>", 3)]
+    [Arguments("<!ELEMENT a EMPTY> ￾ ", 1)]
+    public async Task NonXmlCharacter_IsXml0002_NotAcceptedAndNotADecodingError(string text, int maxRead)
+    {
+        var (_, error) = Parse(
+            string.Empty,
+            new ReadCountingResolver(maxRead).Add(SubsetHarness.SubsetUri, Encoding.UTF8.GetBytes(text))
+        );
+
+        await Assert.That(error).IsSameReferenceAs(XmlErrorCodes.XML0002);
+    }
+
     // Every construct of the external subset, long enough that the chunks of any size cut through every one of them.
     private static string Mixed()
     {
