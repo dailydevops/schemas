@@ -9,5 +9,11 @@ public sealed class ConformanceLegAttribute : SkipAttribute
         : base("The conformance suites run on the designated leg only.") { }
 
     /// <inheritdoc />
-    public override Task<bool> ShouldSkip(TestRegisteredContext context) => Task.FromResult(false);
+    public override Task<bool> ShouldSkip(TestRegisteredContext context)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+        return Task.FromResult(
+            !ConformanceLeg.IsDesignated(TargetFrameworkName.Of(context.TestDetails.ClassType.Assembly))
+        );
+    }
 }
