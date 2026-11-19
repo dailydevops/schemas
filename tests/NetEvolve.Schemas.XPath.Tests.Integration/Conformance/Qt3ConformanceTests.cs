@@ -7,6 +7,7 @@ using NetEvolve.Schemas.XPath.Tests.Integration.Qt3.ParserOnly;
 using NetEvolve.Schemas.XPath.Tests.Integration.Qt3.Runner;
 
 /// <summary>One test per QT3 test set; it fails on any regression or unexpected pass against the set's baseline.</summary>
+[ConformanceLeg]
 public class Qt3ConformanceTests
 {
     // The evaluator is bound in XP-14; until then the parser-only engine reports syntax errors and every other

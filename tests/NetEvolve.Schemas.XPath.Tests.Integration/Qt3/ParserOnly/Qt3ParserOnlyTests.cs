@@ -1,9 +1,11 @@
 namespace NetEvolve.Schemas.XPath.Tests.Integration.Qt3.ParserOnly;
 
+using NetEvolve.Schemas.Conformance.Reporting;
 using NetEvolve.Schemas.Conformance.Results;
 using NetEvolve.Schemas.XPath.Tests.Integration.Qt3.Assertions.Static;
 using NetEvolve.Schemas.XPath.Tests.Integration.Qt3.Runner;
 
+[ConformanceLeg]
 public class Qt3ParserOnlyTests
 {
     // The assertion kinds that expect a value; any other kind may expect an error or is a compound assertion.

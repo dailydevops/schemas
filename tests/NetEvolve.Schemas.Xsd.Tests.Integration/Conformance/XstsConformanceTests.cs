@@ -2,9 +2,11 @@ namespace NetEvolve.Schemas.Xsd.Tests.Integration.Conformance;
 
 using System.Collections.Concurrent;
 using NetEvolve.Schemas.Conformance.Baseline;
+using NetEvolve.Schemas.Conformance.Reporting;
 using NetEvolve.Schemas.Conformance.Results;
 using NetEvolve.Schemas.Xsd.Tests.Integration.Xsts;
 
+[ConformanceLeg]
 public class XstsConformanceTests
 {
     private static readonly ConcurrentBag<CaseResult> ChunkResults = [];
