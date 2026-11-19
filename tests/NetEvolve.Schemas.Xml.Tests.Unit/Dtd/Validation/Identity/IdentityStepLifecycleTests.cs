@@ -171,7 +171,7 @@ public class IdentityStepLifecycleTests
         _ = RunDocument(step, declarations, elements);
         var allocated = RunDocument(step, declarations, elements);
 
-        await Assert.That(allocated).IsLessThan(64 * 1024);
+        await Assert.That(allocated).IsLessThan(4 * 1024);
     }
 
     // No await between the two reads: the counter is per thread.
