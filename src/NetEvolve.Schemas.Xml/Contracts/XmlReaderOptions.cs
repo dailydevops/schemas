@@ -1,6 +1,8 @@
 namespace NetEvolve.Schemas.Xml.Contracts;
 
+using System;
 using NetEvolve.Arguments;
+using NetEvolve.Schemas.Xml.Dtd.Contracts;
 
 /// <summary>Immutable reader options; they carry no validation settings (DTD validation is XML-60).</summary>
 public sealed class XmlReaderOptions
@@ -30,6 +32,22 @@ public sealed class XmlReaderOptions
     /// error, when an external subset or a parameter-entity reference could have declared it (section 4.1).
     /// </remarks>
     public bool DtdProcessing => _dtdProcessing;
+
+    /// <summary>Gets the options of external access to the external subset and the external parameter entities; <see langword="null"/> when they are not read.</summary>
+    internal DtdValidationOptions? ExternalAccess => throw new NotSupportedException();
+
+    /// <summary>Gets the absolute base URI of the document, against which a relative system identifier of the document type declaration resolves; <see langword="null"/> when unknown.</summary>
+    internal string? BaseUri => throw new NotSupportedException();
+
+    /// <summary>Returns a copy with other <see cref="ExternalAccess"/>.</summary>
+    /// <param name="value">The options, <see langword="null"/> to leave the external subset unread.</param>
+    /// <returns>The new options.</returns>
+    internal XmlReaderOptions WithExternalAccess(DtdValidationOptions? value) => throw new NotSupportedException();
+
+    /// <summary>Returns a copy with another <see cref="BaseUri"/>.</summary>
+    /// <param name="value">The base URI, <see langword="null"/> when unknown.</param>
+    /// <returns>The new options.</returns>
+    internal XmlReaderOptions WithBaseUri(string? value) => throw new NotSupportedException();
 
     /// <summary>Returns a copy with another <see cref="DtdProcessing"/>.</summary>
     /// <param name="value"><see langword="true"/> to parse the internal subset of a document type declaration.</param>

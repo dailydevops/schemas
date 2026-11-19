@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.Xml.Dtd.Declarations;
 
 using System;
 using NetEvolve.Schemas.Xml.Contracts;
+using NetEvolve.Schemas.Xml.Dtd.External.Subset;
 using NetEvolve.Schemas.Xml.Dtd.Model;
 
 /// <summary>
@@ -58,6 +59,21 @@ internal sealed partial class DtdSubsetParser
         declarations = builder.Build();
         return null;
     }
+
+    /// <summary>Parses the internal subset and, when <paramref name="external"/> is set, the external subset of a document type declaration.</summary>
+    /// <param name="doctype">The declaration; an absent identifier is empty.</param>
+    /// <param name="limits">The limits.</param>
+    /// <param name="external">The reader of external text, <see langword="null"/> to leave the external subset and the external parameter entities unread.</param>
+    /// <param name="baseUri">The absolute base URI of the document, or <see langword="null"/>.</param>
+    /// <param name="declarations">The model, <see langword="null"/> when a subset is not well formed.</param>
+    /// <returns><see langword="null"/> when the subsets are well formed, otherwise the error code.</returns>
+    internal static XmlErrorCode? Parse(
+        in XmlDoctypeInfo doctype,
+        XmlReaderLimits limits,
+        ExternalSubsetReader? external,
+        string? baseUri,
+        out DtdDeclarations? declarations
+    ) => throw new NotSupportedException();
 
     private static string? NullIfEmpty(ReadOnlySpan<char> value) => value.IsEmpty ? null : value.ToString();
 
