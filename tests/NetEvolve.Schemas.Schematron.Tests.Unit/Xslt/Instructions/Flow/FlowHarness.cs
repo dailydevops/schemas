@@ -25,8 +25,7 @@ internal sealed class FlowHarness
         var node = FunctionTree.Declaration(element);
         Executable = Fixture.Compile(node, Fixture.FunctionScope, XsltPosition.Instruction);
         Run = (MiniRun)Fixture.Binding.BeginRun(null!, cancellationToken);
-        Frame = new XsltFrame(Run, cancellationToken);
-        Frame.Messages = Messages;
+        Frame = new XsltFrame(Run, cancellationToken) { Messages = Messages };
     }
 
     internal FunctionFixture Fixture { get; }

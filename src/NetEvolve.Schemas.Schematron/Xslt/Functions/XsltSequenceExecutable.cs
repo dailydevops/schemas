@@ -6,9 +6,8 @@ using NetEvolve.Schemas.Schematron.Seams;
 
 /// <summary><c>xsl:sequence</c>: evaluates its <see langword="select"/> expression and pushes the items into the sink without copying nodes (XSLT 2.0 section 11.9).</summary>
 /// <remarks>
-/// Limitation: the frame carries no focus yet (design #150 EP-13 adds it with the evaluation package), so the expression is
-/// evaluated without one, which is what a function body needs; an instruction that sets a focus (<c>xsl:for-each</c>, SCH-82) needs
-/// the frame to carry it and then changes this call.
+/// The expression is evaluated with the focus of the frame: none in a function body, and the item, position, and size of the
+/// iteration inside an <c>xsl:for-each</c> (SCH-82, #255).
 /// </remarks>
 internal sealed class XsltSequenceExecutable : XsltExecutable, IXsltSlotReader
 {
@@ -30,6 +29,6 @@ internal sealed class XsltSequenceExecutable : XsltExecutable, IXsltSlotReader
         Argument.ThrowIfNull(frame);
         Argument.ThrowIfNull(sink);
 
-        return frame.Run.TryEvaluate(_select, XsltFunctionFocus.None, sink);
+        return frame.Run.TryEvaluate(_select, frame.Focus, sink);
     }
 }

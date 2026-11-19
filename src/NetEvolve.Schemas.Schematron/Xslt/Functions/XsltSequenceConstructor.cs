@@ -99,6 +99,16 @@ internal static class XsltSequenceConstructor
         if (compiled is not null)
         {
             instructions.Add(compiled);
+
+            // The locals of a nested body took slots above the visible names; no name reaches them after the instruction, but
+            // the function must save them, and the later variables of this constructor must not share them.
+            if (compiled is IXsltLocalSlots nested)
+            {
+                while (names.Count < nested.SlotEnd)
+                {
+                    names.Add(string.Empty);
+                }
+            }
         }
 
         if (XsltElementReader.IsXslt(node, VariableLocalName))

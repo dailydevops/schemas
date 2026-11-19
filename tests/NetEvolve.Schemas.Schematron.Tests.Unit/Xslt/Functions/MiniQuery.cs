@@ -306,19 +306,22 @@ internal static class MiniQuery
             }
         }
 
+        // position() and last() read the focus; no focus is XPDY0002, and so is a size that is not known.
+        private XdmSequence FocusValue(in QueryFocus focus)
+        {
+            var size = focus.ResolveSize();
+            var wanted = string.Equals(name, "position", StringComparison.Ordinal) ? focus.Position : size;
+            return focus.Item.Kind == XdmItemKind.None || wanted < 0
+                ? throw Fail("XPDY0002", "The context item or size is absent.")
+                : One(XdmItem.FromInteger(wanted));
+        }
+
         private XdmSequence Builtin(XdmSequence[] a, in QueryFocus focus)
         {
             switch (name)
             {
-                case "position":
-                    return focus.Item.Kind == XdmItemKind.None
-                        ? throw Fail("XPDY0002", "The context item is absent.")
-                        : One(XdmItem.FromInteger(focus.Position));
-                case "last":
-                    var size = focus.ResolveSize();
-                    return focus.Item.Kind == XdmItemKind.None || size < 0
-                        ? throw Fail("XPDY0002", "The context size is absent.")
-                        : One(XdmItem.FromInteger(size));
+                case "position" or "last":
+                    return FocusValue(in focus);
                 case "true":
                     return One(XdmItem.FromBoolean(true));
                 case "false":

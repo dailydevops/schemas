@@ -236,7 +236,9 @@ public class SortTests
     [Arguments("stable", "maybe")]
     public async Task Sort_InvalidValue_IsStaticErrorXtse0020(string attribute, string value)
     {
-        var sort = attribute == "order" ? Sort(".", value, 11) : Sort(".", null, 11, value);
+        var sort = string.Equals(attribute, "order", System.StringComparison.Ordinal)
+            ? Sort(".", value, 11)
+            : Sort(".", null, 11, value);
         var harness = Loop("(1, 2)", [sort]);
 
         await Assert.That(harness.Executable).IsNull();

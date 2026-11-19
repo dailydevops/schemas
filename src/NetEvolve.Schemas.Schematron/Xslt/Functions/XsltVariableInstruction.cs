@@ -121,7 +121,10 @@ internal sealed class XsltVariableInstruction : IXsltInstruction
         return false;
     }
 
-    private static bool HasContent(XPathNode element)
+    /// <summary>Determines whether an element has content other than white space.</summary>
+    /// <param name="element">The element.</param>
+    /// <returns><see langword="true"/> when it has a child element or text that is not white space.</returns>
+    internal static bool HasContent(XPathNode element)
     {
         for (var child = element.Node.FirstChild; !child.IsEmpty; child = child.NextSibling)
         {

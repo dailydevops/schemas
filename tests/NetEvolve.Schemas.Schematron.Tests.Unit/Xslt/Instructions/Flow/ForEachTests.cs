@@ -127,9 +127,7 @@ public class ForEachTests
     [Test]
     public async Task ForEach_LocalVariableInTheBody_IsBoundPerIteration()
     {
-        var harness = new FlowHarness(
-            ForEach("(1, 2, 3)", 10, Var("sq", ". * .", 11), ValueOf("$sq", null, 12))
-        );
+        var harness = new FlowHarness(ForEach("(1, 2, 3)", 10, Var("sq", ". * .", 11), ValueOf("$sq", null, 12)));
 
         await Assert.That(Run(harness)).IsEqualTo("149");
     }
@@ -139,7 +137,7 @@ public class ForEachTests
     {
         using var source = new CancellationTokenSource();
         var harness = new FlowHarness(ForEach("(1, 2, 3)", 10, ValueOf("'x'", null, 11)), source.Token);
-        source.Cancel();
+        await source.CancelAsync();
 
         await Assert.That(() => harness.Execute()).Throws<System.OperationCanceledException>();
         await Assert.That(harness.Sink.Events.Count).IsEqualTo(0);

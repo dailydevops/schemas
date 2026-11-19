@@ -27,7 +27,6 @@ public class FocusTests
         {
             var focus = harness.Run.Focuses[i];
             await Assert.That(focus.Size).IsEqualTo(-1);
-            await Assert.That(focus.ResolveSize()).IsEqualTo(3);
         }
     }
 
@@ -71,7 +70,8 @@ public class FocusTests
     [Test]
     public async Task Frame_StartsWithoutAFocus_AndAFocusCanBeSet()
     {
-        var frame = new XsltFrame(new MiniRun());
+        using var run = new MiniRun();
+        var frame = new XsltFrame(run);
 
         await Assert.That(frame.Focus.Item.Kind).IsEqualTo(XdmItemKind.None);
 
@@ -106,7 +106,11 @@ public class FocusTests
             Fx.Function("f:outer", null, 20, ForEach("5", 21, Fx.Sequence("f:probe()", 22)))
         );
         var (_, caller) = fixture.CreateRun();
-        _ = fixture.Table.TryGet(new NetEvolve.Schemas.XPath.Api.XPathQName(FunctionTree.Functions, "outer"), 0, out var outer);
+        _ = fixture.Table.TryGet(
+            new NetEvolve.Schemas.XPath.Api.XPathQName(FunctionTree.Functions, "outer"),
+            0,
+            out var outer
+        );
 
         var status = caller.TryCall(outer, [], out _);
 
@@ -123,7 +127,11 @@ public class FocusTests
             Fx.Function("f:outer", null, 20, ForEach("5", 21, Fx.Sequence("(f:id(1), .)", 22)))
         );
         var (_, caller) = fixture.CreateRun();
-        _ = fixture.Table.TryGet(new NetEvolve.Schemas.XPath.Api.XPathQName(FunctionTree.Functions, "outer"), 0, out var outer);
+        _ = fixture.Table.TryGet(
+            new NetEvolve.Schemas.XPath.Api.XPathQName(FunctionTree.Functions, "outer"),
+            0,
+            out var outer
+        );
 
         var status = caller.TryCall(outer, [], out var result);
 

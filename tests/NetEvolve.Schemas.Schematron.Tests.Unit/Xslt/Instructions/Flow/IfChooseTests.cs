@@ -156,11 +156,7 @@ public class IfChooseTests
     public async Task Choose_ReportsTheSlotsOfEveryTestAndBranch()
     {
         var harness = new FlowHarness(
-            Choose(
-                10,
-                When("$a = 1", 11, ValueOf("$b", null, 12)),
-                Otherwise(13, ValueOf("$c", null, 14))
-            ),
+            Choose(10, When("$a = 1", 11, ValueOf("$b", null, 12)), Otherwise(13, ValueOf("$c", null, 14))),
             "a",
             "b",
             "c"
@@ -181,9 +177,7 @@ public class IfChooseTests
     [Test]
     public async Task Choose_OtherwiseBeforeAWhen_IsStaticErrorXtse0010()
     {
-        var harness = new FlowHarness(
-            Choose(10, When("true()", 11), Otherwise(12), When("true()", 13))
-        );
+        var harness = new FlowHarness(Choose(10, When("true()", 11), Otherwise(12), When("true()", 13)));
 
         await Assert.That(harness.Executable).IsNull();
         await Assert.That(harness.CompileCodes).IsEqualTo("NES3003/XTSE0010");

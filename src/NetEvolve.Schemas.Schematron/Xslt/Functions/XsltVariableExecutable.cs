@@ -38,6 +38,6 @@ internal sealed class XsltVariableExecutable : XsltExecutable, IXsltSlotReader
         Argument.ThrowIfNull(frame);
         Argument.ThrowIfNull(sink);
 
-        return frame.Run.TryBindVariable(Slot, _value, XsltFunctionFocus.None);
+        return frame.Run.TryBindVariable(Slot, _value, frame.Focus);
     }
 }

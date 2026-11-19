@@ -28,12 +28,7 @@ internal static class Fl
 
     /// <summary>An <c>xsl:text</c>; <paramref name="text"/> is its only child when given.</summary>
     internal static XmlElem Text(string? text, int line, string? disableOutputEscaping = null) =>
-        Build(
-            "text",
-            line,
-            [("disable-output-escaping", disableOutputEscaping)],
-            text is null ? [] : [text]
-        );
+        Build("text", line, [("disable-output-escaping", disableOutputEscaping)], text is null ? [] : [text]);
 
     /// <summary>An <c>xsl:if</c>.</summary>
     internal static XmlElem If(string? test, int line, params object[] content) =>

@@ -77,15 +77,17 @@ public class SlotTests
                 "xs:integer",
                 10,
                 Fx.Param("n", "xs:integer", 11),
-                If(
-                    "$n = 0",
-                    12,
-                    Fx.Sequence("0", 13)
-                ),
+                If("$n = 0", 12, Fx.Sequence("0", 13)),
                 If(
                     "$n != 0",
                     14,
-                    ForEach("$n", 15, Var("v", ".", 16), Var("rest", "f:sum($n - 1)", 17), Fx.Sequence("$v + $rest", 18))
+                    ForEach(
+                        "$n",
+                        15,
+                        Var("v", ".", 16),
+                        Var("rest", "f:sum($n - 1)", 17),
+                        Fx.Sequence("$v + $rest", 18)
+                    )
                 )
             )
         );

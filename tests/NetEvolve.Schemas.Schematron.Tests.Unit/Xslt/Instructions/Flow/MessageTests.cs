@@ -158,7 +158,6 @@ public class MessageTests
     {
         var harness = new FlowHarness(Message("$a", null, 10, ValueOf("$b", null, 11)), "a", "b", "c");
 
-        await Assert.That(((IXsltSlotReader)harness.Executable!).ReferencedSlots.ToArray())
-            .IsEquivalentTo([0, 1]);
+        await Assert.That(((IXsltSlotReader)harness.Executable!).ReferencedSlots.ToArray()).IsEquivalentTo([0, 1]);
     }
 }

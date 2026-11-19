@@ -21,22 +21,22 @@ public class RegistrationTests
     }
 
     [Test]
-    [Arguments("value-of", XsltPosition.Instruction)]
-    [Arguments("text", XsltPosition.Instruction)]
-    [Arguments("if", XsltPosition.Instruction)]
-    [Arguments("choose", XsltPosition.Instruction)]
-    [Arguments("for-each", XsltPosition.Instruction)]
-    [Arguments("message", XsltPosition.Instruction)]
-    [Arguments("when", XsltPosition.Child)]
-    [Arguments("otherwise", XsltPosition.Child)]
-    [Arguments("sort", XsltPosition.Child)]
-    public async Task Registration_RegistersTheNineElementsWithTheirPositions(string local, XsltPosition position)
+    [Arguments("value-of", "Instruction")]
+    [Arguments("text", "Instruction")]
+    [Arguments("if", "Instruction")]
+    [Arguments("choose", "Instruction")]
+    [Arguments("for-each", "Instruction")]
+    [Arguments("message", "Instruction")]
+    [Arguments("when", "Child")]
+    [Arguments("otherwise", "Child")]
+    [Arguments("sort", "Child")]
+    public async Task Registration_RegistersTheNineElementsWithTheirPositions(string local, string position)
     {
         var builder = new XsltRegistryBuilder();
         Registration.Register(builder);
         var registry = builder.Build();
 
-        await Assert.That(PositionOf(registry, local)).IsEqualTo(position);
+        await Assert.That(PositionOf(registry, local).ToString()).IsEqualTo(position);
     }
 
     [Test]
