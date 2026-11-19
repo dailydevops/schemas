@@ -250,7 +250,7 @@ public class XmlConfSuiteTests
         await Assert.That(cases.Any(c => baselines[c.TestSet].Ids.Contains(c.Id, StringComparer.Ordinal))).IsFalse();
     }
 
-    /// <summary>Not-well-formed cases whose fault is in the external subset (conditional sections, references) or in an external entity that stays denied.</summary>
+    /// <summary>Not-well-formed cases whose fault is in the external subset (conditional sections, references) or in an external general entity (a self-reference, a text declaration with <c>standalone</c>, a second text declaration).</summary>
     private static readonly string[] NotWellFormedExternalSubsetCases =
     [
         "xmltest/not-wf-not-sa-001",
