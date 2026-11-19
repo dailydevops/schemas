@@ -10,7 +10,8 @@ public sealed class DtdEntityDeclaration
         string? publicId,
         string? systemId,
         string? notationName,
-        string? baseUri = null
+        string? baseUri = null,
+        bool inExternalText = false
     )
     {
         Name = name;
@@ -20,6 +21,7 @@ public sealed class DtdEntityDeclaration
         SystemId = systemId;
         NotationName = notationName;
         BaseUri = baseUri;
+        InExternalText = inExternalText;
     }
 
     /// <summary>Gets the entity name.</summary>
@@ -44,5 +46,5 @@ public sealed class DtdEntityDeclaration
     internal string? BaseUri { get; }
 
     /// <summary>Gets a value indicating whether the declaration stands in the external subset or in an external parameter entity; with <c>standalone="yes"</c> such an entity does not satisfy WFC Entity Declared (section 4.1).</summary>
-    internal bool InExternalText => throw new System.NotSupportedException();
+    internal bool InExternalText { get; }
 }

@@ -52,7 +52,7 @@ internal sealed partial class DtdSubsetParser
                 return false;
             }
 
-            declaration = new DtdEntityDeclaration(name, isParameter, value, null, null, null);
+            declaration = new DtdEntityDeclaration(name, isParameter, value, null, null, null, null, _inExternal);
             return true;
         }
 
@@ -68,7 +68,16 @@ internal sealed partial class DtdSubsetParser
             return false;
         }
 
-        declaration = new DtdEntityDeclaration(name, isParameter, null, publicId, systemId, notation, _baseUri);
+        declaration = new DtdEntityDeclaration(
+            name,
+            isParameter,
+            null,
+            publicId,
+            systemId,
+            notation,
+            _baseUri,
+            _inExternal
+        );
         return true;
     }
 
