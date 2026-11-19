@@ -240,7 +240,8 @@ internal sealed class ExternalEntityFrame : IDisposable
             return true;
         }
 
-        _ = XmlInputDecoder.TryCreate(detection, out var decoder, out _);
+        // No parser checks the characters of an external entity, so the decoder reports a non-Char as XML0002 (#712).
+        _ = XmlInputDecoder.TryCreate(detection, out var decoder, out _, reportNonChar: true);
         _decoder = decoder;
         var skip = 0;
         if (declared.IsValid)
