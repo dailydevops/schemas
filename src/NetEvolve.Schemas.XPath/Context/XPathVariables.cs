@@ -31,5 +31,9 @@ public sealed class XPathVariables
     internal XdmSequence Get(XPathQName name) =>
         _values.TryGetValue(name, out var value) ? value : throw XPathErrors.Exception(XPathErrorCodes.XPDY0002);
 
+    /// <summary>Unbinds a variable, as the end of the scope of a range variable of a for, some, or every expression does when nothing was bound before.</summary>
+    /// <param name="name">The variable name.</param>
+    internal void Remove(XPathQName name) => _ = _values.Remove(name);
+
     internal void Clear() => _values.Clear();
 }
