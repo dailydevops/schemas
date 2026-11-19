@@ -51,7 +51,7 @@ public class GenerateIdHostTests
     {
         var host = Scope(binding).ActiveHost;
 
-        await Assert.That((host & XPathHostRequirements.Xslt20Host) != 0).IsEqualTo(xslt);
-        await Assert.That((host & XPathHostRequirements.CurrentItem) != 0).IsEqualTo(xslt);
+        await Assert.That((host & XPathHostRequirements.Xslt20Host) != XPathHostRequirements.None).IsEqualTo(xslt);
+        await Assert.That((host & XPathHostRequirements.CurrentItem) != XPathHostRequirements.None).IsEqualTo(xslt);
     }
 }

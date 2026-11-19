@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Library.Core;
 
 using System;
+using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Bindings.Registry;
 using NetEvolve.Schemas.Schematron.Tests.Unit.Parsing.Core;
 using NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Functions;
@@ -28,8 +29,12 @@ internal static class CoreFixture
         .WithNamespace("fn", FunctionNamespace)
         .Build();
 
-    internal static XsltFunctionScope Scope(string binding = "xslt2", XsltFunctionTable? user = null) =>
-        new(new XPathQueryBinding(binding, binding.StartsWith("xslt", StringComparison.Ordinal)), Statics, user);
+    internal static XsltFunctionScope Scope(string binding = "xslt2", XsltFunctionTable? user = null)
+    {
+        Argument.ThrowIfNull(binding);
+
+        return new(new XPathQueryBinding(binding, binding.StartsWith("xslt", StringComparison.Ordinal)), Statics, user);
+    }
 
     internal static XsltFunctionTable Table(params string[] names)
     {
@@ -62,8 +67,11 @@ internal static class CoreFixture
         return [.. FunctionTree.Declarations(elements)];
     }
 
-    internal static string Run(XsltFunctionScope scope, string local, params XdmItem[] arguments) =>
-        RunIn(scope, new XPathEvaluationContext(), local, arguments);
+    internal static string Run(XsltFunctionScope scope, string local, params XdmItem[] arguments)
+    {
+        using var context = new XPathEvaluationContext();
+        return RunIn(scope, context, local, arguments);
+    }
 
     internal static string RunIn(
         XsltFunctionScope scope,

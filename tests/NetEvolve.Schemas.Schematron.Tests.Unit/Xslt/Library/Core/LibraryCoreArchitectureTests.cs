@@ -56,9 +56,7 @@ public class LibraryCoreArchitectureTests
         {
             await Assert.That(function.Name.NamespaceName).IsEqualTo(FunctionNamespace);
             await Assert
-                .That(
-                    function.HostRequirements is XPathHostRequirements.None or XPathHostRequirements.CurrentItem
-                )
+                .That(function.HostRequirements is XPathHostRequirements.None or XPathHostRequirements.CurrentItem)
                 .IsTrue();
         }
     }

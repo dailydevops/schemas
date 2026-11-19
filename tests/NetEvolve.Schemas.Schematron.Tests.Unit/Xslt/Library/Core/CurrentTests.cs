@@ -81,10 +81,8 @@ public class CurrentTests
     }
 
     [Test]
-    public async Task CurrentItem_WithAnArgument_IsNotFound()
-    {
+    public async Task CurrentItem_WithAnArgument_IsNotFound() =>
         await Assert.That(Run(Scope(), "current", S("x"))).IsEqualTo("notfound");
-    }
 
     private static bool CurrentIs(XPathEvaluationContext context, NetEvolve.Schemas.XPath.Xdm.Nodes.XPathNode expected)
     {

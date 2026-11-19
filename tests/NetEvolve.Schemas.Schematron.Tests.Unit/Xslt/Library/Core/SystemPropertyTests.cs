@@ -22,24 +22,18 @@ public class SystemPropertyTests
     [Arguments("xsl:supports-serialization", "no")]
     [Arguments("xsl:supports-backwards-compatibility", "no")]
     [Arguments("xsl:supports-namespace-axis", "no")]
-    public async Task SystemProperty_ForAStandardPropertyName_ReturnsTheDocumentedValue(string name, string expected)
-    {
+    public async Task SystemProperty_ForAStandardPropertyName_ReturnsTheDocumentedValue(string name, string expected) =>
         await Assert.That(Run(Scope(), "system-property", S(name))).IsEqualTo("string:" + expected);
-    }
 
     [Test]
-    public async Task SystemProperty_ProductVersion_IsTheVersionOfTheAssembly()
-    {
+    public async Task SystemProperty_ProductVersion_IsTheVersionOfTheAssembly() =>
         await Assert
             .That(Run(Scope(), "system-property", S("xsl:product-version")))
             .IsEqualTo("string:" + ProductVersion);
-    }
 
     [Test]
-    public async Task SystemProperty_ForTheSameNamespaceUnderAnotherPrefix_ReturnsTheValue()
-    {
+    public async Task SystemProperty_ForTheSameNamespaceUnderAnotherPrefix_ReturnsTheValue() =>
         await Assert.That(Run(Scope(), "system-property", S("x:version"))).IsEqualTo("string:2.0");
-    }
 
     [Test]
     public async Task SystemProperty_UnderEveryXsltBinding_ReturnsVersionTwoPointZero()
@@ -56,10 +50,8 @@ public class SystemPropertyTests
     [Arguments("version")]
     [Arguments("f:version")]
     [Arguments("xsl:Version")]
-    public async Task SystemProperty_ForAnUnknownProperty_IsTheZeroLengthString(string name)
-    {
+    public async Task SystemProperty_ForAnUnknownProperty_IsTheZeroLengthString(string name) =>
         await Assert.That(Run(Scope(), "system-property", S(name))).IsEqualTo("string:");
-    }
 
     [Test]
     [Arguments("")]
@@ -68,14 +60,10 @@ public class SystemPropertyTests
     [Arguments(" xsl:version")]
     [Arguments("zz:version")]
     [Arguments("xsl:")]
-    public async Task SystemProperty_ForAnInvalidNameOrAnUnboundPrefix_IsXtde1390(string name)
-    {
+    public async Task SystemProperty_ForAnInvalidNameOrAnUnboundPrefix_IsXtde1390(string name) =>
         await Assert.That(Run(Scope(), "system-property", S(name))).IsEqualTo("error:XTDE1390");
-    }
 
     [Test]
-    public async Task SystemProperty_IsNotFoundUnderAnXpathBinding()
-    {
+    public async Task SystemProperty_IsNotFoundUnderAnXpathBinding() =>
         await Assert.That(Run(Scope("xpath2"), "system-property", S("xsl:version"))).IsEqualTo("notfound");
-    }
 }

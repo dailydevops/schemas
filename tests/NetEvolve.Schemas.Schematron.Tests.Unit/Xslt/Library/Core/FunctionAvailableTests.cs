@@ -23,17 +23,14 @@ public class FunctionAvailableTests
     [Arguments("concat", 2, true)]
     [Arguments("concat", 9, true)]
     [Arguments("concat", 1, false)]
-    [Arguments("replace", 3, true)]
-    [Arguments("replace", 2, false)]
+    [Arguments("insert-before", 3, true)]
+    [Arguments("insert-before", 2, false)]
     [Arguments("fn:count", 1, true)]
     public async Task FunctionAvailable_ForABuiltInFunction_IsTrueOnlyForAMatchingArity(
         string name,
         int arity,
         bool expected
-    )
-    {
-        await Assert.That(Run(WithUser(), "function-available", S(name), I(arity))).IsEqualTo(Boolean(expected));
-    }
+    ) => await Assert.That(Run(WithUser(), "function-available", S(name), I(arity))).IsEqualTo(Boolean(expected));
 
     [Test]
     [Arguments("f:gln", 1, true)]
@@ -46,10 +43,7 @@ public class FunctionAvailableTests
         string name,
         int arity,
         bool expected
-    )
-    {
-        await Assert.That(Run(WithUser(), "function-available", S(name), I(arity))).IsEqualTo(Boolean(expected));
-    }
+    ) => await Assert.That(Run(WithUser(), "function-available", S(name), I(arity))).IsEqualTo(Boolean(expected));
 
     [Test]
     [Arguments("f:unknown", 1)]
@@ -59,10 +53,8 @@ public class FunctionAvailableTests
     [Arguments("gln", 1)]
     [Arguments("string-length", -1)]
     [Arguments("string-length", 4294967297)]
-    public async Task FunctionAvailable_ForAnUnknownFunction_IsFalse(string name, long arity)
-    {
+    public async Task FunctionAvailable_ForAnUnknownFunction_IsFalse(string name, long arity) =>
         await Assert.That(Run(WithUser(), "function-available", S(name), I(arity))).IsEqualTo("boolean:false");
-    }
 
     [Test]
     [Arguments("current", 0)]
@@ -71,25 +63,21 @@ public class FunctionAvailableTests
     [Arguments("function-available", 2)]
     [Arguments("generate-id", 0)]
     [Arguments("generate-id", 1)]
-    public async Task FunctionAvailable_ForTheXsltFunctions_IsTrueUnderAnXsltBinding(string name, int arity)
-    {
+    public async Task FunctionAvailable_ForTheXsltFunctions_IsTrueUnderAnXsltBinding(string name, int arity) =>
         await Assert.That(Run(Scope("xslt2"), "function-available", S(name), I(arity))).IsEqualTo("boolean:true");
-    }
 
     [Test]
     [Arguments("string-length", true)]
     [Arguments("f:gln", true)]
     [Arguments("f:wide", true)]
     [Arguments("concat", true)]
-    [Arguments("replace", true)]
+    [Arguments("insert-before", true)]
     [Arguments("current", true)]
     [Arguments("generate-id", true)]
     [Arguments("f:unknown", false)]
     [Arguments("unknown", false)]
-    public async Task FunctionAvailable_OneArgumentForm_IsTrueWhenSomeArityMatches(string name, bool expected)
-    {
+    public async Task FunctionAvailable_OneArgumentForm_IsTrueWhenSomeArityMatches(string name, bool expected) =>
         await Assert.That(Run(WithUser(), "function-available", S(name))).IsEqualTo(Boolean(expected));
-    }
 
     [Test]
     [Arguments("")]
@@ -104,10 +92,8 @@ public class FunctionAvailableTests
     }
 
     [Test]
-    public async Task FunctionAvailable_IsNotFoundUnderAnXpathBinding()
-    {
+    public async Task FunctionAvailable_IsNotFoundUnderAnXpathBinding() =>
         await Assert.That(Run(Scope("xpath2"), "function-available", S("string-length"), I(1))).IsEqualTo("notfound");
-    }
 
     [Test]
     public async Task FunctionAvailable_UnderAnXpathBinding_DoesNotSeeTheXsltFunctions()
