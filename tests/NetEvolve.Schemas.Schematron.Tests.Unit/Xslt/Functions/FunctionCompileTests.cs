@@ -543,12 +543,12 @@ public class FunctionCompileTests
         var fixture = Create();
 
         var component = fixture.CompileOne(
-            Function("f:s", null, 10, X("value-of", 11, A("select", "1")), Sequence("1", 12))
+            Function("f:s", null, 10, X("evaluate", 11, A("xpath", "1")), Sequence("1", 12))
         );
 
         await Assert.That(component).IsNull();
         await Assert.That(Codes(fixture.Problems)).IsEqualTo("NES3204");
-        await Assert.That(fixture.Problems.Problems[0].Message).Contains("xsl:value-of");
+        await Assert.That(fixture.Problems.Problems[0].Message).Contains("xsl:evaluate");
         await Assert.That(fixture.Problems.Problems[0].Location.Line).IsEqualTo(11);
     }
 
