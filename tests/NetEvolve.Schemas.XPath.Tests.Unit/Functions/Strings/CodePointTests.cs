@@ -1,5 +1,7 @@
 namespace NetEvolve.Schemas.XPath.Tests.Unit.Functions.Strings;
 
+using System.Globalization;
+using System.Numerics;
 using System.Threading.Tasks;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 using static NetEvolve.Schemas.XPath.Tests.Unit.Functions.Strings.StringsHarness;
@@ -63,6 +65,19 @@ public class CodePointTests
     [Arguments(0x1_0000_0041L)] // would wrap to U+0041
     public async Task CodepointsToString_CodePointBeyondTheIntRange_IsFOCH0001(long codePoint) =>
         await Assert.That(Text("codepoints-to-string", Ints(codePoint))).IsEqualTo("error:FOCH0001");
+
+    [Test]
+    [Arguments("10000000000000000000000000")]
+    [Arguments("-10000000000000000000000000")]
+    public async Task CodepointsToString_CodePointBeyondSixtyFourBits_IsFOCH0001(string digits) =>
+        await Assert
+            .That(
+                Text(
+                    "codepoints-to-string",
+                    XdmSequence.Create(XdmItem.FromBigInteger(BigInteger.Parse(digits, CultureInfo.InvariantCulture)))
+                )
+            )
+            .IsEqualTo("error:FOCH0001");
 
     [Test]
     public async Task CodepointsToString_OneInvalidCodePointAmongValidOnes_IsFOCH0001() =>
