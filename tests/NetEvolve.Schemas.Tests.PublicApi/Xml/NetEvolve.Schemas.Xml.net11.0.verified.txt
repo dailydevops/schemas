@@ -796,6 +796,94 @@ namespace NetEvolve.Schemas.Xml.Datatypes.Facets.Core
         public bool IsSatisfiedBy(System.ReadOnlySpan<char> lexical) { }
     }
 }
+namespace NetEvolve.Schemas.Xml.Datatypes.Facets.Ordered
+{
+    public sealed class BinaryLengthFacet : NetEvolve.Schemas.Xml.Datatypes.Contracts.IFacet, NetEvolve.Schemas.Xml.Datatypes.Contracts.ILexicalFacet
+    {
+        public NetEvolve.Schemas.Xml.Datatypes.Binary.BinaryKind Encoding { get; }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.FacetKind Kind { get; }
+        public int Value { get; }
+        public bool IsSatisfiedBy(System.ReadOnlySpan<char> lexical) { }
+        public static NetEvolve.Schemas.Xml.Datatypes.Facets.Ordered.BinaryLengthFacet Length(int value, NetEvolve.Schemas.Xml.Datatypes.Binary.BinaryKind encoding) { }
+        public static NetEvolve.Schemas.Xml.Datatypes.Facets.Ordered.BinaryLengthFacet MaxLength(int value, NetEvolve.Schemas.Xml.Datatypes.Binary.BinaryKind encoding) { }
+        public static NetEvolve.Schemas.Xml.Datatypes.Facets.Ordered.BinaryLengthFacet MinLength(int value, NetEvolve.Schemas.Xml.Datatypes.Binary.BinaryKind encoding) { }
+    }
+    public sealed class BoundFacet<TValue> : NetEvolve.Schemas.Xml.Datatypes.Contracts.IFacet, NetEvolve.Schemas.Xml.Datatypes.Contracts.IValueFacet<TValue>
+    {
+        public BoundFacet(NetEvolve.Schemas.Xml.Datatypes.Contracts.FacetKind kind, NetEvolve.Schemas.Xml.Datatypes.Contracts.IDatatypeDescriptor<TValue> type, TValue bound) { }
+        public TValue Bound { get; }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.FacetKind Kind { get; }
+        public bool IsSatisfiedBy(in TValue value) { }
+    }
+    public sealed class ExplicitTimezoneFacet : NetEvolve.Schemas.Xml.Datatypes.Contracts.IFacet, NetEvolve.Schemas.Xml.Datatypes.Contracts.IValueFacet<NetEvolve.Schemas.Xml.Datatypes.DateTime.XsdDateTime>
+    {
+        public ExplicitTimezoneFacet(NetEvolve.Schemas.Xml.Datatypes.Facets.Ordered.ExplicitTimezoneMode mode) { }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.FacetKind Kind { get; }
+        public NetEvolve.Schemas.Xml.Datatypes.Facets.Ordered.ExplicitTimezoneMode Mode { get; }
+        public bool IsSatisfiedBy(in NetEvolve.Schemas.Xml.Datatypes.DateTime.XsdDateTime value) { }
+    }
+    public enum ExplicitTimezoneMode
+    {
+        Optional = 0,
+        Required = 1,
+        Prohibited = 2,
+    }
+    public sealed class FractionDigitsFacet : NetEvolve.Schemas.Xml.Datatypes.Contracts.IFacet, NetEvolve.Schemas.Xml.Datatypes.Contracts.IValueFacet<NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal>, NetEvolve.Schemas.Xml.Datatypes.Contracts.IValueFacet<NetEvolve.Schemas.Xml.Datatypes.Numeric.XsdInteger>
+    {
+        public FractionDigitsFacet(int value) { }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.FacetKind Kind { get; }
+        public int Value { get; }
+        public bool IsSatisfiedBy(in NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal value) { }
+        public bool IsSatisfiedBy(in NetEvolve.Schemas.Xml.Datatypes.Numeric.XsdInteger value) { }
+    }
+    public static class OrderedFacetRestriction
+    {
+        public static NetEvolve.Schemas.Xml.Datatypes.Facets.Ordered.OrderedFacetRestrictionResult Validate<TValue>(NetEvolve.Schemas.Xml.Datatypes.Contracts.IDatatypeDescriptor<TValue> type, NetEvolve.Schemas.Xml.Datatypes.Facets.Core.PrimitiveKind primitive, NetEvolve.Schemas.Xml.Datatypes.Facets.Ordered.OrderedFacetSet<TValue> baseSet, NetEvolve.Schemas.Xml.Datatypes.Facets.Ordered.OrderedFacetSet<TValue> derived)
+            where TValue :  struct { }
+    }
+    public enum OrderedFacetRestrictionError
+    {
+        None = 0,
+        NotApplicable = 1,
+        FixedFacetChanged = 2,
+        InclusiveAndExclusive = 3,
+        BoundOutsideBase = 4,
+        LowerBoundAboveUpperBound = 5,
+        TotalDigitsLoosened = 6,
+        FractionDigitsLoosened = 7,
+        FractionDigitsGreaterThanTotalDigits = 8,
+        ExplicitTimezoneChanged = 9,
+    }
+    public readonly struct OrderedFacetRestrictionResult : System.IEquatable<NetEvolve.Schemas.Xml.Datatypes.Facets.Ordered.OrderedFacetRestrictionResult>
+    {
+        public OrderedFacetRestrictionResult(NetEvolve.Schemas.Xml.Datatypes.Facets.Ordered.OrderedFacetRestrictionError error, NetEvolve.Schemas.Xml.Datatypes.Contracts.FacetKind facet) { }
+        public NetEvolve.Schemas.Xml.Datatypes.Facets.Ordered.OrderedFacetRestrictionError Error { get; }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.FacetKind Facet { get; }
+        public bool IsValid { get; }
+    }
+    public readonly struct OrderedFacetSet<TValue> : System.IEquatable<NetEvolve.Schemas.Xml.Datatypes.Facets.Ordered.OrderedFacetSet<TValue>>
+        where TValue :  struct
+    {
+        public OrderedFacetSet(TValue? minInclusive = default, TValue? minExclusive = default, TValue? maxInclusive = default, TValue? maxExclusive = default, int? totalDigits = default, int? fractionDigits = default, NetEvolve.Schemas.Xml.Datatypes.Facets.Ordered.ExplicitTimezoneMode? explicitTimezone = default, NetEvolve.Schemas.Xml.Datatypes.Facets.Core.FacetKindSet fixedFacets = default) { }
+        public NetEvolve.Schemas.Xml.Datatypes.Facets.Ordered.ExplicitTimezoneMode? ExplicitTimezone { get; }
+        public NetEvolve.Schemas.Xml.Datatypes.Facets.Core.FacetKindSet FixedFacets { get; }
+        public int? FractionDigits { get; }
+        public TValue? MaxExclusive { get; }
+        public TValue? MaxInclusive { get; }
+        public TValue? MinExclusive { get; }
+        public TValue? MinInclusive { get; }
+        public NetEvolve.Schemas.Xml.Datatypes.Facets.Core.FacetKindSet Specified { get; }
+        public int? TotalDigits { get; }
+    }
+    public sealed class TotalDigitsFacet : NetEvolve.Schemas.Xml.Datatypes.Contracts.IFacet, NetEvolve.Schemas.Xml.Datatypes.Contracts.IValueFacet<NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal>, NetEvolve.Schemas.Xml.Datatypes.Contracts.IValueFacet<NetEvolve.Schemas.Xml.Datatypes.Numeric.XsdInteger>
+    {
+        public TotalDigitsFacet(int value) { }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.FacetKind Kind { get; }
+        public int Value { get; }
+        public bool IsSatisfiedBy(in NetEvolve.Schemas.Xml.Datatypes.Decimals.XsdDecimal value) { }
+        public bool IsSatisfiedBy(in NetEvolve.Schemas.Xml.Datatypes.Numeric.XsdInteger value) { }
+    }
+}
 namespace NetEvolve.Schemas.Xml.Datatypes.Floating
 {
     public static class XsdFloatingPoint
