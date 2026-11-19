@@ -113,6 +113,10 @@ public class FlowGuardTests
     }
 
     [Test]
+    public async Task RangeItems_WithALastBelowTheFirst_Throws() =>
+        await Assert.That(Catch(() => _ = new RangeItems(2, 1))).IsTypeOf<ArgumentOutOfRangeException>();
+
+    [Test]
     public async Task VariableNode_WithAnEmptyName_Throws() =>
         await Assert.That(Catch(() => _ = new VariableNode(default))).IsTypeOf<ArgumentException>();
 
