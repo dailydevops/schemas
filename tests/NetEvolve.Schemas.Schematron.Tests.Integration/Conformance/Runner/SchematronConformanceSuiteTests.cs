@@ -72,7 +72,7 @@ public class SchematronConformanceSuiteTests
             }
         );
 
-        ConformanceRateReporter.Append(
+        ConformanceRateReporter.Collect(
             "NetEvolve.Schemas.Schematron",
             TargetFrameworkName.Of(typeof(SchematronConformanceSuiteTests).Assembly),
             report
