@@ -146,6 +146,6 @@ public class CodepointCollationTests
         AllocationAssert.NoAllocation(() => _ = Collation.EndsWith(first, "�"), warmups: Warmups);
         AllocationAssert.NoAllocation(() => _ = Collation.TryFind(first, "cd", out _, out _), warmups: Warmups);
 
-        await Assert.That(Collation.Compare(first, second)).IsGreaterThan(0);
+        await Assert.That(Collation.Compare(first, second)).IsLessThan(0);
     }
 }

@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Tests.Unit.Functions.Sequences;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
@@ -31,10 +30,10 @@ public class Qt3CollationSelectionTests
     [MethodDataSource(nameof(Cases))]
     public async Task Case_SatisfiesItsAssertion(string id, string expression, string expectation)
     {
-        var (result, code) = Qt3SequenceFixture.Run(expression);
+        var (result, code) = Qt3CollationFixture.Run(expression);
 
         await Assert
-            .That(Satisfies(expectation, result, code))
+            .That(Qt3SequenceFixture.Satisfies(expectation, result, code))
             .IsTrue()
             .Because($"{id}: {expression} gave {Qt3SequenceFixture.Describe(result, code)}, expected {expectation}");
     }
@@ -85,14 +84,6 @@ public class Qt3CollationSelectionTests
         {
             await Assert.That(sets.Contains(set)).IsTrue().Because($"{set} has no case in the selection");
         }
-    }
-
-    // An expectation is a tab-separated list of alternatives.
-    private static bool Satisfies(string expectation, XdmSequence result, string code)
-    {
-        Argument.ThrowIfNull(expectation);
-
-        return Qt3SequenceFixture.Satisfies(expectation, result, code);
     }
 
     private static async Task<HashSet<string>> Applicable(CancellationToken cancellationToken)
