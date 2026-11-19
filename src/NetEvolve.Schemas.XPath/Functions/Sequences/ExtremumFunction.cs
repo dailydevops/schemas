@@ -2,20 +2,24 @@ namespace NetEvolve.Schemas.XPath.Functions.Sequences;
 
 using NetEvolve.Schemas.Xml.Datatypes.Decimals;
 using NetEvolve.Schemas.XPath.Api;
+using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Evaluation.Arithmetic;
 using NetEvolve.Schemas.XPath.Evaluation.Comparison;
+using NetEvolve.Schemas.XPath.Evaluation.Temporal;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>
 /// The base of <c>fn:min</c> and <c>fn:max</c> (Functions and Operators 1.0, 15.4.3 and 15.4.4): the least or the greatest value of the
 /// argument. <c>xs:untypedAtomic</c> values are cast to <c>xs:double</c>; numbers are promoted to the type of the widest number in the
 /// sequence and so is the result; a NaN makes the result NaN; strings and URIs compare by codepoint and the result is an
-/// <c>xs:string</c>; booleans compare as booleans; and values that cannot be ordered together are FORG0006.
+/// <c>xs:string</c>; booleans compare as booleans; dates, times, dateTimes, and the two duration subtypes compare through the entries
+/// of the comparison operator table (<see cref="TemporalAggregation"/>), with the implicit timezone of the dynamic context for a value
+/// without a timezone; and values that cannot be ordered together are FORG0006.
 /// </summary>
 /// <remarks>
-/// Limitations: dates, times, and durations are left to XP-26 and are FORG0006 (<see cref="AggregateInput"/>); the codepoint
-/// collation is the only collation (<see cref="CollationArgument"/>). Equal values: the first of them is the result.
+/// Limitations: <c>xs:duration</c> and the Gregorian types have no order and are FORG0006, as are values of two types of the temporal
+/// family; the codepoint collation is the only collation (<see cref="CollationArgument"/>). Equal values: the first of them is the result.
 /// </remarks>
 internal abstract class ExtremumFunction : SequenceFunction
 {
@@ -46,6 +50,7 @@ internal abstract class ExtremumFunction : SequenceFunction
             {
                 Family.Numeric => PickNumber(in items, rank),
                 Family.Text => PickText(in items),
+                Family.Temporal => PickTemporal(in items, invocation.Context),
                 _ => PickBoolean(in items),
             }
         );
@@ -61,7 +66,8 @@ internal abstract class ExtremumFunction : SequenceFunction
         for (var i = 0; i < count; i++)
         {
             var item = items[i];
-            if (FamilyOf(item) != family)
+            // The temporal types compare with their own type only: a date with a dateTime, or a year-month with a day-time duration, has no operator.
+            if (FamilyOf(item) != family || (family == Family.Temporal && item.Kind != items[0].Kind))
             {
                 throw XPathErrors.Exception(XPathErrorCodes.FORG0006);
             }
@@ -92,6 +98,7 @@ internal abstract class ExtremumFunction : SequenceFunction
             or XdmItemKind.UntypedAtomic => Family.Numeric,
             XdmItemKind.XsString or XdmItemKind.AnyUri => Family.Text,
             XdmItemKind.Boolean => Family.Boolean,
+            _ when TemporalAggregation.IsOrdered(in item) => Family.Temporal,
             _ => throw XPathErrors.Exception(XPathErrorCodes.FORG0006),
         };
 
@@ -166,6 +173,22 @@ internal abstract class ExtremumFunction : SequenceFunction
         return uri!;
     }
 
+    private XdmItem PickTemporal(in XdmSequence items, XPathEvaluationContext context)
+    {
+        var best = items[0];
+        var count = items.Count;
+        for (var i = 1; i < count; i++)
+        {
+            var item = items[i];
+            if (TemporalAggregation.TryCompare(_better, item, best, context, out var holds) && holds)
+            {
+                best = item;
+            }
+        }
+
+        return best;
+    }
+
     private XdmItem PickBoolean(in XdmSequence items)
     {
         var best = items[0];
@@ -195,6 +218,7 @@ internal abstract class ExtremumFunction : SequenceFunction
     {
         Numeric,
         Text,
+        Temporal,
         Boolean,
     }
 }

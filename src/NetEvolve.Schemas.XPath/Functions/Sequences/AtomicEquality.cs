@@ -15,7 +15,7 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// </summary>
 /// <remarks>
 /// <para>
-/// Limitation: the date, time, and duration types await XP-26, so two such values are equal when they have the same type and the same
+/// Limitation: the date, time, and duration types are left to #732, so two such values are equal when they have the same type and the same
 /// representation, which is stricter than <c>eq</c> (<c>xs:date("2000-01-01Z")</c> and <c>xs:date("2000-01-01+00:00")</c> are different here).
 /// </para>
 /// <para>

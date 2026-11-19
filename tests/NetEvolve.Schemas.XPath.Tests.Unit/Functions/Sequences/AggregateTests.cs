@@ -60,7 +60,7 @@ public class AggregateTests
     [Test]
     [Arguments("date:2000-01-01", "error:FORG0006")]
     [Arguments("duration:PT1H", "error:FORG0006")]
-    public async Task Sum_OverDatesAndDurations_IsALimitationAndRaisesFORG0006(string argument, string expected) =>
+    public async Task Sum_OverADateOrAnXsDuration_HasNoSumAndRaisesFORG0006(string argument, string expected) =>
         await Assert.That(SequencesHarness.Run("sum", argument)).IsEqualTo(expected);
 
     [Test]
@@ -101,7 +101,7 @@ public class AggregateTests
     [Arguments("boolean:true|boolean:false", "boolean:false")]
     [Arguments("string:a|integer:1", "error:FORG0006")]
     [Arguments("boolean:true|integer:1", "error:FORG0006")]
-    [Arguments("date:2000-01-01|date:2001-01-01", "error:FORG0006")]
+    [Arguments("date:2000-01-01|date:2001-01-01", "date:2000-01-01")]
     [Arguments("duration:PT1H|duration:PT2H", "error:FORG0006")]
     public async Task Min_IsTheLeastValueInThePromotedType(string argument, string expected) =>
         await Assert.That(SequencesHarness.Run("min", argument)).IsEqualTo(expected);
@@ -123,7 +123,7 @@ public class AggregateTests
     [Arguments("string:�|string:\U0001F600", "string:\U0001F600")]
     [Arguments("boolean:false|boolean:true", "boolean:true")]
     [Arguments("string:a|integer:1", "error:FORG0006")]
-    [Arguments("date:2000-01-01|date:2001-01-01", "error:FORG0006")]
+    [Arguments("date:2000-01-01|date:2001-01-01", "date:2001-01-01")]
     public async Task Max_IsTheGreatestValueInThePromotedType(string argument, string expected) =>
         await Assert.That(SequencesHarness.Run("max", argument)).IsEqualTo(expected);
 }
