@@ -23,6 +23,8 @@ using NetEvolve.Schemas.Xml.Reader.EntityInput;
 internal abstract class XmlSequenceFeeder : IDisposable
 {
     private const int MinimumChunk = 4096;
+
+    // 2^28 characters (512 MiB) bound one chunk; the pending tail itself is bounded by the reader limits, so the chunk stays bounded too.
     private const int MaximumChunk = 1 << 28;
 
     private readonly XmlParser _parser;
