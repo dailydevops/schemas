@@ -32,20 +32,12 @@ internal sealed partial class XmlParser
     private int _declarationCount;
     private int _elementNameLength;
     private int _depth;
-    private int _tagCharacters;
     private bool _inTag;
     private XmlPosition _startPosition;
 
     private void InitializeTag(XmlReaderLimits limits) => _elementDepth = XmlBudget.ElementDepth(limits);
 
     private void DisposeTag() => _tag.Dispose();
-
-    // The raw characters of a start tag, from the opening bracket to the closing one, are bounded by MaxStartTagCharacters.
-    private bool ChargeStartTag(bool starts, int consumed, XmlPosition position)
-    {
-        _tagCharacters = starts ? consumed : _tagCharacters + consumed;
-        return _tagCharacters <= _limits.MaxStartTagCharacters || Fail(XmlErrorCodes.XML1113, position);
-    }
 
     private bool StartTag(ReadOnlySpan<char> name, XmlPosition position)
     {

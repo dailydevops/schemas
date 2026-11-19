@@ -9,7 +9,8 @@ using NetEvolve.Schemas.Xml.Text.CharClasses;
 
 /// <summary>
 /// The lexical, resumable tokenizer over character spans (design #108, AP1 to AP4): XML 1.0 (Fifth Edition) productions
-/// 14 to 21 and 39 to 44 and the XML declaration. It owns no buffer, no element stack, and no names.
+/// 14 to 21 and 39 to 44 and the XML declaration. It owns no buffer, no element stack, and no names; it counts the characters it consumes against the document and
+/// start tag limits, and cuts a run of text at what the caller says is left of its own budgets.
 /// </summary>
 /// <remarks>
 /// An incomplete atomic token consumes nothing and returns <see cref="XmlTokenStatus.NeedMoreData"/> with <c>consumed</c>
@@ -17,7 +18,10 @@ using NetEvolve.Schemas.Xml.Text.CharClasses;
 /// names, references, comments, and processing instructions are scanned in linear total work however the input is chunked.
 /// The tokens before a malformed construct, the first error code, and the position of that error do not depend on the chunking:
 /// a run of characters before an invalid character is a token of its own, and white space at the start is held until it is known
-/// whether an XML declaration follows (XML0007), up to <see cref="XmlReaderLimits.MaxXmlDeclarationLength"/> characters.
+/// whether an XML declaration follows (XML0007), up to <see cref="XmlReaderLimits.MaxXmlDeclarationLength"/> characters. A resource
+/// limit error is at the character that crosses the limit (a surrogate pair is one character, reported at its high half), after the
+/// characters before it: a run is cut so that this character is a token of its own, the error of an earlier character wins, and on the
+/// same character the document limit comes before the start tag limit; start tag characters count from the opening bracket.
 /// Limitations: the document type declaration (only with a handler) is rescanned only after the pending tail has doubled
 /// (feeder rule of AP2 without a hint, because the subset scanner is XML-14); XML 1.1 line ends are not recognized.
 /// The tokenizer trusts the caller to re-present the same tail, so it stays internal. Not thread-safe.
@@ -66,6 +70,9 @@ internal partial struct XmlTokenizer
     private long _offset;
     private bool _afterCr;
     private long _scanned;
+    private int _tagCharacters;
+    private bool _tagAtStart;
+    private long _runRemaining;
     private XmlPosition _tokenPosition;
     private XmlDiagnostic? _diagnostic;
     private XmlDoctypeParts _doctype;
@@ -97,6 +104,9 @@ internal partial struct XmlTokenizer
         _offset = 0;
         _afterCr = false;
         _scanned = 0;
+        _tagCharacters = 0;
+        _tagAtStart = false;
+        _runRemaining = long.MaxValue;
         _tokenPosition = default;
         _diagnostic = null;
         _doctype = default;
@@ -132,6 +142,14 @@ internal partial struct XmlTokenizer
     /// <summary>Gets the number of characters examined by comment and processing instruction scans, the test oracle for linear rescan cost.</summary>
     internal readonly long ScannedCharacters => _scanned;
 
+    // Between the opening bracket of a start tag and its closing one.
+    private readonly bool InTag =>
+        _mode is Mode.TagBody or Mode.AfterAttributeName or Mode.BeforeAttributeValue or Mode.AttributeValue;
+
+    /// <summary>Sets how many more characters the next run of text, CDATA content, or attribute value may take before a limit that the caller keeps is crossed; unlimited until set.</summary>
+    /// <param name="remaining">The characters left in that budget; a longer run is cut so that the character that crosses the limit is a token of its own.</param>
+    internal void LimitRun(long remaining) => _runRemaining = remaining;
+
     /// <summary>Produces the next token.</summary>
     /// <param name="input">The unconsumed tail followed by new data; <paramref name="consumed"/> is relative to it.</param>
     /// <param name="isFinal">Whether no more data follows.</param>
@@ -157,6 +175,7 @@ internal partial struct XmlTokenizer
             }
         }
 
+        _tagAtStart = InTag;
         var pos = _origin;
         var hint = _hint;
         var hintData = _hintData;
@@ -170,6 +189,11 @@ internal partial struct XmlTokenizer
         }
 
         if (result == Scan.Error)
+        {
+            return XmlTokenStatus.Error;
+        }
+
+        if (!ChargeLimits(input, pos, result == Scan.Token && token.Kind == XmlTokenKind.StartTagName))
         {
             return XmlTokenStatus.Error;
         }
@@ -192,6 +216,24 @@ internal partial struct XmlTokenizer
             Scan.End => XmlTokenStatus.End,
             _ => XmlTokenStatus.NeedMoreData,
         };
+    }
+
+    // The characters consumed by this call must fit the document and start tag limits; if not, the error is at the character
+    // that crossed the limit, not at the end of the token.
+    private bool ChargeLimits(ReadOnlySpan<char> input, int end, bool startsTag)
+    {
+        if (TryCrossLimit(input, end, startsTag, out var crossing))
+        {
+            _diagnostic = crossing;
+            return false;
+        }
+
+        if (InTag)
+        {
+            _tagCharacters = _tagAtStart ? _tagCharacters + end - _origin : end - _constructStart;
+        }
+
+        return true;
     }
 
     private Scan Step(ReadOnlySpan<char> input, ref int pos, bool isFinal, int hint, int hintData, out XmlToken token)
@@ -406,8 +448,93 @@ internal partial struct XmlTokenizer
 
     private Scan Fail(ReadOnlySpan<char> input, int offset, XmlErrorCode code)
     {
-        _diagnostic = new XmlDiagnostic(code, PositionAt(input, offset));
+        // A limit crossed before the offending character is the first error, as when the characters arrive one at a time.
+        _diagnostic = TryCrossLimit(input, offset, false, out var crossing)
+            ? crossing
+            : new XmlDiagnostic(code, PositionAt(input, offset));
         return Scan.Error;
+    }
+
+    // Whether the characters consumed up to `end` (the characters of this call before it) go past the document limit or, inside a
+    // start tag, the start tag limit. The error is at the first character that does not fit, the document limit first on a tie; a
+    // surrogate pair is one character, so the error is at its high half. The tokenizer of replacement text has no document limit.
+    private readonly bool TryCrossLimit(ReadOnlySpan<char> input, int end, bool startsTag, out XmlDiagnostic? crossing)
+    {
+        var index = -1;
+        var code = XmlErrorCodes.XML1101;
+        var consumed = Math.Max(end, _origin) - _origin;
+        if (!_replacementText && consumed > _limits.MaxDocumentCharacters - _offset)
+        {
+            index = _origin + (int)(_limits.MaxDocumentCharacters - _offset);
+        }
+
+        var tagFrom = _tagAtStart ? _origin : (startsTag ? _constructStart : -1);
+        if (tagFrom >= 0)
+        {
+            var room = _limits.MaxStartTagCharacters - (_tagAtStart ? _tagCharacters : 0);
+            if (Math.Max(end, tagFrom) - tagFrom > room && (index < 0 || tagFrom + room < index))
+            {
+                index = tagFrom + room;
+                code = XmlErrorCodes.XML1113;
+            }
+        }
+
+        if (index < 0)
+        {
+            crossing = null;
+            return false;
+        }
+
+        if (
+            index > _origin
+            && index < input.Length
+            && char.IsLowSurrogate(input[index])
+            && char.IsHighSurrogate(input[index - 1])
+        )
+        {
+            index--;
+        }
+
+        crossing = new XmlDiagnostic(code, PositionAt(input, index));
+        return true;
+    }
+
+    // Cuts a run of characters that ends at `end` so that it fits what is left of the budgets, and so that the character that
+    // crosses a limit is a run of its own (a surrogate pair is one character): the characters before it are reported first and
+    // the error is at it, however the input is cut into chunks.
+    private readonly int CapRun(ReadOnlySpan<char> input, int pos, int end)
+    {
+        var room = _runRemaining;
+        if (!_replacementText)
+        {
+            room = Math.Min(room, _limits.MaxDocumentCharacters - _offset - (pos - _origin));
+        }
+
+        if (_tagAtStart)
+        {
+            room = Math.Min(room, _limits.MaxStartTagCharacters - _tagCharacters - (pos - _origin));
+        }
+
+        if (room >= end - pos)
+        {
+            return end;
+        }
+
+        var cut = pos + (int)Math.Max(room, 0);
+        if (cut > pos && char.IsHighSurrogate(input[cut - 1]) && char.IsLowSurrogate(input[cut]))
+        {
+            cut--;
+        }
+
+        if (cut == pos)
+        {
+            cut =
+                char.IsHighSurrogate(input[pos]) && pos + 1 < end && char.IsLowSurrogate(input[pos + 1])
+                    ? pos + 2
+                    : pos + 1;
+        }
+
+        return cut;
     }
 
     private static int SkipSpace(ReadOnlySpan<char> input, int pos, ref bool sawSpace)
