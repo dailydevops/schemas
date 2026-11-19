@@ -116,7 +116,7 @@ internal static class NotationHarness
             var at = Position(script, i);
             if (script[i + 1] == '/')
             {
-                var close = script.IndexOf('>', i);
+                var close = i + script.AsSpan(i).IndexOf('>');
                 step.EndElement(new ValidationElement(script.AsMemory(i + 2, close - i - 2), at));
                 i = close + 1;
             }
@@ -158,7 +158,7 @@ internal static class NotationHarness
             var attributeName = script.AsMemory(nameStart, j - nameStart);
             var quote = script[j + 1];
             var valueStart = j + 2;
-            var valueEnd = script.IndexOf(quote, valueStart);
+            var valueEnd = valueStart + script.AsSpan(valueStart).IndexOf(quote);
             attributes.Add(
                 new ValidationAttributeInfo(
                     attributeName,
@@ -178,7 +178,7 @@ internal static class NotationHarness
             step.EndElement(new ValidationElement(name, at));
         }
 
-        return script.IndexOf('>', j) + 1;
+        return j + script.AsSpan(j).IndexOf('>') + 1;
     }
 
     private static DtdAttributeType? DeclaredType(DtdDeclarations declarations, string element, string attribute)
