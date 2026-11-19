@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.Xsd.Tests.Unit.ContentModels.Determinism;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.Xsd.ContentModels.Automaton;
@@ -335,6 +336,40 @@ public class DeterminismCheckTests
 
         await Assert.That(outcome.Deterministic).IsTrue();
         await Assert.That(outcome.Issues).IsEmpty();
+    }
+
+    [Test]
+    public async Task FlatModelAtThePositionCeiling_WithCountedParticles_IsCheckedWithinTheCeilings()
+    {
+        // 65,536 siblings with five classes each: more states than a quarter million, and a counter per position.
+        var children = new AutomatonParticle[CountingAutomatonCompiler.MaxPositions];
+        for (var i = 0; i < children.Length; i++)
+        {
+            children[i] = El(i + 1, 3, 5);
+        }
+
+        var watch = Stopwatch.StartNew();
+        var outcome = Check(Seq(children));
+        watch.Stop();
+
+        await Assert.That(outcome.Deterministic).IsTrue();
+        await Assert.That(outcome.Issues).IsEmpty();
+
+        // A generous bound: a linear analysis takes seconds, a quadratic one minutes.
+        await Assert.That(watch.Elapsed.TotalSeconds).IsLessThan(30);
+    }
+
+    [Test]
+    public async Task Check_RejectsANullTerm()
+    {
+        var root = Seq(El(A), El(B));
+        var model = Compile(root);
+        var reporter = new XsdIssueReporter(new ValidationIssueCollector(ValidationLimits.Default));
+        var terms = new List<IXsdComponent> { Terms(root)[0], null! };
+
+        await Assert
+            .That(() => DeterminismCheck.Check(model, terms, NameOf, reporter, default))
+            .Throws<ArgumentNullException>();
     }
 
     [Test]
