@@ -151,6 +151,12 @@ internal static class XdmTypes
 
     internal static string? NameOf(XdmTypeId id) => id.Value > 0 && id.Value < Names.Length ? Names[id.Value] : null;
 
+    /// <summary>Gets the type that a type derives from by restriction.</summary>
+    /// <param name="id">The handle.</param>
+    /// <returns>The base type; <see langword="default"/> for <c>xs:anyType</c> and for a handle outside the table.</returns>
+    internal static XdmTypeId ParentOf(XdmTypeId id) =>
+        id.Value > 0 && id.Value < Parents.Length ? new XdmTypeId(Parents[id.Value]) : default;
+
     /// <summary>Determines whether a handle names an atomic type: <c>xs:anyAtomicType</c>, <c>xs:untypedAtomic</c>, or an atomic XSD type.</summary>
     /// <param name="id">The handle.</param>
     /// <returns><see langword="true"/> for an atomic type.</returns>

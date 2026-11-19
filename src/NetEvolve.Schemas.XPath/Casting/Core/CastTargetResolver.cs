@@ -9,8 +9,8 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>Binds the target type of <c>cast as</c> and <c>castable as</c> while lowering, so that every static error is raised at compile time.</summary>
 /// <remarks>
-/// Limitation: a built-in atomic type that the casting table has no row for yet, such as <c>xs:int</c> or <c>xs:token</c>, is rejected with
-/// XPST0051 and a message that names it; its rows arrive with XP-23 (derived types). <c>xs:dateTimeStamp</c> is not a type of XPath 2.0. A user-defined
+/// Limitation: a built-in atomic type that the casting table has no row for, which is <c>xs:dateTimeStamp</c> of XPath 3.1 alone since the derived
+/// types have their rows (XP-23), is rejected with XPST0051 and a message that names it. <c>xs:dateTimeStamp</c> is not a type of XPath 2.0. A user-defined
 /// type is XPST0051 until schema-aware processing exists (DEF-40, #52).
 /// </remarks>
 internal static class CastTargetResolver

@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.XPath.Casting.Other;
 
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
+using NetEvolve.Schemas.Xml.Datatypes.Core;
 using NetEvolve.Schemas.Xml.Datatypes.QNames;
 using NetEvolve.Schemas.XPath.Casting.Core;
 using NetEvolve.Schemas.XPath.Xdm.Values;
@@ -32,7 +33,7 @@ internal static class QNameConversions
         {
             return namespaces is null
                 ? CastStatus.NotAllowed
-                : Parse(OtherConversions.Collapse(lexical!), namespaces, out result);
+                : Parse(WhitespaceText.Apply(lexical!, WhitespaceMode.Collapse), namespaces, out result);
         }
 
         if (!source.TryGetQName(out _))

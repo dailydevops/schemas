@@ -62,7 +62,7 @@ internal static class OtherConversions
                 return CastStatus.InvalidLexical;
             }
 
-            result = XdmItem.FromAnyUri(Collapse(lexical!));
+            result = XdmItem.FromAnyUri(WhitespaceText.Apply(lexical!, WhitespaceMode.Collapse));
             return CastStatus.Ok;
         }
 
@@ -129,21 +129,6 @@ internal static class OtherConversions
         }
 
         return text is not null;
-    }
-
-    // The lexical form with the whitespace of the whiteSpace facet collapse; the string itself when nothing changes.
-    internal static string Collapse(string lexical)
-    {
-        Argument.ThrowIfNull(lexical);
-
-        if (WhitespaceNormalizer.IsNormalized(lexical.AsSpan(), WhitespaceMode.Collapse))
-        {
-            return lexical;
-        }
-
-        var buffer = new char[lexical.Length];
-        var length = WhitespaceNormalizer.Normalize(lexical.AsSpan(), WhitespaceMode.Collapse, buffer);
-        return new string(buffer, 0, length);
     }
 
     private static CastStatus ToBinary(
