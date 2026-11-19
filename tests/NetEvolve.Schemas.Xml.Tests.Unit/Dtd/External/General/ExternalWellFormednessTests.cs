@@ -88,6 +88,7 @@ public class ExternalWellFormednessTests
     [Arguments("<?xml encoding=\"UTF-8\" standalone=\"yes\"?>x", "XML0003")]
     [Arguments("<?xml encoding=\"UTF-8\"?><?xml encoding=\"UTF-8\"?>x", "XML0007")]
     [Arguments("<?xml encoding=\"KLINGON-1\"?>x", "XML4001")]
+    [Arguments("<?xml version=\"1.1\" encoding=\"UTF-8\"?><b/>", "XML0010")]
     public async Task Entity_WithAnInvalidTextDeclaration_IsRejected(
         string entity,
         string alias,
