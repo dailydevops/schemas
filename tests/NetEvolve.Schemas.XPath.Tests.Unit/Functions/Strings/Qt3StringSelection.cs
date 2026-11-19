@@ -1463,14 +1463,14 @@ internal static class Qt3StringSelection
         ("fn-upper-case/fn-upper-case-17", "the test fixture has no lowering for this expression form: XP-14 (#295)"),
         (
             "fn-upper-case/fn-upper-case-19",
-            "the expected value is that of Unicode 7.0 (dependency unicode-version 7.0); the tables pin Unicode 18.0.0, which maps U+037F and U+03F3 to each other: #100 (AP-16)"
+            "the case declares the dependency unicode-version 7.0, and its expected values differ from the tables of the pinned Unicode 18.0.0 at U+037F and U+03F3, which the tables map to each other: #100 (AP-16)"
         ),
         ("fn-lower-case/fn-lower-case-12", "a function of the boolean and numeric group: XP-58 (#271)"),
         ("fn-lower-case/fn-lower-case-14", "a function of the boolean and numeric group: XP-58 (#271)"),
         ("fn-lower-case/fn-lower-case-17", "the test fixture has no lowering for this expression form: XP-14 (#295)"),
         (
             "fn-lower-case/fn-lower-case-19",
-            "the expected value is that of Unicode 7.0 (dependency unicode-version 7.0); the tables pin Unicode 18.0.0, which maps U+037F and U+03F3 to each other: #100 (AP-16)"
+            "the case declares the dependency unicode-version 7.0, and its expected values differ from the tables of the pinned Unicode 18.0.0 at U+037F and U+03F3, which the tables map to each other: #100 (AP-16)"
         ),
         ("fn-string-join/fn-string-join-11", "a function of the boolean and numeric group: XP-58 (#271)"),
         ("fn-string-join/fn-string-join-12", "a function of the boolean and numeric group: XP-58 (#271)"),
