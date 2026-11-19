@@ -248,6 +248,44 @@ public class XmlConfSuiteTests
         await Assert.That(cases.Any(c => baselines[c.TestSet].Ids.Contains(c.Id, StringComparer.Ordinal))).IsFalse();
     }
 
+    /// <summary>Not-well-formed cases whose fault is in the external subset (conditional sections, references) or in an external entity that stays denied.</summary>
+    private static readonly string[] NotWellFormedExternalSubsetCases =
+    [
+        "xmltest/not-wf-not-sa-001",
+        "xmltest/not-wf-not-sa-002",
+        "xmltest/not-wf-not-sa-003",
+        "xmltest/not-wf-not-sa-004",
+        "xmltest/not-wf-not-sa-006",
+        "xmltest/not-wf-not-sa-007",
+        "xmltest/not-wf-not-sa-008",
+        "xmltest/not-wf-not-sa-009",
+        "xmltest/not-wf-ext-sa-001",
+        "xmltest/not-wf-ext-sa-002",
+        "xmltest/not-wf-ext-sa-003",
+    ];
+
+    [Test]
+    public async Task Pipeline_NotWellFormedExternalSubsetCases_AreRejectedAndLeaveTheBaseline(
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var selection = await XmlConfSuite.LoadSelectionAsync(cancellationToken);
+        var baselines = XmlConfSuite.LoadBaselines(selection);
+        var cases = selection.Selected.Where(c => NotWellFormedExternalSubsetCases.Contains(c.Id)).ToList();
+
+        var results = await XmlConfRunner.RunAsync(
+            new XmlConfSelection(cases, []),
+            new PipelineXmlConfReader(XmlConfSuite.SuiteRoot),
+            cancellationToken
+        );
+
+        await Assert.That(cases.Select(c => c.Id)).IsEquivalentTo(NotWellFormedExternalSubsetCases);
+        await Assert.That(results.Where(r => r.Outcome == CaseOutcome.Fail).Select(r => r.CaseId)).IsEmpty();
+        await Assert.That(cases.Any(c => baselines[c.TestSet].Ids.Contains(c.Id, StringComparer.Ordinal))).IsFalse();
+    }
+
     /// <summary>
     /// Valid cases without a document type declaration that need namespace processing switched off; the pipeline reader
     /// has no such mode (limitation), so they stay in the baseline.
