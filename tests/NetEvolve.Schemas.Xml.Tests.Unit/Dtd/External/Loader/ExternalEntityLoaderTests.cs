@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Xml.Tests.Unit.Dtd.External.Loader;
+﻿namespace NetEvolve.Schemas.Xml.Tests.Unit.Dtd.External.Loader;
 
 using System;
 using System.Threading;
@@ -384,6 +384,31 @@ public class ExternalEntityLoaderTests
     }
 
     [Test]
+    public async Task TryLoad_TokenCanceledWhileTheResolverResolves_Throws_AndTheResolverStreamIsDisposed()
+    {
+        using var source = new CancellationTokenSource();
+        var resolver = new CancelingResolver(source);
+        var loader = Loader(resolver);
+
+        await Assert
+            .That(() =>
+            {
+                _ = loader.TryLoad(
+                    ResourceKind.ExternalEntity,
+                    "a",
+                    null,
+                    "a.ent",
+                    DocumentUri,
+                    source.Token,
+                    out _,
+                    out _
+                );
+            })
+            .Throws<OperationCanceledException>();
+        await Assert.That(resolver.Stream!.IsDisposed).IsTrue();
+    }
+
+    [Test]
     public async Task Guards_NullArguments_Throw(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -416,5 +441,20 @@ public class ExternalEntityLoaderTests
         var loader = Loader(new RecordingResolver());
 
         await Assert.That(() => loader.TryChargeExpansion(count)).Throws<ArgumentOutOfRangeException>();
+    }
+
+    // Cancels the token while it resolves, then hands out a found stream, like a resolver that races a cancellation.
+    private sealed class CancelingResolver(CancellationTokenSource source) : IResourceResolver
+    {
+        internal TrackingStream? Stream { get; private set; }
+
+        public ResourceResult Resolve(in ResourceRequest request, CancellationToken cancellationToken)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            source.Cancel();
+            Stream = new TrackingStream(Utf8("a"));
+
+            return ResourceResult.Found(Stream);
+        }
     }
 }
