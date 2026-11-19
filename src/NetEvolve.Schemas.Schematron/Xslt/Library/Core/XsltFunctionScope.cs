@@ -73,8 +73,14 @@ internal sealed class XsltFunctionScope
     /// <summary>Gets the expanded name of a function of the default function namespace.</summary>
     /// <param name="localName">The local name.</param>
     /// <returns>The name.</returns>
-    internal static XPathQName Name(string localName) =>
-        new(XPathStaticContext.Default.DefaultFunctionNamespace, localName);
+    /// <exception cref="System.ArgumentNullException"><paramref name="localName"/> is <see langword="null"/>.</exception>
+    /// <exception cref="System.ArgumentException"><paramref name="localName"/> is empty.</exception>
+    internal static XPathQName Name(string localName)
+    {
+        Argument.ThrowIfNullOrEmpty(localName);
+
+        return new(XPathStaticContext.Default.DefaultFunctionNamespace, localName);
+    }
 
     /// <summary>Finds a function of the XPath catalog or of the core library.</summary>
     /// <param name="name">The expanded name.</param>

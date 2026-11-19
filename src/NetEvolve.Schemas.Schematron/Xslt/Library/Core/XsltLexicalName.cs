@@ -42,8 +42,12 @@ internal static class XsltLexicalName
     /// <param name="code">The XSLT error code: XTDE1390 for <c>system-property</c>, XTDE1400 for <c>function-available</c>.</param>
     /// <param name="lexical">The text of the argument.</param>
     /// <returns><see cref="XPathEvaluationStatus.Error"/>.</returns>
+    /// <exception cref="System.ArgumentNullException"><paramref name="code"/> or <paramref name="lexical"/> is <see langword="null"/>.</exception>
     internal static XPathEvaluationStatus Reject(ref XPathFunctionCall invocation, string code, string lexical)
     {
+        Argument.ThrowIfNull(code);
+        Argument.ThrowIfNull(lexical);
+
         invocation.Diagnostic = new XPathDiagnostic(
             new XPathErrorCode(code),
             XPathErrorKind.Dynamic,

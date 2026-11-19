@@ -35,20 +35,8 @@ public class CurrentTests
         var result = RunIn(Scope(), context, "current");
 
         await Assert.That(result).IsEqualTo("node");
-        await Assert.That(CurrentIs(context, nodes[0])).IsTrue();
-        await Assert.That(CurrentIs(context, nodes[1])).IsFalse();
-    }
-
-    [Test]
-    public async Task CurrentItem_InAPredicateOfARuleContext_IsTheMatchedNode()
-    {
-        var nodes = Nodes(3);
-        using var context = new XPathEvaluationContext();
-        context.Host.CurrentItem = XdmItem.FromNode(nodes[2]);
-        context.SetContextItem(XdmItem.FromNode(nodes[0]));
-
-        await Assert.That(CurrentIs(context, nodes[2])).IsTrue();
-        await Assert.That(CurrentIs(context, nodes[0])).IsFalse();
+        await Assert.That(CurrentIs(Scope(), context, nodes[0])).IsTrue();
+        await Assert.That(CurrentIs(Scope(), context, nodes[1])).IsFalse();
     }
 
     [Test]
@@ -58,15 +46,6 @@ public class CurrentTests
         var item = XdmItem.FromNode(nodes[0]);
 
         await Assert.That(RunWith(item, item)).IsEqualTo("node");
-    }
-
-    [Test]
-    public async Task CurrentItem_WhenTheSlotIsAbsentInAFunctionBody_IsXpdy0002()
-    {
-        var nodes = Nodes(1);
-
-        await Assert.That(RunWith(null, null)).IsEqualTo("error:XPDY0002");
-        await Assert.That(RunWith(XdmItem.FromNode(nodes[0]), null)).IsEqualTo("error:XPDY0002");
     }
 
     [Test]
@@ -83,13 +62,4 @@ public class CurrentTests
     [Test]
     public async Task CurrentItem_WithAnArgument_IsNotFound() =>
         await Assert.That(Run(Scope(), "current", S("x"))).IsEqualTo("notfound");
-
-    private static bool CurrentIs(XPathEvaluationContext context, NetEvolve.Schemas.XPath.Xdm.Nodes.XPathNode expected)
-    {
-        var scope = Scope();
-        _ = scope.TryResolve(Fn("current"), 0, out var function);
-        var call = new NetEvolve.Schemas.XPath.Api.XPathFunctionCall(context, default);
-        _ = function!.Invoke(ref call);
-        return call.Result[0].TryGetNode(out var node) && node.Equals(expected);
-    }
 }

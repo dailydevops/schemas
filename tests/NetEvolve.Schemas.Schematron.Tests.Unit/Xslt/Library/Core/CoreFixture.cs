@@ -27,6 +27,7 @@ internal static class CoreFixture
         .WithNamespace("x", FunctionTree.Xslt)
         .WithNamespace("f", FunctionTree.Functions)
         .WithNamespace("fn", FunctionNamespace)
+        .WithNamespace("xs", FunctionTree.XmlSchema)
         .Build();
 
     internal static XsltFunctionScope Scope(string binding = "xslt2", XsltFunctionTable? user = null)
@@ -98,6 +99,15 @@ internal static class CoreFixture
     }
 
     internal static XPathQName Fn(string local) => new(FunctionNamespace, local);
+
+    /// <summary>Calls <c>current()</c> and tells whether it returned the node.</summary>
+    internal static bool CurrentIs(XsltFunctionScope scope, XPathEvaluationContext context, XPathNode expected)
+    {
+        _ = scope.TryResolve(Fn("current"), 0, out var function);
+        var call = new XPathFunctionCall(context, default);
+        _ = function!.Invoke(ref call);
+        return call.Result[0].TryGetNode(out var node) && node.Equals(expected);
+    }
 
     internal static XdmItem S(string value) => XdmItem.FromString(value);
 

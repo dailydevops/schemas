@@ -14,8 +14,10 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// package and read no host data (design #150 EP-13).
 /// </summary>
 /// <remarks>
-/// Limitations: the package implements the subset of XSLT 2.0 that Schematron needs, so <c>xsl:version</c> is "2.0" under every XSLT
-/// binding, including <c>xslt3</c>, which evaluates with the XPath 2.0 grammar; the feature properties are "no" (no serialization,
+/// Limitations: deviation from the note of XSLT 2.0 16.6.5, which says a processor must not return "2.0" for <c>xsl:version</c> unless
+/// it conforms to XSLT 2.0. The package implements the subset of XSLT 2.0 that Schematron needs and is not conformant, but rule sets
+/// gate their XSLT 2.0 code on this value, so it is "2.0" under every XSLT binding, including <c>xslt3</c>, which evaluates with the
+/// XPath 2.0 grammar; the maintainer may overturn it (decision 3 of issue #285). The feature properties are "no" (no serialization,
 /// no schema awareness, no backwards compatible mode until #298, no namespace axis). An unprefixed name has no namespace.
 /// </remarks>
 internal sealed class SystemPropertyFunction : XPathFunction

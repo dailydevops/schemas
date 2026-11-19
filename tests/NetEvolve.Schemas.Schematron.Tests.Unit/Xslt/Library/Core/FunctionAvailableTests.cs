@@ -26,6 +26,8 @@ public class FunctionAvailableTests
     [Arguments("insert-before", 3, true)]
     [Arguments("insert-before", 2, false)]
     [Arguments("fn:count", 1, true)]
+    [Arguments("xs:integer", 1, true)]
+    [Arguments("xs:integer", 2, false)]
     public async Task FunctionAvailable_ForABuiltInFunction_IsTrueOnlyForAMatchingArity(
         string name,
         int arity,
