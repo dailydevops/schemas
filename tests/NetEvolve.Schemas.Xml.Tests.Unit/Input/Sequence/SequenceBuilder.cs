@@ -51,7 +51,7 @@ internal static class SequenceBuilder
     {
         var random = new System.Random(seed);
         var parts = new List<T[]>();
-        for (var i = 0; i < data.Length;)
+        for (var i = 0; i < data.Length; )
         {
             var take = Math.Min(random.Next(0, max + 1), data.Length - i);
             parts.Add(data.AsSpan(i, take).ToArray());

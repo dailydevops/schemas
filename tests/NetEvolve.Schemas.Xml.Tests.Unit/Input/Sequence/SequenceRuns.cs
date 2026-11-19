@@ -12,7 +12,8 @@ using NetEvolve.Schemas.Xml.Tests.Unit.Input.Stream;
 /// <summary>One document in a given encoding: the sample of every sequence parity test.</summary>
 internal sealed record SequenceSample(string Name, string Xml, Encoding Encoding, bool Bom = false, bool Dtd = false)
 {
-    internal XmlReaderOptions Options => Dtd ? XmlReaderOptions.Default.WithDtdProcessing(true) : XmlReaderOptions.Default;
+    internal XmlReaderOptions Options =>
+        Dtd ? XmlReaderOptions.Default.WithDtdProcessing(true) : XmlReaderOptions.Default;
 
     internal byte[] Bytes
     {

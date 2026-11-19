@@ -42,9 +42,11 @@ public class XmlSequenceReaderTests
         yield return () => new Boundary("inside a two-byte utf-8 sequence", "<a>xéy</a>", "é", utf8);
         yield return () => new Boundary("inside a three-byte utf-8 sequence", "<a>x€y</a>", "€", utf8);
         yield return () => new Boundary("inside a four-byte utf-8 sequence", "<a>x\U0001F600y</a>", "\U0001F600", utf8);
-        yield return () => new Boundary("inside a utf-8 sequence after a bom", "<a>x\U0001D11Ey</a>", "\U0001D11E", utf8, true);
+        yield return () =>
+            new Boundary("inside a utf-8 sequence after a bom", "<a>x\U0001D11Ey</a>", "\U0001D11E", utf8, true);
         yield return () => new Boundary("inside a utf-16 unit", "<a>x€y</a>", "€", utf16, true);
-        yield return () => new Boundary("inside a utf-16 surrogate pair", "<a>x\U0001F600y</a>", "\U0001F600", utf16, true);
+        yield return () =>
+            new Boundary("inside a utf-16 surrogate pair", "<a>x\U0001F600y</a>", "\U0001F600", utf16, true);
     }
 
     public static IEnumerable<Func<Boundary>> CharBoundaries()
@@ -78,8 +80,7 @@ public class XmlSequenceReaderTests
 
     private static byte[] Utf8(string xml) => Encoding.UTF8.GetBytes(xml);
 
-    private static async Task AssertNoMismatch(List<string> mismatches) =>
-        await Assert.That(mismatches).IsEmpty();
+    private static async Task AssertNoMismatch(List<string> mismatches) => await Assert.That(mismatches).IsEmpty();
 
     // ---- parity with the span path ----
 
@@ -245,7 +246,9 @@ public class XmlSequenceReaderTests
         var expected = SequenceRuns.Span(sample);
         var start =
             (boundary.Bom ? boundary.Encoding.GetPreamble().Length : 0)
-            + boundary.Encoding.GetByteCount(boundary.Xml[..boundary.Xml.IndexOf(boundary.Marker, StringComparison.Ordinal)]);
+            + boundary.Encoding.GetByteCount(
+                boundary.Xml[..boundary.Xml.IndexOf(boundary.Marker, StringComparison.Ordinal)]
+            );
         var length = boundary.Encoding.GetByteCount(boundary.Marker);
         var mismatches = new List<string>();
 
@@ -385,7 +388,7 @@ public class XmlSequenceReaderTests
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var bytes = new byte[] { .. Utf8("<a>ok"), 0xFF, .. Utf8("</a>") };
+        var bytes = new byte[] { ..Utf8("<a>ok"), 0xFF, ..Utf8("</a>") };
 
         var run = SequenceRuns.Sequence(SequenceBuilder.Chunks(bytes, 2));
 
@@ -437,7 +440,14 @@ public class XmlSequenceReaderTests
 
         // One-element segments with a comment of 300 000 characters would rescan it per segment (about 4.5e10 character
         // scans) if the feeder did not follow the rule of #108 AP2; the test then runs into its timeout.
-        var xml = "<a><!--" + new string('x', 300_000) + "--><b>" + new string('y', 300_000) + "</b><?p " + new string('z', 300_000) + "?></a>";
+        var xml =
+            "<a><!--"
+            + new string('x', 300_000)
+            + "--><b>"
+            + new string('y', 300_000)
+            + "</b><?p "
+            + new string('z', 300_000)
+            + "?></a>";
         var sample = new SequenceSample("tokens", xml, Encoding.UTF8);
 
         var bytes = SequenceRuns.Sequence(SequenceBuilder.Chunks(sample.Bytes, 1));
@@ -589,12 +599,7 @@ public class XmlSequenceReaderTests
     {
         var bytePool = new TrackingPool<byte>();
         var charPool = new TrackingPool<char>();
-        var reader = XmlSequenceReader.Create(
-            SequenceBuilder.Chunks(Utf8(xml), 2),
-            null,
-            bytePool,
-            charPool
-        );
+        var reader = XmlSequenceReader.Create(SequenceBuilder.Chunks(Utf8(xml), 2), null, bytePool, charPool);
         var sink = StreamRuns.NewSink();
         _ = reader.Pump(ref sink);
 
@@ -609,7 +614,12 @@ public class XmlSequenceReaderTests
     public async Task Pump_CharSequence_ReturnsEveryBufferOnDispose()
     {
         var charPool = new TrackingPool<char>();
-        var reader = XmlSequenceReader.Create(SequenceBuilder.Chunks("<a>x</a>".ToCharArray(), 2), null, null, charPool);
+        var reader = XmlSequenceReader.Create(
+            SequenceBuilder.Chunks("<a>x</a>".ToCharArray(), 2),
+            null,
+            null,
+            charPool
+        );
         var sink = StreamRuns.NewSink();
         _ = reader.Pump(ref sink);
 
@@ -652,5 +662,23 @@ public class XmlSequenceReaderTests
     {
         var sink = StreamRuns.NewSink();
         return reader.Pump(ref sink);
+    }
+
+    [Test]
+    public async Task Equals_CopiesAndDefaults_CompareByTheStateTheyShare()
+    {
+        var single = XmlSequenceReader.Create(SequenceBuilder.Whole("<a/>".ToCharArray()));
+        var multi = XmlSequenceReader.Create(SequenceBuilder.Chunks("<a/>".ToCharArray(), 1));
+        var copy = multi;
+
+        await Assert.That(copy == multi).IsTrue();
+        await Assert.That(copy.Equals((object)multi)).IsTrue();
+        await Assert.That(copy.GetHashCode()).IsEqualTo(multi.GetHashCode());
+        await Assert.That(single != multi).IsTrue();
+        await Assert.That(single.Equals(null)).IsFalse();
+        await Assert.That(default(XmlSequenceReader) == default).IsTrue();
+        await Assert.That(default(XmlSequenceReader).GetHashCode()).IsEqualTo(0);
+        single.Dispose();
+        multi.Dispose();
     }
 }
