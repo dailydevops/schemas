@@ -279,8 +279,8 @@ public class ExternalSubsetStreamingTests
             out var all,
             out _
         );
-        using var ownedAll = all;
         var readAll = all!.TryReadAll(10, out var text, out var error);
+        all.Dispose();
 
         _ = reader.TryOpen(
             ResourceKind.ExternalSubset,

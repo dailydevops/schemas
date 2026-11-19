@@ -47,7 +47,8 @@ public class ExternalSubsetLoadingTests
 
         await Assert.That(ok).IsTrue();
         await Assert.That(error).IsNull();
-        await Assert.That(entity!.Text).IsEqualTo("<!ELEMENT a EMPTY>");
+        await Assert.That(entity!.TryReadAll(100, out var text, out _)).IsTrue();
+        await Assert.That(text).IsEqualTo("<!ELEMENT a EMPTY>");
         await Assert.That(entity.BaseUri).IsEqualTo(SubsetHarness.SubsetUri);
         await Assert.That(resolver.Requests[0].PublicId).IsEqualTo("-//Example//DTD//EN");
     }

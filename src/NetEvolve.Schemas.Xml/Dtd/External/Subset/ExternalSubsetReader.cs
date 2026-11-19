@@ -3,28 +3,25 @@ namespace NetEvolve.Schemas.Xml.Dtd.External.Subset;
 using System.Threading;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Resources;
-using NetEvolve.Schemas.Xml.Buffers;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Dtd.Contracts;
 using NetEvolve.Schemas.Xml.Dtd.External.Loader;
 
 /// <summary>
-/// Reads the external subset and the external parameter entities of a document type declaration as text, through the
+/// Opens the external subset and the external parameter entities of a document type declaration as text, through the
 /// single access path of <see cref="ExternalEntityLoader"/> (design #122, sections 4 and 8): deny by default, the base URI
 /// of the declaring entity, recursion and limits.
 /// </summary>
 /// <remarks>
-/// The declaration parser works on one string per text, so an entity is read completely before it is parsed; the loader
-/// frame still decodes it in chunks and charges every chunk to <c>MaxEntityExpansionCharacters</c>, so the text is bounded
-/// by that budget and not by the size of the stream. The entity stays registered with the loader until its
-/// <see cref="ExternalSubsetText"/> is disposed, so an entity that includes itself, or the same URI, is recursion
-/// (<c>XML0020</c>). The reader belongs to one document and is not thread-safe. Limitation: the resolver is called
-/// synchronously, also inside the asynchronous stream reader (design #122, section 12: an async path is later work).
+/// The text is read in chunks through the loader frame, which decodes it and charges every chunk to
+/// <c>MaxEntityExpansionCharacters</c>; the entity is never buffered completely (design #122, D9 rule 5). The entity stays
+/// registered with the loader until its <see cref="ExternalSubsetText"/> is disposed, so an entity that includes itself, or
+/// the same URI, is recursion (<c>XML0020</c>). The reader belongs to one document and is not thread-safe. Limitation: the
+/// resolver is called synchronously, also inside the asynchronous stream reader (design #122, section 12: an async path is
+/// later work).
 /// </remarks>
 internal sealed class ExternalSubsetReader
 {
-    private const int InitialCapacity = 4096;
-
     private readonly ExternalEntityLoader _loader;
     private readonly int _maxDeclarations;
 
@@ -43,15 +40,15 @@ internal sealed class ExternalSubsetReader
     /// <summary>Gets the most declarations a document may hold (<c>MaxDeclarations</c>, <c>XML1119</c>).</summary>
     internal int MaxDeclarations => _maxDeclarations;
 
-    /// <summary>Requests an external subset or an external parameter entity and reads it completely.</summary>
+    /// <summary>Requests an external subset or an external parameter entity; its head, the text declaration, is read.</summary>
     /// <param name="kind">The kind: an external subset or an external parameter entity.</param>
     /// <param name="name">The document type name or the entity name.</param>
     /// <param name="publicId">The public identifier, or <see langword="null"/>.</param>
     /// <param name="systemId">The system identifier as written.</param>
     /// <param name="declaringBaseUri">The base URI of the entity that contains the declaration, or <see langword="null"/>.</param>
-    /// <param name="entity">The text when the method returns <see langword="true"/>; the caller disposes it when the text is parsed.</param>
+    /// <param name="entity">The text when the method returns <see langword="true"/>; the caller reads it and disposes it.</param>
     /// <param name="error">The error when the method returns <see langword="false"/>.</param>
-    /// <returns><see langword="true"/> when the entity was read completely.</returns>
+    /// <returns><see langword="true"/> when the entity was found and its head was read.</returns>
     internal bool TryOpen(
         ResourceKind kind,
         string name,
@@ -87,19 +84,7 @@ internal sealed class ExternalSubsetReader
                 return false;
             }
 
-            using var text = new PooledBuffer<char>(InitialCapacity);
-            while (frame!.TryRead(out var chunk))
-            {
-                text.Append(chunk.Span);
-            }
-
-            if (frame.Error is not null)
-            {
-                error = frame.Error;
-                return false;
-            }
-
-            entity = new ExternalSubsetText(frame, text.WrittenSpan.ToString());
+            entity = new ExternalSubsetText(frame!);
             frame = null;
             return true;
         }

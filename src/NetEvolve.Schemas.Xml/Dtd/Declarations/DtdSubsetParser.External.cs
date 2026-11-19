@@ -31,8 +31,14 @@ internal sealed partial class DtdSubsetParser
     private int _sectionDepth;
     private bool _inExternal;
 
+    // The rest of the external entity whose text is parsed as a sequence: the window `_text` holds the unit that is parsed.
+    private ExternalSubsetText? _source;
+
     // The number of texts that are open around the current position: the sequences and the frames of this sequence.
     private int Nesting => _depth + _frames.Count - _frameBase;
+
+    // The window is refilled from the source only while no frame is open: a frame holds a complete text of its own.
+    private bool Streaming => _source is not null && _frames.Count == _frameBase;
 
     private (
         string Text,
@@ -41,12 +47,22 @@ internal sealed partial class DtdSubsetParser
         bool InExternal,
         string? BaseUri,
         int FrameBase,
-        int SectionDepth
-    ) SaveContext() => (_text, _pos, _depth, _inExternal, _baseUri, _frameBase, _sectionDepth);
+        int SectionDepth,
+        ExternalSubsetText? Source
+    ) SaveContext() => (_text, _pos, _depth, _inExternal, _baseUri, _frameBase, _sectionDepth, _source);
 
     private void RestoreContext(
-        (string Text, int Position, int Depth, bool InExternal, string? BaseUri, int FrameBase, int SectionDepth) saved
-    ) => (_text, _pos, _depth, _inExternal, _baseUri, _frameBase, _sectionDepth) = saved;
+        (
+            string Text,
+            int Position,
+            int Depth,
+            bool InExternal,
+            string? BaseUri,
+            int FrameBase,
+            int SectionDepth,
+            ExternalSubsetText? Source
+        ) saved
+    ) => (_text, _pos, _depth, _inExternal, _baseUri, _frameBase, _sectionDepth, _source) = saved;
 
     // Counts one element, attribute, entity, or notation declaration against the limit of the document (design #122, section 9).
     private bool CountDeclaration() => ++_declarations <= _maxDeclarations || Fail(DtdLimitCodes.XML1119);
@@ -95,7 +111,7 @@ internal sealed partial class DtdSubsetParser
                 return Fail(error!);
             }
 
-            return ParseSequence(opened!.Text, 0, inExternal: true, opened.BaseUri);
+            return ParseSequence(string.Empty, 0, inExternal: true, opened!.BaseUri, opened);
         }
         finally
         {
@@ -204,7 +220,11 @@ internal sealed partial class DtdSubsetParser
                     return false;
                 }
 
-                text = owner!.Text;
+                if (!owner!.TryReadAll(_limits.MaxDoctypeLength, out text, out var readError))
+                {
+                    return Fail(readError!);
+                }
+
                 baseUri = owner.BaseUri;
             }
             else if (!Charge(text.Length))
@@ -214,7 +234,7 @@ internal sealed partial class DtdSubsetParser
 
             _frames.Add((_text, _pos, _inExternal, _baseUri, owner));
             owner = null;
-            (_text, _pos, _baseUri) = (text, 0, baseUri);
+            (_text, _pos, _baseUri) = (text!, 0, baseUri);
 
             return true;
         }
@@ -259,7 +279,14 @@ internal sealed partial class DtdSubsetParser
         ExternalSubsetText? opened = null;
         try
         {
-            return TryOpen(entity, out opened) && AppendEntityValue(builder, opened!.Text, inner);
+            if (!TryOpen(entity, out opened))
+            {
+                return false;
+            }
+
+            return opened!.TryReadAll(_limits.MaxDoctypeLength, out var text, out var readError)
+                ? AppendEntityValue(builder, text!, inner)
+                : Fail(readError!);
         }
         finally
         {
@@ -306,7 +333,9 @@ internal sealed partial class DtdSubsetParser
         return true;
     }
 
-    // Productions 64 and 65: the contents of an IGNORE section are not parsed; nested `<![` and `]]>` pairs balance.
+    // Productions 64 and 65: the contents of an IGNORE section are not parsed; nested `<![` and `]]>` pairs balance. In a
+    // streamed entity the section is skipped window by window: only the nesting level and the last two characters, which may
+    // begin a marker, are carried across a refill.
     private bool SkipIgnoredContents()
     {
         var level = 1;
@@ -316,7 +345,27 @@ internal sealed partial class DtdSubsetParser
             var close = _text.IndexOf("]]>", _pos, StringComparison.Ordinal);
             if (close < 0)
             {
-                return Fail(XmlErrorCodes.XML0011);
+                // The openers that are left in the window nest deeper; the closers are still to come.
+                while (open >= 0)
+                {
+                    level++;
+                    _pos = open + 3;
+                    open = _text.IndexOf("<![", _pos, StringComparison.Ordinal);
+                }
+
+                if (!Streaming || _source!.IsEnd)
+                {
+                    return Fail(XmlErrorCodes.XML0011);
+                }
+
+                _pos = Math.Max(_pos, _text.Length - 2);
+                if (!Refill())
+                {
+                    return false;
+                }
+
+                open = _text.IndexOf("<![", _pos, StringComparison.Ordinal);
+                continue;
             }
 
             if (open >= 0 && open < close)
@@ -337,5 +386,114 @@ internal sealed partial class DtdSubsetParser
         }
 
         return true;
+    }
+
+    // Makes the window hold the whole unit that starts at the position (a declaration, a comment, a processing instruction,
+    // the opener of a conditional section, a reference), or the end of the entity. The unit is bounded by MaxDoctypeLength
+    // (XML1115, design #108 AP12): a window that holds more than that without a complete unit is an error.
+    private bool EnsureUnit()
+    {
+        while (true)
+        {
+            _ = SkipPlainSpaces();
+            if (_source!.IsEnd || IsUnitComplete(_text.AsSpan(_pos)))
+            {
+                return _error is null;
+            }
+
+            if (_text.Length - _pos >= _limits.MaxDoctypeLength)
+            {
+                return Fail(XmlErrorCodes.XML1115);
+            }
+
+            if (!Refill())
+            {
+                return false;
+            }
+        }
+    }
+
+    // Replaces the window with its unread rest and the next chunks of the source, at least doubling the rest so that the
+    // work stays linear in the length of the unit.
+    private bool Refill()
+    {
+        var rest = _text.Length - _pos;
+        var builder = new StringBuilder(_text, _pos, rest, rest + RefillCapacity);
+        do
+        {
+            if (!_source!.TryAppend(builder))
+            {
+                break;
+            }
+        } while (builder.Length < 2 * rest);
+
+        _text = builder.ToString();
+        _pos = 0;
+
+        return _source.Error is null || Fail(_source.Error);
+    }
+
+    // The shortest text that tells the kinds of unit apart is `<!NOTATION`.
+    private const int UnitHead = 10;
+    private const int RefillCapacity = 4096;
+
+    // Tells whether `rest`, which starts with a unit, holds the unit completely: a comment up to its `--`, a processing
+    // instruction up to `?>`, a conditional section opener up to its second `[`, a declaration up to its `>` outside the
+    // literals, a reference up to its `;`. Anything else is complete: the parser reports it.
+    private static bool IsUnitComplete(ReadOnlySpan<char> rest)
+    {
+        if (rest.Length < UnitHead)
+        {
+            return false;
+        }
+
+        if (rest[0] == '%')
+        {
+            var length = XmlCharClass.NameLength(rest.Slice(1));
+
+            return length == 0 || 1 + length < rest.Length;
+        }
+
+        if (rest.StartsWith("<!--".AsSpan()))
+        {
+            var end = rest.Slice(4).IndexOf("--".AsSpan());
+
+            return end >= 0 && 4 + end + 2 < rest.Length;
+        }
+
+        if (rest.StartsWith("<?".AsSpan()))
+        {
+            return rest.Slice(2).IndexOf("?>".AsSpan()) >= 0;
+        }
+
+        if (rest.StartsWith("<![".AsSpan()))
+        {
+            return rest.Slice(3).IndexOf('[') >= 0;
+        }
+
+        if (!rest.StartsWith("<!".AsSpan()))
+        {
+            return true;
+        }
+
+        var quote = '\0';
+        for (var i = 2; i < rest.Length; i++)
+        {
+            var c = rest[i];
+            if (quote != '\0')
+            {
+                quote = c == quote ? '\0' : quote;
+            }
+            else if (c is '"' or '\'')
+            {
+                quote = c;
+            }
+            else if (c == '>')
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

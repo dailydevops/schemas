@@ -45,24 +45,8 @@ public class ExternalSubsetGuardTests
         await Assert.That(() => Reader().TryChargeExpansion(count)).Throws<ArgumentOutOfRangeException>();
 
     [Test]
-    public async Task Text_NullArguments_Throw(CancellationToken cancellationToken)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-        var resolver = SubsetHarness.Serving("<!ELEMENT a EMPTY>");
-        var loader = LoaderHarness.Loader(resolver);
-        var (frame, _) = LoaderHarness.Load(
-            loader,
-            "doc",
-            "ext.dtd",
-            SubsetHarness.DocumentUri,
-            cancellationToken,
-            ResourceKind.ExternalSubset
-        );
-        using var owned = frame;
-
-        await Assert.That(() => new ExternalSubsetText(null!, "text")).Throws<ArgumentNullException>();
-        await Assert.That(() => new ExternalSubsetText(frame!, null!)).Throws<ArgumentNullException>();
-    }
+    public async Task Text_NullFrame_Throws() =>
+        await Assert.That(() => new ExternalSubsetText(null!)).Throws<ArgumentNullException>();
 
     [Test]
     public async Task Handler_NullArguments_Throw()

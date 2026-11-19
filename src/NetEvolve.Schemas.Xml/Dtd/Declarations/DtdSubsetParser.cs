@@ -21,7 +21,11 @@ using NetEvolve.Schemas.Xml.Dtd.Model;
 /// literal; the nesting validity constraints of parameter entities and conditional sections (Proper Declaration/PE Nesting,
 /// Proper Group/PE Nesting, Proper Conditional Section/PE Nesting) are not reported (XML-67, #608); a self-referencing
 /// internal parameter entity ends in the depth limit <c>XML1110</c>, not <c>XML0020</c>; an IGNORE section must end in the
-/// text that opened it; the number of declarations is bounded by <c>MaxDeclarations</c> (<c>XML1119</c>), counted over both
+/// text that opened it; the external subset and an external parameter entity between declarations are read through a window
+/// of one unit (a declaration, a comment, a processing instruction, a conditional section opener, a reference) that is
+/// refilled chunk by chunk, so no external entity is buffered completely (design #122, D9 rule 5), and one unit is bounded
+/// by <c>MaxDoctypeLength</c> (<c>XML1115</c>); an external parameter entity that is included inside a declaration or an
+/// entity value is one unit with it and bounded the same way; the number of declarations is bounded by <c>MaxDeclarations</c> (<c>XML1119</c>), counted over both
 /// subsets and every parsed replacement text; the first declaration of an element, attribute, entity, or notation binds, so the declarations of
 /// the internal subset win over the external ones, and later ones are ignored without a report; an error is reported at the
 /// document type declaration, not at the offending offset; a public or system identifier that is present but empty reads
@@ -81,7 +85,7 @@ internal sealed partial class DtdSubsetParser
         var builder = new DtdDeclarationBuilder(name, publicId, systemId);
         var parser = new DtdSubsetParser(builder, limits, external);
         if (
-            !parser.ParseSequence(doctype.InternalSubset.ToString(), 0, inExternal: false, baseUri)
+            !parser.ParseSequence(doctype.InternalSubset.ToString(), 0, inExternal: false, baseUri, null)
             || (
                 external is not null
                 && systemId is not null
@@ -101,10 +105,11 @@ internal sealed partial class DtdSubsetParser
 
     // Parses `text` as a sequence of declarations (the subset itself, or the replacement text of a parameter entity) that
     // continues the context of the caller.
-    private bool ParseSequence(string text, int depth) => ParseSequence(text, depth, _inExternal, _baseUri);
+    private bool ParseSequence(string text, int depth) => ParseSequence(text, depth, _inExternal, _baseUri, null);
 
-    // Parses `text` as a sequence of complete declarations; `inExternal` tells whether it is external text.
-    private bool ParseSequence(string text, int depth, bool inExternal, string? baseUri)
+    // Parses `text` as a sequence of complete declarations; `inExternal` tells whether it is external text. The text of
+    // `source` follows `text` in chunks: the window holds the unit that is parsed and is refilled from the source.
+    private bool ParseSequence(string text, int depth, bool inExternal, string? baseUri, ExternalSubsetText? source)
     {
         var saved = SaveContext();
         _text = text;
@@ -114,6 +119,7 @@ internal sealed partial class DtdSubsetParser
         _baseUri = baseUri;
         _frameBase = _frames.Count;
         _sectionDepth = 0;
+        _source = source;
         var ok = ParseDeclarations() && _error is null && (_sectionDepth == 0 || Fail(XmlErrorCodes.XML0011));
         CloseFrames();
         RestoreContext(saved);
@@ -126,7 +132,7 @@ internal sealed partial class DtdSubsetParser
         while (true)
         {
             _ = SkipPlainSpaces();
-            if (_error is not null)
+            if ((Streaming && !EnsureUnit()) || _error is not null)
             {
                 return false;
             }
@@ -203,7 +209,7 @@ internal sealed partial class DtdSubsetParser
         try
         {
             return TryOpen(entity, out opened)
-                && ParseSequence(opened!.Text, Nesting + 1, inExternal: true, opened.BaseUri);
+                && ParseSequence(string.Empty, Nesting + 1, inExternal: true, opened!.BaseUri, opened);
         }
         finally
         {
