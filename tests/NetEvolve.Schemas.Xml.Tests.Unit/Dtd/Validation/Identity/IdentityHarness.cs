@@ -139,7 +139,7 @@ internal static class IdentityHarness
             var at = ContentModelHarness.Position(script, i);
             if (script[i + 1] == '/')
             {
-                var end = script.IndexOf('>', i);
+                var end = i + script.AsSpan(i).IndexOf('>');
                 step.EndElement(new ValidationElement(script.AsMemory(i + 2, end - i - 2), at));
                 i = end + 1;
             }
@@ -204,7 +204,7 @@ internal static class IdentityHarness
 
         var name = script.AsMemory(nameStart, j - nameStart);
         var valueStart = j + 2;
-        var valueEnd = script.IndexOf(script[j + 1], valueStart);
+        var valueEnd = valueStart + script.AsSpan(valueStart).IndexOf(script[j + 1]);
         DtdAttributeType? type = null;
         if (definitions is not null)
         {
