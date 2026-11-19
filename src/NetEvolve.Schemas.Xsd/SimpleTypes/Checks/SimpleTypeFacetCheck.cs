@@ -37,7 +37,7 @@ using NetEvolve.Schemas.Xsd.Validation.Core;
 /// type and its base; a length or digits value beyond <see cref="int.MaxValue"/> is treated as <see cref="int.MaxValue"/>. Bounds that
 /// are not ordered against each other, such as a dateTime without timezone inside the 14 hour window, are an error.
 /// Each group of facets, the length group and the ordered group, reports its first violation only. For the built-in integer types, whose
-/// bounds are not readable, an exclusive bound is checked together with its neighbouring integer, which is exact for a discrete value space.
+/// bounds are not readable, an exclusive bound is checked together with its neighboring integer, which is exact for a discrete value space.
 /// </para>
 /// </remarks>
 internal static class SimpleTypeFacetCheck
@@ -457,7 +457,7 @@ internal static class SimpleTypeFacetCheck
                 }
 
                 var parsed = type.Parse(_step[i].Value.AsSpan());
-                if (parsed.Success && NeighbourInValueSpace(type, parsed.Value, kind))
+                if (parsed.Success && NeighborInValueSpace(type, parsed.Value, kind))
                 {
                     bounds.Set(kind, parsed.Value);
                     continue;
@@ -487,25 +487,21 @@ internal static class SimpleTypeFacetCheck
 
         // The bounds of the built-in integer types cannot be read (see FacetBase), and the value space is discrete: an exclusive
         // bound lies inside the range of the base only when the value next to it, inside the bound, is in the range as well.
-        private static bool NeighbourInValueSpace<TValue>(
-            IDatatypeDescriptor<TValue> type,
-            TValue value,
-            FacetKind kind
-        )
+        private static bool NeighborInValueSpace<TValue>(IDatatypeDescriptor<TValue> type, TValue value, FacetKind kind)
             where TValue : struct
         {
             if (
                 kind is not (FacetKind.MaxExclusive or FacetKind.MinExclusive)
                 || type is not IDatatypeDescriptor<XsdInteger> integerType
-                || (object)value is not XsdInteger integer
+                || value is not XsdInteger integer
             )
             {
                 return true;
             }
 
-            var neighbour =
+            var neighbor =
                 kind == FacetKind.MaxExclusive ? integer.Value - BigInteger.One : integer.Value + BigInteger.One;
-            return integerType.Parse(neighbour.ToString(CultureInfo.InvariantCulture).AsSpan()).Success;
+            return integerType.Parse(neighbor.ToString(CultureInfo.InvariantCulture).AsSpan()).Success;
         }
 
         private bool Has(Func<FacetKind, bool> predicate)
