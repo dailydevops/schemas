@@ -21,6 +21,8 @@ public class XPathSeamTests
         // The Schematron function instructions apply the function conversion rules and match sequence types of an xsl:function with the XPath code, instead of a second copy (SCH-60, #249).
         "NetEvolve.Schemas.XPath.Functions.Binding",
         "NetEvolve.Schemas.XPath.Types",
+        // The Schematron sort of xsl:for-each orders its keys with the XPath comparison of numbers, strings by codepoint, and booleans, instead of a third copy (SCH-82, #255).
+        "NetEvolve.Schemas.XPath.Evaluation.Comparison",
     ];
 
     private static readonly string[] AllowedFriends =
