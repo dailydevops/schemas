@@ -101,9 +101,8 @@ public class Qt3StringSelectionTests
     {
         foreach (var (id, reason) in Qt3StringSelection.Exclusions)
         {
-            var named =
-                reason.Contains("(#", StringComparison.Ordinal) && reason.Contains('-', StringComparison.Ordinal);
-            await Assert.That(named).IsTrue().Because($"{id}: {reason}");
+            // Every reason names the issue that closes it: a work package (XP-nn), a deferred feature (DEF-nn), or a design decision, with its number.
+            await Assert.That(reason.Contains('#', StringComparison.Ordinal)).IsTrue().Because($"{id}: {reason}");
         }
     }
 

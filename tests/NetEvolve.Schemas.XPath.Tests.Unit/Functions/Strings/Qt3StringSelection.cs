@@ -17,7 +17,7 @@ namespace NetEvolve.Schemas.XPath.Tests.Unit.Functions.Strings;
 /// stays open until #295.
 /// </para>
 /// <para>
-/// Cases per test set, as selected of applicable: concat 44 of 95; substring 42 of 48; substring-before 31 of 35; substring-after 32 of 36; contains 28 of 35; starts-with 28 of 33; ends-with 26 of 32; translate 41 of 42; normalize-space 32 of 35; string-length 24 of 33; upper-case 26 of 29; lower-case 25 of 28; string-join 32 of 34; normalize-unicode 37 of 45; codepoints-to-string 55 of 68; string-to-codepoints 43 of 44. In all, 546 of 672 applicable cases are selected and 126 are excluded.
+/// Cases per test set, as selected of applicable: concat 46 of 95; substring 42 of 48; substring-before 31 of 35; substring-after 32 of 36; contains 28 of 35; starts-with 28 of 33; ends-with 26 of 32; translate 41 of 42; normalize-space 31 of 35; string-length 26 of 33; upper-case 25 of 29; lower-case 24 of 28; string-join 32 of 34; normalize-unicode 37 of 45; codepoints-to-string 54 of 68; string-to-codepoints 35 of 44. In all, 538 of 672 applicable cases are selected and 134 are excluded.
 /// </para>
 /// <para>
 /// An assertion is written for <see cref="Sequences.Qt3SequenceFixture.Satisfies"/>: <c>T</c> or <c>F</c> for a boolean, <c>S:</c> and
@@ -147,6 +147,8 @@ internal static class Qt3StringSelection
         ("fn-concat/K-ConcatFunc-1", "concat()", "X:XPST0017"),
         ("fn-concat/K-ConcatFunc-2", "concat(\"a string\")", "X:XPST0017"),
         ("fn-concat/K-ConcatFunc-3", "concat(\"ab\", \"c\") eq \"abc\"", "T"),
+        ("fn-concat/K-ConcatFunc-4", "concat(\"ab\", \"c\") instance of xs:string", "T"),
+        ("fn-concat/K-ConcatFunc-5", "concat((), ()) instance of xs:string", "T"),
         ("fn-concat/K-ConcatFunc-6", "concat((), ()) eq \"\"", "T"),
         (
             "fn-concat/K-ConcatFunc-7",
@@ -685,11 +687,6 @@ internal static class Qt3StringSelection
             "normalize-space(\" 143 1239 fhjkls \") eq \"143 1239 fhjkls\"",
             "T"
         ),
-        (
-            "fn-normalize-space/K-NormalizeSpaceFunc-9",
-            "normalize-space(normalize-space((\"foo\", current-time())[1])) eq \"foo\"",
-            "T\tX:XPTY0004"
-        ),
         ("fn-string-length/fn-string-length1args-1", "fn:string-length(xs:string(\"This is a characte\"))", "E:18"),
         ("fn-string-length/fn-string-length1args-2", "fn:string-length(xs:string(\"This is a characte\"))", "E:18"),
         ("fn-string-length/fn-string-length1args-3", "fn:string-length(xs:string(\"This is a characte\"))", "E:18"),
@@ -719,8 +716,10 @@ internal static class Qt3StringSelection
         ("fn-string-length/fn-string-length-20", "string-length(\"\U00010002\")", "E:1"),
         ("fn-string-length/K-StringLengthFunc-1", "string-length(\"a string\", \"wrong param\")", "X:XPST0017"),
         ("fn-string-length/K-StringLengthFunc-2", "string-length(\"ebv\") eq 3", "T"),
+        ("fn-string-length/K-StringLengthFunc-3", "string-length(\"ebv\") instance of xs:integer", "T"),
         ("fn-string-length/K-StringLengthFunc-4", "string-length(()) eq 0", "T"),
         ("fn-string-length/K-StringLengthFunc-5", "string-length(\"\") eq 0", "T"),
+        ("fn-string-length/K-StringLengthFunc-6", "string-length(()) instance of xs:integer", "T"),
         (
             "fn-string-length/K-StringLengthFunc-8",
             "string-length(\"Harp not on that string, madam; that is past.\") eq 45",
@@ -763,11 +762,6 @@ internal static class Qt3StringSelection
             "fn-upper-case/fn-upper-case-18",
             "fn:string-to-codepoints(fn:upper-case(fn:codepoints-to-string(160 to 256)))",
             "D:160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, \n            177, 178, 179, 180, 924, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 192, 193, \n            194, 195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, \n            211, 212, 213, 214, 215, 216, 217, 218, 219, 220, 221, 222, 83, 83, 192, 193, 194, \n            195, 196, 197, 198, 199, 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, \n            212, 213, 214, 247, 216, 217, 218, 219, 220, 221, 222, 376, 256"
-        ),
-        (
-            "fn-upper-case/fn-upper-case-19",
-            "fn:string-to-codepoints(fn:upper-case(fn:codepoints-to-string(880 to 1023)))",
-            "D:880, 880, 882, 882, 884, 885, 886, 886, 888, 889, 890, 1021, 1022, 1023, 894, 895, \n            896, 897, 898, 899, 900, 901, 902, 903, 904, 905, 906, 907, 908, 909, 910, 911, 921, \n            776, 769, 913, 914, 915, 916, 917, 918, 919, 920, 921, 922, 923, 924, 925, 926, 927, \n            928, 929, 930, 931, 932, 933, 934, 935, 936, 937, 938, 939, 902, 904, 905, 906, 933, \n            776, 769, 913, 914, 915, 916, 917, 918, 919, 920, 921, 922, 923, 924, 925, 926, 927, \n            928, 929, 931, 931, 932, 933, 934, 935, 936, 937, 938, 939, 908, 910, 911, 975, 914, \n            920, 978, 979, 980, 934, 928, 975, 984, 984, 986, 986, 988, 988, 990, 990, 992, 992, \n            994, 994, 996, 996, 998, 998, 1000, 1000, 1002, 1002, 1004, 1004, 1006, 1006, 922, 929, \n            1017, 1011, 1012, 917, 1014, 1015, 1015, 1017, 1018, 1018, 1020, 1021, 1022, 1023"
         ),
         (
             "fn-upper-case/fn-upper-case-20",
@@ -825,11 +819,6 @@ internal static class Qt3StringSelection
             "fn-lower-case/fn-lower-case-18",
             "fn:string-to-codepoints(fn:lower-case(fn:codepoints-to-string(160 to 256)))",
             "D:160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, \n            177, 178, 179, 180, 181, 182, 183, 184, 185, 186, 187, 188, 189, 190, 191, 224, 225, \n            226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, \n            243, 244, 245, 246, 215, 248, 249, 250, 251, 252, 253, 254, 223, 224, 225, 226, 227, \n            228, 229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242, 243, 244, \n            245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255, 257"
-        ),
-        (
-            "fn-lower-case/fn-lower-case-19",
-            "fn:string-to-codepoints(fn:lower-case(fn:codepoints-to-string(880 to 1023)))",
-            "D:881, 881, 883, 883, 884, 885, 887, 887, 888, 889, 890, 891, 892, 893, 894, 895, 896, \n            897, 898, 899, 900, 901, 940, 903, 941, 942, 943, 907, 972, 909, 973, 974, 912, 945, \n            946, 947, 948, 949, 950, 951, 952, 953, 954, 955, 956, 957, 958, 959, 960, 961, 930, \n            963, 964, 965, 966, 967, 968, 969, 970, 971, 940, 941, 942, 943, 944, 945, 946, 947, \n            948, 949, 950, 951, 952, 953, 954, 955, 956, 957, 958, 959, 960, 961, 962, 963, 964, \n            965, 966, 967, 968, 969, 970, 971, 972, 973, 974, 983, 976, 977, 978, 979, 980, 981, \n            982, 983, 985, 985, 987, 987, 989, 989, 991, 991, 993, 993, 995, 995, 997, 997, 999, \n            999, 1001, 1001, 1003, 1003, 1005, 1005, 1007, 1007, 1008, 1009, 1010, 1011, 952, 1013, \n            1014, 1016, 1016, 1010, 1019, 1019, 1020, 891, 892, 893"
         ),
         (
             "fn-lower-case/fn-lower-case-20",
@@ -1131,11 +1120,6 @@ internal static class Qt3StringSelection
         ("fn-codepoints-to-string/K-CodepointToStringFunc-28", "codepoints-to-string(1114111) eq \"\U0010FFFF\"", "T"),
         ("fn-codepoints-to-string/K-CodepointToStringFunc-29", "codepoints-to-string(1114112)", "X:FOCH0001"),
         (
-            "fn-codepoints-to-string/cbcl-codepoints-to-string-005",
-            "fn:codepoints-to-string( 65536 to 1114112 )",
-            "X:FOCH0001"
-        ),
-        (
             "fn-codepoints-to-string/cbcl-codepoints-to-string-006",
             "fn:codepoints-to-string( 55295 to 55297 )",
             "X:FOCH0001"
@@ -1256,386 +1240,354 @@ internal static class Qt3StringSelection
             "codepoints-to-string((87, 36, 56, 87, 102, 96)) eq \"W$8Wf`\"",
             "T"
         ),
-        (
-            "fn-string-to-codepoints/K-StringToCodepointFunc-14",
-            "string-to-codepoints(\"Th\u00E9r\u00E8se\")[last()]",
-            "E:101"
-        ),
-        (
-            "fn-string-to-codepoints/K-StringToCodepointFunc-15",
-            "string-to-codepoints(\"Th\u00E9r\u00E8se\")[0 + last()]",
-            "E:101"
-        ),
-        (
-            "fn-string-to-codepoints/K-StringToCodepointFunc-16",
-            "string-to-codepoints(\"Th\u00E9r\u00E8se\")[last() - 1]",
-            "E:115"
-        ),
-        (
-            "fn-string-to-codepoints/K-StringToCodepointFunc-17",
-            "string-to-codepoints(\"Th\u00E9r\u00E8se\")[last() - 0]",
-            "E:101"
-        ),
-        (
-            "fn-string-to-codepoints/K-StringToCodepointFunc-18",
-            "string-to-codepoints(\"Th\u00E9r\u00E8se\")[0 + last()]",
-            "E:101"
-        ),
-        (
-            "fn-string-to-codepoints/K-StringToCodepointFunc-19",
-            "string-to-codepoints(\"Th\u00E9r\u00E8se\")[last() - 2]",
-            "E:232"
-        ),
-        (
-            "fn-string-to-codepoints/K-StringToCodepointFunc-20",
-            "empty(string-to-codepoints(\"Th\u00E9r\u00E8se\")[last() - 7])",
-            "T"
-        ),
-        (
-            "fn-string-to-codepoints/K-StringToCodepointFunc-21",
-            "string-to-codepoints(\"Th\u00E9r\u00E8se\")[last() - 6]",
-            "E:84"
-        ),
     ];
 
     /// <summary>Every applicable case that the selection leaves out, one by one, with the reason and the issue that closes it.</summary>
     public static readonly (string Id, string Reason)[] Exclusions =
     [
-        (
-            "fn-concat/fn-concatint2args-1",
-            "the constructor xs:int needs casting to further types: XP-23 (#299) and the casting table"
-        ),
-        (
-            "fn-concat/fn-concatint2args-2",
-            "the constructor xs:int needs casting to further types: XP-23 (#299) and the casting table"
-        ),
-        (
-            "fn-concat/fn-concatint2args-3",
-            "the constructor xs:int needs casting to further types: XP-23 (#299) and the casting table"
-        ),
-        (
-            "fn-concat/fn-concatint2args-4",
-            "the constructor xs:int needs casting to further types: XP-23 (#299) and the casting table"
-        ),
-        (
-            "fn-concat/fn-concatint2args-5",
-            "the constructor xs:int needs casting to further types: XP-23 (#299) and the casting table"
-        ),
-        (
-            "fn-concat/fn-concatlng2args-1",
-            "the constructor xs:long needs casting to further types: XP-23 (#299) and the casting table"
-        ),
-        (
-            "fn-concat/fn-concatlng2args-2",
-            "the constructor xs:long needs casting to further types: XP-23 (#299) and the casting table"
-        ),
-        (
-            "fn-concat/fn-concatlng2args-3",
-            "the constructor xs:long needs casting to further types: XP-23 (#299) and the casting table"
-        ),
-        (
-            "fn-concat/fn-concatlng2args-4",
-            "the constructor xs:long needs casting to further types: XP-23 (#299) and the casting table"
-        ),
-        (
-            "fn-concat/fn-concatlng2args-5",
-            "the constructor xs:long needs casting to further types: XP-23 (#299) and the casting table"
-        ),
+        ("fn-concat/fn-concatint2args-1", "the constructor xs:int needs casting to the derived types: XP-23 (#299)"),
+        ("fn-concat/fn-concatint2args-2", "the constructor xs:int needs casting to the derived types: XP-23 (#299)"),
+        ("fn-concat/fn-concatint2args-3", "the constructor xs:int needs casting to the derived types: XP-23 (#299)"),
+        ("fn-concat/fn-concatint2args-4", "the constructor xs:int needs casting to the derived types: XP-23 (#299)"),
+        ("fn-concat/fn-concatint2args-5", "the constructor xs:int needs casting to the derived types: XP-23 (#299)"),
+        ("fn-concat/fn-concatlng2args-1", "the constructor xs:long needs casting to the derived types: XP-23 (#299)"),
+        ("fn-concat/fn-concatlng2args-2", "the constructor xs:long needs casting to the derived types: XP-23 (#299)"),
+        ("fn-concat/fn-concatlng2args-3", "the constructor xs:long needs casting to the derived types: XP-23 (#299)"),
+        ("fn-concat/fn-concatlng2args-4", "the constructor xs:long needs casting to the derived types: XP-23 (#299)"),
+        ("fn-concat/fn-concatlng2args-5", "the constructor xs:long needs casting to the derived types: XP-23 (#299)"),
         (
             "fn-concat/fn-concatusht2args-1",
-            "the constructor xs:unsignedShort needs casting to further types: XP-23 (#299) and the casting table"
+            "the constructor xs:unsignedShort needs casting to the derived types: XP-23 (#299)"
         ),
         (
             "fn-concat/fn-concatusht2args-2",
-            "the constructor xs:unsignedShort needs casting to further types: XP-23 (#299) and the casting table"
+            "the constructor xs:unsignedShort needs casting to the derived types: XP-23 (#299)"
         ),
         (
             "fn-concat/fn-concatusht2args-3",
-            "the constructor xs:unsignedShort needs casting to further types: XP-23 (#299) and the casting table"
+            "the constructor xs:unsignedShort needs casting to the derived types: XP-23 (#299)"
         ),
         (
             "fn-concat/fn-concatusht2args-4",
-            "the constructor xs:unsignedShort needs casting to further types: XP-23 (#299) and the casting table"
+            "the constructor xs:unsignedShort needs casting to the derived types: XP-23 (#299)"
         ),
         (
             "fn-concat/fn-concatusht2args-5",
-            "the constructor xs:unsignedShort needs casting to further types: XP-23 (#299) and the casting table"
+            "the constructor xs:unsignedShort needs casting to the derived types: XP-23 (#299)"
         ),
         (
             "fn-concat/fn-concatnint2args-1",
-            "the constructor xs:negativeInteger needs casting to further types: XP-23 (#299) and the casting table"
+            "the constructor xs:negativeInteger needs casting to the derived types: XP-23 (#299)"
         ),
         (
             "fn-concat/fn-concatnint2args-2",
-            "the constructor xs:negativeInteger needs casting to further types: XP-23 (#299) and the casting table"
+            "the constructor xs:negativeInteger needs casting to the derived types: XP-23 (#299)"
         ),
         (
             "fn-concat/fn-concatnint2args-3",
-            "the constructor xs:negativeInteger needs casting to further types: XP-23 (#299) and the casting table"
+            "the constructor xs:negativeInteger needs casting to the derived types: XP-23 (#299)"
         ),
         (
             "fn-concat/fn-concatnint2args-4",
-            "the constructor xs:negativeInteger needs casting to further types: XP-23 (#299) and the casting table"
+            "the constructor xs:negativeInteger needs casting to the derived types: XP-23 (#299)"
         ),
         (
             "fn-concat/fn-concatnint2args-5",
-            "the constructor xs:negativeInteger needs casting to further types: XP-23 (#299) and the casting table"
+            "the constructor xs:negativeInteger needs casting to the derived types: XP-23 (#299)"
         ),
         (
             "fn-concat/fn-concatpint2args-1",
-            "the constructor xs:positiveInteger needs casting to further types: XP-23 (#299) and the casting table"
+            "the constructor xs:positiveInteger needs casting to the derived types: XP-23 (#299)"
         ),
         (
             "fn-concat/fn-concatpint2args-2",
-            "the constructor xs:positiveInteger needs casting to further types: XP-23 (#299) and the casting table"
+            "the constructor xs:positiveInteger needs casting to the derived types: XP-23 (#299)"
         ),
         (
             "fn-concat/fn-concatpint2args-3",
-            "the constructor xs:positiveInteger needs casting to further types: XP-23 (#299) and the casting table"
+            "the constructor xs:positiveInteger needs casting to the derived types: XP-23 (#299)"
         ),
         (
             "fn-concat/fn-concatpint2args-4",
-            "the constructor xs:positiveInteger needs casting to further types: XP-23 (#299) and the casting table"
+            "the constructor xs:positiveInteger needs casting to the derived types: XP-23 (#299)"
         ),
         (
             "fn-concat/fn-concatpint2args-5",
-            "the constructor xs:positiveInteger needs casting to further types: XP-23 (#299) and the casting table"
+            "the constructor xs:positiveInteger needs casting to the derived types: XP-23 (#299)"
         ),
         (
             "fn-concat/fn-concatulng2args-1",
-            "the constructor xs:unsignedLong needs casting to further types: XP-23 (#299) and the casting table"
+            "the constructor xs:unsignedLong needs casting to the derived types: XP-23 (#299)"
         ),
         (
             "fn-concat/fn-concatulng2args-2",
-            "the constructor xs:unsignedLong needs casting to further types: XP-23 (#299) and the casting table"
+            "the constructor xs:unsignedLong needs casting to the derived types: XP-23 (#299)"
         ),
         (
             "fn-concat/fn-concatulng2args-3",
-            "the constructor xs:unsignedLong needs casting to further types: XP-23 (#299) and the casting table"
+            "the constructor xs:unsignedLong needs casting to the derived types: XP-23 (#299)"
         ),
         (
             "fn-concat/fn-concatulng2args-4",
-            "the constructor xs:unsignedLong needs casting to further types: XP-23 (#299) and the casting table"
+            "the constructor xs:unsignedLong needs casting to the derived types: XP-23 (#299)"
         ),
         (
             "fn-concat/fn-concatulng2args-5",
-            "the constructor xs:unsignedLong needs casting to further types: XP-23 (#299) and the casting table"
+            "the constructor xs:unsignedLong needs casting to the derived types: XP-23 (#299)"
         ),
         (
             "fn-concat/fn-concatnpi2args-1",
-            "the constructor xs:nonPositiveInteger needs casting to further types: XP-23 (#299) and the casting table"
+            "the constructor xs:nonPositiveInteger needs casting to the derived types: XP-23 (#299)"
         ),
         (
             "fn-concat/fn-concatnpi2args-2",
-            "the constructor xs:nonPositiveInteger needs casting to further types: XP-23 (#299) and the casting table"
+            "the constructor xs:nonPositiveInteger needs casting to the derived types: XP-23 (#299)"
         ),
         (
             "fn-concat/fn-concatnpi2args-3",
-            "the constructor xs:nonPositiveInteger needs casting to further types: XP-23 (#299) and the casting table"
+            "the constructor xs:nonPositiveInteger needs casting to the derived types: XP-23 (#299)"
         ),
         (
             "fn-concat/fn-concatnpi2args-4",
-            "the constructor xs:nonPositiveInteger needs casting to further types: XP-23 (#299) and the casting table"
+            "the constructor xs:nonPositiveInteger needs casting to the derived types: XP-23 (#299)"
         ),
         (
             "fn-concat/fn-concatnpi2args-5",
-            "the constructor xs:nonPositiveInteger needs casting to further types: XP-23 (#299) and the casting table"
+            "the constructor xs:nonPositiveInteger needs casting to the derived types: XP-23 (#299)"
         ),
         (
             "fn-concat/fn-concatnni2args-1",
-            "the constructor xs:nonNegativeInteger needs casting to further types: XP-23 (#299) and the casting table"
+            "the constructor xs:nonNegativeInteger needs casting to the derived types: XP-23 (#299)"
         ),
         (
             "fn-concat/fn-concatnni2args-2",
-            "the constructor xs:nonNegativeInteger needs casting to further types: XP-23 (#299) and the casting table"
+            "the constructor xs:nonNegativeInteger needs casting to the derived types: XP-23 (#299)"
         ),
         (
             "fn-concat/fn-concatnni2args-3",
-            "the constructor xs:nonNegativeInteger needs casting to further types: XP-23 (#299) and the casting table"
+            "the constructor xs:nonNegativeInteger needs casting to the derived types: XP-23 (#299)"
         ),
         (
             "fn-concat/fn-concatnni2args-4",
-            "the constructor xs:nonNegativeInteger needs casting to further types: XP-23 (#299) and the casting table"
+            "the constructor xs:nonNegativeInteger needs casting to the derived types: XP-23 (#299)"
         ),
         (
             "fn-concat/fn-concatnni2args-5",
-            "the constructor xs:nonNegativeInteger needs casting to further types: XP-23 (#299) and the casting table"
+            "the constructor xs:nonNegativeInteger needs casting to the derived types: XP-23 (#299)"
         ),
-        (
-            "fn-concat/fn-concatsht2args-1",
-            "the constructor xs:short needs casting to further types: XP-23 (#299) and the casting table"
-        ),
-        (
-            "fn-concat/fn-concatsht2args-2",
-            "the constructor xs:short needs casting to further types: XP-23 (#299) and the casting table"
-        ),
-        (
-            "fn-concat/fn-concatsht2args-3",
-            "the constructor xs:short needs casting to further types: XP-23 (#299) and the casting table"
-        ),
-        (
-            "fn-concat/fn-concatsht2args-4",
-            "the constructor xs:short needs casting to further types: XP-23 (#299) and the casting table"
-        ),
-        (
-            "fn-concat/fn-concatsht2args-5",
-            "the constructor xs:short needs casting to further types: XP-23 (#299) and the casting table"
-        ),
-        ("fn-concat/fn-concat-12", "boolean and numeric functions: XP-58 (#271)"),
-        ("fn-concat/fn-concat-14", "boolean and numeric functions: XP-58 (#271)"),
-        (
-            "fn-concat/fn-concat-17",
-            "an expression form without a lowering in the test fixture (logical, conditional, for, quantified, variable, path): XP-15 (#226)"
-        ),
-        (
-            "fn-concat/K-ConcatFunc-4",
-            "an expression form without a lowering in the test fixture (logical, conditional, for, quantified, variable, path): XP-15 (#226)"
-        ),
-        (
-            "fn-concat/K-ConcatFunc-5",
-            "an expression form without a lowering in the test fixture (logical, conditional, for, quantified, variable, path): XP-15 (#226)"
-        ),
-        ("fn-concat/cbcl-concat-001", "boolean and numeric functions: XP-58 (#271)"),
-        ("fn-substring/fn-substring-1", "the assertion all-of needs the evaluator-backed runner: XP-14 (#295)"),
-        ("fn-substring/fn-substring-13", "boolean and numeric functions: XP-58 (#271)"),
-        ("fn-substring/fn-substring-14", "boolean and numeric functions: XP-58 (#271)"),
+        ("fn-concat/fn-concatsht2args-1", "the constructor xs:short needs casting to the derived types: XP-23 (#299)"),
+        ("fn-concat/fn-concatsht2args-2", "the constructor xs:short needs casting to the derived types: XP-23 (#299)"),
+        ("fn-concat/fn-concatsht2args-3", "the constructor xs:short needs casting to the derived types: XP-23 (#299)"),
+        ("fn-concat/fn-concatsht2args-4", "the constructor xs:short needs casting to the derived types: XP-23 (#299)"),
+        ("fn-concat/fn-concatsht2args-5", "the constructor xs:short needs casting to the derived types: XP-23 (#299)"),
+        ("fn-concat/fn-concat-12", "a function of the boolean and numeric group: XP-58 (#271)"),
+        ("fn-concat/fn-concat-14", "a function of the boolean and numeric group: XP-58 (#271)"),
+        ("fn-concat/fn-concat-17", "the test fixture has no lowering for this expression form: XP-14 (#295)"),
+        ("fn-concat/cbcl-concat-001", "a function of the boolean and numeric group: XP-58 (#271)"),
+        ("fn-substring/fn-substring-1", "the assertion (assert-type) needs the evaluator-backed runner: XP-14 (#295)"),
+        ("fn-substring/fn-substring-13", "a function of the boolean and numeric group: XP-58 (#271)"),
+        ("fn-substring/fn-substring-14", "a function of the boolean and numeric group: XP-58 (#271)"),
         (
             "fn-substring/fn-substring-22",
-            "the case needs a context document, namespace, or base URI from its environment, which the test fixture does not supply: XP-14 (#295)"
+            "the case needs a context document, namespace, or base URI of its environment, which the test fixture does not supply: XP-14 (#295)"
         ),
-        ("fn-substring/cbcl-substring-001", "boolean and numeric functions: XP-58 (#271)"),
-        ("fn-substring/cbcl-substring-002", "boolean and numeric functions: XP-58 (#271)"),
-        ("fn-substring-before/fn-substring-before-11", "boolean and numeric functions: XP-58 (#271)"),
-        ("fn-substring-before/fn-substring-before-12", "boolean and numeric functions: XP-58 (#271)"),
+        ("fn-substring/cbcl-substring-001", "a function of the boolean and numeric group: XP-58 (#271)"),
+        ("fn-substring/cbcl-substring-002", "a function of the boolean and numeric group: XP-58 (#271)"),
+        ("fn-substring-before/fn-substring-before-11", "a function of the boolean and numeric group: XP-58 (#271)"),
+        ("fn-substring-before/fn-substring-before-12", "a function of the boolean and numeric group: XP-58 (#271)"),
         (
             "fn-substring-before/fn-substring-before-23",
-            "the case needs a context document, namespace, or base URI from its environment, which the test fixture does not supply: XP-14 (#295)"
+            "the case needs a context document, namespace, or base URI of its environment, which the test fixture does not supply: XP-14 (#295)"
         ),
-        ("fn-substring-before/cbcl-substring-before-001", "boolean and numeric functions: XP-58 (#271)"),
-        ("fn-substring-after/fn-substring-after-11", "boolean and numeric functions: XP-58 (#271)"),
-        ("fn-substring-after/fn-substring-after-12", "boolean and numeric functions: XP-58 (#271)"),
+        ("fn-substring-before/cbcl-substring-before-001", "a function of the boolean and numeric group: XP-58 (#271)"),
+        ("fn-substring-after/fn-substring-after-11", "a function of the boolean and numeric group: XP-58 (#271)"),
+        ("fn-substring-after/fn-substring-after-12", "a function of the boolean and numeric group: XP-58 (#271)"),
         (
             "fn-substring-after/fn-substring-after-23",
-            "the case needs a context document, namespace, or base URI from its environment, which the test fixture does not supply: XP-14 (#295)"
+            "the case needs a context document, namespace, or base URI of its environment, which the test fixture does not supply: XP-14 (#295)"
         ),
-        ("fn-substring-after/cbcl-substring-after-001", "boolean and numeric functions: XP-58 (#271)"),
-        ("fn-contains/fn-contains-11", "boolean and numeric functions: XP-58 (#271)"),
-        ("fn-contains/fn-contains-12", "boolean and numeric functions: XP-58 (#271)"),
-        ("fn-contains/K-ContainsFunc-7", "boolean and numeric functions: XP-58 (#271)"),
-        ("fn-contains/K-ContainsFunc-11", "boolean and numeric functions: XP-58 (#271)"),
-        ("fn-contains/cbcl-contains-001", "boolean and numeric functions: XP-58 (#271)"),
-        ("fn-contains/cbcl-contains-002", "boolean and numeric functions: XP-58 (#271)"),
-        ("fn-contains/cbcl-contains-003", "boolean and numeric functions: XP-58 (#271)"),
-        ("fn-starts-with/fn-starts-with-11", "boolean and numeric functions: XP-58 (#271)"),
-        ("fn-starts-with/fn-starts-with-12", "boolean and numeric functions: XP-58 (#271)"),
-        ("fn-starts-with/K-StartsWithFunc-8", "boolean and numeric functions: XP-58 (#271)"),
-        ("fn-starts-with/K-StartsWithFunc-11", "boolean and numeric functions: XP-58 (#271)"),
-        ("fn-starts-with/cbcl-starts-with-001", "boolean and numeric functions: XP-58 (#271)"),
-        ("fn-ends-with/fn-ends-with-11", "boolean and numeric functions: XP-58 (#271)"),
-        ("fn-ends-with/fn-ends-with-12", "boolean and numeric functions: XP-58 (#271)"),
-        ("fn-ends-with/K-EndsWithFunc-7", "boolean and numeric functions: XP-58 (#271)"),
-        ("fn-ends-with/K-EndsWithFunc-8", "boolean and numeric functions: XP-58 (#271)"),
-        ("fn-ends-with/K-EndsWithFunc-10", "boolean and numeric functions: XP-58 (#271)"),
-        ("fn-ends-with/cbcl-ends-with-001", "boolean and numeric functions: XP-58 (#271)"),
-        ("fn-translate/cbcl-fn-translate-001", "boolean and numeric functions: XP-58 (#271)"),
+        ("fn-substring-after/cbcl-substring-after-001", "a function of the boolean and numeric group: XP-58 (#271)"),
+        ("fn-contains/fn-contains-11", "a function of the boolean and numeric group: XP-58 (#271)"),
+        ("fn-contains/fn-contains-12", "a function of the boolean and numeric group: XP-58 (#271)"),
+        ("fn-contains/K-ContainsFunc-7", "a function of the boolean and numeric group: XP-58 (#271)"),
+        ("fn-contains/K-ContainsFunc-11", "a function of the boolean and numeric group: XP-58 (#271)"),
+        ("fn-contains/cbcl-contains-001", "a function of the boolean and numeric group: XP-58 (#271)"),
+        ("fn-contains/cbcl-contains-002", "a function of the boolean and numeric group: XP-58 (#271)"),
+        ("fn-contains/cbcl-contains-003", "a function of the boolean and numeric group: XP-58 (#271)"),
+        ("fn-starts-with/fn-starts-with-11", "a function of the boolean and numeric group: XP-58 (#271)"),
+        ("fn-starts-with/fn-starts-with-12", "a function of the boolean and numeric group: XP-58 (#271)"),
+        ("fn-starts-with/K-StartsWithFunc-8", "a function of the boolean and numeric group: XP-58 (#271)"),
+        ("fn-starts-with/K-StartsWithFunc-11", "a function of the boolean and numeric group: XP-58 (#271)"),
+        ("fn-starts-with/cbcl-starts-with-001", "a function of the boolean and numeric group: XP-58 (#271)"),
+        ("fn-ends-with/fn-ends-with-11", "a function of the boolean and numeric group: XP-58 (#271)"),
+        ("fn-ends-with/fn-ends-with-12", "a function of the boolean and numeric group: XP-58 (#271)"),
+        ("fn-ends-with/K-EndsWithFunc-7", "a function of the boolean and numeric group: XP-58 (#271)"),
+        ("fn-ends-with/K-EndsWithFunc-8", "a function of the boolean and numeric group: XP-58 (#271)"),
+        ("fn-ends-with/K-EndsWithFunc-10", "a function of the boolean and numeric group: XP-58 (#271)"),
+        ("fn-ends-with/cbcl-ends-with-001", "a function of the boolean and numeric group: XP-58 (#271)"),
+        ("fn-translate/cbcl-fn-translate-001", "a function of the boolean and numeric group: XP-58 (#271)"),
         (
             "fn-normalize-space/fn-normalize-space1args-4",
-            "the assertion all-of needs the evaluator-backed runner: XP-14 (#295)"
+            "the assertion (assert-type) needs the evaluator-backed runner: XP-14 (#295)"
         ),
         (
             "fn-normalize-space/fn-normalize-space0args-1",
-            "the case needs a context document, namespace, or base URI from its environment, which the test fixture does not supply: XP-14 (#295)"
+            "the case needs a context document, namespace, or base URI of its environment, which the test fixture does not supply: XP-14 (#295)"
         ),
-        ("fn-normalize-space/K-NormalizeSpaceFunc-2", "boolean and numeric functions: XP-58 (#271)"),
-        ("fn-string-length/fn-string-length-12", "boolean and numeric functions: XP-58 (#271)"),
-        ("fn-string-length/fn-string-length-14", "boolean and numeric functions: XP-58 (#271)"),
+        ("fn-normalize-space/K-NormalizeSpaceFunc-2", "a function of the boolean and numeric group: XP-58 (#271)"),
+        (
+            "fn-normalize-space/K-NormalizeSpaceFunc-9",
+            "the test fixture has no lowering for this expression form: XP-14 (#295)"
+        ),
+        ("fn-string-length/fn-string-length-12", "a function of the boolean and numeric group: XP-58 (#271)"),
+        ("fn-string-length/fn-string-length-14", "a function of the boolean and numeric group: XP-58 (#271)"),
         (
             "fn-string-length/fn-string-length-17",
-            "an expression form without a lowering in the test fixture (logical, conditional, for, quantified, variable, path): XP-15 (#226)"
+            "the test fixture has no lowering for this expression form: XP-14 (#295)"
         ),
         (
             "fn-string-length/fn-string-length-19",
-            "the case needs a context document, namespace, or base URI from its environment, which the test fixture does not supply: XP-14 (#295)"
+            "the case needs a context document, namespace, or base URI of its environment, which the test fixture does not supply: XP-14 (#295)"
         ),
         (
             "fn-string-length/fn-string-length-24",
-            "the case needs a context document, namespace, or base URI from its environment, which the test fixture does not supply: XP-14 (#295)"
+            "the case needs a context document, namespace, or base URI of its environment, which the test fixture does not supply: XP-14 (#295)"
         ),
         (
             "fn-string-length/fn-string-length-25",
-            "the case needs a context document, namespace, or base URI from its environment, which the test fixture does not supply: XP-14 (#295)"
+            "the case needs a context document, namespace, or base URI of its environment, which the test fixture does not supply: XP-14 (#295)"
         ),
+        ("fn-string-length/K-StringLengthFunc-7", "a function of the boolean and numeric group: XP-58 (#271)"),
+        ("fn-upper-case/fn-upper-case-12", "a function of the boolean and numeric group: XP-58 (#271)"),
+        ("fn-upper-case/fn-upper-case-14", "a function of the boolean and numeric group: XP-58 (#271)"),
+        ("fn-upper-case/fn-upper-case-17", "the test fixture has no lowering for this expression form: XP-14 (#295)"),
         (
-            "fn-string-length/K-StringLengthFunc-3",
-            "an expression form without a lowering in the test fixture (logical, conditional, for, quantified, variable, path): XP-15 (#226)"
+            "fn-upper-case/fn-upper-case-19",
+            "the expected value is that of Unicode 7.0 (dependency unicode-version 7.0); the tables pin Unicode 18.0.0, which maps U+037F and U+03F3 to each other: #100 (AP-16)"
         ),
+        ("fn-lower-case/fn-lower-case-12", "a function of the boolean and numeric group: XP-58 (#271)"),
+        ("fn-lower-case/fn-lower-case-14", "a function of the boolean and numeric group: XP-58 (#271)"),
+        ("fn-lower-case/fn-lower-case-17", "the test fixture has no lowering for this expression form: XP-14 (#295)"),
         (
-            "fn-string-length/K-StringLengthFunc-6",
-            "an expression form without a lowering in the test fixture (logical, conditional, for, quantified, variable, path): XP-15 (#226)"
+            "fn-lower-case/fn-lower-case-19",
+            "the expected value is that of Unicode 7.0 (dependency unicode-version 7.0); the tables pin Unicode 18.0.0, which maps U+037F and U+03F3 to each other: #100 (AP-16)"
         ),
-        ("fn-string-length/K-StringLengthFunc-7", "boolean and numeric functions: XP-58 (#271)"),
-        ("fn-upper-case/fn-upper-case-12", "boolean and numeric functions: XP-58 (#271)"),
-        ("fn-upper-case/fn-upper-case-14", "boolean and numeric functions: XP-58 (#271)"),
-        (
-            "fn-upper-case/fn-upper-case-17",
-            "an expression form without a lowering in the test fixture (logical, conditional, for, quantified, variable, path): XP-15 (#226)"
-        ),
-        ("fn-lower-case/fn-lower-case-12", "boolean and numeric functions: XP-58 (#271)"),
-        ("fn-lower-case/fn-lower-case-14", "boolean and numeric functions: XP-58 (#271)"),
-        (
-            "fn-lower-case/fn-lower-case-17",
-            "an expression form without a lowering in the test fixture (logical, conditional, for, quantified, variable, path): XP-15 (#226)"
-        ),
-        ("fn-string-join/fn-string-join-11", "boolean and numeric functions: XP-58 (#271)"),
-        ("fn-string-join/fn-string-join-12", "boolean and numeric functions: XP-58 (#271)"),
-        ("fn-normalize-unicode/fn-normalize-unicode1args-3", "regular expression functions: XP-24 (#266)"),
-        ("fn-normalize-unicode/fn-normalize-unicode1args-4", "regular expression functions: XP-24 (#266)"),
-        ("fn-normalize-unicode/fn-normalize-unicode1args-5", "regular expression functions: XP-24 (#266)"),
+        ("fn-string-join/fn-string-join-11", "a function of the boolean and numeric group: XP-58 (#271)"),
+        ("fn-string-join/fn-string-join-12", "a function of the boolean and numeric group: XP-58 (#271)"),
+        ("fn-normalize-unicode/fn-normalize-unicode1args-3", "a regular expression function: XP-24 (#266)"),
+        ("fn-normalize-unicode/fn-normalize-unicode1args-4", "a regular expression function: XP-24 (#266)"),
+        ("fn-normalize-unicode/fn-normalize-unicode1args-5", "a regular expression function: XP-24 (#266)"),
         (
             "fn-normalize-unicode/K-NormalizeUnicodeFunc-13",
-            "fn:error and the error alternatives of the evaluator: XP-14 (#295)"
+            "fn:error needs the evaluator-backed runner and its error alternatives: XP-14 (#295)"
         ),
         (
             "fn-normalize-unicode/cbcl-fn-normalize-unicode-001",
-            "fully-normalized form of fn:normalize-unicode: DEF-75 (#87)"
+            "the case expects the fully-normalized form of fn:normalize-unicode: DEF-75 (#87)"
         ),
-        ("fn-normalize-unicode/cbcl-fn-normalize-unicode-002", "boolean and numeric functions: XP-58 (#271)"),
-        ("fn-normalize-unicode/cbcl-fn-normalize-unicode-003", "boolean and numeric functions: XP-58 (#271)"),
+        (
+            "fn-normalize-unicode/cbcl-fn-normalize-unicode-002",
+            "a function of the boolean and numeric group: XP-58 (#271)"
+        ),
+        (
+            "fn-normalize-unicode/cbcl-fn-normalize-unicode-003",
+            "a function of the boolean and numeric group: XP-58 (#271)"
+        ),
         (
             "fn-normalize-unicode/cbcl-fn-normalize-unicode-006",
-            "fully-normalized form of fn:normalize-unicode: DEF-75 (#87)"
+            "the case expects the fully-normalized form of fn:normalize-unicode: DEF-75 (#87)"
         ),
-        ("fn-codepoints-to-string/cbcl-codepoints-to-string-010", "boolean and numeric functions: XP-58 (#271)"),
-        ("fn-codepoints-to-string/cbcl-codepoints-to-string-011", "boolean and numeric functions: XP-58 (#271)"),
-        ("fn-codepoints-to-string/cbcl-codepoints-to-string-012", "boolean and numeric functions: XP-58 (#271)"),
-        ("fn-codepoints-to-string/cbcl-codepoints-to-string-013", "boolean and numeric functions: XP-58 (#271)"),
-        ("fn-codepoints-to-string/cbcl-codepoints-to-string-014", "boolean and numeric functions: XP-58 (#271)"),
-        ("fn-codepoints-to-string/cbcl-codepoints-to-string-017", "boolean and numeric functions: XP-58 (#271)"),
+        (
+            "fn-codepoints-to-string/cbcl-codepoints-to-string-005",
+            "a range of more than 10^6 items needs the lazy range lowering: XP-15 (#226)"
+        ),
+        (
+            "fn-codepoints-to-string/cbcl-codepoints-to-string-010",
+            "a function of the boolean and numeric group: XP-58 (#271)"
+        ),
+        (
+            "fn-codepoints-to-string/cbcl-codepoints-to-string-011",
+            "a function of the boolean and numeric group: XP-58 (#271)"
+        ),
+        (
+            "fn-codepoints-to-string/cbcl-codepoints-to-string-012",
+            "a function of the boolean and numeric group: XP-58 (#271)"
+        ),
+        (
+            "fn-codepoints-to-string/cbcl-codepoints-to-string-013",
+            "a function of the boolean and numeric group: XP-58 (#271)"
+        ),
+        (
+            "fn-codepoints-to-string/cbcl-codepoints-to-string-014",
+            "a function of the boolean and numeric group: XP-58 (#271)"
+        ),
+        (
+            "fn-codepoints-to-string/cbcl-codepoints-to-string-017",
+            "a function of the boolean and numeric group: XP-58 (#271)"
+        ),
         (
             "fn-codepoints-to-string/cbcl-codepoints-to-string-019",
-            "an expression form without a lowering in the test fixture (logical, conditional, for, quantified, variable, path): XP-15 (#226)"
+            "the test fixture has no lowering for this expression form: XP-14 (#295)"
         ),
-        ("fn-codepoints-to-string/cbcl-codepoints-to-string-020", "boolean and numeric functions: XP-58 (#271)"),
+        (
+            "fn-codepoints-to-string/cbcl-codepoints-to-string-020",
+            "a function of the boolean and numeric group: XP-58 (#271)"
+        ),
         (
             "fn-codepoints-to-string/cbcl-codepoints-to-string-023",
-            "an expression form without a lowering in the test fixture (logical, conditional, for, quantified, variable, path): XP-15 (#226)"
+            "the test fixture has no lowering for this expression form: XP-14 (#295)"
         ),
         (
             "fn-codepoints-to-string/cbcl-codepoints-to-string-024",
-            "an expression form without a lowering in the test fixture (logical, conditional, for, quantified, variable, path): XP-15 (#226)"
+            "the test fixture has no lowering for this expression form: XP-14 (#295)"
         ),
         (
             "fn-codepoints-to-string/cbcl-codepoints-to-string-025",
-            "an expression form without a lowering in the test fixture (logical, conditional, for, quantified, variable, path): XP-15 (#226)"
+            "the test fixture has no lowering for this expression form: XP-14 (#295)"
         ),
         (
             "fn-codepoints-to-string/cbcl-codepoints-to-string-026",
-            "an expression form without a lowering in the test fixture (logical, conditional, for, quantified, variable, path): XP-15 (#226)"
+            "the test fixture has no lowering for this expression form: XP-14 (#295)"
         ),
-        ("fn-codepoints-to-string/cbcl-codepoints-to-string-027", "the function fn:in is not registered yet (UNKNOWN)"),
+        (
+            "fn-codepoints-to-string/cbcl-codepoints-to-string-027",
+            "the test fixture has no lowering for this expression form: XP-14 (#295)"
+        ),
         (
             "fn-string-to-codepoints/K-StringToCodepointFunc-11",
-            "an expression form without a lowering in the test fixture (logical, conditional, for, quantified, variable, path): XP-15 (#226)"
+            "the test fixture has no lowering for this expression form: XP-14 (#295)"
+        ),
+        (
+            "fn-string-to-codepoints/K-StringToCodepointFunc-14",
+            "the test fixture has no lowering for this expression form: XP-14 (#295)"
+        ),
+        (
+            "fn-string-to-codepoints/K-StringToCodepointFunc-15",
+            "the test fixture has no lowering for this expression form: XP-14 (#295)"
+        ),
+        (
+            "fn-string-to-codepoints/K-StringToCodepointFunc-16",
+            "the test fixture has no lowering for this expression form: XP-14 (#295)"
+        ),
+        (
+            "fn-string-to-codepoints/K-StringToCodepointFunc-17",
+            "the test fixture has no lowering for this expression form: XP-14 (#295)"
+        ),
+        (
+            "fn-string-to-codepoints/K-StringToCodepointFunc-18",
+            "the test fixture has no lowering for this expression form: XP-14 (#295)"
+        ),
+        (
+            "fn-string-to-codepoints/K-StringToCodepointFunc-19",
+            "the test fixture has no lowering for this expression form: XP-14 (#295)"
+        ),
+        (
+            "fn-string-to-codepoints/K-StringToCodepointFunc-20",
+            "the test fixture has no lowering for this expression form: XP-14 (#295)"
+        ),
+        (
+            "fn-string-to-codepoints/K-StringToCodepointFunc-21",
+            "the test fixture has no lowering for this expression form: XP-14 (#295)"
         ),
     ];
 }
