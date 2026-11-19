@@ -40,9 +40,9 @@ internal static class PatternFixture
     }
 
     /// <summary>Compiles a pattern; the test fails with the problem text when it does not compile.</summary>
-    public static CompiledPattern Compile(PatternMatcher matcher, string pattern)
+    public static CompiledPattern Compile(PatternMatcher matcher, string pattern, QueryStaticScope? scope = null)
     {
-        if (!matcher.TryCompile(pattern, PatternUse.RuleContext, Scope, out var compiled, out var problem))
+        if (!matcher.TryCompile(pattern, PatternUse.RuleContext, scope ?? Scope, out var compiled, out var problem))
         {
             throw new InvalidOperationException($"{pattern}: {problem.Code} {problem.Message}");
         }
