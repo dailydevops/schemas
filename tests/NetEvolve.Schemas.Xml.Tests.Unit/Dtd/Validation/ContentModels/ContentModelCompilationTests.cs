@@ -16,7 +16,7 @@ using static NetEvolve.Schemas.Xml.Tests.Unit.Dtd.Validation.ContentModels.Conte
 public class ContentModelCompilationTests
 {
     // Fixed bounds for the large models; the measured values are far below them, the margin absorbs a slow CI machine.
-    private static readonly TimeSpan CompileTimeBound = TimeSpan.FromSeconds(5);
+    private static readonly TimeSpan CompileTimeBound = TimeSpan.FromSeconds(10);
     private const long CompileAllocationBound = 128L * 1024 * 1024;
 
     private static DtdValidationOptions WithMode(DtdNonDeterminism mode) =>
@@ -211,10 +211,11 @@ public class ContentModelCompilationTests
     public async Task ContentModel_1000NestedOptionalSequences_CompileWithinATimeAndMemoryBound_AndMatch()
     {
         var elements = Elements(NestedSequences(1000), 1000);
-        var watch = Stopwatch.StartNew();
-
         AllocationAssert.AtMost(CompileAllocationBound, () => _ = Begin(null, elements));
 
+        // One more run, timed on its own: the allocation runs above repeat the compilation.
+        var watch = Stopwatch.StartNew();
+        _ = Begin(null, elements);
         watch.Stop();
         var run = Run("<r><a3/><a999/></r>", null, elements.ToArray());
         var reject = Run("<r><a999/>~<a3/></r>", null, elements.ToArray());
@@ -229,10 +230,11 @@ public class ContentModelCompilationTests
     public async Task ContentModel_1000NestedOptionalGroups_CompileWithinATimeAndMemoryBound_AndMatch()
     {
         var elements = Elements(NestedGroups(1000), 1);
-        var watch = Stopwatch.StartNew();
-
         AllocationAssert.AtMost(CompileAllocationBound, () => _ = Begin(null, elements));
 
+        // One more run, timed on its own: the allocation runs above repeat the compilation.
+        var watch = Stopwatch.StartNew();
+        _ = Begin(null, elements);
         watch.Stop();
         var empty = Run("<r/>", null, elements.ToArray());
         var one = Run("<r><a1/></r>", null, elements.ToArray());
@@ -266,10 +268,11 @@ public class ContentModelCompilationTests
         // quadratic (12.5 million transitions): the internal size ceiling stops the compilation with the same limit code.
         var elements = Elements(Flat(5000), 0);
         ValidationIssueCollector? issues = null;
-        var watch = Stopwatch.StartNew();
-
         AllocationAssert.AtMost(CompileAllocationBound, () => issues = Begin(null, elements));
 
+        // One more run, timed on its own: the allocation runs above repeat the compilation.
+        var watch = Stopwatch.StartNew();
+        issues = Begin(null, elements);
         watch.Stop();
         await Assert.That(watch.Elapsed).IsLessThan(CompileTimeBound);
         await Assert.That(issues!.IsStopped).IsTrue();

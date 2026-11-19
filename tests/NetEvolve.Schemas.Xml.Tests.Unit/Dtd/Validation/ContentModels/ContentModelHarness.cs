@@ -182,7 +182,7 @@ internal static class ContentModelHarness
             }
             else if (Has(script, i, "</"))
             {
-                var end = script.IndexOf('>', i);
+                var end = i + script.AsSpan(i).IndexOf('>');
                 step.EndElement(new ValidationElement(script.AsMemory(i + 2, end - i - 2), at));
                 i = end + 1;
             }
@@ -216,7 +216,7 @@ internal static class ContentModelHarness
 
     private static int Start(DtdContentModelStep step, string script, int i, XmlPosition at)
     {
-        var end = script.IndexOf('>', i);
+        var end = i + script.AsSpan(i).IndexOf('>');
         var selfClosing = script[end - 1] == '/';
         var name = script.AsMemory(i + 1, end - i - 1 - (selfClosing ? 1 : 0));
         step.StartElement(new ValidationElement(name, at));
@@ -230,7 +230,7 @@ internal static class ContentModelHarness
 
     private static int Reference(DtdContentModelStep step, string script, int i, XmlPosition at)
     {
-        var end = script.IndexOf(';', i);
+        var end = i + script.AsSpan(i).IndexOf(';');
         var body = script.Substring(i + 1, end - i - 1);
         if (body[0] == '#')
         {
