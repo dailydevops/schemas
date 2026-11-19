@@ -1,9 +1,7 @@
 namespace NetEvolve.Schemas.XPath.Tests.Unit.Evaluation.Temporal;
 
 using System;
-using System.Globalization;
 using System.Text;
-using NetEvolve.Schemas.Xml.Datatypes.Decimals;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Casting.Core;
 using NetEvolve.Schemas.XPath.Casting.Temporal;
@@ -12,11 +10,12 @@ using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Evaluation.Arithmetic;
 using NetEvolve.Schemas.XPath.Evaluation.Comparison;
+using NetEvolve.Schemas.XPath.Evaluation.Flow;
 using NetEvolve.Schemas.XPath.Evaluation.Temporal;
 using NetEvolve.Schemas.XPath.Functions.Binding;
 using NetEvolve.Schemas.XPath.Syntax.Parser;
 using NetEvolve.Schemas.XPath.Syntax.Tree;
-using NetEvolve.Schemas.XPath.Tests.Unit.Types;
+using NetEvolve.Schemas.XPath.Types;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>
@@ -37,20 +36,12 @@ internal static class TemporalFixture
         .WithNamespace("fn", "http://www.w3.org/2005/xpath-functions")
         .Build();
 
-    /// <summary>The registry of the tests: the literals are test-local, everything else is production code.</summary>
+    /// <summary>The registry of the tests: the literals, the logical and conditional expressions, the arithmetic, the comparisons, the casts, and the calls are production code.</summary>
     public static LoweringRegistry Registry()
     {
-        var registry = TypeFixture.Registry();
-        registry.Register<DecimalLiteral>(
-            static (n, _) =>
-                new ConstantNode(XdmSequence.Create(XdmItem.FromDecimal(XsdDecimal.Parse(n.Lexeme.AsSpan()).Value)))
-        );
-        registry.Register<DoubleLiteral>(
-            static (n, _) =>
-                new ConstantNode(
-                    XdmSequence.Create(XdmItem.FromDouble(double.Parse(n.Lexeme, CultureInfo.InvariantCulture)))
-                )
-        );
+        var registry = new LoweringRegistry();
+        FlowLowerings.Register(registry);
+        SequenceTypeLowerings.Register(registry);
         registry.Register<FunctionCall>(static (n, c) => LowerCall(n, c, FunctionCatalog.Default.Registry));
         ArithmeticLowerings.Register(registry, Arithmetic);
         ComparisonLowerings.Register(registry, Comparison);
@@ -159,7 +150,7 @@ internal static class TemporalFixture
     private static CallNode LowerCall(FunctionCall node, LoweringContext context, FunctionRegistry library)
     {
         var name = node.Name;
-        var namespaceUri = string.Empty;
+        var namespaceUri = context.StaticContext.DefaultFunctionNamespace;
         if (name.Prefix is not null && !context.StaticContext.TryResolveNamespace(name.Prefix, out namespaceUri))
         {
             throw XPathErrors.Exception(XPathErrorCodes.XPST0081, name.Location.Offset, name.Location.Length);
