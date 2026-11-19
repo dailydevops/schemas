@@ -88,7 +88,13 @@ public class DeterminismDifferentialTests
             // The message names the second particle last, as source(line,column).
             var message = issue.Message;
             var start = message.LastIndexOf(Source + "(", StringComparison.Ordinal) + Source.Length + 1;
-            var line = message.Substring(start, message.IndexOf(',', start) - start);
+            var end = start;
+            while (char.IsDigit(message[end]))
+            {
+                end++;
+            }
+
+            var line = message.Substring(start, end - start);
             pairs.Add(issue.Location.Line.ToString(CultureInfo.InvariantCulture) + "," + line);
         }
 
