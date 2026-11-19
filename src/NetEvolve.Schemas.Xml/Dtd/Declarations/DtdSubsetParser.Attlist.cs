@@ -71,7 +71,7 @@ internal sealed partial class DtdSubsetParser
             return false;
         }
 
-        _builder.AddAttribute(element, new DtdAttributeDefinition(name, type, values, kind, value));
+        _builder.AddAttribute(element, new DtdAttributeDefinition(name, type, values, kind, value, _inExternal));
         return true;
     }
 
