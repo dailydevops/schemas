@@ -41,7 +41,11 @@ using NetEvolve.Schemas.Xsd.SchemaDocuments;
 /// matching ones replaced by the overriding nodes (see <see cref="OverrideSet"/>). A document reached under another set of
 /// overriding nodes is another unit, so a document that is included or redefined and also overridden is present twice with
 /// conflicting components, as Structures 1.1, 4.2.5 describes; the component registry reports the duplicate. Limitation: a
-/// set that changes nothing in a document leaves it a plain unit, decided on the document and not on the documents it includes.
+/// set that changes nothing in a document leaves it a plain unit, decided on the document and not on the documents it includes (#753).
+/// Limitation: a replacing node keeps the ancestors of the overriding document, so a builder that reads the defaults of the
+/// schema (<c>elementFormDefault</c>, <c>blockDefault</c>, ...) through the ancestors of a node gets those of the overriding
+/// document, while Structures 1.1, 4.2.5 demands those of the overridden one; the unit carries the right <c>schema</c>
+/// element in <see cref="SchemaUnit.Root"/> (#757).
 /// </para>
 /// </remarks>
 internal sealed class SchemaDocumentLoader
