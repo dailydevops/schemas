@@ -1,5 +1,6 @@
 namespace NetEvolve.Schemas.Xml.Dtd.Model;
 
+using System;
 using System.Collections.Generic;
 using NetEvolve.Schemas.Xml.Contracts;
 
@@ -16,7 +17,8 @@ internal sealed class DtdDeclarations : IDtdDeclarations
         IReadOnlyDictionary<string, IReadOnlyList<DtdAttributeDefinition>> attributeLists,
         IReadOnlyDictionary<string, DtdEntityDeclaration> generalEntities,
         IReadOnlyDictionary<string, DtdEntityDeclaration> parameterEntities,
-        IReadOnlyDictionary<string, XmlNotation> notations
+        IReadOnlyDictionary<string, XmlNotation> notations,
+        IReadOnlyList<string>? duplicateNotations = null
     )
     {
         Name = name;
@@ -28,6 +30,7 @@ internal sealed class DtdDeclarations : IDtdDeclarations
         GeneralEntities = generalEntities;
         ParameterEntities = parameterEntities;
         Notations = notations;
+        DuplicateNotations = duplicateNotations ?? Array.Empty<string>();
     }
 
     /// <summary>Gets the root element name of the declaration.</summary>
@@ -59,4 +62,11 @@ internal sealed class DtdDeclarations : IDtdDeclarations
 
     /// <summary>Gets the notations by name.</summary>
     public IReadOnlyDictionary<string, XmlNotation> Notations { get; }
+
+    /// <summary>
+    /// Gets the name of every notation declaration that was dropped because an earlier declaration of the name binds, one entry per
+    /// dropped declaration in document order. The view <see cref="IDtdDeclarations"/> has no such member; this is the minimal
+    /// fact that Unique Notation Name (section 4.7) needs until the parse-time anomalies of #608 are recorded for every kind of declaration.
+    /// </summary>
+    internal IReadOnlyList<string> DuplicateNotations { get; }
 }
