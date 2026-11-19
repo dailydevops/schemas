@@ -22,10 +22,19 @@ internal sealed class FakeEntityInputStack : IXmlEntityInputStack
 
     internal int Leaves { get; private set; }
 
-    public XmlErrorCode? Enter(ReadOnlySpan<char> name, bool inAttributeValue, bool standalone, out string? replacement)
+    public string? BaseUri => null;
+
+    public XmlErrorCode? Enter(
+        ReadOnlySpan<char> name,
+        bool inAttributeValue,
+        bool standalone,
+        out string? replacement,
+        out IXmlEntityText? external
+    )
     {
         Calls.Add((name.ToString(), inAttributeValue, standalone));
         replacement = Result is null ? Replacement : null;
+        external = null;
 
         return Result;
     }

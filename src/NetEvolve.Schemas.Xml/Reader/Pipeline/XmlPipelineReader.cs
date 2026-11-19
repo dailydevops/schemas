@@ -24,8 +24,9 @@ using NetEvolve.Schemas.Xml.Reader.EntityInput;
 /// undecodable sequence in the decoded characters and no line or column; the document type declaration is rejected
 /// (<c>XML2001</c>) unless <see cref="XmlReaderOptions.DtdProcessing"/> is set, which parses the declarations of the
 /// internal subset (XML-14) and expands the references to the internal general entities it declares (XML-15); the external
-/// subset and the external parameter entities are read only with the internal option <c>ExternalAccess</c> (XML-20), external
-/// general entities are not read (XML-62). Not thread-safe. Dispose the reader to return its buffers.
+/// subset, the external parameter entities, and the external general entities that content references are read only with the
+/// internal option <c>ExternalAccess</c> (XML-20, XML-62), through its resolver and its flags. Not thread-safe. Dispose the
+/// reader to return its buffers.
 /// </remarks>
 public sealed class XmlPipelineReader : IXmlReader, IDisposable
 {
@@ -35,6 +36,7 @@ public sealed class XmlPipelineReader : IXmlReader, IDisposable
     private readonly PooledBuffer<char>? _owned;
     private readonly XmlErrorCode? _pending;
     private readonly DtdDoctypeHandler? _doctype;
+    private readonly string? _documentBaseUri;
     private XmlDiagnostic? _diagnostic;
 
     private XmlPipelineReader(
@@ -46,6 +48,7 @@ public sealed class XmlPipelineReader : IXmlReader, IDisposable
     {
         _owned = owned;
         _pending = pending;
+        _documentBaseUri = options.BaseUri;
         _doctype = options.DtdProcessing
             ? new DtdDoctypeHandler(options.Limits, options.ExternalAccess, options.BaseUri)
             : null;
@@ -66,6 +69,9 @@ public sealed class XmlPipelineReader : IXmlReader, IDisposable
 
     /// <summary>Gets the declarations of the document type declaration, <see langword="null"/> without one or when <see cref="XmlReaderOptions.DtdProcessing"/> is off.</summary>
     internal DtdDeclarations? Declarations => _doctype?.Declarations;
+
+    /// <summary>Gets the base URI of the entity whose text is being read: the document base URI, or inside an external entity the base URI of that entity.</summary>
+    internal string? BaseUri => _doctype is null ? _documentBaseUri : _parser.EntityBaseUri;
 
     /// <summary>Creates a reader over a copy of the characters.</summary>
     /// <param name="input">The document.</param>

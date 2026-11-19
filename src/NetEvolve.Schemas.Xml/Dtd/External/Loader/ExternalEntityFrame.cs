@@ -240,6 +240,13 @@ internal sealed class ExternalEntityFrame : IDisposable
             return true;
         }
 
+        // Only XML 1.0 is supported (DEF-50): like the XML declaration of a document, a text declaration with another version is XML0010.
+        if (declared.IsValid && declared.Version.Length > 0 && !declared.Version.SequenceEqual("1.0".AsSpan()))
+        {
+            error = XmlErrorCodes.XML0010;
+            return true;
+        }
+
         // No parser checks the characters of an external entity, so the decoder reports a non-Char as XML0002 (#712).
         _ = XmlInputDecoder.TryCreate(detection, out var decoder, out _, reportNonChar: true);
         _decoder = decoder;

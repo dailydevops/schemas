@@ -1,2 +1,0 @@
-sun/ext01
-sun/ext02

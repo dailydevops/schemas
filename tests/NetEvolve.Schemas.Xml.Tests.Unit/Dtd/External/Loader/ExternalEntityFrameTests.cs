@@ -100,6 +100,7 @@ public class ExternalEntityFrameTests
     [Arguments("<?xml encoding=\"UTF-8\"", "XML0001")]
     [Arguments("<?xml encoding=\"KLINGON-1\"?>x", "XML4001")]
     [Arguments(" <?xml encoding=\"UTF-8\"?>x", "XML0007")]
+    [Arguments("<?xml version=\"1.1\" encoding=\"UTF-8\"?>x", "XML0010")]
     public async Task TryLoad_InvalidTextDeclaration_IsAFatalFailure_AndTheStreamIsDisposed(
         string content,
         string alias,
