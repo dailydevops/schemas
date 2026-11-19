@@ -12,6 +12,7 @@ using NetEvolve.Schemas.Xml.Dtd.Model;
 using NetEvolve.Schemas.Xml.Input.Decoding;
 using NetEvolve.Schemas.Xml.Reader.Core;
 using NetEvolve.Schemas.Xml.Reader.Declaration;
+using NetEvolve.Schemas.Xml.Reader.EntityInput;
 
 /// <summary>
 /// Reads a <see cref="System.IO.Stream"/> asynchronously into a sink (design #108, AP5): an async fill loop reads bytes into a pooled
@@ -106,10 +107,10 @@ public sealed class XmlStreamReader<TSink> : IDisposable
         _bufferSize = bufferSize;
         _bytePool = bytePool ?? ArrayPool<byte>.Shared;
         _charPool = charPool ?? ArrayPool<char>.Shared;
-        _parser = new XmlParser(
-            _limits,
-            options.DtdProcessing ? new DtdDoctypeHandler(_limits, options.ExternalAccess, options.BaseUri) : null
-        );
+        var doctype = options.DtdProcessing
+            ? new DtdDoctypeHandler(_limits, options.ExternalAccess, options.BaseUri)
+            : null;
+        _parser = new XmlParser(_limits, doctype, doctype is null ? null : new XmlEntityInputStack(_limits, doctype));
     }
 
     /// <summary>Gets the sink by reference; read it after <see cref="ReadAsync"/> returned.</summary>
