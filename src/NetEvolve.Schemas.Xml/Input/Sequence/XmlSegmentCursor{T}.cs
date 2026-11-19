@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.Xml.Input.Sequence;
 
 using System;
 using System.Buffers;
+using NetEvolve.Arguments;
 
 /// <summary>Walks the segments of a <see cref="ReadOnlySequence{T}"/> in pieces of bounded length; empty segments are skipped.</summary>
 /// <typeparam name="T">The element type.</typeparam>
@@ -26,6 +27,8 @@ internal struct XmlSegmentCursor<T>
     /// <returns><see langword="false"/> when no element is left.</returns>
     internal bool TryRead(int max, out ReadOnlyMemory<T> piece)
     {
+        Argument.ThrowIfLessThan(max, 1);
+
         while (_offset >= _current.Length)
         {
             if (!_sequence.TryGet(ref _next, out _current))
