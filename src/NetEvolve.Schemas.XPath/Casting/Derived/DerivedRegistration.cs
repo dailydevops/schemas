@@ -28,6 +28,11 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// types and no atomic type; <c>xs:NOTATION</c>, which is abstract; and <c>xs:dateTimeStamp</c>, a type of XPath 3.1. A type defined by a schema
 /// is not available until schema-aware processing exists (DEF-40, #52).
 /// </para>
+/// <para>
+/// Limitation: a value of a derived integer type beyond the 64 bits of the integer item, which only <c>xs:unsignedLong</c> above 2^63 and the unbounded
+/// types have, is a value of the derived type, but its cast to <c>xs:integer</c> raises FOCA0003 like every other integer beyond 64 bits (#265, D3). A
+/// string literal only is cast to <c>xs:QName</c> in XPath 2.0 (Functions and Operators, 17.1.1), so a value of a derived string type is XPTY0004 there.
+/// </para>
 /// <para>The initializer only stages; the table is built, and the type handles are read, when the catalogs freeze on first use.</para>
 /// </remarks>
 internal static class DerivedRegistration

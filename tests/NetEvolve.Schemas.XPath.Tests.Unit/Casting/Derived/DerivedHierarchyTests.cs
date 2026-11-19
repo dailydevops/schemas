@@ -112,6 +112,10 @@ public class DerivedHierarchyTests
     [Arguments("xs:byte(5) cast as xs:date", "XPTY0004")]
     [Arguments("xs:byte(5) cast as xs:hexBinary", "XPTY0004")]
     [Arguments("xs:positiveInteger(5) cast as xs:anyURI", "XPTY0004")]
+    [Arguments("xs:token('a') cast as xs:QName", "XPTY0004")]
+    [Arguments("xs:unsignedLong('18446744073709551615') cast as xs:integer", "FOCA0003")]
+    // The last row is the limit of the integer item (#265, D3): a value of a derived type beyond 64 bits is a value of the derived type, and the cast
+    // to xs:integer, which has the 64 bits, raises FOCA0003. XPath 2.0 casts a string literal only to xs:QName, so the token is XPTY0004.
     public async Task FromADerivedType_FollowsTheTableOfItsPrimitiveAncestor(string expression, string code) =>
         await Assert.That(Code(expression)).IsEqualTo(code);
 
