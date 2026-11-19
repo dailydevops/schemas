@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.Xml.Input.Sequence;
 
 using System.Buffers;
+using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Contracts;
 
 /// <summary>Feeds the segments of a <see cref="ReadOnlySequence{T}"/> of characters to the parser; no decoding is involved.</summary>
@@ -16,6 +17,8 @@ internal sealed class XmlCharSequenceFeeder : XmlSequenceFeeder
 
     internal override bool Fill(int wanted)
     {
+        Argument.ThrowIfLessThan(wanted, 1);
+
         var characters = Characters;
         while (!_exhausted && characters.Length < wanted)
         {

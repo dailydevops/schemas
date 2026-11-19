@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.Xml.Input.Sequence;
 
 using System;
 using System.Buffers;
+using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Buffers;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Input.Decoding;
@@ -77,6 +78,8 @@ internal sealed class XmlByteSequenceFeeder : XmlSequenceFeeder
 
     internal override bool Fill(int wanted)
     {
+        Argument.ThrowIfLessThan(wanted, 1);
+
         var decoder = _decoder;
         if (decoder is null || _exhausted)
         {
