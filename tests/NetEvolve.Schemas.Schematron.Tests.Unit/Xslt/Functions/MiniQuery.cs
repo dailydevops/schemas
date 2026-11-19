@@ -11,7 +11,7 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// The little expression language of the function tests. Limitation: the XPath evaluator (XP-19, #297) is not implemented, so the
 /// tests of the function package cannot run real XPath. This subset has the primitives the fixture functions need and nothing else:
 /// integer and string literals, variables, the operators <c>or and = != &lt; &lt;= &gt; &gt;= + - * idiv mod</c>, conditionals, sequences,
-/// <c>not true false string string-length substring translate concat xs:integer</c>, and calls of stylesheet functions. All control
+/// <c>not true false string string-length substring translate concat position last xs:integer</c>, and calls of stylesheet functions. All control
 /// flow of the fixtures (recursion, accumulators, branching on the result) is written in the XSLT text, not here.
 /// </summary>
 internal static class MiniQuery
@@ -145,9 +145,9 @@ internal static class MiniQuery
     private sealed class ContextItem : Node
     {
         internal override XdmSequence Evaluate(MiniRun run, in QueryFocus focus) =>
-            focus.Node.Tree is null
+            focus.Item.Kind == XdmItemKind.None
                 ? throw Fail("XPDY0002", "The context item is absent.")
-                : One(XdmItem.FromNode(focus.Node));
+                : One(focus.Item);
     }
 
     private sealed class Variable(string name, int slot) : Node
@@ -295,7 +295,7 @@ internal static class MiniQuery
                 values[i] = arguments[i].Evaluate(run, in focus);
             }
 
-            return uri is null ? Builtin(values) : run.CallFunction(uri, name, values);
+            return uri is null ? Builtin(values, in focus) : run.CallFunction(uri, name, values);
         }
 
         internal override void Collect(List<int> slots)
@@ -306,10 +306,19 @@ internal static class MiniQuery
             }
         }
 
-        private XdmSequence Builtin(XdmSequence[] a)
+        private XdmSequence Builtin(XdmSequence[] a, in QueryFocus focus)
         {
             switch (name)
             {
+                case "position":
+                    return focus.Item.Kind == XdmItemKind.None
+                        ? throw Fail("XPDY0002", "The context item is absent.")
+                        : One(XdmItem.FromInteger(focus.Position));
+                case "last":
+                    var size = focus.ResolveSize();
+                    return focus.Item.Kind == XdmItemKind.None || size < 0
+                        ? throw Fail("XPDY0002", "The context size is absent.")
+                        : One(XdmItem.FromInteger(size));
                 case "true":
                     return One(XdmItem.FromBoolean(true));
                 case "false":

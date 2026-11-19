@@ -18,6 +18,7 @@ using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Xdm.Nodes;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 using static NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Functions.FunctionTree;
+using FlowRegistration = NetEvolve.Schemas.Schematron.Xslt.Instructions.Flow.Registration;
 
 /// <summary>
 /// The compile driver of the function tests: it resolves every element through the registry that <see cref="Registration"/>
@@ -31,6 +32,7 @@ internal sealed class FunctionFixture
     {
         var builder = new XsltRegistryBuilder();
         Registration.Register(builder);
+        FlowRegistration.Register(builder);
         Registry = builder.Build();
         Plan = plan;
         var names = new List<string>(globals);
