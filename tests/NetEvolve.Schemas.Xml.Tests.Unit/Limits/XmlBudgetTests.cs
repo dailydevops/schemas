@@ -16,39 +16,12 @@ public class XmlBudgetTests
         );
 
     [Test]
-    public async Task NameLength_ChargingUpToTheLimitSucceedsAndOneMoreRaisesXml1105() =>
-        await AssertBudget(
-            l => l.WithMaxNameLength(5),
-            XmlBudget.NameLength,
-            XmlErrorCodes.XML1105,
-            XmlReaderLimits.Default.MaxNameLength
-        );
-
-    [Test]
-    public async Task AttributeCount_ChargingUpToTheLimitSucceedsAndOneMoreRaisesXml1103() =>
-        await AssertBudget(
-            l => l.WithMaxAttributesPerElement(5),
-            XmlBudget.AttributeCount,
-            XmlErrorCodes.XML1103,
-            XmlReaderLimits.Default.MaxAttributesPerElement
-        );
-
-    [Test]
     public async Task TextLength_ChargingUpToTheLimitSucceedsAndOneMoreRaisesXml1107() =>
         await AssertBudget(
             l => l.WithMaxTextNodeLength(5),
             XmlBudget.TextLength,
             XmlErrorCodes.XML1107,
             XmlReaderLimits.Default.MaxTextNodeLength
-        );
-
-    [Test]
-    public async Task DocumentCharacters_ChargingUpToTheLimitSucceedsAndOneMoreRaisesXml1101() =>
-        await AssertBudget(
-            l => l.WithMaxDocumentCharacters(5),
-            XmlBudget.DocumentCharacters,
-            XmlErrorCodes.XML1101,
-            XmlReaderLimits.Default.MaxDocumentCharacters
         );
 
     [Test]

@@ -45,16 +45,8 @@ internal struct XmlBudget
     internal static XmlBudget ElementDepth(XmlReaderLimits limits) =>
         new(limits.MaxElementDepth, XmlErrorCodes.XML1102);
 
-    internal static XmlBudget NameLength(XmlReaderLimits limits) => new(limits.MaxNameLength, XmlErrorCodes.XML1105);
-
-    internal static XmlBudget AttributeCount(XmlReaderLimits limits) =>
-        new(limits.MaxAttributesPerElement, XmlErrorCodes.XML1103);
-
     internal static XmlBudget TextLength(XmlReaderLimits limits) =>
         new(limits.MaxTextNodeLength, XmlErrorCodes.XML1107);
-
-    internal static XmlBudget DocumentCharacters(XmlReaderLimits limits) =>
-        new(limits.MaxDocumentCharacters, XmlErrorCodes.XML1101);
 
     internal static XmlBudget ExpansionCharacters(XmlReaderLimits limits) =>
         new(limits.MaxEntityExpansionCharacters, XmlErrorCodes.XML1109);
