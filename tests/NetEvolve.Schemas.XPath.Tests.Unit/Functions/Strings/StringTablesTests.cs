@@ -52,6 +52,7 @@ public class StringTablesTests
 
     private static async Task AssertCommitted(string path, string generated, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         if (Environment.GetEnvironmentVariable(StringTablesGenerator.RegenerateVariable) is { Length: > 0 })
         {
             await File.WriteAllTextAsync(

@@ -150,6 +150,27 @@ public class UnicodeNormalizationTests
     }
 
     [Test]
+    public async Task Normalize_ManyLongDecompositions_GrowTheWorkArea()
+    {
+        // U+FDFA has a compatibility decomposition of eighteen code points: five hundred of them outgrow the first work area many times over.
+        var unit = UnicodeNormalization.Normalize("\uFDFA", UnicodeNormalizationForm.Nfkd, XPathLimits.Default);
+        var expected = new StringBuilder();
+        for (var i = 0; i < 500; i++)
+        {
+            _ = expected.Append(unit);
+        }
+
+        var normalized = UnicodeNormalization.Normalize(
+            new string('\uFDFA', 500),
+            UnicodeNormalizationForm.Nfkd,
+            XPathLimits.Default
+        );
+
+        await Assert.That(unit.Length).IsEqualTo(18);
+        await Assert.That(normalized).IsEqualTo(expected.ToString());
+    }
+
+    [Test]
     public async Task Normalize_ThatChangesNothing_ReturnsTheSameInstance()
     {
         var source = new string(['\u00E9', 'a', 'b']);
@@ -165,21 +186,18 @@ public class UnicodeNormalizationTests
     }
 
     [Test]
-    [Arguments("NFC", UnicodeNormalizationForm.Nfc)]
-    [Arguments("NFD", UnicodeNormalizationForm.Nfd)]
-    [Arguments("NFKC", UnicodeNormalizationForm.Nfkc)]
-    [Arguments("NFKD", UnicodeNormalizationForm.Nfkd)]
-    [Arguments("nfkd", UnicodeNormalizationForm.Nfkd)]
-    [Arguments(" NfKc\t", UnicodeNormalizationForm.Nfkc)]
-    public async Task TryParseForm_AcceptsTheFourFormsTrimmedAndCaseInsensitive(
-        string name,
-        UnicodeNormalizationForm expected
-    )
+    [Arguments("NFC", "Nfc")]
+    [Arguments("NFD", "Nfd")]
+    [Arguments("NFKC", "Nfkc")]
+    [Arguments("NFKD", "Nfkd")]
+    [Arguments("nfkd", "Nfkd")]
+    [Arguments(" NfKc\t", "Nfkc")]
+    public async Task TryParseForm_AcceptsTheFourFormsTrimmedAndCaseInsensitive(string name, string expected)
     {
         var found = UnicodeNormalization.TryParseForm(name.AsSpan(), out var form);
 
         await Assert.That(found).IsTrue();
-        await Assert.That(form).IsEqualTo(expected);
+        await Assert.That(form.ToString()).IsEqualTo(expected);
     }
 
     [Test]

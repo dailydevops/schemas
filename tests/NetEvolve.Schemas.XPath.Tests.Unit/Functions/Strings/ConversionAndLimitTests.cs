@@ -104,12 +104,12 @@ public class ConversionAndLimitTests
     }
 
     [Test]
-    [Arguments("contains")]
-    [Arguments("starts-with")]
-    [Arguments("ends-with")]
-    public async Task Search_AllocatesNothing(string local)
+    [Arguments("contains", "att")]
+    [Arguments("starts-with", "tat")]
+    [Arguments("ends-with", "too")]
+    public async Task Search_AllocatesNothing(string local, string value)
     {
-        XdmSequence[] arguments = [Str("tattoo"), Str("t")];
+        XdmSequence[] arguments = [Str("tattoo"), Str(value)];
         var function = SequencesHarness.Resolve(local, 2);
         using var context = new XPathEvaluationContext();
 

@@ -28,7 +28,7 @@ public class TranslateTests
     [Arguments("a\U0001F600b", "a", "\U0001F600", "\U0001F600\U0001F600b")]
     [Arguments("a\U0001F600b", "\U0001F600", "", "ab")]
     [Arguments("\U0001F600\U0001F601", "\U0001F601\U0001F600", "AB", "BA")]
-    [Arguments("abc", "abc", "\U0001F600\U0001F601", "\U0001F600\U0001F601c")] // one position per code point in the translate string
+    [Arguments("abc", "abc", "\U0001F600\U0001F601", "\U0001F600\U0001F601")] // one position per code point in the translate string; c has no counterpart and is removed
     public async Task Translate_CodePointsOutsideTheBmp_CountOnePositionEach(
         string source,
         string map,

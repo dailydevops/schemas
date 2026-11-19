@@ -45,7 +45,7 @@ public class SearchTests
     [Arguments("substring-after", "tattoo", "tattoo", "string:")]
     [Arguments("substring-after", "tattoo", "", "string:tattoo")]
     [Arguments("substring-after", "tattoo", "z", "string:")]
-    [Arguments("substring-after", "tattoo", "o", "string:to")]
+    [Arguments("substring-after", "tattoo", "o", "string:o")]
     [Arguments("substring-after", "a\U0001F600b", "\U0001F600", "string:b")]
     public async Task TwoArguments_ExamplesAndEdges(string local, string first, string second, string expected) =>
         await Assert.That(Shown(local, Str(first), Str(second))).IsEqualTo(expected);

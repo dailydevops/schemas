@@ -82,65 +82,9 @@ internal static class StringTablesGenerator
     )
     {
         var ccc = new byte[CodePointCount];
-        var raw = new SortedDictionary<int, (bool Compat, int[] Mapping)>();
-        foreach (var line in unicodeData)
-        {
-            var fields = line.Split(';');
-            var codePoint = Hex(fields[0]);
-            ccc[codePoint] = byte.Parse(fields[3], CultureInfo.InvariantCulture);
-            if (fields[5].Length > 0)
-            {
-                var compat = fields[5].StartsWith('<');
-                var text = compat
-                    ? fields[5].Substring(fields[5].IndexOf('>', StringComparison.Ordinal) + 1)
-                    : fields[5];
-                raw[codePoint] = (compat, List(text));
-            }
-        }
-
-        var excluded = new HashSet<int>();
-        foreach (var line in derivedNormalizationProps)
-        {
-            var fields = WithoutComment(line).Split(';');
-            if (
-                fields.Length < 2
-                || !string.Equals(fields[1].Trim(), "Full_Composition_Exclusion", StringComparison.Ordinal)
-            )
-            {
-                continue;
-            }
-
-            var range = fields[0].Trim().Split("..", StringSplitOptions.None);
-            var first = Hex(range[0]);
-            var last = range.Length > 1 ? Hex(range[1]) : first;
-            for (var cp = first; cp <= last; cp++)
-            {
-                _ = excluded.Add(cp);
-            }
-        }
-
-        // Combining class runs: the first and last code point of each maximal run of one non-zero class.
-        var cccFirst = new List<int>();
-        var cccLast = new List<int>();
-        var cccValue = new List<int>();
-        for (var cp = 0; cp < CodePointCount; cp++)
-        {
-            if (ccc[cp] == 0)
-            {
-                continue;
-            }
-
-            if (cccValue.Count > 0 && cccLast[^1] == cp - 1 && cccValue[^1] == ccc[cp])
-            {
-                cccLast[^1] = cp;
-            }
-            else
-            {
-                cccFirst.Add(cp);
-                cccLast.Add(cp);
-                cccValue.Add(ccc[cp]);
-            }
-        }
+        var raw = ReadMappings(unicodeData, ccc);
+        var excluded = ReadExclusions(derivedNormalizationProps);
+        var (cccFirst, cccLast, cccValue) = CombiningRuns(ccc);
 
         var canonicalKeys = new List<int>();
         var canonicalRefs = new List<int>();
@@ -184,6 +128,83 @@ internal static class StringTablesGenerator
         AppendInts("CompositionValues", [.. pairs.Values], sb);
         _ = sb.Append("}\n");
         return sb.ToString();
+    }
+
+    // The decomposition mappings of UnicodeData.txt, and the combining class of every code point in the array.
+    private static SortedDictionary<int, (bool Compat, int[] Mapping)> ReadMappings(string[] unicodeData, byte[] ccc)
+    {
+        var raw = new SortedDictionary<int, (bool Compat, int[] Mapping)>();
+        foreach (var line in unicodeData)
+        {
+            var fields = line.Split(';');
+            var codePoint = Hex(fields[0]);
+            ccc[codePoint] = byte.Parse(fields[3], CultureInfo.InvariantCulture);
+            if (fields[5].Length > 0)
+            {
+                var compat = fields[5].StartsWith('<');
+                var text = compat
+                    ? fields[5].Substring(fields[5].IndexOf('>', StringComparison.Ordinal) + 1)
+                    : fields[5];
+                raw[codePoint] = (compat, List(text));
+            }
+        }
+
+        return raw;
+    }
+
+    // The code points of Full_Composition_Exclusion: they have a canonical decomposition but are not primary composites.
+    private static HashSet<int> ReadExclusions(string[] derivedNormalizationProps)
+    {
+        var excluded = new HashSet<int>();
+        foreach (var line in derivedNormalizationProps)
+        {
+            var fields = WithoutComment(line).Split(';');
+            if (
+                fields.Length < 2
+                || !string.Equals(fields[1].Trim(), "Full_Composition_Exclusion", StringComparison.Ordinal)
+            )
+            {
+                continue;
+            }
+
+            var range = fields[0].Trim().Split("..", StringSplitOptions.None);
+            var first = Hex(range[0]);
+            var last = range.Length > 1 ? Hex(range[1]) : first;
+            for (var cp = first; cp <= last; cp++)
+            {
+                _ = excluded.Add(cp);
+            }
+        }
+
+        return excluded;
+    }
+
+    // Combining class runs: the first and last code point of each maximal run of one non-zero class.
+    private static (List<int> First, List<int> Last, List<int> Value) CombiningRuns(byte[] ccc)
+    {
+        var first = new List<int>();
+        var last = new List<int>();
+        var value = new List<int>();
+        for (var cp = 0; cp < CodePointCount; cp++)
+        {
+            if (ccc[cp] == 0)
+            {
+                continue;
+            }
+
+            if (value.Count > 0 && last[^1] == cp - 1 && value[^1] == ccc[cp])
+            {
+                last[^1] = cp;
+            }
+            else
+            {
+                first.Add(cp);
+                last.Add(cp);
+                value.Add(ccc[cp]);
+            }
+        }
+
+        return (first, last, value);
     }
 
     private static string WithoutComment(string line)
