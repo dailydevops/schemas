@@ -24,6 +24,24 @@ public readonly record struct ValidationAttributeInfo
         bool isSpecified,
         XmlPosition position
     )
+        : this(name, value, declaredType, isSpecified, position, isChangedByNormalization: false) { }
+
+    /// <summary>Initializes a new instance of the <see cref="ValidationAttributeInfo"/> struct for an attribute whose normalization by the declared type is known.</summary>
+    /// <param name="name">The attribute name as written.</param>
+    /// <param name="value">The normalized value with references resolved.</param>
+    /// <param name="declaredType">The declared type, <see langword="null"/> when the attribute is not declared.</param>
+    /// <param name="isSpecified"><see langword="false"/> when the value comes from the default of the declaration.</param>
+    /// <param name="position">The position of the attribute.</param>
+    /// <param name="isChangedByNormalization"><see langword="true"/> when the normalization by the declared type changed the value.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="declaredType"/> is not a defined value.</exception>
+    internal ValidationAttributeInfo(
+        ReadOnlyMemory<char> name,
+        ReadOnlyMemory<char> value,
+        DtdAttributeType? declaredType,
+        bool isSpecified,
+        XmlPosition position,
+        bool isChangedByNormalization
+    )
     {
         if (declaredType is { } type)
         {
@@ -36,6 +54,7 @@ public readonly record struct ValidationAttributeInfo
         DeclaredType = declaredType;
         IsSpecified = isSpecified;
         Position = position;
+        IsChangedByNormalization = isChangedByNormalization;
     }
 
     /// <summary>Gets the attribute name as written.</summary>
@@ -52,4 +71,12 @@ public readonly record struct ValidationAttributeInfo
 
     /// <summary>Gets the position of the attribute.</summary>
     public XmlPosition Position { get; }
+
+    /// <summary>
+    /// Gets a value indicating whether the normalization by the declared type (section 3.3.3) produced a different value than
+    /// the normalization without the declaration would have; the reader sets it, and the validity constraint Standalone
+    /// Document Declaration (section 2.9, third clause) reads it.
+    /// </summary>
+    /// <remarks>Limitation: internal until the composition (XML-68) and the normalization (XML-16) settle the contract; a step outside the assembly does not see it.</remarks>
+    internal bool IsChangedByNormalization { get; }
 }

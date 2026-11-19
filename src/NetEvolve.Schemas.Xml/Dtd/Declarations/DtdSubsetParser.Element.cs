@@ -17,11 +17,11 @@ internal sealed partial class DtdSubsetParser
         DtdElementDeclaration declaration;
         if (Match("EMPTY"))
         {
-            declaration = new DtdElementDeclaration(name, DtdContentKind.Empty, null);
+            declaration = new DtdElementDeclaration(name, DtdContentKind.Empty, null, _inExternal);
         }
         else if (Match("ANY"))
         {
-            declaration = new DtdElementDeclaration(name, DtdContentKind.Any, null);
+            declaration = new DtdElementDeclaration(name, DtdContentKind.Any, null, _inExternal);
         }
         else if (Current('('))
         {
@@ -30,7 +30,7 @@ internal sealed partial class DtdSubsetParser
                 return false;
             }
 
-            declaration = new DtdElementDeclaration(name, kind, content);
+            declaration = new DtdElementDeclaration(name, kind, content, _inExternal);
         }
         else
         {
