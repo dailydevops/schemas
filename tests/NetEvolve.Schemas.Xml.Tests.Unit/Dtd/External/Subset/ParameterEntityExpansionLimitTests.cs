@@ -81,11 +81,11 @@ public class ParameterEntityExpansionLimitTests
     }
 
     [Test]
-    public async Task SelfReferencingEntityInsideADeclaration_RaisesTheDepthLimit()
+    public async Task SelfReferencingEntityInsideADeclaration_RaisesXml0020()
     {
         var (_, error) = SubsetHarness.ParseSubset("<!ENTITY % a \"&#37;a;\"><!ELEMENT x %a;>");
 
-        await Assert.That(error).IsSameReferenceAs(XmlErrorCodes.XML1110);
+        await Assert.That(error).IsSameReferenceAs(XmlErrorCodes.XML0020);
     }
 
     [Test]

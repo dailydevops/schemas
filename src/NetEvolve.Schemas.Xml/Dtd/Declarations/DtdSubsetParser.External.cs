@@ -25,6 +25,9 @@ internal sealed partial class DtdSubsetParser
         string? BaseUri,
         ExternalSubsetText? ChildOwner
     )> _frames = [];
+
+    // The parameter entities whose replacement text is open, outermost first (WFC No Recursion).
+    private readonly List<DtdEntityDeclaration> _open = [];
     private string? _baseUri;
     private int _depth;
     private int _frameBase;
@@ -63,6 +66,19 @@ internal sealed partial class DtdSubsetParser
             ExternalSubsetText? Source
         ) saved
     ) => (_text, _pos, _depth, _inExternal, _baseUri, _frameBase, _sectionDepth, _source) = saved;
+
+    private bool IsOpen(DtdEntityDeclaration entity)
+    {
+        for (var i = 0; i < _open.Count; i++)
+        {
+            if (ReferenceEquals(_open[i], entity))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     // Counts one element, attribute, entity, or notation declaration against the limit of the document (design #122, section 9).
     private bool CountDeclaration() => ++_declarations <= _maxDeclarations || Fail(DtdLimitCodes.XML1119);
@@ -125,6 +141,7 @@ internal sealed partial class DtdSubsetParser
         for (var i = _frames.Count - 1; i >= _frameBase; i--)
         {
             _frames[i].ChildOwner?.Dispose();
+            _open.RemoveAt(_open.Count - 1);
         }
 
         _frames.RemoveRange(_frameBase, _frames.Count - _frameBase);
@@ -140,6 +157,7 @@ internal sealed partial class DtdSubsetParser
 
         var frame = _frames[_frames.Count - 1];
         _frames.RemoveAt(_frames.Count - 1);
+        _open.RemoveAt(_open.Count - 1);
         (_text, _pos, _inExternal, _baseUri) = (frame.Text, frame.Position, frame.InExternal, frame.BaseUri);
         frame.ChildOwner?.Dispose();
 
@@ -202,12 +220,22 @@ internal sealed partial class DtdSubsetParser
             return true;
         }
 
+        if (IsOpen(entity))
+        {
+            return Fail(XmlErrorCodes.XML0020);
+        }
+
         if (Nesting + 1 > _limits.MaxEntityDepth)
         {
             return Fail(XmlErrorCodes.XML1110);
         }
 
-        // The entity closes when the frame returns to its parent; an error closes it with the sequence.
+        return PushFrame(entity);
+    }
+
+    // The entity closes when the frame returns to its parent; an error closes it with the sequence.
+    private bool PushFrame(DtdEntityDeclaration entity)
+    {
         ExternalSubsetText? owner = null;
         try
         {
@@ -233,6 +261,7 @@ internal sealed partial class DtdSubsetParser
             }
 
             _frames.Add((_text, _pos, _inExternal, _baseUri, owner));
+            _open.Add(entity);
             owner = null;
             (_text, _pos, _baseUri) = (text!, 0, baseUri);
 
@@ -263,12 +292,26 @@ internal sealed partial class DtdSubsetParser
             return true;
         }
 
+        if (IsOpen(entity))
+        {
+            return Fail(XmlErrorCodes.XML0020);
+        }
+
         var inner = level + 1;
         if (Nesting + inner > _limits.MaxEntityDepth)
         {
             return Fail(XmlErrorCodes.XML1110);
         }
 
+        _open.Add(entity);
+        var ok = IncludeEntityText(builder, entity, inner);
+        _open.RemoveAt(_open.Count - 1);
+
+        return ok;
+    }
+
+    private bool IncludeEntityText(StringBuilder builder, DtdEntityDeclaration entity, int inner)
+    {
         if (entity.Value is not null)
         {
             return Charge(entity.Value.Length)
