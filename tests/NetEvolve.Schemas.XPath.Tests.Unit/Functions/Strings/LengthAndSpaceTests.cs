@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.XPath.Tests.Unit.Functions.Strings;
 
 using System.Threading.Tasks;
+using NetEvolve.Schemas.XPath.Tests.Unit.Functions.Sequences;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 using static NetEvolve.Schemas.XPath.Tests.Unit.Functions.Strings.StringsHarness;
 
@@ -28,6 +29,15 @@ public class LengthAndSpaceTests
             .That(TextWithContextItem(XdmItem.FromString("a\U0001F600"), "string-length"))
             .IsEqualTo("integer:2");
         await Assert.That(TextWithContextItem(XdmItem.FromInteger(12345), "string-length")).IsEqualTo("integer:5");
+    }
+
+    [Test]
+    public async Task ContextItemFunctions_WithANodeAsTheContextItem_UseItsStringValue()
+    {
+        var node = SequencesHarness.ParseItem("node:d1");
+
+        await Assert.That(TextWithContextItem(node, "string-length")).IsEqualTo("integer:3");
+        await Assert.That(TextWithContextItem(node, "normalize-space")).IsEqualTo("hit");
     }
 
     [Test]
