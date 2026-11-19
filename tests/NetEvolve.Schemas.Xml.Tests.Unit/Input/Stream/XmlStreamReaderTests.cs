@@ -255,6 +255,29 @@ public class XmlStreamReaderTests
     }
 
     [Test]
+    public async Task ReadAsync_InternalEntityReferences_ExpandLikeTheSpanPath(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        // #690: the stream path builds its parser with the entity input stack, so references to internal entities expand.
+        var options = XmlReaderOptions.Default.WithDtdProcessing(true);
+        var bytes = Utf8(
+            "<!DOCTYPE a [<!ENTITY e \"x&amp;<b/>é\"><!ENTITY v \"1\"><!ELEMENT a (#PCDATA)>]><a x=\"&v;\">&e;<![CDATA[z]]></a>"
+        );
+        var expected = StreamRuns.Span(bytes, options);
+
+        await Assert.That(expected.Status).IsEqualTo(XmlReadStatus.Completed);
+
+        foreach (var bufferSize in AllBufferSizes)
+        {
+            var run = await StreamRuns.StreamAsync(bytes, _ => 2, bufferSize, options, cancellationToken);
+
+            await Assert.That(run.Status).IsEqualTo(XmlReadStatus.Completed);
+            await Assert.That(run).IsEqualTo(expected);
+        }
+    }
+
+    [Test]
     public async Task ReadAsync_StructSink_KeepsItsStateAcrossAwaits(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
