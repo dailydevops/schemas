@@ -75,12 +75,27 @@ public class RegistrationTests
     [Test]
     public async Task DefaultCatalog_DoesNotRegisterTheFunctionsOfOtherWorkPackages()
     {
-        // matches, replace, and tokenize: XP-24; compare and codepoint-equal: XP-25; encode-for-uri, iri-to-uri, escape-html-uri: XP-28 and DEF-84.
-        foreach (
-            var local in new[] { "matches", "replace", "tokenize", "compare", "codepoint-equal", "encode-for-uri" }
-        )
+        // matches, replace, and tokenize: XP-24; compare and codepoint-equal: XP-25; encode-for-uri and iri-to-uri: XP-28; escape-html-uri: DEF-84.
+        string[] names =
+        [
+            "matches",
+            "replace",
+            "tokenize",
+            "compare",
+            "codepoint-equal",
+            "encode-for-uri",
+            "iri-to-uri",
+            "escape-html-uri",
+        ];
+        foreach (var local in names)
         {
-            await Assert.That(SequencesHarness.TryResolve(local, 2, out _)).IsFalse().Because(local);
+            for (var arity = 0; arity <= 4; arity++)
+            {
+                await Assert
+                    .That(SequencesHarness.TryResolve(local, arity, out _))
+                    .IsFalse()
+                    .Because($"{local}#{arity}");
+            }
         }
     }
 }
