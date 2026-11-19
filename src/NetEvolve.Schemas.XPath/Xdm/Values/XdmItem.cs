@@ -64,6 +64,18 @@ public readonly struct XdmItem : IEquatable<XdmItem>
             ? FromInteger((long)value)
             : new(XdmItemKind.XsDecimal, XdmTypeId.XsInteger, 0, new XsdDecimal(value, 0));
 
+    /// <summary>Gives an <c>xs:integer</c> or <c>xs:string</c> item the type annotation of a type derived from it.</summary>
+    /// <param name="type">The type; the caller guarantees that the value belongs to it.</param>
+    /// <returns>The item with the same value and the annotation <paramref name="type"/>.</returns>
+    /// <remarks>Only the integer and string families have derived types in the data model, so the kinds and the value are kept as they are.</remarks>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="type"/> is <see langword="default"/>.</exception>
+    internal XdmItem WithTypeId(XdmTypeId type)
+    {
+        Argument.ThrowIfLessThan(type.Value, 1);
+
+        return new(Kind, type, _bits, _reference);
+    }
+
     /// <summary>Creates a double item.</summary>
     /// <param name="value">The value.</param>
     /// <returns>The item.</returns>
@@ -235,7 +247,7 @@ public readonly struct XdmItem : IEquatable<XdmItem>
             return true;
         }
 
-        if (Kind == XdmItemKind.XsDecimal && TypeId == XdmTypeId.XsInteger)
+        if (Kind == XdmItemKind.XsDecimal && XdmTypes.IsDerivedFrom(TypeId, XdmTypeId.XsInteger))
         {
             // The value was built from an integer, so the conversion cannot fail.
             value = DecimalArithmetic.ToBigInteger((XsdDecimal)_reference!).Value;

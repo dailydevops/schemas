@@ -186,10 +186,8 @@ internal static class NumericRounding
         return DecimalArithmetic.ToBigInteger(rounded).Value;
     }
 
-    // An integer, inline or beyond 64 bits (an item of the decimal family that carries the xs:integer type).
-    private static bool IsInteger(in XdmItem item) =>
-        item.Kind == XdmItemKind.XsInteger
-        || (item.Kind == XdmItemKind.XsDecimal && item.TypeId == XdmTypeId.XsInteger);
+    // An integer or a type derived from it, inline or beyond 64 bits (an item of the decimal family that carries the type).
+    private static bool IsInteger(in XdmItem item) => item.TryGetBigInteger(out _);
 
     private static XsdDecimal Quantize(XsdDecimal number, int digits)
     {
