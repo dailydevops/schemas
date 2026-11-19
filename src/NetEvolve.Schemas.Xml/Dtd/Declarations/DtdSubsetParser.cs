@@ -3,6 +3,7 @@ namespace NetEvolve.Schemas.Xml.Dtd.Declarations;
 using System;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Contracts;
+using NetEvolve.Schemas.Xml.Dtd.Contracts;
 using NetEvolve.Schemas.Xml.Dtd.External.Subset;
 using NetEvolve.Schemas.Xml.Dtd.Model;
 
@@ -20,7 +21,8 @@ using NetEvolve.Schemas.Xml.Dtd.Model;
 /// literal; the nesting validity constraints of parameter entities and conditional sections (Proper Declaration/PE Nesting,
 /// Proper Group/PE Nesting, Proper Conditional Section/PE Nesting) are not reported (XML-67, #608); a self-referencing
 /// internal parameter entity ends in the depth limit <c>XML1110</c>, not <c>XML0020</c>; an IGNORE section must end in the
-/// text that opened it; the first declaration of an element, attribute, entity, or notation binds, so the declarations of
+/// text that opened it; the number of declarations is bounded by <c>MaxDeclarations</c> (<c>XML1119</c>), counted over both
+/// subsets and every parsed replacement text; the first declaration of an element, attribute, entity, or notation binds, so the declarations of
 /// the internal subset win over the external ones, and later ones are ignored without a report; an error is reported at the
 /// document type declaration, not at the offending offset; a public or system identifier that is present but empty reads
 /// as absent.
@@ -32,7 +34,9 @@ internal sealed partial class DtdSubsetParser
     private readonly ExternalSubsetReader? _external;
     private string _text = string.Empty;
     private int _pos;
+    private readonly int _maxDeclarations;
     private long _expanded;
+    private int _declarations;
     private XmlErrorCode? _error;
 
     private DtdSubsetParser(DtdDeclarationBuilder builder, XmlReaderLimits limits, ExternalSubsetReader? external)
@@ -40,6 +44,7 @@ internal sealed partial class DtdSubsetParser
         _builder = builder;
         _limits = limits;
         _external = external;
+        _maxDeclarations = external?.MaxDeclarations ?? DtdValidationLimits.Default.MaxDeclarations;
     }
 
     /// <summary>Parses the internal subset of a document type declaration.</summary>
@@ -111,7 +116,7 @@ internal sealed partial class DtdSubsetParser
         _sectionDepth = 0;
         var ok = ParseDeclarations() && _error is null && (_sectionDepth == 0 || Fail(XmlErrorCodes.XML0011));
         CloseFrames();
-        RestoreContext(in saved);
+        RestoreContext(saved);
 
         return ok;
     }

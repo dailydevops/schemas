@@ -66,6 +66,11 @@ internal sealed partial class DtdSubsetParser
             }
         }
 
+        if (!CountDeclaration())
+        {
+            return false;
+        }
+
         _builder.AddAttribute(element, new DtdAttributeDefinition(name, type, values, kind, value));
         return true;
     }

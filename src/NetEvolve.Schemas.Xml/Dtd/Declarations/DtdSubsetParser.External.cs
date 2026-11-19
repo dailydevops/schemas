@@ -2,10 +2,10 @@ namespace NetEvolve.Schemas.Xml.Dtd.Declarations;
 
 using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using System.Text;
 using NetEvolve.Schemas.Resources;
 using NetEvolve.Schemas.Xml.Contracts;
+using NetEvolve.Schemas.Xml.Dtd.Contracts;
 using NetEvolve.Schemas.Xml.Dtd.External.Subset;
 using NetEvolve.Schemas.Xml.Dtd.Model;
 using NetEvolve.Schemas.Xml.Text.CharClasses;
@@ -16,25 +16,25 @@ using NetEvolve.Schemas.Xml.Text.CharClasses;
 // (section 3.4).
 internal sealed partial class DtdSubsetParser
 {
-    // The frames of the parameter entities that are included inside a declaration; each one holds the text to return to.
-    private readonly List<TextFrame> _frames = [];
+    // The frames of the parameter entities that are included inside a declaration; each one holds the text to return to and
+    // the entity that was read for the included text, which closes when the frame returns.
+    private readonly List<(
+        string Text,
+        int Position,
+        bool InExternal,
+        string? BaseUri,
+        ExternalSubsetText? ChildOwner
+    )> _frames = [];
     private string? _baseUri;
     private int _depth;
     private int _frameBase;
     private int _sectionDepth;
     private bool _inExternal;
 
-    [StructLayout(LayoutKind.Auto)]
-    private readonly record struct TextFrame(
-        string Text,
-        int Position,
-        bool InExternal,
-        string? BaseUri,
-        ExternalSubsetText? ChildOwner
-    );
+    // The number of texts that are open around the current position: the sequences and the frames of this sequence.
+    private int Nesting => _depth + _frames.Count - _frameBase;
 
-    [StructLayout(LayoutKind.Auto)]
-    private readonly record struct Context(
+    private (
         string Text,
         int Position,
         int Depth,
@@ -42,23 +42,14 @@ internal sealed partial class DtdSubsetParser
         string? BaseUri,
         int FrameBase,
         int SectionDepth
-    );
+    ) SaveContext() => (_text, _pos, _depth, _inExternal, _baseUri, _frameBase, _sectionDepth);
 
-    // The number of texts that are open around the current position: the sequences and the frames of this sequence.
-    private int Nesting => _depth + _frames.Count - _frameBase;
+    private void RestoreContext(
+        (string Text, int Position, int Depth, bool InExternal, string? BaseUri, int FrameBase, int SectionDepth) saved
+    ) => (_text, _pos, _depth, _inExternal, _baseUri, _frameBase, _sectionDepth) = saved;
 
-    private Context SaveContext() => new(_text, _pos, _depth, _inExternal, _baseUri, _frameBase, _sectionDepth);
-
-    private void RestoreContext(in Context saved) =>
-        (_text, _pos, _depth, _inExternal, _baseUri, _frameBase, _sectionDepth) = (
-            saved.Text,
-            saved.Position,
-            saved.Depth,
-            saved.InExternal,
-            saved.BaseUri,
-            saved.FrameBase,
-            saved.SectionDepth
-        );
+    // Counts one element, attribute, entity, or notation declaration against the limit of the document (design #122, section 9).
+    private bool CountDeclaration() => ++_declarations <= _maxDeclarations || Fail(DtdLimitCodes.XML1119);
 
     // Charges the characters of an internal replacement text to the one budget of the document.
     private bool Charge(int count)
@@ -221,7 +212,7 @@ internal sealed partial class DtdSubsetParser
                 return Fail(XmlErrorCodes.XML1109);
             }
 
-            _frames.Add(new TextFrame(_text, _pos, _inExternal, _baseUri, owner));
+            _frames.Add((_text, _pos, _inExternal, _baseUri, owner));
             owner = null;
             (_text, _pos, _baseUri) = (text, 0, baseUri);
 

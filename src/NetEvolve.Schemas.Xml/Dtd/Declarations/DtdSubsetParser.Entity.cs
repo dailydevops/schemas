@@ -32,7 +32,7 @@ internal sealed partial class DtdSubsetParser
             return false;
         }
 
-        if (!ExpectClose())
+        if (!ExpectClose() || !CountDeclaration())
         {
             return false;
         }
@@ -90,6 +90,7 @@ internal sealed partial class DtdSubsetParser
             || !RequireSpace()
             || !ScanExternalId(true, out var publicId, out var systemId)
             || !ExpectClose()
+            || !CountDeclaration()
         )
         {
             return false;

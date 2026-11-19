@@ -26,6 +26,7 @@ internal sealed class ExternalSubsetReader
     private const int InitialCapacity = 4096;
 
     private readonly ExternalEntityLoader _loader;
+    private readonly int _maxDeclarations;
 
     /// <summary>Initializes a new instance of the <see cref="ExternalSubsetReader"/> class.</summary>
     /// <param name="options">The options: the resolver, the flags, and the limits of DTD validation.</param>
@@ -36,7 +37,11 @@ internal sealed class ExternalSubsetReader
         Argument.ThrowIfNull(limits);
 
         _loader = new ExternalEntityLoader(options, limits);
+        _maxDeclarations = options.DtdLimits.MaxDeclarations;
     }
+
+    /// <summary>Gets the most declarations a document may hold (<c>MaxDeclarations</c>, <c>XML1119</c>).</summary>
+    internal int MaxDeclarations => _maxDeclarations;
 
     /// <summary>Requests an external subset or an external parameter entity and reads it completely.</summary>
     /// <param name="kind">The kind: an external subset or an external parameter entity.</param>

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using NetEvolve.Schemas.Xml.Contracts;
 
 /// <summary>The declarations of one document type declaration; the first declaration of an element, attribute, entity, or notation binds.</summary>
-/// <remarks>Limitation: only the internal subset is read; the external subset is XML-20.</remarks>
+/// <remarks>Limitation: the declarations of the external subset and of the external parameter entities join the model only when the reader has external access enabled (XML-20); otherwise only the internal subset is read.</remarks>
 internal sealed class DtdDeclarations : IDtdDeclarations
 {
     internal DtdDeclarations(
@@ -39,7 +39,7 @@ internal sealed class DtdDeclarations : IDtdDeclarations
     /// <summary>Gets the system identifier, <see langword="null"/> when absent.</summary>
     public string? SystemId { get; }
 
-    /// <summary>Gets a value indicating whether the declaration names an external subset (not read here).</summary>
+    /// <summary>Gets a value indicating whether the declaration names an external subset (read only when the reader has external access enabled).</summary>
     public bool HasExternalSubset => SystemId is not null;
 
     /// <summary>Gets a value indicating whether the internal subset contains a parameter-entity reference (section 4.1, WFC Entity Declared).</summary>
