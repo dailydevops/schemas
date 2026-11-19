@@ -150,7 +150,7 @@ public class XmlParserProductionTests
     // Character and syntax errors.
     [Arguments("<a>\u0001</a>", "XML0002")]
     [Arguments("<a>\uD800</a>", "XML0002")]
-    [Arguments("<a><!--￾--></a>", "XML0002")]
+    [Arguments("<a><!--\uFFFE--></a>", "XML0002")]
     [Arguments("<a><?t \u0000?></a>", "XML0002")]
     [Arguments("<?xml?><a/>", "XML0003")]
     [Arguments("<a>]]></a>", "XML0004")]

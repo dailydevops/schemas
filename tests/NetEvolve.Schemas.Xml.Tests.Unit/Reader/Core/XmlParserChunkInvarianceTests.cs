@@ -42,7 +42,7 @@ public class XmlParserChunkInvarianceTests
         '\uD800',
         '\uDC00',
         '\u0001',
-        '￾',
+        '\uFFFE',
         'x',
         ':',
         '#',
@@ -64,7 +64,7 @@ public class XmlParserChunkInvarianceTests
         yield return () => "<a b=\"x\u0001y\"/>";
         yield return () => "<a>x\uD800y</a>";
         yield return () => "<a>\uDC00</a>";
-        yield return () => "<a>a￾b</a>";
+        yield return () => "<a>a\uFFFEb</a>";
 
         // Text outside the root element: the error is at the first character that is not white space.
         yield return () => "<?xml version=\"1.0\"?>\r\n x<a/>";

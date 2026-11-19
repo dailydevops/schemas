@@ -165,4 +165,31 @@ public class ParameterEntityInDeclarationTests
 
         await Assert.That(error).IsSameReferenceAs(XmlErrorCodes.XML0020);
     }
+
+    [Test]
+    [Arguments("<!ENTITY % s \"|b\"><!ELEMENT x (a %s; %s;)>")]
+    [Arguments("<!ENTITY % n \"x\"><!ENTITY % k \"EMPTY\"><!ELEMENT %n; %k;><!ELEMENT y (%n;|%n;)>")]
+    [Arguments("<!ENTITY % t \"CDATA\"><!ATTLIST e a %t; #IMPLIED b %t; #IMPLIED>")]
+    public async Task RepeatedReferenceInsideADeclaration_IsNotRecursion(string subset)
+    {
+        ArgumentNullException.ThrowIfNull(subset);
+        var (_, error) = SubsetHarness.ParseSubset(subset);
+
+        await Assert.That(error).IsNull();
+    }
+
+    [Test]
+    [Arguments("<!ENTITY % a \"x\"><!ENTITY g \"%a;%a;\">", "GE:g=\"xx\"|PE:a=\"x\"")]
+    [Arguments(
+        "<!ENTITY % a \"x\"><!ENTITY % b \"%a;\"><!ENTITY % c \"%a;%b;\"><!ENTITY g \"%c;%a;\">",
+        "GE:g=\"xxx\"|PE:a=\"x\"|PE:b=\"x\"|PE:c=\"xx\""
+    )]
+    public async Task RepeatedReferenceInsideAnEntityValue_IsNotRecursion(string subset, string expected)
+    {
+        ArgumentNullException.ThrowIfNull(subset);
+        var (model, error) = SubsetHarness.ParseSubset(subset);
+
+        await Assert.That(error).IsNull();
+        await Assert.That(model).IsEqualTo(expected);
+    }
 }

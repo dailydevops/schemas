@@ -167,13 +167,13 @@ public class ExternalSubsetStreamingTests
     // A character that is not an XML Char is valid in the encoding, so it is XML0002 and not a decoding error (#712); the
     // declaration parser does not check the characters of a comment, an instruction, or a literal, so the decoder does.
     [Test]
-    [Arguments("<!ELEMENT a EMPTY>", 1)]
-    [Arguments("<!ELEMENT a EMPTY>", 3)]
-    [Arguments("<!-- c -->", 1)]
-    [Arguments("<?p c?>", 3)]
-    [Arguments("<!ENTITY e 'ab'>", 1)]
-    [Arguments("<!ELEMENT a EMPTY>", 3)]
-    [Arguments("<!ELEMENT a EMPTY> ￾ ", 1)]
+    [Arguments("<!ELEMENT a EMPTY>\u0001", 1)]
+    [Arguments("<!ELEMENT a EMPTY>\u0001", 3)]
+    [Arguments("<!-- c\u0001 -->", 1)]
+    [Arguments("<?p c\u0001?>", 3)]
+    [Arguments("<!ENTITY e 'a\u0001b'>", 1)]
+    [Arguments("<!ELEMENT a\u0001 EMPTY>", 3)]
+    [Arguments("<!ELEMENT a EMPTY> \uFFFE ", 1)]
     public async Task NonXmlCharacter_IsXml0002_NotAcceptedAndNotADecodingError(string text, int maxRead)
     {
         var (_, error) = Parse(
