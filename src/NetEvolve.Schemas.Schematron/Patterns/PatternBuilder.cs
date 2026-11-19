@@ -3,6 +3,7 @@ namespace NetEvolve.Schemas.Schematron.Patterns;
 using System;
 using System.Collections.Generic;
 using NetEvolve.Schemas.Schematron.Seams;
+using NetEvolve.Schemas.Schematron.Xslt.Instructions.Flow;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Errors;
@@ -19,6 +20,9 @@ internal sealed class PatternBuilder(
 )
 {
     private const string UnsupportedRule = "node-test";
+
+    // The slots the predicates of every alternative read, for CompiledPattern.ReferencedSlots.
+    private readonly SlotSet _slots = new();
 
     internal bool TryBuild(Expression tree, out PatternPlan plan, out SchematronProblem problem)
     {
@@ -52,7 +56,7 @@ internal sealed class PatternBuilder(
             return false;
         }
 
-        plan = new PatternPlan(kinds, anyName ? [] : names.ToArray(), alternatives, priorities);
+        plan = new PatternPlan(kinds, anyName ? [] : names.ToArray(), alternatives, priorities, _slots.ToArray());
         problem = default;
         return true;
     }
@@ -159,6 +163,7 @@ internal sealed class PatternBuilder(
             }
 
             predicates[i] = compiled;
+            _ = _slots.Add(compiled);
         }
 
         patternStep = new PatternStep(

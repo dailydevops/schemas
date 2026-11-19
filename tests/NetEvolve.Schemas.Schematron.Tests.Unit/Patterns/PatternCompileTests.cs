@@ -1,8 +1,10 @@
 namespace NetEvolve.Schemas.Schematron.Tests.Unit.Patterns;
 
 using System.Globalization;
+using NetEvolve.Schemas.Schematron.Model;
 using NetEvolve.Schemas.Schematron.Patterns;
 using NetEvolve.Schemas.Schematron.Seams;
+using NetEvolve.Schemas.Schematron.Tests.Unit.Fakes;
 using static PatternFixture;
 
 public class PatternCompileTests
@@ -120,4 +122,40 @@ public class PatternCompileTests
         await Assert.That(problem.Code).IsEqualTo(SchematronDiagnosticCodes.ExpressionInvalid);
         await Assert.That(problem.Constraint).IsEqualTo("XPST0081");
     }
+
+    private static string Slots(string pattern, params string[] variables)
+    {
+        var scope = new QueryStaticScope(
+            [new SchematronNamespace(FakeModel.Origin, "p", "urn:p")],
+            variables,
+            null,
+            SchematronEdition.Iso2016
+        );
+        var matcher = new PatternMatcher(new PatternTestBinding());
+        var compiled = Compile(matcher, pattern, scope);
+        var rendered = new List<string>();
+        foreach (var slot in compiled.ReferencedSlots)
+        {
+            rendered.Add(slot.ToString(CultureInfo.InvariantCulture));
+        }
+
+        return string.Join(";", rendered);
+    }
+
+    // Design #150 AP-19: the slots the predicates of all alternatives read, each once, so the evaluator binds them before the match.
+    [Test]
+    [Arguments("a[@x = $v]", "0")]
+    [Arguments("a[@x = $w]", "1")]
+    [Arguments("a/b[@k = $w]", "1")]
+    [Arguments("a[@x = $v][@y = $v]", "0")]
+    [Arguments("a[@x = $w][@y = $v]", "0;1")]
+    [Arguments("a[@x = $v]|b[@y = $w]|c", "0;1")]
+    [Arguments("a[@x = $v]|b[@y = $v]", "0")]
+    [Arguments("a[@x = $v]/b[@y = $w]", "0;1")]
+    [Arguments("a[@x]", "")]
+    [Arguments("a|b", "")]
+    public async Task ReferencedSlots_PredicatesReadVariables_AreTheUnionOfTheSlotsOfAllAlternatives(
+        string pattern,
+        string expected
+    ) => await Assert.That(Slots(pattern, "v", "w")).IsEqualTo(expected);
 }
