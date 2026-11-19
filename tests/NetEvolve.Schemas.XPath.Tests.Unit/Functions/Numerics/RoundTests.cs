@@ -139,6 +139,13 @@ public class RoundTests
     [Arguments("float:INF", "integer:1", "float:INF")]
     [Arguments("float:NaN", "integer:1", "float:NaN")]
     [Arguments("untypedAtomic:0.125", "integer:2", "double:0.12")]
+    // The examples of the specification, and the zero of a result that is zero: the sign of the original argument (6.4.5).
+    // A float is cast through its exact binary value: the float nearest to 150.015 is 150.0149993896..., which rounds down.
+    [Arguments("double:3567.812", "integer:2", "double:3567.81")]
+    [Arguments("double:0.0047564", "integer:2", "double:0")]
+    [Arguments("double:-0.0047564", "integer:2", "double:-0")]
+    [Arguments("decimal:35612.25", "integer:-2", "decimal:35600")]
+    [Arguments("float:150.015", "integer:2", "float:150.01")]
     [Arguments("decimal:1.125", "untypedAtomic:2", "decimal:1.12")]
     [Arguments("()", "integer:2", "")]
     public async Task RoundHalfToEven_WithAPrecision_RoundsToThatManyFractionDigits(
