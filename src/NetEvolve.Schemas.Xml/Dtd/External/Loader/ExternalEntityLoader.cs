@@ -119,12 +119,19 @@ internal sealed class ExternalEntityLoader
     /// <summary>Charges decoded characters of a frame to the expansion budget.</summary>
     /// <param name="count">The number of characters.</param>
     /// <returns><see langword="false"/> when the budget is exceeded; <c>XML1109</c> is then the error to report.</returns>
-    internal bool TryChargeExpansion(int count) => _expansion.TryCharge(count);
+    internal bool TryChargeExpansion(int count)
+    {
+        Argument.ThrowIfLessThan(count, 0);
+
+        return _expansion.TryCharge(count);
+    }
 
     /// <summary>Closes a frame: it no longer takes part in the recursion check and gives its depth back; repeated calls do nothing.</summary>
     /// <param name="frame">The frame.</param>
     internal void Leave(ExternalEntityFrame frame)
     {
+        Argument.ThrowIfNull(frame);
+
         if (_active.Remove(frame))
         {
             _depth.Release(1);
