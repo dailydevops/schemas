@@ -15,6 +15,7 @@ internal sealed class DtdDeclarationBuilder
     private readonly Dictionary<string, DtdEntityDeclaration> _general = new(StringComparer.Ordinal);
     private readonly Dictionary<string, DtdEntityDeclaration> _parameter = new(StringComparer.Ordinal);
     private readonly Dictionary<string, XmlNotation> _notations = new(StringComparer.Ordinal);
+    private List<string>? _duplicateNotations;
 
     internal DtdDeclarationBuilder(string name, string? publicId, string? systemId)
     {
@@ -63,7 +64,18 @@ internal sealed class DtdDeclarationBuilder
 
     /// <summary>Adds a notation unless it is already declared.</summary>
     /// <param name="notation">The notation.</param>
-    internal void AddNotation(XmlNotation notation) => AddFirst(_notations, notation.Name, notation);
+    internal void AddNotation(XmlNotation notation)
+    {
+        if (!_notations.TryGetValue(notation.Name, out _))
+        {
+            _notations.Add(notation.Name, notation);
+        }
+        else
+        {
+            // Unique Notation Name (section 4.7) is decided from this record; it stays null for a document without a repeat.
+            (_duplicateNotations ??= []).Add(notation.Name);
+        }
+    }
 
     // Dictionary.TryAdd does not exist on netstandard2.0.
     private static void AddFirst<T>(Dictionary<string, T> map, string key, T value)
@@ -103,7 +115,8 @@ internal sealed class DtdDeclarationBuilder
             lists,
             _general,
             _parameter,
-            _notations
+            _notations,
+            _duplicateNotations
         );
     }
 }
