@@ -5,12 +5,16 @@ internal sealed class PublicApiHarnessTests
     [Test]
     public async Task LibraryTargetFramework_NamesTheBuildTheLegLoads()
     {
-        var expected = Environment.Version.Major switch
-        {
-            8 => "netstandard2.0",
-            9 => "netstandard2.1",
-            var major => $"net{major}.0",
-        };
+        // Compile-time symbols: each leg loads the library build of its own target framework (#697).
+#if NET11_0
+        const string expected = "net11.0";
+#elif NET10_0
+        const string expected = "net10.0";
+#elif NET9_0
+        const string expected = "net9.0";
+#elif NET8_0
+        const string expected = "net8.0";
+#endif
 
         await Assert.That(PublicApiHarness.LibraryTargetFramework).IsEqualTo(expected);
     }

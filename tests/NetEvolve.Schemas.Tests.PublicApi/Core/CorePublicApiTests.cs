@@ -13,6 +13,8 @@ internal sealed class CorePublicApiTests
     [
         "netstandard2.0",
         "netstandard2.1",
+        "net8.0",
+        "net9.0",
         "net10.0",
         "net11.0",
     ];
@@ -32,6 +34,8 @@ internal sealed class CorePublicApiTests
     [Test]
     [Arguments("netstandard2.0")]
     [Arguments("netstandard2.1")]
+    [Arguments("net8.0")]
+    [Arguments("net9.0")]
     [Arguments("net11.0")]
     public async Task VerifiedFile_IsLineForLineIdenticalToNet10(
         string targetFramework,
