@@ -37,7 +37,7 @@ internal sealed partial class DtdSubsetParser
             return FailHere();
         }
 
-        if (!ExpectClose())
+        if (!ExpectClose() || !CountDeclaration())
         {
             return false;
         }

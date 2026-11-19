@@ -1,14 +1,3 @@
 oasis/o-p04pass1
 oasis/o-p05pass1
 oasis/o-p08pass1
-oasis/o-p09fail1
-oasis/o-p09fail2
-oasis/o-p30fail1
-oasis/o-p31fail1
-oasis/o-p61fail1
-oasis/o-p62fail1
-oasis/o-p62fail2
-oasis/o-p63fail1
-oasis/o-p63fail2
-oasis/o-p64fail1
-oasis/o-p64fail2

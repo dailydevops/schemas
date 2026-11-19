@@ -22,7 +22,8 @@ internal sealed partial class DtdSubsetParser
     private bool FailHere() =>
         Fail(_pos < _text.Length && _text[_pos] == '%' ? XmlErrorCodes.XML0019 : XmlErrorCodes.XML0011);
 
-    private bool SkipSpaces()
+    // White space only.
+    private bool SkipPlainSpaces()
     {
         var start = _pos;
         while (_pos < _text.Length && IsSpace(_text[_pos]))
@@ -31,6 +32,15 @@ internal sealed partial class DtdSubsetParser
         }
 
         return _pos > start;
+    }
+
+    // White space inside a declaration; in external text a parameter-entity reference is included with the white space
+    // that surrounds its replacement text (section 4.4.8), and the end of an included text counts as white space.
+    private bool SkipSpaces()
+    {
+        var any = SkipPlainSpaces();
+
+        return _inExternal ? SkipIncludedSpaces(any) : any;
     }
 
     private bool RequireSpace() => SkipSpaces() || FailHere();
@@ -207,17 +217,10 @@ internal sealed partial class DtdSubsetParser
         }
 
         publicId = pub;
-        var afterPublic = _pos;
         if (!SkipSpaces() || _pos >= _text.Length || _text[_pos] is not ('"' or '\''))
         {
-            // A notation may carry only the public identifier (production 83).
-            if (publicOnly)
-            {
-                _pos = afterPublic;
-                return true;
-            }
-
-            return FailHere();
+            // A notation may carry only the public identifier (production 83); the declaration ends after optional white space.
+            return publicOnly || FailHere();
         }
 
         if (!ScanQuoted(out var sys))
@@ -314,7 +317,7 @@ internal sealed partial class DtdSubsetParser
     }
 
     // Production 9: the replacement text has character references expanded; a parameter-entity reference is not allowed in the
-    // internal subset and general-entity references are bypassed.
+    // internal subset, in external text it is included, and general-entity references are bypassed.
     private bool ScanEntityValue(out string value)
     {
         if (!ScanQuoted(out var literal))
@@ -325,19 +328,41 @@ internal sealed partial class DtdSubsetParser
 
         var raw = NormalizeLineEnds(literal);
         value = raw;
-        var special = raw.IndexOfAny(ReferenceStarts);
-        if (special < 0)
+        if (raw.IndexOfAny(ReferenceStarts) < 0)
         {
             return true;
         }
 
         var builder = new StringBuilder(raw.Length);
+        if (!AppendEntityValue(builder, raw, 0))
+        {
+            return false;
+        }
+
+        value = builder.ToString();
+        return true;
+    }
+
+    // Appends `raw` to the replacement text; `level` counts the parameter entities that are included at this point.
+    private bool AppendEntityValue(StringBuilder builder, string raw, int level)
+    {
         var i = 0;
         while (i < raw.Length)
         {
             if (raw[i] == '%')
             {
-                return Fail(XmlErrorCodes.XML0019);
+                if (!_inExternal)
+                {
+                    return Fail(XmlErrorCodes.XML0019);
+                }
+
+                if (!IncludeParameterEntity(builder, raw, i, level, out var included))
+                {
+                    return false;
+                }
+
+                i = included;
+                continue;
             }
 
             if (raw[i] != '&')
@@ -355,7 +380,6 @@ internal sealed partial class DtdSubsetParser
             i = next;
         }
 
-        value = builder.ToString();
         return true;
     }
 

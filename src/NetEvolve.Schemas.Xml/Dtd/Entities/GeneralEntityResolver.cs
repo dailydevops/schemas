@@ -10,10 +10,13 @@ using NetEvolve.Schemas.Xml.Text.NameTable;
 /// XML 1.0 (Fifth Edition) sections 4.1 and 4.4: Entity Declared, Parsed Entity, and No External Entity References.
 /// </summary>
 /// <remarks>
-/// Limitations: only the internal subset is known, so an undeclared entity is a well-formedness error exactly when
-/// section 4.1 says no other declaration can exist (no DTD, <c>standalone="yes"</c>, or an internal subset without a
-/// parameter-entity reference and without an external subset); otherwise the reference is skipped and the validity
-/// constraint Entity Declared is left to the validation steps (the skipped reference raises no event yet, #647).
+/// An undeclared entity is a well-formedness error exactly when section 4.1 says no other declaration can exist (no DTD,
+/// <c>standalone="yes"</c>, or an internal subset without a parameter-entity reference and without an external subset);
+/// with <c>standalone="yes"</c> an entity that is declared in the external subset or in an external parameter entity does
+/// not count as declared. Otherwise the reference is skipped and the validity constraint Entity Declared is left to the
+/// validation steps (the skipped reference raises no event yet, #647). Limitation: an entity that is declared in the
+/// replacement text of an internal parameter entity counts as declared with <c>standalone="yes"</c>, although section 4.1
+/// excludes parameter entities.
 /// The name lookup allocates once per document type declaration and nothing per reference.
 /// </remarks>
 internal sealed class GeneralEntityResolver
@@ -57,7 +60,11 @@ internal sealed class GeneralEntityResolver
     {
         entity = null;
         var key = _names?.Lookup(name);
-        if (key is null || !_declarations!.GeneralEntities.TryGetValue(key, out var declared))
+        if (
+            key is null
+            || !_declarations!.GeneralEntities.TryGetValue(key, out var declared)
+            || (standalone && declared.InExternalText)
+        )
         {
             return IsUndeclaredFatal(standalone) ? XmlErrorCodes.XML0008 : null;
         }
