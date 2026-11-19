@@ -1,8 +1,14 @@
 namespace NetEvolve.Schemas.Xsd.Tests.Unit.Validation.Ids;
 
+using System;
 using System.Collections.Generic;
+using NetEvolve.Schemas.Formats;
+using NetEvolve.Schemas.Xml.Contracts;
+using NetEvolve.Schemas.Xml.Reader.Pipeline;
 using NetEvolve.Schemas.Xsd.Contracts;
+using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.Tests.Unit.Validation.Core;
+using NetEvolve.Schemas.Xsd.Validation.Core;
 
 public class IdrefTests
 {
@@ -71,15 +77,39 @@ public class IdrefTests
     [Test]
     public async Task Idref_Dangling_IsReportedOnlyAfterTheDocumentEnded()
     {
-        var recorder = new RecordingListener();
-        var listener = IdFixture.Listener(new ScriptedAssessor());
-        var schema = IdFixture.Schema();
+        var collector = new ValidationIssueCollector(ValidationLimits.Default);
+        var probe = new CountProbe(collector);
+        var validator = new StreamingValidator(
+            IdFixture.Schema().Model(),
+            new ScriptedAssessor(),
+            new XsdIssueReporter(collector),
+            ValidationLimits.Default,
+            ValidationHarness.Source,
+            [IdFixture.Listener(new ScriptedAssessor()), probe]
+        );
 
-        var issues = ValidationHarness.Run(schema, "<r><e ref=\"x\"/><e id=\"a\"/></r>", null, listener, recorder);
+        using var reader = XmlPipelineReader.Create("<r><e ref=\"x\"/><e id=\"a\"/></r>".AsSpan());
+        var status = reader.Pump(ref validator);
 
-        // The issue comes from the end of the run, after the recorder saw the whole document.
-        await Assert.That(issues.Count).IsEqualTo(1);
-        await Assert.That(recorder.Events[recorder.Events.Count - 1]).IsEqualTo("endrun");
+        // The probe runs after the id listener at the end tag of the root, the last element event; nothing is reported yet.
+        await Assert.That(status).IsEqualTo(XmlReadStatus.Completed);
+        await Assert.That(probe.CountAtRootEnd).IsEqualTo(0);
+        await Assert.That(collector.ToResult().Issues.Count).IsEqualTo(1);
+    }
+
+    private sealed class CountProbe(ValidationIssueCollector collector) : ValidationListener
+    {
+        public int CountAtRootEnd { get; private set; } = -1;
+
+        public override ListenerInterest Interest => ListenerInterest.EndElement;
+
+        public override void EndElement(in ElementEndInfo info)
+        {
+            if (info.Ordinal == 1)
+            {
+                CountAtRootEnd = collector.ToResult().Issues.Count;
+            }
+        }
     }
 
     [Test]
