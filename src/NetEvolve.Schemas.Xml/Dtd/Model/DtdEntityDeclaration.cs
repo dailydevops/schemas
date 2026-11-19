@@ -42,4 +42,7 @@ public sealed class DtdEntityDeclaration
 
     /// <summary>Gets the base URI of the entity that contains the declaration; a relative <see cref="SystemId"/> resolves against it (XML 1.0 section 4.2.2). <see langword="null"/> when it is not known.</summary>
     internal string? BaseUri { get; }
+
+    /// <summary>Gets a value indicating whether the declaration stands in the external subset or in an external parameter entity; with <c>standalone="yes"</c> such an entity does not satisfy WFC Entity Declared (section 4.1).</summary>
+    internal bool InExternalText => throw new System.NotSupportedException();
 }
