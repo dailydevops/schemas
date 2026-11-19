@@ -177,6 +177,43 @@ public class XmlParserLimitChunkInvarianceTests
         }
     }
 
+    // Inside an attribute value the limit and the invalid character are ordered by position: the one that comes first is reported,
+    // and the invalid character wins a tie, as in text. This holds however the input is cut.
+    [Test]
+    [Arguments("<a x=\"abc\u0001d\"/>", "value", 2, "XML1112", 8)]
+    [Arguments("<a x=\"abc\u0001d\"/>", "value", 3, "XML0002", 9)]
+    [Arguments("<a x=\"abc\u0001d\"/>", "value", 5, "XML0002", 9)]
+    [Arguments("<a x=\"abc\u0001d\"/>", "tag", 8, "XML1113", 8)]
+    [Arguments("<a x=\"abc\u0001d\"/>", "tag", 10, "XML0002", 9)]
+    [Arguments("<a x=\"abc\u0001d\"/>", "document", 8, "XML1101", 8)]
+    [Arguments("<a x=\"abc\u0001d\"/>", "document", 10, "XML0002", 9)]
+    [Arguments("<a b=\"\u0001\"/>", "document", 4, "XML1101", 4)]
+    [Arguments("<a b=\"\u0001\"/>", "tag", 4, "XML1113", 4)]
+    [Arguments("<a b=\"\u0001\"/>", "document", 6, "XML0002", 6)]
+    [Arguments("<a b='\u0001'/>", "document", 4, "XML1101", 4)]
+    [Arguments("<a b=\u0001/>", "document", 4, "XML1101", 4)]
+    public async Task Pump_LimitAndInvalidCharacterInAnAttributeValue_ReportTheOneThatComesFirst(
+        string xml,
+        string limit,
+        int value,
+        string code,
+        int offset
+    )
+    {
+        ArgumentNullException.ThrowIfNull(xml);
+        ArgumentNullException.ThrowIfNull(limit);
+        var limits = With(limit, value);
+        foreach (var size in new[] { 0, 1, 2, 3, 5 })
+        {
+            var run = Run(xml, -1, size, false, limits);
+
+            await Assert.That(run.Status).IsEqualTo(XmlReadStatus.Error).Because($"chunks of {size}");
+            await Assert.That(run.Code?.Alias).IsEqualTo(code).Because($"chunks of {size}");
+            await Assert.That(run.ErrorPosition?.CharOffset).IsEqualTo((long)offset).Because($"chunks of {size}");
+            await Assert.That(run.Events).IsEqualTo("SD()").Because($"chunks of {size}");
+        }
+    }
+
     // The start tag limit counts from the opening bracket: neither a byte order mark nor the "]]>" that ends a CDATA section before
     // the tag is part of it, however the input is cut.
     [Test]

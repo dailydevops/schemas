@@ -110,13 +110,13 @@ internal sealed class XmlInputDecoderTests
 
     // A scalar value that is not a Char (production 2) is well-formed in the encoding; the parser reports it as XML0002 (#712).
     [Test]
-    [Arguments("61 01 62", "ab")] // UTF-8 control character
-    [Arguments("61 EF BF BE", "a￾")] // UTF-8 U+FFFE
-    [Arguments("EF BF BF", "￿")] // UTF-8 U+FFFF
-    [Arguments("FF FE FE FF", "￾")] // UTF-16 little endian U+FFFE
-    [Arguments("FE FF 00 01", "")] // UTF-16 big endian control character
-    [Arguments("00 00 FE FF 00 00 00 01", "")] // UCS-4 control character
-    [Arguments("00 00 FE FF 00 00 FF FF", "￿")] // UCS-4 U+FFFF
+    [Arguments("61 01 62", "a\u0001b")] // UTF-8 control character
+    [Arguments("61 EF BF BE", "a\uFFFE")] // UTF-8 U+FFFE
+    [Arguments("EF BF BF", "\uFFFF")] // UTF-8 U+FFFF
+    [Arguments("FF FE FE FF", "\uFFFE")] // UTF-16 little endian U+FFFE
+    [Arguments("FE FF 00 01", "\u0001")] // UTF-16 big endian control character
+    [Arguments("00 00 FE FF 00 00 00 01", "\u0001")] // UCS-4 control character
+    [Arguments("00 00 FE FF 00 00 FF FF", "\uFFFF")] // UCS-4 U+FFFF
     public async Task Decode_NonCharScalarValue_PassesThroughAtEverySplit(string hex, string expected)
     {
         var bytes = Hex(hex);
@@ -133,14 +133,16 @@ internal sealed class XmlInputDecoderTests
     public async Task Decode_Latin1ControlCharacter_PassesThrough()
     {
         var bytes = Hex("61 01 62");
-        XmlInputDecoder.TryCreate(Detect(bytes), out var decoder, out _);
-        decoder!.TryConfirmEncoding("ISO-8859-1".AsSpan(), out _);
+        var created = XmlInputDecoder.TryCreate(Detect(bytes), out var decoder, out _);
+        var confirmed = decoder!.TryConfirmEncoding("ISO-8859-1".AsSpan(), out _);
         using var output = new PooledBuffer<char>();
 
         var ok = decoder.TryDecode(bytes, true, output, out _);
 
+        await Assert.That(created).IsTrue();
+        await Assert.That(confirmed).IsTrue();
         await Assert.That(ok).IsTrue();
-        await Assert.That(output.WrittenSpan.ToString()).IsEqualTo("ab");
+        await Assert.That(output.WrittenSpan.ToString()).IsEqualTo("a\u0001b");
     }
 
     private static async Task AssertMalformed(byte[] bytes, long offset)
