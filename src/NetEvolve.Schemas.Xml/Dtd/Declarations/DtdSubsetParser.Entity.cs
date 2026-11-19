@@ -61,21 +61,14 @@ internal sealed partial class DtdSubsetParser
             return false;
         }
 
+        // The white space that is skipped to look for NDATA is not given back: the declaration ends after optional white space.
         string? notation = null;
-        var afterId = _pos;
-        if (!isParameter && SkipSpaces() && Match("NDATA"))
+        if (!isParameter && SkipSpaces() && Match("NDATA") && (!RequireSpace() || !ScanNcName(out notation)))
         {
-            if (!RequireSpace() || !ScanNcName(out notation))
-            {
-                return false;
-            }
-        }
-        else
-        {
-            _pos = afterId;
+            return false;
         }
 
-        declaration = new DtdEntityDeclaration(name, isParameter, null, publicId, systemId, notation);
+        declaration = new DtdEntityDeclaration(name, isParameter, null, publicId, systemId, notation, _baseUri);
         return true;
     }
 

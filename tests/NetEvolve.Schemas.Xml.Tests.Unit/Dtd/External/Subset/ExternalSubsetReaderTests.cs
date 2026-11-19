@@ -119,31 +119,47 @@ public class ExternalSubsetReaderTests
     }
 
     [Test]
-    public async Task Stream_WithExternalAccess_ExpandsAnEntityDeclaredInTheExternalSubset(
-        CancellationToken cancellationToken
-    )
+    public async Task Stream_WithExternalAccess_RequestsTheExternalSubset(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(Document));
-        var options = Opted(LoaderHarness.Open(SubsetHarness.Serving(Subset)));
+        var resolver = SubsetHarness.Serving(Subset);
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes("<!DOCTYPE doc SYSTEM \"ext.dtd\"><doc/>"));
         using var reader = new XmlStreamReader<RecordingXmlSink>(
             stream,
             new RecordingXmlSink(new SpanInterningNameTable(XmlReaderLimits.Default.MaxDistinctNames)),
-            options,
+            Opted(LoaderHarness.Open(resolver)),
             8
         );
 
         var status = await reader.ReadAsync(cancellationToken);
 
         await Assert.That(status).IsEqualTo(XmlReadStatus.Completed);
-        await Assert.That(TextOf(reader.Sink)).IsEqualTo("from the external subset");
+        await Assert.That(resolver.Requests.Count).IsEqualTo(1);
+        await Assert.That(resolver.Requests[0].ResolvedUri).IsEqualTo(SubsetHarness.SubsetUri);
+    }
+
+    [Test]
+    public async Task Stream_ExternalSubsetThatIsNotWellFormed_IsAFatalError(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes("<!DOCTYPE doc SYSTEM \"ext.dtd\"><doc/>"));
+        using var reader = new XmlStreamReader<RecordingXmlSink>(
+            stream,
+            new RecordingXmlSink(new SpanInterningNameTable(XmlReaderLimits.Default.MaxDistinctNames)),
+            Opted(LoaderHarness.Open(SubsetHarness.Serving("<!ELEMENT doc>")))
+        );
+
+        var status = await reader.ReadAsync(cancellationToken);
+
+        await Assert.That(status).IsEqualTo(XmlReadStatus.Error);
+        await Assert.That(reader.Diagnostic!.Code.Alias).IsEqualTo("XML0011");
     }
 
     [Test]
     public async Task Stream_WithDefaultExternalAccessOptions_RefusesWithXml2002(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        using var stream = new MemoryStream(Encoding.UTF8.GetBytes(Document));
+        using var stream = new MemoryStream(Encoding.UTF8.GetBytes("<!DOCTYPE doc SYSTEM \"ext.dtd\"><doc/>"));
         using var reader = new XmlStreamReader<RecordingXmlSink>(
             stream,
             new RecordingXmlSink(new SpanInterningNameTable(XmlReaderLimits.Default.MaxDistinctNames)),

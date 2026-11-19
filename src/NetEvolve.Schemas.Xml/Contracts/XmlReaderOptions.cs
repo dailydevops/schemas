@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.Xml.Contracts;
 
-using System;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Dtd.Contracts;
 
@@ -10,6 +9,8 @@ public sealed class XmlReaderOptions
     private bool _dtdProcessing;
     private XmlNameTable? _nameTable;
     private XmlReaderLimits _limits = XmlReaderLimits.Default;
+    private DtdValidationOptions? _externalAccess;
+    private string? _baseUri;
 
     private XmlReaderOptions() { }
 
@@ -27,27 +28,47 @@ public sealed class XmlReaderOptions
     /// With the option on, references to the internal general entities of the document type declaration are expanded in
     /// content and in attribute values, bounded by <see cref="XmlReaderLimits.MaxEntityExpansionCharacters"/> and
     /// <see cref="XmlReaderLimits.MaxEntityDepth"/>. Limitations: only the declarations of the internal subset are parsed
-    /// (XML-14); the external subset and external entities are not read (XML-20, XML-61, XML-62), so a reference to an
+    /// (XML-14) unless the internal option <see cref="ExternalAccess"/> is set, which also reads the external subset and the
+    /// external parameter entities (XML-20); external general entities are not read (XML-62), so a reference to an
     /// external parsed entity in content is <see cref="XmlErrorCodes.XML2002"/>; an undeclared entity is skipped, not an
     /// error, when an external subset or a parameter-entity reference could have declared it (section 4.1).
     /// </remarks>
     public bool DtdProcessing => _dtdProcessing;
 
     /// <summary>Gets the options of external access to the external subset and the external parameter entities; <see langword="null"/> when they are not read.</summary>
-    internal DtdValidationOptions? ExternalAccess => throw new NotSupportedException();
+    /// <remarks>
+    /// Internal until the composition into validation (XML-68) approves a public shape. It takes effect only with
+    /// <see cref="DtdProcessing"/>. With options (even <see cref="DtdValidationOptions.Default"/>) a document type
+    /// declaration with a system identifier requests the external subset through the resolver gate: a kind whose flag is off
+    /// is refused with <see cref="XmlErrorCodes.XML2002"/> without a resolver call. Without options the external subset and
+    /// the external parameter entities are skipped, as before.
+    /// </remarks>
+    internal DtdValidationOptions? ExternalAccess => _externalAccess;
 
     /// <summary>Gets the absolute base URI of the document, against which a relative system identifier of the document type declaration resolves; <see langword="null"/> when unknown.</summary>
-    internal string? BaseUri => throw new NotSupportedException();
+    internal string? BaseUri => _baseUri;
 
     /// <summary>Returns a copy with other <see cref="ExternalAccess"/>.</summary>
     /// <param name="value">The options, <see langword="null"/> to leave the external subset unread.</param>
     /// <returns>The new options.</returns>
-    internal XmlReaderOptions WithExternalAccess(DtdValidationOptions? value) => throw new NotSupportedException();
+    internal XmlReaderOptions WithExternalAccess(DtdValidationOptions? value)
+    {
+        var copy = (XmlReaderOptions)MemberwiseClone();
+        copy._externalAccess = value;
+
+        return copy;
+    }
 
     /// <summary>Returns a copy with another <see cref="BaseUri"/>.</summary>
     /// <param name="value">The base URI, <see langword="null"/> when unknown.</param>
     /// <returns>The new options.</returns>
-    internal XmlReaderOptions WithBaseUri(string? value) => throw new NotSupportedException();
+    internal XmlReaderOptions WithBaseUri(string? value)
+    {
+        var copy = (XmlReaderOptions)MemberwiseClone();
+        copy._baseUri = value;
+
+        return copy;
+    }
 
     /// <summary>Returns a copy with another <see cref="DtdProcessing"/>.</summary>
     /// <param name="value"><see langword="true"/> to parse the internal subset of a document type declaration.</param>

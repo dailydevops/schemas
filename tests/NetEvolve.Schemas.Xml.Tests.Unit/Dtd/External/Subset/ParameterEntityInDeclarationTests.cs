@@ -78,7 +78,7 @@ public class ParameterEntityInDeclarationTests
         var (model, error) = SubsetHarness.ParseSubset("<!ENTITY % pid \"PUBLIC 'p' 's'\"><!NOTATION n %pid;>");
 
         await Assert.That(error).IsNull();
-        await Assert.That(model).IsEqualTo("N:n p s|PE:pid=\"PUBLIC 'p' 's'\"");
+        await Assert.That(model).IsEqualTo("PE:pid=\"PUBLIC 'p' 's'\"|N:n p s");
     }
 
     [Test]
