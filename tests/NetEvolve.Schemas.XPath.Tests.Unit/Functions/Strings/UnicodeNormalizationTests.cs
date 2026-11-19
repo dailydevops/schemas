@@ -296,7 +296,7 @@ public class UnicodeNormalizationTests
         var part1 = false;
         foreach (var line in lines)
         {
-            if (line.StartsWith('@'))
+            if (line.Length > 0 && line[0] == '@')
             {
                 part1 = line.StartsWith("@Part1", StringComparison.Ordinal);
                 continue;

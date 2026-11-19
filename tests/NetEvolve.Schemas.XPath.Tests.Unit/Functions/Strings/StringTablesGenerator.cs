@@ -141,7 +141,7 @@ internal static class StringTablesGenerator
             ccc[codePoint] = byte.Parse(fields[3], CultureInfo.InvariantCulture);
             if (fields[5].Length > 0)
             {
-                var compat = fields[5].StartsWith('<');
+                var compat = fields[5][0] == '<';
                 var text = compat
                     ? fields[5].Substring(fields[5].IndexOf('>', StringComparison.Ordinal) + 1)
                     : fields[5];
