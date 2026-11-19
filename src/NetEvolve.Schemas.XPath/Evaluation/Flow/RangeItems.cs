@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.XPath.Evaluation.Flow;
 
 using System.Collections;
 using System.Collections.Generic;
+using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>The integers from <c>first</c> to <c>last</c>, produced one at a time: the source of the lazy sequence of a range expression.</summary>
@@ -14,8 +15,10 @@ internal sealed class RangeItems : IEnumerable<XdmItem>
     /// <summary>Initializes a new instance of the <see cref="RangeItems"/> class.</summary>
     /// <param name="first">The first integer.</param>
     /// <param name="last">The last integer, not below <paramref name="first"/>.</param>
+    /// <exception cref="System.ArgumentOutOfRangeException"><paramref name="last"/> is below <paramref name="first"/>.</exception>
     public RangeItems(long first, long last)
     {
+        Argument.ThrowIfLessThan(last, first);
         _first = first;
         _last = last;
     }
