@@ -12,7 +12,8 @@ public sealed class DtdAttributeDefinition
         DtdAttributeType type,
         IReadOnlyList<string>? values,
         DtdDefaultKind defaultKind,
-        string? defaultValue
+        string? defaultValue,
+        bool inExternalText = false
     )
     {
         Name = name;
@@ -20,6 +21,7 @@ public sealed class DtdAttributeDefinition
         Values = values ?? Array.Empty<string>();
         DefaultKind = defaultKind;
         DefaultValue = defaultValue;
+        InExternalText = inExternalText;
     }
 
     /// <summary>Gets the attribute name.</summary>
@@ -36,4 +38,7 @@ public sealed class DtdAttributeDefinition
 
     /// <summary>Gets the default value for <see cref="DtdDefaultKind.Fixed"/> and <see cref="DtdDefaultKind.Default"/>, otherwise <see langword="null"/>.</summary>
     public string? DefaultValue { get; }
+
+    /// <summary>Gets a value indicating whether the definition stands in the external subset or in an external parameter entity; with <c>standalone="yes"</c> a default or a tokenized type declared there must not change the document (section 2.9).</summary>
+    internal bool InExternalText { get; }
 }
