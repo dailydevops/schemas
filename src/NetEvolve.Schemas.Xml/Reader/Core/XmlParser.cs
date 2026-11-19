@@ -24,7 +24,8 @@ using NetEvolve.Schemas.Xml.Namespaces;
 /// outer reference position but not the frame depth (<see cref="XmlDiagnostic"/> has no such member, #646); white space
 /// outside the root element is not reported; <c>MaxNodeCount</c> counts elements, attributes, comments, processing instructions, and coalesced text runs (not namespace declarations); an unclosed
 /// element at the end of the input is <c>XML0001</c> and a missing root is <c>XML0012</c>; the events before an error, the
-/// code, and the position of the diagnostic do not depend on the chunking (#598), but <see cref="Position"/> after an error
+/// code, and the position of the diagnostic do not depend on the chunking (#598, and #655 for the resource limits: the error is at the
+/// character that crosses the limit, after the characters before it), but <see cref="Position"/> after an error
 /// ends at the last consumed token and follows its boundaries. An exception thrown by a sink propagates and leaves the
 /// parser unusable. Not thread-safe.
 /// </remarks>
@@ -53,7 +54,6 @@ internal sealed partial class XmlParser : IXmlReader, IDisposable
     private XmlDiagnostic? _diagnostic;
     private XmlNameTable? _names;
     private XmlNamespaceScope? _scope;
-    private XmlBudget _documentCharacters;
     private XmlBudget _nodes;
     private XmlBudget _text;
     private bool _textOpen;
@@ -74,7 +74,6 @@ internal sealed partial class XmlParser : IXmlReader, IDisposable
         _entityStack = entityStack;
         _tokenizer = new XmlTokenizer(limits, doctypeHandler is not null, entityStack is not null);
         _replacementTokenizer = XmlTokenizer.ForReplacementText(limits);
-        _documentCharacters = XmlBudget.DocumentCharacters(limits);
         _nodes = new XmlBudget(limits.MaxNodeCount, XmlErrorCodes.XML1108);
         _text = XmlBudget.TextLength(limits);
         InitializeTag(limits);
@@ -195,7 +194,10 @@ internal sealed partial class XmlParser : IXmlReader, IDisposable
         out int consumed
     )
     {
-        var before = _tokenizer.Position;
+        // The tokenizer enforces the document and start tag limits on the characters it consumes (frame characters are charged to the
+        // expansion budget when the frame opens, not to the document); the text and attribute value budgets are kept here, and the
+        // tokenizer cuts a run at what is left of them, so the character that crosses a limit is a token of its own.
+        _tokenizer.LimitRun(RunRemaining());
         status = _tokenizer.Next(span, inFrame || _isFinal, out token, out consumed);
         if (status == XmlTokenStatus.Error)
         {
@@ -203,16 +205,20 @@ internal sealed partial class XmlParser : IXmlReader, IDisposable
             return Fail(failure.Code, failure.Position);
         }
 
-        var after = _tokenizer.Position;
+        return true;
+    }
 
-        // Frame characters are charged to the expansion budget when the frame opens, not to the document.
-        if (!inFrame && !_documentCharacters.TryCharge(after.CharOffset - before.CharOffset))
+    // The characters that the next run of text or attribute value may still take.
+    private long RunRemaining()
+    {
+        if (_inTag)
         {
-            return Fail(XmlErrorCodes.XML1101, after);
+            return _attributeCount > 0
+                ? _limits.MaxAttributeValueLength - _attributes[_attributeCount - 1].ValueLength
+                : long.MaxValue;
         }
 
-        var startsTag = status == XmlTokenStatus.Token && token.Kind == XmlTokenKind.StartTagName;
-        return !(_inTag || startsTag) || ChargeStartTag(startsTag, consumed, after);
+        return _phase == Phase.Content ? _text.Limit - _text.Used : long.MaxValue;
     }
 
     /// <summary>Returns the buffers.</summary>
