@@ -172,7 +172,7 @@ internal static class CastFixture
         : value == Math.Floor(value) && Math.Abs(value) < 1e18 ? ((long)value).ToString(CultureInfo.InvariantCulture)
         : value.ToString("R", CultureInfo.InvariantCulture);
 
-    private static CallNode LowerCall(FunctionCall node, LoweringContext context, FunctionRegistry library)
+    internal static CallNode LowerCall(FunctionCall node, LoweringContext context, FunctionRegistry library)
     {
         var name = node.Name;
         var namespaceUri = string.Empty;
@@ -203,7 +203,7 @@ internal static class CastFixture
         public override XdmSequence Evaluate(XPathEvaluationContext context) => value;
     }
 
-    private sealed class CallNode(XPathFunction function, ExecutableNode[] arguments) : ExecutableNode
+    internal sealed class CallNode(XPathFunction function, ExecutableNode[] arguments) : ExecutableNode
     {
         public override XdmSequence Evaluate(XPathEvaluationContext context)
         {

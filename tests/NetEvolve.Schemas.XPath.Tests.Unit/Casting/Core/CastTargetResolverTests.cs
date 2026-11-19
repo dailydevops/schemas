@@ -1,5 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Tests.Unit.Casting.Core;
 
+using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Compilation;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Errors;
@@ -15,13 +16,17 @@ public class CastTargetResolverTests
         .WithDefaultElementNamespace(TypeFixture.Xs)
         .Build();
 
-    private static CompiledExpression? Compile(string expression, out XPathDiagnostic diagnostic)
+    private static CompiledExpression? Compile(
+        string expression,
+        out XPathDiagnostic diagnostic,
+        XPathStaticContext? statics = null
+    )
     {
         _ = XPathParser.TryParse(expression.AsSpan(), out var syntax, out diagnostic);
         _ = ExpressionCompiler.TryCompile(
             syntax!,
             expression,
-            SchemaDefault,
+            statics ?? SchemaDefault,
             CastFixture.Registry(),
             out var compiled,
             out diagnostic
@@ -43,10 +48,14 @@ public class CastTargetResolverTests
     [Test]
     public async Task UnprefixedTarget_WithoutARow_NamesTheTypeAsWritten()
     {
-        var compiled = Compile("'x' cast as long", out var diagnostic);
+        var compiled = Compile(
+            "'x' cast as dateTimeStamp",
+            out var diagnostic,
+            SchemaDefault.ToBuilder().WithVersion(XPathVersion.V31).Build()
+        );
 
         await Assert.That(compiled).IsNull();
         await Assert.That(diagnostic.Code).IsEqualTo("XPST0051");
-        await Assert.That(diagnostic.Message).Contains("'long'");
+        await Assert.That(diagnostic.Message).Contains("'dateTimeStamp'");
     }
 }
