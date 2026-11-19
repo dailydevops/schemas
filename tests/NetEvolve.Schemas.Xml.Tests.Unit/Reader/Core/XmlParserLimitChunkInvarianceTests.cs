@@ -153,6 +153,8 @@ public class XmlParserLimitChunkInvarianceTests
     [Arguments("<a><!--abcdef--></a>", "document", 6, "XML1101", 6, "SD()|<a|>")]
     [Arguments("<a>\U0001F600\U0001F600</a>", "text", 3, "XML1107", 5, "SD()|<a|>|T'\U0001F600'")]
     [Arguments("<a>\U0001F600\U0001F600</a>", "document", 6, "XML1101", 5, "SD()|<a|>|T'\U0001F600'")]
+    [Arguments("<a>abc\u0001d</a>", "text", 3, "XML0002", 6, "SD()|<a|>|T'abc'")]
+    [Arguments("<a>abc\u0001d</a>", "document", 6, "XML0002", 6, "SD()|<a|>|T'abc'")]
     public async Task Pump_LimitCrossedAtACharacter_ReportsThatCharacterAfterTheCharactersBeforeIt(
         string xml,
         string limit,
@@ -172,6 +174,25 @@ public class XmlParserLimitChunkInvarianceTests
             await Assert.That(run.Code?.Alias).IsEqualTo(code);
             await Assert.That(run.ErrorPosition?.CharOffset).IsEqualTo((long)offset);
             await Assert.That(run.Events).IsEqualTo(events);
+        }
+    }
+
+    // The start tag limit counts from the opening bracket: neither a byte order mark nor the "]]>" that ends a CDATA section before
+    // the tag is part of it, however the input is cut.
+    [Test]
+    [Arguments("<a><![CDATA[x]]><b c=\"1\"/></a>", 10, 25)]
+    [Arguments("﻿<a b=\"1\">x</a>", 9, 8)]
+    public async Task Pump_StartTagLimit_CountsFromTheOpeningBracket(string xml, int fits, int offset)
+    {
+        ArgumentNullException.ThrowIfNull(xml);
+        foreach (var size in new[] { 0, 1, 2, 3 })
+        {
+            var passes = Run(xml, -1, size, false, With("tag", fits));
+            var fails = Run(xml, -1, size, false, With("tag", fits - 1));
+
+            await Assert.That(passes.Status).IsEqualTo(XmlReadStatus.Completed);
+            await Assert.That(fails.Code?.Alias).IsEqualTo("XML1113");
+            await Assert.That(fails.ErrorPosition?.CharOffset).IsEqualTo((long)offset);
         }
     }
 
