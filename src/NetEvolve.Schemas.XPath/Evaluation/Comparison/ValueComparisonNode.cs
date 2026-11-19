@@ -62,8 +62,8 @@ internal sealed class ValueComparisonNode : ExecutableNode
 
         var leftItem = ComparisonOperands.ValueOperand(left);
         var rightItem = ComparisonOperands.ValueOperand(right);
-        return _table.TryGet(_relation, leftItem.TypeId, rightItem.TypeId, out var implementation)
-            ? XdmSequence.Create(XdmItem.FromBoolean(implementation!(_relation, leftItem, rightItem)))
+        return _table.TryGetContextual(_relation, leftItem.TypeId, rightItem.TypeId, out var implementation)
+            ? XdmSequence.Create(XdmItem.FromBoolean(implementation!(_relation, leftItem, rightItem, context)))
             : throw XPathErrors.Exception(XPathErrorCodes.XPTY0004);
     }
 }

@@ -48,7 +48,7 @@ internal sealed class ArithmeticNode : ExecutableNode
     }
 
     /// <inheritdoc />
-    /// <exception cref="XPathException">An operand is not a single number (XPTY0004), an <c>xs:untypedAtomic</c> operand is not a double (FORG0001), or the operator raises a dynamic error (FOAR0001, FOAR0002).</exception>
+    /// <exception cref="XPathException">An operand is not a single number (XPTY0004), an <c>xs:untypedAtomic</c> operand is not a double (FORG0001), or the operator raises a dynamic error (FOAR0001, FOAR0002), or the operator of another type family raises its own (FODT0001, FODT0002, FOCA0005).</exception>
     public override XdmSequence Evaluate(XPathEvaluationContext context)
     {
         Argument.ThrowIfNull(context);
@@ -62,8 +62,8 @@ internal sealed class ArithmeticNode : ExecutableNode
 
         var leftItem = ArithmeticOperands.Single(left);
         var rightItem = ArithmeticOperands.Single(right);
-        return _table.TryGet(_operator, leftItem.TypeId, rightItem.TypeId, out var implementation)
-            ? XdmSequence.Create(implementation!(leftItem, rightItem))
+        return _table.TryGetContextual(_operator, leftItem.TypeId, rightItem.TypeId, out var implementation)
+            ? XdmSequence.Create(implementation!(leftItem, rightItem, context))
             : throw XPathErrors.Exception(XPathErrorCodes.XPTY0004);
     }
 }
