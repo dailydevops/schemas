@@ -884,6 +884,31 @@ namespace NetEvolve.Schemas.Xml.Datatypes.Facets.Ordered
         public bool IsSatisfiedBy(in NetEvolve.Schemas.Xml.Datatypes.Numeric.XsdInteger value) { }
     }
 }
+namespace NetEvolve.Schemas.Xml.Datatypes.Facets.Pattern
+{
+    public readonly struct PatternDiagnostic : System.IEquatable<NetEvolve.Schemas.Xml.Datatypes.Facets.Pattern.PatternDiagnostic>
+    {
+        public NetEvolve.Schemas.Xml.Datatypes.Facets.Pattern.PatternDiagnosticCode Code { get; }
+        public string? Pattern { get; }
+        public int PatternIndex { get; }
+        public int Position { get; }
+        public NetEvolve.Schemas.Xml.Regex.Contracts.RegexError RegexError { get; }
+    }
+    public enum PatternDiagnosticCode
+    {
+        None = 0,
+        InvalidPattern = 1,
+        StepLimitExceeded = 2,
+    }
+    public sealed class PatternFacet : NetEvolve.Schemas.Xml.Datatypes.Contracts.IFacet, NetEvolve.Schemas.Xml.Datatypes.Contracts.ILexicalFacet
+    {
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.FacetKind Kind { get; }
+        public System.Collections.Generic.IReadOnlyList<string> Patterns { get; }
+        public bool IsSatisfiedBy(System.ReadOnlySpan<char> lexical) { }
+        public bool Match(System.ReadOnlySpan<char> lexical, out NetEvolve.Schemas.Xml.Datatypes.Facets.Pattern.PatternDiagnostic diagnostic) { }
+        public static bool TryCreate(System.Collections.Generic.IReadOnlyList<string> patterns, NetEvolve.Schemas.Xml.Datatypes.Contracts.XsdVersion version, NetEvolve.Schemas.Xml.Regex.Contracts.RegexStepLimits? limits, out NetEvolve.Schemas.Xml.Datatypes.Facets.Pattern.PatternFacet? facet, out NetEvolve.Schemas.Xml.Datatypes.Facets.Pattern.PatternDiagnostic diagnostic) { }
+    }
+}
 namespace NetEvolve.Schemas.Xml.Datatypes.Floating
 {
     public static class XsdFloatingPoint
