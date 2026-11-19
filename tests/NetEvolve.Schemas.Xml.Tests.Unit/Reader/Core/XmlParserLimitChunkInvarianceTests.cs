@@ -180,18 +180,18 @@ public class XmlParserLimitChunkInvarianceTests
     // Inside an attribute value the limit and the invalid character are ordered by position: the one that comes first is reported,
     // and the invalid character wins a tie, as in text. This holds however the input is cut.
     [Test]
-    [Arguments("<a x=\"abcd\"/>", "value", 2, "XML1112", 8)]
-    [Arguments("<a x=\"abcd\"/>", "value", 3, "XML0002", 9)]
-    [Arguments("<a x=\"abcd\"/>", "value", 5, "XML0002", 9)]
-    [Arguments("<a x=\"abcd\"/>", "tag", 8, "XML1113", 8)]
-    [Arguments("<a x=\"abcd\"/>", "tag", 10, "XML0002", 9)]
-    [Arguments("<a x=\"abcd\"/>", "document", 8, "XML1101", 8)]
-    [Arguments("<a x=\"abcd\"/>", "document", 10, "XML0002", 9)]
-    [Arguments("<a b=\"\"/>", "document", 4, "XML1101", 4)]
-    [Arguments("<a b=\"\"/>", "tag", 4, "XML1113", 4)]
-    [Arguments("<a b=\"\"/>", "document", 6, "XML0002", 6)]
-    [Arguments("<a b=''/>", "document", 4, "XML1101", 4)]
-    [Arguments("<a b=/>", "document", 4, "XML1101", 4)]
+    [Arguments("<a x=\"abc\u0001d\"/>", "value", 2, "XML1112", 8)]
+    [Arguments("<a x=\"abc\u0001d\"/>", "value", 3, "XML0002", 9)]
+    [Arguments("<a x=\"abc\u0001d\"/>", "value", 5, "XML0002", 9)]
+    [Arguments("<a x=\"abc\u0001d\"/>", "tag", 8, "XML1113", 8)]
+    [Arguments("<a x=\"abc\u0001d\"/>", "tag", 10, "XML0002", 9)]
+    [Arguments("<a x=\"abc\u0001d\"/>", "document", 8, "XML1101", 8)]
+    [Arguments("<a x=\"abc\u0001d\"/>", "document", 10, "XML0002", 9)]
+    [Arguments("<a b=\"\u0001\"/>", "document", 4, "XML1101", 4)]
+    [Arguments("<a b=\"\u0001\"/>", "tag", 4, "XML1113", 4)]
+    [Arguments("<a b=\"\u0001\"/>", "document", 6, "XML0002", 6)]
+    [Arguments("<a b='\u0001'/>", "document", 4, "XML1101", 4)]
+    [Arguments("<a b=\u0001/>", "document", 4, "XML1101", 4)]
     public async Task Pump_LimitAndInvalidCharacterInAnAttributeValue_ReportTheOneThatComesFirst(
         string xml,
         string limit,
