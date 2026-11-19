@@ -57,7 +57,7 @@ internal sealed class DerivedStringType
             return CastStatus.NotAllowed;
         }
 
-        var normalized = Normalize(text!, _whitespace);
+        var normalized = WhitespaceText.Apply(text!, _whitespace);
         if (!_descriptor.Validate(normalized.AsSpan()).IsValid)
         {
             return CastStatus.InvalidLexical;
@@ -65,18 +65,5 @@ internal sealed class DerivedStringType
 
         result = XdmItem.FromString(normalized).WithTypeId(_type);
         return CastStatus.Ok;
-    }
-
-    // The text with the whitespace of the whiteSpace facet; the text itself when nothing changes.
-    private static string Normalize(string text, WhitespaceMode mode)
-    {
-        if (WhitespaceNormalizer.IsNormalized(text.AsSpan(), mode))
-        {
-            return text;
-        }
-
-        var buffer = new char[text.Length];
-        var length = WhitespaceNormalizer.Normalize(text.AsSpan(), mode, buffer);
-        return new string(buffer, 0, length);
     }
 }
