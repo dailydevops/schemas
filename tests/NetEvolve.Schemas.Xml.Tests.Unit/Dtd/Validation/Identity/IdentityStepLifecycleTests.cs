@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.Xml.Tests.Unit.Dtd.Validation.Identity;
 
 using System;
 using System.Globalization;
+using NetEvolve.Schemas.Testing.Allocations;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Dtd.Contracts;
 using NetEvolve.Schemas.Xml.Dtd.Model;
@@ -147,6 +148,11 @@ public class IdentityStepLifecycleTests
         await Assert.That(run.Issues[0].Code).IsEqualTo(DtdValidityCodes.XML5012.Code);
     }
 
+    // Unmeasured runs before the measured ones (a one-time allocation hook fires on the first measured run), and the
+    // measured runs of which the smallest counts: one-time allocations land in one run, a per-value one in all.
+    private const int WarmupRuns = 5;
+    private const int MeasuredRuns = 5;
+
     // Keeps the deliberate allocations of the tests observable to the allocation counter.
     private static object? s_retained;
 
@@ -168,7 +174,8 @@ public class IdentityStepLifecycleTests
         return elements;
     }
 
-    // What the second run of the step allocates; `disturb` receives the zero-based run index and runs inside the measured window.
+    // What a run of the reused step allocates (smallest of the measured runs); `disturb` receives the zero-based run index
+    // and runs inside the measured window of every run.
     private static long Allocated(Action<int>? disturb = null)
     {
         var declarations = Declare(Standard("e"));
@@ -176,9 +183,28 @@ public class IdentityStepLifecycleTests
         var step = new DtdIdentityStep();
         var run = 0;
 
-        _ = RunDocument(step, declarations, elements, () => disturb?.Invoke(run++));
+        return AllocationAssert.Measure(
+            () =>
+            {
+                var issues = Collector();
+                var context = Context(issues, declarations);
+                step.BeginDocument(context);
+                foreach (var element in elements)
+                {
+                    step.StartElement(in element);
+                    step.EndElement(in element);
+                }
 
-        return RunDocument(step, declarations, elements, () => disturb?.Invoke(run++));
+                step.EndDocument();
+                disturb?.Invoke(run++);
+                if (issues.Count != 0)
+                {
+                    throw new InvalidOperationException("The measured document must be valid.");
+                }
+            },
+            WarmupRuns,
+            MeasuredRuns
+        );
     }
 
     [Test]
@@ -197,7 +223,7 @@ public class IdentityStepLifecycleTests
     {
         // A one-time allocation (a lazily created table, an allocation context refill, work of another test in the
         // process) lands in the first measured run only; the measurement must not read it as a cost of the step.
-        var allocated = Allocated(run => s_retained = run == 1 ? new byte[8000] : null);
+        var allocated = Allocated(run => s_retained = run == WarmupRuns ? new byte[8000] : null);
 
         await Assert.That(allocated).IsLessThan(4 * 1024);
     }
@@ -209,35 +235,6 @@ public class IdentityStepLifecycleTests
         var allocated = Allocated(_ => s_retained = new byte[20_000 * 24]);
 
         await Assert.That(allocated).IsGreaterThanOrEqualTo(4 * 1024);
-    }
-
-    // No await between the two reads: the counter is per thread.
-    private static long RunDocument(
-        DtdIdentityStep step,
-        DtdDeclarations declarations,
-        ValidationElement[] elements,
-        Action disturb
-    )
-    {
-        var issues = Collector();
-        var context = Context(issues, declarations);
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        step.BeginDocument(context);
-        foreach (var element in elements)
-        {
-            step.StartElement(in element);
-            step.EndElement(in element);
-        }
-
-        step.EndDocument();
-        disturb();
-        var after = GC.GetAllocatedBytesForCurrentThread();
-        if (issues.Count != 0)
-        {
-            throw new InvalidOperationException("The measured document must be valid.");
-        }
-
-        return after - before;
     }
 
     private static ValidationElement Element(
