@@ -3,7 +3,10 @@ namespace NetEvolve.Schemas.XPath.Tests.Unit.Casting.Core;
 using System;
 using NetEvolve.Schemas.Xml.Datatypes.Decimals;
 using NetEvolve.Schemas.Xml.Datatypes.Decimals.Arithmetic;
+using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Casting.Core;
+using NetEvolve.Schemas.XPath.Compilation;
+using NetEvolve.Schemas.XPath.Syntax.Parser;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 using static CastFixture;
 
@@ -70,15 +73,16 @@ public class CastDecisionTests
             .IsEqualTo(CastCell.Always);
     }
 
-    // Decision D4: a built-in atomic type without a row yet (its row arrives with XP-23) is rejected while compiling, with XPST0051 and a message that says why.
+    // Decision D4: a built-in atomic type without a row is rejected while compiling, with XPST0051 and a message that says why. The derived types of
+    // XP-23 have their rows now; xs:dateTimeStamp, a type of XPath 3.1, is the one built-in atomic type left without one.
     [Test]
-    [Arguments("xs:int", "xs:int")]
-    [Arguments("xs:long", "xs:long")]
-    [Arguments("xs:NCName", "xs:NCName")]
-    [Arguments("xs:token", "xs:token")]
+    [Arguments("xs:dateTimeStamp", "xs:dateTimeStamp")]
     public async Task BuiltInTypeWithoutARow_IsRejectedWithAMessageThatNamesTheLimit(string type, string named)
     {
-        _ = Compile("'x' cast as " + type, out var diagnostic);
+        var expression = "'x' cast as " + type;
+        _ = XPathParser.TryParse(expression.AsSpan(), out var syntax, out _);
+        var statics = Statics.ToBuilder().WithVersion(XPathVersion.V31).Build();
+        _ = ExpressionCompiler.TryCompile(syntax!, expression, statics, Registry(), out _, out var diagnostic);
 
         await Assert.That(diagnostic.Code).IsEqualTo("XPST0051");
         await Assert.That(diagnostic.Message).Contains(named);

@@ -3,6 +3,8 @@ namespace NetEvolve.Schemas.XPath.Tests.Unit.Casting.Other;
 using System;
 using System.Collections.Generic;
 using NetEvolve.Schemas.XPath.Casting.Core;
+using NetEvolve.Schemas.XPath.Casting.Other;
+using NetEvolve.Schemas.XPath.Casting.Temporal;
 using NetEvolve.Schemas.XPath.Tests.Unit.Casting.Core;
 using NetEvolve.Schemas.XPath.Tests.Unit.Casting.Temporal;
 using static NetEvolve.Schemas.XPath.Tests.Unit.Casting.Temporal.CastMatrix;
@@ -77,7 +79,7 @@ public class QNameTableTests
     [Test]
     public async Task Table_HoldsExactlyTheRowsOfTheMatrix()
     {
-        var table = CastingCatalog.Default.Table;
+        var table = MatrixTable();
 
         await Assert.That(table.RowCount).IsEqualTo(RowCount());
         await Assert.That(table.Targets.Count).IsEqualTo(Names.Length);
@@ -108,11 +110,21 @@ public class QNameTableTests
     [Test]
     public async Task Table_HasNoRowForNotation()
     {
-        var table = CastingCatalog.Default.Table;
+        var table = MatrixTable();
         var notation = Type(QName);
 
         await Assert.That(table.Targets.Count).IsEqualTo(Names.Length);
         await Assert.That(table.IsTarget(NetEvolve.Schemas.XPath.Types.XdmTypes.Get("NOTATION"))).IsFalse();
         await Assert.That(notation).IsNotEqualTo(NetEvolve.Schemas.XPath.Types.XdmTypes.Get("NOTATION"));
+    }
+
+    // The table of the types of the matrix only: the default table also holds the rows of the derived types (XP-23), which are not part of it.
+    private static CastingTable MatrixTable()
+    {
+        var catalog = new CastingCatalog();
+        catalog.Stage(CastingRegistration.RegisterRows);
+        catalog.Stage(TemporalRegistration.RegisterRows);
+        catalog.Stage(OtherRegistration.RegisterRows);
+        return catalog.Table;
     }
 }

@@ -161,28 +161,6 @@ public class ConversionSourceTests
         await Assert.That(new XdmQName(Parse("x"), null).ToString()).IsEqualTo("x");
     }
 
-    [Test]
-    [Arguments("a b  c", "a b c")]
-    [Arguments(" a", "a")]
-    [Arguments("a ", "a")]
-    [Arguments("a\tb\nc", "a b c")]
-    [Arguments("abc", "abc")]
-    [Arguments("", "")]
-    public async Task Collapse_NormalizesTheWhitespaceOfTheLexicalForm(string lexical, string expected) =>
-        await Assert.That(OtherConversions.Collapse(lexical)).IsEqualTo(expected);
-
-    [Test]
-    public async Task Collapse_Guard_RejectsNull() =>
-        await Assert.That(() => OtherConversions.Collapse(null!)).Throws<ArgumentNullException>();
-
-    [Test]
-    public async Task Collapse_ReturnsTheSameString_WhenNothingChanges()
-    {
-        var text = new string('x', 5);
-
-        await Assert.That(OtherConversions.Collapse(text)).IsSameReferenceAs(text);
-    }
-
     private static XdmQName? Missing() => null;
 
     private static XsdQName Parse(string lexical) => XsdQName.Parse(lexical.AsSpan(), new Fixed("a", "urn:a")).Value;

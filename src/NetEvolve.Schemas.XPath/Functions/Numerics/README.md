@@ -32,6 +32,6 @@ registration file (`Registration.cs`) stages the group into the default catalog;
   conversion does (#621, #660), because it is an implementation limit and not an invalid form; the specification gives a number
   or an infinity.
 - A precision of an `xs:integer` beyond 64 bits raises XPTY0004 until the function conversion accepts it (#719).
-- The arguments of derived integer types (`xs:int`, `xs:long`, and so on) await the casting to the derived types (XP-23, #299), so the
-  QT3 cases that build them are excluded in `Qt3NumericSelection` with that reason.
+- The arguments of derived integer types (`xs:int`, `xs:long`, and so on) are cast to derived types now, but the
+  QT3 cases that build them stay excluded in `Qt3NumericSelection` until #746 selects them.
 - The XPath 1.0 compatibility mode is not applied (XP-20).
