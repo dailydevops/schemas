@@ -205,6 +205,55 @@ public class XsdDateTimeTests
         await Assert.That(result.Error).IsEqualTo(DatatypeError.YearOrComponentCap);
     }
 
+    // The year beyond the cap does not hide a defect elsewhere in the lexical form: the whole form is checked first.
+    [Test]
+    [Arguments("99999999999999999999999999999-XX", XsdDateTimeKind.GYearMonth)]
+    [Arguments("99999999999999999999999999999-13", XsdDateTimeKind.GYearMonth)]
+    [Arguments("99999999999999999999999999999-01Q", XsdDateTimeKind.GYearMonth)]
+    [Arguments("99999999999999999999999999999X", XsdDateTimeKind.GYear)]
+    [Arguments("99999999999999999999999999999+15:00", XsdDateTimeKind.GYear)]
+    [Arguments("100000000000000000-QQ-15", XsdDateTimeKind.Date)]
+    [Arguments("100000000000000000-02-30", XsdDateTimeKind.Date)]
+    [Arguments("100000000000000001-02-29", XsdDateTimeKind.Date)]
+    [Arguments("100000000000000000-05-15+15:00", XsdDateTimeKind.Date)]
+    [Arguments("100000000000000000-05-15T16:15:00", XsdDateTimeKind.Date)]
+    [Arguments("100000000000000000-05-15", XsdDateTimeKind.DateTime)]
+    [Arguments("100000000000000000-05-15T25:00:00", XsdDateTimeKind.DateTime)]
+    [Arguments("100000000000000000-05-15T16:15:00+14:01", XsdDateTimeKind.DateTime)]
+    [Arguments("012345678901234567-05-15", XsdDateTimeKind.Date)]
+    [Arguments("-100000000000000000-QQ-15", XsdDateTimeKind.Date)]
+    public async Task Parse_YearBeyondTheCapWithAnotherDefect_ReportsTheInvalidForm(
+        string lexical,
+        XsdDateTimeKind kind
+    )
+    {
+        var result = XsdDateTime.Parse(lexical.AsSpan(), kind, XsdVersion.V11);
+
+        await Assert.That(result.Success).IsFalse();
+        await Assert.That(result.Error).IsEqualTo(DatatypeError.InvalidLexicalForm);
+    }
+
+    // A defect before the year is still found first, and a valid rest of the form reports the cap at the first digit beyond it.
+    [Test]
+    [Arguments("99999999999999999999999999999-01", XsdDateTimeKind.GYearMonth, 17)]
+    [Arguments("99999999999999999999999999999", XsdDateTimeKind.GYear, 17)]
+    [Arguments("100000000000000000-05-15", XsdDateTimeKind.Date, 17)]
+    [Arguments("-100000000000000000-05-15T16:15:00Z", XsdDateTimeKind.DateTime, 18)]
+    [Arguments("100000000000000000-02-29", XsdDateTimeKind.Date, 17)]
+    [Arguments("100000000000000000-01-01+14:00", XsdDateTimeKind.Date, 17)]
+    public async Task Parse_YearBeyondTheCapWithAValidForm_ReportsTheYearCapAtItsDigit(
+        string lexical,
+        XsdDateTimeKind kind,
+        int offset
+    )
+    {
+        var result = XsdDateTime.Parse(lexical.AsSpan(), kind, XsdVersion.V11);
+
+        await Assert.That(result.Success).IsFalse();
+        await Assert.That(result.Error).IsEqualTo(DatatypeError.YearOrComponentCap);
+        await Assert.That(result.ErrorOffset).IsEqualTo(offset);
+    }
+
     [Test]
     [Arguments("2024-03-05T07:00:00+14:00", true)]
     [Arguments("2024-03-05T07:00:00-14:00", true)]
