@@ -9,6 +9,7 @@ using NetEvolve.Schemas.Xsd.ContentModels.Determinism;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.Tests.Unit.ContentModels.Automaton;
+using NetEvolve.Schemas.Xsd.Tests.Unit.Fakes;
 using static NetEvolve.Schemas.Xsd.Tests.Unit.ContentModels.Automaton.AutomatonTestKit;
 using static NetEvolve.Schemas.Xsd.Tests.Unit.ContentModels.Determinism.DeterminismKit;
 
@@ -242,6 +243,39 @@ public class DeterminismCheckTests
 
         await Assert.That(outcome.Deterministic).IsFalse();
         await Assert.That(head.Deterministic).IsTrue();
+    }
+
+    [Test]
+    [Arguments(2L)]
+    [Arguments(3L)]
+    [Arguments(5L)]
+    [Arguments(50L)]
+    [Arguments(1_000L)]
+    [Arguments(1_000_000_000L)]
+    public async Task Verdict_IsTheSame_ForSmallAndHugeBounds(long bound)
+    {
+        // The classes of a counter are the same five from the third value on, so the verdict does not change with the bound.
+        var ambiguous = Check(Seq(El(A, bound, bound + 1), El(A, 0, 1)));
+        var exact = Check(Seq(El(A, bound, bound), El(A, 0, 1)));
+        var distinct = Check(Seq(El(A, bound, bound + 1), El(B)));
+        var sameLeaf = Check(Seq(bound, bound + 1, El(A, bound, bound + 1)));
+
+        await Assert.That(ambiguous.Deterministic).IsFalse();
+        await Assert.That(exact.Deterministic).IsTrue();
+        await Assert.That(distinct.Deterministic).IsTrue();
+        await Assert.That(sameLeaf.Deterministic).IsTrue();
+    }
+
+    [Test]
+    public async Task ForeignWildcards_AreAssumedToOverlap()
+    {
+        // The overlap is decided on the namespace constraints of the shipped wildcard only; any other implementation overlaps.
+        var first = new FakeWildcard([], XsdProcessContents.Lax, "urn:a");
+        var second = new FakeWildcard([], XsdProcessContents.Lax, "urn:b");
+
+        var outcome = Check(Cho(AutomatonParticle.Wildcard(1, 1, first), AutomatonParticle.Wildcard(1, 1, second)));
+
+        await Assert.That(outcome.Deterministic).IsFalse();
     }
 
     [Test]
