@@ -121,9 +121,10 @@ public class PatternFacetTests
     public async Task StepLimit_OfOnePattern_DoesNotHideAMatchOfAnother()
     {
         var limits = RegexStepLimits.Default.WithMaxNfaSteps(5_000);
-        var input = new string('a', 10_000);
+        var input = new string('a', 1_000);
 
-        // The second pattern matches within the ceiling; the order of the patterns does not change the answer.
+        // On 1,000 characters "a+" takes about 4,000 steps and "(a*)*b" about 6,000: the second pattern matches within the
+        // ceiling, and the order of the patterns does not change the answer.
         var abortFirst = Create(limits, "(a*)*b", "a+");
         var abortLast = Create(limits, "a+", "(a*)*b");
 
