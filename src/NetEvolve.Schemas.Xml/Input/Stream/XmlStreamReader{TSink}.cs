@@ -106,7 +106,10 @@ public sealed class XmlStreamReader<TSink> : IDisposable
         _bufferSize = bufferSize;
         _bytePool = bytePool ?? ArrayPool<byte>.Shared;
         _charPool = charPool ?? ArrayPool<char>.Shared;
-        _parser = new XmlParser(_limits, options.DtdProcessing ? new DtdDoctypeHandler(_limits) : null);
+        _parser = new XmlParser(
+            _limits,
+            options.DtdProcessing ? new DtdDoctypeHandler(_limits, options.ExternalAccess, options.BaseUri) : null
+        );
     }
 
     /// <summary>Gets the sink by reference; read it after <see cref="ReadAsync"/> returned.</summary>

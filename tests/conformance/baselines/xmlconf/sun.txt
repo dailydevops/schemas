@@ -1,6 +1,2 @@
-sun/cond01
-sun/cond02
-sun/decl01
-sun/dtd07
 sun/ext01
 sun/ext02

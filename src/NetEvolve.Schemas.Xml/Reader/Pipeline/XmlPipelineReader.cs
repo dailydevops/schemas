@@ -23,8 +23,9 @@ using NetEvolve.Schemas.Xml.Reader.EntityInput;
 /// (chunked and async input are XML-17, <c>ReadOnlySequence</c> input is XML-56); a decoding error reports the offset of the
 /// undecodable sequence in the decoded characters and no line or column; the document type declaration is rejected
 /// (<c>XML2001</c>) unless <see cref="XmlReaderOptions.DtdProcessing"/> is set, which parses the declarations of the
-/// internal subset (XML-14) and expands the references to the internal general entities it declares (XML-15); external
-/// entities are not read (XML-61, XML-62). Not thread-safe. Dispose the reader to return its buffers.
+/// internal subset (XML-14) and expands the references to the internal general entities it declares (XML-15); the external
+/// subset and the external parameter entities are read only with the internal option <c>ExternalAccess</c> (XML-20), external
+/// general entities are not read (XML-62). Not thread-safe. Dispose the reader to return its buffers.
 /// </remarks>
 public sealed class XmlPipelineReader : IXmlReader, IDisposable
 {
@@ -45,7 +46,9 @@ public sealed class XmlPipelineReader : IXmlReader, IDisposable
     {
         _owned = owned;
         _pending = pending;
-        _doctype = options.DtdProcessing ? new DtdDoctypeHandler(options.Limits) : null;
+        _doctype = options.DtdProcessing
+            ? new DtdDoctypeHandler(options.Limits, options.ExternalAccess, options.BaseUri)
+            : null;
         _parser = new XmlParser(
             options.Limits,
             _doctype,

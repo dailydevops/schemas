@@ -8,7 +8,8 @@ using NetEvolve.Schemas.Xml.Contracts;
 /// The first declaration of an element, attribute, entity, or notation binds.
 /// </summary>
 /// <remarks>
-/// Limitation: only the internal subset is read (the external subset is XML-20), and the view records neither the position
+/// Limitation: the external subset and the external parameter entities are read only when the reader has external access
+/// enabled (XML-20), and the view records neither the position
 /// of each declaration nor the anomalies that only the declaration parser can see (#608). The parser model behind the
 /// view stays internal; consumers depend on this interface only. Not intended for implementation by consumers.
 /// Adding a member to this interface later is a breaking change for every implementer; #608 (per-declaration locations
