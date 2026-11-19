@@ -54,7 +54,8 @@ public sealed class XmlPipelineReader : IXmlReader, IDisposable
             _doctype,
             _doctype is null ? null : new XmlEntityInputStack(options.Limits, _doctype)
         );
-        _parser.Feed(characters, pending is null);
+        // Decoding stopped past the document limit: the parser reports that limit at the character that crosses it, as for chars.
+        _parser.Feed(characters, pending is null || ReferenceEquals(pending, XmlErrorCodes.XML1101));
     }
 
     /// <inheritdoc />

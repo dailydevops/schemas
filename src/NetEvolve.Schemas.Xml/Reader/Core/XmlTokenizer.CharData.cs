@@ -88,6 +88,7 @@ internal partial struct XmlTokenizer
             end = pos + bad;
         }
 
+        end = CapRun(input, pos, end);
         token = new XmlToken(cdata ? XmlTokenKind.CData : XmlTokenKind.Text, pos, end - pos);
         pos = end;
         return Scan.Token;
@@ -287,6 +288,7 @@ internal partial struct XmlTokenizer
             end = pos + bad;
         }
 
+        end = CapRun(input, pos, end);
         token = new XmlToken(XmlTokenKind.Text, pos, end - pos);
         pos = end;
         return Scan.Token;
