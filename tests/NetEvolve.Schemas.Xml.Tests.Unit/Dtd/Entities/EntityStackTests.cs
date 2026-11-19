@@ -120,8 +120,15 @@ public class EntityStackTests
         }
     }
 
+    // Unmeasured runs before the measured ones; a one-time allocation hook fires on the first measured run.
+    private const int WarmupRuns = 2;
+
+    // Keeps the deliberate allocations of the tests observable to the allocation counter.
+    private static object? s_retained;
+
     // The characters and the references of a document with `count` references; everything else is constant.
-    private static long Allocated(int count)
+    // `disturb` receives the zero-based run index and runs inside the measured window of every run.
+    private static long Allocated(int count, Action<int>? disturb = null)
     {
         var xml =
             "<!DOCTYPE a [<!ENTITY e \"<b/>text\"><!ENTITY v \"value\">]><a x=\""
@@ -130,26 +137,54 @@ public class EntityStackTests
             + new StringBuilder().Insert(0, "&e;", count)
             + "</a>";
         var options = XmlReaderOptions.Default.WithDtdProcessing(true);
-        var sink = new CountingXmlSink(new SpanInterningNameTable(XmlReaderLimits.Default.MaxDistinctNames));
-        using var reader = XmlPipelineReader.Create(xml.AsSpan(), options);
+        var measured = 0L;
 
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var status = reader.Pump(ref sink);
+        for (var run = 0; run <= WarmupRuns; run++)
+        {
+            var sink = new CountingXmlSink(new SpanInterningNameTable(XmlReaderLimits.Default.MaxDistinctNames));
+            using var reader = XmlPipelineReader.Create(xml.AsSpan(), options);
 
-        return status == XmlReadStatus.Completed
-            ? GC.GetAllocatedBytesForCurrentThread() - before
-            : throw new InvalidOperationException("The document must be read to the end.");
+            var before = GC.GetAllocatedBytesForCurrentThread();
+            var status = reader.Pump(ref sink);
+            disturb?.Invoke(run);
+            measured = GC.GetAllocatedBytesForCurrentThread() - before;
+
+            if (status != XmlReadStatus.Completed)
+            {
+                throw new InvalidOperationException("The document must be read to the end.");
+            }
+        }
+
+        return measured;
     }
 
     [Test]
     public async Task EntityStack_ExpansionAllocatesNothingPerReference()
     {
-        _ = Allocated(10);
-        _ = Allocated(1000);
-
         var few = Allocated(10);
         var many = Allocated(1000);
 
         await Assert.That(many - few).IsLessThanOrEqualTo(0);
+    }
+
+    [Test]
+    public async Task EntityStack_ExpansionAllocationMeasurement_ToleratesAOneTimeAllocation()
+    {
+        // A one-time allocation (tiered JIT, a lazily created static, an allocation context refill) lands in the first
+        // measured run of the large document only; the measurement must not read it as a per-reference cost.
+        var few = Allocated(10);
+        var many = Allocated(1000, run => s_retained = run == WarmupRuns ? new byte[4096] : null);
+
+        await Assert.That(many - few).IsLessThanOrEqualTo(0);
+    }
+
+    [Test]
+    public async Task EntityStack_ExpansionAllocationMeasurement_StillSeesAnAllocationPerReference()
+    {
+        // The mutation proof: one 24-byte allocation per reference in every run must still make the slope positive.
+        var few = Allocated(10, _ => s_retained = new byte[10 * 24]);
+        var many = Allocated(1000, _ => s_retained = new byte[1000 * 24]);
+
+        await Assert.That(many - few).IsGreaterThan(0);
     }
 }
