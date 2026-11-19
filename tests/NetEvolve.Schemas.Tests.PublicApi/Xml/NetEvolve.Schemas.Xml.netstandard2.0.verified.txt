@@ -1276,6 +1276,24 @@ namespace NetEvolve.Schemas.Xml.Dtd.Model
         string? SystemId { get; }
     }
 }
+namespace NetEvolve.Schemas.Xml.Input.Sequence
+{
+    public readonly struct XmlSequenceReader : NetEvolve.Schemas.Xml.Contracts.IXmlReader, System.IDisposable, System.IEquatable<NetEvolve.Schemas.Xml.Input.Sequence.XmlSequenceReader>
+    {
+        public NetEvolve.Schemas.Xml.Contracts.XmlDiagnostic? Diagnostic { get; }
+        public NetEvolve.Schemas.Xml.Contracts.XmlPosition Position { get; }
+        public void Dispose() { }
+        public bool Equals(NetEvolve.Schemas.Xml.Input.Sequence.XmlSequenceReader other) { }
+        public override bool Equals(object? obj) { }
+        public override int GetHashCode() { }
+        public NetEvolve.Schemas.Xml.Contracts.XmlReadStatus Pump<TSink>(ref TSink sink)
+            where TSink : NetEvolve.Schemas.Xml.Contracts.IXmlSink { }
+        public static NetEvolve.Schemas.Xml.Input.Sequence.XmlSequenceReader Create(System.Buffers.ReadOnlySequence<byte> input, NetEvolve.Schemas.Xml.Contracts.XmlReaderOptions? options = null) { }
+        public static NetEvolve.Schemas.Xml.Input.Sequence.XmlSequenceReader Create(System.Buffers.ReadOnlySequence<char> input, NetEvolve.Schemas.Xml.Contracts.XmlReaderOptions? options = null) { }
+        public static bool operator !=(NetEvolve.Schemas.Xml.Input.Sequence.XmlSequenceReader left, NetEvolve.Schemas.Xml.Input.Sequence.XmlSequenceReader right) { }
+        public static bool operator ==(NetEvolve.Schemas.Xml.Input.Sequence.XmlSequenceReader left, NetEvolve.Schemas.Xml.Input.Sequence.XmlSequenceReader right) { }
+    }
+}
 namespace NetEvolve.Schemas.Xml.Input.Stream
 {
     public sealed class XmlStreamReader<TSink> : System.IDisposable
