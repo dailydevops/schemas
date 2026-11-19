@@ -5,6 +5,8 @@ using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Schematron.Tests.Unit.Parsing.Core;
 using NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Construction;
 using NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Functions;
+using NetEvolve.Schemas.Xml.Datatypes.Contracts;
+using NetEvolve.Schemas.Xml.Datatypes.DateTime;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 using static NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Instructions.Flow.Fl;
 
@@ -165,6 +167,22 @@ public class SortTests
         await Assert.That(problem.Code).IsEqualTo(SchematronDiagnosticCodes.EvaluationFailed);
         await Assert.That(problem.Constraint).IsEqualTo("XTDE1030");
         await Assert.That(problem.Location.Line).IsEqualTo(11);
+        await Assert.That(harness.Sink.Events.Count).IsEqualTo(0);
+    }
+
+    [Test]
+    public async Task Sort_DateKeys_AreXtde1030UntilTheXPathComparisonOfDatesExists()
+    {
+        var harness = Loop("$dates", [Sort(".", null, 11)], ".", "dates");
+        var later = XsdDateTime.Parse("2020-01-02", XsdDateTimeKind.Date, XsdVersion.V10).Value;
+        var earlier = XsdDateTime.Parse("2020-01-01", XsdDateTimeKind.Date, XsdVersion.V10).Value;
+        harness.Bind("dates", XdmSequence.Create([XdmItem.FromDateTime(later), XdmItem.FromDateTime(earlier)]));
+
+        var status = harness.Execute();
+
+        var problem = harness.Frame.TakeProblem();
+        await Assert.That(status).IsEqualTo(QueryStatus.Problem);
+        await Assert.That(problem.Constraint).IsEqualTo("XTDE1030");
         await Assert.That(harness.Sink.Events.Count).IsEqualTo(0);
     }
 
