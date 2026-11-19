@@ -25,12 +25,8 @@ internal sealed class RoundHalfToEvenFunction : NumericFunction
             return XPathEvaluationStatus.Ok;
         }
 
-        // The function conversion has matched the precision against xs:integer exactly once.
-        long precision = 0;
-        if (invocation.Arguments.Length > 1)
-        {
-            _ = invocation.Arguments[1][0].TryGetInteger(out precision);
-        }
+        // The function conversion has matched the precision against xs:integer exactly once; one beyond 64 bits is saturated.
+        var precision = invocation.Arguments.Length > 1 ? invocation.Arguments[1][0].GetSaturatedInteger() : 0;
 
         invocation.Result = XdmSequence.Create(NumericRounding.RoundHalfToEven(argument[0], precision));
         return XPathEvaluationStatus.Ok;

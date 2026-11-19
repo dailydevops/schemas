@@ -32,7 +32,7 @@ internal sealed class InsertBeforeFunction : SequenceFunction
             return XPathEvaluationStatus.Ok;
         }
 
-        _ = invocation.Arguments[1][0].TryGetInteger(out var position);
+        var position = invocation.Arguments[1][0].GetSaturatedInteger();
         var at =
             position < 1 ? 0
             : position > count ? count

@@ -16,7 +16,7 @@ internal sealed class RemoveFunction : SequenceFunction
     {
         var target = invocation.Arguments[0];
         var count = target.Count;
-        _ = invocation.Arguments[1][0].TryGetInteger(out var position);
+        var position = invocation.Arguments[1][0].GetSaturatedInteger();
         if (position < 1 || position > count)
         {
             invocation.Result = target;
