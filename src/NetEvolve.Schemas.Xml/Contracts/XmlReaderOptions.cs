@@ -29,8 +29,9 @@ public sealed class XmlReaderOptions
     /// content and in attribute values, bounded by <see cref="XmlReaderLimits.MaxEntityExpansionCharacters"/> and
     /// <see cref="XmlReaderLimits.MaxEntityDepth"/>. Limitations: only the declarations of the internal subset are parsed
     /// (XML-14) unless the internal option <see cref="ExternalAccess"/> is set, which also reads the external subset and the
-    /// external parameter entities (XML-20); external general entities are not read (XML-62), so a reference to an
-    /// external parsed entity in content is <see cref="XmlErrorCodes.XML2002"/>; an undeclared entity is skipped, not an
+    /// external parameter entities (XML-20) and the external general entities that content references (XML-62); without
+    /// it a reference to an external parsed entity in content is <see cref="XmlErrorCodes.XML2002"/>, and in an attribute value it is
+    /// always <see cref="XmlErrorCodes.XML0022"/>; an undeclared entity is skipped, not an
     /// error, when an external subset or a parameter-entity reference could have declared it (section 4.1).
     /// </remarks>
     public bool DtdProcessing => _dtdProcessing;

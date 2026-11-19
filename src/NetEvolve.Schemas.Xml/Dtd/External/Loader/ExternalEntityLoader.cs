@@ -20,8 +20,9 @@ using NetEvolve.Schemas.Xml.Limits;
 /// (<c>XML1110</c>), the number of resolver calls (<c>XML1117</c>), then the options, which deny a kind whose flag is off
 /// without calling the resolver (<c>XML2002</c>). The decoded characters of every frame are charged to
 /// <c>MaxEntityExpansionCharacters</c> (<c>XML1109</c>) when the frame is read. The loader belongs to one document and is
-/// not thread-safe. Limitations: the loader owns its budgets; sharing them with the internal entity stack and reading the
-/// frames in the parser is the wiring of XML-20 and XML-62. <c>MaxResourceSize</c> is not applied: the bytes of a frame are
+/// not thread-safe. The loader owns the budgets of the document: the external subset and the external general entities share
+/// them, and the internal entity stack charges the characters of its replacement texts to them (XML-62). Limitations:
+/// <c>MaxResourceSize</c> is not applied: the bytes of a frame are
 /// bounded by the expansion budget, because a frame is read in chunks and never buffered completely (#122, D9 rule 5).
 /// An <c>xml:base</c> attribute does not take part in the resolution (#122, section 12). A request that the options
 /// refuse still consumes one <c>MaxExternalEntityRequests</c> charge, because the charge happens before the options are

@@ -17,18 +17,23 @@ using NetEvolve.Schemas.Xml.Text.NameTable;
 /// validation steps (the skipped reference raises no event yet, #647). Limitation: an entity that is declared in the
 /// replacement text of an internal parameter entity counts as declared with <c>standalone="yes"</c>, although section 4.1
 /// excludes parameter entities.
+/// An external parsed entity in content is handed back for the caller to load when the resolver is created for external
+/// content (XML-62); otherwise it is <c>XML2002</c>, and in an attribute value it is always <c>XML0022</c>.
 /// The name lookup allocates once per document type declaration and nothing per reference.
 /// </remarks>
 internal sealed class GeneralEntityResolver
 {
     private readonly DtdDeclarations? _declarations;
     private readonly SpanInterningNameTable? _names;
+    private readonly bool _externalContent;
 
     /// <summary>Initializes a new instance of the <see cref="GeneralEntityResolver"/> class.</summary>
     /// <param name="declarations">The declarations, <see langword="null"/> for a document without a document type declaration.</param>
-    internal GeneralEntityResolver(DtdDeclarations? declarations)
+    /// <param name="externalContent"><see langword="true"/> when the caller loads an external parsed entity that is referenced in content, <see langword="false"/> to refuse it with <c>XML2002</c>.</param>
+    internal GeneralEntityResolver(DtdDeclarations? declarations, bool externalContent = false)
     {
         _declarations = declarations;
+        _externalContent = externalContent;
         if (declarations is null || declarations.GeneralEntities.Count == 0)
         {
             return;
@@ -49,7 +54,7 @@ internal sealed class GeneralEntityResolver
     /// <param name="name">The entity name without the ampersand and the semicolon.</param>
     /// <param name="inAttributeValue">Whether the reference stands in an attribute value.</param>
     /// <param name="standalone">Whether the XML declaration says <c>standalone="yes"</c>.</param>
-    /// <param name="entity">The internal entity to expand; <see langword="null"/> when the result is an error or the reference is skipped.</param>
+    /// <param name="entity">The entity to expand: an internal one, or an external parsed one for the caller to load when the value is <see langword="null"/>; <see langword="null"/> when the result is an error or the reference is skipped.</param>
     /// <returns>The error code, or <see langword="null"/> when the reference is accepted (expanded when <paramref name="entity"/> is set, otherwise skipped).</returns>
     internal XmlErrorCode? Resolve(
         ReadOnlySpan<char> name,
@@ -76,7 +81,15 @@ internal sealed class GeneralEntityResolver
 
         if (declared.Value is null)
         {
-            return inAttributeValue ? XmlErrorCodes.XML0022 : XmlErrorCodes.XML2002;
+            if (inAttributeValue)
+            {
+                return XmlErrorCodes.XML0022;
+            }
+
+            if (!_externalContent)
+            {
+                return XmlErrorCodes.XML2002;
+            }
         }
 
         entity = declared;
