@@ -19,11 +19,11 @@ using NetEvolve.Schemas.Xml.Dtd.Model;
 /// text, which must hold complete declarations (WFC PE Between Declarations); a reference inside a declaration is
 /// recognized in external text only (WFC PEs in Internal Subset), and in an entity value there it is included in the
 /// literal; the nesting validity constraints of parameter entities and conditional sections (Proper Declaration/PE Nesting,
-/// Proper Group/PE Nesting, Proper Conditional Section/PE Nesting) are not reported (XML-67, #608); a self-referencing
-/// internal parameter entity ends in the depth limit <c>XML1110</c>, not <c>XML0020</c> (#701); an IGNORE section must end in the
-/// text that opened it; the external subset and an external parameter entity between declarations are read through a window
-/// of one unit (a declaration, a comment, a processing instruction, a conditional section opener, a reference) that is
-/// refilled chunk by chunk, so no external entity is buffered completely (design #122, D9 rule 5), and one unit is bounded
+/// Proper Group/PE Nesting, Proper Conditional Section/PE Nesting) are not reported (XML-67, #608); a parameter entity
+/// that is referenced while its own replacement text is open, directly or through others, is recursion (<c>XML0020</c>,
+/// WFC No Recursion, checked before the depth limit); an IGNORE section must end in the text that opened it; the external
+/// subset and an external parameter entity between declarations are read through a window of one unit (a declaration, a
+/// comment, a processing instruction, a conditional section opener, a reference) that is refilled chunk by chunk, so no external entity is buffered completely (design #122, D9 rule 5), and one unit is bounded
 /// by <c>MaxDoctypeLength</c> (<c>XML1115</c>); an external parameter entity that is included inside a declaration or an
 /// entity value is one unit with it and bounded the same way, and the end of a unit is found by a quote-aware scan of the
 /// raw text, so a unit whose quote or closing bracket a parameter entity supplies may be read past its end (#699); the number of declarations is bounded by <c>MaxDeclarations</c> (<c>XML1119</c>), counted over both
@@ -196,11 +196,25 @@ internal sealed partial class DtdSubsetParser
             return true;
         }
 
+        if (IsOpen(entity))
+        {
+            return Fail(XmlErrorCodes.XML0020);
+        }
+
         if (Nesting + 1 > _limits.MaxEntityDepth)
         {
             return Fail(XmlErrorCodes.XML1110);
         }
 
+        _open.Add(entity);
+        var ok = ParseEntityText(entity);
+        _open.RemoveAt(_open.Count - 1);
+
+        return ok;
+    }
+
+    private bool ParseEntityText(DtdEntityDeclaration entity)
+    {
         if (entity.Value is not null)
         {
             return Charge(entity.Value.Length) ? ParseSequence(entity.Value, Nesting + 1) : Fail(XmlErrorCodes.XML1109);

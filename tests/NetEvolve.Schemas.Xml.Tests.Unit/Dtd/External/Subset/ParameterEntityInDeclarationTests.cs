@@ -157,4 +157,12 @@ public class ParameterEntityInDeclarationTests
         await Assert.That(error).IsNull();
         await Assert.That(model).IsEqualTo("GE:g=\"x internal y\"|PE:v=\"internal\"");
     }
+
+    [Test]
+    public async Task SelfReferencingEntity_InAnEntityValue_RaisesXml0020()
+    {
+        var (_, error) = SubsetHarness.ParseSubset("<!ENTITY % a \"&#37;a;\"><!ENTITY % b \"%a;\">");
+
+        await Assert.That(error).IsSameReferenceAs(XmlErrorCodes.XML0020);
+    }
 }
