@@ -35,7 +35,7 @@ internal static class WhitespaceText
         );
         try
         {
-            return new string(normalized);
+            return normalized.ToString();
         }
         finally
         {
