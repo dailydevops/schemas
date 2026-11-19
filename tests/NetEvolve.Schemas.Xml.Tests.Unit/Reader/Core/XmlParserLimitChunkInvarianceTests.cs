@@ -19,6 +19,22 @@ public class XmlParserLimitChunkInvarianceTests
 
     private static readonly int[] ChunkSizes = [1, 2, 3, 5];
 
+    private static readonly string[] Limits =
+    [
+        "document",
+        "text",
+        "value",
+        "tag",
+        "depth",
+        "attributes",
+        "namespaces",
+        "name",
+        "token",
+        "nodes",
+        "declaration",
+        "doctype",
+    ];
+
     public static IEnumerable<Func<(string Xml, bool Doctype)>> Documents()
     {
         yield return () => ("<a>ab<![CDATA[cd]]>ef&amp;gh</a>", false);
@@ -38,6 +54,7 @@ public class XmlParserLimitChunkInvarianceTests
         yield return () => ("<a x", false);
         yield return () => ("<a/>\n \n<!--c-->", false);
         yield return () => (DoctypeDocument, true);
+        yield return () => ("<a xmlns:p=\"u\" xmlns=\"v\" x=\"1\" y=\"2\"><b><c/><?p d?><!--c--></b></a>", false);
     }
 
     public static IEnumerable<Func<(string Xml, bool Doctype, string Limit)>> LimitedDocuments()
@@ -45,7 +62,7 @@ public class XmlParserLimitChunkInvarianceTests
         foreach (var factory in Documents())
         {
             var (xml, doctype) = factory();
-            foreach (var limit in new[] { "document", "text", "value", "tag" })
+            foreach (var limit in Limits)
             {
                 var name = limit;
                 yield return () => (xml, doctype, name);
@@ -164,7 +181,15 @@ public class XmlParserLimitChunkInvarianceTests
             "document" => XmlReaderLimits.Default.WithMaxDocumentCharacters(value),
             "text" => XmlReaderLimits.Default.WithMaxTextNodeLength(value),
             "value" => XmlReaderLimits.Default.WithMaxAttributeValueLength(value),
-            _ => XmlReaderLimits.Default.WithMaxStartTagCharacters(value),
+            "tag" => XmlReaderLimits.Default.WithMaxStartTagCharacters(value),
+            "depth" => XmlReaderLimits.Default.WithMaxElementDepth(value),
+            "attributes" => XmlReaderLimits.Default.WithMaxAttributesPerElement(value),
+            "namespaces" => XmlReaderLimits.Default.WithMaxNamespaceDeclarationsPerElement(value),
+            "name" => XmlReaderLimits.Default.WithMaxNameLength(value),
+            "token" => XmlReaderLimits.Default.WithMaxTokenLength(value),
+            "nodes" => XmlReaderLimits.Default.WithMaxNodeCount(value),
+            "declaration" => XmlReaderLimits.Default.WithMaxXmlDeclarationLength(value),
+            _ => XmlReaderLimits.Default.WithMaxDoctypeLength(value),
         };
 
     // One parse, cut once at `split` or evenly into chunks of `size`. The position after an error is not compared.
