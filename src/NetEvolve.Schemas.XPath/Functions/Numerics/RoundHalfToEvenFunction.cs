@@ -8,7 +8,7 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// in the type of the argument: 2.5 gives 2 and 3.5 gives 4. The precision is the number of fraction digits kept and defaults to 0; a
 /// negative precision rounds to a power of ten, so 12350 with a precision of -2 gives 12400. The empty sequence gives the empty sequence.
 /// </summary>
-/// <remarks>Limitation: a precision of an <c>xs:integer</c> beyond 64 bits raises XPTY0004 until the function conversion accepts it (#719).</remarks>
+/// <remarks>A precision of an <c>xs:integer</c> beyond 64 bits is saturated to the 64-bit range: a positive one keeps every digit and a negative one clears every digit (#719).</remarks>
 internal sealed class RoundHalfToEvenFunction : NumericFunction
 {
     /// <summary>Initializes a new instance of the <see cref="RoundHalfToEvenFunction"/> class.</summary>
