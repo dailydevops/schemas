@@ -271,5 +271,10 @@ internal static class FlowCompile
         string message,
         XPathNode element,
         string? constraint
-    ) => XsltProblems.Report(context.Problems, code, message, element, constraint);
+    )
+    {
+        Argument.ThrowIfNull(context);
+
+        XsltProblems.Report(context.Problems, code, message, element, constraint);
+    }
 }

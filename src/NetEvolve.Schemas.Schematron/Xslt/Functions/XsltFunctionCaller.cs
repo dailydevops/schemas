@@ -43,12 +43,14 @@ internal sealed class XsltFunctionCaller
     /// <param name="names">The name table of the run, for the sequence a body constructs.</param>
     /// <param name="cancellationToken">The token checked at the entry of every call.</param>
     /// <param name="maxDepth">The limit of nested calls, 1 to <see cref="MaxDepthCeiling"/>.</param>
+    /// <param name="messages">The diagnostic channel that the <c>xsl:message</c> instructions of the bodies send to, or <see langword="null"/> to drop the messages.</param>
     internal XsltFunctionCaller(
         IXsltFunctionRun run,
         ISlotBinder binder,
         XmlNameTable names,
         CancellationToken cancellationToken,
-        int maxDepth = DefaultMaxDepth
+        int maxDepth = DefaultMaxDepth,
+        IXsltMessageSink? messages = null
     )
     {
         Argument.ThrowIfNull(run);
@@ -62,7 +64,7 @@ internal sealed class XsltFunctionCaller
         _names = names;
         _cancellationToken = cancellationToken;
         _maxDepth = maxDepth;
-        _frame = new XsltFrame(run, cancellationToken);
+        _frame = new XsltFrame(run, cancellationToken) { Messages = messages };
     }
 
     /// <summary>Gets the number of calls that are active now.</summary>

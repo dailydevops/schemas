@@ -15,6 +15,11 @@ internal sealed class XsltFrame
     /// <summary>The default limit of the items that one <c>xsl:for-each</c> holds (design #150 EP-16).</summary>
     internal const int DefaultMaxSequenceLength = 1_000_000;
 
+    /// <summary>The ceiling of the limit of the items that one <c>xsl:for-each</c> holds (design #150 EP-16).</summary>
+    internal const int MaxSequenceLengthCeiling = 100_000_000;
+
+    private int _maxSequenceLength = DefaultMaxSequenceLength;
+    private int _maxMessageLength = XmlReaderLimits.Default.MaxTextNodeLength;
     private SchematronProblem _problem;
     private bool _hasProblem;
 
@@ -38,10 +43,29 @@ internal sealed class XsltFrame
     internal IXsltMessageSink? Messages { get; set; }
 
     /// <summary>Gets or sets the most items that one <c>xsl:for-each</c> holds; a larger sequence is the coded limit error.</summary>
-    internal int MaxSequenceLength { get; set; } = DefaultMaxSequenceLength;
+    internal int MaxSequenceLength
+    {
+        get => _maxSequenceLength;
+        set
+        {
+            Argument.ThrowIfLessThan(value, 1);
+            Argument.ThrowIfGreaterThan(value, MaxSequenceLengthCeiling);
+
+            _maxSequenceLength = value;
+        }
+    }
 
     /// <summary>Gets or sets the most characters of one <c>xsl:message</c>; a longer message is the coded limit error.</summary>
-    internal int MaxMessageLength { get; set; } = XmlReaderLimits.Default.MaxTextNodeLength;
+    internal int MaxMessageLength
+    {
+        get => _maxMessageLength;
+        set
+        {
+            Argument.ThrowIfLessThan(value, 0);
+
+            _maxMessageLength = value;
+        }
+    }
 
     /// <summary>Records a problem that an instruction found itself, as opposed to one the run found while evaluating.</summary>
     /// <param name="problem">The problem.</param>
