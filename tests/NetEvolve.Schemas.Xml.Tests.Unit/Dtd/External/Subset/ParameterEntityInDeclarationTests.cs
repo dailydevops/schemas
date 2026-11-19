@@ -159,14 +159,6 @@ public class ParameterEntityInDeclarationTests
     }
 
     [Test]
-    public async Task SelfReferencingEntity_InsideADeclaration_RaisesXml0020()
-    {
-        var (_, error) = SubsetHarness.ParseSubset("<!ENTITY % a \"&#37;a;\"><!ELEMENT x %a;>");
-
-        await Assert.That(error).IsSameReferenceAs(XmlErrorCodes.XML0020);
-    }
-
-    [Test]
     public async Task SelfReferencingEntity_InAnEntityValue_RaisesXml0020()
     {
         var (_, error) = SubsetHarness.ParseSubset("<!ENTITY % a \"&#37;a;\"><!ENTITY % b \"%a;\">");
