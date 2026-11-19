@@ -16,8 +16,10 @@ using NetEvolve.Schemas.Xml.Reader.Pipeline;
 /// A sequence of one segment takes the span path of <see cref="XmlPipelineReader"/> directly. A reader is a handle: copies share
 /// one state, and <see cref="Dispose"/> on any copy returns the buffers. <see cref="Pump{TSink}"/> reads the whole sequence and
 /// returns <see cref="XmlReadStatus.Completed"/> or <see cref="XmlReadStatus.Error"/>, never
-/// <see cref="XmlReadStatus.NeedMoreData"/>. Limitations: a token that spans a segment edge is copied, with the following
-/// segments, into a pooled buffer that is bounded by the configured limits; the sequence must stay valid and unchanged until
+/// <see cref="XmlReadStatus.NeedMoreData"/>. Limitations: a sequence of several segments is fed in chunks, so every
+/// character of it is copied once into a pooled chunk buffer (large segments are not fed in place), and a token that spans a
+/// chunk edge is also kept in the carry of the parser; both buffers are bounded by the configured limits; the sequence must
+/// stay valid and unchanged until
 /// <see cref="Dispose"/>; the encoding of a byte sequence is decided from its first <c>4 x MaxXmlDeclarationLength + 4</c> bytes, so
 /// a declaration longer than that reports the limit instead of a conflicting declared encoding; the document type declaration is
 /// handled as by <see cref="XmlPipelineReader"/>. Not thread-safe. The benchmarks of this path belong to the reader benchmarks.
