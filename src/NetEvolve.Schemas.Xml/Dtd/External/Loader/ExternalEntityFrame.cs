@@ -90,7 +90,7 @@ internal sealed class ExternalEntityFrame : IDisposable
     /// <summary>Gets the offset of the first offending byte of a <c>XML4003</c> error, counted from the first byte of the entity.</summary>
     internal long ErrorByteOffset { get; private set; }
 
-    /// <summary>Opens a frame over a found result and reads its head; the frame owns the stream of the result.</summary>
+    /// <summary>Opens a frame over a found result and reads its head; the frame owns the stream of the result once it exists. When the call throws before the frame exists (cancellation, a guard), the caller disposes the result.</summary>
     /// <returns><see langword="false"/> when the text declaration or the encoding is wrong; the stream is then disposed.</returns>
     internal static bool TryCreate(
         ExternalEntityLoader loader,

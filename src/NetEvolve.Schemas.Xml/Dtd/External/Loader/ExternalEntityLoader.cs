@@ -23,7 +23,11 @@ using NetEvolve.Schemas.Xml.Limits;
 /// not thread-safe. Limitations: the loader owns its budgets; sharing them with the internal entity stack and reading the
 /// frames in the parser is the wiring of XML-20 and XML-62. <c>MaxResourceSize</c> is not applied: the bytes of a frame are
 /// bounded by the expansion budget, because a frame is read in chunks and never buffered completely (#122, D9 rule 5).
-/// An <c>xml:base</c> attribute does not take part in the resolution (#122, section 12).
+/// An <c>xml:base</c> attribute does not take part in the resolution (#122, section 12). A request that the options
+/// refuse still consumes one <c>MaxExternalEntityRequests</c> charge, because the charge happens before the options are
+/// asked. Limitations: the recursion check compares the resolved URI of the request only, not the final base URI the
+/// resolver reports, so a redirect cycle is bounded by the depth and request budgets alone. A fragment identifier in a
+/// system identifier (XML 1.0 section 4.2.2) is neither rejected nor stripped (tracked in #689).
 /// </remarks>
 internal sealed class ExternalEntityLoader
 {
@@ -160,8 +164,12 @@ internal sealed class ExternalEntityLoader
             return false;
         }
 
-        if (
-            !ExternalEntityFrame.TryCreate(
+        bool created;
+        ExternalEntityFrame? opened;
+        XmlErrorCode? error;
+        try
+        {
+            created = ExternalEntityFrame.TryCreate(
                 this,
                 request.Kind,
                 name,
@@ -169,17 +177,25 @@ internal sealed class ExternalEntityLoader
                 result,
                 _limits,
                 cancellationToken,
-                out var created,
-                out var error
-            )
-        )
+                out opened,
+                out error
+            );
+        }
+        catch
+        {
+            // The token was canceled between the resolver and the frame, or a guard failed: nobody else owns the stream.
+            result.Dispose();
+            throw;
+        }
+
+        if (!created)
         {
             failure = Fail(error!);
             return false;
         }
 
-        _active.Add(created!);
-        frame = created;
+        _active.Add(opened!);
+        frame = opened;
         return true;
     }
 

@@ -293,6 +293,55 @@ public class ExternalEntityLoaderTests
     }
 
     [Test]
+    public async Task TryLoad_DeniedAndNotFoundLoads_GiveTheDepthBack_SoALaterLoadStillWorksAtDepthOne(
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var resolver = new RecordingResolver()
+            .Add("http://example.org/doc/a.ent", Utf8("a"))
+            .Add("http://example.org/doc/bad.ent", Utf8("<?xml encoding=\"KLINGON-1\"?>x"));
+        var options = Open(resolver).WithAllowExternalGeneralEntities(false);
+        var loader = Loader(resolver, XmlReaderLimits.Default.WithMaxEntityDepth(1), options);
+        const ResourceKind Kind = ResourceKind.ExternalParameterEntity;
+
+        var (_, denied) = Load(loader, "d", "a.ent", DocumentUri, cancellationToken, ResourceKind.ExternalEntity);
+        var (_, missing) = Load(loader, "m", "missing.ent", DocumentUri, cancellationToken, Kind);
+        var (_, invalid) = Load(loader, "i", "bad.ent", DocumentUri, cancellationToken, Kind);
+        var (frame, failure) = Load(loader, "a", "a.ent", DocumentUri, cancellationToken, Kind);
+
+        await Assert.That(denied.Code).IsSameReferenceAs(XmlErrorCodes.XML2002);
+        await Assert.That(missing.Code).IsSameReferenceAs(XmlErrorCodes.XML2002);
+        await Assert.That(invalid.Code).IsSameReferenceAs(XmlErrorCodes.XML4001);
+        await Assert.That(failure.Code).IsNull();
+        await Assert.That(frame).IsNotNull();
+
+        frame!.Dispose();
+    }
+
+    [Test]
+    public async Task TryLoad_RequestRefusedByTheOptions_StillConsumesOneRequestCharge(
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var resolver = new RecordingResolver().Add("http://example.org/doc/a.ent", Utf8("a"));
+        var options = Open(resolver)
+            .WithAllowExternalGeneralEntities(false)
+            .WithDtdLimits(DtdValidationLimits.Default.WithMaxExternalEntityRequests(1));
+        var loader = Loader(resolver, options: options);
+
+        var (_, denied) = Load(loader, "a", "a.ent", DocumentUri, cancellationToken);
+        var (_, exhausted) = Load(loader, "a", "a.ent", DocumentUri, cancellationToken);
+
+        await Assert.That(denied.Code).IsSameReferenceAs(XmlErrorCodes.XML2002);
+        await Assert.That(exhausted.Code).IsSameReferenceAs(DtdLimitCodes.XML1117);
+        await Assert.That(resolver.Requests).IsEmpty();
+    }
+
+    [Test]
     public async Task TryLoad_MoreRequestsThanMaxExternalEntityRequests_RaisesXml1117(
         CancellationToken cancellationToken
     )
