@@ -102,7 +102,8 @@ public readonly struct XsdDateTime : IEquatable<XsdDateTime>
             out var year,
             out var month,
             out var day,
-            out var at
+            out var at,
+            out var capAt
         );
         if (leading != DatatypeError.None)
         {
@@ -131,6 +132,12 @@ public readonly struct XsdDateTime : IEquatable<XsdDateTime>
             }
 
             hasOffset = true;
+        }
+
+        // The whole form is valid, so the year beyond the cap is the only defect; it is reported last, at its digit.
+        if (capAt >= 0)
+        {
+            return new(DatatypeError.YearOrComponentCap, capAt);
         }
 
         if (hour == 24)
@@ -314,16 +321,18 @@ public readonly struct XsdDateTime : IEquatable<XsdDateTime>
         out long year,
         out int month,
         out int day,
-        out int errorOffset
+        out int errorOffset,
+        out int capAt
     )
     {
         year = 0;
         month = 0;
         day = 0;
         errorOffset = 0;
+        capAt = -1;
         if (kind >= XsdDateTimeKind.GYear)
         {
-            return ScanPartial(text, kind, version, ref pos, out year, out month, out day, out errorOffset);
+            return ScanPartial(text, kind, version, ref pos, out year, out month, out day, out errorOffset, out capAt);
         }
 
         if (kind == XsdDateTimeKind.Time)
@@ -331,7 +340,7 @@ public readonly struct XsdDateTime : IEquatable<XsdDateTime>
             return DatatypeError.None;
         }
 
-        var error = ScanDate(text, version, ref pos, out year, out month, out day, out errorOffset);
+        var error = ScanDate(text, version, ref pos, out year, out month, out day, out errorOffset, out capAt);
         if (error == DatatypeError.None && kind == XsdDateTimeKind.DateTime && !Expect(text, ref pos, 'T'))
         {
             errorOffset = pos;
@@ -349,17 +358,19 @@ public readonly struct XsdDateTime : IEquatable<XsdDateTime>
         out long year,
         out int month,
         out int day,
-        out int errorOffset
+        out int errorOffset,
+        out int capAt
     )
     {
         year = 0;
         month = 0;
         day = 0;
         errorOffset = 0;
+        capAt = -1;
         bool valid;
         if (kind is XsdDateTimeKind.GYear or XsdDateTimeKind.GYearMonth)
         {
-            var error = ScanYear(text, version, ref pos, out year, out errorOffset);
+            var error = ScanYear(text, version, ref pos, out year, out errorOffset, out capAt);
             if (error != DatatypeError.None)
             {
                 return error;
@@ -410,27 +421,31 @@ public readonly struct XsdDateTime : IEquatable<XsdDateTime>
         XsdVersion version,
         ref int pos,
         out long year,
-        out int errorOffset
+        out int errorOffset,
+        out int capAt
     )
     {
         year = 0;
         errorOffset = 0;
+        capAt = -1;
         var negative = Expect(text, ref pos, '-');
         var start = pos;
         while (IsDigit(text, pos))
         {
             if (pos - start == MaxYearDigits)
             {
-                errorOffset = pos;
-                return DatatypeError.YearOrComponentCap;
+                // The year is beyond the cap: keep scanning so the rest of the form is checked first, and keep the year
+                // modulo 400, which is all the leap-day rule needs.
+                capAt = pos;
+                year %= 400;
             }
 
-            year = (year * 10) + (text[pos] - '0');
+            year = capAt < 0 ? (year * 10) + (text[pos] - '0') : ((year * 10) + (text[pos] - '0')) % 400;
             pos++;
         }
 
         var digits = pos - start;
-        if (digits < 4 || (digits > 4 && text[start] == '0') || (year == 0 && version == XsdVersion.V10))
+        if (digits < 4 || (digits > 4 && text[start] == '0') || (year == 0 && capAt < 0 && version == XsdVersion.V10))
         {
             errorOffset = start;
             return DatatypeError.InvalidLexicalForm;
@@ -451,12 +466,13 @@ public readonly struct XsdDateTime : IEquatable<XsdDateTime>
         out long year,
         out int month,
         out int day,
-        out int errorOffset
+        out int errorOffset,
+        out int capAt
     )
     {
         month = 0;
         day = 0;
-        var yearError = ScanYear(text, version, ref pos, out year, out errorOffset);
+        var yearError = ScanYear(text, version, ref pos, out year, out errorOffset, out capAt);
         if (yearError != DatatypeError.None)
         {
             return yearError;
