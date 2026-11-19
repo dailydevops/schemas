@@ -1,4 +1,3 @@
 ibm/ibm-not-wf-P68-ibm68n07.xml
-ibm/ibm-valid-P78-ibm78v01.xml
 ibm/ibm-valid-P85-ibm85v01.xml
 ibm/ibm-valid-P87-ibm87v01.xml

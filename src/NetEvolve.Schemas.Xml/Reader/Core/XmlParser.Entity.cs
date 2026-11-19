@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.Xml.Reader.Core;
 
 using System;
 using System.Runtime.InteropServices;
+using NetEvolve.Schemas.Xml.Buffers;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Reader.References;
 using NetEvolve.Schemas.Xml.Text.CharClasses;
@@ -9,7 +10,8 @@ using NetEvolve.Schemas.Xml.Text.CharClasses;
 internal sealed partial class XmlParser
 {
     // One open expansion. A content frame keeps the tokenizer state of the input it interrupts and the open element depth
-    // it must return to; an attribute value frame only walks its text.
+    // it must return to; an attribute value frame only walks its text. The frame of an external entity has no text: its
+    // pending characters are the unconsumed tail of the chunks read from the source, refilled when the tokenizer asks.
     [StructLayout(LayoutKind.Auto)]
     private struct EntityFrame
     {
@@ -17,6 +19,9 @@ internal sealed partial class XmlParser
         internal string? Text;
         internal int Offset;
         internal int ElementDepth;
+        internal IXmlEntityText? Source;
+        internal PooledBuffer<char>? Pending;
+        internal bool SourceEnded;
     }
 
     private static readonly char[] AttributeStops = ['&', '<', '\t', '\r', '\n'];
@@ -31,7 +36,21 @@ internal sealed partial class XmlParser
     // The open element depth the innermost content frame started at; zero outside of a frame.
     private int FrameElementDepth => _frameCount > 0 ? _frames[_frameCount - 1].ElementDepth : 0;
 
-    private ReadOnlySpan<char> FrameSpan() => _frames[_frameCount - 1].Text.AsSpan(_frames[_frameCount - 1].Offset);
+    // The base URI of the entity whose text is being read; without an entity input stack there is none.
+    internal string? EntityBaseUri => _entityStack?.BaseUri;
+
+    private ReadOnlySpan<char> FrameSpan()
+    {
+        ref var frame = ref _frames[_frameCount - 1];
+        return frame.Pending is { } pending ? pending.WrittenSpan.Slice(frame.Offset) : frame.Text.AsSpan(frame.Offset);
+    }
+
+    // The text of an internal frame is final by itself; the text of an external frame is final once its source has ended.
+    private bool FrameIsFinal()
+    {
+        ref var frame = ref _frames[_frameCount - 1];
+        return frame.Pending is null || frame.SourceEnded;
+    }
 
     // A reference to an entity that is not predefined (sections 4.1 and 4.4): outside the root element it is text, so it is
     // not allowed there; inside, the stack decides and the expansion is read as a frame.
@@ -42,28 +61,60 @@ internal sealed partial class XmlParser
             return Fail(XmlErrorCodes.XML0018, position);
         }
 
-        var error = _entityStack!.Enter(name, _inTag, _standalone, out var replacement);
-        if (error is not null)
+        IXmlEntityText? external = null;
+        try
         {
-            return Fail(error, position);
-        }
+            var error = _entityStack!.Enter(name, _inTag, _standalone, out var replacement, out external);
+            if (error is not null)
+            {
+                return Fail(error, position);
+            }
 
-        if (replacement is null)
+            if (replacement is null && external is null)
+            {
+                return true;
+            }
+
+            if (_frameCount == 0)
+            {
+                _referencePosition = position;
+            }
+
+            if (external is not null)
+            {
+                // The frame owns the text from here on.
+                var owned = external;
+                external = null;
+                return PushExternalFrame(owned);
+            }
+
+            return _inTag ? ExpandInAttributeValue(replacement!, position) : PushContentFrame(replacement!);
+        }
+        finally
         {
-            return true;
+            external?.Dispose();
         }
-
-        if (_frameCount == 0)
-        {
-            _referencePosition = position;
-        }
-
-        return _inTag ? ExpandInAttributeValue(replacement, position) : PushContentFrame(replacement);
     }
 
     private bool PushContentFrame(string text)
     {
         PushFrame(text);
+        return EnterContentFrame();
+    }
+
+    // The text of an external entity is read through the source as the tokenizer asks for more.
+    private bool PushExternalFrame(IXmlEntityText source)
+    {
+        PushFrame(string.Empty);
+        ref var frame = ref _frames[_frameCount - 1];
+        frame.Source = source;
+        frame.Pending = new PooledBuffer<char>();
+
+        return EnterContentFrame();
+    }
+
+    private bool EnterContentFrame()
+    {
         _frames[_frameCount - 1].Saved = _tokenizer;
         _frames[_frameCount - 1].ElementDepth = _depth;
         _tokenizer = _replacementTokenizer;
@@ -81,6 +132,53 @@ internal sealed partial class XmlParser
         ref var frame = ref _frames[_frameCount++];
         frame.Text = text;
         frame.Offset = 0;
+        frame.Source = null;
+        frame.Pending = null;
+        frame.SourceEnded = false;
+    }
+
+    // Reads more of the text of the innermost external frame; false when the diagnostic is set. A frame whose text is
+    // complete cannot be refilled: the tokenizer then stopped inside a construct, which the replacement text must not do.
+    private bool RefillFrame()
+    {
+        ref var frame = ref _frames[_frameCount - 1];
+        if (frame.Pending is not { } pending || frame.SourceEnded)
+        {
+            return Fail(XmlErrorCodes.XML0001, _referencePosition);
+        }
+
+        // Only the characters of the construct that is still open stay in the buffer.
+        if (frame.Offset > 0)
+        {
+            _spare.Clear();
+            _spare.Append(pending.WrittenSpan.Slice(frame.Offset));
+            pending.Clear();
+            pending.Append(_spare.WrittenSpan);
+            _spare.Clear();
+            frame.Offset = 0;
+        }
+
+        if (frame.Source!.TryRead(out var chunk))
+        {
+            pending.Append(chunk.Span);
+            return true;
+        }
+
+        frame.SourceEnded = true;
+        return frame.Source.Error is not { } error || Fail(error, _referencePosition);
+    }
+
+    // Closes the text of every open external frame; the frames themselves stay, because the position of a diagnostic needs them.
+    private void CloseSources()
+    {
+        for (var i = 0; i < _frameCount; i++)
+        {
+            ref var frame = ref _frames[i];
+            frame.Source?.Dispose();
+            frame.Source = null;
+            frame.Pending?.Dispose();
+            frame.Pending = null;
+        }
     }
 
     // The replacement text must have closed every element it opened (section 4.3.2: it matches the production content).
@@ -94,6 +192,10 @@ internal sealed partial class XmlParser
 
         _tokenizer = frame.Saved;
         frame.Text = null;
+        frame.Source?.Dispose();
+        frame.Source = null;
+        frame.Pending?.Dispose();
+        frame.Pending = null;
         _frameCount--;
         _entityStack!.Leave();
 
@@ -181,7 +283,7 @@ internal sealed partial class XmlParser
 
         // The frame reference is not used after the push, which may move the array.
         frame.Offset += length;
-        var failure = _entityStack!.Enter(rest.Slice(1, length - 2), true, _standalone, out var inner);
+        var failure = _entityStack!.Enter(rest.Slice(1, length - 2), true, _standalone, out var inner, out _);
         if (failure is not null)
         {
             return Fail(failure, position);

@@ -5,17 +5,4 @@ xmltest/not-wf-sa-082
 xmltest/not-wf-sa-084
 xmltest/not-wf-sa-085
 xmltest/not-wf-sa-180
-xmltest/valid-ext-sa-001
-xmltest/valid-ext-sa-002
-xmltest/valid-ext-sa-003
-xmltest/valid-ext-sa-004
-xmltest/valid-ext-sa-005
-xmltest/valid-ext-sa-006
-xmltest/valid-ext-sa-007
-xmltest/valid-ext-sa-008
-xmltest/valid-ext-sa-009
-xmltest/valid-ext-sa-011
-xmltest/valid-ext-sa-012
-xmltest/valid-ext-sa-013
-xmltest/valid-ext-sa-014
 xmltest/valid-sa-012

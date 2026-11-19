@@ -12,9 +12,8 @@ using NetEvolve.Schemas.Xml.Text.NameTable;
 /// it declares are expanded (XML-15). Limitations: these cases are <see cref="XmlConfObservation.NotImplemented"/> so they
 /// never pass by accident: a case that needs namespace processing switched off, and a case whose document is missing from
 /// the pinned archive (<c>eduni/namespaces/misc</c>). The external subset and the external parameter entities are read
-/// (XML-20) through a file resolver that is confined to the suite directory. External general entities and attribute
-/// defaults are not read yet (XML-62, XML-16), so cases that need them stay in the baseline; a reference to an external
-/// general entity is <c>XML2002</c>.
+/// (XML-20) and the external general entities of content (XML-62) through a file resolver that is confined to the suite
+/// directory. Attribute defaults are not applied yet (XML-16), so cases that need them stay in the baseline.
 /// </remarks>
 /// <param name="suiteRoot">The suite root directory.</param>
 internal sealed class PipelineXmlConfReader(string suiteRoot) : IXmlConfReader
@@ -22,6 +21,7 @@ internal sealed class PipelineXmlConfReader(string suiteRoot) : IXmlConfReader
     private readonly DtdValidationOptions _externalAccess = DtdValidationOptions
         .Default.WithResolver(new SandboxedFileSystemResourceResolver(suiteRoot))
         .WithAllowExternalSubset(true)
+        .WithAllowExternalGeneralEntities(true)
         .WithAllowExternalParameterEntities(true);
 
     public async Task<XmlConfObservation> ReadAsync(XmlConfCase xmlConfCase, CancellationToken cancellationToken)

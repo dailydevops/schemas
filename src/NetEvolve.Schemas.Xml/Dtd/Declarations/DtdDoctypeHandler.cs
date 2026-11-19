@@ -35,6 +35,12 @@ internal sealed class DtdDoctypeHandler : IXmlDoctypeHandler
         _baseUri = baseUri;
     }
 
+    /// <summary>Gets the reader of the external entities, <see langword="null"/> when the options of external access are not given.</summary>
+    internal ExternalSubsetReader? External => _external;
+
+    /// <summary>Gets the absolute base URI of the document, <see langword="null"/> when it is not known.</summary>
+    internal string? BaseUri => _baseUri;
+
     /// <summary>Gets the declarations of the last accepted document type declaration, <see langword="null"/> before one was read or after an error.</summary>
     internal DtdDeclarations? Declarations { get; private set; }
 

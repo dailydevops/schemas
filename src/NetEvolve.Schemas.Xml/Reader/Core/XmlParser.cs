@@ -16,7 +16,10 @@ using NetEvolve.Schemas.Xml.Namespaces;
 /// <see cref="XmlReadStatus.NeedMoreData"/> after keeping the unconsumed tail. A chunk is used in place until a tail has to be
 /// kept. An entity reference that the entity input stack accepts is read as a frame over the outer input: content frames
 /// run the tokenizer over the replacement text (balanced, no construct spans the frame end), attribute value frames are
-/// walked by section 3.3.3, and frame characters never advance the outer position. The replacement text is read without
+/// walked by section 3.3.3, and frame characters never advance the outer position. The frame of an external parsed entity
+/// is refilled chunk by chunk from the text source that the stack hands out, so the entity is never buffered completely
+/// (only the unconsumed tail of an open construct is kept), and the source is disposed when the frame ends, on every error,
+/// and when the parser is disposed. The replacement text is read without
 /// line end normalization, because the entity input stack hands it out with its line ends already normalized (section
 /// 4.5): a carriage return in it came from a character reference and stays one. Limitations: the document type
 /// declaration is rejected with <c>XML2001</c> unless a doctype handler is installed (deviation from XML 1.0 section 5.1);
@@ -116,10 +119,11 @@ internal sealed partial class XmlParser : IXmlReader, IDisposable
         var pos = 0;
         while (true)
         {
-            // While a frame is open the tokenizer reads its replacement text, which is final by itself.
+            // While a frame is open the tokenizer reads its text, which is final by itself unless it is the text of an
+            // external entity that is still being read.
             var inFrame = _frameCount > 0;
             var span = inFrame ? FrameSpan() : (fromCarry ? _carry.WrittenSpan : _chunk.Span).Slice(pos);
-            if (!Tokenize(span, inFrame, out var status, out var token, out var consumed))
+            if (!Tokenize(span, inFrame ? FrameIsFinal() : _isFinal, out var status, out var token, out var consumed))
             {
                 return XmlReadStatus.Error;
             }
@@ -135,14 +139,12 @@ internal sealed partial class XmlParser : IXmlReader, IDisposable
 
             if (status == XmlTokenStatus.NeedMoreData)
             {
-                if (inFrame)
+                if (NeedMore(inFrame, fromCarry, pos) is { } stop)
                 {
-                    _ = Fail(XmlErrorCodes.XML0001, _referencePosition);
-                    return XmlReadStatus.Error;
+                    return stop;
                 }
 
-                KeepTail(fromCarry, pos);
-                return XmlReadStatus.NeedMoreData;
+                continue;
             }
 
             if (status == XmlTokenStatus.End)
@@ -167,6 +169,19 @@ internal sealed partial class XmlParser : IXmlReader, IDisposable
         }
     }
 
+    // The tokenizer needs more characters: the outer input keeps its tail for the next chunk, a frame refills from its source.
+    // Returns the status to hand back to the caller, or null when the pump goes on.
+    private XmlReadStatus? NeedMore(bool inFrame, bool fromCarry, int pos)
+    {
+        if (inFrame)
+        {
+            return RefillFrame() ? null : XmlReadStatus.Error;
+        }
+
+        KeepTail(fromCarry, pos);
+        return XmlReadStatus.NeedMoreData;
+    }
+
     // False with the status to return when the parser has already failed or finished, or cannot take the name table.
     private bool TryStart(XmlNameTable names, out XmlReadStatus status)
     {
@@ -188,7 +203,7 @@ internal sealed partial class XmlParser : IXmlReader, IDisposable
     // One tokenizer step with the budgets charged for it; false when a diagnostic was set.
     private bool Tokenize(
         ReadOnlySpan<char> span,
-        bool inFrame,
+        bool isFinal,
         out XmlTokenStatus status,
         out XmlToken token,
         out int consumed
@@ -198,7 +213,7 @@ internal sealed partial class XmlParser : IXmlReader, IDisposable
         // expansion budget when the frame opens, not to the document); the text and attribute value budgets are kept here, and the
         // tokenizer cuts a run at what is left of them, so the character that crosses a limit is a token of its own.
         _tokenizer.LimitRun(RunRemaining());
-        status = _tokenizer.Next(span, inFrame || _isFinal, out token, out consumed);
+        status = _tokenizer.Next(span, isFinal, out token, out consumed);
         if (status == XmlTokenStatus.Error)
         {
             var failure = _tokenizer.Diagnostic!;
@@ -224,6 +239,7 @@ internal sealed partial class XmlParser : IXmlReader, IDisposable
     /// <summary>Returns the buffers.</summary>
     public void Dispose()
     {
+        CloseSources();
         _carry.Dispose();
         _spare.Dispose();
         _scratch.Dispose();
@@ -531,6 +547,7 @@ internal sealed partial class XmlParser : IXmlReader, IDisposable
     private bool Fail(XmlErrorCode code, XmlPosition position)
     {
         _diagnostic = new XmlDiagnostic(code, _frameCount > 0 ? _referencePosition : position);
+        CloseSources();
         return false;
     }
 }

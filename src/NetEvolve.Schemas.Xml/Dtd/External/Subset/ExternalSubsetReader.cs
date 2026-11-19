@@ -37,6 +37,9 @@ internal sealed class ExternalSubsetReader
         _maxDeclarations = options.DtdLimits.MaxDeclarations;
     }
 
+    /// <summary>Gets the loader of the document; the external general entities in content go through it too, so the requests, the depth, and the decoded characters are charged to one set of budgets (XML-62).</summary>
+    internal ExternalEntityLoader Loader => _loader;
+
     /// <summary>Gets the most declarations a document may hold (<c>MaxDeclarations</c>, <c>XML1119</c>).</summary>
     internal int MaxDeclarations => _maxDeclarations;
 
