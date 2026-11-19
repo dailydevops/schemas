@@ -39,7 +39,7 @@ internal struct XmlBudget
     /// <summary>Gives back <paramref name="amount"/> previously charged, for budgets that track a level such as a depth.</summary>
     internal void Release(long amount) => _used -= amount;
 
-    /// <summary>Gives back everything, for per-item budgets such as a name length.</summary>
+    /// <summary>Gives back everything, for per-item budgets such as a text node length.</summary>
     internal void Reset() => _used = 0;
 
     internal static XmlBudget ElementDepth(XmlReaderLimits limits) =>
