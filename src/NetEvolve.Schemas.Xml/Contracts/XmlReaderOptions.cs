@@ -32,7 +32,8 @@ public sealed class XmlReaderOptions
     /// external parameter entities (XML-20) and the external general entities that content references (XML-62); without
     /// it a reference to an external parsed entity in content is <see cref="XmlErrorCodes.XML2002"/>, and in an attribute value it is
     /// always <see cref="XmlErrorCodes.XML0022"/>; an undeclared entity is skipped, not an
-    /// error, when an external subset or a parameter-entity reference could have declared it (section 4.1).
+    /// error, when an external subset or a parameter-entity reference could have declared it (section 4.1). The nodes
+    /// that come from an external entity report the document URI as their base URI, not the URI of the entity (#730).
     /// </remarks>
     public bool DtdProcessing => _dtdProcessing;
 

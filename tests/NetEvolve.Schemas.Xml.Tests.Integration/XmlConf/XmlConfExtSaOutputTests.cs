@@ -11,7 +11,7 @@ public class XmlConfExtSaOutputTests
 {
     private const string ValidExtSaPrefix = "xmltest/valid-ext-sa-";
 
-    /// <summary>Case 013 needs the attribute defaults of the attribute-list declarations, which the reader does not apply yet (XML-16); its output file lists them.</summary>
+    /// <summary>Case 013 needs the attribute defaults of the attribute-list declarations, which the reader does not apply yet (XML-16, #256); its output file lists them, so the comparison drops them from the expected output.</summary>
     private const string AttributeDefaultsCase = "xmltest/valid-ext-sa-013";
 
     private const string AttributeDefaults = " a1=\"a1 default\" a2=\"a2 default\"";
