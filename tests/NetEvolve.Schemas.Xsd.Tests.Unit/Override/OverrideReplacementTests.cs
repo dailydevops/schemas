@@ -144,4 +144,23 @@ public class OverrideReplacementTests
         await Assert.That(issues.Count).IsEqualTo(1);
         await Assert.That(issues[0].Code).IsEqualTo(CodeOf("src-override"));
     }
+
+    [Test]
+    public async Task Override_PutsTheReplacementInTheUnitOfTheOverriddenDocument_WhichCarriesItsDefaults()
+    {
+        var (set, issues) = Load(
+            Schema(Override("<xs:element name=\"T\" type=\"xs:int\"/>")),
+            new MapResolver().Add(
+                A,
+                "<xs:schema xmlns:xs=\""
+                    + Xs
+                    + "\" elementFormDefault=\"qualified\"><xs:element name=\"T\"/></xs:schema>"
+            )
+        );
+
+        await Assert.That(issues.Count).IsEqualTo(0);
+        await Assert.That(set.Units[0].Root.FindAttribute("elementFormDefault")).IsNull();
+        await Assert.That(set.Units[1].Root.FindAttribute("elementFormDefault")).IsEqualTo("qualified");
+        await Assert.That(ReferenceEquals(set.Units[1].Components[0], OverrideChild(set.Units[0], 0, 0))).IsTrue();
+    }
 }
