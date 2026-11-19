@@ -49,16 +49,25 @@ internal static class SequenceBuilder
     /// <summary>Cuts the data into segments whose sizes come from a seeded generator, so a failure repeats.</summary>
     internal static ReadOnlySequence<T> Random<T>(T[] data, int seed, int max)
     {
-        var random = new System.Random(seed);
+        var state = (uint)seed | 1u;
         var parts = new List<T[]>();
         for (var i = 0; i < data.Length; )
         {
-            var take = Math.Min(random.Next(0, max + 1), data.Length - i);
+            var take = Math.Min(Next(ref state, max + 1), data.Length - i);
             parts.Add(data.AsSpan(i, take).ToArray());
             i += take;
         }
 
         return FromParts(parts);
+    }
+
+    // A xorshift step: a seeded, repeatable cut without System.Random.
+    private static int Next(ref uint state, int maxExclusive)
+    {
+        state ^= state << 13;
+        state ^= state >> 17;
+        state ^= state << 5;
+        return (int)(state % (uint)maxExclusive);
     }
 
     internal static ReadOnlySequence<T> FromParts<T>(IReadOnlyList<T[]> parts)

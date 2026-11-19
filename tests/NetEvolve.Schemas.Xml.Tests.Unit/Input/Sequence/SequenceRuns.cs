@@ -9,33 +9,6 @@ using NetEvolve.Schemas.Xml.Input.Sequence;
 using NetEvolve.Schemas.Xml.Reader.Pipeline;
 using NetEvolve.Schemas.Xml.Tests.Unit.Input.Stream;
 
-/// <summary>One document in a given encoding: the sample of every sequence parity test.</summary>
-internal sealed record SequenceSample(string Name, string Xml, Encoding Encoding, bool Bom = false, bool Dtd = false)
-{
-    internal XmlReaderOptions Options =>
-        Dtd ? XmlReaderOptions.Default.WithDtdProcessing(true) : XmlReaderOptions.Default;
-
-    internal byte[] Bytes
-    {
-        get
-        {
-            var body = Encoding.GetBytes(Xml);
-            if (!Bom)
-            {
-                return body;
-            }
-
-            var preamble = Encoding.GetPreamble();
-            var all = new byte[preamble.Length + body.Length];
-            preamble.CopyTo(all, 0);
-            body.CopyTo(all, preamble.Length);
-            return all;
-        }
-    }
-
-    public override string ToString() => Name;
-}
-
 /// <summary>Runs one document through the span path and through the sequence path and dumps the events for comparison.</summary>
 internal static class SequenceRuns
 {
@@ -66,21 +39,27 @@ internal static class SequenceRuns
         return builder.Append("</root>").ToString();
     }
 
-    internal static IEnumerable<Func<SequenceSample>> Samples()
+    internal static IEnumerable<Func<SequenceSample>> AllSamples()
     {
         yield return () => new SequenceSample("hazards utf-8", Hazards, Encoding.UTF8);
-        yield return () => new SequenceSample("hazards utf-8 with bom", Hazards, new UTF8Encoding(false), Bom: true);
+        yield return () => new SequenceSample("hazards utf-8 with bom", Hazards, new UTF8Encoding(true), Bom: true);
         yield return () => new SequenceSample("medium utf-8", Medium(), Encoding.UTF8);
         yield return () => new SequenceSample("no declaration", "<a x=\"1\"><b/>café</a>", Encoding.UTF8);
         yield return () =>
             new SequenceSample(
                 "hazards utf-16le with bom",
                 Hazards.Replace(" encoding=\"UTF-8\"", string.Empty, StringComparison.Ordinal),
-                new UnicodeEncoding(false, false),
+                new UnicodeEncoding(false, true),
                 Bom: true
             );
         yield return () =>
-            new SequenceSample("medium utf-16be with bom", Medium(5), new UnicodeEncoding(true, false), Bom: true);
+            new SequenceSample(
+                "hazards utf-16le without bom",
+                Hazards.Replace(" encoding=\"UTF-8\"", string.Empty, StringComparison.Ordinal),
+                new UnicodeEncoding(false, false)
+            );
+        yield return () =>
+            new SequenceSample("medium utf-16be with bom", Medium(5), new UnicodeEncoding(true, true), Bom: true);
         yield return () =>
             new SequenceSample(
                 "declared iso-8859-1",

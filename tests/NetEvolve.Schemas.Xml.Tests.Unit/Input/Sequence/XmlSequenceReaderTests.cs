@@ -19,16 +19,12 @@ public class XmlSequenceReaderTests
 {
     private static readonly int[] SeededRuns = [17, 2026, 31337];
 
-    /// <summary>One construct that must survive a cut inside it, in an encoding; the splits fall inside the marker.</summary>
-    public sealed record Boundary(string Name, string Xml, string Marker, Encoding Encoding, bool Bom = false)
-    {
-        public override string ToString() => Name;
-    }
+    public static IEnumerable<Func<SequenceSample>> Samples() => SequenceRuns.AllSamples();
 
     public static IEnumerable<Func<Boundary>> Boundaries()
     {
         var utf8 = Encoding.UTF8;
-        var utf16 = new UnicodeEncoding(false, false);
+        var utf16 = new UnicodeEncoding(false, true);
         yield return () => new Boundary("inside a name", "<root><abcdefgh x='1'/></root>", "abcdefgh", utf8);
         yield return () => new Boundary("inside an end tag name", "<abcdefgh>x</abcdefgh>", "</abcdefgh>", utf8);
         yield return () => new Boundary("inside a named reference", "<a>x&amp;y</a>", "&amp;", utf8);
@@ -85,13 +81,14 @@ public class XmlSequenceReaderTests
     // ---- parity with the span path ----
 
     [Test]
-    [MethodDataSource(typeof(SequenceRuns), nameof(SequenceRuns.Samples))]
+    [MethodDataSource(nameof(Samples))]
     public async Task Read_BytesInTwoSegmentsAtEveryOffset_GiveTheEventsAndPositionsOfTheSpanPath(
         SequenceSample sample,
         CancellationToken cancellationToken
     )
     {
         cancellationToken.ThrowIfCancellationRequested();
+        ArgumentNullException.ThrowIfNull(sample);
 
         var bytes = sample.Bytes;
         var expected = SequenceRuns.Span(sample);
@@ -111,13 +108,14 @@ public class XmlSequenceReaderTests
     }
 
     [Test]
-    [MethodDataSource(typeof(SequenceRuns), nameof(SequenceRuns.Samples))]
+    [MethodDataSource(nameof(Samples))]
     public async Task Read_CharsInTwoSegmentsAtEveryOffset_GiveTheEventsAndPositionsOfTheSpanPath(
         SequenceSample sample,
         CancellationToken cancellationToken
     )
     {
         cancellationToken.ThrowIfCancellationRequested();
+        ArgumentNullException.ThrowIfNull(sample);
 
         var chars = sample.Xml.ToCharArray();
         var expected = SequenceRuns.SpanChars(sample.Xml, sample.Options);
@@ -137,13 +135,14 @@ public class XmlSequenceReaderTests
     }
 
     [Test]
-    [MethodDataSource(typeof(SequenceRuns), nameof(SequenceRuns.Samples))]
+    [MethodDataSource(nameof(Samples))]
     public async Task Read_BytesInOneElementSegmentsAndWithEmptySegments_GiveTheEventsOfTheSpanPath(
         SequenceSample sample,
         CancellationToken cancellationToken
     )
     {
         cancellationToken.ThrowIfCancellationRequested();
+        ArgumentNullException.ThrowIfNull(sample);
 
         var bytes = sample.Bytes;
         var expected = SequenceRuns.Span(sample);
@@ -171,13 +170,14 @@ public class XmlSequenceReaderTests
     }
 
     [Test]
-    [MethodDataSource(typeof(SequenceRuns), nameof(SequenceRuns.Samples))]
+    [MethodDataSource(nameof(Samples))]
     public async Task Read_CharsInOneElementSegmentsAndWithEmptySegments_GiveTheEventsOfTheSpanPath(
         SequenceSample sample,
         CancellationToken cancellationToken
     )
     {
         cancellationToken.ThrowIfCancellationRequested();
+        ArgumentNullException.ThrowIfNull(sample);
 
         var chars = sample.Xml.ToCharArray();
         var expected = SequenceRuns.SpanChars(sample.Xml, sample.Options);
@@ -240,6 +240,7 @@ public class XmlSequenceReaderTests
     )
     {
         cancellationToken.ThrowIfCancellationRequested();
+        ArgumentNullException.ThrowIfNull(boundary);
 
         var sample = new SequenceSample(boundary.Name, boundary.Xml, boundary.Encoding, boundary.Bom);
         var bytes = sample.Bytes;
@@ -274,6 +275,7 @@ public class XmlSequenceReaderTests
     )
     {
         cancellationToken.ThrowIfCancellationRequested();
+        ArgumentNullException.ThrowIfNull(boundary);
 
         var chars = boundary.Xml.ToCharArray();
         var expected = SequenceRuns.SpanChars(boundary.Xml);
@@ -320,6 +322,7 @@ public class XmlSequenceReaderTests
     )
     {
         cancellationToken.ThrowIfCancellationRequested();
+        ArgumentNullException.ThrowIfNull(bytes);
 
         var expected = SequenceRuns.WithoutPosition(StreamRuns.Span(bytes));
         var mismatches = new List<string>();
@@ -354,6 +357,7 @@ public class XmlSequenceReaderTests
     )
     {
         cancellationToken.ThrowIfCancellationRequested();
+        ArgumentNullException.ThrowIfNull(xml);
 
         var chars = xml.ToCharArray();
         var expected = SequenceRuns.WithoutPosition(SequenceRuns.SpanChars(xml));
@@ -388,7 +392,7 @@ public class XmlSequenceReaderTests
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var bytes = new byte[] { ..Utf8("<a>ok"), 0xFF, ..Utf8("</a>") };
+        byte[] bytes = [.. Utf8("<a>ok"), 0xFF, .. Utf8("</a>")];
 
         var run = SequenceRuns.Sequence(SequenceBuilder.Chunks(bytes, 2));
 
@@ -510,13 +514,14 @@ public class XmlSequenceReaderTests
     // ---- the single-segment fast path ----
 
     [Test]
-    [MethodDataSource(typeof(SequenceRuns), nameof(SequenceRuns.Samples))]
+    [MethodDataSource(nameof(Samples))]
     public async Task Create_SingleSegment_GivesTheEventsOfTheSpanPath(
         SequenceSample sample,
         CancellationToken cancellationToken
     )
     {
         cancellationToken.ThrowIfCancellationRequested();
+        ArgumentNullException.ThrowIfNull(sample);
 
         var bytes = SequenceRuns.Sequence(SequenceBuilder.Whole(sample.Bytes), sample.Options);
         var chars = SequenceRuns.Sequence(SequenceBuilder.Whole(sample.Xml.ToCharArray()), sample.Options);
@@ -614,12 +619,7 @@ public class XmlSequenceReaderTests
     public async Task Pump_CharSequence_ReturnsEveryBufferOnDispose()
     {
         var charPool = new TrackingPool<char>();
-        var reader = XmlSequenceReader.Create(
-            SequenceBuilder.Chunks("<a>x</a>".ToCharArray(), 2),
-            null,
-            null,
-            charPool
-        );
+        var reader = XmlSequenceReader.Create(SequenceBuilder.Chunks("<a>x</a>".ToCharArray(), 2), null, charPool);
         var sink = StreamRuns.NewSink();
         _ = reader.Pump(ref sink);
 
