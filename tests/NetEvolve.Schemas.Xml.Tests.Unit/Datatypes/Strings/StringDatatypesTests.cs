@@ -91,7 +91,7 @@ public class StringDatatypesTests
         await Assert.That(control.ErrorOffset).IsEqualTo(2);
         await Assert.That(loneSurrogate.Error).IsEqualTo(DatatypeError.InvalidCharacter);
         await Assert.That(pair.Success).IsTrue();
-        await Assert.That(type.Validate("￾").IsValid).IsFalse();
+        await Assert.That(type.Validate("\uFFFE").IsValid).IsFalse();
     }
 
     [Test]
