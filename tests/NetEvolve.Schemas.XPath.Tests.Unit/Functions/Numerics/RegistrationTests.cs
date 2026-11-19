@@ -61,7 +61,7 @@ public class RegistrationTests
     }
 
     // Decision (#271): fn:round with a precision is a function of Functions and Operators 3.0 and later; the XPath 2.0 epic leaves it out
-    // in every version until a work package enables the 3.0 function set. QT3 K-RoundFunc-2 expects XPST0017 for round(1, 2) under XPath 2.0.
+    // in every version until #727 enables it. QT3 K-RoundFunc-2 expects XPST0017 for round(1, 2) under XPath 2.0.
     [Test]
     [Arguments(XPathVersion.V20)]
     [Arguments(XPathVersion.V30)]
