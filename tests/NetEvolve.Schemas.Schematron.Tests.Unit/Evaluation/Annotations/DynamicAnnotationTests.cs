@@ -473,6 +473,60 @@ public class DynamicAnnotationTests
         await Assert.That(problems[0].Code).IsEqualTo(SchematronDiagnosticCodes.ExpressionInvalid);
     }
 
+    [Test]
+    public async Task Severity_MultiItemValue_ReportsEvalFailed_FindingStillProduced()
+    {
+        var schema = Schema(Pattern("p", RuleWith("r", "a", null, null, [Let("s")], Failing(severity: "$s"))));
+        using var h = new PatternHarness(schema, E("a"));
+        h.Binding.Items["$s"] = [XdmItem.FromInteger(1), XdmItem.FromInteger(2), XdmItem.FromInteger(3)];
+
+        _ = h.Evaluate();
+
+        await Assert.That(h.Log.Details[0].Severity).IsEqualTo(string.Empty);
+        await Assert.That(h.Log.Errors.Count).IsEqualTo(1);
+        await Assert.That(h.Log.Errors[0].Message).Contains("severity");
+        await Assert.That(h.Log.Errors[0].Message).Contains("3 items");
+    }
+
+    [Test]
+    public async Task Role_EmptyStringValue_IsAccepted_ButAFlagNeedsAToken()
+    {
+        var schema = Schema(Pattern("p", RuleWith("r", "a", null, null, [Let("r")], Failing(role: "$r"))));
+        using var h = new PatternHarness(schema, E("a"));
+        h.Binding.Texts["$r"] = string.Empty;
+
+        _ = h.Evaluate();
+
+        await Assert.That(h.Log.Details[0].Role).IsEqualTo(string.Empty);
+        await Assert.That(h.Log.Errors.Count).IsEqualTo(0);
+    }
+
+    [Test]
+    public async Task Role_ReferenceWithSurroundingWhiteSpace_IsDynamic()
+    {
+        var schema = Schema(Pattern("p", RuleWith("r", "a", null, null, [Let("r")], Failing(role: " \t$r\n "))));
+        using var h = new PatternHarness(schema, E("a"));
+        h.Binding.Texts["$r"] = "x";
+
+        _ = h.Evaluate();
+
+        await Assert.That(h.Log.Details[0].Role).IsEqualTo("x");
+    }
+
+    [Test]
+    public async Task Role_ReferenceWithNameCharacters_IsDynamic()
+    {
+        var schema = Schema(
+            Pattern("p", RuleWith("r", "a", null, null, [Let("a.b-c_d:e1")], Failing(role: "$a.b-c_d:e1")))
+        );
+        using var h = new PatternHarness(schema, E("a"));
+        h.Binding.Texts["$a.b-c_d:e1"] = "x";
+
+        _ = h.Evaluate();
+
+        await Assert.That(h.Log.Details[0].Role).IsEqualTo("x");
+    }
+
     private static (bool Ok, List<SchematronProblem> Problems) Compile(SchematronSchema schema)
     {
         var binding = new AssertionTestBinding();

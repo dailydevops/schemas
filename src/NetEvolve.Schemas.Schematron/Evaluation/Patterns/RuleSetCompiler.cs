@@ -3,6 +3,7 @@ namespace NetEvolve.Schemas.Schematron.Evaluation.Patterns;
 using System.Collections.Generic;
 using System.Text;
 using NetEvolve.Arguments;
+using NetEvolve.Schemas.Schematron.Evaluation.Annotations;
 using NetEvolve.Schemas.Schematron.Evaluation.Assertions;
 using NetEvolve.Schemas.Schematron.Model;
 using NetEvolve.Schemas.Schematron.Scopes;
@@ -65,6 +66,17 @@ internal static class RuleSetCompiler
             rules[i] = rule;
         }
 
+        ok &= AnnotationCompiler.TryCompile(
+            pattern.Pattern.Role,
+            null,
+            null,
+            pattern.Pattern.Location,
+            pattern.Scope,
+            binding,
+            problems,
+            out var annotations
+        );
+
         compiled = ok
             ? new CompiledRuleSet(
                 pattern,
@@ -72,7 +84,8 @@ internal static class RuleSetCompiler
                 pattern.Pattern.Documents ?? string.Empty,
                 TitleText(pattern.Pattern.Title),
                 pattern.Pattern.IsGroup,
-                rules
+                rules,
+                annotations
             )
             : null!;
         return ok;
@@ -127,7 +140,20 @@ internal static class RuleSetCompiler
             }
         }
 
-        rule = ok ? new CompiledRule(scope, context, scope.Rule.Id ?? string.Empty, text, [.. assertions]) : null!;
+        ok &= AnnotationCompiler.TryCompile(
+            scope.Rule.Role,
+            scope.Rule.Flags,
+            null,
+            scope.Rule.Location,
+            scope.Scope,
+            binding,
+            problems,
+            out var annotations
+        );
+
+        rule = ok
+            ? new CompiledRule(scope, context, scope.Rule.Id ?? string.Empty, text, [.. assertions], annotations)
+            : null!;
         return ok;
     }
 
