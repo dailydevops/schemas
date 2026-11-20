@@ -36,10 +36,36 @@ internal static class FunctionTree
         return Child(tree, index);
     }
 
-    /// <summary>Builds a schema with several declarations; the declarations are the children of the root in order.</summary>
-    internal static IReadOnlyList<XPathNode> Declarations(params XmlElem[] declarations)
+    /// <summary>Builds the schema and returns the nth child element of the declaration, such as a parameter in the head of a function.</summary>
+    internal static XPathNode ChildOfDeclaration(XmlElem declaration, int index = 0)
     {
-        var tree = Build(new XmlElem("schema", Schematron, 1, 1, [.. declarations]));
+        var parent = Declaration(declaration);
+        var child = parent.Node.FirstChild;
+        while (index > 0 || child.Kind != XmlNodeKind.Element)
+        {
+            if (child.Kind == XmlNodeKind.Element)
+            {
+                index--;
+            }
+
+            child = child.NextSibling;
+        }
+
+        return new XPathNode(child);
+    }
+
+    /// <summary>Builds a schema with several declarations; the declarations are the children of the root in order.</summary>
+    internal static IReadOnlyList<XPathNode> Declarations(params XmlElem[] declarations) =>
+        DeclarationsUnder("schema", Schematron, declarations);
+
+    /// <summary>Builds a document whose root is the given element; the declarations are the children of the root in order.</summary>
+    internal static IReadOnlyList<XPathNode> DeclarationsUnder(
+        string rootLocal,
+        string rootNamespace,
+        params XmlElem[] declarations
+    )
+    {
+        var tree = Build(new XmlElem(rootLocal, rootNamespace, 1, 1, [.. declarations]));
         var nodes = new List<XPathNode>();
         for (var i = 0; i < declarations.Length; i++)
         {

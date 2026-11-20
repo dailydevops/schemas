@@ -13,25 +13,33 @@ internal sealed class PlanRun
     private readonly SchematronSchema _schema;
     private readonly IQueryBinding _binding;
     private readonly IProblemSink _problems;
+    private readonly IReadOnlyList<GlobalDeclaration> _globals;
     private string[] _names = [];
     private bool _ok = true;
 
-    internal PlanRun(SchematronSchema schema, IQueryBinding binding, IProblemSink problems)
+    internal PlanRun(
+        SchematronSchema schema,
+        IQueryBinding binding,
+        IProblemSink problems,
+        IReadOnlyList<GlobalDeclaration> globals
+    )
     {
         Argument.ThrowIfNull(schema);
         Argument.ThrowIfNull(binding);
         Argument.ThrowIfNull(problems);
+        Argument.ThrowIfNull(globals);
 
         _schema = schema;
         _binding = binding;
         _problems = problems;
+        _globals = globals;
     }
 
     internal bool Execute(PhaseSelection selection, out ScopePlan plan)
     {
         Argument.ThrowIfNull(selection);
 
-        var schemaCount = _schema.Parameters.Count + _schema.Lets.Count;
+        var schemaCount = _schema.Parameters.Count + _globals.Count + _schema.Lets.Count;
         var patternStart = schemaCount + selection.Lets.Count;
         var maxPatternLets = 0;
         var maxRuleLets = 0;
@@ -50,7 +58,10 @@ internal sealed class PlanRun
 
         var globals = new List<VariableSlot>(schemaCount);
         DeclareParameters(globals);
-        DeclareLets(_schema.Lets, _schema.Parameters.Count, 0, ScopeLevel.Schema, globals);
+        var globalStart = _schema.Parameters.Count;
+        ReserveGlobals(globalStart);
+        DeclareLets(_schema.Lets, globalStart + _globals.Count, 0, ScopeLevel.Schema, globals);
+        DeclareGlobals(globalStart, schemaCount, globals);
         var globalScope = Snapshot(schemaCount, null);
 
         var phaseLets = new List<VariableSlot>(selection.Lets.Count);
@@ -115,6 +126,55 @@ internal sealed class PlanRun
                     isParameter: true
                 )
             );
+        }
+    }
+
+    // The names of the global xsl:variable and xsl:param declarations are entered before any value is compiled, so that the
+    // declarations are order independent: a let, a parameter default after them, and every global sees all of them (XSLT 2.0 section 9.5).
+    private void ReserveGlobals(int first)
+    {
+        for (var i = 0; i < _globals.Count; i++)
+        {
+            var global = _globals[i];
+            if (IsDuplicate(global.Name, 0, first + i))
+            {
+                Duplicate(global.Name, global.Location);
+                continue;
+            }
+
+            _names[first + i] = global.Name;
+        }
+    }
+
+    // A global value is compiled in the scope of the whole schema level, so it may read any parameter, let, or global wherever it is
+    // declared; a read of itself or a cycle is found when the value is used (XTDE0640), not here.
+    private void DeclareGlobals(int first, int schemaCount, List<VariableSlot> into)
+    {
+        for (var i = 0; i < _globals.Count; i++)
+        {
+            var global = _globals[i];
+            var slot = first + i;
+            if (_names[slot].Length == 0)
+            {
+                continue;
+            }
+
+            var value = global.Value is null ? null : Compile(global.Value, schemaCount, global.DeclaredType);
+            if (global.Value is null || value is not null)
+            {
+                into.Add(
+                    new VariableSlot(
+                        global.Name,
+                        slot,
+                        ScopeLevel.Schema,
+                        global.Location,
+                        value,
+                        global.DeclaredType,
+                        null,
+                        global.IsParameter
+                    )
+                );
+            }
         }
     }
 
