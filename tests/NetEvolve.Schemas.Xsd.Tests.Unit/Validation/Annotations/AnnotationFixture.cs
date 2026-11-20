@@ -9,6 +9,7 @@ using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 using NetEvolve.Schemas.Xsd.Attributes.Declarations;
 using NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;
+using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Elements;
 using NetEvolve.Schemas.Xsd.SimpleTypes.Definitions;
@@ -93,6 +94,10 @@ internal static class AnnotationFixture
             SchemaFixture.Part("ents", BuiltInList("ENTITIES")),
             SchemaFixture.Part("weird", weird),
             SchemaFixture.Part("any", SchemaFixture.Simple("anySimpleType")),
+            SchemaFixture.Part("t", null),
+            SchemaFixture.Part("bi", BuiltIn("integer")),
+            SchemaFixture.Part("bl", BuiltIn("NMTOKENS")),
+            SchemaFixture.Part("nolist", BuiltInList("nolist")),
         ];
     }
 
@@ -110,6 +115,20 @@ internal static class AnnotationFixture
         );
         schema.Global("k", SchemaFixture.Simple("integer"));
         return schema;
+    }
+
+    /// <summary>Gets a built-in type component, as a registry holds it.</summary>
+    public static IXsdComponent BuiltIn(string name)
+    {
+        foreach (var type in XsdBuiltInTypes.For(XsdVersion.V11))
+        {
+            if (string.Equals(type.Name.LocalName, name, StringComparison.Ordinal))
+            {
+                return type;
+            }
+        }
+
+        throw new InvalidOperationException("No built-in type " + name);
     }
 
     public static SimpleTypeDefinition BuiltInList(string name) =>
