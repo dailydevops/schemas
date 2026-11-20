@@ -9,6 +9,9 @@ public sealed class XPathDecimalFormat
     /// <summary>Gets or sets the grouping separator.</summary>
     public char GroupingSeparator { get; set; } = ',';
 
+    /// <summary>Gets or sets the exponent separator of Functions and Operators 3.1 (4.7.1); the XSLT 2.0 rules of <c>format-number</c> do not read it.</summary>
+    public char ExponentSeparator { get; set; } = 'e';
+
     /// <summary>Gets or sets the minus sign.</summary>
     public char MinusSign { get; set; } = '-';
 
