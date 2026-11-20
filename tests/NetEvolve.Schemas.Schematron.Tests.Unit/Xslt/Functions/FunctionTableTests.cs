@@ -121,8 +121,10 @@ public class FunctionTableTests
 
         await Assert.That(PositionOf(registry, "function")).IsEqualTo(XsltPosition.Declaration);
         await Assert.That(PositionOf(registry, "sequence")).IsEqualTo(XsltPosition.Instruction);
-        await Assert.That(PositionOf(registry, "variable")).IsEqualTo(XsltPosition.Instruction);
-        await Assert.That(PositionOf(registry, "param")).IsEqualTo(XsltPosition.Child);
+        await Assert
+            .That(PositionOf(registry, "variable"))
+            .IsEqualTo(XsltPosition.Instruction | XsltPosition.Declaration);
+        await Assert.That(PositionOf(registry, "param")).IsEqualTo(XsltPosition.Child | XsltPosition.Declaration);
         await Assert.That(registry.IsAvailable(RegistryTreeName("sequence"))).IsTrue();
         await Assert.That(registry.IsAvailable(RegistryTreeName("function"))).IsFalse();
         await Assert.That(registry.IsAvailable(RegistryTreeName("param"))).IsFalse();

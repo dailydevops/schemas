@@ -7,12 +7,13 @@ using NetEvolve.Schemas.Schematron.Xslt.Registry;
 /// <summary>
 /// The registration file of the function instructions: its module initializer stages <see cref="Register"/> into the shared catalog
 /// (design #150 EP-10, option A), so no shared list names the folder. The folder registers <c>xsl:function</c> (a declaration),
-/// <c>xsl:sequence</c> and <c>xsl:variable</c> (instructions), and <c>xsl:param</c> (a structural child of a function).
+/// <c>xsl:sequence</c> (an instruction), <c>xsl:variable</c> (an instruction and, as the global variable of SCH-66, a declaration),
+/// and <c>xsl:param</c> (a structural child of a function and, as the global parameter of SCH-66, a declaration).
 /// </summary>
 /// <remarks>
-/// Limitation: the registry holds one entry per name. The global <c>xsl:variable</c> and <c>xsl:param</c> of SCH-66 (#252) are
-/// declarations, which these entries do not allow yet, so #252 widens the positions of the two entries here and adds the
-/// compile of the declaration; two registrations of one name fail at the first build of the default registry.
+/// The registry holds one entry per name, and two registrations of one name fail at the first build of the default registry, so
+/// the entries of <c>xsl:variable</c> and <c>xsl:param</c> are widened here and read the global declaration through
+/// <c>Xslt/Globals</c> (#252) when the element is a child of the schema or of a stylesheet module.
 /// </remarks>
 internal static class Registration
 {

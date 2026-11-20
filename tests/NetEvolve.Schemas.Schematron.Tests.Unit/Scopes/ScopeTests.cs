@@ -426,11 +426,11 @@ public class ScopeTests
         var binding = new ScopeTestBinding();
         var sink = new FakeProblemSink();
 
-        await Assert.That(() => new PlanRun(null!, binding, sink)).Throws<ArgumentNullException>();
-        await Assert.That(() => new PlanRun(schema, null!, sink)).Throws<ArgumentNullException>();
-        await Assert.That(() => new PlanRun(schema, binding, null!)).Throws<ArgumentNullException>();
+        await Assert.That(() => new PlanRun(null!, binding, sink, [])).Throws<ArgumentNullException>();
+        await Assert.That(() => new PlanRun(schema, null!, sink, [])).Throws<ArgumentNullException>();
+        await Assert.That(() => new PlanRun(schema, binding, null!, [])).Throws<ArgumentNullException>();
         await Assert
-            .That(() => new PlanRun(schema, binding, sink).Execute(null!, out _))
+            .That(() => new PlanRun(schema, binding, sink, []).Execute(null!, out _))
             .Throws<ArgumentNullException>();
     }
 }

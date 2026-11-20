@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.Schematron.Xslt.Functions;
 
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Seams;
+using NetEvolve.Schemas.Schematron.Xslt.Globals;
 using NetEvolve.Schemas.Schematron.Xslt.Registry;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.XPath.Api;
@@ -10,11 +11,13 @@ using NetEvolve.Schemas.XPath.Xdm.Nodes;
 /// <summary>
 /// <c>xsl:param</c> in the head of an <c>xsl:function</c> (XSLT 2.0 section 10.3): a name and an optional <see langword="as"/> type, and no
 /// default value. It is a structural child: it is registered for <see cref="XsltPosition.Child"/>, so it is misplaced everywhere
-/// else, and the function reads it directly with <see cref="TryRead"/>.
+/// else, and the function reads it directly with <see cref="TryRead"/>. The entry is also the global <c>xsl:param</c> of a
+/// stylesheet (SCH-66, #252), registered for <see cref="XsltPosition.Declaration"/>: a top-level element, which has the schema or a
+/// stylesheet module as its parent, is read by <see cref="XsltGlobalCompile"/> and compiled by the planner of the scopes.
 /// </summary>
 /// <remarks>
-/// Limitation: the global <c>xsl:param</c> of a stylesheet (SCH-66, #252) and the <c>xsl:param</c> of a template are not compiled
-/// here; the registry holds one entry per name, so #252 extends the positions of this entry together with the registration file.
+/// Limitation: the <c>xsl:param</c> of a template is not compiled here; the registry holds one entry per name, so the template
+/// package extends the positions of this entry together with the registration file.
 /// </remarks>
 internal sealed class XsltParamInstruction : IXsltInstruction
 {
@@ -26,15 +29,20 @@ internal sealed class XsltParamInstruction : IXsltInstruction
     public XPathQName Name { get; } = new(XsltInstructionRegistry.Namespace, "param");
 
     /// <inheritdoc />
-    public XsltPosition Position => XsltPosition.Child;
+    public XsltPosition Position => XsltPosition.Child | XsltPosition.Declaration;
 
     /// <inheritdoc />
     public bool TryCompile(XsltCompileContext context, out XsltExecutable executable, out SchematronProblem problem)
     {
         Argument.ThrowIfNull(context);
 
-        executable = null!;
         problem = default;
+        if (XsltGlobalCompile.IsTopLevel(context.Element))
+        {
+            return XsltGlobalCompile.TryCompile(context, true, out executable);
+        }
+
+        executable = null!;
         if (!TryRead(context, context.Element, context.Scope.VariableNames.Count, out var parameter))
         {
             return false;

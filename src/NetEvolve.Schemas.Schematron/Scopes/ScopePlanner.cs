@@ -1,5 +1,6 @@
 namespace NetEvolve.Schemas.Schematron.Scopes;
 
+using System.Collections.Generic;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Model;
 using NetEvolve.Schemas.Schematron.Phases;
@@ -19,7 +20,10 @@ using NetEvolve.Schemas.Schematron.Seams;
 /// binding because of decision Q2 of #106 and #150 EP-4; the suite cases <c>let-pattern-global-01</c>,
 /// <c>let-name-collision-error-05</c>, and <c>let-name-collision-error-06</c> are excluded deviations. Only the patterns active in
 /// the phase are planned, so a problem in another pattern surfaces when that phase is built. The global <c>xsl:variable</c> and
-/// <c>xsl:param</c> declarations (SCH-66) are not part of the schema-level block yet. The <see langword="as"/> types are limited to
+/// <c>xsl:param</c> declarations (SCH-66) are part of the schema-level block: the slots are numbered parameters first, then the
+/// globals, then the lets, and the names of all of them are entered before a global value is compiled, so a global may read any
+/// parameter, let, or global wherever it is declared and a let may read any global (XSLT 2.0 section 9.5, design #150 EP-4). A global
+/// is matched by the name as written, so two prefixes of one namespace are two names. The <see langword="as"/> types are limited to
 /// <c>xs:string</c>, <c>xs:boolean</c>, <c>xs:double</c>, and <c>xs:integer</c> (#392); a constant is checked here, any other value
 /// by the binding through <see cref="QueryStaticScope.DeclaredType"/>, which the XPath binding does not do until it is implemented.
 /// A constructor of a type derived from a supported type, such as <c>xs:long(5)</c> or <c>xs:token('a')</c>, is not treated as a
@@ -42,13 +46,31 @@ internal static class ScopePlanner
         IQueryBinding binding,
         IProblemSink problems,
         out ScopePlan plan
+    ) => TryPlan(schema, selection, [], binding, problems, out plan);
+
+    /// <summary>Plans the scopes with the global <c>xsl:variable</c> and <c>xsl:param</c> declarations of the stylesheet.</summary>
+    /// <param name="schema">The effective schema.</param>
+    /// <param name="selection">The phase selection: the active patterns and the phase variables.</param>
+    /// <param name="globals">The global declarations that won the import precedence, in declaration order.</param>
+    /// <param name="binding">The binding that compiles the variable values.</param>
+    /// <param name="problems">Receives every problem; planning continues after one.</param>
+    /// <param name="plan">The plan; complete only when the method returns <see langword="true"/>.</param>
+    /// <returns><see langword="true"/> when no problem was reported.</returns>
+    internal static bool TryPlan(
+        SchematronSchema schema,
+        PhaseSelection selection,
+        IReadOnlyList<GlobalDeclaration> globals,
+        IQueryBinding binding,
+        IProblemSink problems,
+        out ScopePlan plan
     )
     {
         Argument.ThrowIfNull(schema);
         Argument.ThrowIfNull(selection);
+        Argument.ThrowIfNull(globals);
         Argument.ThrowIfNull(binding);
         Argument.ThrowIfNull(problems);
 
-        return new PlanRun(schema, binding, problems).Execute(selection, out plan);
+        return new PlanRun(schema, binding, problems, globals).Execute(selection, out plan);
     }
 }

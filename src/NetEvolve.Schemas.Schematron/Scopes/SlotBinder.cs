@@ -15,8 +15,10 @@ using NetEvolve.Schemas.Schematron.Seams;
 /// <remarks>
 /// The walk over the slots a value reads is iterative, with an explicit stack, so a chain of any length is bound without recursion.
 /// A slot that is already bound is found by an array index and costs no allocation. Not thread-safe: one binder per run.
+/// A global <c>xsl:variable</c> or <c>xsl:param</c> (SCH-66) is a slot of the schema level and is bound here like a schema
+/// <see langword="let"/>: lazily, once per run, with the circularity error XTDE0640 and a caller value for a parameter.
 /// Limitation: the values themselves live in the variable table of the run of the binding; a temporary tree as a value
-/// (SCH-84) and a global <c>xsl:variable</c> (SCH-66) are not bound here yet.
+/// (SCH-84, #794) is not bound here yet. A cycle that runs through the body of a stylesheet function is not seen as XTDE0640 (#793).
 /// </remarks>
 internal sealed class SlotBinder : ISlotBinder
 {
