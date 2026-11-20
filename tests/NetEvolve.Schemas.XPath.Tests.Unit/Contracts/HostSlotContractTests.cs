@@ -14,6 +14,7 @@ public class HostSlotContractTests
 
         await Assert.That(slots.CurrentItem).IsNull();
         await Assert.That(slots.CurrentGroup).IsNull();
+        await Assert.That(slots.CurrentGroupingKey).IsNull();
         await Assert.That(slots.RegexGroups).IsNull();
         await Assert.That(slots.DecimalFormats).IsNull();
         await Assert.That(slots.Keys).IsNull();
@@ -26,11 +27,13 @@ public class HostSlotContractTests
         {
             CurrentItem = XdmItem.FromString("current"),
             CurrentGroup = XdmSequence.Create(XdmItem.FromInteger(1)),
+            CurrentGroupingKey = XdmSequence.Create(XdmItem.FromString("key")),
         };
 
         await Assert.That(slots.CurrentItem!.Value.TryGetString(out var text)).IsTrue();
         await Assert.That(text).IsEqualTo("current");
         await Assert.That(slots.CurrentGroup!.Value.Count).IsEqualTo(1);
+        await Assert.That(slots.CurrentGroupingKey!.Value.Count).IsEqualTo(1);
     }
 
     [Test]
@@ -64,11 +67,17 @@ public class HostSlotContractTests
     [Test]
     public async Task HostSlots_Clear_EmptiesEverySlot()
     {
-        var slots = new XPathHostSlots { CurrentItem = XdmItem.FromBoolean(true), Keys = new FakeKeys() };
+        var slots = new XPathHostSlots
+        {
+            CurrentItem = XdmItem.FromBoolean(true),
+            CurrentGroupingKey = XdmSequence.Create(XdmItem.FromInteger(1)),
+            Keys = new FakeKeys(),
+        };
 
         slots.Clear();
 
         await Assert.That(slots.CurrentItem).IsNull();
+        await Assert.That(slots.CurrentGroupingKey).IsNull();
         await Assert.That(slots.Keys).IsNull();
     }
 

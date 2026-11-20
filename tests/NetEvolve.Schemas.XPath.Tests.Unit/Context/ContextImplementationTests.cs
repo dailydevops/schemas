@@ -149,17 +149,20 @@ public class ContextImplementationTests
 
         first.Host.CurrentItem = XdmItem.FromString("a");
         first.Host.CurrentGroup = XdmSequence.Create(XdmItem.FromInteger(1));
+        first.Host.CurrentGroupingKey = XdmSequence.Create(XdmItem.FromInteger(2));
         first.Host.Keys = keys;
 
         await Assert.That(first.Host.Keys).IsSameReferenceAs(keys);
         await Assert.That(first.Host.CurrentGroup!.Value.Count).IsEqualTo(1);
         await Assert.That(second.Host.CurrentItem).IsNull();
         await Assert.That(second.Host.CurrentGroup).IsNull();
+        await Assert.That(second.Host.CurrentGroupingKey).IsNull();
         await Assert.That(second.Host.Keys).IsNull();
 
         first.Reset();
 
         await Assert.That(first.Host.CurrentItem).IsNull();
+        await Assert.That(first.Host.CurrentGroupingKey).IsNull();
         await Assert.That(first.Host.Keys).IsNull();
     }
 
