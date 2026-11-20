@@ -9,6 +9,7 @@ using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.Elements;
+using NetEvolve.Schemas.Xsd.OpenContent;
 using NetEvolve.Schemas.Xsd.SchemaDocuments;
 using NetEvolve.Schemas.Xsd.SimpleTypes.Definitions;
 using NetEvolve.Schemas.Xsd.Substitution;
@@ -73,6 +74,7 @@ internal sealed class ComplexTypeDefinition : IReferencingComponent, IBlockedTyp
         _uses = uses;
         AttributeWildcard = attributeWildcard;
         _sites = sites;
+        OpenContent = null;
     }
 
     /// <summary>Gets the ur-type <c>xs:anyType</c>: mixed content of any lax elements and any lax attributes.</summary>
@@ -120,6 +122,9 @@ internal sealed class ComplexTypeDefinition : IReferencingComponent, IBlockedTyp
     /// <summary>Gets the attribute wildcard, <see langword="null"/> for none.</summary>
     public IWildcard? AttributeWildcard { get; }
 
+    /// <summary>Gets the open content of an element-only or mixed content type, <see langword="null"/> for none.</summary>
+    public OpenContentProperty? OpenContent { get; }
+
     /// <inheritdoc />
     public int ReferenceCount => _sites.Length;
 
@@ -147,6 +152,8 @@ internal sealed class ComplexTypeDefinition : IReferencingComponent, IBlockedTyp
     /// <param name="attributeUses">The uses of the attributes and attribute groups in document order.</param>
     /// <param name="attributeWildcard">The complete attribute wildcard of the own children, <see langword="null"/> for none.</param>
     /// <param name="reporter">The reporter.</param>
+    /// <param name="openContent">The <c>openContent</c> child, <see langword="null"/> for none.</param>
+    /// <param name="defaultOpenContent">The <c>defaultOpenContent</c> child of the schema, <see langword="null"/> for none.</param>
     /// <returns>The definition.</returns>
     internal static ComplexTypeDefinition Implicit(
         ComplexTypeHeader header,
@@ -154,9 +161,12 @@ internal sealed class ComplexTypeDefinition : IReferencingComponent, IBlockedTyp
         Particle? explicitContent,
         IReadOnlyList<AttributeUse> attributeUses,
         IWildcard? attributeWildcard,
-        XsdIssueReporter reporter
+        XsdIssueReporter reporter,
+        OpenContentElement? openContent = null,
+        OpenContentElement? defaultOpenContent = null
     )
     {
+        _ = (openContent, defaultOpenContent);
         Argument.ThrowIfNull(attributeUses);
         Argument.ThrowIfNull(reporter);
 
@@ -181,6 +191,8 @@ internal sealed class ComplexTypeDefinition : IReferencingComponent, IBlockedTyp
     /// <param name="attributeUses">The uses of the attributes and attribute groups in document order.</param>
     /// <param name="attributeWildcard">The complete attribute wildcard of the own children, <see langword="null"/> for none.</param>
     /// <param name="reporter">The reporter.</param>
+    /// <param name="openContent">The <c>openContent</c> child, <see langword="null"/> for none.</param>
+    /// <param name="defaultOpenContent">The <c>defaultOpenContent</c> child of the schema, <see langword="null"/> for none.</param>
     /// <returns>The definition, <see langword="null"/> after an issue was reported.</returns>
     internal static ComplexTypeDefinition? FromComplexContent(
         ComplexTypeHeader header,
@@ -190,9 +202,12 @@ internal sealed class ComplexTypeDefinition : IReferencingComponent, IBlockedTyp
         Particle? explicitContent,
         IReadOnlyList<AttributeUse> attributeUses,
         IWildcard? attributeWildcard,
-        XsdIssueReporter reporter
+        XsdIssueReporter reporter,
+        OpenContentElement? openContent = null,
+        OpenContentElement? defaultOpenContent = null
     )
     {
+        _ = (openContent, defaultOpenContent);
         GuardDerivation(method, baseType, attributeUses, reporter);
 
         var parent = AsComplex(baseType);
