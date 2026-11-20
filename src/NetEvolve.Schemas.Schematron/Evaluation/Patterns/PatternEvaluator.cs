@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Threading;
 using NetEvolve.Arguments;
+using NetEvolve.Schemas.Schematron.Evaluation.Annotations;
 using NetEvolve.Schemas.Schematron.Evaluation.Assertions;
 using NetEvolve.Schemas.Schematron.Results.Mapping;
 using NetEvolve.Schemas.Schematron.Scopes;
@@ -25,7 +26,7 @@ using NetEvolve.Schemas.XPath.Xdm.Nodes;
 /// <c>Finish</c> to the composition, which also builds the instance tree: the returned summary is what <c>Finish</c> reports.
 /// </para>
 /// <para>
-/// Limitations: <c>role</c> and <c>flag</c> of patterns and rules are not evaluated here (SCH-13), so the events carry them empty.
+/// Limitations: the events carry the static <c>role</c> and <c>flag</c> only, a dynamic value is resolved on the findings (see <see cref="AnnotationEvaluator"/>).
 /// <c>visit-each</c> and <c>documents</c> are SCH-14. Every rule whose node kinds can match is asked, in rule order; bucketing
 /// the rules by node name and the single-pass dispatch of all patterns are SCH-72. The run-wide evaluation budget (design #150
 /// EP-16, P-X5) does not exist yet, so only the issue limit and the token end a run. A context that reads a variable is bound
@@ -105,11 +106,12 @@ internal sealed class PatternEvaluator
                 set.Id.AsSpan(),
                 set.Documents.AsSpan(),
                 set.Name.AsSpan(),
-                default,
+                set.Annotations.StaticRole.AsSpan(),
                 set.IsGroup
             );
             _events.ActivePattern(in pattern);
             _binder.BeginPattern(set.Scope);
+            _assertions.Annotations.BeginPattern(set.Annotations);
             _contextErrors.Clear();
 
             var stopped = IssueLimitReached || Pass(set, document.Node);
@@ -249,11 +251,18 @@ internal sealed class PatternEvaluator
     // Delivers the event before any variable of the rule is read, then evaluates the assertions in document order.
     private bool Fire(CompiledRule rule, in XPathNode node)
     {
-        var ruleEvent = new SchematronRuleEvent(rule.Id.AsSpan(), rule.ContextText.AsSpan(), default, default, default);
+        var ruleEvent = new SchematronRuleEvent(
+            rule.Id.AsSpan(),
+            rule.ContextText.AsSpan(),
+            rule.Annotations.StaticRole.AsSpan(),
+            rule.Annotations.StaticFlags.AsSpan(),
+            default
+        );
         _events.FiredRule(in ruleEvent);
 
         var focus = new QueryFocus(node, 1, 1);
         _binder.BeginFiring(rule.Scope, in focus);
+        _assertions.Annotations.BeginRule(rule.Annotations);
 
         var assertions = rule.Assertions;
         for (var i = 0; i < assertions.Length && !IssueLimitReached; i++)

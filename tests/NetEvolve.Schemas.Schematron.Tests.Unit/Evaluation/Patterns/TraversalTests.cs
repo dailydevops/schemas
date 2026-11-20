@@ -169,7 +169,7 @@ public class TraversalTests
     }
 
     [Test]
-    public async Task FiredRule_CarriesIdAndContext_AndLeavesRoleAndFlagsToTheAnnotationPackage()
+    public async Task FiredRule_CarriesIdAndContext_AndEmptyRoleAndFlagsWhenNoneIsSet()
     {
         var schema = Schema(Pattern("p", Rule("r1", "a", Holds())));
         using var h = new PatternHarness(schema, E("a"));
