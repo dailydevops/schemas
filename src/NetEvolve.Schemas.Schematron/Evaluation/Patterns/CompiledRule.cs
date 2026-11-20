@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.Schematron.Evaluation.Patterns;
 
 using NetEvolve.Arguments;
+using NetEvolve.Schemas.Schematron.Evaluation.Annotations;
 using NetEvolve.Schemas.Schematron.Evaluation.Assertions;
 using NetEvolve.Schemas.Schematron.Scopes;
 using NetEvolve.Schemas.Schematron.Seams;
@@ -13,7 +14,8 @@ internal sealed class CompiledRule
         CompiledPattern context,
         string id,
         string contextText,
-        CompiledAssertion[] assertions
+        CompiledAssertion[] assertions,
+        CompiledAnnotations? annotations = null
     )
     {
         Argument.ThrowIfNull(scope);
@@ -27,6 +29,7 @@ internal sealed class CompiledRule
         Id = id;
         ContextText = contextText;
         Assertions = assertions;
+        Annotations = annotations ?? CompiledAnnotations.None;
     }
 
     /// <summary>Gets the rule with its variables and the scope its assertions compile in.</summary>
@@ -43,4 +46,7 @@ internal sealed class CompiledRule
 
     /// <summary>Gets the assertions in document order.</summary>
     internal CompiledAssertion[] Assertions { get; }
+
+    /// <summary>Gets the <c>role</c> and <c>flag</c> of the rule, before inheritance.</summary>
+    internal CompiledAnnotations Annotations { get; }
 }

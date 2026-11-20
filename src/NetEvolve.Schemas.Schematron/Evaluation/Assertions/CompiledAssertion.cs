@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.Schematron.Evaluation.Assertions;
 
 using NetEvolve.Arguments;
+using NetEvolve.Schemas.Schematron.Evaluation.Annotations;
 using NetEvolve.Schemas.Schematron.Seams;
 
 /// <summary>
@@ -20,7 +21,8 @@ internal sealed class CompiledAssertion
         QueryExpression? subject,
         CompiledMessage message,
         CompiledMessage[] diagnostics,
-        CompiledMessage[] properties
+        CompiledMessage[] properties,
+        CompiledAnnotations? annotations = null
     )
     {
         Argument.ThrowIfNull(id);
@@ -43,6 +45,7 @@ internal sealed class CompiledAssertion
         Message = message;
         Diagnostics = diagnostics;
         Properties = properties;
+        Annotations = annotations ?? CompiledAnnotations.None;
     }
 
     /// <summary>Gets a value indicating whether the assertion is a <c>report</c>, which fires when its test is true.</summary>
@@ -72,4 +75,7 @@ internal sealed class CompiledAssertion
     internal CompiledMessage[] Diagnostics { get; }
 
     internal CompiledMessage[] Properties { get; }
+
+    /// <summary>Gets the <c>role</c>, <c>flag</c>, and <c>severity</c> of the assertion itself, before inheritance.</summary>
+    internal CompiledAnnotations Annotations { get; }
 }

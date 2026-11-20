@@ -2,19 +2,20 @@ namespace NetEvolve.Schemas.Schematron.Evaluation.Assertions;
 
 using System;
 using NetEvolve.Arguments;
+using NetEvolve.Schemas.Schematron.Evaluation.Annotations;
 using NetEvolve.Schemas.Schematron.Results.Mapping;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.XPath.Xdm.Nodes;
 
 /// <summary>
 /// Evaluates compiled assertions for the context nodes of one run and delivers their findings (design #150 EP-7). The test is
-/// evaluated first; only when the assertion fires are the subject, the message, the referenced diagnostics, and the referenced
-/// properties evaluated, in that order. A part that fails is reported once and leaves out only itself: the finding is always
-/// delivered. An assertion that does not fire allocates nothing.
+/// evaluated first; only when the assertion fires are the subject, the <c>role</c>, <c>flag</c>, and <c>severity</c> values (see
+/// <see cref="AnnotationEvaluator"/>), the message, the referenced diagnostics, and the referenced properties evaluated, in that
+/// order. A part that fails is reported once and leaves out only itself: the finding is always delivered. An assertion that does
+/// not fire allocates nothing.
 /// </summary>
 /// <remarks>
-/// Not thread-safe: one evaluator per run, which owns the pooled buffers. Limitations: <c>role</c>, <c>flag</c>, and
-/// <c>severity</c> are not evaluated here (SCH-13), so the finding carries them empty; a message that exceeds the maximum length is
+/// Not thread-safe: one evaluator per run, which owns the pooled buffers. Limitations: a message that exceeds the maximum length is
 /// cut and reported, and ending the run through the run budget is left to the run loop (design #150 EP-16).
 /// </remarks>
 internal sealed class AssertionEvaluator : IDisposable
@@ -29,6 +30,7 @@ internal sealed class AssertionEvaluator : IDisposable
     private readonly TextSink _message;
     private readonly TextSink _reference;
     private readonly TextSink _path;
+    private readonly AnnotationEvaluator _annotations;
     private string[] _diagnosticIds = [];
     private string[] _diagnosticTexts = [];
     private string[] _propertyIds = [];
@@ -65,7 +67,11 @@ internal sealed class AssertionEvaluator : IDisposable
         _message = new TextSink(maxTextLength);
         _reference = new TextSink(maxTextLength);
         _path = new TextSink(int.MaxValue);
+        _annotations = new AnnotationEvaluator(run, binder, problems, maxTextLength);
     }
+
+    /// <summary>Gets the resolver of the <c>role</c>, <c>flag</c>, and <c>severity</c> values; the run loop tells it where a pattern pass and a firing begin.</summary>
+    internal AnnotationEvaluator Annotations => _annotations;
 
     /// <summary>Evaluates one assertion for one context node; the finding is delivered when the assertion fires.</summary>
     /// <param name="assertion">The compiled assertion.</param>
@@ -103,11 +109,13 @@ internal sealed class AssertionEvaluator : IDisposable
         _message.Dispose();
         _reference.Dispose();
         _path.Dispose();
+        _annotations.Dispose();
     }
 
     private void Deliver(CompiledAssertion assertion, in QueryFocus focus)
     {
         var node = ResolveSubject(assertion, in focus);
+        var annotations = _annotations.Resolve(assertion.Annotations, assertion.Constraint, in focus);
 
         _message.Clear();
         _ = _builder.Build(assertion.Message, in focus, _message);
@@ -135,9 +143,9 @@ internal sealed class AssertionEvaluator : IDisposable
             assertion.Constraint.AsSpan(),
             assertion.Test.AsSpan(),
             path,
-            default,
-            default,
-            default,
+            annotations.Role.AsSpan(),
+            annotations.Flags.AsSpan(),
+            annotations.Severity.AsSpan(),
             _message.Written,
             new SchematronReferenceList(_diagnosticIds.AsSpan(0, diagnostics), _diagnosticTexts.AsSpan(0, diagnostics)),
             new SchematronReferenceList(_propertyIds.AsSpan(0, properties), _propertyTexts.AsSpan(0, properties)),

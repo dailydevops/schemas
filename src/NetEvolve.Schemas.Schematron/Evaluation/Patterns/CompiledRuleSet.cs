@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.Schematron.Evaluation.Patterns;
 
 using NetEvolve.Arguments;
+using NetEvolve.Schemas.Schematron.Evaluation.Annotations;
 using NetEvolve.Schemas.Schematron.Scopes;
 
 /// <summary>An active pattern or group with its compiled rules in document order. Immutable and shared by every run.</summary>
@@ -12,7 +13,8 @@ internal sealed class CompiledRuleSet
         string documents,
         string name,
         bool isGroup,
-        CompiledRule[] rules
+        CompiledRule[] rules,
+        CompiledAnnotations? annotations = null
     )
     {
         Argument.ThrowIfNull(scope);
@@ -27,6 +29,7 @@ internal sealed class CompiledRuleSet
         Name = name;
         IsGroup = isGroup;
         Rules = rules;
+        Annotations = annotations ?? CompiledAnnotations.None;
     }
 
     /// <summary>Gets the pattern with its variables and the scope its rule contexts compile in.</summary>
@@ -45,4 +48,7 @@ internal sealed class CompiledRuleSet
     internal bool IsGroup { get; }
 
     internal CompiledRule[] Rules { get; }
+
+    /// <summary>Gets the <c>role</c> of the pattern or group, before inheritance.</summary>
+    internal CompiledAnnotations Annotations { get; }
 }

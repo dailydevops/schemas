@@ -3,6 +3,7 @@ namespace NetEvolve.Schemas.Schematron.Evaluation.Assertions;
 using System;
 using System.Collections.Generic;
 using NetEvolve.Arguments;
+using NetEvolve.Schemas.Schematron.Evaluation.Annotations;
 using NetEvolve.Schemas.Schematron.Model;
 using NetEvolve.Schemas.Schematron.Results.Mapping;
 using NetEvolve.Schemas.Schematron.Scopes;
@@ -15,7 +16,7 @@ using NetEvolve.Schemas.Schematron.Seams;
 /// </summary>
 /// <remarks>
 /// An id in <c>diagnostics</c> or <c>properties</c> that no declaration has is <see cref="SchematronDiagnosticCodes.IdrefUnresolved"/>
-/// (design #137 AP-9). The <c>role</c>, <c>flag</c>, and <c>severity</c> attributes are not compiled here (SCH-13).
+/// (design #137 AP-9). The <c>role</c>, <c>flag</c>, and <c>severity</c> attributes are compiled by <see cref="AnnotationCompiler"/>, in the same scope.
 /// </remarks>
 internal static class AssertionCompiler
 {
@@ -50,9 +51,19 @@ internal static class AssertionCompiler
         ok &= TryCompileMessage(binding, string.Empty, assertion.Message, scope, problems, out var message);
         ok &= TryCompileReferences(binding, assertion, schema, false, scope, problems, out var diagnostics);
         ok &= TryCompileReferences(binding, assertion, schema, true, scope, problems, out var properties);
+        ok &= AnnotationCompiler.TryCompile(
+            assertion.Role,
+            assertion.Flags,
+            assertion.Severity,
+            assertion.Location,
+            scope,
+            binding,
+            problems,
+            out var annotations
+        );
 
         compiled = ok
-            ? Create(assertion, rule, in position, test!, subject, message!, diagnostics!, properties!)
+            ? Create(assertion, rule, in position, test!, subject, message!, diagnostics!, properties!, annotations)
             : null!;
         return ok;
     }
@@ -65,7 +76,8 @@ internal static class AssertionCompiler
         QueryExpression? subject,
         CompiledMessage message,
         CompiledMessage[] diagnostics,
-        CompiledMessage[] properties
+        CompiledMessage[] properties,
+        CompiledAnnotations annotations
     )
     {
         var constraint = AssertionIdentifier.Create(
@@ -87,7 +99,8 @@ internal static class AssertionCompiler
             subject,
             message,
             diagnostics,
-            properties
+            properties,
+            annotations
         );
     }
 
