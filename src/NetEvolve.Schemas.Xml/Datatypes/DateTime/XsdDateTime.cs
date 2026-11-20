@@ -86,7 +86,10 @@ public readonly struct XsdDateTime : IEquatable<XsdDateTime>
     /// <summary>Gets the timezone offset in minutes, <see langword="null"/> when the value has no timezone.</summary>
     public int? TimezoneOffsetMinutes => _hasOffset ? _offset : null;
 
-    /// <summary>Parses a lexical form of one of the three types; the form must already be whitespace-collapsed.</summary>
+    /// <summary>
+    /// Parses a lexical form of one of the three types; the form must already be whitespace-collapsed. A year or a seconds
+    /// fraction beyond the cap is reported only when the rest of the form is valid, the year first.
+    /// </summary>
     /// <param name="lexical">The lexical form.</param>
     /// <param name="kind">The type whose lexical space applies.</param>
     /// <param name="version">The XSD version; year 0 exists only in <see cref="XsdVersion.V11"/>.</param>
@@ -113,40 +116,42 @@ public readonly struct XsdDateTime : IEquatable<XsdDateTime>
         var hour = 0;
         var minute = 0;
         var second = XsdDecimal.Zero;
+        var fractionCapAt = -1;
         if (kind is XsdDateTimeKind.DateTime or XsdDateTimeKind.Time)
         {
-            var error = ScanTime(lexical, ref pos, out hour, out minute, out second, out var errorOffset);
+            var error = ScanTime(
+                lexical,
+                ref pos,
+                out hour,
+                out minute,
+                out second,
+                out fractionCapAt,
+                out var errorOffset
+            );
             if (error != DatatypeError.None)
             {
                 return new(error, errorOffset);
             }
         }
 
-        var hasOffset = false;
         var offset = 0;
-        if (pos < lexical.Length)
+        var hasOffset = pos < lexical.Length;
+        if (hasOffset && (!ScanOffset(lexical, ref pos, out offset) || pos != lexical.Length))
         {
-            if (!ScanOffset(lexical, ref pos, out offset) || pos != lexical.Length)
-            {
-                return new(DatatypeError.InvalidLexicalForm, pos);
-            }
-
-            hasOffset = true;
+            return new(DatatypeError.InvalidLexicalForm, pos);
         }
 
-        // The whole form is valid, so the year beyond the cap is the only defect; it is reported last, at its digit.
-        if (capAt >= 0)
+        if (capAt >= 0 || fractionCapAt >= 0)
         {
-            return new(DatatypeError.YearOrComponentCap, capAt);
+            return capAt >= 0
+                ? new(DatatypeError.YearOrComponentCap, capAt)
+                : new(DatatypeError.DigitCap, fractionCapAt);
         }
 
         if (hour == 24)
         {
             hour = 0;
-            if (kind == XsdDateTimeKind.DateTime)
-            {
-                NextDay(version, ref year, ref month, ref day);
-            }
+            NextDay(kind, version, ref year, ref month, ref day);
         }
 
         return new(new XsdDateTime(kind, year, month, day, hour, minute, second, hasOffset, offset));
@@ -504,11 +509,13 @@ public readonly struct XsdDateTime : IEquatable<XsdDateTime>
         out int hour,
         out int minute,
         out XsdDecimal second,
+        out int fractionCapAt,
         out int errorOffset
     )
     {
         second = XsdDecimal.Zero;
         minute = 0;
+        fractionCapAt = -1;
         errorOffset = 0;
         if (
             !TwoDigits(text, ref pos, out hour)
@@ -544,21 +551,55 @@ public readonly struct XsdDateTime : IEquatable<XsdDateTime>
             }
         }
 
-        var parsed = XsdDecimal.Parse(text.Slice(start, pos - start));
-        if (!parsed.Success)
-        {
-            errorOffset = start + parsed.ErrorOffset;
-            return parsed.Error;
-        }
-
-        second = parsed.Value;
-        if (minute > 59 || whole > 59 || hour > 24 || (hour == 24 && (minute != 0 || second.Sign != 0)))
+        ParseSeconds(text, start, pos, out second, out fractionCapAt, out var nonZero);
+        if (minute > 59 || whole > 59 || hour > 24 || (hour == 24 && (minute != 0 || nonZero)))
         {
             errorOffset = start;
             return DatatypeError.InvalidLexicalForm;
         }
 
         return DatatypeError.None;
+    }
+
+    // The scanned form is two digits and an optional decimal point with digits, which XsdDecimal accepts unless the digit
+    // cap is exceeded.
+    private static void ParseSeconds(
+        ReadOnlySpan<char> text,
+        int start,
+        int end,
+        out XsdDecimal second,
+        out int fractionCapAt,
+        out bool nonZero
+    )
+    {
+        second = XsdDecimal.Zero;
+        fractionCapAt = -1;
+        var seconds = text.Slice(start, end - start);
+        var parsed = XsdDecimal.Parse(seconds);
+        if (parsed.Success)
+        {
+            second = parsed.Value;
+            nonZero = second.Sign != 0;
+            return;
+        }
+
+        // The fraction is beyond the cap: the rest of the form is checked first, and the 24:00:00 rule needs only to know
+        // whether the seconds are zero.
+        fractionCapAt = start + parsed.ErrorOffset;
+        nonZero = HasNonZeroDigit(seconds);
+    }
+
+    private static bool HasNonZeroDigit(ReadOnlySpan<char> text)
+    {
+        foreach (var c in text)
+        {
+            if (c is >= '1' and <= '9')
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static bool ScanOffset(ReadOnlySpan<char> text, ref int pos, out int offset)
@@ -595,9 +636,10 @@ public readonly struct XsdDateTime : IEquatable<XsdDateTime>
         return true;
     }
 
-    private static void NextDay(XsdVersion version, ref long year, ref int month, ref int day)
+    private static void NextDay(XsdDateTimeKind kind, XsdVersion version, ref long year, ref int month, ref int day)
     {
-        if (++day <= DaysInMonth(year, month))
+        // Only a dateTime has a date to roll over; 24:00:00 of a time is 00:00:00.
+        if (kind != XsdDateTimeKind.DateTime || ++day <= DaysInMonth(year, month))
         {
             return;
         }
