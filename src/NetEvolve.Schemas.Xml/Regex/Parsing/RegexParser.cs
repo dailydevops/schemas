@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using NetEvolve.Arguments;
+using NetEvolve.Schemas.Xml.Datatypes.Core;
 using NetEvolve.Schemas.Xml.Regex.Contracts;
 using NetEvolve.Schemas.Xml.Regex.Matching;
 using NetEvolve.Schemas.Xml.Regex.XPathDialect;
@@ -76,14 +77,14 @@ public static class RegexParser
         for (var i = 0; i < pattern.Length; i++)
         {
             var c = pattern[i];
-            if (depth == 0 && IsWhitespace(c))
+            if (depth == 0 && WhitespaceNormalizer.IsXmlSpace(c))
             {
                 continue;
             }
 
             buffer[count] = c;
             map[count++] = i;
-            if (c == '\\' && i + 1 < pattern.Length && (depth > 0 || !IsWhitespace(pattern[i + 1])))
+            if (c == '\\' && i + 1 < pattern.Length && (depth > 0 || !WhitespaceNormalizer.IsXmlSpace(pattern[i + 1])))
             {
                 i++;
                 buffer[count] = pattern[i];
@@ -101,8 +102,6 @@ public static class RegexParser
 
         return count;
     }
-
-    private static bool IsWhitespace(char c) => c is ' ' or '\t' or '\n' or '\r';
 
     private enum EscapeKind
     {
