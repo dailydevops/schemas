@@ -86,6 +86,30 @@ public class Qt3RemainingCastSelectionTests
     }
 
     [Test]
+    public async Task OutOfShape_DoesNotWaitForTheCastingToTheDerivedTypes_AndNamesTheSelectionThatCarriesTheCase()
+    {
+        var derived = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var (id, _, _) in Derived.Qt3DerivedCastSelection.Cases)
+        {
+            _ = derived.Add(id);
+        }
+
+        foreach (var (id, reason) in Qt3RemainingCastSelection.OutOfShape)
+        {
+            // The casting to the derived types has landed (XP-23, #299); a case that names a derived type is carried by Qt3DerivedCastSelection.
+            await Assert.That(reason.Contains("XP-23", StringComparison.Ordinal)).IsFalse().Because($"{id}: {reason}");
+            await Assert.That(reason.Contains("#299", StringComparison.Ordinal)).IsFalse().Because($"{id}: {reason}");
+            if (reason.Contains(nameof(Derived.Qt3DerivedCastSelection), StringComparison.Ordinal))
+            {
+                await Assert
+                    .That(derived.Contains(id))
+                    .IsTrue()
+                    .Because($"{id} is not a case of Qt3DerivedCastSelection");
+            }
+        }
+    }
+
+    [Test]
     [MethodDataSource(nameof(Cases))]
     public async Task Case_SatisfiesItsAssertion(string id, string expression, string expectation)
     {
