@@ -3,6 +3,7 @@ namespace NetEvolve.Schemas.Xsd.Tests.Unit.Validation.Annotations;
 using System;
 using System.Text;
 using NetEvolve.Schemas.Formats;
+using NetEvolve.Schemas.Testing.Allocations;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xml.Reader.Pipeline;
@@ -28,22 +29,27 @@ public class AnnotationMemoryTests
         return builder.Append("</r>").ToString();
     }
 
-    private static long Measure(SchemaFixture schema, string xml, params ValidationListener[] listeners)
+    private static long Measure(SchemaFixture schema, string xml, Func<ValidationListener[]> listeners)
     {
         var limits = ValidationLimits.Default;
-        var validator = new StreamingValidator(
-            schema.Model(),
-            new DescriptorValueAssessor(XsdVersion.V11),
-            new XsdIssueReporter(new ValidationIssueCollector(limits)),
-            limits,
-            ValidationHarness.Source,
-            listeners
-        );
-        using var reader = XmlPipelineReader.Create(xml.AsSpan());
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var status = reader.Pump(ref validator);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
-        return status == XmlReadStatus.Completed ? allocated : -1;
+        var model = schema.Model();
+        var assessor = new DescriptorValueAssessor(XsdVersion.V11);
+        return AllocationAssert.Measure(() =>
+        {
+            var validator = new StreamingValidator(
+                model,
+                assessor,
+                new XsdIssueReporter(new ValidationIssueCollector(limits)),
+                limits,
+                ValidationHarness.Source,
+                listeners()
+            );
+            using var reader = XmlPipelineReader.Create(xml.AsSpan());
+            if (reader.Pump(ref validator) != XmlReadStatus.Completed)
+            {
+                throw new InvalidOperationException("The instance is not well-formed.");
+            }
+        });
     }
 
     [Test]
@@ -51,12 +57,15 @@ public class AnnotationMemoryTests
     {
         var schema = AnnotationFixture.Schema();
         var xml = Document();
-        _ = Measure(schema, xml);
 
-        var plain = Measure(schema, xml);
-        var withoutSink = Measure(schema, xml, new AnnotationListener(null));
+        var plain = Measure(schema, xml, () => []);
+        var withoutSink = Measure(schema, xml, () => [new AnnotationListener(null)]);
         var table = new AnnotationTable();
-        var withSink = Measure(schema, xml, new AnnotationListener(table));
+        var withSink = Measure(schema, xml, () =>
+        {
+            table = new AnnotationTable();
+            return [new AnnotationListener(table)];
+        });
 
         // Without a sink the listener asks for no hook, so the run allocates what a run without the listener allocates.
         await Assert.That(Math.Abs(withoutSink - plain)).IsLessThan(1024);

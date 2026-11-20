@@ -7,13 +7,10 @@ public class AnnotationTests
 {
     private const string Xs = AnnotationFixture.Xs;
 
-    private static AnnotationFixture.AnnotatedRun Run(string xml) =>
-        AnnotationFixture.Run(AnnotationFixture.Schema(), xml);
-
     [Test]
     public async Task Annotation_ValidFull_CarriesTypeName_ForAnElementWithSimpleContent()
     {
-        var run = Run("<r><i>42</i></r>");
+        var run = AnnotationFixture.Run("<r><i>42</i></r>");
 
         var annotation = run.Annotation("i");
         var items = run.TypedValue(annotation);
@@ -31,7 +28,7 @@ public class AnnotationTests
     [Test]
     public async Task Annotation_ValidFull_CarriesTypeName_ForAnElementWithComplexContent()
     {
-        var run = Run("<r><c><n>7</n></c></r>");
+        var run = AnnotationFixture.Run("<r><c><n>7</n></c></r>");
 
         var annotation = run.Annotation("c");
         var root = run.Annotation("r");
@@ -50,7 +47,7 @@ public class AnnotationTests
     [Test]
     public async Task Annotation_ValidFull_CarriesTypeName_ForAnAttribute()
     {
-        var run = Run("<r><w a=\"5\" s=\"x\"/></r>");
+        var run = AnnotationFixture.Run("<r><w a=\"5\" s=\"x\"/></r>");
         var element = run.Element("w");
 
         var number = run.Annotation(run.Attribute(element, "a"));
@@ -73,7 +70,7 @@ public class AnnotationTests
     [Test]
     public async Task Annotation_InvalidElement_MapsToAnyType_AndKeepsTheUntypedValue()
     {
-        var run = Run("<r><i>abc</i></r>");
+        var run = AnnotationFixture.Run("<r><i>abc</i></r>");
 
         var annotation = run.Annotation("i");
         var items = run.TypedValue(annotation);
@@ -89,7 +86,7 @@ public class AnnotationTests
     [Test]
     public async Task Annotation_InvalidAttribute_MapsToAnySimpleType_AndKeepsTheUntypedValue()
     {
-        var run = Run("<r><w a=\"zz\"/></r>");
+        var run = AnnotationFixture.Run("<r><w a=\"zz\"/></r>");
 
         var annotation = run.Annotation(run.Attribute(run.Element("w"), "a"));
         var items = run.TypedValue(annotation);
@@ -103,7 +100,7 @@ public class AnnotationTests
     [Test]
     public async Task Annotation_ListType_YieldsASequenceOfItems()
     {
-        var run = Run("<r><l>1 2  3</l></r>");
+        var run = AnnotationFixture.Run("<r><l>1 2  3</l></r>");
 
         var annotation = run.Annotation("l");
         var items = run.TypedValue(annotation);
@@ -123,7 +120,7 @@ public class AnnotationTests
     [Test]
     public async Task Annotation_EmptyList_IsAtomicWithoutItems()
     {
-        var annotation = Run("<r><l/></r>").Annotation("l");
+        var annotation = AnnotationFixture.Run("<r><l/></r>").Annotation("l");
 
         await Assert.That(annotation.TypedValueKind).IsEqualTo(XsdTypedValueKind.Atomic);
         await Assert.That(annotation.TypedValueCount).IsEqualTo(0);
@@ -132,7 +129,7 @@ public class AnnotationTests
     [Test]
     public async Task Annotation_ListType_CopiesOnlyWhatFitsTheDestination()
     {
-        var run = Run("<r><l>1 2 3</l></r>");
+        var run = AnnotationFixture.Run("<r><l>1 2 3</l></r>");
         var destination = new XdmItem[2];
 
         var written = run.Annotation("l").CopyTypedValue(destination);
@@ -145,7 +142,7 @@ public class AnnotationTests
     [Test]
     public async Task Annotation_UnionType_YieldsTheValueOfTheMatchingMemberType()
     {
-        var run = Run("<r><u>7</u><u>true</u></r>");
+        var run = AnnotationFixture.Run("<r><u>7</u><u>true</u></r>");
         var first = run.Annotation(run.Element("u"));
         var second = run.Annotation(run.Tree.Document.FirstChild.FirstChild.NextSibling);
 
@@ -163,7 +160,7 @@ public class AnnotationTests
     [Test]
     public async Task Annotation_MixedContent_HasTheStringValueAsUntypedAtomic()
     {
-        var annotation = Run("<r><m>some text</m></r>").Annotation("m");
+        var annotation = AnnotationFixture.Run("<r><m>some text</m></r>").Annotation("m");
 
         await Assert.That(annotation.Validity).IsEqualTo(XsdValidity.Valid);
         await Assert.That(annotation.TypedValueKind).IsEqualTo(XsdTypedValueKind.Untyped);
@@ -173,7 +170,7 @@ public class AnnotationTests
     [Test]
     public async Task Annotation_EmptyContent_HasAnEmptyTypedValue()
     {
-        var annotation = Run("<r><e/></r>").Annotation("e");
+        var annotation = AnnotationFixture.Run("<r><e/></r>").Annotation("e");
 
         await Assert.That(annotation.Validity).IsEqualTo(XsdValidity.Valid);
         await Assert.That(annotation.TypedValueKind).IsEqualTo(XsdTypedValueKind.Empty);
@@ -183,7 +180,7 @@ public class AnnotationTests
     [Test]
     public async Task Annotation_SimpleContentOfAComplexType_HasTheTypedValueOfItsSimpleType()
     {
-        var run = Run("<r><sc>12</sc></r>");
+        var run = AnnotationFixture.Run("<r><sc>12</sc></r>");
 
         var annotation = run.Annotation("sc");
         var items = run.TypedValue(annotation);
@@ -198,7 +195,7 @@ public class AnnotationTests
     [Test]
     public async Task Annotation_UserType_AtomizesToBuiltInAncestor()
     {
-        var run = Run("<r><ri>5</ri><rn>6</rn></r>");
+        var run = AnnotationFixture.Run("<r><ri>5</ri><rn>6</rn></r>");
 
         var anonymous = run.Annotation("ri");
         var named = run.Annotation("rn");
@@ -216,7 +213,7 @@ public class AnnotationTests
     [Test]
     public async Task Annotation_BuiltInListTypes_YieldOneItemPerToken()
     {
-        var run = Run("<r><nm>a b</nm><ids>x y z</ids><ents>e1</ents></r>");
+        var run = AnnotationFixture.Run("<r><nm>a b</nm><ids>x y z</ids><ents>e1</ents></r>");
 
         var tokens = run.TypedValue(run.Annotation("nm"));
         var references = run.TypedValue(run.Annotation("ids"));
@@ -234,7 +231,7 @@ public class AnnotationTests
     [Test]
     public async Task Annotation_TypeWithoutABuiltInAncestor_KeepsTheValueUntyped()
     {
-        var run = Run("<r><weird>q</weird><any>z</any></r>");
+        var run = AnnotationFixture.Run("<r><weird>q</weird><any>z</any></r>");
 
         var weird = run.Annotation("weird");
         var any = run.Annotation("any");
@@ -268,7 +265,7 @@ public class AnnotationTests
     [Test]
     public async Task Annotation_AnAttributeInTheInstanceSchemaNamespace_DoesNotShiftTheIndexOfTheOthers()
     {
-        var run = Run(
+        var run = AnnotationFixture.Run(
             "<r xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"><w xsi:nil=\"false\" a=\"5\" s=\"x\"/></r>"
         );
         var element = run.Element("w");
@@ -285,7 +282,7 @@ public class AnnotationTests
     [Test]
     public async Task Annotation_AttributesAreKeyedInSourceOrder_AndDefaultedOnesFollowTheSpecifiedOnes()
     {
-        var run = Run("<r><w s=\"x\" a=\"5\"/></r>");
+        var run = AnnotationFixture.Run("<r><w s=\"x\" a=\"5\"/></r>");
         var element = run.Element("w");
 
         var text = run.Annotation(run.Attribute(element, "s"));
@@ -302,7 +299,7 @@ public class AnnotationTests
     public async Task Annotation_Ordinal_IsIdenticalForTheValidatorAndTheTreeOfTheSameDocument()
     {
         const string Xml = "<r><i>1</i><c><n>2</n></c><i>3</i></r>";
-        var run = Run(Xml);
+        var run = AnnotationFixture.Run(Xml);
 
         var second = run.Tree.Document.FirstChild.FirstChild.NextSibling.NextSibling;
         var annotation = run.Annotation(second);

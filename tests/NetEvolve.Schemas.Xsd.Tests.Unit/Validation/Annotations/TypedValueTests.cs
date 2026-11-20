@@ -11,8 +11,6 @@ using NetEvolve.Schemas.Xsd.Validation.Annotations;
 
 public class TypedValueTests
 {
-    private static readonly XdmTypeId AnyType = new(16);
-
     private static (AnnotationSource Source, XmlDocumentTree Tree) Manual(string xml, AnnotationRecord record)
     {
         var table = new AnnotationTable();
@@ -40,7 +38,7 @@ public class TypedValueTests
         await Assert.That(annotation.TypeName.LocalName).IsEqualTo("anyType");
         await Assert.That(annotation.TypedValueKind).IsEqualTo(XsdTypedValueKind.Untyped);
         await Assert.That(items[0].TypeId).IsEqualTo(XdmTypeId.UntypedAtomic);
-        await Assert.That(run.Source.GetTypeAnnotation(new XPathNode(run.Element("t")))).IsEqualTo(AnyType);
+        await Assert.That(run.Source.GetTypeAnnotation(new XPathNode(run.Element("t")))).IsEqualTo(TypedValues.AnyType);
     }
 
     [Test]

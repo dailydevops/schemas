@@ -140,6 +140,17 @@ internal static class AnnotationFixture
 
     public static AnnotatedRun Run(SchemaFixture schema, string xml) => AnnotatedRun.Create(schema, xml);
 
+    /// <summary>Runs the instance against <see cref="Schema"/>.</summary>
+    public static AnnotatedRun Run(string xml) => Run(Schema(), xml);
+
+    /// <summary>Copies the typed value of an annotation into an array.</summary>
+    public static XdmItem[] TypedValue(XsdAnnotation annotation)
+    {
+        var items = new XdmItem[annotation.TypedValueCount];
+        _ = annotation.CopyTypedValue(items);
+        return items;
+    }
+
     /// <summary>The same document as a tree, with the table that a validation run filled.</summary>
     internal sealed class AnnotatedRun
     {
@@ -211,12 +222,7 @@ internal static class AnnotationFixture
 
         public XsdAnnotation Annotation(string local) => Annotation(Element(local));
 
-        public XdmItem[] TypedValue(XsdAnnotation annotation)
-        {
-            var items = new XdmItem[annotation.TypedValueCount];
-            _ = annotation.CopyTypedValue(items);
-            return items;
-        }
+        public XdmItem[] TypedValue(XsdAnnotation annotation) => AnnotationFixture.TypedValue(annotation);
 
         private XmlNode Find(XmlNode node, string local)
         {

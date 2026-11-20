@@ -19,9 +19,6 @@ public class AnnotationContractTests
         "<r xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:p=\"urn:p\">"
         + "<i>1</i><c><n>2</n></c><w xsi:nil=\"false\" p:z=\"0\" a=\"5\" s=\"x\"/><l>1 2</l><i>bad</i></r>";
 
-    private static AnnotationFixture.AnnotatedRun Run(string xml) =>
-        AnnotationFixture.Run(AnnotationFixture.Schema(), xml);
-
     private static AnnotationTable Pumped(SchemaFixture schema, XmlTree tree)
     {
         var limits = ValidationLimits.Default;
@@ -41,7 +38,7 @@ public class AnnotationContractTests
     [Test]
     public async Task Annotation_ValidFull_CarriesTypeName()
     {
-        var run = Run("<r><i>42</i><c><n>7</n></c><w a=\"5\"/></r>");
+        var run = AnnotationFixture.Run("<r><i>42</i><c><n>7</n></c><w a=\"5\"/></r>");
 
         await Assert
             .That(run.Annotation("i").TypeName)
@@ -55,7 +52,7 @@ public class AnnotationContractTests
     [Test]
     public async Task Annotation_InvalidOrPartial_MapsToAnyTypeAndAnySimpleType()
     {
-        var run = Run("<r><i>abc</i><w a=\"zz\"/></r>");
+        var run = AnnotationFixture.Run("<r><i>abc</i><w a=\"zz\"/></r>");
 
         var element = run.Annotation("i");
         var attribute = run.Annotation(run.Attribute(run.Element("w"), "a"));
@@ -82,7 +79,7 @@ public class AnnotationContractTests
     [Test]
     public async Task Annotation_TypedValue_EmptyWhenNilled_AndNoneForElementOnly()
     {
-        var run = Run("<r><c><n>2</n></c></r>");
+        var run = AnnotationFixture.Run("<r><c><n>2</n></c></r>");
         var table = new AnnotationTable();
         var tree = AnnotationFixture.AnnotatedRun.Build("<r/>");
         table.Element(new AnnotationRecord(1, -1, SchemaFixture.Simple("integer"), XsdValidity.Valid, true));
@@ -133,7 +130,7 @@ public class AnnotationContractTests
     [Test]
     public async Task Annotation_NamespaceDeclarations_NotCounted()
     {
-        var run = Run("<r xmlns:p=\"urn:p\"><w xmlns:q=\"urn:q\" a=\"5\"/></r>");
+        var run = AnnotationFixture.Run("<r xmlns:p=\"urn:p\"><w xmlns:q=\"urn:q\" a=\"5\"/></r>");
 
         var annotation = run.Annotation(run.Attribute(run.Element("w"), "a"));
 

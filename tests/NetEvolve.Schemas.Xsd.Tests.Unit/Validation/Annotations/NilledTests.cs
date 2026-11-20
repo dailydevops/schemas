@@ -34,13 +34,6 @@ public class NilledTests
         return (new AnnotationSource(table, tree, new ScriptedAssessor()), listener, tree);
     }
 
-    private static XdmItem[] TypedValue(XsdAnnotation annotation)
-    {
-        var items = new XdmItem[annotation.TypedValueCount];
-        _ = annotation.CopyTypedValue(items);
-        return items;
-    }
-
     [Test]
     public async Task Annotation_Nilled_ReportsNilledTrue_AndAnEmptyTypedValue()
     {
@@ -55,7 +48,7 @@ public class NilledTests
         await Assert.That(annotation.TypeName.LocalName).IsEqualTo("integer");
         await Assert.That(annotation.TypedValueKind).IsEqualTo(XsdTypedValueKind.Empty);
         await Assert.That(annotation.TypedValueCount).IsEqualTo(0);
-        await Assert.That(TypedValue(annotation).Length).IsEqualTo(0);
+        await Assert.That(AnnotationFixture.TypedValue(annotation).Length).IsEqualTo(0);
         await Assert.That(annotation.CopyTypedValue(new XdmItem[1])).IsEqualTo(0);
     }
 
