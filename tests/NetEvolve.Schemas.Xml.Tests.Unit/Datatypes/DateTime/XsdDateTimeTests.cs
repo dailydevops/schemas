@@ -281,6 +281,97 @@ public class XsdDateTimeTests
         await Assert.That(result.Error).IsEqualTo(DatatypeError.DigitCap);
     }
 
+    // The two whole-second digits count toward the cap, so a fraction of 4094 digits is the longest valid one.
+    [Test]
+    [Arguments(DecimalDigitCap - 2, true)]
+    [Arguments(DecimalDigitCap - 1, false)]
+    public async Task Parse_FractionAtTheDigitCapBoundary_IsValidUpToTheCap(int fractionDigits, bool valid)
+    {
+        var lexical = "07:08:09." + new string('1', fractionDigits);
+        var result = XsdDateTime.Parse(lexical.AsSpan(), XsdDateTimeKind.Time, XsdVersion.V11);
+
+        await Assert.That(result.Success).IsEqualTo(valid);
+        if (!valid)
+        {
+            await Assert.That(result.Error).IsEqualTo(DatatypeError.DigitCap);
+            await Assert.That(result.ErrorOffset).IsEqualTo("07:08:09.".Length + fractionDigits - 1);
+        }
+    }
+
+    // The fraction beyond the digit cap does not hide a defect elsewhere in the lexical form: the whole form is checked first.
+    [Test]
+    [Arguments("2004-10-13T12:30:00.", "+15:00", XsdDateTimeKind.DateTime)]
+    [Arguments("2004-10-13T12:30:00.", "+14:01", XsdDateTimeKind.DateTime)]
+    [Arguments("2004-10-13T12:30:00.", "X", XsdDateTimeKind.DateTime)]
+    [Arguments("2004-10-13T12:30:00.", "Z1", XsdDateTimeKind.DateTime)]
+    [Arguments("2004-10-13T25:30:00.", "", XsdDateTimeKind.DateTime)]
+    [Arguments("2004-10-13T12:60:00.", "Z", XsdDateTimeKind.DateTime)]
+    [Arguments("2004-10-13T12:30:60.", "", XsdDateTimeKind.DateTime)]
+    [Arguments("2004-13-13T12:30:00.", "", XsdDateTimeKind.DateTime)]
+    [Arguments("2004-02-30T12:30:00.", "", XsdDateTimeKind.DateTime)]
+    [Arguments("12:30:00.", "+15:00", XsdDateTimeKind.Time)]
+    [Arguments("12:30:00.", "-14:01", XsdDateTimeKind.Time)]
+    [Arguments("12:30:00.", "Q", XsdDateTimeKind.Time)]
+    [Arguments("25:30:00.", "", XsdDateTimeKind.Time)]
+    [Arguments("12:60:00.", "Z", XsdDateTimeKind.Time)]
+    [Arguments("12:30:60.", "", XsdDateTimeKind.Time)]
+    [Arguments("100000000000000000-05-15T12:30:00.", "+15:00", XsdDateTimeKind.DateTime)]
+    [Arguments("100000000000000000-QQ-15T12:30:00.", "", XsdDateTimeKind.DateTime)]
+    public async Task Parse_FractionBeyondTheCapWithAnotherDefect_ReportsTheInvalidForm(
+        string prefix,
+        string suffix,
+        XsdDateTimeKind kind
+    )
+    {
+        var lexical = prefix + new string('1', DecimalDigitCap + 1) + suffix;
+        var result = XsdDateTime.Parse(lexical.AsSpan(), kind, XsdVersion.V11);
+
+        await Assert.That(result.Success).IsFalse();
+        await Assert.That(result.Error).IsEqualTo(DatatypeError.InvalidLexicalForm);
+    }
+
+    // 24:00:00 is valid only when the whole fraction is zero, also the part beyond the cap.
+    [Test]
+    public async Task Parse_Hour24WithANonZeroDigitBeyondTheCap_ReportsTheInvalidForm()
+    {
+        var lexical = "24:00:00." + new string('0', DecimalDigitCap) + "1";
+        var result = XsdDateTime.Parse(lexical.AsSpan(), XsdDateTimeKind.Time, XsdVersion.V11);
+
+        await Assert.That(result.Error).IsEqualTo(DatatypeError.InvalidLexicalForm);
+    }
+
+    [Test]
+    [Arguments("07:08:09.", "", '1', XsdDateTimeKind.Time)]
+    [Arguments("07:08:09.", "Z", '1', XsdDateTimeKind.Time)]
+    [Arguments("07:08:09.", "+14:00", '1', XsdDateTimeKind.Time)]
+    [Arguments("24:00:00.", "-14:00", '0', XsdDateTimeKind.Time)]
+    [Arguments("2004-10-13T12:30:00.", "+14:00", '1', XsdDateTimeKind.DateTime)]
+    [Arguments("2004-10-13T24:00:00.", "Z", '0', XsdDateTimeKind.DateTime)]
+    public async Task Parse_FractionBeyondTheCapWithAValidForm_ReportsTheDigitCap(
+        string prefix,
+        string suffix,
+        char digit,
+        XsdDateTimeKind kind
+    )
+    {
+        var lexical = prefix + new string(digit, DecimalDigitCap + 1) + suffix;
+        var result = XsdDateTime.Parse(lexical.AsSpan(), kind, XsdVersion.V11);
+
+        await Assert.That(result.Success).IsFalse();
+        await Assert.That(result.Error).IsEqualTo(DatatypeError.DigitCap);
+    }
+
+    // Both implementation limits on a valid form: the year comes first in the lexical form, so it is reported.
+    [Test]
+    public async Task Parse_YearAndFractionBeyondTheCapWithAValidForm_ReportsTheYearCap()
+    {
+        var lexical = "100000000000000000-05-15T12:30:00." + new string('1', DecimalDigitCap + 1) + "Z";
+        var result = XsdDateTime.Parse(lexical.AsSpan(), XsdDateTimeKind.DateTime, XsdVersion.V11);
+
+        await Assert.That(result.Error).IsEqualTo(DatatypeError.YearOrComponentCap);
+        await Assert.That(result.ErrorOffset).IsEqualTo(17);
+    }
+
     [Test]
     public async Task Equals_SameFieldsAndKind_IsTrueAndTimezonePresenceMatters()
     {
