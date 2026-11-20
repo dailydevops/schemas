@@ -8,6 +8,9 @@ using static CastShow;
 /// <summary>The dynamic errors of the date, time, Gregorian, and duration casts, and the guarantee that <c>castable as</c> returns false for each.</summary>
 public class TemporalCastErrorTests
 {
+    // A seconds fraction of 4097 digits, one beyond the digit cap of xs:decimal.
+    private static readonly string BeyondTheFractionCap = new('1', 4097);
+
     // FORG0001: the lexical form is not in the lexical space of the target (XML Schema 1.0, which XPath 2.0 refers to).
     private static (string, string)[] InvalidLexicalForms() =>
         [
@@ -37,6 +40,10 @@ public class TemporalCastErrorTests
             ("'123456789012345678-QQ-15' cast as xs:date", "FORG0001"),
             ("'123456789012345678-05-15T25:00:00' cast as xs:dateTime", "FORG0001"),
             ("'123456789012345678-05-15' cast as xs:dateTime", "FORG0001"),
+            ($"'2004-10-13T12:30:00.{BeyondTheFractionCap}+15:00' cast as xs:dateTime", "FORG0001"),
+            ($"'2004-10-13T25:30:00.{BeyondTheFractionCap}' cast as xs:dateTime", "FORG0001"),
+            ($"'12:30:00.{BeyondTheFractionCap}+15:00' cast as xs:time", "FORG0001"),
+            ($"'12:60:00.{BeyondTheFractionCap}Z' cast as xs:time", "FORG0001"),
             ("'P' cast as xs:duration", "FORG0001"),
             ("'PT' cast as xs:duration", "FORG0001"),
             ("'P1YT' cast as xs:duration", "FORG0001"),
@@ -59,6 +66,8 @@ public class TemporalCastErrorTests
             ("'123456789012345678' cast as xs:gYear", "FODT0001"),
             ("'99999999999999999999999999999-01' cast as xs:gYearMonth", "FODT0001"),
             ("'100000000000000000-02-29' cast as xs:date", "FODT0001"),
+            ($"'2004-10-13T12:30:00.{BeyondTheFractionCap}+14:00' cast as xs:dateTime", "FODT0001"),
+            ($"'12:30:00.{BeyondTheFractionCap}' cast as xs:time", "FODT0001"),
             ("'P123456789012345678Y' cast as xs:duration", "FODT0002"),
             ("'P123456789012345678D' cast as xs:dayTimeDuration", "FODT0002"),
             ("'P123456789012345678M' cast as xs:yearMonthDuration", "FODT0002"),
