@@ -18,7 +18,7 @@ using NetEvolve.Schemas.Xsd.Diagnostics;
 /// that of the base type for an extension (so mode none does not remove inherited open content).
 /// </para>
 /// <para>
-/// Limitation (deviation from the standard, decision on #276): the standard maps the wildcard of an extension to the
+/// Limitation (deviation from the standard, decision on #276, follow-up #762): the standard maps the wildcard of an extension to the
 /// union of the own wildcard and the inherited one, so an own wildcard that is narrower than the inherited one is absorbed.
 /// Here an own <c>openContent</c> wildcard that is not a superset of the inherited one is a schema error
 /// (<c>cos-ct-extends.1.4.3.2.2.4</c>), as the work package asks; the wildcard of a <c>defaultOpenContent</c> follows the
