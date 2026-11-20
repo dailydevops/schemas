@@ -1,10 +1,19 @@
 namespace NetEvolve.Schemas.Schematron.Tests.Unit.Evaluation.Patterns;
 
 using System.Collections.Generic;
+using NetEvolve.Schemas.Schematron.Tests.Unit.Evaluation.Assertions;
 
 /// <summary>A caller sink that copies what the evaluator delivers into plain lists, as a sink must for span members.</summary>
 internal sealed class EventLog : ISchematronReportSink
 {
+    private readonly RecordingReportSink _details = new();
+
+    /// <summary>Gets every member of every finding in order, role, flags, and severity included.</summary>
+    internal List<RecordedFinding> Details => _details.Findings;
+
+    /// <summary>Gets the role of every active pattern or group in order.</summary>
+    internal List<string> PatternRoles { get; } = [];
+
     /// <summary>Gets the delivered events in order: <c>pattern:id</c>, <c>group:id</c>, <c>fired:id</c>, <c>failed:text</c>, <c>report:text</c>, <c>error:code</c>, <c>begin</c>, <c>finish</c>.</summary>
     internal List<string> Events { get; } = [];
 
@@ -31,6 +40,7 @@ internal sealed class EventLog : ISchematronReportSink
     {
         Events.Add((pattern.IsGroup ? "group:" : "pattern:") + pattern.Id.ToString());
         Patterns.Add((pattern.Id.ToString(), pattern.Documents.ToString(), pattern.Name.ToString(), pattern.IsGroup));
+        PatternRoles.Add(pattern.Role.ToString());
     }
 
     public void FiredRule(in SchematronRuleEvent rule)
@@ -51,6 +61,7 @@ internal sealed class EventLog : ISchematronReportSink
     {
         Events.Add((finding.IsReport ? "report:" : "failed:") + finding.Message.ToString());
         Findings.Add(finding.Message.ToString());
+        _details.Finding(in finding);
     }
 
     public void ErrorOccurred(in SchematronErrorEvent errorEvent)
