@@ -7,7 +7,7 @@ using NetEvolve.Schemas.Schematron.Xslt.Registry;
 using NetEvolve.Schemas.XPath.Api;
 
 /// <summary>
-/// <c>xsl:document</c> (XSLT 2.0 section 11.1.1): a document node whose children are the content of the sequence constructor.
+/// <c>xsl:document</c> (XSLT 2.0 section 11.5): a document node whose children are the content of the sequence constructor.
 /// </summary>
 /// <remarks>Limitation: <c>type</c> and <c>validation</c> are the unsupported construct error (#23).</remarks>
 internal sealed class XsltDocumentInstruction : IXsltInstruction

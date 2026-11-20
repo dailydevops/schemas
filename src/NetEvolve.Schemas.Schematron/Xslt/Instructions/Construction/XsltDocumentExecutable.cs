@@ -7,7 +7,7 @@ using NetEvolve.Schemas.Schematron.Xslt.Functions;
 using NetEvolve.Schemas.Schematron.Xslt.Instructions.Flow;
 
 /// <summary>
-/// <c>xsl:document</c>: builds a document node from the content (XSLT 2.0 section 11.1.1). An item sink returns the document node; a
+/// <c>xsl:document</c>: builds a document node from the content (XSLT 2.0 section 11.5). An item sink returns the document node; a
 /// tree sink takes its children.
 /// </summary>
 internal sealed class XsltDocumentExecutable : XsltExecutable, IXsltSlotReader, IXsltLocalSlots

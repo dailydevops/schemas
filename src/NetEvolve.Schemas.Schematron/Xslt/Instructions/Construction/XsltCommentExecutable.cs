@@ -6,7 +6,7 @@ using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Schematron.Xslt.Functions;
 using NetEvolve.Schemas.Schematron.Xslt.Instructions.Flow;
 
-/// <summary><c>xsl:comment</c>: evaluates the simple content and pushes a comment node (XSLT 2.0 section 11.5).</summary>
+/// <summary><c>xsl:comment</c>: evaluates the simple content and pushes a comment node (XSLT 2.0 section 11.8).</summary>
 internal sealed class XsltCommentExecutable : XsltExecutable, IXsltSlotReader, IXsltLocalSlots
 {
     private readonly QueryExpression? _select;
@@ -42,6 +42,6 @@ internal sealed class XsltCommentExecutable : XsltExecutable, IXsltSlotReader, I
 
         return SimpleContent.TryEvaluate(frame, _select, _body, " ", _location, out var value) == QueryStatus.Problem
             ? QueryStatus.Problem
-            : ConstructionOutput.PushComment(frame, sink, value, _location);
+            : ConstructionOutput.PushComment(frame, sink, SimpleContent.ToCommentValue(value), _location);
     }
 }

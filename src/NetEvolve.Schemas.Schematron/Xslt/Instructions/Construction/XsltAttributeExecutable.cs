@@ -61,7 +61,8 @@ internal sealed class XsltAttributeExecutable : XsltExecutable, IXsltSlotReader,
             return QueryStatus.Problem;
         }
 
-        var separator = " ";
+        // The default separator is one space for select and none for a sequence constructor (XSLT 2.0 section 11.3).
+        var separator = _select is not null ? " " : string.Empty;
         if (_separator is not null && _separator.TryEvaluate(frame, _location, out separator) == QueryStatus.Problem)
         {
             return QueryStatus.Problem;

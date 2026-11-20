@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.Schematron.Xslt.Instructions.Construction;
 
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Seams;
+using NetEvolve.Schemas.Schematron.Xslt.Functions;
 using NetEvolve.Schemas.Schematron.Xslt.Registry;
 using NetEvolve.Schemas.XPath.Api;
 
@@ -35,6 +36,18 @@ internal sealed class XsltNamespaceInstruction : IXsltInstruction
             out var body,
             out var slotEnd
         );
+        if (ok && select is null && !XsltVariableInstruction.HasContent(element))
+        {
+            XsltProblems.Report(
+                context.Problems,
+                SchematronDiagnosticCodes.AttributeMissing,
+                "The xsl:namespace element has neither a select attribute nor content.",
+                element,
+                "XTSE0910"
+            );
+            ok = false;
+        }
+
         if (!ok)
         {
             return false;

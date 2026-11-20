@@ -212,6 +212,8 @@ internal static class ConstructionCompile
     )
     {
         Argument.ThrowIfNull(context);
+        Argument.ThrowIfNull(attributeName);
+        Argument.ThrowIfNull(elementName);
         Argument.ThrowIfNull(raw);
 
         var value = raw.Trim();

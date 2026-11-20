@@ -16,13 +16,13 @@ using NetEvolve.Schemas.XPath.Xdm.Nodes;
 /// exactly the variables declared before it; the caller of the sequence constructor adds the name for the later siblings.
 /// </summary>
 /// <remarks>
-/// Limitations: the content form (a sequence constructor in place of <see langword="select"/>, which builds a temporary tree) is SCH-67; the
+/// Limitations: the content form (a sequence constructor in place of <see langword="select"/>, which builds a temporary tree) is left out (#629, #794); the
 /// <see langword="as"/> type is limited to the types the scopes of the package check (<c>xs:string</c>, <c>xs:boolean</c>, <c>xs:double</c>, and
 /// <c>xs:integer</c>, #392) and is checked by the binding through the declared type of the scope. The entry is also the global
 /// <c>xsl:variable</c> (SCH-66, #252): a top-level element, which has the schema or a stylesheet module as its parent, is read by
 /// <see cref="XsltGlobalCompile"/> and compiled by the planner of the scopes. Without select and content the
 /// variable is the empty string whether or not <see langword="as"/> is present; XSLT 2.0 section 9.3 gives the empty sequence when
-/// <see langword="as"/> is present, so a variable such as <c>as="xs:string"</c> that should fail with XTTE0570 does not (SCH-67).
+/// <see langword="as"/> is present, so a variable such as <c>as="xs:string"</c> that should fail with XTTE0570 does not (#629).
 /// </remarks>
 internal sealed class XsltVariableInstruction : IXsltInstruction
 {

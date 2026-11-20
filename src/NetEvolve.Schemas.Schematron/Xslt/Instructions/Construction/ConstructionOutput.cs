@@ -161,21 +161,29 @@ internal static class ConstructionOutput
         out IXmlSink tree
     )
     {
-        try
+        Argument.ThrowIfNull(frame);
+        Argument.ThrowIfNull(sink);
+
+        tree = null!;
+        if (sink.Kind != SequenceSinkKind.Text)
         {
-            tree = sink.BeginTree();
-            return true;
+            try
+            {
+                tree = sink.BeginTree();
+                return true;
+            }
+            catch (InvalidOperationException)
+            {
+                // A sink of another kind may forward to a text sink, as the join sink of xsl:value-of does (#821).
+            }
         }
-        catch (InvalidOperationException)
-        {
-            tree = null!;
-            _ = Unsupported(
-                frame,
-                location,
-                "A node cannot be constructed where only text is built (limitation); the sink has no tree."
-            );
-            return false;
-        }
+
+        _ = Unsupported(
+            frame,
+            location,
+            "A node cannot be constructed where only text is built (limitation); the sink has no tree."
+        );
+        return false;
     }
 
     /// <summary>Ends a temporary tree and pushes the node that it holds.</summary>
@@ -286,6 +294,8 @@ internal static class ConstructionOutput
         in DocumentLocation location
     )
     {
+        Argument.ThrowIfNull(frame);
+        Argument.ThrowIfNull(sink);
         Argument.ThrowIfNull(value);
 
         if (!TryOpen(frame, sink, location, out var target, out _, out var owned))
@@ -313,6 +323,8 @@ internal static class ConstructionOutput
         in DocumentLocation location
     )
     {
+        Argument.ThrowIfNull(frame);
+        Argument.ThrowIfNull(sink);
         Argument.ThrowIfNull(name);
         Argument.ThrowIfNull(value);
 

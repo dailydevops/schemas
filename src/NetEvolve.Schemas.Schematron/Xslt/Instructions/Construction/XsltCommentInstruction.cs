@@ -6,7 +6,7 @@ using NetEvolve.Schemas.Schematron.Xslt.Registry;
 using NetEvolve.Schemas.XPath.Api;
 
 /// <summary>
-/// <c>xsl:comment</c> (XSLT 2.0 section 11.5): a comment node whose value is the <see langword="select"/> expression or the content,
+/// <c>xsl:comment</c> (XSLT 2.0 section 11.8): a comment node whose value is the <see langword="select"/> expression or the content,
 /// joined by one space.
 /// </summary>
 internal sealed class XsltCommentInstruction : IXsltInstruction

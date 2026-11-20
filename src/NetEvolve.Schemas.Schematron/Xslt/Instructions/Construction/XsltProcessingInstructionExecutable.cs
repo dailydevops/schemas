@@ -76,7 +76,7 @@ internal sealed class XsltProcessingInstructionExecutable : XsltExecutable, IXsl
                 frame,
                 sink,
                 name,
-                value.TrimStart(LeadingWhiteSpace),
+                SimpleContent.ToInstructionValue(value.TrimStart(LeadingWhiteSpace)),
                 _location
             );
     }

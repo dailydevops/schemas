@@ -7,7 +7,8 @@ using NetEvolve.Schemas.XPath.Api;
 
 /// <summary>
 /// <c>xsl:attribute</c> (XSLT 2.0 section 11.3): an attribute with a computed name and namespace, whose value is the
-/// <see langword="select"/> expression or the content, joined by the separator (default one space).
+/// <see langword="select"/> expression or the content, joined by the separator (default one space for <see langword="select"/>, none for
+/// the content).
 /// </summary>
 /// <remarks>Limitation: <c>type</c> and <c>validation</c> are the unsupported construct error (#23).</remarks>
 internal sealed class XsltAttributeInstruction : IXsltInstruction
