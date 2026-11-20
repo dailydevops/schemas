@@ -189,9 +189,10 @@ internal static class PrimitiveConversions
 
             result = XdmItem.FromDecimal(parsed.Value);
         }
-        else if (source.TryGetDecimal(out _))
+        else if (source.TryGetDecimal(out var number))
         {
-            result = source;
+            // An integer beyond 64 bits is an item of the decimal family with an integer annotation; the cast drops the annotation.
+            result = source.TryGetBigInteger(out _) ? XdmItem.FromDecimal(number) : source;
         }
         else if (source.TryGetDouble(out var wide))
         {
