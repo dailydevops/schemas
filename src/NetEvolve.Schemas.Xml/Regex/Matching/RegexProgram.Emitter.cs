@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using NetEvolve.Schemas.Xml.Regex.Contracts;
+using NetEvolve.Schemas.Xml.Regex.XPathDialect;
 
 public sealed partial class RegexProgram
 {
@@ -15,6 +16,25 @@ public sealed partial class RegexProgram
         Split,
         Jump,
         Match,
+
+        // The wildcard of the dot-all mode.
+        AnyAll,
+
+        // Records the position in a capture slot (A); only in programs with back references.
+        Save,
+
+        // Records the position at the start of a loop iteration in a loop slot (A); only in programs with back references.
+        Mark,
+
+        // Ends a loop iteration: leaves the loop when the iteration matched the empty string, so an empty body cannot spin.
+        Progress,
+
+        // The anchors; A is 1 in the multi-line mode.
+        AssertStart,
+        AssertEnd,
+
+        // Matches the text of capture group A again; B is 1 when the comparison ignores case.
+        BackRef,
     }
 
     [StructLayout(LayoutKind.Auto)]
@@ -68,11 +88,27 @@ public sealed partial class RegexProgram
     private sealed class Emitter
     {
         private readonly RegexNode[] _nodes;
+        private readonly bool _xpath;
+        private readonly RegexOptions _options;
+        private readonly bool _backtracking;
         private readonly List<Instruction> _code = [];
 
-        public Emitter(ReadOnlySpan<RegexNode> nodes) => _nodes = nodes.ToArray();
+        public Emitter(ReadOnlySpan<RegexNode> nodes, bool xpath, RegexOptions options, bool backtracking)
+        {
+            _nodes = nodes.ToArray();
+            _xpath = xpath;
+            _options = options;
+            _backtracking = backtracking;
+        }
 
         public RegexError Error { get; private set; }
+
+        // The highest capture group emitted and the highest group a back reference names.
+        public int MaxGroup { get; private set; }
+
+        public int MaxBackReference { get; private set; }
+
+        public int LoopCount { get; private set; }
 
         public Instruction[] ToArray() => _code.ToArray();
 
@@ -111,10 +147,10 @@ public sealed partial class RegexProgram
                     _ = Add(Opcode.Set, node.Value, 0);
                     break;
                 case RegexNodeKind.AnyChar:
-                    _ = Add(Opcode.Any, 0, 0);
+                    _ = Add((_options & RegexOptions.DotAll) == RegexOptions.None ? Opcode.Any : Opcode.AnyAll, 0, 0);
                     break;
                 case RegexNodeKind.Group:
-                    Emit(node.FirstChild, depth + 1);
+                    EmitGroup(node, depth);
                     break;
                 case RegexNodeKind.Concat:
                     for (var child = node.FirstChild; child != RegexNode.NoNode && Error == RegexError.None; )
@@ -130,6 +166,12 @@ public sealed partial class RegexProgram
                 case RegexNodeKind.Repeat:
                     EmitRepeat(node, depth);
                     break;
+                case RegexNodeKind.Anchor when _xpath:
+                    EmitAnchor(node);
+                    break;
+                case RegexNodeKind.BackReference when _xpath:
+                    EmitBackReference(node);
+                    break;
                 case RegexNodeKind.Empty:
                     break;
                 default:
@@ -137,6 +179,34 @@ public sealed partial class RegexProgram
                     Fail(RegexError.ConstructNotAllowed);
                     break;
             }
+        }
+
+        private void EmitAnchor(RegexNode node) =>
+            _ = Add(
+                node.Value == (int)RegexAnchor.Start ? Opcode.AssertStart : Opcode.AssertEnd,
+                (_options & RegexOptions.MultiLine) == RegexOptions.None ? 0 : 1,
+                0
+            );
+
+        private void EmitBackReference(RegexNode node)
+        {
+            MaxBackReference = Math.Max(MaxBackReference, node.Value);
+            _ = Add(Opcode.BackRef, node.Value, (_options & RegexOptions.IgnoreCase) == RegexOptions.None ? 0 : 1);
+        }
+
+        // A capturing group records its bounds, but only a program with back references reads them.
+        private void EmitGroup(RegexNode node, int depth)
+        {
+            if (!_backtracking || node.Value == RegexNode.NoGroup)
+            {
+                Emit(node.FirstChild, depth + 1);
+                return;
+            }
+
+            MaxGroup = Math.Max(MaxGroup, node.Value);
+            _ = Add(Opcode.Save, 2 * node.Value, 0);
+            Emit(node.FirstChild, depth + 1);
+            _ = Add(Opcode.Save, (2 * node.Value) + 1, 0);
         }
 
         private void EmitAlternation(RegexNode node, int depth)
@@ -166,7 +236,7 @@ public sealed partial class RegexProgram
 
         private void EmitRepeat(RegexNode node, int depth)
         {
-            if (node.IsLazy)
+            if (node.IsLazy && !_xpath)
             {
                 Fail(RegexError.ConstructNotAllowed);
                 return;
@@ -185,17 +255,15 @@ public sealed partial class RegexProgram
 
             if (node.Max == RegexNode.Unbounded)
             {
-                var loop = Add(Opcode.Split, _code.Count + 1, 0);
-                Emit(node.FirstChild, depth + 1);
-                _ = Add(Opcode.Jump, loop, 0);
-                Patch(loop, b: _code.Count);
+                EmitLoop(node, depth);
                 return;
             }
 
+            // The first branch of a split is the preferred one: the body for a greedy repeat, the exit for a reluctant one.
             var splits = new List<int>();
             for (var i = node.Min; i < node.Max && Error == RegexError.None; i++)
             {
-                splits.Add(Add(Opcode.Split, _code.Count + 1, 0));
+                splits.Add(node.IsLazy ? Add(Opcode.Split, 0, _code.Count + 1) : Add(Opcode.Split, _code.Count + 1, 0));
                 var start = _code.Count;
                 Emit(node.FirstChild, depth + 1);
                 if (_code.Count == start)
@@ -206,7 +274,43 @@ public sealed partial class RegexProgram
 
             foreach (var split in splits)
             {
-                Patch(split, b: _code.Count);
+                if (node.IsLazy)
+                {
+                    Patch(split, a: _code.Count);
+                }
+                else
+                {
+                    Patch(split, b: _code.Count);
+                }
+            }
+        }
+
+        // An unbounded loop; the back reference machine also needs to see an iteration that consumed nothing.
+        private void EmitLoop(RegexNode node, int depth)
+        {
+            var split = Add(Opcode.Split, 0, 0);
+            var body = _code.Count;
+            var mark = LoopCount;
+            if (_backtracking)
+            {
+                LoopCount++;
+                _ = Add(Opcode.Mark, mark, 0);
+            }
+
+            Emit(node.FirstChild, depth + 1);
+            if (_backtracking)
+            {
+                _ = Add(Opcode.Progress, mark, 0);
+            }
+
+            _ = Add(Opcode.Jump, split, 0);
+            if (node.IsLazy)
+            {
+                Patch(split, a: _code.Count, b: body);
+            }
+            else
+            {
+                Patch(split, a: body, b: _code.Count);
             }
         }
 

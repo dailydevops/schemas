@@ -255,15 +255,6 @@ public class RegexProgramTests
     }
 
     [Test]
-    public async Task XPathDialect_IsNotCompiledYet()
-    {
-        var t = new TreeBuilder();
-        t.WithRoot(t.Char('a'));
-
-        await Assert.That(t.TryCompile(RegexDialect.XPath)).IsEqualTo(RegexError.ConstructNotAllowed);
-    }
-
-    [Test]
     public async Task Nesting_BeyondTheCap_IsRejectedWithTheLimitError()
     {
         var t = new TreeBuilder();
