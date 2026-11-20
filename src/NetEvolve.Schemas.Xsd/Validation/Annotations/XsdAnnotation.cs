@@ -140,7 +140,7 @@ internal readonly struct XsdAnnotation : IEquatable<XsdAnnotation>
                 return 0;
             }
 
-            destination[0] = XdmItem.FromUntypedAtomic(Text);
+            destination[0] = XdmItem.FromUntypedAtomic(_node.StringValue);
             return 1;
         }
 
@@ -218,7 +218,8 @@ internal readonly struct XsdAnnotation : IEquatable<XsdAnnotation>
             _ => XsdTypedValueKind.Atomic,
         };
 
-    // An empty element that took a default or fixed value has no text in the tree; the validator substituted the value in its own hook.
+    // A valid empty element that took a default or fixed value has no text in the tree; the validator substituted the value in its own hook.
+    // An invalid node keeps the untyped value of its text.
     private string Text => _record.DefaultedValue ?? _node.StringValue;
 
     private List<XdmItem> AtomicValues()

@@ -73,7 +73,7 @@ public class AnnotationDefaultTests
     }
 
     [Test]
-    public async Task Annotation_ElementWithADefaultThatTheTypeRejects_IsInvalidWithTheDefaultAsItsUntypedValue()
+    public async Task Annotation_ElementWithADefaultThatTheTypeRejects_IsInvalidAndKeepsTheUntypedValueOfItsText()
     {
         var run = Run("boolean", new ElementValueConstraint(ElementValueConstraintKind.Default, "maybe"), "<r/>");
 
