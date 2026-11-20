@@ -281,6 +281,23 @@ public class XsdDateTimeTests
         await Assert.That(result.Error).IsEqualTo(DatatypeError.DigitCap);
     }
 
+    // The two whole-second digits count toward the cap, so a fraction of 4094 digits is the longest valid one.
+    [Test]
+    [Arguments(DecimalDigitCap - 2, true)]
+    [Arguments(DecimalDigitCap - 1, false)]
+    public async Task Parse_FractionAtTheDigitCapBoundary_IsValidUpToTheCap(int fractionDigits, bool valid)
+    {
+        var lexical = "07:08:09." + new string('1', fractionDigits);
+        var result = XsdDateTime.Parse(lexical.AsSpan(), XsdDateTimeKind.Time, XsdVersion.V11);
+
+        await Assert.That(result.Success).IsEqualTo(valid);
+        if (!valid)
+        {
+            await Assert.That(result.Error).IsEqualTo(DatatypeError.DigitCap);
+            await Assert.That(result.ErrorOffset).IsEqualTo("07:08:09.".Length + fractionDigits - 1);
+        }
+    }
+
     // The fraction beyond the digit cap does not hide a defect elsewhere in the lexical form: the whole form is checked first.
     [Test]
     [Arguments("2004-10-13T12:30:00.", "+15:00", XsdDateTimeKind.DateTime)]

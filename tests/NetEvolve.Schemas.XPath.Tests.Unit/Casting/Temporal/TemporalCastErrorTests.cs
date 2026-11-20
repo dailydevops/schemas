@@ -8,8 +8,9 @@ using static CastShow;
 /// <summary>The dynamic errors of the date, time, Gregorian, and duration casts, and the guarantee that <c>castable as</c> returns false for each.</summary>
 public class TemporalCastErrorTests
 {
-    // A seconds fraction of 4097 digits, one beyond the digit cap of xs:decimal.
-    private static readonly string BeyondTheFractionCap = new('1', 4097);
+    // The digit cap of xs:decimal is 4096 digits, two of them the whole seconds, so a fraction of 4095 digits is the
+    // shortest one beyond the cap.
+    private static readonly string BeyondTheFractionCap = new('1', 4095);
 
     // FORG0001: the lexical form is not in the lexical space of the target (XML Schema 1.0, which XPath 2.0 refers to).
     private static (string, string)[] InvalidLexicalForms() =>
