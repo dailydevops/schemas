@@ -59,7 +59,7 @@ internal sealed class ElementIdentityConstraints
 
             if (child.FindAttribute("ref") is null)
             {
-                var definition = IdentityConstraintDefinition.Create(child, registry, reporter);
+                var definition = IdentityConstraintDefinition.Create(child, scope, registry, reporter);
                 if (definition is not null)
                 {
                     result._constraints.Add(definition);

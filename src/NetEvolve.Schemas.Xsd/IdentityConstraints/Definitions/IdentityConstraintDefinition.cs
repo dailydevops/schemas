@@ -7,6 +7,7 @@ using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Subsets;
 using NetEvolve.Schemas.XPath.Syntax.Parser;
 using NetEvolve.Schemas.XPath.Syntax.Tree;
+using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.SchemaDocuments;
@@ -71,11 +72,13 @@ internal sealed class IdentityConstraintDefinition : IXsdComponent
 
     /// <summary>Creates a definition from its declaration and registers it.</summary>
     /// <param name="element">The <c>unique</c>, <c>key</c>, or <c>keyref</c> element.</param>
+    /// <param name="scope">The namespace the schema document contributes to: the name and the <c>refer</c> of a chameleon-included document are in the including namespace.</param>
     /// <param name="registry">The registry that receives the definition.</param>
     /// <param name="reporter">The reporter.</param>
     /// <returns>The definition, <see langword="null"/> after an issue was reported.</returns>
     internal static IdentityConstraintDefinition? Create(
         SchemaSyntaxNode element,
+        SchemaNamespaceScope scope,
         IComponentRegistry registry,
         XsdIssueReporter reporter
     )
@@ -111,14 +114,14 @@ internal sealed class IdentityConstraintDefinition : IXsdComponent
         var refer = default(XPathQName);
         if (
             kind == IdentityConstraintKind.Keyref
-            && !TryResolveQName(element, element.FindAttribute("refer"), out refer)
+            && !scope.TryResolve(element, element.FindAttribute("refer") ?? string.Empty, out refer)
         )
         {
             Report(reporter, XsdRuleCodes.SrcResolve, element.Location, "The prefix of refer is not declared.");
             return null;
         }
 
-        var name = new XPathQName(TargetNamespaceOf(element), localName);
+        var name = scope.Declare(localName);
         if (registry.TryGet(XsdComponentKind.IdentityConstraint, name, out _))
         {
             Report(
@@ -296,49 +299,6 @@ internal sealed class IdentityConstraintDefinition : IXsdComponent
             default:
                 return null;
         }
-    }
-
-    private static bool TryResolveQName(SchemaSyntaxNode scope, string? text, out XPathQName name)
-    {
-        name = default;
-        if (text is null)
-        {
-            return false;
-        }
-
-        var colon = -1;
-        for (var i = 0; i < text.Length && colon < 0; i++)
-        {
-            if (text[i] == ':')
-            {
-                colon = i;
-            }
-        }
-
-        var prefix = colon < 0 ? string.Empty : text.Substring(0, colon);
-        var local = colon < 0 ? text : text.Substring(colon + 1);
-        if (!scope.TryResolvePrefix(prefix, out var uri))
-        {
-            if (colon >= 0)
-            {
-                return false;
-            }
-
-            uri = string.Empty;
-        }
-
-        name = new XPathQName(uri, local);
-        return true;
-    }
-
-    private static string TargetNamespaceOf(SchemaSyntaxNode node)
-    {
-        while (node.Parent is { } parent)
-        {
-            node = parent;
-        }
-
-        return node.FindAttribute("targetNamespace") ?? string.Empty;
     }
 
     private static void Report(

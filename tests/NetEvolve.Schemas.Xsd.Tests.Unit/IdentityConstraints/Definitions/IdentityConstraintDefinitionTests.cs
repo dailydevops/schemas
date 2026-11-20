@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.XPath.Api;
+using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.IdentityConstraints.Definitions;
@@ -14,6 +15,8 @@ public class IdentityConstraintDefinitionTests
 {
     private const string Header =
         "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:p=\"urn:p\" xmlns:t=\"urn:t\" targetNamespace=\"urn:t\">\n";
+
+    private static readonly SchemaNamespaceScope Scope = new("urn:t", false);
 
     private const string Footer = "\n</xs:schema>";
 
@@ -43,7 +46,7 @@ public class IdentityConstraintDefinitionTests
     }
 
     private IdentityConstraintDefinition? Create(string constraints, int index = 0) =>
-        IdentityConstraintDefinition.Create(Constraints(Schema(constraints))[index], _registry, Reporter);
+        IdentityConstraintDefinition.Create(Constraints(Schema(constraints))[index], Scope, _registry, Reporter);
 
     private static DiagnosticCode CodeOf(string ruleId)
     {
@@ -110,8 +113,8 @@ public class IdentityConstraintDefinitionTests
                 + "<xs:keyref name=\"r\" refer=\"t:k\"><xs:selector xpath=\"b\"/><xs:field xpath=\"@y\"/></xs:keyref>"
         );
         var nodes = Constraints(schema);
-        var key = IdentityConstraintDefinition.Create(nodes[0], _registry, Reporter)!;
-        var keyref = IdentityConstraintDefinition.Create(nodes[1], _registry, Reporter)!;
+        var key = IdentityConstraintDefinition.Create(nodes[0], Scope, _registry, Reporter)!;
+        var keyref = IdentityConstraintDefinition.Create(nodes[1], Scope, _registry, Reporter)!;
 
         keyref.ResolveRefer(_registry, Reporter);
 
@@ -140,8 +143,8 @@ public class IdentityConstraintDefinitionTests
                 + "<xs:keyref name=\"b\" refer=\"t:a\"><xs:selector xpath=\"a\"/><xs:field xpath=\"@x\"/></xs:keyref>"
         );
         var nodes = Constraints(schema);
-        var first = IdentityConstraintDefinition.Create(nodes[0], _registry, Reporter)!;
-        _ = IdentityConstraintDefinition.Create(nodes[1], _registry, Reporter);
+        var first = IdentityConstraintDefinition.Create(nodes[0], Scope, _registry, Reporter)!;
+        _ = IdentityConstraintDefinition.Create(nodes[1], Scope, _registry, Reporter);
 
         first.ResolveRefer(_registry, Reporter);
 
@@ -157,8 +160,8 @@ public class IdentityConstraintDefinitionTests
                 + "<xs:keyref name=\"r\" refer=\"t:k\"><xs:selector xpath=\"b\"/><xs:field xpath=\"@z\"/></xs:keyref>"
         );
         var nodes = Constraints(schema);
-        _ = IdentityConstraintDefinition.Create(nodes[0], _registry, Reporter);
-        var keyref = IdentityConstraintDefinition.Create(nodes[1], _registry, Reporter)!;
+        _ = IdentityConstraintDefinition.Create(nodes[0], Scope, _registry, Reporter);
+        var keyref = IdentityConstraintDefinition.Create(nodes[1], Scope, _registry, Reporter)!;
 
         keyref.ResolveRefer(_registry, Reporter);
 
@@ -224,8 +227,8 @@ public class IdentityConstraintDefinitionTests
         );
         var nodes = Constraints(schema);
 
-        var first = IdentityConstraintDefinition.Create(nodes[0], _registry, Reporter);
-        var second = IdentityConstraintDefinition.Create(nodes[1], _registry, Reporter);
+        var first = IdentityConstraintDefinition.Create(nodes[0], Scope, _registry, Reporter);
+        var second = IdentityConstraintDefinition.Create(nodes[1], Scope, _registry, Reporter);
 
         await Assert.That(first).IsNotNull();
         await Assert.That(second).IsNull();
