@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.Xsd.Validation.Annotations;
 
 using System;
 using System.Collections.Generic;
+using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 using NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;
@@ -27,6 +28,8 @@ internal readonly struct XsdAnnotation : IEquatable<XsdAnnotation>
 
     internal XsdAnnotation(AnnotationSource source, XmlNode node, in AnnotationRecord record)
     {
+        Argument.ThrowIfNull(source);
+
         _source = source;
         _node = node;
         _record = record;
