@@ -29,8 +29,6 @@ public class XPathDefaultNamespaceApplyTests
     [Arguments("./a/./b", "./xdn:a/./xdn:b")]
     [Arguments("a|b/c", "xdn:a|xdn:b/xdn:c")]
     [Arguments("child::a", "child::xdn:a")]
-    [Arguments("a/@b", "xdn:a/@b")]
-    [Arguments("a/attribute::b", "xdn:a/attribute::b")]
     [Arguments(" a / b ", " xdn:a / xdn:b ")]
     public async Task Apply_UnprefixedElementNameTests_GetThePrefixOfTheNamespace(string xpath, string expected)
     {
@@ -39,6 +37,19 @@ public class XPathDefaultNamespaceApplyTests
         await Assert.That(selector.FindAttribute("xpath")).IsEqualTo(expected);
         await Assert.That(selector.TryResolvePrefix("xdn", out var uri)).IsTrue();
         await Assert.That(uri).IsEqualTo("urn:q");
+    }
+
+    [Test]
+    [Arguments("a/@b", "xdn:a/@b")]
+    [Arguments("a/attribute::b", "xdn:a/attribute::b")]
+    [Arguments("a/b/@*", "xdn:a/xdn:b/@*")]
+    public async Task Apply_FieldEndingInAnAttribute_QualifiesTheElementNamesOnly(string xpath, string expected)
+    {
+        var constraint = Constraint(Schema(string.Empty, Unique("e", null, xpath, "urn:q")));
+
+        XPathDefaultNamespace.Apply(constraint, Scope, XsdVersion.V11);
+
+        await Assert.That(constraint.GetChildNode(1).FindAttribute("xpath")).IsEqualTo(expected);
     }
 
     [Test]
