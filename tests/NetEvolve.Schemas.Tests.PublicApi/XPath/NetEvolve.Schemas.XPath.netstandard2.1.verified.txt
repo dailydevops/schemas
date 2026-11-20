@@ -14,6 +14,7 @@
         public XPathDecimalFormat() { }
         public char DecimalSeparator { get; set; }
         public char Digit { get; set; }
+        public char ExponentSeparator { get; set; }
         public char GroupingSeparator { get; set; }
         public string Infinity { get; set; }
         public char MinusSign { get; set; }
