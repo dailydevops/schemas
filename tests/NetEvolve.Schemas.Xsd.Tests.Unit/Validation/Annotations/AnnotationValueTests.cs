@@ -68,8 +68,8 @@ public class AnnotationValueTests
     [Test]
     public async Task Annotation_Equality_ComparesTheSourceAndTheNode()
     {
-        var run = AnnotationFixture.Run(AnnotationFixture.Schema(), "<r><i>1</i><i>2</i></r>");
-        var other = AnnotationFixture.Run(AnnotationFixture.Schema(), "<r><i>1</i><i>2</i></r>");
+        var run = AnnotationFixture.Run("<r><i>1</i><i>2</i></r>");
+        var other = AnnotationFixture.Run("<r><i>1</i><i>2</i></r>");
         var first = run.Tree.Document.FirstChild.FirstChild;
 
         var annotation = run.Annotation(first);

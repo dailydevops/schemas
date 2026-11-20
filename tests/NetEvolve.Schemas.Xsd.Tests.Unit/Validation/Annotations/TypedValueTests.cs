@@ -30,7 +30,7 @@ public class TypedValueTests
     [Test]
     public async Task Annotation_ElementTypedAnyType_IsMixedAndHasTheStringValueAsUntypedAtomic()
     {
-        var run = AnnotationFixture.Run(AnnotationFixture.Schema(), "<r><t>some <b/>text</t></r>");
+        var run = AnnotationFixture.Run("<r><t>some <b/>text</t></r>");
 
         var annotation = run.Annotation("t");
         var items = run.TypedValue(annotation);
@@ -44,7 +44,7 @@ public class TypedValueTests
     [Test]
     public async Task Annotation_BuiltInTypeComponents_YieldTheirTypedValues()
     {
-        var run = AnnotationFixture.Run(AnnotationFixture.Schema(), "<r><bi>8</bi><bl>a b c</bl></r>");
+        var run = AnnotationFixture.Run("<r><bi>8</bi><bl>a b c</bl></r>");
 
         var number = run.Annotation("bi");
         var tokens = run.TypedValue(run.Annotation("bl"));
@@ -63,7 +63,7 @@ public class TypedValueTests
     [Test]
     public async Task Annotation_UnknownBuiltInList_KeepsTheValueAsOneUntypedAtomicItem()
     {
-        var run = AnnotationFixture.Run(AnnotationFixture.Schema(), "<r><nolist>a b</nolist></r>");
+        var run = AnnotationFixture.Run("<r><nolist>a b</nolist></r>");
 
         var items = run.TypedValue(run.Annotation("nolist"));
 
@@ -93,7 +93,7 @@ public class TypedValueTests
     [Test]
     public async Task Annotation_Untyped_CopiesNothingIntoAnEmptyDestination()
     {
-        var run = AnnotationFixture.Run(AnnotationFixture.Schema(), "<r><i>abc</i></r>");
+        var run = AnnotationFixture.Run("<r><i>abc</i></r>");
 
         var written = run.Annotation("i").CopyTypedValue([]);
 
