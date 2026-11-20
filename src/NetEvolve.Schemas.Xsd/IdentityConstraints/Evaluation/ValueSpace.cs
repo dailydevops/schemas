@@ -53,6 +53,8 @@ internal sealed class ValueSpace
     internal ValueSpace(ISimpleValueAssessor assessor, XsdVersion version)
     {
         Argument.ThrowIfNull(assessor);
+        Argument.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
+        Argument.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
 
         _assessor = assessor;
         var types = XsdBuiltInTypes.For(version);

@@ -27,7 +27,7 @@ using NetEvolve.Schemas.Xsd.Validation.Core;
 /// element) or waits for the end of the scope (<c>keyref</c>). Every scope has its own table, so nested scopes of the same
 /// constraint never meet. At the end of a scope its key tables are offered to the scopes above it that hold a <c>keyref</c> to
 /// that constraint without declaring the constraint themselves, so a keyref finds the key of a descendant element, with the
-/// tables of all such descendants merged. The values of the key-sequences compare in the value space (<see cref="ValueSpace"/>).
+/// tables of all such descendants merged, except for key-sequences that two descendants hold (Structures 3.11.5). The values of the key-sequences compare in the value space (<see cref="ValueSpace"/>).
 /// </para>
 /// <para>
 /// Decisions of #304: a field that selects a second node is reported once, at that node, and the selected element takes no
@@ -457,15 +457,17 @@ internal sealed class IdentityConstraintListener : ValidationListener
             return false;
         }
 
+        // A key-sequence that two descendant tables hold has two nodes; such entries are not included (Structures 3.11.5).
+        var holders = 0;
         foreach (var table in scope.Bubbled)
         {
             if (table.Contains(pending.Sequence, _values))
             {
-                return true;
+                holders++;
             }
         }
 
-        return false;
+        return holders == 1;
     }
 
     // Offers the table to the scopes above that refer to its constraint, down to the nearest scope that declares it itself.
