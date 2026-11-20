@@ -204,7 +204,12 @@ internal static class XPathDefaultNamespace
         return offsets.Count > 0;
     }
 
-    private sealed record Qualification(string Xpath, string Prefix);
+    private sealed class Qualification(string xpath, string prefix)
+    {
+        public string Xpath { get; } = xpath;
+
+        public string Prefix { get; } = prefix;
+    }
 
     private static XPathSubsetChecker Profile(SchemaSyntaxNode path) =>
         string.Equals(path.Name.LocalName, "selector", StringComparison.Ordinal)
