@@ -9,6 +9,7 @@ using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Input.Sequence;
 using NetEvolve.Schemas.Xml.Input.Stream;
 using NetEvolve.Schemas.Xml.Reader.Pipeline;
+using NetEvolve.Schemas.Xml.Text.NameTable;
 
 /// <summary>
 /// The one entry for building an <see cref="XmlDocumentTree"/> from every input kind: spans, memory, sequences, and streams
@@ -32,8 +33,8 @@ using NetEvolve.Schemas.Xml.Reader.Pipeline;
 /// Limitations: span inputs load synchronously and only the stream path is async; the stream is read from its current
 /// position to its end and is left open; a <see cref="ReadOnlySpan{T}"/> is copied or decoded during the call, and a
 /// <see cref="ReadOnlyMemory{T}"/> and a <see cref="ReadOnlySequence{T}"/> are read during the call only; the notation and
-/// unparsed entity declarations of a document type declaration are not added to the tree, which belongs to the validating
-/// load (XML-68, XML-69); loading from <c>XmlReader</c> or <c>XDocument</c> is XML-18 and the resolver-backed
+/// unparsed entity declarations of a document type declaration are not added to the tree (#731); the validating load
+/// is XML-68 and XML-69; loading from <c>XmlReader</c> or <c>XDocument</c> is XML-18 and the resolver-backed
 /// <c>doc()</c> is XP-60.
 /// </para>
 /// </remarks>
@@ -171,23 +172,45 @@ public static class XmlDocumentLoader
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        using var builder = new XmlTreeBuilder(options.NameTable, baseUri);
+        using var builder = NewBuilder(options, baseUri);
         using var reader = new XmlStreamReader<XmlTreeBuilder>(stream, builder, options, leaveOpen: true);
         var status = await reader.ReadAsync(cancellationToken).ConfigureAwait(false);
 
-        return Complete(builder, status, reader.Diagnostic);
+        return Complete(builder, options, status, reader.Diagnostic);
     }
 
     private static XmlDocumentTree Build<TReader>(TReader reader, XmlReaderOptions options, Uri? baseUri)
         where TReader : IXmlReader
     {
-        using var builder = new XmlTreeBuilder(options.NameTable, baseUri);
+        using var builder = NewBuilder(options, baseUri);
         var sink = builder;
         var status = reader.Pump(ref sink);
 
-        return Complete(builder, status, reader.Diagnostic);
+        return Complete(builder, options, status, reader.Diagnostic);
     }
 
-    private static XmlDocumentTree Complete(XmlTreeBuilder builder, XmlReadStatus status, XmlDiagnostic? diagnostic) =>
-        status == XmlReadStatus.Completed ? builder.Complete() : throw new XmlParseException(diagnostic!);
+    // A table of the options is shared and stays open; without one the document owns a table of the configured size.
+    private static XmlTreeBuilder NewBuilder(XmlReaderOptions options, Uri? baseUri) =>
+        new(options.NameTable ?? new SpanInterningNameTable(options.Limits.MaxDistinctNames), baseUri);
+
+    private static XmlDocumentTree Complete(
+        XmlTreeBuilder builder,
+        XmlReaderOptions options,
+        XmlReadStatus status,
+        XmlDiagnostic? diagnostic
+    )
+    {
+        if (status != XmlReadStatus.Completed)
+        {
+            throw new XmlParseException(diagnostic!);
+        }
+
+        var tree = builder.Complete();
+        if (options.NameTable is null)
+        {
+            tree.Names.Freeze();
+        }
+
+        return tree;
+    }
 }
