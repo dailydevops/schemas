@@ -73,13 +73,15 @@ internal sealed partial class StreamingValidator : IXmlSink
     /// <param name="limits">The limits of the run, handed to the listeners.</param>
     /// <param name="documentUri">The source reported in the locations, <see langword="null"/> for none.</param>
     /// <param name="listeners">The listeners in their fixed order.</param>
+    /// <param name="derivation">The derivation check that <c>xsi:type</c> is judged by, <see langword="null"/> for the type derivation check of the schema version.</param>
     internal StreamingValidator(
         ValidationModel model,
         ISimpleValueAssessor assessor,
         XsdIssueReporter reporter,
         ValidationLimits limits,
         string? documentUri,
-        IReadOnlyList<ValidationListener> listeners
+        IReadOnlyList<ValidationListener> listeners,
+        IDerivationCheck? derivation = null
     )
     {
         Argument.ThrowIfNull(model);
@@ -93,6 +95,7 @@ internal sealed partial class StreamingValidator : IXmlSink
         _reporter = reporter;
         _limits = limits;
         _documentUri = documentUri;
+        _ = derivation;
         Names = new SpanInterningNameTable(XmlReaderLimits.Default.MaxDistinctNames);
         _binding = new NameBinding(model, Names);
         _countingPool = new Stack<CountingRun>?[model.ProgramCount];
