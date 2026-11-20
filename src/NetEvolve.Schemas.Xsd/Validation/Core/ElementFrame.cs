@@ -7,6 +7,7 @@ using NetEvolve.Schemas.Xsd.ContentModels.AllGroups;
 using NetEvolve.Schemas.Xsd.ContentModels.Automaton;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Elements;
+using NetEvolve.Schemas.Xsd.OpenContent;
 
 /// <summary>The state of one open element. Frames are reused by depth, so a run allocates one per level of nesting.</summary>
 internal sealed class ElementFrame
@@ -23,6 +24,7 @@ internal sealed class ElementFrame
     internal ContentProgram? Program;
     internal CountingRun? Counting;
     internal AllGroupRun? AllRun;
+    internal OpenContentRun Open;
     internal bool IsValid;
     internal bool ContentFailed;
     internal bool TextReported;
@@ -42,6 +44,7 @@ internal sealed class ElementFrame
         Program = null;
         Counting = null;
         AllRun = null;
+        Open = default;
         IsValid = true;
         ContentFailed = false;
         TextReported = false;

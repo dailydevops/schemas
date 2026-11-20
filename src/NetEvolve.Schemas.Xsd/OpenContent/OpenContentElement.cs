@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.Xsd.OpenContent;
 
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Api;
+using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Diagnostics;
 
@@ -53,8 +54,29 @@ internal sealed class OpenContentElement
         Argument.ThrowIfGreaterThan((int)mode, (int)OpenContentMode.Suffix);
         Argument.ThrowIfNull(reporter);
 
+        var none = mode == OpenContentMode.None;
+        if (none == (wildcard is not null))
+        {
+            ReportRepresentation(reporter, location, none);
+            return null;
+        }
+
         return new(mode, wildcard, false, location);
     }
+
+    private static void ReportRepresentation(
+        XsdIssueReporter reporter,
+        DocumentLocation location,
+        bool noneWithWildcard
+    ) =>
+        reporter.Report(
+            XsdRuleLookup.Find(XsdRuleCodes.SrcCt),
+            location,
+            noneWithWildcard
+                ? "An openContent element with mode none must not have an any element."
+                : "An openContent element with a mode other than none must have an any element.",
+            noneWithWildcard ? "src-ct.4" : "src-ct.3"
+        );
 
     /// <summary>Creates the representation of the <c>defaultOpenContent</c> child of a schema.</summary>
     /// <param name="mode">The <c>mode</c> attribute, <see cref="OpenContentMode.Interleave"/> when absent.</param>
