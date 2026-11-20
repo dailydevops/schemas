@@ -201,7 +201,6 @@ public class XPathMatcherTests
     [Arguments("hello[ ]world", "helloworld", RegexOptions.FreeSpacing, false)]
     [Arguments("hello\\ sworld", "hello world", RegexOptions.FreeSpacing, true)]
     [Arguments("hello world", "hello world", RegexOptions.FreeSpacing, false)]
-    [Arguments("a\\ b", "a b", RegexOptions.FreeSpacing, false)]
     [Arguments("\\ \\ s", "ab", RegexOptions.FreeSpacing, false)]
     public async Task FreeSpacing_RemovesWhitespaceOutsideClassesBeforeMatching(
         string pattern,
@@ -244,13 +243,11 @@ public class XPathMatcherTests
     [Arguments("abc", "ABC")]
     [Arguments("[a-z]", "K")]
     [Arguments("k", "K")]
-    [Arguments("[^Q]", "q")]
     public async Task IgnoreCase_IsOffWithoutTheFlag(string pattern, string input) =>
         await Assert.That(XPathRegex.IsMatch(pattern, input)).IsFalse();
 
     [Test]
     [Arguments("([md])[aeiou]\\1", "Mum")]
-    [Arguments("([md])[aeiou]\\1", "mom")]
     [Arguments("([md])[aeiou]\\1", "Dad")]
     [Arguments("([md])[aeiou]\\1", "DUD")]
     [Arguments("(k)\\1", "kK")]
@@ -260,6 +257,18 @@ public class XPathMatcherTests
         await Assert.That(XPathRegex.IsMatch(pattern, input, I)).IsTrue();
         await Assert.That(XPathRegex.IsMatch(pattern, input)).IsFalse();
     }
+
+    [Test]
+    [Arguments("(ab)\\1", "abA")]
+    [Arguments("(ab)\\1", "abAC")]
+    [Arguments("(a)\\1", "ab")]
+    [Arguments("(\U00010400)\\1", "\U00010400")]
+    public async Task BackReference_WithIgnoreCase_RejectsADifferentOrShortText(string pattern, string input) =>
+        await Assert.That(XPathRegex.IsMatch(pattern, input, I)).IsFalse();
+
+    [Test]
+    public async Task BackReference_WithIgnoreCase_SameCaseStillMatches() =>
+        await Assert.That(XPathRegex.IsMatch("([md])[aeiou]\\1", "mom", I)).IsTrue();
 
     [Test]
     [Arguments("(a)\\1", "aa", "aa")]

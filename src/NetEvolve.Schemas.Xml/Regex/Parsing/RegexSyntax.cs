@@ -19,12 +19,12 @@ public readonly record struct RegexSyntax
     /// <summary>Initializes a new instance of the <see cref="RegexSyntax"/> struct.</summary>
     /// <param name="dialect">The dialect.</param>
     /// <param name="names">The name edition: the Second Edition for the XSD 1.0 mode, the Fifth Edition for the XSD 1.1 mode.</param>
-    /// <param name="flags">The flags; only the XPath dialect has flags, any flag with the XSD dialect is <see cref="RegexError.InvalidFlag"/>.</param>
-    public RegexSyntax(RegexDialect dialect, NameEdition names, RegexOptions flags)
+    /// <param name="options">The options; only the XPath dialect has flags, any flag with the XSD dialect is <see cref="RegexError.InvalidFlag"/>.</param>
+    public RegexSyntax(RegexDialect dialect, NameEdition names, RegexOptions options)
     {
         Dialect = dialect;
         Names = names;
-        Options = flags;
+        Options = options;
     }
 
     /// <summary>Gets the dialect.</summary>

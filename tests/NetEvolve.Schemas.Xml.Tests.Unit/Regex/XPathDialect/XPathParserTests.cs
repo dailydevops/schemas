@@ -201,7 +201,7 @@ public class XPathParserTests
     [Test]
     [Arguments("a b)", RegexError.Unbalanced, 3)]
     [Arguments(" a  (b", RegexError.UnexpectedEnd, 6)]
-    [Arguments("a  b  {", RegexError.InvalidQuantifier, 6)]
+    [Arguments("a  b  }", RegexError.InvalidQuantifier, 6)]
     [Arguments("a  \\9", RegexError.InvalidBackReference, 3)]
     public async Task Parse_FreeSpacing_ReportsPositionsOfTheOriginalPattern(
         string pattern,

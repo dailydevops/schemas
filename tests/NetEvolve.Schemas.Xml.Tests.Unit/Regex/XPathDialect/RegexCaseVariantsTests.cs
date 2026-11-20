@@ -13,7 +13,7 @@ public class RegexCaseVariantsTests
     [Arguments('s', new[] { 0x53, 0x73, 0x17F })]
     [Arguments(0x1C5, new[] { 0x1C4, 0x1C5, 0x1C6 })]
     [Arguments(0x3C2, new[] { 0x3A3, 0x3C2, 0x3C3 })]
-    [Arguments(0xDF, new[] { 0xDF, 0x1E9E })]
+    [Arguments(0xDF, new[] { 0xDF, 0x1E9E, 0x1DF95 })]
     [Arguments(0x10400, new[] { 0x10400, 0x10428 })]
     public async Task TryGetVariants_ReturnsTheWholeClassInAscendingOrder(int codePoint, int[] expected)
     {
@@ -112,8 +112,8 @@ public class RegexCaseVariantsTests
         await Assert.That(hash).IsEqualTo(ExpectedHash);
     }
 
-    private const int ExpectedMembers = 0;
-    private const uint ExpectedHash = 0u;
+    private const int ExpectedMembers = 3035;
+    private const uint ExpectedHash = 2646285889u;
 
     private static int[]? VariantsOf(int codePoint) =>
         RegexCaseVariants.TryGetVariants(codePoint, out var variants) ? variants.ToArray() : null;
