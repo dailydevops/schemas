@@ -17,7 +17,7 @@ namespace NetEvolve.Schemas.XPath.Tests.Unit.Functions.Strings;
 /// stays open until #295.
 /// </para>
 /// <para>
-/// Cases per test set, as selected of applicable: concat 91 of 95; substring 42 of 48; substring-before 31 of 35; substring-after 32 of 36; contains 28 of 35; starts-with 28 of 33; ends-with 26 of 32; translate 41 of 42; normalize-space 31 of 35; string-length 26 of 33; upper-case 25 of 29; lower-case 24 of 28; string-join 32 of 34; normalize-unicode 37 of 45; codepoints-to-string 54 of 68; string-to-codepoints 35 of 44. In all, 538 of 672 applicable cases are selected and 134 are excluded.
+/// Cases per test set, as selected of applicable: concat 91 of 95; substring 42 of 48; substring-before 31 of 35; substring-after 32 of 36; contains 28 of 35; starts-with 28 of 33; ends-with 26 of 32; translate 41 of 42; normalize-space 31 of 35; string-length 26 of 33; upper-case 25 of 29; lower-case 24 of 28; string-join 32 of 34; normalize-unicode 37 of 45; codepoints-to-string 54 of 68; string-to-codepoints 35 of 44. In all, 583 of 672 applicable cases are selected and 89 are excluded.
 /// </para>
 /// <para>
 /// An assertion is written for <see cref="Sequences.Qt3SequenceFixture.Satisfies"/>: <c>T</c> or <c>F</c> for a boolean, <c>S:</c> and
