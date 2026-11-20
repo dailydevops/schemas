@@ -107,6 +107,19 @@ public class Qt3NumericSelectionTests
     }
 
     [Test]
+    public async Task Selection_NamesNoContextItem_BecauseTheFixtureHasNone()
+    {
+        foreach (var (id, expression, _) in Qt3NumericSelection.Cases)
+        {
+            // The cases of the environments e0, e1, and e-1 are written with the atomized value of the document in place of the dot.
+            await Assert
+                .That(expression.Contains("(.)", StringComparison.Ordinal))
+                .IsFalse()
+                .Because($"{id}: {expression}");
+        }
+    }
+
+    [Test]
     public async Task Selection_HasACaseInEveryTestSet()
     {
         var sets = new HashSet<string>(StringComparer.Ordinal);
