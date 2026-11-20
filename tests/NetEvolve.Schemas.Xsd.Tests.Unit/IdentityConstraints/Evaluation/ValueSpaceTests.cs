@@ -271,7 +271,7 @@ public class ValueSpaceTests
 
         await Assert.That(() => new ValueSpace(null!, XsdVersion.V11)).Throws<ArgumentNullException>();
         await Assert
-            .That(() => new ValueSpace(new DescriptorValueAssessor(XsdVersion.V11), (XsdVersion)0))
+            .That(() => new ValueSpace(new DescriptorValueAssessor(XsdVersion.V11), (XsdVersion)(-1)))
             .Throws<ArgumentOutOfRangeException>();
         await Assert
             .That(() => new ValueSpace(new DescriptorValueAssessor(XsdVersion.V11), (XsdVersion)99))

@@ -33,16 +33,17 @@ internal sealed class IdentityConstraintDefinition : IXsdComponent
         IdentityConstraintKind kind,
         XPathQName name,
         DocumentLocation location,
-        string selector,
-        string[] fields,
+        Parts parts,
         XPathQName refer
     )
     {
         ConstraintKind = kind;
         Name = name;
         Location = location;
-        Selector = selector;
-        _fields = fields;
+        Selector = parts.Selector;
+        _fields = parts.Fields;
+        SelectorBindings = parts.SelectorBindings;
+        FieldBindings = parts.FieldBindings;
         Refer = refer;
     }
 
@@ -65,10 +66,10 @@ internal sealed class IdentityConstraintDefinition : IXsdComponent
     public IReadOnlyList<string> Fields => _fields;
 
     /// <summary>Gets the namespace bindings of the prefixes of the selector in order of first use; the prefix <c>xml</c> is not listed.</summary>
-    public IReadOnlyList<KeyValuePair<string, string>> SelectorBindings { get; } = [];
+    public IReadOnlyList<KeyValuePair<string, string>> SelectorBindings { get; }
 
     /// <summary>Gets the namespace bindings of the prefixes of every field, in the order of <see cref="Fields"/>.</summary>
-    public IReadOnlyList<IReadOnlyList<KeyValuePair<string, string>>> FieldBindings { get; } = [];
+    public IReadOnlyList<IReadOnlyList<KeyValuePair<string, string>>> FieldBindings { get; }
 
     /// <summary>Gets the expanded name of the referenced definition of a keyref, <see langword="default"/> otherwise.</summary>
     public XPathQName Refer { get; }
@@ -112,7 +113,8 @@ internal sealed class IdentityConstraintDefinition : IXsdComponent
             return null;
         }
 
-        if (!TryReadParts(element, reporter, out var selector, out var fields))
+        var parts = TryReadParts(element, reporter);
+        if (parts is null)
         {
             return null;
         }
@@ -139,7 +141,7 @@ internal sealed class IdentityConstraintDefinition : IXsdComponent
             return null;
         }
 
-        var definition = new IdentityConstraintDefinition(kind, name, element.Location, selector, fields, refer);
+        var definition = new IdentityConstraintDefinition(kind, name, element.Location, parts, refer);
         registry.Add(definition);
         return definition;
     }
@@ -193,15 +195,8 @@ internal sealed class IdentityConstraintDefinition : IXsdComponent
         }
     }
 
-    private static bool TryReadParts(
-        SchemaSyntaxNode element,
-        XsdIssueReporter reporter,
-        out string selector,
-        out string[] fields
-    )
+    private static Parts? TryReadParts(SchemaSyntaxNode element, XsdIssueReporter reporter)
     {
-        selector = string.Empty;
-        fields = [];
         SchemaSyntaxNode? selectorNode = null;
         var fieldNodes = new List<SchemaSyntaxNode>();
         var selectors = 0;
@@ -227,36 +222,64 @@ internal sealed class IdentityConstraintDefinition : IXsdComponent
                 element.Location,
                 "An identity constraint needs exactly one selector and at least one field."
             );
-            return false;
+            return null;
         }
 
-        if (!IsValid(selectorNode!, XPathSubsetChecker.Selector, XsdRuleCodes.CSelectorXpath, reporter))
+        return ReadPaths(selectorNode!, fieldNodes, reporter);
+    }
+
+    private static Parts? ReadPaths(
+        SchemaSyntaxNode selectorNode,
+        List<SchemaSyntaxNode> fieldNodes,
+        XsdIssueReporter reporter
+    )
+    {
+        if (
+            !IsValid(
+                selectorNode,
+                XPathSubsetChecker.Selector,
+                XsdRuleCodes.CSelectorXpath,
+                reporter,
+                out var selectorBindings
+            )
+        )
         {
-            return false;
+            return null;
         }
 
-        selector = selectorNode!.FindAttribute("xpath")!;
-        fields = new string[fieldNodes.Count];
+        var fields = new string[fieldNodes.Count];
+        var fieldBindings = new IReadOnlyList<KeyValuePair<string, string>>[fields.Length];
         for (var i = 0; i < fields.Length; i++)
         {
-            if (!IsValid(fieldNodes[i], XPathSubsetChecker.Field, XsdRuleCodes.CFieldsXpaths, reporter))
+            if (
+                !IsValid(
+                    fieldNodes[i],
+                    XPathSubsetChecker.Field,
+                    XsdRuleCodes.CFieldsXpaths,
+                    reporter,
+                    out fieldBindings[i]
+                )
+            )
             {
-                return false;
+                return null;
             }
 
             fields[i] = fieldNodes[i].FindAttribute("xpath")!;
         }
 
-        return true;
+        return new Parts(selectorNode.FindAttribute("xpath")!, fields, selectorBindings, fieldBindings);
     }
 
     private static bool IsValid(
         SchemaSyntaxNode node,
         XPathSubsetChecker profile,
         DiagnosticCode code,
-        XsdIssueReporter reporter
+        XsdIssueReporter reporter,
+        out IReadOnlyList<KeyValuePair<string, string>> bindings
     )
     {
+        bindings = [];
+
         // The grammar of the schema document requires the xpath attribute on selector and field.
         var xpath = node.FindAttribute("xpath") ?? string.Empty;
         if (!XPathParser.TryParse(xpath.AsSpan(), out var tree, out var diagnostic))
@@ -271,27 +294,34 @@ internal sealed class IdentityConstraintDefinition : IXsdComponent
             return false;
         }
 
-        var prefix = UndeclaredPrefix(tree!, node);
+        var found = new List<KeyValuePair<string, string>>();
+        var prefix = CollectBindings(tree!, node, found);
         if (prefix is not null)
         {
             Report(reporter, code, node.Location, "The prefix '" + prefix + "' is not declared.");
             return false;
         }
 
+        bindings = found;
         return true;
     }
 
-    // Walks the shapes the subset accepts: unions, paths, and axis steps with a name test.
-    private static string? UndeclaredPrefix(Expression expression, SchemaSyntaxNode scope)
+    // Walks the shapes the subset accepts: unions, paths, and axis steps with a name test. Collects the namespace of every prefix
+    // in order of first use and returns the first prefix that is not declared.
+    private static string? CollectBindings(
+        Expression expression,
+        SchemaSyntaxNode scope,
+        List<KeyValuePair<string, string>> bindings
+    )
     {
         switch (expression)
         {
             case SetExpression set:
-                return UndeclaredPrefix(set.Left, scope) ?? UndeclaredPrefix(set.Right, scope);
+                return CollectBindings(set.Left, scope, bindings) ?? CollectBindings(set.Right, scope, bindings);
             case PathExpression path:
                 for (var i = 0; i < path.Steps.Count; i++)
                 {
-                    var found = UndeclaredPrefix(path.Steps[i], scope);
+                    var found = CollectBindings(path.Steps[i], scope, bindings);
                     if (found is not null)
                     {
                         return found;
@@ -300,11 +330,45 @@ internal sealed class IdentityConstraintDefinition : IXsdComponent
 
                 return null;
             case AxisStep { Test: NameTest { Prefix: { } prefix } }
-                when !string.Equals(prefix, Xml, StringComparison.Ordinal) && !scope.TryResolvePrefix(prefix, out _):
-                return prefix;
+                when !string.Equals(prefix, Xml, StringComparison.Ordinal):
+                if (!scope.TryResolvePrefix(prefix, out var uri))
+                {
+                    return prefix;
+                }
+
+                if (!bindings.Exists(binding => string.Equals(binding.Key, prefix, StringComparison.Ordinal)))
+                {
+                    bindings.Add(new KeyValuePair<string, string>(prefix, uri));
+                }
+
+                return null;
             default:
                 return null;
         }
+    }
+
+    private sealed class Parts
+    {
+        internal Parts(
+            string selector,
+            string[] fields,
+            IReadOnlyList<KeyValuePair<string, string>> selectorBindings,
+            IReadOnlyList<KeyValuePair<string, string>>[] fieldBindings
+        )
+        {
+            Selector = selector;
+            Fields = fields;
+            SelectorBindings = selectorBindings;
+            FieldBindings = fieldBindings;
+        }
+
+        internal string Selector { get; }
+
+        internal string[] Fields { get; }
+
+        internal IReadOnlyList<KeyValuePair<string, string>> SelectorBindings { get; }
+
+        internal IReadOnlyList<KeyValuePair<string, string>>[] FieldBindings { get; }
     }
 
     private static void Report(
