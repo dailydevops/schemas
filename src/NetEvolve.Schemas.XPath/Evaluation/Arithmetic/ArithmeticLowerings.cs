@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.XPath.Evaluation.Arithmetic;
 
 using NetEvolve.Arguments;
+using NetEvolve.Schemas.XPath.Compatibility;
 using NetEvolve.Schemas.XPath.Compilation;
 using NetEvolve.Schemas.XPath.Syntax.Tree;
 
@@ -8,7 +9,9 @@ using NetEvolve.Schemas.XPath.Syntax.Tree;
 /// <remarks>
 /// Both lowerings read the operator table at evaluation, so the entries that other folders add to the same table, before or after
 /// this registration, are found. The composition root (XP-19) creates one table and passes it to every folder that registers
-/// operators; no such root exists yet.
+/// operators; no such root exists yet. When XPath 1.0 compatibility mode is on, the lowerings create the nodes of the
+/// <c>Compatibility</c> folder, which convert each operand by <c>fn:number</c> (XPath 2.0, 3.4), instead of
+/// <see cref="ArithmeticNode"/> and <see cref="UnaryArithmeticNode"/>.
 /// </remarks>
 internal static class ArithmeticLowerings
 {
@@ -24,10 +27,22 @@ internal static class ArithmeticLowerings
 
         registry.Register<ArithmeticExpression>(
             (node, context) =>
-                new ArithmeticNode(node.Operator, context.Lower(node.Left), context.Lower(node.Right), table)
+            {
+                var left = context.Lower(node.Left);
+                var right = context.Lower(node.Right);
+                return context.StaticContext.XPath10Compatibility
+                    ? new CompatibilityArithmeticNode(node.Operator, left, right, table)
+                    : new ArithmeticNode(node.Operator, left, right, table);
+            }
         );
         registry.Register<UnaryExpression>(
-            (node, context) => new UnaryArithmeticNode(node.Operator, context.Lower(node.Operand), table)
+            (node, context) =>
+            {
+                var operand = context.Lower(node.Operand);
+                return context.StaticContext.XPath10Compatibility
+                    ? new CompatibilityUnaryNode(node.Operator, operand, table)
+                    : new UnaryArithmeticNode(node.Operator, operand, table);
+            }
         );
     }
 }

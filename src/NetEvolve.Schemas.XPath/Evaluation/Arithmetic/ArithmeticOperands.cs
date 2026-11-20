@@ -9,7 +9,7 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// The operand preparation that every arithmetic operator shares (XPath 2.0, 3.4): atomization, the empty sequence, the single
 /// item, and the cast of <c>xs:untypedAtomic</c> to <c>xs:double</c>.
 /// </summary>
-/// <remarks>Limitation: XPath 1.0 compatibility mode, which converts the first item and every operand to a number, is not applied (XP-20).</remarks>
+/// <remarks>XPath 1.0 compatibility mode, which converts the first item and every operand to a number, is not applied here: its nodes are <see cref="Compatibility.CompatibilityArithmeticNode"/> and <see cref="Compatibility.CompatibilityUnaryNode"/>.</remarks>
 internal static class ArithmeticOperands
 {
     /// <summary>Checks that an atomized operand is one item and casts it when it is <c>xs:untypedAtomic</c>.</summary>

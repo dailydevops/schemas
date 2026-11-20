@@ -35,4 +35,6 @@ registration file (`Registration.cs`) stages the group into the default catalog;
   positive precision and clears every digit for a negative one (#719).
 - The arguments of derived integer types (`xs:int`, `xs:long`, and so on) are cast to derived types now, but the
   QT3 cases that build them stay excluded in `Qt3NumericSelection` until #746 selects them.
-- The XPath 1.0 compatibility mode is not applied (XP-20).
+- The XPath 1.0 compatibility mode is not applied by the functions: it converts the arguments of a call before the function sees them
+  (`Compatibility/CompatibilityFunctionConversion`), and `fn:floor`, `fn:ceiling`, `fn:round`, and `fn:abs` keep the XPath 2.0 rules for a
+  string or an untyped argument that is not a number.
