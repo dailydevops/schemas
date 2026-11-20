@@ -1,5 +1,6 @@
 namespace NetEvolve.Schemas.Xml.Tests.Unit.Regex.XPathDialect;
 
+using System;
 using NetEvolve.Schemas.Xml.Regex.XPathDialect;
 using NetEvolve.Schemas.Xml.Text.Unicode;
 
@@ -48,6 +49,10 @@ public class RegexCaseVariantsTests
         await Assert.That(Contains(closed, '0')).IsFalse();
         await Assert.That(Contains(closed, 0x131)).IsFalse();
     }
+
+    [Test]
+    public async Task Close_OfNull_Throws() =>
+        await Assert.That(() => RegexCaseVariants.Close(null!)).Throws<ArgumentNullException>();
 
     [Test]
     public async Task Close_OfAnEmptySet_IsEmpty() =>

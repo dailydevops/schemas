@@ -340,6 +340,20 @@ public class XPathMatcherTests
         await Assert.That(withReference).IsEqualTo(RegexMatchResult.Aborted);
     }
 
+    // Pinned divergence: a loop whose body can match the empty string. The automaton drops an empty iteration, the backtracking
+    // machine (forced here by a back reference to an empty group) stops the loop at it; both results are valid matches.
+    [Test]
+    public async Task EmptyBodyLoop_AutomatonAndBacktrackerPickDifferentValidMatches()
+    {
+        var (automaton, automatonIndex, automatonLength) = XPathRegex.Search("(?:b?|c)*", "bcc");
+        var (backtracker, backtrackerIndex, backtrackerLength) = XPathRegex.Search("(?:b?|c)*()\\1", "bcc");
+
+        await Assert.That(automaton).IsEqualTo(RegexMatchResult.Match);
+        await Assert.That((automatonIndex, automatonLength)).IsEqualTo((0, 3));
+        await Assert.That(backtracker).IsEqualTo(RegexMatchResult.Match);
+        await Assert.That((backtrackerIndex, backtrackerLength)).IsEqualTo((0, 1));
+    }
+
     [Test]
     public async Task Automaton_PatternOnAdversarialInput_EndsWithTheStepLimitError()
     {
