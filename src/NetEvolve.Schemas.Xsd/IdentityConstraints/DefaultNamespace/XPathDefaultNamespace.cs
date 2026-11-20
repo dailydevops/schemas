@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.Xsd.IdentityConstraints.DefaultNamespace;
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
@@ -28,11 +29,18 @@ using NetEvolve.Schemas.Xsd.SchemaDocuments;
 /// the definition show the prefixed text; <see cref="Apply"/> has to run before
 /// <c>IdentityConstraintDefinition.Create</c>, which the compilation pipeline of XSD-78 does. In strict 1.0 mode the attribute is
 /// ignored here because <c>Strict10Constructs</c> reports it as a schema error.
+/// A chameleon include (and a unit under an override set) shares the parsed tree of its document between namespaces, so
+/// <see cref="Apply"/> keeps the <c>xpath</c> text as written and qualifies from it on every call: a later call for another
+/// scope replaces the earlier qualification of the same path. The tree is still rewritten in place, so the caller has to create
+/// the definition of one unit before it applies the next unit's scope to the same tree, and may not do both at once from several threads.
 /// </remarks>
 internal static class XPathDefaultNamespace
 {
     private const string AttributeName = "xpathDefaultNamespace";
     private const string BasePrefix = "xdn";
+
+    // The text as written and the prefix bound by the last call, per path element; the tree itself only shows the qualified text.
+    private static readonly ConditionalWeakTable<SchemaSyntaxNode, Qualification> Written = new();
 
     /// <summary>Resolves the namespace of the unprefixed element names of a selector or field.</summary>
     /// <param name="path">The <c>selector</c> or <c>field</c> element.</param>
@@ -104,48 +112,99 @@ internal static class XPathDefaultNamespace
     {
         var namespaceName = Resolve(path, scope, version);
         var xpath = path.FindAttribute("xpath");
-
-        // A path that does not parse, or that the subset rejects, is the definition's to report as the author wrote it.
-        if (
-            namespaceName.Length == 0
-            || xpath is null
-            || !XPathParser.TryParse(xpath.AsSpan(), out var tree, out _)
-            || !Profile(path).Accepts(tree!, out _)
-        )
+        if (xpath is null)
         {
             return;
         }
 
-        var offsets = new List<int>();
-        CollectElementNames(tree!, offsets);
-        if (offsets.Count == 0)
+        var hasEarlier = Written.TryGetValue(path, out var earlier);
+        if (hasEarlier)
         {
+            xpath = earlier!.Xpath;
+        }
+
+        // A path that does not parse, or that the subset rejects, is the definition's to report as the author wrote it.
+        var offsets = new List<int>();
+        if (
+            namespaceName.Length == 0
+            || !XPathParser.TryParse(xpath.AsSpan(), out var tree, out _)
+            || !Profile(path).Accepts(tree!, out _)
+            || !CollectNames(tree!, offsets)
+        )
+        {
+            if (hasEarlier)
+            {
+                path.SetAttribute("xpath", xpath);
+            }
+
             return;
         }
 
         offsets.Sort();
-        var prefix = BasePrefix;
-        for (
-            var n = 1;
-            path.TryResolvePrefix(prefix, out _) || xpath.Contains(prefix + ":", StringComparison.Ordinal);
-            n++
-        )
-        {
-            prefix = BasePrefix + n;
-        }
-
+        var prefix = ChoosePrefix(path, xpath, earlier);
         var text = new StringBuilder(xpath.Length + (offsets.Count * (prefix.Length + 1)));
         var last = 0;
         foreach (var offset in offsets)
         {
-            text.Append(xpath, last, offset - last).Append(prefix).Append(':');
+            _ = text.Append(xpath, last, offset - last).Append(prefix).Append(':');
             last = offset;
         }
 
-        text.Append(xpath, last, xpath.Length - last);
-        path.AddNamespace(prefix, namespaceName);
+        _ = text.Append(xpath, last, xpath.Length - last);
+        if (
+            !path.TryResolvePrefix(prefix, out var bound)
+            || !string.Equals(bound, namespaceName, StringComparison.Ordinal)
+        )
+        {
+            // A later declaration of the prefix on the same element wins over an earlier one.
+            path.AddNamespace(prefix, namespaceName);
+        }
+
         path.SetAttribute("xpath", text.ToString());
+        _ = Written.Remove(path);
+        Written.Add(path, new Qualification(xpath, prefix));
     }
+
+    // The prefix the last call bound on this element is free again; any other declared or used prefix is not.
+    private static string ChoosePrefix(SchemaSyntaxNode path, string xpath, Qualification? earlier)
+    {
+        var prefix = BasePrefix;
+        for (var n = 1; IsTaken(path, xpath, prefix, earlier); n++)
+        {
+            prefix = BasePrefix + n;
+        }
+
+        return prefix;
+    }
+
+    private static bool IsTaken(SchemaSyntaxNode path, string xpath, string prefix, Qualification? earlier) =>
+        (path.TryResolvePrefix(prefix, out _) && !string.Equals(prefix, earlier?.Prefix, StringComparison.Ordinal))
+        || UsesPrefix(xpath, prefix);
+
+    private static bool UsesPrefix(string xpath, string prefix)
+    {
+        for (
+            var i = xpath.IndexOf(prefix, StringComparison.Ordinal);
+            i >= 0;
+            i = xpath.IndexOf(prefix, i + 1, StringComparison.Ordinal)
+        )
+        {
+            if (i + prefix.Length < xpath.Length && xpath[i + prefix.Length] == ':')
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool CollectNames(SyntaxNode tree, List<int> offsets)
+    {
+        CollectElementNames(tree, offsets);
+        return offsets.Count > 0;
+    }
+
+    private sealed record Qualification(string Xpath, string Prefix);
 
     private static XPathSubsetChecker Profile(SchemaSyntaxNode path) =>
         string.Equals(path.Name.LocalName, "selector", StringComparison.Ordinal)
