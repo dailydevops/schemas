@@ -1,5 +1,6 @@
 namespace NetEvolve.Schemas.Xsd.Tests.Unit.IdentityConstraints.DefaultNamespace;
 
+using System;
 using System.Collections.Generic;
 using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
@@ -79,10 +80,7 @@ public class XPathDefaultNamespaceStrictTests
         await Assert.That(issues).IsEmpty();
     }
 
-    // The one-based column of the first occurrence of a start tag, which the issue of the attribute points at.
-    private static int Column(string schema, string tag)
-    {
-        var offset = schema.IndexOf(tag, System.StringComparison.Ordinal);
-        return offset - schema.LastIndexOf('\n', offset);
-    }
+    // The one-based column of a start tag on the line of the constraint, which the issue of the attribute points at.
+    private static int Column(string schema, string tag) =>
+        schema.IndexOf(tag, StringComparison.Ordinal) - schema.IndexOf("<xs:unique", StringComparison.Ordinal) + 1;
 }
