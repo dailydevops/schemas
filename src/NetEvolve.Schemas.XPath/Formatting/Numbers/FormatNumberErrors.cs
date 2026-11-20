@@ -1,5 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Formatting.Numbers;
 
+using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Errors;
 
 /// <summary>
@@ -18,11 +19,16 @@ internal static class FormatNumberErrors
     /// <param name="xslt20">Whether the XSLT 2.0 code applies.</param>
     /// <param name="name">The name as written.</param>
     /// <returns>The exception to throw.</returns>
-    public static XPathException UnknownFormat(bool xslt20, string name) =>
-        Create(
+    /// <exception cref="System.ArgumentNullException"><paramref name="name"/> is <see langword="null"/>.</exception>
+    public static XPathException UnknownFormat(bool xslt20, string name)
+    {
+        Argument.ThrowIfNull(name);
+
+        return Create(
             xslt20 ? XTDE1280 : FODF1280,
             "The decimal format name '" + name + "' is not a valid name or names no decimal format."
         );
+    }
 
     /// <summary>Creates the error for a picture string, or a decimal format, that breaks a rule.</summary>
     /// <param name="xslt20">Whether the XSLT 2.0 code applies.</param>
