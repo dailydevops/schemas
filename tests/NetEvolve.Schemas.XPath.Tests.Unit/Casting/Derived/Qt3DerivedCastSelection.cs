@@ -256,6 +256,11 @@ internal static class Qt3DerivedCastSelection
         ),
         ("prod-CastExpr.derived/cbcl-cast-gYear-002", "\"0000\" cast as xs:gYear", "X:FORG0001"),
         ("prod-CastExpr.derived/cbcl-cast-gYear-003", "\"-0000\" cast as xs:gYear", "X:FORG0001"),
+        (
+            "prod-CastExpr.derived/cbcl-cast-gYearMonth-002",
+            "\"99999999999999999999999999999-XX\" cast as xs:gYearMonth",
+            "X:FORG0001"
+        ),
         ("prod-CastExpr.derived/cbcl-cast-gYearMonth-003", "\"0000-05\" cast as xs:gYearMonth", "X:FORG0001"),
         (
             "prod-CastExpr.derived/cbcl-case-anyUri-001",
@@ -332,10 +337,6 @@ internal static class Qt3DerivedCastSelection
         (
             "prod-CastExpr.derived/cbcl-cast-token-001",
             "The case is the XQuery 1.0 variant, whose string literal uses character references; the XPath 2.0 variant \"cbcl-cast-token-001b\" is selected."
-        ),
-        (
-            "prod-CastExpr.derived/cbcl-cast-gYearMonth-002",
-            "The cast raises FODT0001 for the year before it finds the invalid month, where the case asserts FORG0001; the defect is tracked in #743."
         ),
         (
             "prod-CastExpr.derived/cbcl-cast-gYear-003a",
