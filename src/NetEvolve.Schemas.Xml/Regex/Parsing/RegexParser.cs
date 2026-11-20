@@ -45,7 +45,7 @@ public static class RegexParser
     {
         Argument.ThrowIfNull(limits);
 
-        if (syntax.Dialect == RegexDialect.Xsd && syntax.Options != RegexOptions.None)
+        if (syntax.Dialect != RegexDialect.XPath && syntax.Options != RegexOptions.None)
         {
             return new(RegexError.InvalidFlag, 0);
         }

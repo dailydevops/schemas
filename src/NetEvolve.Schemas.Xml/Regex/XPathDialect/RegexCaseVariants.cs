@@ -2,6 +2,8 @@ namespace NetEvolve.Schemas.Xml.Regex.XPathDialect;
 
 using System;
 using System.Collections.Generic;
+using NetEvolve.Arguments;
+using NetEvolve.Schemas.Xml.Regex.Matching;
 using NetEvolve.Schemas.Xml.Regex.Parsing;
 using NetEvolve.Schemas.Xml.Text.Unicode;
 
@@ -37,14 +39,18 @@ internal static class RegexCaseVariants
     /// <summary>Adds the case variants of every member to a set.</summary>
     /// <param name="ranges">The set as sorted range pairs.</param>
     /// <returns>The set with all variants of its members, as sorted and merged range pairs.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="ranges"/> is <see langword="null"/>.</exception>
     internal static int[] Close(int[] ranges)
     {
+        Argument.ThrowIfNull(ranges);
+
+        var set = new RegexCharacterSet(ranges);
         var builder = new RegexSetMath.Builder();
         builder.AddAll(ranges);
         for (var slot = 0; slot < Data.ClassCount; slot++)
         {
             var members = Data.Class(slot);
-            if (!AnyIn(ranges, members))
+            if (!AnyIn(set, members))
             {
                 continue;
             }
@@ -58,35 +64,11 @@ internal static class RegexCaseVariants
         return builder.Build();
     }
 
-    private static bool AnyIn(int[] ranges, ReadOnlySpan<int> members)
+    private static bool AnyIn(RegexCharacterSet set, ReadOnlySpan<int> members)
     {
         for (var i = 0; i < members.Length; i++)
         {
-            if (Contains(ranges, members[i]))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private static bool Contains(int[] ranges, int codePoint)
-    {
-        var low = 0;
-        var high = (ranges.Length / 2) - 1;
-        while (low <= high)
-        {
-            var mid = low + ((high - low) / 2);
-            if (codePoint < ranges[2 * mid])
-            {
-                high = mid - 1;
-            }
-            else if (codePoint > ranges[(2 * mid) + 1])
-            {
-                low = mid + 1;
-            }
-            else
+            if (set.Contains(members[i]))
             {
                 return true;
             }
