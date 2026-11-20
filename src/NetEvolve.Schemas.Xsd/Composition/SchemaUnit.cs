@@ -2,13 +2,19 @@ namespace NetEvolve.Schemas.Xsd.Composition;
 
 using System.Collections.Generic;
 using NetEvolve.Arguments;
+using NetEvolve.Schemas.Xsd.Override;
 using NetEvolve.Schemas.Xsd.SchemaDocuments;
 
 /// <summary>One schema document processed under one effective target namespace (design #146 DP-3).</summary>
 /// <remarks>A chameleon include is the same document in a second unit with the namespace of its includer.</remarks>
 internal sealed class SchemaUnit
 {
-    internal SchemaUnit(SchemaDocument document, SchemaSyntaxNode root, string effectiveNamespace)
+    internal SchemaUnit(
+        SchemaDocument document,
+        SchemaSyntaxNode root,
+        string effectiveNamespace,
+        OverrideSet? overrides = null
+    )
     {
         Argument.ThrowIfNull(document);
         Argument.ThrowIfNull(root);
@@ -17,6 +23,7 @@ internal sealed class SchemaUnit
         Document = document;
         Root = root;
         EffectiveNamespace = effectiveNamespace;
+        Overrides = overrides;
     }
 
     /// <summary>Gets the parsed document.</summary>
@@ -34,6 +41,9 @@ internal sealed class SchemaUnit
     /// </summary>
     internal List<SchemaSyntaxNode> Components { get; } = [];
 
-    /// <summary>Gets the units this unit includes or redefines.</summary>
+    /// <summary>Gets the components of the <see langword="override"/> elements that replace components of this unit, <see langword="null"/> when none does.</summary>
+    internal OverrideSet? Overrides { get; }
+
+    /// <summary>Gets the units this unit includes, redefines, or overrides.</summary>
     internal List<SchemaUnit> Included { get; } = [];
 }
