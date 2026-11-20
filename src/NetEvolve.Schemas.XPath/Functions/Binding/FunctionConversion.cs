@@ -17,7 +17,7 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// Limitations: nodes atomize with the untyped default, so annotated nodes await schema-aware processing (DEF-40, #52); the
 /// derivation check covers the built-in atomic types a function signature names (<c>xs:integer</c> is a <c>xs:decimal</c>, the two
 /// duration types are <c>xs:duration</c>), and the shared matcher of XP-21 (#227) replaces it; XPath 1.0 compatibility mode is not
-/// applied (XP-20). A singleton argument allocates nothing in the binding layer unless an <c>xs:untypedAtomic</c> value is cast to a decimal, date and time, or
+/// applied here: <see cref="Compatibility.CompatibilityFunctionConversion"/> runs in front of these rules. A singleton argument allocates nothing in the binding layer unless an <c>xs:untypedAtomic</c> value is cast to a decimal, date and time, or
 /// duration value, which is boxed (#661).
 /// </remarks>
 internal static class FunctionConversion
