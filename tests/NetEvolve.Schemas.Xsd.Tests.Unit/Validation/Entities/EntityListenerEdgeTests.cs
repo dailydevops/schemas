@@ -3,7 +3,9 @@ namespace NetEvolve.Schemas.Xsd.Tests.Unit.Validation.Entities;
 using System;
 using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Xml.Contracts;
+using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xml.Text.NameTable;
+using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.Tests.Unit.Validation.Core;
@@ -161,5 +163,46 @@ public class EntityListenerEdgeTests
         var issues = collector.ToResult().Issues;
         await Assert.That(issues.Count).IsEqualTo(1);
         await Assert.That(issues[0].Message).Contains("no document type declaration");
+    }
+
+    private static IXsdComponent BuiltIn(string local)
+    {
+        var types = XsdBuiltInTypes.For(XsdVersion.V11);
+        for (var i = 0; i < types.Count; i++)
+        {
+            if (string.Equals(types[i].Name.LocalName, local, StringComparison.Ordinal))
+            {
+                return types[i];
+            }
+        }
+
+        throw new InvalidOperationException("No built-in type " + local);
+    }
+
+    [Test]
+    public async Task BuiltInEntity_AndEntities_AreCheckedPerName()
+    {
+        var (listener, collector) = Begin("<!NOTATION g SYSTEM \"g\"><!ENTITY pic SYSTEM \"p.gif\" NDATA g>");
+
+        Attribute(listener, BuiltIn("ENTITY"), "pic");
+        Attribute(listener, BuiltIn("ENTITY"), "nope");
+        Value(listener, BuiltIn("ENTITIES"), "pic other");
+
+        var issues = collector.ToResult().Issues;
+        await Assert.That(issues.Count).IsEqualTo(2);
+        await Assert.That(issues[0].Message).Contains("'nope'");
+        await Assert.That(issues[1].Message).Contains("'other'");
+    }
+
+    [Test]
+    public async Task BuiltInTypesOfOtherNames_AreNeverChecked()
+    {
+        var (listener, collector) = Begin("");
+
+        Attribute(listener, BuiltIn("NCName"), "nope");
+        Value(listener, BuiltIn("IDREFS"), "nope more");
+        Value(listener, BuiltIn("anySimpleType"), "nope");
+
+        await Assert.That(collector.ToResult().Issues.Count).IsEqualTo(0);
     }
 }
