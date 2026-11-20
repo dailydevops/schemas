@@ -75,8 +75,8 @@ public class RegistrationTests
     [Test]
     public async Task DefaultCatalog_DoesNotRegisterTheFunctionsOfOtherWorkPackages()
     {
-        // matches, replace, and tokenize: XP-24; encode-for-uri and iri-to-uri: XP-28; escape-html-uri: DEF-84. (compare and codepoint-equal: XP-25 registers them in Collations.)
-        string[] names = ["matches", "replace", "tokenize", "encode-for-uri", "iri-to-uri", "escape-html-uri"];
+        // matches, replace, and tokenize: XP-24; escape-html-uri: DEF-84. (encode-for-uri and iri-to-uri are registered by XP-28, in Functions/QNames.) (compare and codepoint-equal: XP-25 registers them in Collations.)
+        string[] names = ["matches", "replace", "tokenize", "escape-html-uri"];
         foreach (var local in names)
         {
             for (var arity = 0; arity <= 4; arity++)
