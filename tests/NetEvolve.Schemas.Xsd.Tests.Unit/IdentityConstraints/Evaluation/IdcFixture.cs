@@ -19,8 +19,8 @@ using NetEvolve.Schemas.Xsd.Validation.Core;
 
 /// <summary>
 /// A root <c>r</c> that holds any number of <c>e</c> and <c>s</c>; <c>s</c> holds any number of <c>e</c> and <c>s</c>; <c>e</c>
-/// holds any number of <c>k</c> and <c>m</c> and has the attributes <c>a</c>, <c>b</c>, and <c>c</c>. The leaves <c>k</c> and
-/// <c>m</c> and the attributes have the simple type of the fixture, and <c>c</c> may have a default value.
+/// holds any number of <c>k</c>, <c>m</c>, and <c>q</c> and has the attributes <c>a</c>, <c>b</c>, and <c>c</c>. The leaf <c>k</c> and the attributes
+/// have the simple type of the fixture, <c>m</c> is a built-in string, <c>q</c> has simple content, and <c>c</c> may have a default value.
 /// </summary>
 internal static class IdcFixture
 {
@@ -43,7 +43,8 @@ internal static class IdcFixture
                     0,
                     long.MaxValue,
                     SchemaFixture.Part(SchemaFixture.Element("k", leaf, namespaceName: ns)),
-                    SchemaFixture.Part(SchemaFixture.Element("m", leaf, namespaceName: ns))
+                    SchemaFixture.Part(SchemaFixture.Element("m", BuiltIn("string"), namespaceName: ns)),
+                    SchemaFixture.Part(SchemaFixture.Element("q", schema.SimpleContent("string"), namespaceName: ns))
                 ),
                 Use(schema, "a", leaf),
                 Use(schema, "b", leaf),
@@ -77,6 +78,20 @@ internal static class IdcFixture
             namespaceName: ns
         );
         return schema;
+    }
+
+    public static IXsdComponent BuiltIn(string name)
+    {
+        var types = XsdBuiltInTypes.For(XsdVersion.V11);
+        for (var i = 0; i < types.Count; i++)
+        {
+            if (string.Equals(types[i].Name.LocalName, name, StringComparison.Ordinal))
+            {
+                return types[i];
+            }
+        }
+
+        throw new InvalidOperationException(name);
     }
 
     public static string Unique(string name, string selector, params string[] fields) =>

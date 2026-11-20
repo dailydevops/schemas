@@ -264,6 +264,28 @@ public class ValueSpaceTests
     }
 
     [Test]
+    [Arguments("decimal", "abc")]
+    [Arguments("double", "abc")]
+    [Arguments("float", "abc")]
+    [Arguments("boolean", "abc")]
+    [Arguments("string", "\uFFFE")]
+    public async Task Hash_OfAValueThatIsNotInTheLexicalSpace_IsZero(string type, string lexical)
+    {
+        var space = Space(XsdVersion.V11);
+
+        await Assert.That(space.Hash(BuiltIn(type, XsdVersion.V11), lexical)).IsEqualTo(0);
+    }
+
+    [Test]
+    public async Task AreEqual_StringsWithACharacterOutsideTheXmlSet_AreNotEqual()
+    {
+        var space = Space(XsdVersion.V11);
+        var type = BuiltIn("string", XsdVersion.V11);
+
+        await Assert.That(space.AreEqual(type, "\uFFFE", type, "\uFFFE")).IsFalse();
+    }
+
+    [Test]
     public async Task Guards_NullArguments_Throw()
     {
         var space = Space(XsdVersion.V11);

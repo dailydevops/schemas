@@ -202,6 +202,17 @@ public class IdentityConstraintDefinitionTests
     }
 
     [Test]
+    public async Task Create_KeyrefWithAnUndeclaredPrefixInRefer_IsSchemaError()
+    {
+        var definition = Create(
+            "<xs:keyref name=\"r\" refer=\"zz:k\"><xs:selector xpath=\"a\"/><xs:field xpath=\"@x\"/></xs:keyref>"
+        );
+
+        await Assert.That(definition).IsNull();
+        await AssertSingleIssue("src-resolve", 3, 1);
+    }
+
+    [Test]
     public async Task Create_SelectorWithPredicate_IsSchemaError()
     {
         var definition = Create("<xs:key name=\"k\"><xs:selector xpath=\"a[1]\"/><xs:field xpath=\"@x\"/></xs:key>");
@@ -236,6 +247,15 @@ public class IdentityConstraintDefinitionTests
     public async Task Create_SelectorWithUndeclaredPrefix_IsSchemaError()
     {
         var definition = Create("<xs:key name=\"k\"><xs:selector xpath=\"q:a\"/><xs:field xpath=\"@x\"/></xs:key>");
+
+        await Assert.That(definition).IsNull();
+        await AssertSingleIssue("c-selector-xpath", 3, 18);
+    }
+
+    [Test]
+    public async Task Create_UndeclaredPrefixInALaterStepOfAPath_IsSchemaError()
+    {
+        var definition = Create("<xs:key name=\"k\"><xs:selector xpath=\"p:a/q:b\"/><xs:field xpath=\"@x\"/></xs:key>");
 
         await Assert.That(definition).IsNull();
         await AssertSingleIssue("c-selector-xpath", 3, 18);
