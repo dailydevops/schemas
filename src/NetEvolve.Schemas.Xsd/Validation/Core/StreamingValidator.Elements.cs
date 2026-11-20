@@ -485,7 +485,12 @@ internal sealed partial class StreamingValidator
             written = incomplete ? all.CollectMissing(ids) : all.CollectExpected(ids, out wildcard);
         }
 
-        wildcard |= frame.Open.WildcardExpected;
+        if (!incomplete)
+        {
+            // At the end of the content only the content model can complete it; open content never does.
+            wildcard |= frame.Open.WildcardExpected;
+        }
+
         if (written == 0 && !wildcard)
         {
             return "No child element is expected.";
