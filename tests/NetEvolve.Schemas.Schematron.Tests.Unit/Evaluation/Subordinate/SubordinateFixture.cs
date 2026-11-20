@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Schematron.Tests.Unit.Evaluation.Subordinate;
+﻿namespace NetEvolve.Schemas.Schematron.Tests.Unit.Evaluation.Subordinate;
 
 using System;
 using System.Collections.Generic;

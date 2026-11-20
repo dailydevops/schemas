@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Schematron.Tests.Unit.Evaluation.Subordinate;
+﻿namespace NetEvolve.Schemas.Schematron.Tests.Unit.Evaluation.Subordinate;
 
 using NetEvolve.Schemas.Resources;
 using NetEvolve.Schemas.Schematron.Expansion.AbstractPatterns;
