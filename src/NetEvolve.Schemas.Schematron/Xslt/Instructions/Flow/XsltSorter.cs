@@ -26,8 +26,18 @@ internal static class XsltSorter
     /// <param name="keys">The sort keys, the primary key first.</param>
     /// <param name="items">The initial sequence; it answers <c>last()</c> for the key expressions.</param>
     /// <param name="order">The indexes of the items in sorted order when the status is <see cref="QueryStatus.Ok"/>.</param>
+    /// <param name="beforeItem">
+    /// Called with the index of an item before the keys of that item are evaluated, so that an instruction can bind what its keys read
+    /// (<c>xsl:for-each-group</c> binds the current group and the grouping key of the group); <see langword="null"/> for none.
+    /// </param>
     /// <returns><see cref="QueryStatus.Problem"/> when a key failed, has more than one item (XTTE1020), or two values cannot be compared (XTDE1030).</returns>
-    internal static QueryStatus TrySort(XsltFrame frame, XsltSortKey[] keys, ItemBuffer items, out int[] order)
+    internal static QueryStatus TrySort(
+        XsltFrame frame,
+        XsltSortKey[] keys,
+        ItemBuffer items,
+        out int[] order,
+        Action<int>? beforeItem = null
+    )
     {
         Argument.ThrowIfNull(frame);
         Argument.ThrowIfNull(keys);
@@ -47,6 +57,7 @@ internal static class XsltSorter
         {
             var item = items.Get(i);
             var focus = QueryFocus.ForItem(in item, i + 1, -1, items);
+            beforeItem?.Invoke(i);
             for (var k = 0; k < width; k++)
             {
                 var status = TryEvaluateKey(frame, keys[k], in focus, key, out values[(i * width) + k]);
