@@ -83,8 +83,8 @@ public class AnnotationDefaultTests
         await Assert.That(annotation.Validity).IsEqualTo(XsdValidity.Invalid);
         await Assert.That(annotation.TypedValueKind).IsEqualTo(XsdTypedValueKind.Untyped);
         await Assert.That(items[0].TypeId).IsEqualTo(XdmTypeId.UntypedAtomic);
-        await Assert.That(items[0].TryGetString(out var text)).IsTrue();
-        await Assert.That(text).IsEqualTo("maybe");
+        await Assert.That(run.Table.TryGetElement(1, out var record)).IsTrue();
+        await Assert.That(record.DefaultedValue).IsEqualTo("maybe");
     }
 
     [Test]

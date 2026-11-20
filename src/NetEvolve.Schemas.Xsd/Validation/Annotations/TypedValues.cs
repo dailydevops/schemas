@@ -24,13 +24,14 @@ using NetEvolve.Schemas.Xsd.Validation.Core;
 /// <remarks>
 /// <para>
 /// The text is converted by casting an <c>xs:untypedAtomic</c> item to the built-in type through the casting table of the XPath package,
-/// which also applies the white space handling of that type. A type that has no built-in ancestor with a row in the casting table keeps the
-/// value as <c>xs:untypedAtomic</c>, which is also what a type without any built-in ancestor yields.
+/// which also applies the white space handling of that type. A value that the cast rejects, and a type without any built-in ancestor, keep
+/// the value as <c>xs:untypedAtomic</c>.
 /// </para>
 /// <para>
 /// Limitations: the white space facet of a user-defined type is not applied, only that of its built-in ancestor; a value of <c>xs:QName</c>
-/// or <c>xs:NOTATION</c> needs the namespace context of the node, so it stays <c>xs:untypedAtomic</c> (#604); and the casting table has no
-/// row for every built-in type, so such a type yields the item of its nearest ancestor that has one.
+/// or <c>xs:NOTATION</c> needs the namespace context of the node, so it stays <c>xs:untypedAtomic</c> instead of resolving an unprefixed name
+/// against no namespace (#604); and <c>xs:dateTimeStamp</c> is the only built-in atomic type that the casting table has no row for, so its item is
+/// the <c>xs:dateTime</c> of the same value, while <see cref="DataModelType"/> reports <c>xs:dateTimeStamp</c>.
 /// </para>
 /// </remarks>
 internal static class TypedValues
@@ -200,24 +201,30 @@ internal static class TypedValues
         }
     }
 
-    // Casts to the built-in type, or to its nearest ancestor that the casting table has a row for.
+    // Casts to the built-in type. Only a type that has no row in the casting table (xs:dateTimeStamp, and the abstract xs:NOTATION) takes the
+    // row of its nearest ancestor; a cast that fails, and a type that needs the namespaces of the node (xs:QName), keep the untyped value.
     private static void AppendBuiltIn(string localName, string text, List<XdmItem> items)
     {
         _ = XdmTypes.TryGet(SchemaGrammar.Namespace, localName, out var target);
         var untyped = XdmItem.FromUntypedAtomic(text);
         var table = CastingCatalog.Default.Table;
-        while (target.Value > 0)
+        while (target.Value > 0 && !table.IsTarget(target))
         {
-            if (table.TryCast(untyped, target, out var item) == CastStatus.Ok)
-            {
-                items.Add(item);
-                return;
-            }
-
             target = XdmTypes.ParentOf(target);
         }
 
-        items.Add(untyped);
+        if (
+            target.Value > 0
+            && !table.IsNamespaceSensitive(target)
+            && table.TryCast(untyped, target, out var item) == CastStatus.Ok
+        )
+        {
+            items.Add(item);
+        }
+        else
+        {
+            items.Add(untyped);
+        }
     }
 
     private static bool IsSchemaType(XPathQName name) =>

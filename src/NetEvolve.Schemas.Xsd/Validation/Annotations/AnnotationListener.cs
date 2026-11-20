@@ -5,7 +5,8 @@ using NetEvolve.Schemas.Xsd.Contracts;
 /// <summary>
 /// The listener that hands the type, validity, and nilled state of every assessed element and attribute to an annotation sink
 /// (XSD-16, #305; design #146 DP-18). Without a sink it asks for no hook, so a run that nobody reads annotations from does no
-/// annotation work and allocates nothing for it.
+/// annotation work and allocates nothing for it. An empty element that takes the default or fixed value of its declaration gets that value in
+/// its record, from the simple value hook that comes right before its end tag (design #146 DP-19).
 /// </summary>
 /// <remarks>
 /// <para>
@@ -28,6 +29,8 @@ internal sealed class AnnotationListener : ValidationListener
     private readonly IAnnotationSink? _sink;
     private int _owner;
     private int _index;
+    private int _defaultedOrdinal;
+    private string? _defaultedValue;
 
     /// <summary>Initializes a new instance of the <see cref="AnnotationListener"/> class.</summary>
     /// <param name="sink">The sink, <see langword="null"/> for none: the listener then wants no hook.</param>
@@ -35,13 +38,29 @@ internal sealed class AnnotationListener : ValidationListener
 
     /// <inheritdoc />
     public override ListenerInterest Interest =>
-        _sink is null ? ListenerInterest.None : ListenerInterest.Attribute | ListenerInterest.EndElement;
+        _sink is null
+            ? ListenerInterest.None
+            : ListenerInterest.Attribute | ListenerInterest.SimpleValue | ListenerInterest.EndElement;
 
     /// <inheritdoc />
     public override void BeginRun(in ValidationRunContext context)
     {
         _owner = 0;
         _index = 0;
+        _defaultedOrdinal = 0;
+        _defaultedValue = null;
+    }
+
+    /// <inheritdoc />
+    public override void SimpleValue(in SimpleValueInfo info)
+    {
+        // The validator substitutes the default or fixed value of an empty element in this hook only; the tree of the element has no
+        // text for it. The hook comes right before the end of the same element, which takes the value into its record.
+        if (info.IsDefaulted)
+        {
+            _defaultedOrdinal = info.Ordinal;
+            _defaultedValue = info.Value.ToString();
+        }
     }
 
     /// <inheritdoc />
@@ -75,7 +94,8 @@ internal sealed class AnnotationListener : ValidationListener
                     -1,
                     info.Type,
                     info.IsValid ? XsdValidity.Valid : XsdValidity.Invalid,
-                    info.IsValid && info.IsNilled
+                    info.IsValid && info.IsNilled,
+                    info.Ordinal == _defaultedOrdinal ? _defaultedValue : null
                 )
             );
         }

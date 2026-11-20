@@ -34,10 +34,10 @@ public class AnnotationListenerTests
         await Assert.That(new AnnotationListener(null).Interest).IsEqualTo(ListenerInterest.None);
 
     [Test]
-    public async Task Interest_WithASink_IsAttributesAndElementEnds() =>
+    public async Task Interest_WithASink_IsAttributesSimpleValuesAndElementEnds() =>
         await Assert
             .That(new AnnotationListener(new RecordingSink()).Interest)
-            .IsEqualTo(ListenerInterest.Attribute | ListenerInterest.EndElement);
+            .IsEqualTo(ListenerInterest.Attribute | ListenerInterest.SimpleValue | ListenerInterest.EndElement);
 
     [Test]
     public async Task Attribute_IndexCountsPerOwner_AndRestartsForTheNextOwner()
@@ -134,6 +134,23 @@ public class AnnotationListenerTests
 
         await Assert.That(sink.Elements[0].Validity).IsEqualTo(XsdValidity.Invalid);
         await Assert.That(sink.Elements[0].IsNilled).IsFalse();
+    }
+
+    [Test]
+    public async Task SimpleValue_Defaulted_GoesToTheRecordOfItsOwnElementOnly()
+    {
+        var (listener, sink, _) = Begin();
+        var type = SchemaFixture.Simple("integer");
+
+        listener.SimpleValue(new SimpleValueInfo(1, "7".AsSpan(), type, -1, true, true));
+        listener.EndElement(new ElementEndInfo(1, true, false, type));
+        listener.SimpleValue(new SimpleValueInfo(2, "8".AsSpan(), type, -1, true, false));
+        listener.EndElement(new ElementEndInfo(2, true, false, type));
+        listener.EndElement(new ElementEndInfo(3, true, false, type));
+
+        await Assert.That(sink.Elements[0].DefaultedValue).IsEqualTo("7");
+        await Assert.That(sink.Elements[1].DefaultedValue).IsNull();
+        await Assert.That(sink.Elements[2].DefaultedValue).IsNull();
     }
 
     private sealed class RecordingSink : IAnnotationSink

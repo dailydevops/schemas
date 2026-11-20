@@ -12,9 +12,16 @@ using NetEvolve.Schemas.Xsd.SchemaDocuments;
 
 /// <summary>
 /// The annotation of one node: validity, type name, nilled state, and typed value (design #146 DP-18). It holds the source and the node,
-/// not a copy of the record's data, because the typed value is not stored: it is derived from the text of the node when it is read.
+/// not a copy of the record's data, because the typed value is not stored: it is derived from the text of the node when it is read, or, for an
+/// empty element that took the default or fixed value of its declaration, from that value (design #146 DP-19).
 /// <see langword="default"/> is safe and reads as not known, with empty names and no typed value.
 /// </summary>
+/// <remarks>
+/// Limitations: the typed value of an item of <c>xs:QName</c> or <c>xs:NOTATION</c> is <c>xs:untypedAtomic</c>, because the lexical form needs the
+/// namespaces in scope of the node (#604); the item of a node of type <c>xs:dateTimeStamp</c> is an <c>xs:dateTime</c>, because the casting table
+/// of the XPath package has no row for it, while <see cref="TypeName"/> and the data model type are those of the type. The white space facet
+/// of a user-defined type is not applied.
+/// </remarks>
 internal readonly struct XsdAnnotation : IEquatable<XsdAnnotation>
 {
     private static readonly XsdTypeName AnyType = Schema("anyType");
@@ -133,7 +140,7 @@ internal readonly struct XsdAnnotation : IEquatable<XsdAnnotation>
                 return 0;
             }
 
-            destination[0] = XdmItem.FromUntypedAtomic(_node.StringValue);
+            destination[0] = XdmItem.FromUntypedAtomic(Text);
             return 1;
         }
 
@@ -211,10 +218,13 @@ internal readonly struct XsdAnnotation : IEquatable<XsdAnnotation>
             _ => XsdTypedValueKind.Atomic,
         };
 
+    // An empty element that took a default or fixed value has no text in the tree; the validator substituted the value in its own hook.
+    private string Text => _record.DefaultedValue ?? _node.StringValue;
+
     private List<XdmItem> AtomicValues()
     {
         var items = new List<XdmItem>(1);
-        TypedValues.Append(TypedValues.SimpleTypeOf(_record.Type!), _node.StringValue, _source!.Assessor, items);
+        TypedValues.Append(TypedValues.SimpleTypeOf(_record.Type!), Text, _source!.Assessor, items);
         return items;
     }
 }
