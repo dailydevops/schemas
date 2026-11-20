@@ -1,35 +1,46 @@
 namespace NetEvolve.Schemas.Xsd.ContentModels.Determinism11;
 
-using System;
+using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Api;
+using NetEvolve.Schemas.Xsd.ContentModels.Determinism;
 using NetEvolve.Schemas.Xsd.Contracts;
 
-/// <summary>A wildcard that allows no element, so that a declared element wins over it.</summary>
+/// <summary>
+/// A wildcard that allows no element: <see cref="ParticleOverlap"/> then finds no element that the wildcard competes with,
+/// which is the priority of a declared element over a wildcard in XSD 1.1. Everything else is that of the wildcard.
+/// </summary>
 internal sealed class ElementPriorityView : IWildcard
 {
-    internal ElementPriorityView(IWildcard wildcard) => throw new NotSupportedException();
+    private readonly IWildcard _wildcard;
+
+    internal ElementPriorityView(IWildcard wildcard)
+    {
+        Argument.ThrowIfNull(wildcard);
+
+        _wildcard = wildcard;
+    }
 
     /// <inheritdoc />
-    public XsdComponentKind Kind => throw new NotSupportedException();
+    public XsdComponentKind Kind => _wildcard.Kind;
 
     /// <inheritdoc />
-    public XPathQName Name => throw new NotSupportedException();
+    public XPathQName Name => _wildcard.Name;
 
     /// <inheritdoc />
-    public DocumentLocation Location => throw new NotSupportedException();
+    public DocumentLocation Location => _wildcard.Location;
 
     /// <inheritdoc />
-    public XsdProcessContents ProcessContents => throw new NotSupportedException();
+    public XsdProcessContents ProcessContents => _wildcard.ProcessContents;
 
     /// <inheritdoc />
-    public bool Allows(XPathQName name) => throw new NotSupportedException();
+    public bool Allows(XPathQName name) => false;
 
     /// <inheritdoc />
-    public bool IsSubsetOf(IWildcard other) => throw new NotSupportedException();
+    public bool IsSubsetOf(IWildcard other) => _wildcard.IsSubsetOf(other);
 
     /// <inheritdoc />
-    public IWildcard? Union(IWildcard other) => throw new NotSupportedException();
+    public IWildcard? Union(IWildcard other) => _wildcard.Union(other);
 
     /// <inheritdoc />
-    public IWildcard? Intersect(IWildcard other) => throw new NotSupportedException();
+    public IWildcard? Intersect(IWildcard other) => _wildcard.Intersect(other);
 }
