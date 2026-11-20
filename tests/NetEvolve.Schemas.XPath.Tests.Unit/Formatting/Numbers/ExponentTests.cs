@@ -88,6 +88,7 @@ public class ExponentTests
     [Arguments("0e0.0")]
     [Arguments("0e0,0")]
     [Arguments("0e00e0")]
+    [Arguments("0ee")]
     public async Task Exponent31_PictureThatBreaksAnExponentRule_IsFODF1310(string picture) =>
         await Assert.That(FormatNumberHarness.Xpath31("integer:5", picture)).IsEqualTo("error:FODF1310");
 

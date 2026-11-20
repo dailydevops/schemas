@@ -1,5 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Tests.Unit.Formatting.Numbers;
 
+using System;
 using System.Threading.Tasks;
 using NetEvolve.Schemas.XPath.Abstractions;
 using NetEvolve.Schemas.XPath.Api;
@@ -125,6 +126,18 @@ public class DecimalFormatSlotTests
             .IsEqualTo("error:FODF1280");
     }
 
+    // A braced name without the closing brace, or with a local part that is no NCName, names no format.
+    [Test]
+    [Arguments("Q{urn:x")]
+    [Arguments("Q{urn:x}1fmt")]
+    [Arguments("Q{urn:x}")]
+    public async Task Name_InXPath3_BracedFormThatIsMalformed_IsUnknown(string name)
+    {
+        var formats = new FormatNumberHarness.Formats().Add(new XPathQName("urn:x", "fmt"), new XPathDecimalFormat());
+
+        await Assert.That(FormatNumberHarness.Xpath31("integer:5", "0", name, formats)).IsEqualTo("error:FODF1280");
+    }
+
     // XSLT 2.0 knows lexical QNames only, so the braced form and the surrounding whitespace are invalid.
     [Test]
     [Arguments("Q{urn:x}fmt")]
@@ -173,5 +186,25 @@ public class DecimalFormatSlotTests
 
         await Assert.That(FormatNumberHarness.Xpath31("integer:5", "٠", "ar", formats)).IsEqualTo("٥");
         await Assert.That(FormatNumberHarness.Xpath31("integer:5", "١", "one", formats)).IsEqualTo("error:FODF1310");
+    }
+
+    // The check reads the pinned Unicode tables: the first character of a run of ten Nd characters is a zero, the others and a character outside any run are not.
+    [Test]
+    [Arguments('0', true)]
+    [Arguments('٠', true)]
+    [Arguments('۰', true)]
+    [Arguments('０', true)]
+    [Arguments('٩', false)]
+    [Arguments('۱', false)]
+    [Arguments('９', false)]
+    [Arguments('a', false)]
+    public async Task ZeroDigit_IsTheFirstCharacterOfARunOfTenDigits(char candidate, bool valid)
+    {
+        var formats = new FormatNumberHarness.Formats().Add("f", new XPathDecimalFormat { ZeroDigit = candidate });
+        var picture = candidate + "." + candidate;
+
+        var result = FormatNumberHarness.Xpath31("integer:5", picture, "f", formats);
+
+        await Assert.That(result.StartsWith("error:", StringComparison.Ordinal)).IsEqualTo(!valid);
     }
 }
