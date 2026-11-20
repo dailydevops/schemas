@@ -5,6 +5,7 @@ using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.QNames;
 using NetEvolve.Schemas.XPath.Abstractions;
 using NetEvolve.Schemas.XPath.Api;
+using NetEvolve.Schemas.XPath.Casting.Core;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Functions.Binding;
@@ -51,7 +52,7 @@ internal sealed class FormatNumberFunction : XPathFunction
         )
     {
         _xslt20 = xslt20;
-        _namespaces = namespaces ?? NoNamespaces.Instance;
+        _namespaces = namespaces ?? NoNamespaceContext.Instance;
     }
 
     /// <summary>Gets the language versions in which the function is visible: XPath 2.0 for the XSLT 2.0 function, XPath 3.0 and 3.1 for the other.</summary>
@@ -146,17 +147,5 @@ internal sealed class FormatNumberFunction : XPathFunction
         return DecimalFormatModel.TryCreate(declared, rules, out var model, out var problem)
             ? model!
             : throw FormatNumberErrors.InvalidPicture(_xslt20, problem);
-    }
-
-    /// <summary>The namespace context of a function without static namespaces: no prefix is bound.</summary>
-    private sealed class NoNamespaces : INamespaceContext
-    {
-        public static NoNamespaces Instance { get; } = new();
-
-        public bool TryResolvePrefix(ReadOnlySpan<char> prefix, out string? namespaceName)
-        {
-            namespaceName = null;
-            return false;
-        }
     }
 }

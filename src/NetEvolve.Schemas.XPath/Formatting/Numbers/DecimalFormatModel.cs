@@ -118,16 +118,12 @@ internal sealed class DecimalFormatModel
         return true;
     }
 
-    private static bool IsZeroDigit(char candidate)
-    {
-        if (UnicodeTables.GetCategory(candidate) != UnicodeGeneralCategory.Nd || char.GetNumericValue(candidate) != 0)
-        {
-            return false;
-        }
-
-        // The ten digits of a family follow each other in the code space; the last one has to be a digit too.
-        return UnicodeTables.GetCategory(candidate + DigitFamilySize - 1) == UnicodeGeneralCategory.Nd;
-    }
+    // The ten digits of a family follow each other in the code space and the zero is the first: the character before it is no digit
+    // of the family, and the last one is (the pinned Unicode tables only, never the digit value that the running .NET knows).
+    private static bool IsZeroDigit(char candidate) =>
+        UnicodeTables.GetCategory(candidate) == UnicodeGeneralCategory.Nd
+        && UnicodeTables.GetCategory(candidate - 1) != UnicodeGeneralCategory.Nd
+        && UnicodeTables.GetCategory(candidate + DigitFamilySize - 1) == UnicodeGeneralCategory.Nd;
 
     private static bool AreDistinct(XPathDecimalFormat format, NumberPictureRules rules)
     {
