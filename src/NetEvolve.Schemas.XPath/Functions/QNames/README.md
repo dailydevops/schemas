@@ -32,7 +32,7 @@ The QName functions (section 11 of the XPath 2.0 Functions and Operators), the U
   QName parameter is declared `xs:anyAtomicType?` and an element parameter `node()`, and the function raises XPTY0004 for an atomic
   value that is no QName and for a node that is no element.
 - A call reaches the evaluation context only, which carries no static context, so `fn:static-base-uri` and the one-argument form of
-  `fn:resolve-uri` use a static base URI that the function holds, as `fn:compare` does (#752, #187). The functions of the default catalog
+  `fn:resolve-uri` use a static base URI that the function holds, as `fn:compare` does (#752, #806, #187). The functions of the default catalog
   hold none: `fn:static-base-uri()` is the empty sequence, and `fn:resolve-uri` with one relative reference is FONS0005. A host registers
   functions built over its own `Uri`; a relative `Uri` counts as none.
 - `fn:resolve-uri` refuses (FORG0002) a character that no URI may contain, because the XML escaping of the resolution would change the
