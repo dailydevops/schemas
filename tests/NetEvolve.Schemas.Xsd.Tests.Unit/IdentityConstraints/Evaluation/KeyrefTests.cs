@@ -191,4 +191,22 @@ public class KeyrefTests
         await Assert.That(issues.Count).IsEqualTo(1);
         await IdcAssert.Issue(issues[0], "cvc-identity-constraint.4.3", 3);
     }
+
+    [Test]
+    public async Task Keyref_ValueThatTwoDescendantScopesHold_IsNotResolvedByEither()
+    {
+        // Structures 3.11.5: entries of descendant tables with the same key-sequence and different nodes are not included.
+        var set = new ConstraintSet()
+            .On("s", IdcFixture.Key("k", "e", "@a"))
+            .On("r", IdcFixture.Keyref("kr", "t:k", "e", "@b"));
+
+        var issues = IdcFixture.Run(
+            IdcFixture.Schema(),
+            "<r>\n<s><e a=\"1\"/><e a=\"2\"/></s>\n<s><e a=\"1\"/></s>\n<e b=\"1\"/>\n<e b=\"2\"/>\n</r>",
+            set.Listener()
+        );
+
+        await Assert.That(issues.Count).IsEqualTo(1);
+        await IdcAssert.Issue(issues[0], "cvc-identity-constraint.4.3", 4);
+    }
 }

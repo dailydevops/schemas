@@ -68,4 +68,11 @@ public class KeyTableTests
         await Assert.That(() => table.Contains(Sequence("1"), null!)).Throws<ArgumentNullException>();
         await Assert.That(() => table.Add(null!)).Throws<ArgumentNullException>();
     }
+
+    [Test]
+    public async Task KeySequence_NullArguments_Throw()
+    {
+        await Assert.That(() => new KeySequence(null!, [Decimal], 0)).Throws<ArgumentNullException>();
+        await Assert.That(() => new KeySequence(["1"], null!, 0)).Throws<ArgumentNullException>();
+    }
 }

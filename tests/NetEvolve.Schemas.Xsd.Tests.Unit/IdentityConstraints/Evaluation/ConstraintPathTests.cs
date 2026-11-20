@@ -138,4 +138,11 @@ public class ConstraintPathTests
         await Assert.That(() => path.MatchesAttribute(stack, 1, 2, null!, "a")).Throws<ArgumentNullException>();
         await Assert.That(() => path.MatchesAttribute(stack, 1, 2, "", null!)).Throws<ArgumentNullException>();
     }
+
+    [Test]
+    public async Task ElementName_NullArguments_Throw()
+    {
+        await Assert.That(() => new ElementName(null!, "a")).Throws<ArgumentNullException>();
+        await Assert.That(() => new ElementName(string.Empty, null!)).Throws<ArgumentNullException>();
+    }
 }
