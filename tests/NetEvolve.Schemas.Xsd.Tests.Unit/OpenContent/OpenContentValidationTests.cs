@@ -349,6 +349,24 @@ public class OpenContentValidationTests
     }
 
     [Test]
+    public async Task ExpectedNames_AfterTheSuffixBegan_NameOnlyTheWildcard()
+    {
+        // (a, b?): f:x begins the suffix, so b is refused and must not be offered as expected.
+        var content = SchemaFixture.Seq(
+            SchemaFixture.Part("a", SchemaFixture.Simple("string")),
+            SchemaFixture.Part("b", SchemaFixture.Simple("string"), 0, 1)
+        );
+
+        var issues = Run(Schema(content, OwnOpen(OpenContentMode.Suffix)), "<r" + Foreign + "><a/><f:x/><b/></r>");
+
+        await AssertContentIssue(
+            issues,
+            "cvc-complex-type.2.4",
+            "One of {any element the wildcard allows} is expected."
+        );
+    }
+
+    [Test]
     public async Task IncompleteContent_AtTheEndTag_DoesNotOfferTheWildcard()
     {
         // Open content never completes the content, so the message names only the missing declared element.
