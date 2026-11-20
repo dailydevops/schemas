@@ -3,6 +3,7 @@ namespace NetEvolve.Schemas.XPath.Tests.Unit.Functions.Sequences;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Numerics;
 using System.Text;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
@@ -170,7 +171,9 @@ internal static class SequencesHarness
             "untypedAtomic" => XdmItem.FromUntypedAtomic(payload),
             "anyURI" => XdmItem.FromAnyUri(payload),
             "boolean" => XdmItem.FromBoolean(string.Equals(payload, "true", StringComparison.Ordinal)),
-            "integer" => XdmItem.FromInteger(long.Parse(payload, CultureInfo.InvariantCulture)),
+            "integer" => XdmItem.FromBigInteger(
+                BigInteger.Parse(payload, NumberStyles.Integer, CultureInfo.InvariantCulture)
+            ),
             "decimal" => XdmItem.FromDecimal(XsdDecimal.Parse(payload).Value),
             "double" => XdmItem.FromDouble(ParseFloating(payload)),
             "float" => XdmItem.FromFloat((float)ParseFloating(payload)),

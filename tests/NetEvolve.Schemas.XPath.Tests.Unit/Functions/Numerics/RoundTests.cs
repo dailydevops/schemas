@@ -155,6 +155,19 @@ public class RoundTests
     ) => await Assert.That(NumericsHarness.Run("round-half-to-even", argument, precision)).IsEqualTo(expected);
 
     [Test]
+    [Arguments("decimal:2.5", "integer:10000000000000000000000000", "decimal:2.5")]
+    [Arguments("decimal:2.5", "integer:-10000000000000000000000000", "decimal:0")]
+    [Arguments("double:2.5", "integer:10000000000000000000000000", "double:2.5")]
+    [Arguments("double:2.5", "integer:-10000000000000000000000000", "double:0")]
+    [Arguments("integer:25", "integer:10000000000000000000000000", "integer:25")]
+    [Arguments("integer:25", "integer:-10000000000000000000000000", "integer:0")]
+    public async Task RoundHalfToEven_WithAPrecisionBeyondSixtyFourBits_KeepsOrClearsEveryDigit(
+        string argument,
+        string precision,
+        string expected
+    ) => await Assert.That(NumericsHarness.Run("round-half-to-even", argument, precision)).IsEqualTo(expected);
+
+    [Test]
     [Arguments("decimal:1.5", "()")]
     [Arguments("decimal:1.5", "integer:1|integer:2")]
     [Arguments("decimal:1.5", "string:1")]

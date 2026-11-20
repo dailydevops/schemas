@@ -258,6 +258,23 @@ public readonly struct XdmItem : IEquatable<XdmItem>
         return false;
     }
 
+    /// <summary>Gets the value of an <c>xs:integer</c> item of any width, saturated to the 64-bit range with the sign kept.</summary>
+    /// <returns>
+    /// The value, or <see cref="long.MaxValue"/> or <see cref="long.MinValue"/> for an integer beyond 64 bits; zero when the item is no integer.
+    /// A position, a count, a precision, or an arity that is beyond 64 bits is beyond every value it is compared with, so the saturation changes no result.
+    /// </returns>
+    internal long GetSaturatedInteger()
+    {
+        if (!TryGetBigInteger(out var value))
+        {
+            return 0;
+        }
+
+        return value > long.MaxValue ? long.MaxValue
+            : value < long.MinValue ? long.MinValue
+            : (long)value;
+    }
+
     /// <summary>Gets the double value.</summary>
     /// <param name="value">The value.</param>
     /// <returns><see langword="true"/> when the item is a double.</returns>

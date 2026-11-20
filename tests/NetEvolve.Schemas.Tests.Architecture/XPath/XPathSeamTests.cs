@@ -32,6 +32,8 @@ public class XPathSeamTests
         SourceAssemblies.XPath + ".Tests.Architecture",
         SourceAssemblies.XPath + ".Tests.Unit",
         SourceAssemblies.XPath + ".Tests.Integration",
+        // The Schematron tests build an xs:integer beyond 64 bits, which no public cast produces yet (#719).
+        SourceAssemblies.Schematron + ".Tests.Unit",
     ];
 
     [Test]

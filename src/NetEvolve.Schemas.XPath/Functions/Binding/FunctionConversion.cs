@@ -143,7 +143,7 @@ internal static class FunctionConversion
             return UntypedAtomicCast.Cast(lexical!, target == XPathItemType.Numeric ? XPathItemType.Double : target);
         }
 
-        if (Matches(target, item.Kind))
+        if (Matches(target, item))
         {
             return item;
         }
@@ -154,7 +154,10 @@ internal static class FunctionConversion
     }
 
     // Subtype substitution: the item keeps its own type when that type is the expected one or derives from it.
-    private static bool Matches(XPathItemType target, XdmItemKind kind) =>
+    private static bool Matches(XPathItemType target, in XdmItem item) =>
+        MatchesKind(target, item.Kind) || (target == XPathItemType.Integer && item.TryGetBigInteger(out _));
+
+    private static bool MatchesKind(XPathItemType target, XdmItemKind kind) =>
         target switch
         {
             XPathItemType.Numeric => kind

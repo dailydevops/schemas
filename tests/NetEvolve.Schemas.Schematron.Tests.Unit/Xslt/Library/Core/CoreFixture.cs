@@ -1,6 +1,8 @@
 namespace NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Library.Core;
 
 using System;
+using System.Globalization;
+using System.Numerics;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Bindings.Registry;
 using NetEvolve.Schemas.Schematron.Tests.Unit.Parsing.Core;
@@ -112,6 +114,10 @@ internal static class CoreFixture
     internal static XdmItem S(string value) => XdmItem.FromString(value);
 
     internal static XdmItem I(long value) => XdmItem.FromInteger(value);
+
+    /// <summary>Builds an <c>xs:integer</c> of any width; the cast from a string stops at 64 bits (FOCA0003).</summary>
+    internal static XdmItem Wide(string digits) =>
+        XdmItem.FromBigInteger(BigInteger.Parse(digits, CultureInfo.InvariantCulture));
 
     private static string Render(in XdmSequence result)
     {

@@ -412,6 +412,38 @@ public class FunctionConversionTests
         await BindingHarness.AssertFails(Type(XPathItemType.Decimal), One(XdmItem.FromDouble(1)), "XPTY0004");
 
     [Test]
+    public async Task Substitution_IntegerBeyondSixtyFourBits_MatchesTheIntegerType()
+    {
+        var wide = One(XdmItem.FromBigInteger(BigInteger.Pow(10, 25)));
+
+        await BindingHarness.AssertConverts(Type(XPathItemType.Integer), wide, wide);
+    }
+
+    [Test]
+    public async Task Substitution_IntegersOfAnyWidth_MatchTheIntegerTypeWithAnOccurrence()
+    {
+        var sequence = Many(
+            XdmItem.FromInteger(1),
+            XdmItem.FromBigInteger(-BigInteger.Pow(10, 25)),
+            XdmItem.FromBigInteger(BigInteger.Pow(2, 70))
+        );
+
+        await BindingHarness.AssertConverts(Type(XPathItemType.Integer, Occurrence.OneOrMore), sequence, sequence);
+    }
+
+    [Test]
+    public async Task Substitution_DecimalWithAFraction_IsNotAnInteger() =>
+        await BindingHarness.AssertFails(Type(XPathItemType.Integer), One(Decimal("1.5")), "XPTY0004");
+
+    [Test]
+    public async Task Substitution_DecimalWithoutTheIntegerType_IsNotAnInteger() =>
+        await BindingHarness.AssertFails(
+            Type(XPathItemType.Integer),
+            One(XdmItem.FromDecimal(new XsdDecimal(BigInteger.Pow(10, 25), 0))),
+            "XPTY0004"
+        );
+
+    [Test]
     public async Task Substitution_IntegerForDecimal_StaysAnInteger()
     {
         var integer = One(XdmItem.FromInteger(3));
