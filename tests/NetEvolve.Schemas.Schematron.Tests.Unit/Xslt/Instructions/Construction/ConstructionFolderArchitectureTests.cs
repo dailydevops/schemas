@@ -89,6 +89,8 @@ public class ConstructionFolderArchitectureTests
         CancellationToken cancellationToken
     )
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var sources = await SourcesAsync(cancellationToken);
         var offenders = new List<string>();
         foreach (var (file, text) in sources)
@@ -116,6 +118,8 @@ public class ConstructionFolderArchitectureTests
     [Test]
     public async Task Construction_UsesThePumpAndTheSinkOfTheXmlPackage(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var sources = await SourcesAsync(cancellationToken);
         var joined = string.Join("\n", sources.ConvertAll(source => source.Text));
 

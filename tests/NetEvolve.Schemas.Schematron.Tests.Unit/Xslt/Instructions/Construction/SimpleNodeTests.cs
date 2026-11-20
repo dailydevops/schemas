@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Instructions.Construction
 
 using System.Threading.Tasks;
 using NetEvolve.Schemas.Schematron.Seams;
+using NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Construction;
 using NetEvolve.Schemas.Schematron.Xslt.Construction;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.XPath.Xdm.Values;

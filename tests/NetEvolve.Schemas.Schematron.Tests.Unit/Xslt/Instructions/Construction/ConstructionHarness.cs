@@ -5,6 +5,7 @@ using System.Threading;
 using NetEvolve.Schemas.Schematron.Model;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Schematron.Tests.Unit.Fakes;
+using NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Construction;
 using NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Functions;
 using NetEvolve.Schemas.Schematron.Xslt.Construction;
 using NetEvolve.Schemas.Schematron.Xslt.Registry;
