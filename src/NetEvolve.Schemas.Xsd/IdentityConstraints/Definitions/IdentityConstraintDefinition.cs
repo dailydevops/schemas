@@ -64,6 +64,12 @@ internal sealed class IdentityConstraintDefinition : IXsdComponent
     /// <summary>Gets the field expressions in document order.</summary>
     public IReadOnlyList<string> Fields => _fields;
 
+    /// <summary>Gets the namespace bindings of the prefixes of the selector in order of first use; the prefix <c>xml</c> is not listed.</summary>
+    public IReadOnlyList<KeyValuePair<string, string>> SelectorBindings { get; } = [];
+
+    /// <summary>Gets the namespace bindings of the prefixes of every field, in the order of <see cref="Fields"/>.</summary>
+    public IReadOnlyList<IReadOnlyList<KeyValuePair<string, string>>> FieldBindings { get; } = [];
+
     /// <summary>Gets the expanded name of the referenced definition of a keyref, <see langword="default"/> otherwise.</summary>
     public XPathQName Refer { get; }
 
