@@ -12,7 +12,7 @@ using NetEvolve.Schemas.Xsd.Diagnostics;
 /// Limitations: the operations accept only <see cref="Wildcard"/> operands, the one implementation of the seam; the
 /// result of a union or an intersection takes the <see cref="ProcessContents"/> and the location of the first operand,
 /// because Structures 1.0 defines the set operations on the namespace constraints only and leaves the rest to the
-/// caller; XSD 1.1 <c>notNamespace</c> and <c>notQName</c> are XSD-21.
+/// caller; XSD 1.1 <c>notNamespace</c> and <c>notQName</c> are the <c>NegatedWildcard</c> of <c>Wildcards/Negation</c> (#306).
 /// </remarks>
 internal sealed class Wildcard : IWildcard
 {
