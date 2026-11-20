@@ -151,6 +151,53 @@ public class XPathDefaultNamespaceApplyTests
     }
 
     [Test]
+    public async Task Apply_SelectorOutsideTheSubset_IsLeftForTheDefinitionToReport()
+    {
+        var selector = Apply("a/b[1]", "urn:q");
+
+        await Assert.That(selector.FindAttribute("xpath")).IsEqualTo("a/b[1]");
+        await Assert.That(selector.TryResolvePrefix("xdn", out _)).IsFalse();
+    }
+
+    [Test]
+    public async Task Apply_FieldOutsideTheSubset_IsLeftForTheDefinitionToReport()
+    {
+        var constraint = Constraint(Schema(string.Empty, Unique("a", null, "string(b)", "urn:q")));
+
+        XPathDefaultNamespace.Apply(constraint, Scope, XsdVersion.V11);
+
+        await Assert.That(constraint.GetChildNode(1).FindAttribute("xpath")).IsEqualTo("string(b)");
+        await Assert.That(constraint.GetChildNode(1).TryResolvePrefix("xdn", out _)).IsFalse();
+    }
+
+    [Test]
+    public async Task Create_AfterApply_ReportsAPathOutsideTheSubsetLikeWithoutTheAttribute()
+    {
+        var with = await Report(Unique("a/b[1]", "urn:q", "@x", null));
+        var without = await Report(Unique("a/b[1]", null, "@x", null));
+
+        await Assert.That(with.Message).IsEqualTo(without.Message);
+        await Assert.That(with.Location.Line).IsEqualTo(without.Location.Line);
+    }
+
+    private static async Task<ValidationIssue> Report(string constraints)
+    {
+        var constraint = Constraint(Schema(string.Empty, constraints));
+        XPathDefaultNamespace.Apply(constraint, Scope, XsdVersion.V11);
+        var collector = new ValidationIssueCollector(ValidationLimits.Default);
+
+        var definition = IdentityConstraintDefinition.Create(
+            constraint,
+            Scope,
+            new FakeComponentRegistry([]),
+            new XsdIssueReporter(collector)
+        );
+
+        await Assert.That(definition).IsNull();
+        return collector.ToResult().Issues[0];
+    }
+
+    [Test]
     public async Task Apply_ElementsWithoutXPath_AreSkipped()
     {
         var schema = Schema(
