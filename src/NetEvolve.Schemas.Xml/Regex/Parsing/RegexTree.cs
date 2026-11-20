@@ -4,6 +4,7 @@ using System;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Regex.Contracts;
 using NetEvolve.Schemas.Xml.Regex.Matching;
+using NetEvolve.Schemas.Xml.Regex.XPathDialect;
 
 /// <summary>The syntax tree of a parsed pattern: the nodes, the index of the root, and the sets the <see cref="RegexNodeKind.Set"/> nodes refer to.</summary>
 public sealed class RegexTree
@@ -12,13 +13,28 @@ public sealed class RegexTree
     private readonly int _nodeCount;
     private readonly RegexCharacterSet[] _sets;
 
-    internal RegexTree(RegexNode[] nodes, int nodeCount, int root, RegexCharacterSet[] sets)
+    internal RegexTree(
+        RegexNode[] nodes,
+        int nodeCount,
+        int root,
+        RegexCharacterSet[] sets,
+        RegexDialect dialect,
+        RegexOptions flags
+    )
     {
         _nodes = nodes;
         _nodeCount = nodeCount;
         Root = root;
         _sets = sets;
+        Dialect = dialect;
+        Options = flags;
     }
+
+    /// <summary>Gets the dialect the pattern was parsed in.</summary>
+    public RegexDialect Dialect { get; }
+
+    /// <summary>Gets the flags the pattern was parsed with; the matcher needs them to compile the tree.</summary>
+    public RegexOptions Options { get; }
 
     /// <summary>Gets the index of the root node.</summary>
     public int Root { get; }

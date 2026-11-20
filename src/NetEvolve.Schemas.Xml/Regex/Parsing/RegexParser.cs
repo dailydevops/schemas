@@ -6,6 +6,7 @@ using System.Threading;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Regex.Contracts;
 using NetEvolve.Schemas.Xml.Regex.Matching;
+using NetEvolve.Schemas.Xml.Regex.XPathDialect;
 using NetEvolve.Schemas.Xml.Text.CharClasses;
 using NetEvolve.Schemas.Xml.Text.Unicode;
 
@@ -137,7 +138,7 @@ public static class RegexParser
             // Only an unmatched ')' stops the top level before the end.
             return _pos < _p.Length
                 ? new(RegexError.Unbalanced, _pos)
-                : new(new RegexTree(_nodes, _count, root, _sets.ToArray()));
+                : new(new RegexTree(_nodes, _count, root, _sets.ToArray(), RegexDialect.Xsd, RegexOptions.None));
         }
 
         private void SetError(RegexError error, int position)

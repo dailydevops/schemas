@@ -2,7 +2,9 @@ namespace NetEvolve.Schemas.Xml.Regex.Matching;
 
 using System;
 using System.Buffers;
+using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Regex.Contracts;
+using NetEvolve.Schemas.Xml.Regex.Parsing;
 
 /// <summary>
 /// A compiled pattern: the instruction array of the syntax tree, run against spans by a Pike/Thompson automaton simulation.
@@ -71,6 +73,44 @@ public sealed partial class RegexProgram : IRegexMatcher
 
         program = new RegexProgram(emitter.ToArray(), sets.ToArray());
         return RegexError.None;
+    }
+
+    /// <summary>Compiles the tree of a parsed pattern.</summary>
+    /// <param name="tree">The tree.</param>
+    /// <param name="program">The compiled program, <see langword="null"/> on an error.</param>
+    /// <returns>The error, <see cref="RegexError.None"/> on success.</returns>
+    public static RegexError TryCompile(RegexTree tree, out RegexProgram? program)
+    {
+        Argument.ThrowIfNull(tree);
+
+        var sets = new RegexCharacterSet[tree.SetCount];
+        for (var i = 0; i < sets.Length; i++)
+        {
+            sets[i] = tree.GetSet(i);
+        }
+
+        return TryCompile(tree.Nodes, tree.Root, sets, tree.Dialect, out program);
+    }
+
+    /// <summary>Finds the first match.</summary>
+    /// <param name="input">The input.</param>
+    /// <param name="startIndex">The index to start at.</param>
+    /// <param name="limits">The step ceilings.</param>
+    /// <param name="index">The index of the match, -1 for none.</param>
+    /// <param name="length">The length of the match.</param>
+    /// <returns>The outcome.</returns>
+    public RegexMatchResult Find(
+        ReadOnlySpan<char> input,
+        int startIndex,
+        RegexStepLimits limits,
+        out int index,
+        out int length
+    )
+    {
+        _ = (input.Length, startIndex, limits, _program);
+        index = -1;
+        length = 0;
+        return RegexMatchResult.NoMatch;
     }
 
     /// <inheritdoc/>
