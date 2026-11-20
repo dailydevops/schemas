@@ -23,6 +23,9 @@ public class XPathSeamTests
         "NetEvolve.Schemas.XPath.Types",
         // The Schematron sort of xsl:for-each orders its keys with the XPath comparison of numbers, strings by codepoint, and booleans, instead of a third copy (SCH-82, #255).
         "NetEvolve.Schemas.XPath.Evaluation.Comparison",
+        // The Xsd annotation source types the value of an annotated node with the casting table and atomizes with its annotation slot, instead of a second copy of the lexical mappings (XSD-16, #305).
+        "NetEvolve.Schemas.XPath.Casting.Core",
+        "NetEvolve.Schemas.XPath.Evaluation.Atomization",
     ];
 
     private static readonly string[] AllowedFriends =
