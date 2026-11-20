@@ -3,6 +3,7 @@ namespace NetEvolve.Schemas.Xsd.Tests.Unit.IdentityConstraints.Evaluation;
 using System;
 using System.Text;
 using NetEvolve.Schemas.Formats;
+using NetEvolve.Schemas.Testing.Allocations;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Reader.Pipeline;
 using NetEvolve.Schemas.Xsd.Diagnostics;
@@ -26,22 +27,25 @@ public class EvaluationMemoryTests
         return builder.Append("</r>").ToString();
     }
 
-    private static long Measure(SchemaFixture schema, string xml, IdentityConstraintListener listener, out int issues)
+    private static long Measure(SchemaFixture schema, string xml, ConstraintSet set, out int issues)
     {
-        var collector = new ValidationIssueCollector(ValidationLimits.Default);
-        var validator = new StreamingValidator(
-            schema.Model(),
-            new ScriptedAssessor(),
-            new XsdIssueReporter(collector),
-            ValidationLimits.Default,
-            ValidationHarness.Source,
-            [listener]
-        );
-        using var reader = XmlPipelineReader.Create(xml.AsSpan());
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        var status = reader.Pump(ref validator);
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
-        issues = status == XmlReadStatus.Completed ? collector.ToResult().Issues.Count : -1;
+        var count = -1;
+        var allocated = AllocationAssert.Measure(() =>
+        {
+            var collector = new ValidationIssueCollector(ValidationLimits.Default);
+            var validator = new StreamingValidator(
+                schema.Model(),
+                new ScriptedAssessor(),
+                new XsdIssueReporter(collector),
+                ValidationLimits.Default,
+                ValidationHarness.Source,
+                [set.Listener()]
+            );
+            using var reader = XmlPipelineReader.Create(xml.AsSpan());
+            var status = reader.Pump(ref validator);
+            count = status == XmlReadStatus.Completed ? collector.ToResult().Issues.Count : -1;
+        });
+        issues = count;
         return allocated;
     }
 
@@ -54,9 +58,8 @@ public class EvaluationMemoryTests
         var small = Document(1_000, static _ => "a=\"1\"");
         var large = Document(100_000, static _ => "a=\"1\"");
 
-        _ = Measure(schema, small, set.Listener(), out _);
-        var smallBytes = Measure(schema, small, set.Listener(), out var smallIssues);
-        var largeBytes = Measure(schema, large, set.Listener(), out var largeIssues);
+        var smallBytes = Measure(schema, small, set, out var smallIssues);
+        var largeBytes = Measure(schema, large, set, out var largeIssues);
 
         await Assert.That(smallIssues).IsEqualTo(0);
         await Assert.That(largeIssues).IsEqualTo(0);
@@ -70,9 +73,8 @@ public class EvaluationMemoryTests
         var small = Document(1_000, static i => "a=\"" + i + "\"");
         var large = Document(100_000, static i => "a=\"" + i + "\"");
 
-        _ = Measure(schema, small, new ConstraintSet().Listener(), out _);
-        var smallBytes = Measure(schema, small, new ConstraintSet().Listener(), out _);
-        var largeBytes = Measure(schema, large, new ConstraintSet().Listener(), out _);
+        var smallBytes = Measure(schema, small, new ConstraintSet(), out _);
+        var largeBytes = Measure(schema, large, new ConstraintSet(), out _);
 
         await Assert.That(largeBytes - smallBytes).IsLessThan(GrowthBound);
     }
@@ -86,14 +88,13 @@ public class EvaluationMemoryTests
         var small = Document(1_000, static i => "a=\"" + i + "\"");
         var large = Document(10_000, static i => "a=\"" + i + "\"");
 
-        _ = Measure(schema, small, set.Listener(), out _);
-        var smallBytes = Measure(schema, small, set.Listener(), out var smallIssues);
-        var largeBytes = Measure(schema, large, set.Listener(), out var largeIssues);
+        var smallBytes = Measure(schema, small, set, out var smallIssues);
+        var largeBytes = Measure(schema, large, set, out var largeIssues);
 
         await Assert.That(smallIssues).IsEqualTo(0);
         await Assert.That(largeIssues).IsEqualTo(0);
-        // Nine thousand more matches cost at most 1 KiB each, and more than nothing.
+        // Nine thousand more matches cost at most 640 bytes each (about 420 are measured), and more than nothing.
         await Assert.That(largeBytes - smallBytes).IsGreaterThan(0);
-        await Assert.That(largeBytes - smallBytes).IsLessThan(9_000L * 1024);
+        await Assert.That(largeBytes - smallBytes).IsLessThan(9_000L * 640);
     }
 }
