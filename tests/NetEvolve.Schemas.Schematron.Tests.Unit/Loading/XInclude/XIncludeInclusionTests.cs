@@ -210,8 +210,8 @@ public class XIncludeInclusionTests
 
         await Assert.That(tree.GetPosition(lib.Index).Line).IsEqualTo(2);
         await Assert.That(tree.GetPosition(lib.Index).Column).IsEqualTo(3);
-        await Assert.That(tree.GetPosition(lib.FirstChild.Index).Line).IsEqualTo(2);
-        await Assert.That(tree.GetPosition(lib.FirstChild.Index).Column).IsEqualTo(3);
+        await Assert.That(tree.GetPosition(lib.FirstChild.NextSibling.Index).Line).IsEqualTo(2);
+        await Assert.That(tree.GetPosition(lib.FirstChild.NextSibling.Index).Column).IsEqualTo(3);
     }
 
     [Test]
@@ -222,5 +222,19 @@ public class XIncludeInclusionTests
 
         await Assert.That(absolute.Document.DocumentUri!.AbsoluteUri).IsEqualTo(RootUri);
         await Assert.That(none.Document.DocumentUri).IsNull();
+    }
+
+    [Test]
+    public async Task Attributes_OfIncludeAndFallbackThatXIncludeDoesNotReadAreIgnored()
+    {
+        var files = new FakeResources().Add("file:///a/p.xml", "<p/>");
+        var fallback = "<xi:fallback id=\"x\">" + Inc("never.xml") + "</xi:fallback>";
+
+        var loaded = Run(Doc(Inc("p.xml", " xml:lang=\"en\"", fallback)), files);
+        var missing = Run(Doc(Inc("none.xml", " xml:lang=\"en\"", "<xi:fallback id=\"x\"><f/></xi:fallback>")), files);
+
+        await Assert.That(loaded.Text).IsEqualTo("<root><p" + Base + "p.xml\"></p></root>");
+        await Assert.That(files.Requests).IsEquivalentTo(["file:///a/p.xml", "file:///a/none.xml"]);
+        await Assert.That(missing.Text).IsEqualTo("<root><f></f></root>");
     }
 }
