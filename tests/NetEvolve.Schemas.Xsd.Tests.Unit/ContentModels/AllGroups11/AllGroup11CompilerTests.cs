@@ -12,8 +12,6 @@ using NetEvolve.Schemas.Xsd.Tests.Unit.Validation.Core;
 
 public class AllGroup11CompilerTests
 {
-    private static readonly XPathQName GroupName = new("urn:t", "g");
-
     private sealed class Compiled
     {
         public Dictionary<XPathQName, int> Ids { get; } = [];
@@ -205,6 +203,7 @@ public class AllGroup11CompilerTests
             1,
             El("a"),
             El("removed", 0, 0),
+            El("inverted", 3, 2),
             unresolved,
             SchemaFixture.Seq(El("s")),
             Any("##any", 0, 0),
