@@ -99,7 +99,6 @@ public class AttributeAssessmentTests
     }
 
     [Test]
-    [Arguments("<r x:type=\"t\" x:nil=\"true\"/>")]
     [Arguments("<r x:schemaLocation=\"urn:a b.xsd\" x:noNamespaceSchemaLocation=\"c.xsd\"/>")]
     public async Task XsiAttributes_AreAlwaysAllowed(string xml)
     {

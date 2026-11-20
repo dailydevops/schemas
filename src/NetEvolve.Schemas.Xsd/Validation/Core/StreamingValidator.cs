@@ -10,6 +10,7 @@ using NetEvolve.Schemas.Xsd.ContentModels.AllGroups;
 using NetEvolve.Schemas.Xsd.ContentModels.Automaton;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Diagnostics;
+using NetEvolve.Schemas.Xsd.Validation.Xsi;
 
 /// <summary>
 /// The streaming instance validator (design #146 DP-11): an <see cref="IXmlSink"/> that assesses an instance in one pass over
@@ -26,12 +27,20 @@ using NetEvolve.Schemas.Xsd.Diagnostics;
 /// for end tags and text carry no position.
 /// </para>
 /// <para>
-/// Limitations: substitution groups (<see cref="ValidationModel"/>), <c>xsi:type</c> and <c>xsi:nil</c> (XSD-55, #308), ID,
-/// IDREF, and NOTATION (XSD-14, #303), identity constraints (XSD-15, #304), default values of mixed content, the value space
+/// Limitations: substitution groups (<see cref="ValidationModel"/>), ID, IDREF, and NOTATION (XSD-14, #303), identity
+/// constraints (XSD-15, #304), default values of mixed content, the value space
 /// comparison of fixed values (they are compared lexically), QName and NOTATION values that need the namespace context,
 /// and forwarding of events to an inner sink (#361). A violation that a listener finds does not mark the element invalid,
 /// because the shared reporter has no verdict channel yet. The nesting depth is bounded by the reader
 /// (<see cref="XmlReaderLimits.MaxElementDepth"/>, which the assembly of #335 sets from <c>ValidationLimits.MaxDepth</c>), not here.
+/// </para>
+/// <para>
+/// <c>xsi:type</c> and <c>xsi:nil</c> (XSD-55, #308) are decided when the attributes are complete, before the content of the
+/// element is set up, so the type that is assessed is the one of <c>xsi:type</c> when it is usable and the declared one
+/// otherwise (the actual type definition of Structures 3.3.4). <c>xsi:nil</c> is a property of an element declaration, so an
+/// element without one is never nilled and its <c>xsi:nil</c> is not checked; white space is character data, so a nilled
+/// element has none; the content of a nilled element is reported once. The other attributes of the schema instance namespace are
+/// not assessed here.
 /// </para>
 /// </remarks>
 internal sealed partial class StreamingValidator : IXmlSink
@@ -46,6 +55,9 @@ internal sealed partial class StreamingValidator : IXmlSink
     private readonly ValidationLimits _limits;
     private readonly string? _documentUri;
     private readonly NameBinding _binding;
+    private readonly XsiNamespaceScope _scope;
+    private readonly XsiTypeResolver _xsi;
+    private readonly XsiNil _nil;
     private readonly ValidationListener[] _listeners;
     private readonly ValidationListener[] _onStart;
     private readonly ValidationListener[] _onAttribute;
@@ -73,13 +85,15 @@ internal sealed partial class StreamingValidator : IXmlSink
     /// <param name="limits">The limits of the run, handed to the listeners.</param>
     /// <param name="documentUri">The source reported in the locations, <see langword="null"/> for none.</param>
     /// <param name="listeners">The listeners in their fixed order.</param>
+    /// <param name="derivation">The derivation check that <c>xsi:type</c> is judged by, <see langword="null"/> for the type derivation check of the schema version.</param>
     internal StreamingValidator(
         ValidationModel model,
         ISimpleValueAssessor assessor,
         XsdIssueReporter reporter,
         ValidationLimits limits,
         string? documentUri,
-        IReadOnlyList<ValidationListener> listeners
+        IReadOnlyList<ValidationListener> listeners,
+        IDerivationCheck? derivation = null
     )
     {
         Argument.ThrowIfNull(model);
@@ -95,6 +109,9 @@ internal sealed partial class StreamingValidator : IXmlSink
         _documentUri = documentUri;
         Names = new SpanInterningNameTable(XmlReaderLimits.Default.MaxDistinctNames);
         _binding = new NameBinding(model, Names);
+        _scope = new XsiNamespaceScope(Names);
+        _xsi = new XsiTypeResolver(model.Schema, _scope, derivation);
+        _nil = new XsiNil(model.Schema.Version);
         _countingPool = new Stack<CountingRun>?[model.ProgramCount];
         _allPool = new Stack<AllGroupRun>?[model.ProgramCount];
 
@@ -136,7 +153,14 @@ internal sealed partial class StreamingValidator : IXmlSink
     }
 
     /// <inheritdoc />
-    public void NamespaceDeclaration(XmlSymbol prefix, XmlSymbol uri) { }
+    public void NamespaceDeclaration(XmlSymbol prefix, XmlSymbol uri)
+    {
+        // A skipped element has no frame that would cut its declarations back when it ends.
+        if (_skip == 0)
+        {
+            _scope.Declare(prefix, uri);
+        }
+    }
 
     /// <inheritdoc />
     public void Comment(ReadOnlySpan<char> text) { }

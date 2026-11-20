@@ -20,4 +20,7 @@ internal enum FrameContent
 
     /// <summary>The content type is mixed.</summary>
     Mixed = 5,
+
+    /// <summary>The element is nilled (<c>xsi:nil</c> is true): it must have no character or element children, and only its attributes are assessed.</summary>
+    Nilled = 6,
 }

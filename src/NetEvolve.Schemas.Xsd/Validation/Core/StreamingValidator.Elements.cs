@@ -66,7 +66,7 @@ internal sealed partial class StreamingValidator
 
         if (_onEnd.Length > 0)
         {
-            var info = new ElementEndInfo(frame.Ordinal, frame.IsValid, false, frame.Type);
+            var info = new ElementEndInfo(frame.Ordinal, frame.IsValid, frame.IsNilled, frame.Type);
             for (var i = 0; i < _onEnd.Length; i++)
             {
                 _onEnd[i].EndElement(info);
@@ -112,6 +112,9 @@ internal sealed partial class StreamingValidator
                 }
 
                 break;
+            case FrameContent.Nilled:
+                ReportNilledText(frame);
+                break;
             case FrameContent.ElementOnly:
                 if (!frame.TextReported && !IsWhitespace(text))
                 {
@@ -140,14 +143,8 @@ internal sealed partial class StreamingValidator
             return;
         }
 
-        var frame = Push(name, qname, location);
-        frame.IsValid = false;
-        Report(
-            ValidationRules.AssessElt,
-            location,
-            "No declaration was found for the root element " + Display(qname) + ".",
-            "cvc-assess-elt.1"
-        );
+        // The root is an error unless its xsi:type names a type that assesses it; that is known at the end of the attributes.
+        Push(name, qname, location).UndeclaredRoot = true;
     }
 
     private void StartChild(ElementFrame parent, XmlName name, int id, XPathQName qname, DocumentLocation location)
@@ -174,6 +171,7 @@ internal sealed partial class StreamingValidator
             case FrameContent.Empty:
             case FrameContent.SimpleContent:
             case FrameContent.SimpleType:
+            case FrameContent.Nilled:
                 RejectChild(parent, qname, location);
                 break;
             default:
@@ -188,10 +186,15 @@ internal sealed partial class StreamingValidator
         {
             FrameContent.Empty => (ValidationRules.ComplexType, "cvc-complex-type.2.1", "is empty"),
             FrameContent.SimpleContent => (ValidationRules.ComplexType, "cvc-complex-type.2.2", "is a simple type"),
+            FrameContent.Nilled => (ValidationRules.Elt, "cvc-elt.3.2.1", "has xsi:nil true"),
             _ => (ValidationRules.Type, "cvc-type.3.1.2", "is a simple type"),
         };
-        var subject =
-            parent.Content == FrameContent.SimpleType ? "The type of element " : "The content type of element ";
+        var subject = parent.Content switch
+        {
+            FrameContent.SimpleType => "The type of element ",
+            FrameContent.Nilled => "The element ",
+            _ => "The content type of element ",
+        };
         Reject(
             parent,
             location,
@@ -323,6 +326,7 @@ internal sealed partial class StreamingValidator
         }
     }
 
+    // The type is chosen at the end of the attributes (BeginContent), because xsi:type may replace the declared one.
     private void Open(XmlName name, XPathQName qname, DocumentLocation location, ElementDeclaration declaration)
     {
         var frame = Push(name, qname, location);
@@ -336,8 +340,11 @@ internal sealed partial class StreamingValidator
                 "cvc-elt.2"
             );
         }
+    }
 
-        var type = declaration.TypeDefinition ?? ComplexTypeDefinition.AnyType;
+    // Sets up the content of a frame for its type; the content model run is acquired only for an element that is not nilled.
+    private void OpenType(ElementFrame frame, IXsdComponent type)
+    {
         frame.Type = type;
         switch (type)
         {
@@ -358,16 +365,6 @@ internal sealed partial class StreamingValidator
     private void OpenComplex(ElementFrame frame, ComplexTypeDefinition complex)
     {
         frame.Complex = complex;
-        if (complex.IsAbstract)
-        {
-            Invalid(
-                frame,
-                ValidationRules.Type,
-                "The type " + Display(complex.Name) + " of element " + Display(frame.QName) + " is abstract.",
-                "cvc-type.2"
-            );
-        }
-
         switch (complex.ContentKind)
         {
             case ComplexContentKind.Empty:
@@ -381,7 +378,11 @@ internal sealed partial class StreamingValidator
             default:
                 frame.Content =
                     complex.ContentKind == ComplexContentKind.Mixed ? FrameContent.Mixed : FrameContent.ElementOnly;
-                AcquireRun(frame, complex);
+                if (!frame.IsNilled)
+                {
+                    AcquireRun(frame, complex);
+                }
+
                 break;
         }
     }
@@ -422,12 +423,13 @@ internal sealed partial class StreamingValidator
 
         var frame = _frames[_depth] ??= new ElementFrame();
         _depth++;
-        frame.Start(name, qname, location, _ordinal);
+        frame.Start(name, qname, location, _ordinal, _scope.Count);
         return frame;
     }
 
     private void Pop(ElementFrame frame)
     {
+        _scope.Truncate(frame.NamespaceMark);
         if (frame.Counting is { } counting && frame.Program is { } countingProgram)
         {
             (_countingPool[countingProgram.PoolIndex] ??= new()).Push(counting);
