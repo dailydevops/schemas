@@ -3,6 +3,7 @@ namespace NetEvolve.Schemas.XPath.Tests.Unit.Functions.Sequences;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using NetEvolve.Schemas.XPath.Tests.Unit.Functions.Numerics;
 
 /// <summary>Runs the QT3 cases of <see cref="Qt3SequenceSelection"/> through the compiled expressions and checks each against its assertion.</summary>
 public class Qt3SequenceSelectionTests
@@ -60,7 +61,7 @@ public class Qt3SequenceSelectionTests
         var (result, code) = Qt3SequenceFixture.Run(expression);
 
         await Assert
-            .That(Qt3SequenceFixture.Satisfies(expectation, result, code))
+            .That(Qt3NumericFixture.Satisfies(expectation, result, code))
             .IsTrue()
             .Because($"{id}: {expression} gave {Qt3SequenceFixture.Describe(result, code)}, expected {expectation}");
     }

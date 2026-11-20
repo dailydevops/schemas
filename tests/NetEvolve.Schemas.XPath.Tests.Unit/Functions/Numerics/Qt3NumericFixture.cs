@@ -3,6 +3,7 @@ namespace NetEvolve.Schemas.XPath.Tests.Unit.Functions.Numerics;
 using System;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Tests.Unit.Functions.Sequences;
+using NetEvolve.Schemas.XPath.Types;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>
@@ -58,7 +59,10 @@ internal static class Qt3NumericFixture
             "xs:double" => item.Kind == XdmItemKind.XsDouble,
             "xs:boolean" => item.Kind == XdmItemKind.Boolean,
             "xs:string" => item.Kind == XdmItemKind.XsString,
-            _ => false,
+            // A type of the derived types (xs:int, xs:token, and the like): the type annotation of the item derives from it.
+            _ => type.StartsWith("xs:", StringComparison.Ordinal)
+                && XdmTypes.TryGet(XdmTypes.SchemaNamespace, type.Substring(3), out var id)
+                && XdmTypes.IsDerivedFrom(item.TypeId, id),
         };
     }
 }

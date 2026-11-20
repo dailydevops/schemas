@@ -14,7 +14,15 @@ namespace NetEvolve.Schemas.XPath.Tests.Unit.Functions.Numerics;
 /// until #295.
 /// </para>
 /// <para>
-/// Cases per test set, as selected of applicable: abs 64 of 183; ceiling 47 of 87; floor 47 of 88; round 205 of 245; round-half-to-even 85 of 128; number 36 of 66; true 22 of 24; false 22 of 24.
+/// Cases per test set, as selected of applicable: abs 181 of 183; ceiling 86 of 87; floor 87 of 88; round 244 of 245; round-half-to-even 126 of 128; number 63 of 66; true 22 of 24; false 22 of 24.
+/// </para>
+/// <para>
+/// The cases that build an argument of a type derived from <c>xs:integer</c> (<c>xs:int</c>, <c>xs:long</c>, <c>xs:unsignedByte</c>, and
+/// so on) are selected since the casting to the derived types exists (XP-23, #299). Rewrite that keeps the value: in the cases
+/// <c>K2-ABSFunc-35</c> to <c>-46</c>, <c>K2-CeilingFunc</c>, <c>K2-FloorFunc</c>, and <c>K2-RoundFunc</c> the argument is the context item,
+/// the document <c>&lt;e&gt;N&lt;/e&gt;</c> of the environment <c>e0</c>, <c>e1</c>, or <c>e-1</c>, which atomizes to the untyped value
+/// <c>N</c>; the case is written with <c>xs:untypedAtomic("N")</c> in place of the dot, because the lowerings of the fixture have no
+/// context item and no document.
 /// </para>
 /// <para>
 /// An assertion is written for <see cref="Qt3NumericFixture.Satisfies"/>: <c>T</c> or <c>F</c> for a boolean, <c>S:</c> and <c>N:</c> for
@@ -34,19 +42,71 @@ internal static class Qt3NumericSelection
         ("fn-abs/K-ABSFunc-5", "abs(-10.5) eq 10.5", "T"),
         ("fn-abs/K-ABSFunc-6", "abs(\"a string\")", "X:XPTY0004"),
         ("fn-abs/K2-ABSFunc-1", "fn:abs(xs:integer(-4))", "S:4"),
+        ("fn-abs/K2-ABSFunc-10", "fn:abs(xs:unsignedInt(4))", "S:4"),
+        ("fn-abs/K2-ABSFunc-11", "fn:abs(xs:unsignedShort(4))", "S:4"),
+        ("fn-abs/K2-ABSFunc-12", "fn:abs(xs:unsignedByte(4))", "S:4"),
+        ("fn-abs/K2-ABSFunc-13", "fn:abs(xs:positiveInteger(4))", "S:4"),
         ("fn-abs/K2-ABSFunc-14", "fn:abs(xs:integer(-4)) instance of xs:integer", "T"),
+        ("fn-abs/K2-ABSFunc-15", "fn:abs(xs:nonPositiveInteger(-4)) instance of xs:integer", "T"),
+        ("fn-abs/K2-ABSFunc-16", "fn:abs(xs:negativeInteger(-4)) instance of xs:integer", "T"),
+        ("fn-abs/K2-ABSFunc-17", "fn:abs(xs:long(-4)) instance of xs:integer", "T"),
+        ("fn-abs/K2-ABSFunc-18", "fn:abs(xs:int(-4)) instance of xs:integer", "T"),
+        ("fn-abs/K2-ABSFunc-19", "fn:abs(xs:short(-4)) instance of xs:integer", "T"),
+        ("fn-abs/K2-ABSFunc-2", "fn:abs(xs:nonPositiveInteger(-4))", "S:4"),
+        ("fn-abs/K2-ABSFunc-20", "fn:abs(xs:byte(-4)) instance of xs:integer", "T"),
+        ("fn-abs/K2-ABSFunc-21", "fn:abs(xs:nonNegativeInteger(4)) instance of xs:integer", "T"),
+        ("fn-abs/K2-ABSFunc-22", "fn:abs(xs:unsignedLong(4)) instance of xs:integer", "T"),
+        ("fn-abs/K2-ABSFunc-23", "fn:abs(xs:unsignedInt(4)) instance of xs:integer", "T"),
+        ("fn-abs/K2-ABSFunc-24", "fn:abs(xs:unsignedShort(4)) instance of xs:integer", "T"),
+        ("fn-abs/K2-ABSFunc-25", "fn:abs(xs:unsignedByte(4)) instance of xs:integer", "T"),
+        ("fn-abs/K2-ABSFunc-26", "fn:abs(xs:positiveInteger(4)) instance of xs:integer", "T"),
         ("fn-abs/K2-ABSFunc-27", "fn:abs(1.1) instance of xs:integer", "F"),
         ("fn-abs/K2-ABSFunc-28", "fn:abs(1e1) instance of xs:integer", "F"),
         ("fn-abs/K2-ABSFunc-29", "fn:abs(xs:float(1)) instance of xs:double", "F"),
+        ("fn-abs/K2-ABSFunc-3", "fn:abs(xs:negativeInteger(-4))", "S:4"),
         ("fn-abs/K2-ABSFunc-30", "fn:abs(xs:float(1)) instance of xs:double", "F"),
         ("fn-abs/K2-ABSFunc-31", "fn:abs(1.1) instance of xs:decimal", "T"),
         ("fn-abs/K2-ABSFunc-32", "fn:abs(1e1) instance of xs:double", "T"),
         ("fn-abs/K2-ABSFunc-33", "fn:abs(xs:float(1)) instance of xs:float", "T"),
         ("fn-abs/K2-ABSFunc-34", "fn:abs(xs:integer(1)) instance of xs:integer", "T"),
+        ("fn-abs/K2-ABSFunc-35", "abs(xs:unsignedShort(xs:untypedAtomic(\"0\"))) instance of xs:unsignedShort", "F\tT"),
+        ("fn-abs/K2-ABSFunc-36", "abs(xs:unsignedLong(xs:untypedAtomic(\"0\"))) instance of xs:unsignedLong", "F\tT"),
+        ("fn-abs/K2-ABSFunc-37", "abs(xs:unsignedInt(xs:untypedAtomic(\"0\"))) instance of xs:unsignedInt", "F\tT"),
+        ("fn-abs/K2-ABSFunc-38", "abs(xs:unsignedByte(xs:untypedAtomic(\"0\"))) instance of xs:unsignedByte", "F\tT"),
+        (
+            "fn-abs/K2-ABSFunc-39",
+            "abs(xs:positiveInteger(xs:untypedAtomic(\"1\"))) instance of xs:positiveInteger",
+            "F\tT"
+        ),
+        ("fn-abs/K2-ABSFunc-4", "fn:abs(xs:long(-4))", "S:4"),
+        (
+            "fn-abs/K2-ABSFunc-40",
+            "abs(xs:nonPositiveInteger(xs:untypedAtomic(\"0\"))) instance of xs:nonPositiveInteger",
+            "F\tT"
+        ),
+        (
+            "fn-abs/K2-ABSFunc-41",
+            "abs(xs:nonNegativeInteger(xs:untypedAtomic(\"0\"))) instance of xs:nonNegativeInteger",
+            "F\tT"
+        ),
+        (
+            "fn-abs/K2-ABSFunc-42",
+            "abs(xs:negativeInteger(xs:untypedAtomic(\"-1\"))) instance of xs:negativeInteger",
+            "F\tT"
+        ),
+        ("fn-abs/K2-ABSFunc-43", "abs(xs:long(xs:untypedAtomic(\"0\"))) instance of xs:long", "F\tT"),
+        ("fn-abs/K2-ABSFunc-44", "abs(xs:int(xs:untypedAtomic(\"0\"))) instance of xs:int", "F\tT"),
+        ("fn-abs/K2-ABSFunc-45", "abs(xs:short(xs:untypedAtomic(\"0\"))) instance of xs:short", "F\tT"),
+        ("fn-abs/K2-ABSFunc-46", "abs(xs:byte(xs:untypedAtomic(\"0\"))) instance of xs:byte", "F\tT"),
         ("fn-abs/K2-ABSFunc-47", "fn:abs(xs:float(\"-INF\"))", "S:INF"),
         ("fn-abs/K2-ABSFunc-48", "fn:abs(xs:double(\"-INF\"))", "S:INF"),
         ("fn-abs/K2-ABSFunc-49", "fn:abs(xs:float(\"INF\"))", "S:INF"),
+        ("fn-abs/K2-ABSFunc-5", "fn:abs(xs:int(-4))", "S:4"),
         ("fn-abs/K2-ABSFunc-50", "fn:abs(xs:double(\"INF\"))", "S:INF"),
+        ("fn-abs/K2-ABSFunc-6", "fn:abs(xs:short(-4))", "S:4"),
+        ("fn-abs/K2-ABSFunc-7", "fn:abs(xs:byte(-4))", "S:4"),
+        ("fn-abs/K2-ABSFunc-8", "fn:abs(xs:nonNegativeInteger(4))", "S:4"),
+        ("fn-abs/K2-ABSFunc-9", "fn:abs(xs:unsignedLong(4))", "S:4"),
         ("fn-abs/fn-abs-more-args-001", "fn:abs(xs:double(\"-0\"))", "E:0\u001fY:xs:double"),
         ("fn-abs/fn-abs-more-args-002", "fn:abs(xs:double(\"-INF\"))", "S:INF\u001fY:xs:double"),
         ("fn-abs/fn-abs-more-args-003", "fn:abs(xs:double(\"INF\"))", "S:INF\u001fY:xs:double"),
@@ -59,16 +119,70 @@ internal static class Qt3NumericSelection
         ("fn-abs/fn-abs-more-args-010", "fn:abs(xs:float(\"INF\"))", "S:INF\u001fY:xs:float"),
         ("fn-abs/fn-abs-more-args-011", "fn:abs(xs:float(\"NaN\"))", "S:NaN\u001fY:xs:float"),
         ("fn-abs/fn-abs-more-args-012", "fn:abs(xs:float(\"NaN\"))", "S:NaN\u001fY:xs:float"),
+        ("fn-abs/fn-abs-more-args-013", "fn:abs(xs:int(\"0\"))", "E:0\u001fY:xs:integer"),
+        ("fn-abs/fn-abs-more-args-014", "fn:abs(xs:int(\"-0\"))", "E:0\u001fY:xs:integer"),
         ("fn-abs/fn-abs-more-args-015", "fn:abs(xs:integer(\"0\"))", "E:0\u001fY:xs:integer"),
         ("fn-abs/fn-abs-more-args-016", "fn:abs(xs:integer(\"-0\"))", "E:0\u001fY:xs:integer"),
+        ("fn-abs/fn-abs-more-args-017", "fn:abs(xs:long(\"0\"))", "E:0\u001fY:xs:integer"),
+        ("fn-abs/fn-abs-more-args-018", "fn:abs(xs:long(\"-0\"))", "E:0\u001fY:xs:integer"),
+        ("fn-abs/fn-abs-more-args-019", "fn:abs(xs:nonNegativeInteger(\"-0\"))", "E:0\u001fY:xs:integer"),
+        ("fn-abs/fn-abs-more-args-020", "fn:abs(xs:nonPositiveInteger(\"-0\"))", "E:0\u001fY:xs:integer"),
+        ("fn-abs/fn-abs-more-args-021", "fn:abs(xs:short(\"0\"))", "E:0\u001fY:xs:integer"),
+        ("fn-abs/fn-abs-more-args-022", "fn:abs(xs:short(\"-0\"))", "E:0\u001fY:xs:integer"),
+        ("fn-abs/fn-abs-more-args-023", "fn:abs(xs:unsignedLong(\"-0\"))", "E:0\u001fY:xs:integer"),
+        ("fn-abs/fn-abs-more-args-024", "fn:abs(xs:unsignedShort(\"-0\"))", "E:0\u001fY:xs:integer"),
         ("fn-abs/fn-abs-more-args-025", "fn:abs(xs:decimal(\"-INF\"))", "X:FORG0001"),
         ("fn-abs/fn-abs-more-args-026", "fn:abs(xs:decimal(\"INF\"))", "X:FORG0001"),
         ("fn-abs/fn-abs-more-args-027", "fn:abs(xs:decimal(\"-NaN\"))", "X:FORG0001"),
         ("fn-abs/fn-abs-more-args-028", "fn:abs(xs:decimal(\"NaN\"))", "X:FORG0001"),
+        ("fn-abs/fn-abs-more-args-029", "fn:abs(xs:int(\"-INF\"))", "X:FORG0001"),
+        ("fn-abs/fn-abs-more-args-030", "fn:abs(xs:int(\"INF\"))", "X:FORG0001"),
+        ("fn-abs/fn-abs-more-args-031", "fn:abs(xs:int(\"-NaN\"))", "X:FORG0001"),
+        ("fn-abs/fn-abs-more-args-032", "fn:abs(xs:int(\"NaN\"))", "X:FORG0001"),
         ("fn-abs/fn-abs-more-args-033", "fn:abs(xs:integer(\"-INF\"))", "X:FORG0001"),
         ("fn-abs/fn-abs-more-args-034", "fn:abs(xs:integer(\"INF\"))", "X:FORG0001"),
         ("fn-abs/fn-abs-more-args-035", "fn:abs(xs:integer(\"-NaN\"))", "X:FORG0001"),
         ("fn-abs/fn-abs-more-args-036", "fn:abs(xs:integer(\"NaN\"))", "X:FORG0001"),
+        ("fn-abs/fn-abs-more-args-037", "fn:abs(xs:long(\"-INF\"))", "X:FORG0001"),
+        ("fn-abs/fn-abs-more-args-038", "fn:abs(xs:long(\"INF\"))", "X:FORG0001"),
+        ("fn-abs/fn-abs-more-args-039", "fn:abs(xs:long(\"-NaN\"))", "X:FORG0001"),
+        ("fn-abs/fn-abs-more-args-040", "fn:abs(xs:long(\"NaN\"))", "X:FORG0001"),
+        ("fn-abs/fn-abs-more-args-041", "fn:abs(xs:negativeInteger(\"-0\"))", "X:FORG0001"),
+        ("fn-abs/fn-abs-more-args-042", "fn:abs(xs:negativeInteger(\"0\"))", "X:FORG0001"),
+        ("fn-abs/fn-abs-more-args-043", "fn:abs(xs:negativeInteger(\"2\"))", "X:FORG0001"),
+        ("fn-abs/fn-abs-more-args-044", "fn:abs(xs:negativeInteger(\"-INF\"))", "X:FORG0001"),
+        ("fn-abs/fn-abs-more-args-045", "fn:abs(xs:negativeInteger(\"INF\"))", "X:FORG0001"),
+        ("fn-abs/fn-abs-more-args-046", "fn:abs(xs:negativeInteger(\"-NaN\"))", "X:FORG0001"),
+        ("fn-abs/fn-abs-more-args-047", "fn:abs(xs:negativeInteger(\"NaN\"))", "X:FORG0001"),
+        ("fn-abs/fn-abs-more-args-048", "fn:abs(xs:nonNegativeInteger(\"-2\"))", "X:FORG0001"),
+        ("fn-abs/fn-abs-more-args-049", "fn:abs(xs:nonNegativeInteger(\"-INF\"))", "X:FORG0001"),
+        ("fn-abs/fn-abs-more-args-050", "fn:abs(xs:nonNegativeInteger(\"INF\"))", "X:FORG0001"),
+        ("fn-abs/fn-abs-more-args-051", "fn:abs(xs:nonNegativeInteger(\"-NaN\"))", "X:FORG0001"),
+        ("fn-abs/fn-abs-more-args-052", "fn:abs(xs:nonNegativeInteger(\"NaN\"))", "X:FORG0001"),
+        ("fn-abs/fn-abs-more-args-053", "fn:abs(xs:nonPositiveInteger(\"2\"))", "X:FORG0001"),
+        ("fn-abs/fn-abs-more-args-054", "fn:abs(xs:nonPositiveInteger(\"-INF\"))", "X:FORG0001"),
+        ("fn-abs/fn-abs-more-args-055", "fn:abs(xs:nonPositiveInteger(\"INF\"))", "X:FORG0001"),
+        ("fn-abs/fn-abs-more-args-056", "fn:abs(xs:nonPositiveInteger(\"-NaN\"))", "X:FORG0001"),
+        ("fn-abs/fn-abs-more-args-057", "fn:abs(xs:nonPositiveInteger(\"NaN\"))", "X:FORG0001"),
+        ("fn-abs/fn-abs-more-args-058", "fn:abs(xs:positiveInteger(\"0\"))", "X:FORG0001"),
+        ("fn-abs/fn-abs-more-args-059", "fn:abs(xs:positiveInteger(\"-0\"))", "X:FORG0001"),
+        ("fn-abs/fn-abs-more-args-060", "fn:abs(xs:positiveInteger(\"-2\"))", "X:FORG0001"),
+        ("fn-abs/fn-abs-more-args-061", "fn:abs(xs:positiveInteger(\"-INF\"))", "X:FORG0001"),
+        ("fn-abs/fn-abs-more-args-062", "fn:abs(xs:positiveInteger(\"INF\"))", "X:FORG0001"),
+        ("fn-abs/fn-abs-more-args-063", "fn:abs(xs:positiveInteger(\"-NaN\"))", "X:FORG0001"),
+        ("fn-abs/fn-abs-more-args-064", "fn:abs(xs:positiveInteger(\"NaN\"))", "X:FORG0001"),
+        ("fn-abs/fn-abs-more-args-065", "fn:abs(xs:short(\"-INF\"))", "X:FORG0001"),
+        ("fn-abs/fn-abs-more-args-066", "fn:abs(xs:short(\"INF\"))", "X:FORG0001"),
+        ("fn-abs/fn-abs-more-args-067", "fn:abs(xs:short(\"-NaN\"))", "X:FORG0001"),
+        ("fn-abs/fn-abs-more-args-068", "fn:abs(xs:short(\"NaN\"))", "X:FORG0001"),
+        ("fn-abs/fn-abs-more-args-069", "fn:abs(xs:unsignedLong(\"-INF\"))", "X:FORG0001"),
+        ("fn-abs/fn-abs-more-args-070", "fn:abs(xs:unsignedLong(\"INF\"))", "X:FORG0001"),
+        ("fn-abs/fn-abs-more-args-071", "fn:abs(xs:unsignedLong(\"-NaN\"))", "X:FORG0001"),
+        ("fn-abs/fn-abs-more-args-072", "fn:abs(xs:unsignedLong(\"NaN\"))", "X:FORG0001"),
+        ("fn-abs/fn-abs-more-args-073", "fn:abs(xs:unsignedShort(\"-INF\"))", "X:FORG0001"),
+        ("fn-abs/fn-abs-more-args-074", "fn:abs(xs:unsignedShort(\"INF\"))", "X:FORG0001"),
+        ("fn-abs/fn-abs-more-args-075", "fn:abs(xs:unsignedShort(\"-NaN\"))", "X:FORG0001"),
+        ("fn-abs/fn-abs-more-args-076", "fn:abs(xs:unsignedShort(\"NaN\"))", "X:FORG0001"),
         ("fn-abs/fn-abs-more-args-077", "fn:abs(xs:string(\"1\"))", "X:XPTY0004"),
         ("fn-abs/fn-abs-more-args-078", "fn:abs(xs:string(\"hello\"))", "X:XPTY0004"),
         ("fn-abs/fn-abs-more-args-079", "fn:abs(xs:boolean(\"1\"))", "X:XPTY0004"),
@@ -108,6 +222,9 @@ internal static class Qt3NumericSelection
         ("fn-abs/fn-absflt1args-1", "fn:abs(xs:float(\"-3.4028235E38\"))", "E:xs:float(3.4028235E38)\u001fY:xs:float"),
         ("fn-abs/fn-absflt1args-2", "fn:abs(xs:float(\"0\"))", "E:0.0e0\u001fY:xs:float"),
         ("fn-abs/fn-absflt1args-3", "fn:abs(xs:float(\"3.4028235E38\"))", "E:xs:float(3.4028235E38)\u001fY:xs:float"),
+        ("fn-abs/fn-absint1args-1", "fn:abs(xs:int(\"-2147483648\"))", "E:2147483648\u001fY:xs:integer"),
+        ("fn-abs/fn-absint1args-2", "fn:abs(xs:int(\"-1873914410\"))", "E:1873914410\u001fY:xs:integer"),
+        ("fn-abs/fn-absint1args-3", "fn:abs(xs:int(\"2147483647\"))", "E:2147483647\u001fY:xs:integer"),
         (
             "fn-abs/fn-absintg1args-1",
             "fn:abs(xs:integer(\"-999999999999999999\"))",
@@ -123,12 +240,116 @@ internal static class Qt3NumericSelection
             "fn:abs(xs:integer(\"999999999999999999\"))",
             "E:999999999999999999\u001fY:xs:integer"
         ),
+        ("fn-abs/fn-abslng1args-1", "fn:abs(xs:long(\"-92233720368547758\"))", "E:92233720368547758\u001fY:xs:integer"),
+        ("fn-abs/fn-abslng1args-2", "fn:abs(xs:long(\"-47175562203048468\"))", "E:47175562203048468\u001fY:xs:integer"),
+        ("fn-abs/fn-abslng1args-3", "fn:abs(xs:long(\"92233720368547758\"))", "E:92233720368547758\u001fY:xs:integer"),
+        (
+            "fn-abs/fn-absnint1args-1",
+            "fn:abs(xs:negativeInteger(\"-999999999999999999\"))",
+            "E:999999999999999999\u001fY:xs:integer"
+        ),
+        (
+            "fn-abs/fn-absnint1args-2",
+            "fn:abs(xs:negativeInteger(\"-297014075999096793\"))",
+            "E:297014075999096793\u001fY:xs:integer"
+        ),
+        ("fn-abs/fn-absnint1args-3", "fn:abs(xs:negativeInteger(\"-1\"))", "E:1\u001fY:xs:integer"),
+        ("fn-abs/fn-absnni1args-1", "fn:abs(xs:nonNegativeInteger(\"0\"))", "E:0\u001fY:xs:integer"),
+        (
+            "fn-abs/fn-absnni1args-2",
+            "fn:abs(xs:nonNegativeInteger(\"303884545991464527\"))",
+            "E:303884545991464527\u001fY:xs:integer"
+        ),
+        (
+            "fn-abs/fn-absnni1args-3",
+            "fn:abs(xs:nonNegativeInteger(\"999999999999999999\"))",
+            "E:999999999999999999\u001fY:xs:integer"
+        ),
+        (
+            "fn-abs/fn-absnpi1args-1",
+            "fn:abs(xs:nonPositiveInteger(\"-999999999999999999\"))",
+            "E:999999999999999999\u001fY:xs:integer"
+        ),
+        (
+            "fn-abs/fn-absnpi1args-2",
+            "fn:abs(xs:nonPositiveInteger(\"-475688437271870490\"))",
+            "E:475688437271870490\u001fY:xs:integer"
+        ),
+        ("fn-abs/fn-absnpi1args-3", "fn:abs(xs:nonPositiveInteger(\"0\"))", "E:0\u001fY:xs:integer"),
+        ("fn-abs/fn-abspint1args-1", "fn:abs(xs:positiveInteger(\"1\"))", "E:1\u001fY:xs:integer"),
+        (
+            "fn-abs/fn-abspint1args-2",
+            "fn:abs(xs:positiveInteger(\"52704602390610033\"))",
+            "E:52704602390610033\u001fY:xs:integer"
+        ),
+        (
+            "fn-abs/fn-abspint1args-3",
+            "fn:abs(xs:positiveInteger(\"999999999999999999\"))",
+            "E:999999999999999999\u001fY:xs:integer"
+        ),
+        ("fn-abs/fn-abssht1args-1", "fn:abs(xs:short(\"-32768\"))", "E:32768\u001fY:xs:integer"),
+        ("fn-abs/fn-abssht1args-2", "fn:abs(xs:short(\"-5324\"))", "E:5324\u001fY:xs:integer"),
+        ("fn-abs/fn-abssht1args-3", "fn:abs(xs:short(\"32767\"))", "E:32767\u001fY:xs:integer"),
+        ("fn-abs/fn-absulng1args-1", "fn:abs(xs:unsignedLong(\"0\"))", "E:0\u001fY:xs:integer"),
+        (
+            "fn-abs/fn-absulng1args-2",
+            "fn:abs(xs:unsignedLong(\"130747108607674654\"))",
+            "E:130747108607674654\u001fY:xs:integer"
+        ),
+        (
+            "fn-abs/fn-absulng1args-3",
+            "fn:abs(xs:unsignedLong(\"184467440737095516\"))",
+            "E:184467440737095516\u001fY:xs:integer"
+        ),
+        ("fn-abs/fn-absusht1args-1", "fn:abs(xs:unsignedShort(\"0\"))", "E:0\u001fY:xs:integer"),
+        ("fn-abs/fn-absusht1args-2", "fn:abs(xs:unsignedShort(\"44633\"))", "E:44633\u001fY:xs:integer"),
+        ("fn-abs/fn-absusht1args-3", "fn:abs(xs:unsignedShort(\"65535\"))", "E:65535\u001fY:xs:integer"),
         ("fn-ceiling/K-CeilingFunc-1", "ceiling()", "X:XPST0017"),
         ("fn-ceiling/K-CeilingFunc-2", "ceiling(1, 2)", "X:XPST0017"),
         ("fn-ceiling/K-CeilingFunc-3", "empty(ceiling(()))", "T"),
         ("fn-ceiling/K-CeilingFunc-4", "ceiling(10.5) eq 11", "T"),
         ("fn-ceiling/K-CeilingFunc-5", "ceiling(-10.5) eq -10", "T"),
         ("fn-ceiling/K-CeilingFunc-6", "ceiling(\"a string\")", "X:XPTY0004"),
+        (
+            "fn-ceiling/K2-CeilingFunc-1",
+            "ceiling(xs:unsignedShort(xs:untypedAtomic(\"0\"))) instance of xs:integer",
+            "T"
+        ),
+        ("fn-ceiling/K2-CeilingFunc-10", "ceiling(xs:int(xs:untypedAtomic(\"0\"))) instance of xs:integer", "T"),
+        ("fn-ceiling/K2-CeilingFunc-11", "ceiling(xs:short(xs:untypedAtomic(\"0\"))) instance of xs:integer", "T"),
+        ("fn-ceiling/K2-CeilingFunc-12", "ceiling(xs:byte(xs:untypedAtomic(\"0\"))) instance of xs:integer", "T"),
+        (
+            "fn-ceiling/K2-CeilingFunc-2",
+            "ceiling(xs:unsignedLong(xs:untypedAtomic(\"0\"))) instance of xs:integer",
+            "T"
+        ),
+        ("fn-ceiling/K2-CeilingFunc-3", "ceiling(xs:unsignedInt(xs:untypedAtomic(\"0\"))) instance of xs:integer", "T"),
+        (
+            "fn-ceiling/K2-CeilingFunc-4",
+            "ceiling(xs:unsignedByte(xs:untypedAtomic(\"0\"))) instance of xs:integer",
+            "T"
+        ),
+        (
+            "fn-ceiling/K2-CeilingFunc-5",
+            "ceiling(xs:positiveInteger(xs:untypedAtomic(\"1\"))) instance of xs:integer",
+            "T"
+        ),
+        (
+            "fn-ceiling/K2-CeilingFunc-6",
+            "ceiling(xs:nonPositiveInteger(xs:untypedAtomic(\"0\"))) instance of xs:integer",
+            "T"
+        ),
+        (
+            "fn-ceiling/K2-CeilingFunc-7",
+            "ceiling(xs:nonNegativeInteger(xs:untypedAtomic(\"0\"))) instance of xs:integer",
+            "T"
+        ),
+        (
+            "fn-ceiling/K2-CeilingFunc-8",
+            "ceiling(xs:negativeInteger(xs:untypedAtomic(\"-1\"))) instance of xs:integer",
+            "T"
+        ),
+        ("fn-ceiling/K2-CeilingFunc-9", "ceiling(xs:long(xs:untypedAtomic(\"0\"))) instance of xs:integer", "T"),
         ("fn-ceiling/fn-ceiling-decimal-1", "ceiling(12.5)", "E:13.0\u001fY:xs:decimal"),
         ("fn-ceiling/fn-ceiling-decimal-2", "ceiling(12.9)", "E:13.0\u001fY:xs:decimal"),
         ("fn-ceiling/fn-ceiling-decimal-3", "ceiling(0.000000001)", "E:1.0\u001fY:xs:decimal"),
@@ -179,6 +400,9 @@ internal static class Qt3NumericSelection
         ("fn-ceiling/fn-ceilingflt1args-1", "fn:ceiling(xs:float(\"-3.4028235E38\"))", "S:-3.4028235E38"),
         ("fn-ceiling/fn-ceilingflt1args-2", "fn:ceiling(xs:float(\"0\"))", "E:0"),
         ("fn-ceiling/fn-ceilingflt1args-3", "fn:ceiling(xs:float(\"3.4028235E38\"))", "S:3.4028235E38"),
+        ("fn-ceiling/fn-ceilingint1args-1", "fn:ceiling(xs:int(\"-2147483648\"))", "E:-2147483648"),
+        ("fn-ceiling/fn-ceilingint1args-2", "fn:ceiling(xs:int(\"-1873914410\"))", "E:-1873914410"),
+        ("fn-ceiling/fn-ceilingint1args-3", "fn:ceiling(xs:int(\"2147483647\"))", "E:2147483647"),
         (
             "fn-ceiling/fn-ceilingintg1args-1",
             "fn:ceiling(xs:integer(\"-999999999999999999\"))",
@@ -186,12 +410,97 @@ internal static class Qt3NumericSelection
         ),
         ("fn-ceiling/fn-ceilingintg1args-2", "fn:ceiling(xs:integer(\"830993497117024304\"))", "E:830993497117024304"),
         ("fn-ceiling/fn-ceilingintg1args-3", "fn:ceiling(xs:integer(\"999999999999999999\"))", "E:999999999999999999"),
+        ("fn-ceiling/fn-ceilinglng1args-1", "fn:ceiling(xs:long(\"-92233720368547758\"))", "E:-92233720368547758"),
+        ("fn-ceiling/fn-ceilinglng1args-2", "fn:ceiling(xs:long(\"-47175562203048468\"))", "E:-47175562203048468"),
+        ("fn-ceiling/fn-ceilinglng1args-3", "fn:ceiling(xs:long(\"92233720368547758\"))", "E:92233720368547758"),
+        (
+            "fn-ceiling/fn-ceilingnint1args-1",
+            "fn:ceiling(xs:negativeInteger(\"-999999999999999999\"))",
+            "E:-999999999999999999"
+        ),
+        (
+            "fn-ceiling/fn-ceilingnint1args-2",
+            "fn:ceiling(xs:negativeInteger(\"-297014075999096793\"))",
+            "E:-297014075999096793"
+        ),
+        ("fn-ceiling/fn-ceilingnint1args-3", "fn:ceiling(xs:negativeInteger(\"-1\"))", "E:-1"),
+        ("fn-ceiling/fn-ceilingnni1args-1", "fn:ceiling(xs:nonNegativeInteger(\"0\"))", "E:0"),
+        (
+            "fn-ceiling/fn-ceilingnni1args-2",
+            "fn:ceiling(xs:nonNegativeInteger(\"303884545991464527\"))",
+            "E:303884545991464527"
+        ),
+        (
+            "fn-ceiling/fn-ceilingnni1args-3",
+            "fn:ceiling(xs:nonNegativeInteger(\"999999999999999999\"))",
+            "E:999999999999999999"
+        ),
+        (
+            "fn-ceiling/fn-ceilingnpi1args-1",
+            "fn:ceiling(xs:nonPositiveInteger(\"-999999999999999999\"))",
+            "E:-999999999999999999"
+        ),
+        (
+            "fn-ceiling/fn-ceilingnpi1args-2",
+            "fn:ceiling(xs:nonPositiveInteger(\"-475688437271870490\"))",
+            "E:-475688437271870490"
+        ),
+        ("fn-ceiling/fn-ceilingnpi1args-3", "fn:ceiling(xs:nonPositiveInteger(\"0\"))", "E:0"),
+        ("fn-ceiling/fn-ceilingpint1args-1", "fn:ceiling(xs:positiveInteger(\"1\"))", "E:1"),
+        (
+            "fn-ceiling/fn-ceilingpint1args-2",
+            "fn:ceiling(xs:positiveInteger(\"52704602390610033\"))",
+            "E:52704602390610033"
+        ),
+        (
+            "fn-ceiling/fn-ceilingpint1args-3",
+            "fn:ceiling(xs:positiveInteger(\"999999999999999999\"))",
+            "E:999999999999999999"
+        ),
+        ("fn-ceiling/fn-ceilingsht1args-1", "fn:ceiling(xs:short(\"-32768\"))", "E:-32768"),
+        ("fn-ceiling/fn-ceilingsht1args-2", "fn:ceiling(xs:short(\"-5324\"))", "E:-5324"),
+        ("fn-ceiling/fn-ceilingsht1args-3", "fn:ceiling(xs:short(\"32767\"))", "E:32767"),
+        ("fn-ceiling/fn-ceilingulng1args-1", "fn:ceiling(xs:unsignedLong(\"0\"))", "E:0"),
+        (
+            "fn-ceiling/fn-ceilingulng1args-2",
+            "fn:ceiling(xs:unsignedLong(\"130747108607674654\"))",
+            "E:130747108607674654"
+        ),
+        (
+            "fn-ceiling/fn-ceilingulng1args-3",
+            "fn:ceiling(xs:unsignedLong(\"184467440737095516\"))",
+            "E:184467440737095516"
+        ),
+        ("fn-ceiling/fn-ceilingusht1args-1", "fn:ceiling(xs:unsignedShort(\"0\"))", "E:0"),
+        ("fn-ceiling/fn-ceilingusht1args-2", "fn:ceiling(xs:unsignedShort(\"44633\"))", "E:44633"),
+        ("fn-ceiling/fn-ceilingusht1args-3", "fn:ceiling(xs:unsignedShort(\"65535\"))", "E:65535"),
         ("fn-floor/K-FloorFunc-1", "floor()", "X:XPST0017"),
         ("fn-floor/K-FloorFunc-2", "floor(1, 2)", "X:XPST0017"),
         ("fn-floor/K-FloorFunc-3", "empty(floor(()))", "T"),
         ("fn-floor/K-FloorFunc-4", "floor(10.5) eq 10", "T"),
         ("fn-floor/K-FloorFunc-5", "floor(-10.5) eq -11", "T"),
         ("fn-floor/K-FloorFunc-6", "floor(\"a string\")", "X:XPTY0004"),
+        ("fn-floor/K2-FloorFunc-1", "floor(xs:unsignedShort(xs:untypedAtomic(\"1\"))) instance of xs:integer", "T"),
+        ("fn-floor/K2-FloorFunc-10", "floor(xs:long(xs:untypedAtomic(\"0\"))) instance of xs:integer", "T"),
+        ("fn-floor/K2-FloorFunc-11", "floor(xs:int(xs:untypedAtomic(\"0\"))) instance of xs:integer", "T"),
+        ("fn-floor/K2-FloorFunc-12", "floor(xs:short(xs:untypedAtomic(\"0\"))) instance of xs:integer", "T"),
+        ("fn-floor/K2-FloorFunc-13", "floor(xs:byte(xs:untypedAtomic(\"0\"))) instance of xs:integer", "T"),
+        ("fn-floor/K2-FloorFunc-2", "floor(xs:unsignedShort(xs:untypedAtomic(\"0\"))) instance of xs:integer", "T"),
+        ("fn-floor/K2-FloorFunc-3", "floor(xs:unsignedLong(xs:untypedAtomic(\"0\"))) instance of xs:integer", "T"),
+        ("fn-floor/K2-FloorFunc-4", "floor(xs:unsignedInt(xs:untypedAtomic(\"0\"))) instance of xs:integer", "T"),
+        ("fn-floor/K2-FloorFunc-5", "floor(xs:unsignedByte(xs:untypedAtomic(\"0\"))) instance of xs:integer", "T"),
+        ("fn-floor/K2-FloorFunc-6", "floor(xs:positiveInteger(xs:untypedAtomic(\"1\"))) instance of xs:integer", "T"),
+        (
+            "fn-floor/K2-FloorFunc-7",
+            "floor(xs:nonPositiveInteger(xs:untypedAtomic(\"0\"))) instance of xs:integer",
+            "T"
+        ),
+        (
+            "fn-floor/K2-FloorFunc-8",
+            "floor(xs:nonNegativeInteger(xs:untypedAtomic(\"0\"))) instance of xs:integer",
+            "T"
+        ),
+        ("fn-floor/K2-FloorFunc-9", "floor(xs:negativeInteger(xs:untypedAtomic(\"-1\"))) instance of xs:integer", "T"),
         ("fn-floor/fn-floor-decimal-1", "floor(12.5)", "E:12.0\u001fY:xs:decimal"),
         ("fn-floor/fn-floor-decimal-2", "floor(12.9)", "E:12.0\u001fY:xs:decimal"),
         ("fn-floor/fn-floor-decimal-3", "floor(0.000000001)", "E:0.0\u001fY:xs:decimal"),
@@ -234,9 +543,64 @@ internal static class Qt3NumericSelection
         ("fn-floor/fn-floorflt1args-1", "fn:floor(xs:float(\"-3.4028235E38\"))", "S:-3.4028235E38"),
         ("fn-floor/fn-floorflt1args-2", "fn:floor(xs:float(\"0\"))", "S:0"),
         ("fn-floor/fn-floorflt1args-3", "fn:floor(xs:float(\"3.4028235E38\"))", "S:3.4028235E38"),
+        ("fn-floor/fn-floorint1args-1", "fn:floor(xs:int(\"-2147483648\"))", "S:-2147483648"),
+        ("fn-floor/fn-floorint1args-2", "fn:floor(xs:int(\"-1873914410\"))", "S:-1873914410"),
+        ("fn-floor/fn-floorint1args-3", "fn:floor(xs:int(\"2147483647\"))", "S:2147483647"),
         ("fn-floor/fn-floorintg1args-1", "fn:floor(xs:integer(\"-999999999999999999\"))", "S:-999999999999999999"),
         ("fn-floor/fn-floorintg1args-2", "fn:floor(xs:integer(\"830993497117024304\"))", "S:830993497117024304"),
         ("fn-floor/fn-floorintg1args-3", "fn:floor(xs:integer(\"999999999999999999\"))", "S:999999999999999999"),
+        ("fn-floor/fn-floorlng1args-1", "fn:floor(xs:long(\"-92233720368547758\"))", "S:-92233720368547758"),
+        ("fn-floor/fn-floorlng1args-2", "fn:floor(xs:long(\"-47175562203048468\"))", "S:-47175562203048468"),
+        ("fn-floor/fn-floorlng1args-3", "fn:floor(xs:long(\"92233720368547758\"))", "S:92233720368547758"),
+        (
+            "fn-floor/fn-floornint1args-1",
+            "fn:floor(xs:negativeInteger(\"-999999999999999999\"))",
+            "S:-999999999999999999"
+        ),
+        (
+            "fn-floor/fn-floornint1args-2",
+            "fn:floor(xs:negativeInteger(\"-297014075999096793\"))",
+            "S:-297014075999096793"
+        ),
+        ("fn-floor/fn-floornint1args-3", "fn:floor(xs:negativeInteger(\"-1\"))", "S:-1"),
+        ("fn-floor/fn-floornni1args-1", "fn:floor(xs:nonNegativeInteger(\"0\"))", "S:0"),
+        (
+            "fn-floor/fn-floornni1args-2",
+            "fn:floor(xs:nonNegativeInteger(\"303884545991464527\"))",
+            "S:303884545991464527"
+        ),
+        (
+            "fn-floor/fn-floornni1args-3",
+            "fn:floor(xs:nonNegativeInteger(\"999999999999999999\"))",
+            "S:999999999999999999"
+        ),
+        (
+            "fn-floor/fn-floornpi1args-1",
+            "fn:floor(xs:nonPositiveInteger(\"-999999999999999999\"))",
+            "S:-999999999999999999"
+        ),
+        (
+            "fn-floor/fn-floornpi1args-2",
+            "fn:floor(xs:nonPositiveInteger(\"-475688437271870490\"))",
+            "S:-475688437271870490"
+        ),
+        ("fn-floor/fn-floornpi1args-3", "fn:floor(xs:nonPositiveInteger(\"0\"))", "S:0"),
+        ("fn-floor/fn-floorpint1args-1", "fn:floor(xs:positiveInteger(\"1\"))", "S:1"),
+        ("fn-floor/fn-floorpint1args-2", "fn:floor(xs:positiveInteger(\"52704602390610033\"))", "S:52704602390610033"),
+        (
+            "fn-floor/fn-floorpint1args-3",
+            "fn:floor(xs:positiveInteger(\"999999999999999999\"))",
+            "S:999999999999999999"
+        ),
+        ("fn-floor/fn-floorsht1args-1", "fn:floor(xs:short(\"-32768\"))", "S:-32768"),
+        ("fn-floor/fn-floorsht1args-2", "fn:floor(xs:short(\"-5324\"))", "S:-5324"),
+        ("fn-floor/fn-floorsht1args-3", "fn:floor(xs:short(\"32767\"))", "S:32767"),
+        ("fn-floor/fn-floorulng1args-1", "fn:floor(xs:unsignedLong(\"0\"))", "S:0"),
+        ("fn-floor/fn-floorulng1args-2", "fn:floor(xs:unsignedLong(\"130747108607674654\"))", "S:130747108607674654"),
+        ("fn-floor/fn-floorulng1args-3", "fn:floor(xs:unsignedLong(\"184467440737095516\"))", "S:184467440737095516"),
+        ("fn-floor/fn-floorusht1args-1", "fn:floor(xs:unsignedShort(\"0\"))", "S:0"),
+        ("fn-floor/fn-floorusht1args-2", "fn:floor(xs:unsignedShort(\"44633\"))", "S:44633"),
+        ("fn-floor/fn-floorusht1args-3", "fn:floor(xs:unsignedShort(\"65535\"))", "S:65535"),
         ("fn-round/K-RoundFunc-1", "round()", "X:XPST0017"),
         ("fn-round/K-RoundFunc-2", "round(1, 2)", "X:XPST0017"),
         ("fn-round/K-RoundFunc-3", "empty(round(()))", "T"),
@@ -246,6 +610,12 @@ internal static class Qt3NumericSelection
         ("fn-round/K-RoundFunc-7", "round(xs:float(1)) eq 1", "T"),
         ("fn-round/K-RoundFunc-8", "round(2.4999) eq 2", "T"),
         ("fn-round/K-RoundFunc-9", "round(-2.5) eq -2", "T"),
+        (
+            "fn-round/K2-RoundFunc-1",
+            "round(xs:unsignedShort(xs:untypedAtomic(\"0\"))) instance of xs:unsignedShort",
+            "F\tT"
+        ),
+        ("fn-round/K2-RoundFunc-10", "round(xs:int(xs:untypedAtomic(\"0\"))) instance of xs:int", "F\tT"),
         ("fn-round/K2-RoundFunc-100", "fn:round(xs:double(\"0.54\"))", "E:1"),
         ("fn-round/K2-RoundFunc-101", "fn:round(xs:float(\"-0.54\"))", "E:-1"),
         ("fn-round/K2-RoundFunc-102", "fn:round(xs:double(\"-0.54\"))", "E:-1"),
@@ -256,6 +626,7 @@ internal static class Qt3NumericSelection
         ("fn-round/K2-RoundFunc-107", "fn:round(xs:float(\"0.56\"))", "E:1"),
         ("fn-round/K2-RoundFunc-108", "fn:round(xs:double(\"0.56\"))", "E:1"),
         ("fn-round/K2-RoundFunc-109", "fn:round(xs:float(\"-0.56\"))", "E:-1"),
+        ("fn-round/K2-RoundFunc-11", "round(xs:short(xs:untypedAtomic(\"0\"))) instance of xs:short", "F\tT"),
         ("fn-round/K2-RoundFunc-110", "fn:round(xs:double(\"-0.56\"))", "E:-1"),
         ("fn-round/K2-RoundFunc-111", "fn:round(xs:float(\"0.59\"))", "E:1"),
         ("fn-round/K2-RoundFunc-112", "fn:round(xs:double(\"0.59\"))", "E:1"),
@@ -266,6 +637,7 @@ internal static class Qt3NumericSelection
         ("fn-round/K2-RoundFunc-117", "fn:round(xs:float(\"-0.50\"))", "S:-0"),
         ("fn-round/K2-RoundFunc-118", "fn:round(xs:double(\"-0.50\"))", "S:-0"),
         ("fn-round/K2-RoundFunc-119", "fn:round(xs:float(\"0.61\"))", "E:1"),
+        ("fn-round/K2-RoundFunc-12", "round(xs:byte(xs:untypedAtomic(\"0\"))) instance of xs:byte", "F\tT"),
         ("fn-round/K2-RoundFunc-120", "fn:round(xs:double(\"0.61\"))", "E:1"),
         ("fn-round/K2-RoundFunc-121", "fn:round(xs:float(\"-0.61\"))", "E:-1"),
         ("fn-round/K2-RoundFunc-122", "fn:round(xs:double(\"-0.61\"))", "E:-1"),
@@ -344,6 +716,11 @@ internal static class Qt3NumericSelection
         ("fn-round/K2-RoundFunc-189", "fn:round(xs:float(\"-0.100\"))", "S:-0"),
         ("fn-round/K2-RoundFunc-19", "round(xs:float(\"0\"))", "S:0"),
         ("fn-round/K2-RoundFunc-190", "fn:round(xs:double(\"-0.100\"))", "S:-0"),
+        (
+            "fn-round/K2-RoundFunc-2",
+            "round(xs:unsignedLong(xs:untypedAtomic(\"0\"))) instance of xs:unsignedLong",
+            "F\tT"
+        ),
         ("fn-round/K2-RoundFunc-20", "round(xs:float(\"-0\"))", "S:-0"),
         ("fn-round/K2-RoundFunc-21", "fn:round(xs:float(\"NaN\"))", "S:NaN"),
         ("fn-round/K2-RoundFunc-22", "fn:round(xs:double(\"NaN\"))", "S:NaN"),
@@ -354,6 +731,11 @@ internal static class Qt3NumericSelection
         ("fn-round/K2-RoundFunc-27", "fn:round(xs:float(\"0.04\"))", "S:0"),
         ("fn-round/K2-RoundFunc-28", "fn:round(xs:double(\"0.04\"))", "S:0"),
         ("fn-round/K2-RoundFunc-29", "fn:round(xs:float(\"-0.04\"))", "S:-0"),
+        (
+            "fn-round/K2-RoundFunc-3",
+            "round(xs:unsignedInt(xs:untypedAtomic(\"0\"))) instance of xs:unsignedInt",
+            "F\tT"
+        ),
         ("fn-round/K2-RoundFunc-30", "fn:round(xs:double(\"-0.04\"))", "S:-0"),
         ("fn-round/K2-RoundFunc-31", "fn:round(xs:float(\"0.05\"))", "S:0"),
         ("fn-round/K2-RoundFunc-32", "fn:round(xs:double(\"0.05\"))", "S:0"),
@@ -364,6 +746,11 @@ internal static class Qt3NumericSelection
         ("fn-round/K2-RoundFunc-37", "fn:round(xs:float(\"-0.06\"))", "S:-0"),
         ("fn-round/K2-RoundFunc-38", "fn:round(xs:double(\"-0.06\"))", "S:-0"),
         ("fn-round/K2-RoundFunc-39", "fn:round(xs:float(\"0.09\"))", "S:0"),
+        (
+            "fn-round/K2-RoundFunc-4",
+            "round(xs:unsignedByte(xs:untypedAtomic(\"0\"))) instance of xs:unsignedByte",
+            "F\tT"
+        ),
         ("fn-round/K2-RoundFunc-40", "fn:round(xs:double(\"0.09\"))", "S:0"),
         ("fn-round/K2-RoundFunc-41", "fn:round(xs:float(\"-0.09\"))", "S:-0"),
         ("fn-round/K2-RoundFunc-42", "fn:round(xs:double(\"-0.09\"))", "S:-0"),
@@ -374,6 +761,11 @@ internal static class Qt3NumericSelection
         ("fn-round/K2-RoundFunc-47", "fn:round(xs:float(\"0.11\"))", "S:0"),
         ("fn-round/K2-RoundFunc-48", "fn:round(xs:double(\"0.11\"))", "S:0"),
         ("fn-round/K2-RoundFunc-49", "fn:round(xs:float(\"-0.11\"))", "S:-0"),
+        (
+            "fn-round/K2-RoundFunc-5",
+            "round(xs:positiveInteger(xs:untypedAtomic(\"1\"))) instance of xs:positiveInteger",
+            "F\tT"
+        ),
         ("fn-round/K2-RoundFunc-50", "fn:round(xs:double(\"-0.11\"))", "S:-0"),
         ("fn-round/K2-RoundFunc-51", "fn:round(xs:float(\"0.14\"))", "S:0"),
         ("fn-round/K2-RoundFunc-52", "fn:round(xs:double(\"0.14\"))", "S:0"),
@@ -384,6 +776,11 @@ internal static class Qt3NumericSelection
         ("fn-round/K2-RoundFunc-57", "fn:round(xs:float(\"-0.15\"))", "S:-0"),
         ("fn-round/K2-RoundFunc-58", "fn:round(xs:double(\"-0.15\"))", "S:-0"),
         ("fn-round/K2-RoundFunc-59", "fn:round(xs:float(\"0.16\"))", "S:0"),
+        (
+            "fn-round/K2-RoundFunc-6",
+            "round(xs:nonPositiveInteger(xs:untypedAtomic(\"0\"))) instance of xs:nonPositiveInteger",
+            "F\tT"
+        ),
         ("fn-round/K2-RoundFunc-60", "fn:round(xs:double(\"0.16\"))", "S:0"),
         ("fn-round/K2-RoundFunc-61", "fn:round(xs:float(\"-0.16\"))", "S:-0"),
         ("fn-round/K2-RoundFunc-62", "fn:round(xs:double(\"-0.16\"))", "S:-0"),
@@ -394,6 +791,11 @@ internal static class Qt3NumericSelection
         ("fn-round/K2-RoundFunc-67", "fn:round(xs:float(\"0.10\"))", "S:0"),
         ("fn-round/K2-RoundFunc-68", "fn:round(xs:double(\"0.10\"))", "S:0"),
         ("fn-round/K2-RoundFunc-69", "fn:round(xs:float(\"-0.10\"))", "S:-0"),
+        (
+            "fn-round/K2-RoundFunc-7",
+            "round(xs:nonNegativeInteger(xs:untypedAtomic(\"0\"))) instance of xs:nonNegativeInteger",
+            "F\tT"
+        ),
         ("fn-round/K2-RoundFunc-70", "fn:round(xs:double(\"-0.10\"))", "S:-0"),
         ("fn-round/K2-RoundFunc-71", "fn:round(xs:float(\"0.41\"))", "S:0"),
         ("fn-round/K2-RoundFunc-72", "fn:round(xs:double(\"0.41\"))", "S:0"),
@@ -404,6 +806,11 @@ internal static class Qt3NumericSelection
         ("fn-round/K2-RoundFunc-77", "fn:round(xs:float(\"-0.44\"))", "S:-0"),
         ("fn-round/K2-RoundFunc-78", "fn:round(xs:double(\"-0.44\"))", "S:-0"),
         ("fn-round/K2-RoundFunc-79", "fn:round(xs:float(\"0.45\"))", "S:0"),
+        (
+            "fn-round/K2-RoundFunc-8",
+            "round(xs:negativeInteger(xs:untypedAtomic(\"-1\"))) instance of xs:negativeInteger",
+            "F\tT"
+        ),
         ("fn-round/K2-RoundFunc-80", "fn:round(xs:double(\"0.45\"))", "S:0"),
         ("fn-round/K2-RoundFunc-81", "fn:round(xs:float(\"-0.45\"))", "S:-0"),
         ("fn-round/K2-RoundFunc-82", "fn:round(xs:double(\"-0.45\"))", "S:-0"),
@@ -414,6 +821,7 @@ internal static class Qt3NumericSelection
         ("fn-round/K2-RoundFunc-87", "fn:round(xs:float(\"0.49\"))", "S:0"),
         ("fn-round/K2-RoundFunc-88", "fn:round(xs:double(\"0.49\"))", "S:0"),
         ("fn-round/K2-RoundFunc-89", "fn:round(xs:float(\"-0.49\"))", "S:-0"),
+        ("fn-round/K2-RoundFunc-9", "round(xs:long(xs:untypedAtomic(\"0\"))) instance of xs:long", "F\tT"),
         ("fn-round/K2-RoundFunc-90", "fn:round(xs:double(\"-0.49\"))", "S:-0"),
         ("fn-round/K2-RoundFunc-91", "fn:round(xs:float(\"0.40\"))", "S:0"),
         ("fn-round/K2-RoundFunc-92", "fn:round(xs:double(\"0.40\"))", "S:0"),
@@ -447,9 +855,64 @@ internal static class Qt3NumericSelection
         ("fn-round/fn-roundflt1args-1", "fn:round(xs:float(\"-3.4028235E38\"))", "E:xs:float(\"-3.4028235E38\")"),
         ("fn-round/fn-roundflt1args-2", "fn:round(xs:float(\"0\"))", "Y:xs:float\u001fE:0"),
         ("fn-round/fn-roundflt1args-3", "fn:round(xs:float(\"3.4028235E38\"))", "E:xs:float(\"3.4028235E38\")"),
+        ("fn-round/fn-roundint1args-1", "fn:round(xs:int(\"-2147483648\"))", "E:-2147483648\u001fY:xs:integer"),
+        ("fn-round/fn-roundint1args-2", "fn:round(xs:int(\"-1873914410\"))", "E:-1873914410"),
+        ("fn-round/fn-roundint1args-3", "fn:round(xs:int(\"2147483647\"))", "E:2147483647"),
         ("fn-round/fn-roundintg1args-1", "fn:round(xs:integer(\"-999999999999999999\"))", "E:-999999999999999999"),
         ("fn-round/fn-roundintg1args-2", "fn:round(xs:integer(\"830993497117024304\"))", "E:830993497117024304"),
         ("fn-round/fn-roundintg1args-3", "fn:round(xs:integer(\"999999999999999999\"))", "E:999999999999999999"),
+        ("fn-round/fn-roundlng1args-1", "fn:round(xs:long(\"-92233720368547758\"))", "E:-92233720368547758"),
+        ("fn-round/fn-roundlng1args-2", "fn:round(xs:long(\"-47175562203048468\"))", "E:-47175562203048468"),
+        ("fn-round/fn-roundlng1args-3", "fn:round(xs:long(\"92233720368547758\"))", "E:92233720368547758"),
+        (
+            "fn-round/fn-roundnint1args-1",
+            "fn:round(xs:negativeInteger(\"-999999999999999999\"))",
+            "E:-999999999999999999"
+        ),
+        (
+            "fn-round/fn-roundnint1args-2",
+            "fn:round(xs:negativeInteger(\"-297014075999096793\"))",
+            "E:-297014075999096793"
+        ),
+        ("fn-round/fn-roundnint1args-3", "fn:round(xs:negativeInteger(\"-1\"))", "E:-1"),
+        ("fn-round/fn-roundnni1args-1", "fn:round(xs:nonNegativeInteger(\"0\"))", "E:0"),
+        (
+            "fn-round/fn-roundnni1args-2",
+            "fn:round(xs:nonNegativeInteger(\"303884545991464527\"))",
+            "E:303884545991464527"
+        ),
+        (
+            "fn-round/fn-roundnni1args-3",
+            "fn:round(xs:nonNegativeInteger(\"999999999999999999\"))",
+            "E:999999999999999999"
+        ),
+        (
+            "fn-round/fn-roundnpi1args-1",
+            "fn:round(xs:nonPositiveInteger(\"-999999999999999999\"))",
+            "E:-999999999999999999"
+        ),
+        (
+            "fn-round/fn-roundnpi1args-2",
+            "fn:round(xs:nonPositiveInteger(\"-475688437271870490\"))",
+            "E:-475688437271870490"
+        ),
+        ("fn-round/fn-roundnpi1args-3", "fn:round(xs:nonPositiveInteger(\"0\"))", "E:0"),
+        ("fn-round/fn-roundpint1args-1", "fn:round(xs:positiveInteger(\"1\"))", "E:1"),
+        ("fn-round/fn-roundpint1args-2", "fn:round(xs:positiveInteger(\"52704602390610033\"))", "E:52704602390610033"),
+        (
+            "fn-round/fn-roundpint1args-3",
+            "fn:round(xs:positiveInteger(\"999999999999999999\"))",
+            "E:999999999999999999"
+        ),
+        ("fn-round/fn-roundsht1args-1", "fn:round(xs:short(\"-32768\"))", "E:-32768"),
+        ("fn-round/fn-roundsht1args-2", "fn:round(xs:short(\"-5324\"))", "E:-5324"),
+        ("fn-round/fn-roundsht1args-3", "fn:round(xs:short(\"32767\"))", "E:32767"),
+        ("fn-round/fn-roundulng1args-1", "fn:round(xs:unsignedLong(\"0\"))", "E:0"),
+        ("fn-round/fn-roundulng1args-2", "fn:round(xs:unsignedLong(\"130747108607674654\"))", "E:130747108607674654"),
+        ("fn-round/fn-roundulng1args-3", "fn:round(xs:unsignedLong(\"184467440737095516\"))", "E:184467440737095516"),
+        ("fn-round/fn-roundusht1args-1", "fn:round(xs:unsignedShort(\"0\"))", "E:0"),
+        ("fn-round/fn-roundusht1args-2", "fn:round(xs:unsignedShort(\"44633\"))", "E:44633"),
+        ("fn-round/fn-roundusht1args-3", "fn:round(xs:unsignedShort(\"65535\"))", "E:65535"),
         ("fn-round-half-to-even/K-RoundEvenFunc-1", "round-half-to-even()", "X:XPST0017"),
         ("fn-round-half-to-even/K-RoundEvenFunc-2", "round-half-to-even(1.1, 3, \"wrong param\")", "X:XPST0017"),
         ("fn-round-half-to-even/K-RoundEvenFunc-3", "empty(round-half-to-even(()))", "T"),
@@ -463,7 +926,55 @@ internal static class Qt3NumericSelection
         ("fn-round-half-to-even/K2-RoundEvenFunc-14", "round-half-to-even(xs:float(\"-INF\"))", "S:-INF"),
         ("fn-round-half-to-even/K2-RoundEvenFunc-15", "round-half-to-even(xs:double(\"INF\"))", "S:INF"),
         ("fn-round-half-to-even/K2-RoundEvenFunc-16", "round-half-to-even(xs:float(\"INF\"))", "S:INF"),
+        (
+            "fn-round-half-to-even/K2-RoundEvenFunc-17",
+            "round-half-to-even(xs:unsignedShort(\"0\")) instance of xs:unsignedShort",
+            "F\tT"
+        ),
+        (
+            "fn-round-half-to-even/K2-RoundEvenFunc-18",
+            "round-half-to-even(xs:unsignedLong(\"0\")) instance of xs:unsignedLong",
+            "F\tT"
+        ),
+        (
+            "fn-round-half-to-even/K2-RoundEvenFunc-19",
+            "round-half-to-even(xs:unsignedInt(\"0\")) instance of xs:unsignedInt",
+            "F\tT"
+        ),
         ("fn-round-half-to-even/K2-RoundEvenFunc-2", "round-half-to-even(1.0) eq 1", "T"),
+        (
+            "fn-round-half-to-even/K2-RoundEvenFunc-20",
+            "round-half-to-even(xs:unsignedByte(\"0\")) instance of xs:unsignedByte",
+            "F\tT"
+        ),
+        (
+            "fn-round-half-to-even/K2-RoundEvenFunc-21",
+            "round-half-to-even(xs:positiveInteger(\"1\")) instance of xs:positiveInteger",
+            "F\tT"
+        ),
+        (
+            "fn-round-half-to-even/K2-RoundEvenFunc-22",
+            "round-half-to-even(xs:nonPositiveInteger(\"0\")) instance of xs:nonPositiveInteger",
+            "F\tT"
+        ),
+        (
+            "fn-round-half-to-even/K2-RoundEvenFunc-23",
+            "round-half-to-even(xs:nonNegativeInteger(\"0\")) instance of xs:nonNegativeInteger",
+            "F\tT"
+        ),
+        (
+            "fn-round-half-to-even/K2-RoundEvenFunc-24",
+            "round-half-to-even(xs:negativeInteger(\"-1\")) instance of xs:negativeInteger",
+            "F\tT"
+        ),
+        ("fn-round-half-to-even/K2-RoundEvenFunc-25", "round-half-to-even(xs:long(\"0\")) instance of xs:long", "F\tT"),
+        ("fn-round-half-to-even/K2-RoundEvenFunc-26", "round-half-to-even(xs:int(\"0\")) instance of xs:int", "F\tT"),
+        (
+            "fn-round-half-to-even/K2-RoundEvenFunc-27",
+            "round-half-to-even(xs:short(\"0\")) instance of xs:short",
+            "F\tT"
+        ),
+        ("fn-round-half-to-even/K2-RoundEvenFunc-28", "round-half-to-even(xs:byte(\"0\")) instance of xs:byte", "F\tT"),
         ("fn-round-half-to-even/K2-RoundEvenFunc-3", "round-half-to-even(0.5) eq 0", "T"),
         ("fn-round-half-to-even/K2-RoundEvenFunc-4", "round-half-to-even(1.5) eq 2", "T"),
         ("fn-round-half-to-even/K2-RoundEvenFunc-5", "round-half-to-even(2.5) eq 2", "T"),
@@ -478,6 +989,8 @@ internal static class Qt3NumericSelection
         ),
         ("fn-round-half-to-even/cbcl-round-half-to-even-002", "fn:round-half-to-even(12345, 2)", "S:12345"),
         ("fn-round-half-to-even/cbcl-round-half-to-even-003", "fn:round-half-to-even(12345, -2)", "S:12300"),
+        ("fn-round-half-to-even/cbcl-round-half-to-even-004", "fn:round-half-to-even(xs:short(12345), 2)", "S:12345"),
+        ("fn-round-half-to-even/cbcl-round-half-to-even-005", "fn:round-half-to-even(xs:short(12345), -2)", "S:12300"),
         ("fn-round-half-to-even/cbcl-round-half-to-even-006", "fn:round-half-to-even(12345.6, 2)", "S:12345.6"),
         ("fn-round-half-to-even/cbcl-round-half-to-even-007", "fn:round-half-to-even(12345.6, -2)", "S:12300"),
         (
@@ -737,6 +1250,21 @@ internal static class Qt3NumericSelection
             "E:xs:float(\"3.4028235E38\")\tX:FOCA0001"
         ),
         (
+            "fn-round-half-to-even/fn-round-half-to-evenint1args-1",
+            "fn:round-half-to-even(xs:int(\"-2147483648\"))",
+            "E:-2147483648"
+        ),
+        (
+            "fn-round-half-to-even/fn-round-half-to-evenint1args-2",
+            "fn:round-half-to-even(xs:int(\"-1873914410\"))",
+            "E:-1873914410"
+        ),
+        (
+            "fn-round-half-to-even/fn-round-half-to-evenint1args-3",
+            "fn:round-half-to-even(xs:int(\"2147483647\"))",
+            "E:2147483647"
+        ),
+        (
             "fn-round-half-to-even/fn-round-half-to-evenintg1args-1",
             "fn:round-half-to-even(xs:integer(\"-999999999999999999\"))",
             "E:-999999999999999999"
@@ -750,6 +1278,126 @@ internal static class Qt3NumericSelection
             "fn-round-half-to-even/fn-round-half-to-evenintg1args-3",
             "fn:round-half-to-even(xs:integer(\"999999999999999999\"))",
             "E:999999999999999999"
+        ),
+        (
+            "fn-round-half-to-even/fn-round-half-to-evenlng1args-1",
+            "fn:round-half-to-even(xs:long(\"-92233720368547758\"))",
+            "E:-92233720368547758"
+        ),
+        (
+            "fn-round-half-to-even/fn-round-half-to-evenlng1args-2",
+            "fn:round-half-to-even(xs:long(\"-47175562203048468\"))",
+            "E:-47175562203048468"
+        ),
+        (
+            "fn-round-half-to-even/fn-round-half-to-evenlng1args-3",
+            "fn:round-half-to-even(xs:long(\"92233720368547758\"))",
+            "E:92233720368547758"
+        ),
+        (
+            "fn-round-half-to-even/fn-round-half-to-evennint1args-1",
+            "fn:round-half-to-even(xs:negativeInteger(\"-999999999999999999\"))",
+            "E:-999999999999999999"
+        ),
+        (
+            "fn-round-half-to-even/fn-round-half-to-evennint1args-2",
+            "fn:round-half-to-even(xs:negativeInteger(\"-297014075999096793\"))",
+            "E:-297014075999096793"
+        ),
+        (
+            "fn-round-half-to-even/fn-round-half-to-evennint1args-3",
+            "fn:round-half-to-even(xs:negativeInteger(\"-1\"))",
+            "E:-1"
+        ),
+        (
+            "fn-round-half-to-even/fn-round-half-to-evennni1args-1",
+            "fn:round-half-to-even(xs:nonNegativeInteger(\"0\"))",
+            "E:0"
+        ),
+        (
+            "fn-round-half-to-even/fn-round-half-to-evennni1args-2",
+            "fn:round-half-to-even(xs:nonNegativeInteger(\"303884545991464527\"))",
+            "E:303884545991464527"
+        ),
+        (
+            "fn-round-half-to-even/fn-round-half-to-evennni1args-3",
+            "fn:round-half-to-even(xs:nonNegativeInteger(\"999999999999999999\"))",
+            "E:999999999999999999"
+        ),
+        (
+            "fn-round-half-to-even/fn-round-half-to-evennpi1args-1",
+            "fn:round-half-to-even(xs:nonPositiveInteger(\"-999999999999999999\"))",
+            "E:-999999999999999999"
+        ),
+        (
+            "fn-round-half-to-even/fn-round-half-to-evennpi1args-2",
+            "fn:round-half-to-even(xs:nonPositiveInteger(\"-475688437271870490\"))",
+            "E:-475688437271870490"
+        ),
+        (
+            "fn-round-half-to-even/fn-round-half-to-evennpi1args-3",
+            "fn:round-half-to-even(xs:nonPositiveInteger(\"0\"))",
+            "E:0"
+        ),
+        (
+            "fn-round-half-to-even/fn-round-half-to-evenpint1args-1",
+            "fn:round-half-to-even(xs:positiveInteger(\"1\"))",
+            "E:1"
+        ),
+        (
+            "fn-round-half-to-even/fn-round-half-to-evenpint1args-2",
+            "fn:round-half-to-even(xs:positiveInteger(\"52704602390610033\"))",
+            "E:52704602390610033"
+        ),
+        (
+            "fn-round-half-to-even/fn-round-half-to-evenpint1args-3",
+            "fn:round-half-to-even(xs:positiveInteger(\"999999999999999999\"))",
+            "E:999999999999999999"
+        ),
+        (
+            "fn-round-half-to-even/fn-round-half-to-evensht1args-1",
+            "fn:round-half-to-even(xs:short(\"-32768\"))",
+            "E:-32768"
+        ),
+        (
+            "fn-round-half-to-even/fn-round-half-to-evensht1args-2",
+            "fn:round-half-to-even(xs:short(\"-5324\"))",
+            "E:-5324"
+        ),
+        (
+            "fn-round-half-to-even/fn-round-half-to-evensht1args-3",
+            "fn:round-half-to-even(xs:short(\"32767\"))",
+            "E:32767"
+        ),
+        (
+            "fn-round-half-to-even/fn-round-half-to-evenulng1args-1",
+            "fn:round-half-to-even(xs:unsignedLong(\"0\"))",
+            "E:0"
+        ),
+        (
+            "fn-round-half-to-even/fn-round-half-to-evenulng1args-2",
+            "fn:round-half-to-even(xs:unsignedLong(\"130747108607674654\"))",
+            "E:130747108607674654"
+        ),
+        (
+            "fn-round-half-to-even/fn-round-half-to-evenulng1args-3",
+            "fn:round-half-to-even(xs:unsignedLong(\"184467440737095516\"))",
+            "E:184467440737095516"
+        ),
+        (
+            "fn-round-half-to-even/fn-round-half-to-evenusht1args-1",
+            "fn:round-half-to-even(xs:unsignedShort(\"0\"))",
+            "E:0"
+        ),
+        (
+            "fn-round-half-to-even/fn-round-half-to-evenusht1args-2",
+            "fn:round-half-to-even(xs:unsignedShort(\"44633\"))",
+            "E:44633"
+        ),
+        (
+            "fn-round-half-to-even/fn-round-half-to-evenusht1args-3",
+            "fn:round-half-to-even(xs:unsignedShort(\"65535\"))",
+            "E:65535"
         ),
         ("fn-number/K-NodeNumberFunc-1", "number(1, 2)", "X:XPST0017"),
         ("fn-number/K-NodeNumberFunc-10", "fn:number(()) instance of xs:double", "T"),
@@ -796,9 +1444,60 @@ internal static class Qt3NumericSelection
             "fn:number(xs:float(\"3.4028235E38\"))",
             "S:3.4028234663852885E38\tS:3.402823466385289E38\tS:3.4028234663852886E38"
         ),
+        ("fn-number/fn-numberint1args-1", "fn:number(xs:int(\"-2147483648\"))", "S:-2.147483648E9"),
+        ("fn-number/fn-numberint1args-2", "fn:number(xs:int(\"-1873914410\"))", "S:-1.87391441E9"),
+        ("fn-number/fn-numberint1args-3", "fn:number(xs:int(\"2147483647\"))", "S:2.147483647E9"),
         ("fn-number/fn-numberintg1args-1", "fn:number(xs:integer(\"-999999999999999999\"))", "S:-1.0E18"),
         ("fn-number/fn-numberintg1args-2", "fn:number(xs:integer(\"830993497117024304\")) eq 830993497117024304", "T"),
         ("fn-number/fn-numberintg1args-3", "fn:number(xs:integer(\"999999999999999999\"))", "S:1.0E18"),
+        ("fn-number/fn-numberlng1args-1", "fn:number(xs:long(\"-92233720368547758\"))", "S:-9.223372036854776E16"),
+        ("fn-number/fn-numberlng1args-2", "fn:number(xs:long(\"-47175562203048468\")) eq -47175562203048468", "T"),
+        ("fn-number/fn-numberlng1args-3", "fn:number(xs:long(\"92233720368547758\"))", "S:9.223372036854776E16"),
+        ("fn-number/fn-numbernint1args-1", "fn:number(xs:negativeInteger(\"-999999999999999999\"))", "S:-1.0E18"),
+        (
+            "fn-number/fn-numbernint1args-2",
+            "fn:number(xs:negativeInteger(\"-297014075999096793\")) eq -297014075999096793",
+            "T"
+        ),
+        ("fn-number/fn-numbernint1args-3", "fn:number(xs:negativeInteger(\"-1\"))", "S:-1"),
+        ("fn-number/fn-numbernni1args-1", "fn:number(xs:nonNegativeInteger(\"0\"))", "S:0"),
+        (
+            "fn-number/fn-numbernni1args-2",
+            "fn:number(xs:nonNegativeInteger(\"303884545991464527\")) eq 303884545991464527",
+            "T"
+        ),
+        ("fn-number/fn-numbernni1args-3", "fn:number(xs:nonNegativeInteger(\"999999999999999999\"))", "S:1.0E18"),
+        ("fn-number/fn-numbernpi1args-1", "fn:number(xs:nonPositiveInteger(\"-999999999999999999\"))", "S:-1.0E18"),
+        (
+            "fn-number/fn-numbernpi1args-2",
+            "fn:number(xs:nonPositiveInteger(\"-475688437271870490\"))",
+            "S:-4.7568843727187049E17\tS:-4.756884372718705E17\tS:-4.7568843727187046E17"
+        ),
+        ("fn-number/fn-numbernpi1args-3", "fn:number(xs:nonPositiveInteger(\"0\"))", "S:0"),
+        ("fn-number/fn-numberpint1args-1", "fn:number(xs:positiveInteger(\"1\"))", "S:1"),
+        (
+            "fn-number/fn-numberpint1args-2",
+            "fn:number(xs:positiveInteger(\"52704602390610033\")) eq 52704602390610033",
+            "T"
+        ),
+        ("fn-number/fn-numberpint1args-3", "fn:number(xs:positiveInteger(\"999999999999999999\"))", "S:1.0E18"),
+        ("fn-number/fn-numbersht1args-1", "fn:number(xs:short(\"-32768\"))", "S:-32768"),
+        ("fn-number/fn-numbersht1args-2", "fn:number(xs:short(\"-5324\"))", "S:-5324"),
+        ("fn-number/fn-numbersht1args-3", "fn:number(xs:short(\"32767\"))", "S:32767"),
+        ("fn-number/fn-numberulng1args-1", "fn:number(xs:unsignedLong(\"0\"))", "S:0"),
+        (
+            "fn-number/fn-numberulng1args-2",
+            "fn:number(xs:unsignedLong(\"130747108607674654\"))",
+            "S:1.3074710860767466E17\tS:1.30747108607674648E17\tS:1.30747108607674649E17\tS:1.3074710860767465E17\tS:1.30747108607674651E17\tS:1.30747108607674652E17\tS:1.30747108607674653E17\tS:1.30747108607674654E17\tS:1.30747108607674655E17\tS:1.30747108607674656E17\tS:1.30747108607674657E17\tS:1.30747108607674658E17\tS:1.30747108607674659E17\tS:1.30747108607674661E17\tS:1.30747108607674662E17\tS:1.30747108607674663E17\tS:1.30747108607674664E17"
+        ),
+        (
+            "fn-number/fn-numberulng1args-3",
+            "fn:number(xs:unsignedLong(\"184467440737095516\")) eq 1.8446744073709551E17",
+            "T"
+        ),
+        ("fn-number/fn-numberusht1args-1", "fn:number(xs:unsignedShort(\"0\"))", "S:0"),
+        ("fn-number/fn-numberusht1args-2", "fn:number(xs:unsignedShort(\"44633\"))", "S:44633"),
+        ("fn-number/fn-numberusht1args-3", "fn:number(xs:unsignedShort(\"65535\"))", "S:65535"),
         ("fn-true/K-TrueFunc-1", "true(1)", "X:XPST0017"),
         ("fn-true/K-TrueFunc-2", "true() eq true()", "T"),
         ("fn-true/K-TrueFunc-3", "true()", "T"),
@@ -848,60 +1547,6 @@ internal static class Qt3NumericSelection
     /// <summary>The applicable cases that this selection leaves out, each with the reason and the issue that closes it.</summary>
     public static readonly (string Id, string Reason)[] Exclusions =
     [
-        ("fn-abs/K2-ABSFunc-10", "the constructor xs:unsignedInt needs casting to the derived types: XP-23 (#299)"),
-        ("fn-abs/K2-ABSFunc-11", "the constructor xs:unsignedShort needs casting to the derived types: XP-23 (#299)"),
-        ("fn-abs/K2-ABSFunc-12", "the constructor xs:unsignedByte needs casting to the derived types: XP-23 (#299)"),
-        ("fn-abs/K2-ABSFunc-13", "the constructor xs:positiveInteger needs casting to the derived types: XP-23 (#299)"),
-        (
-            "fn-abs/K2-ABSFunc-15",
-            "the constructor xs:nonPositiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        ("fn-abs/K2-ABSFunc-16", "the constructor xs:negativeInteger needs casting to the derived types: XP-23 (#299)"),
-        ("fn-abs/K2-ABSFunc-17", "the constructor xs:long needs casting to the derived types: XP-23 (#299)"),
-        ("fn-abs/K2-ABSFunc-18", "the constructor xs:int needs casting to the derived types: XP-23 (#299)"),
-        ("fn-abs/K2-ABSFunc-19", "the constructor xs:short needs casting to the derived types: XP-23 (#299)"),
-        (
-            "fn-abs/K2-ABSFunc-2",
-            "the constructor xs:nonPositiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        ("fn-abs/K2-ABSFunc-20", "the constructor xs:byte needs casting to the derived types: XP-23 (#299)"),
-        (
-            "fn-abs/K2-ABSFunc-21",
-            "the constructor xs:nonNegativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        ("fn-abs/K2-ABSFunc-22", "the constructor xs:unsignedLong needs casting to the derived types: XP-23 (#299)"),
-        ("fn-abs/K2-ABSFunc-23", "the constructor xs:unsignedInt needs casting to the derived types: XP-23 (#299)"),
-        ("fn-abs/K2-ABSFunc-24", "the constructor xs:unsignedShort needs casting to the derived types: XP-23 (#299)"),
-        ("fn-abs/K2-ABSFunc-25", "the constructor xs:unsignedByte needs casting to the derived types: XP-23 (#299)"),
-        ("fn-abs/K2-ABSFunc-26", "the constructor xs:positiveInteger needs casting to the derived types: XP-23 (#299)"),
-        ("fn-abs/K2-ABSFunc-3", "the constructor xs:negativeInteger needs casting to the derived types: XP-23 (#299)"),
-        ("fn-abs/K2-ABSFunc-35", "the constructor xs:unsignedShort needs casting to the derived types: XP-23 (#299)"),
-        ("fn-abs/K2-ABSFunc-36", "the constructor xs:unsignedLong needs casting to the derived types: XP-23 (#299)"),
-        ("fn-abs/K2-ABSFunc-37", "the constructor xs:unsignedInt needs casting to the derived types: XP-23 (#299)"),
-        ("fn-abs/K2-ABSFunc-38", "the constructor xs:unsignedByte needs casting to the derived types: XP-23 (#299)"),
-        ("fn-abs/K2-ABSFunc-39", "the constructor xs:positiveInteger needs casting to the derived types: XP-23 (#299)"),
-        ("fn-abs/K2-ABSFunc-4", "the constructor xs:long needs casting to the derived types: XP-23 (#299)"),
-        (
-            "fn-abs/K2-ABSFunc-40",
-            "the constructor xs:nonPositiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/K2-ABSFunc-41",
-            "the constructor xs:nonNegativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        ("fn-abs/K2-ABSFunc-42", "the constructor xs:negativeInteger needs casting to the derived types: XP-23 (#299)"),
-        ("fn-abs/K2-ABSFunc-43", "the constructor xs:long needs casting to the derived types: XP-23 (#299)"),
-        ("fn-abs/K2-ABSFunc-44", "the constructor xs:int needs casting to the derived types: XP-23 (#299)"),
-        ("fn-abs/K2-ABSFunc-45", "the constructor xs:short needs casting to the derived types: XP-23 (#299)"),
-        ("fn-abs/K2-ABSFunc-46", "the constructor xs:byte needs casting to the derived types: XP-23 (#299)"),
-        ("fn-abs/K2-ABSFunc-5", "the constructor xs:int needs casting to the derived types: XP-23 (#299)"),
-        ("fn-abs/K2-ABSFunc-6", "the constructor xs:short needs casting to the derived types: XP-23 (#299)"),
-        ("fn-abs/K2-ABSFunc-7", "the constructor xs:byte needs casting to the derived types: XP-23 (#299)"),
-        (
-            "fn-abs/K2-ABSFunc-8",
-            "the constructor xs:nonNegativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        ("fn-abs/K2-ABSFunc-9", "the constructor xs:unsignedLong needs casting to the derived types: XP-23 (#299)"),
         (
             "fn-abs/cbcl-abs-001",
             "the fixture of the sequence group has no lowering for the context item expression or a predicate; the evaluator-backed runner runs the case: XP-14 (#295)"
@@ -910,662 +1555,17 @@ internal static class Qt3NumericSelection
             "fn-abs/fn-abs-1",
             "the fixture of the sequence group has no lowering for the for expression, which #226 evaluates; the evaluator-backed runner runs the case: XP-14 (#295)"
         ),
-        ("fn-abs/fn-abs-more-args-013", "the constructor xs:int needs casting to the derived types: XP-23 (#299)"),
-        ("fn-abs/fn-abs-more-args-014", "the constructor xs:int needs casting to the derived types: XP-23 (#299)"),
-        ("fn-abs/fn-abs-more-args-017", "the constructor xs:long needs casting to the derived types: XP-23 (#299)"),
-        ("fn-abs/fn-abs-more-args-018", "the constructor xs:long needs casting to the derived types: XP-23 (#299)"),
-        (
-            "fn-abs/fn-abs-more-args-019",
-            "the constructor xs:nonNegativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/fn-abs-more-args-020",
-            "the constructor xs:nonPositiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        ("fn-abs/fn-abs-more-args-021", "the constructor xs:short needs casting to the derived types: XP-23 (#299)"),
-        ("fn-abs/fn-abs-more-args-022", "the constructor xs:short needs casting to the derived types: XP-23 (#299)"),
-        (
-            "fn-abs/fn-abs-more-args-023",
-            "the constructor xs:unsignedLong needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/fn-abs-more-args-024",
-            "the constructor xs:unsignedShort needs casting to the derived types: XP-23 (#299)"
-        ),
-        ("fn-abs/fn-abs-more-args-029", "the constructor xs:int needs casting to the derived types: XP-23 (#299)"),
-        ("fn-abs/fn-abs-more-args-030", "the constructor xs:int needs casting to the derived types: XP-23 (#299)"),
-        ("fn-abs/fn-abs-more-args-031", "the constructor xs:int needs casting to the derived types: XP-23 (#299)"),
-        ("fn-abs/fn-abs-more-args-032", "the constructor xs:int needs casting to the derived types: XP-23 (#299)"),
-        ("fn-abs/fn-abs-more-args-037", "the constructor xs:long needs casting to the derived types: XP-23 (#299)"),
-        ("fn-abs/fn-abs-more-args-038", "the constructor xs:long needs casting to the derived types: XP-23 (#299)"),
-        ("fn-abs/fn-abs-more-args-039", "the constructor xs:long needs casting to the derived types: XP-23 (#299)"),
-        ("fn-abs/fn-abs-more-args-040", "the constructor xs:long needs casting to the derived types: XP-23 (#299)"),
-        (
-            "fn-abs/fn-abs-more-args-041",
-            "the constructor xs:negativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/fn-abs-more-args-042",
-            "the constructor xs:negativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/fn-abs-more-args-043",
-            "the constructor xs:negativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/fn-abs-more-args-044",
-            "the constructor xs:negativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/fn-abs-more-args-045",
-            "the constructor xs:negativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/fn-abs-more-args-046",
-            "the constructor xs:negativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/fn-abs-more-args-047",
-            "the constructor xs:negativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/fn-abs-more-args-048",
-            "the constructor xs:nonNegativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/fn-abs-more-args-049",
-            "the constructor xs:nonNegativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/fn-abs-more-args-050",
-            "the constructor xs:nonNegativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/fn-abs-more-args-051",
-            "the constructor xs:nonNegativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/fn-abs-more-args-052",
-            "the constructor xs:nonNegativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/fn-abs-more-args-053",
-            "the constructor xs:nonPositiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/fn-abs-more-args-054",
-            "the constructor xs:nonPositiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/fn-abs-more-args-055",
-            "the constructor xs:nonPositiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/fn-abs-more-args-056",
-            "the constructor xs:nonPositiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/fn-abs-more-args-057",
-            "the constructor xs:nonPositiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/fn-abs-more-args-058",
-            "the constructor xs:positiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/fn-abs-more-args-059",
-            "the constructor xs:positiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/fn-abs-more-args-060",
-            "the constructor xs:positiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/fn-abs-more-args-061",
-            "the constructor xs:positiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/fn-abs-more-args-062",
-            "the constructor xs:positiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/fn-abs-more-args-063",
-            "the constructor xs:positiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/fn-abs-more-args-064",
-            "the constructor xs:positiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        ("fn-abs/fn-abs-more-args-065", "the constructor xs:short needs casting to the derived types: XP-23 (#299)"),
-        ("fn-abs/fn-abs-more-args-066", "the constructor xs:short needs casting to the derived types: XP-23 (#299)"),
-        ("fn-abs/fn-abs-more-args-067", "the constructor xs:short needs casting to the derived types: XP-23 (#299)"),
-        ("fn-abs/fn-abs-more-args-068", "the constructor xs:short needs casting to the derived types: XP-23 (#299)"),
-        (
-            "fn-abs/fn-abs-more-args-069",
-            "the constructor xs:unsignedLong needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/fn-abs-more-args-070",
-            "the constructor xs:unsignedLong needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/fn-abs-more-args-071",
-            "the constructor xs:unsignedLong needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/fn-abs-more-args-072",
-            "the constructor xs:unsignedLong needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/fn-abs-more-args-073",
-            "the constructor xs:unsignedShort needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/fn-abs-more-args-074",
-            "the constructor xs:unsignedShort needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/fn-abs-more-args-075",
-            "the constructor xs:unsignedShort needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/fn-abs-more-args-076",
-            "the constructor xs:unsignedShort needs casting to the derived types: XP-23 (#299)"
-        ),
-        ("fn-abs/fn-absint1args-1", "the constructor xs:int needs casting to the derived types: XP-23 (#299)"),
-        ("fn-abs/fn-absint1args-2", "the constructor xs:int needs casting to the derived types: XP-23 (#299)"),
-        ("fn-abs/fn-absint1args-3", "the constructor xs:int needs casting to the derived types: XP-23 (#299)"),
-        ("fn-abs/fn-abslng1args-1", "the constructor xs:long needs casting to the derived types: XP-23 (#299)"),
-        ("fn-abs/fn-abslng1args-2", "the constructor xs:long needs casting to the derived types: XP-23 (#299)"),
-        ("fn-abs/fn-abslng1args-3", "the constructor xs:long needs casting to the derived types: XP-23 (#299)"),
-        (
-            "fn-abs/fn-absnint1args-1",
-            "the constructor xs:negativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/fn-absnint1args-2",
-            "the constructor xs:negativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/fn-absnint1args-3",
-            "the constructor xs:negativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/fn-absnni1args-1",
-            "the constructor xs:nonNegativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/fn-absnni1args-2",
-            "the constructor xs:nonNegativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/fn-absnni1args-3",
-            "the constructor xs:nonNegativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/fn-absnpi1args-1",
-            "the constructor xs:nonPositiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/fn-absnpi1args-2",
-            "the constructor xs:nonPositiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/fn-absnpi1args-3",
-            "the constructor xs:nonPositiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/fn-abspint1args-1",
-            "the constructor xs:positiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/fn-abspint1args-2",
-            "the constructor xs:positiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/fn-abspint1args-3",
-            "the constructor xs:positiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        ("fn-abs/fn-abssht1args-1", "the constructor xs:short needs casting to the derived types: XP-23 (#299)"),
-        ("fn-abs/fn-abssht1args-2", "the constructor xs:short needs casting to the derived types: XP-23 (#299)"),
-        ("fn-abs/fn-abssht1args-3", "the constructor xs:short needs casting to the derived types: XP-23 (#299)"),
-        (
-            "fn-abs/fn-absulng1args-1",
-            "the constructor xs:unsignedLong needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/fn-absulng1args-2",
-            "the constructor xs:unsignedLong needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/fn-absulng1args-3",
-            "the constructor xs:unsignedLong needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/fn-absusht1args-1",
-            "the constructor xs:unsignedShort needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/fn-absusht1args-2",
-            "the constructor xs:unsignedShort needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-abs/fn-absusht1args-3",
-            "the constructor xs:unsignedShort needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-ceiling/K2-CeilingFunc-1",
-            "the constructor xs:unsignedShort needs casting to the derived types: XP-23 (#299)"
-        ),
-        ("fn-ceiling/K2-CeilingFunc-10", "the constructor xs:int needs casting to the derived types: XP-23 (#299)"),
-        ("fn-ceiling/K2-CeilingFunc-11", "the constructor xs:short needs casting to the derived types: XP-23 (#299)"),
-        ("fn-ceiling/K2-CeilingFunc-12", "the constructor xs:byte needs casting to the derived types: XP-23 (#299)"),
-        (
-            "fn-ceiling/K2-CeilingFunc-2",
-            "the constructor xs:unsignedLong needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-ceiling/K2-CeilingFunc-3",
-            "the constructor xs:unsignedInt needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-ceiling/K2-CeilingFunc-4",
-            "the constructor xs:unsignedByte needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-ceiling/K2-CeilingFunc-5",
-            "the constructor xs:positiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-ceiling/K2-CeilingFunc-6",
-            "the constructor xs:nonPositiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-ceiling/K2-CeilingFunc-7",
-            "the constructor xs:nonNegativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-ceiling/K2-CeilingFunc-8",
-            "the constructor xs:negativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        ("fn-ceiling/K2-CeilingFunc-9", "the constructor xs:long needs casting to the derived types: XP-23 (#299)"),
         (
             "fn-ceiling/fn-ceiling-1",
             "the fixture of the sequence group has no lowering for the for expression, which #226 evaluates; the evaluator-backed runner runs the case: XP-14 (#295)"
-        ),
-        ("fn-ceiling/fn-ceilingint1args-1", "the constructor xs:int needs casting to the derived types: XP-23 (#299)"),
-        ("fn-ceiling/fn-ceilingint1args-2", "the constructor xs:int needs casting to the derived types: XP-23 (#299)"),
-        ("fn-ceiling/fn-ceilingint1args-3", "the constructor xs:int needs casting to the derived types: XP-23 (#299)"),
-        ("fn-ceiling/fn-ceilinglng1args-1", "the constructor xs:long needs casting to the derived types: XP-23 (#299)"),
-        ("fn-ceiling/fn-ceilinglng1args-2", "the constructor xs:long needs casting to the derived types: XP-23 (#299)"),
-        ("fn-ceiling/fn-ceilinglng1args-3", "the constructor xs:long needs casting to the derived types: XP-23 (#299)"),
-        (
-            "fn-ceiling/fn-ceilingnint1args-1",
-            "the constructor xs:negativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-ceiling/fn-ceilingnint1args-2",
-            "the constructor xs:negativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-ceiling/fn-ceilingnint1args-3",
-            "the constructor xs:negativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-ceiling/fn-ceilingnni1args-1",
-            "the constructor xs:nonNegativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-ceiling/fn-ceilingnni1args-2",
-            "the constructor xs:nonNegativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-ceiling/fn-ceilingnni1args-3",
-            "the constructor xs:nonNegativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-ceiling/fn-ceilingnpi1args-1",
-            "the constructor xs:nonPositiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-ceiling/fn-ceilingnpi1args-2",
-            "the constructor xs:nonPositiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-ceiling/fn-ceilingnpi1args-3",
-            "the constructor xs:nonPositiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-ceiling/fn-ceilingpint1args-1",
-            "the constructor xs:positiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-ceiling/fn-ceilingpint1args-2",
-            "the constructor xs:positiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-ceiling/fn-ceilingpint1args-3",
-            "the constructor xs:positiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-ceiling/fn-ceilingsht1args-1",
-            "the constructor xs:short needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-ceiling/fn-ceilingsht1args-2",
-            "the constructor xs:short needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-ceiling/fn-ceilingsht1args-3",
-            "the constructor xs:short needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-ceiling/fn-ceilingulng1args-1",
-            "the constructor xs:unsignedLong needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-ceiling/fn-ceilingulng1args-2",
-            "the constructor xs:unsignedLong needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-ceiling/fn-ceilingulng1args-3",
-            "the constructor xs:unsignedLong needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-ceiling/fn-ceilingusht1args-1",
-            "the constructor xs:unsignedShort needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-ceiling/fn-ceilingusht1args-2",
-            "the constructor xs:unsignedShort needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-ceiling/fn-ceilingusht1args-3",
-            "the constructor xs:unsignedShort needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-floor/K2-FloorFunc-1",
-            "the constructor xs:unsignedShort needs casting to the derived types: XP-23 (#299)"
-        ),
-        ("fn-floor/K2-FloorFunc-10", "the constructor xs:long needs casting to the derived types: XP-23 (#299)"),
-        ("fn-floor/K2-FloorFunc-11", "the constructor xs:int needs casting to the derived types: XP-23 (#299)"),
-        ("fn-floor/K2-FloorFunc-12", "the constructor xs:short needs casting to the derived types: XP-23 (#299)"),
-        ("fn-floor/K2-FloorFunc-13", "the constructor xs:byte needs casting to the derived types: XP-23 (#299)"),
-        (
-            "fn-floor/K2-FloorFunc-2",
-            "the constructor xs:unsignedShort needs casting to the derived types: XP-23 (#299)"
-        ),
-        ("fn-floor/K2-FloorFunc-3", "the constructor xs:unsignedLong needs casting to the derived types: XP-23 (#299)"),
-        ("fn-floor/K2-FloorFunc-4", "the constructor xs:unsignedInt needs casting to the derived types: XP-23 (#299)"),
-        ("fn-floor/K2-FloorFunc-5", "the constructor xs:unsignedByte needs casting to the derived types: XP-23 (#299)"),
-        (
-            "fn-floor/K2-FloorFunc-6",
-            "the constructor xs:positiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-floor/K2-FloorFunc-7",
-            "the constructor xs:nonPositiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-floor/K2-FloorFunc-8",
-            "the constructor xs:nonNegativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-floor/K2-FloorFunc-9",
-            "the constructor xs:negativeInteger needs casting to the derived types: XP-23 (#299)"
         ),
         (
             "fn-floor/fn-floor-1",
             "the fixture of the sequence group has no lowering for the for expression, which #226 evaluates; the evaluator-backed runner runs the case: XP-14 (#295)"
         ),
-        ("fn-floor/fn-floorint1args-1", "the constructor xs:int needs casting to the derived types: XP-23 (#299)"),
-        ("fn-floor/fn-floorint1args-2", "the constructor xs:int needs casting to the derived types: XP-23 (#299)"),
-        ("fn-floor/fn-floorint1args-3", "the constructor xs:int needs casting to the derived types: XP-23 (#299)"),
-        ("fn-floor/fn-floorlng1args-1", "the constructor xs:long needs casting to the derived types: XP-23 (#299)"),
-        ("fn-floor/fn-floorlng1args-2", "the constructor xs:long needs casting to the derived types: XP-23 (#299)"),
-        ("fn-floor/fn-floorlng1args-3", "the constructor xs:long needs casting to the derived types: XP-23 (#299)"),
-        (
-            "fn-floor/fn-floornint1args-1",
-            "the constructor xs:negativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-floor/fn-floornint1args-2",
-            "the constructor xs:negativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-floor/fn-floornint1args-3",
-            "the constructor xs:negativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-floor/fn-floornni1args-1",
-            "the constructor xs:nonNegativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-floor/fn-floornni1args-2",
-            "the constructor xs:nonNegativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-floor/fn-floornni1args-3",
-            "the constructor xs:nonNegativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-floor/fn-floornpi1args-1",
-            "the constructor xs:nonPositiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-floor/fn-floornpi1args-2",
-            "the constructor xs:nonPositiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-floor/fn-floornpi1args-3",
-            "the constructor xs:nonPositiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-floor/fn-floorpint1args-1",
-            "the constructor xs:positiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-floor/fn-floorpint1args-2",
-            "the constructor xs:positiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-floor/fn-floorpint1args-3",
-            "the constructor xs:positiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        ("fn-floor/fn-floorsht1args-1", "the constructor xs:short needs casting to the derived types: XP-23 (#299)"),
-        ("fn-floor/fn-floorsht1args-2", "the constructor xs:short needs casting to the derived types: XP-23 (#299)"),
-        ("fn-floor/fn-floorsht1args-3", "the constructor xs:short needs casting to the derived types: XP-23 (#299)"),
-        (
-            "fn-floor/fn-floorulng1args-1",
-            "the constructor xs:unsignedLong needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-floor/fn-floorulng1args-2",
-            "the constructor xs:unsignedLong needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-floor/fn-floorulng1args-3",
-            "the constructor xs:unsignedLong needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-floor/fn-floorusht1args-1",
-            "the constructor xs:unsignedShort needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-floor/fn-floorusht1args-2",
-            "the constructor xs:unsignedShort needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-floor/fn-floorusht1args-3",
-            "the constructor xs:unsignedShort needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round/K2-RoundFunc-1",
-            "the constructor xs:unsignedShort needs casting to the derived types: XP-23 (#299)"
-        ),
-        ("fn-round/K2-RoundFunc-10", "the constructor xs:int needs casting to the derived types: XP-23 (#299)"),
-        ("fn-round/K2-RoundFunc-11", "the constructor xs:short needs casting to the derived types: XP-23 (#299)"),
-        ("fn-round/K2-RoundFunc-12", "the constructor xs:byte needs casting to the derived types: XP-23 (#299)"),
-        ("fn-round/K2-RoundFunc-2", "the constructor xs:unsignedLong needs casting to the derived types: XP-23 (#299)"),
-        ("fn-round/K2-RoundFunc-3", "the constructor xs:unsignedInt needs casting to the derived types: XP-23 (#299)"),
-        ("fn-round/K2-RoundFunc-4", "the constructor xs:unsignedByte needs casting to the derived types: XP-23 (#299)"),
-        (
-            "fn-round/K2-RoundFunc-5",
-            "the constructor xs:positiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round/K2-RoundFunc-6",
-            "the constructor xs:nonPositiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round/K2-RoundFunc-7",
-            "the constructor xs:nonNegativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round/K2-RoundFunc-8",
-            "the constructor xs:negativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        ("fn-round/K2-RoundFunc-9", "the constructor xs:long needs casting to the derived types: XP-23 (#299)"),
         (
             "fn-round/fn-round-1",
             "the fixture of the sequence group has no lowering for the for expression, which #226 evaluates; the evaluator-backed runner runs the case: XP-14 (#295)"
-        ),
-        ("fn-round/fn-roundint1args-1", "the constructor xs:int needs casting to the derived types: XP-23 (#299)"),
-        ("fn-round/fn-roundint1args-2", "the constructor xs:int needs casting to the derived types: XP-23 (#299)"),
-        ("fn-round/fn-roundint1args-3", "the constructor xs:int needs casting to the derived types: XP-23 (#299)"),
-        ("fn-round/fn-roundlng1args-1", "the constructor xs:long needs casting to the derived types: XP-23 (#299)"),
-        ("fn-round/fn-roundlng1args-2", "the constructor xs:long needs casting to the derived types: XP-23 (#299)"),
-        ("fn-round/fn-roundlng1args-3", "the constructor xs:long needs casting to the derived types: XP-23 (#299)"),
-        (
-            "fn-round/fn-roundnint1args-1",
-            "the constructor xs:negativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round/fn-roundnint1args-2",
-            "the constructor xs:negativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round/fn-roundnint1args-3",
-            "the constructor xs:negativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round/fn-roundnni1args-1",
-            "the constructor xs:nonNegativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round/fn-roundnni1args-2",
-            "the constructor xs:nonNegativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round/fn-roundnni1args-3",
-            "the constructor xs:nonNegativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round/fn-roundnpi1args-1",
-            "the constructor xs:nonPositiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round/fn-roundnpi1args-2",
-            "the constructor xs:nonPositiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round/fn-roundnpi1args-3",
-            "the constructor xs:nonPositiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round/fn-roundpint1args-1",
-            "the constructor xs:positiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round/fn-roundpint1args-2",
-            "the constructor xs:positiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round/fn-roundpint1args-3",
-            "the constructor xs:positiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        ("fn-round/fn-roundsht1args-1", "the constructor xs:short needs casting to the derived types: XP-23 (#299)"),
-        ("fn-round/fn-roundsht1args-2", "the constructor xs:short needs casting to the derived types: XP-23 (#299)"),
-        ("fn-round/fn-roundsht1args-3", "the constructor xs:short needs casting to the derived types: XP-23 (#299)"),
-        (
-            "fn-round/fn-roundulng1args-1",
-            "the constructor xs:unsignedLong needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round/fn-roundulng1args-2",
-            "the constructor xs:unsignedLong needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round/fn-roundulng1args-3",
-            "the constructor xs:unsignedLong needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round/fn-roundusht1args-1",
-            "the constructor xs:unsignedShort needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round/fn-roundusht1args-2",
-            "the constructor xs:unsignedShort needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round/fn-roundusht1args-3",
-            "the constructor xs:unsignedShort needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round-half-to-even/K2-RoundEvenFunc-17",
-            "the constructor xs:unsignedShort needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round-half-to-even/K2-RoundEvenFunc-18",
-            "the constructor xs:unsignedLong needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round-half-to-even/K2-RoundEvenFunc-19",
-            "the constructor xs:unsignedInt needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round-half-to-even/K2-RoundEvenFunc-20",
-            "the constructor xs:unsignedByte needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round-half-to-even/K2-RoundEvenFunc-21",
-            "the constructor xs:positiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round-half-to-even/K2-RoundEvenFunc-22",
-            "the constructor xs:nonPositiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round-half-to-even/K2-RoundEvenFunc-23",
-            "the constructor xs:nonNegativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round-half-to-even/K2-RoundEvenFunc-24",
-            "the constructor xs:negativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round-half-to-even/K2-RoundEvenFunc-25",
-            "the constructor xs:long needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round-half-to-even/K2-RoundEvenFunc-26",
-            "the constructor xs:int needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round-half-to-even/K2-RoundEvenFunc-27",
-            "the constructor xs:short needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round-half-to-even/K2-RoundEvenFunc-28",
-            "the constructor xs:byte needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round-half-to-even/cbcl-round-half-to-even-004",
-            "the constructor xs:short needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round-half-to-even/cbcl-round-half-to-even-005",
-            "the constructor xs:short needs casting to the derived types: XP-23 (#299)"
         ),
         (
             "fn-round-half-to-even/fn-round-half-to-even-1",
@@ -1574,114 +1574,6 @@ internal static class Qt3NumericSelection
         (
             "fn-round-half-to-even/fn-round-half-to-even-2",
             "the fixture of the sequence group has no lowering for the for expression, which #226 evaluates; the evaluator-backed runner runs the case: XP-14 (#295)"
-        ),
-        (
-            "fn-round-half-to-even/fn-round-half-to-evenint1args-1",
-            "the constructor xs:int needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round-half-to-even/fn-round-half-to-evenint1args-2",
-            "the constructor xs:int needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round-half-to-even/fn-round-half-to-evenint1args-3",
-            "the constructor xs:int needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round-half-to-even/fn-round-half-to-evenlng1args-1",
-            "the constructor xs:long needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round-half-to-even/fn-round-half-to-evenlng1args-2",
-            "the constructor xs:long needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round-half-to-even/fn-round-half-to-evenlng1args-3",
-            "the constructor xs:long needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round-half-to-even/fn-round-half-to-evennint1args-1",
-            "the constructor xs:negativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round-half-to-even/fn-round-half-to-evennint1args-2",
-            "the constructor xs:negativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round-half-to-even/fn-round-half-to-evennint1args-3",
-            "the constructor xs:negativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round-half-to-even/fn-round-half-to-evennni1args-1",
-            "the constructor xs:nonNegativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round-half-to-even/fn-round-half-to-evennni1args-2",
-            "the constructor xs:nonNegativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round-half-to-even/fn-round-half-to-evennni1args-3",
-            "the constructor xs:nonNegativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round-half-to-even/fn-round-half-to-evennpi1args-1",
-            "the constructor xs:nonPositiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round-half-to-even/fn-round-half-to-evennpi1args-2",
-            "the constructor xs:nonPositiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round-half-to-even/fn-round-half-to-evennpi1args-3",
-            "the constructor xs:nonPositiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round-half-to-even/fn-round-half-to-evenpint1args-1",
-            "the constructor xs:positiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round-half-to-even/fn-round-half-to-evenpint1args-2",
-            "the constructor xs:positiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round-half-to-even/fn-round-half-to-evenpint1args-3",
-            "the constructor xs:positiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round-half-to-even/fn-round-half-to-evensht1args-1",
-            "the constructor xs:short needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round-half-to-even/fn-round-half-to-evensht1args-2",
-            "the constructor xs:short needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round-half-to-even/fn-round-half-to-evensht1args-3",
-            "the constructor xs:short needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round-half-to-even/fn-round-half-to-evenulng1args-1",
-            "the constructor xs:unsignedLong needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round-half-to-even/fn-round-half-to-evenulng1args-2",
-            "the constructor xs:unsignedLong needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round-half-to-even/fn-round-half-to-evenulng1args-3",
-            "the constructor xs:unsignedLong needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round-half-to-even/fn-round-half-to-evenusht1args-1",
-            "the constructor xs:unsignedShort needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round-half-to-even/fn-round-half-to-evenusht1args-2",
-            "the constructor xs:unsignedShort needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-round-half-to-even/fn-round-half-to-evenusht1args-3",
-            "the constructor xs:unsignedShort needs casting to the derived types: XP-23 (#299)"
         ),
         (
             "fn-number/K-NodeNumberFunc-16",
@@ -1694,87 +1586,6 @@ internal static class Qt3NumericSelection
         (
             "fn-number/fn-number-4",
             "the fixture of the sequence group has no lowering for the context item expression or a predicate; the evaluator-backed runner runs the case: XP-14 (#295)"
-        ),
-        ("fn-number/fn-numberint1args-1", "the constructor xs:int needs casting to the derived types: XP-23 (#299)"),
-        ("fn-number/fn-numberint1args-2", "the constructor xs:int needs casting to the derived types: XP-23 (#299)"),
-        ("fn-number/fn-numberint1args-3", "the constructor xs:int needs casting to the derived types: XP-23 (#299)"),
-        ("fn-number/fn-numberlng1args-1", "the constructor xs:long needs casting to the derived types: XP-23 (#299)"),
-        ("fn-number/fn-numberlng1args-2", "the constructor xs:long needs casting to the derived types: XP-23 (#299)"),
-        ("fn-number/fn-numberlng1args-3", "the constructor xs:long needs casting to the derived types: XP-23 (#299)"),
-        (
-            "fn-number/fn-numbernint1args-1",
-            "the constructor xs:negativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-number/fn-numbernint1args-2",
-            "the constructor xs:negativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-number/fn-numbernint1args-3",
-            "the constructor xs:negativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-number/fn-numbernni1args-1",
-            "the constructor xs:nonNegativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-number/fn-numbernni1args-2",
-            "the constructor xs:nonNegativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-number/fn-numbernni1args-3",
-            "the constructor xs:nonNegativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-number/fn-numbernpi1args-1",
-            "the constructor xs:nonPositiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-number/fn-numbernpi1args-2",
-            "the constructor xs:nonPositiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-number/fn-numbernpi1args-3",
-            "the constructor xs:nonPositiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-number/fn-numberpint1args-1",
-            "the constructor xs:positiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-number/fn-numberpint1args-2",
-            "the constructor xs:positiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-number/fn-numberpint1args-3",
-            "the constructor xs:positiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        ("fn-number/fn-numbersht1args-1", "the constructor xs:short needs casting to the derived types: XP-23 (#299)"),
-        ("fn-number/fn-numbersht1args-2", "the constructor xs:short needs casting to the derived types: XP-23 (#299)"),
-        ("fn-number/fn-numbersht1args-3", "the constructor xs:short needs casting to the derived types: XP-23 (#299)"),
-        (
-            "fn-number/fn-numberulng1args-1",
-            "the constructor xs:unsignedLong needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-number/fn-numberulng1args-2",
-            "the constructor xs:unsignedLong needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-number/fn-numberulng1args-3",
-            "the constructor xs:unsignedLong needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-number/fn-numberusht1args-1",
-            "the constructor xs:unsignedShort needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-number/fn-numberusht1args-2",
-            "the constructor xs:unsignedShort needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-number/fn-numberusht1args-3",
-            "the constructor xs:unsignedShort needs casting to the derived types: XP-23 (#299)"
         ),
         (
             "fn-true/fn-true-3",
