@@ -1505,8 +1505,10 @@ namespace NetEvolve.Schemas.Xml.Regex.Matching
         public const int MaxNesting = 64;
         public const int MaxProgramSize = 100000;
         public NetEvolve.Schemas.Xml.Regex.Contracts.RegexDialect Dialect { get; }
+        public NetEvolve.Schemas.Xml.Regex.Contracts.RegexMatchResult Find(System.ReadOnlySpan<char> input, int startIndex, NetEvolve.Schemas.Xml.Regex.Contracts.RegexStepLimits limits, out int index, out int length) { }
         public NetEvolve.Schemas.Xml.Regex.Contracts.RegexMatchResult Match(System.ReadOnlySpan<char> input, NetEvolve.Schemas.Xml.Regex.Contracts.RegexStepLimits limits) { }
         public NetEvolve.Schemas.Xml.Regex.Contracts.RegexMatchResult Match(System.ReadOnlySpan<char> input, NetEvolve.Schemas.Xml.Regex.Contracts.RegexStepLimits limits, out long steps) { }
+        public static NetEvolve.Schemas.Xml.Regex.Contracts.RegexError TryCompile(NetEvolve.Schemas.Xml.Regex.Parsing.RegexTree tree, out NetEvolve.Schemas.Xml.Regex.Matching.RegexProgram? program) { }
         public static NetEvolve.Schemas.Xml.Regex.Contracts.RegexError TryCompile(System.ReadOnlySpan<NetEvolve.Schemas.Xml.Regex.Contracts.RegexNode> nodes, int root, System.ReadOnlySpan<NetEvolve.Schemas.Xml.Regex.Matching.RegexCharacterSet> sets, NetEvolve.Schemas.Xml.Regex.Contracts.RegexDialect dialect, out NetEvolve.Schemas.Xml.Regex.Matching.RegexProgram? program) { }
     }
 }
@@ -1535,15 +1537,35 @@ namespace NetEvolve.Schemas.Xml.Regex.Parsing
     public readonly struct RegexSyntax : System.IEquatable<NetEvolve.Schemas.Xml.Regex.Parsing.RegexSyntax>
     {
         public RegexSyntax(NetEvolve.Schemas.Xml.Regex.Contracts.RegexDialect dialect, NetEvolve.Schemas.Xml.Text.CharClasses.NameEdition names) { }
+        public RegexSyntax(NetEvolve.Schemas.Xml.Regex.Contracts.RegexDialect dialect, NetEvolve.Schemas.Xml.Text.CharClasses.NameEdition names, NetEvolve.Schemas.Xml.Regex.XPathDialect.RegexOptions options) { }
         public NetEvolve.Schemas.Xml.Regex.Contracts.RegexDialect Dialect { get; }
         public NetEvolve.Schemas.Xml.Text.CharClasses.NameEdition Names { get; }
+        public NetEvolve.Schemas.Xml.Regex.XPathDialect.RegexOptions Options { get; }
     }
     public sealed class RegexTree
     {
+        public NetEvolve.Schemas.Xml.Regex.Contracts.RegexDialect Dialect { get; }
         public System.ReadOnlySpan<NetEvolve.Schemas.Xml.Regex.Contracts.RegexNode> Nodes { get; }
+        public NetEvolve.Schemas.Xml.Regex.XPathDialect.RegexOptions Options { get; }
         public int Root { get; }
         public int SetCount { get; }
         public NetEvolve.Schemas.Xml.Regex.Matching.RegexCharacterSet GetSet(int index) { }
+    }
+}
+namespace NetEvolve.Schemas.Xml.Regex.XPathDialect
+{
+    [System.Flags]
+    public enum RegexOptions
+    {
+        None = 0,
+        DotAll = 1,
+        MultiLine = 2,
+        IgnoreCase = 4,
+        FreeSpacing = 8,
+    }
+    public static class RegexOptionsParser
+    {
+        public static NetEvolve.Schemas.Xml.Regex.Contracts.RegexError TryParse(System.ReadOnlySpan<char> letters, out NetEvolve.Schemas.Xml.Regex.XPathDialect.RegexOptions options, out int position) { }
     }
 }
 namespace NetEvolve.Schemas.Xml.Text.CharClasses
