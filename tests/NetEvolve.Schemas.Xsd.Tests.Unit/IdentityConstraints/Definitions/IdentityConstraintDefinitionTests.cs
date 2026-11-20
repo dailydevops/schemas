@@ -170,6 +170,49 @@ public class IdentityConstraintDefinitionTests
     }
 
     [Test]
+    public async Task Create_PrefixedNameTests_RecordTheNamespaceOfEachPathInOrderOfFirstUse()
+    {
+        var definition = Create(
+            "<xs:key name=\"k\"><xs:selector xpath=\".//p:item|t:a/p:b\"/><xs:field xpath=\"@id\"/><xs:field xpath=\"t:code/@xml:lang\"/></xs:key>"
+        );
+
+        await Assert.That(definition).IsNotNull();
+        await Assert.That(definition!.SelectorBindings).Count().IsEqualTo(2);
+        await Assert.That(definition.SelectorBindings[0].Key).IsEqualTo("p");
+        await Assert.That(definition.SelectorBindings[0].Value).IsEqualTo("urn:p");
+        await Assert.That(definition.SelectorBindings[1].Key).IsEqualTo("t");
+        await Assert.That(definition.SelectorBindings[1].Value).IsEqualTo("urn:t");
+        await Assert.That(definition.FieldBindings).Count().IsEqualTo(2);
+        await Assert.That(definition.FieldBindings[0]).IsEmpty();
+        await Assert.That(definition.FieldBindings[1]).Count().IsEqualTo(1);
+        await Assert.That(definition.FieldBindings[1][0].Key).IsEqualTo("t");
+        await Assert.That(definition.FieldBindings[1][0].Value).IsEqualTo("urn:t");
+    }
+
+    [Test]
+    public async Task Create_SelectorAndFieldBindTheSamePrefixDifferently_EachPathKeepsItsOwnNamespace()
+    {
+        var definition = Create(
+            "<xs:key name=\"k\"><xs:selector xpath=\"p:a\" xmlns:p=\"urn:one\"/><xs:field xpath=\"p:b\" xmlns:p=\"urn:two\"/></xs:key>"
+        );
+
+        await Assert.That(definition).IsNotNull();
+        await Assert.That(definition!.SelectorBindings[0].Value).IsEqualTo("urn:one");
+        await Assert.That(definition.FieldBindings[0][0].Value).IsEqualTo("urn:two");
+    }
+
+    [Test]
+    public async Task Create_KeyrefWithAnUndeclaredPrefixInRefer_IsSchemaError()
+    {
+        var definition = Create(
+            "<xs:keyref name=\"r\" refer=\"zz:k\"><xs:selector xpath=\"a\"/><xs:field xpath=\"@x\"/></xs:keyref>"
+        );
+
+        await Assert.That(definition).IsNull();
+        await AssertSingleIssue("src-resolve", 3, 1);
+    }
+
+    [Test]
     public async Task Create_SelectorWithPredicate_IsSchemaError()
     {
         var definition = Create("<xs:key name=\"k\"><xs:selector xpath=\"a[1]\"/><xs:field xpath=\"@x\"/></xs:key>");
@@ -204,6 +247,15 @@ public class IdentityConstraintDefinitionTests
     public async Task Create_SelectorWithUndeclaredPrefix_IsSchemaError()
     {
         var definition = Create("<xs:key name=\"k\"><xs:selector xpath=\"q:a\"/><xs:field xpath=\"@x\"/></xs:key>");
+
+        await Assert.That(definition).IsNull();
+        await AssertSingleIssue("c-selector-xpath", 3, 18);
+    }
+
+    [Test]
+    public async Task Create_UndeclaredPrefixInALaterStepOfAPath_IsSchemaError()
+    {
+        var definition = Create("<xs:key name=\"k\"><xs:selector xpath=\"p:a/q:b\"/><xs:field xpath=\"@x\"/></xs:key>");
 
         await Assert.That(definition).IsNull();
         await AssertSingleIssue("c-selector-xpath", 3, 18);
