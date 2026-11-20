@@ -1,5 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Functions.QNames;
 
+using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Types;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
@@ -15,7 +16,11 @@ internal sealed class PrefixFromQNameFunction : QNamePartFunction
     /// <summary>Creates an <c>xs:NCName</c> item.</summary>
     /// <param name="text">The name.</param>
     /// <returns>The item.</returns>
-    internal static XdmItem NCNameItem(string text) => XdmItem.FromString(text).WithTypeId(NCName);
+    internal static XdmItem NCNameItem(string text)
+    {
+        Argument.ThrowIfNull(text);
+        return XdmItem.FromString(text).WithTypeId(NCName);
+    }
 
     /// <inheritdoc />
     protected override XdmSequence Part(XdmQName qname) =>

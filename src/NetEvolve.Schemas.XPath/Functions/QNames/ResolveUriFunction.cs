@@ -9,8 +9,9 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// <summary>
 /// <c>fn:resolve-uri($relative as xs:string?[, $base as xs:string]) as xs:anyURI?</c> (Functions and Operators 1.0, 8.1): the reference
 /// against the base URI, by the resolution of RFC 3986, 5.2, the one-argument form against the static base URI that the function holds.
-/// The empty sequence gives the empty sequence. An absolute reference is returned without looking at the base; a relative one needs an
-/// absolute base without a fragment.
+/// The empty sequence gives the empty sequence. A base that is no valid URI (a fragment or a character that no URI may contain) is
+/// refused first, also for an absolute reference; an absolute reference is then returned as it is, and a relative one needs an absolute
+/// base.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -21,7 +22,7 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// Limitations (#270, decisions): a character that no URI may contain (control characters, space, <c>&lt;&gt;"{}|\^`</c>) is FORG0002,
 /// because the XML escaping of <c>UriReference</c> would turn it into <c>%20</c> and the like and change the string the caller wrote; a
 /// character beyond ASCII is escaped as UTF-8 octets, as <c>fn:iri-to-uri</c> does, because RFC 3986 knows no such character. The static
-/// base URI is held by the function like the one of <see cref="StaticBaseUriFunction"/> (#752, #187); the one in the default catalog
+/// base URI is held by the function like the one of <see cref="StaticBaseUriFunction"/> (#806, #752); the one in the default catalog
 /// holds none.
 /// </para>
 /// </remarks>
@@ -75,12 +76,12 @@ internal sealed class ResolveUriFunction : QNameFunction
     private static bool IsInvalidBase(string baseUri) =>
         baseUri.AsSpan().IndexOf('#') >= 0 || HasForbiddenCharacter(baseUri);
 
-    // Only the ASCII characters: the others are escaped by the resolution.
+    // Only the ASCII characters, DEL included: the others are escaped by the resolution.
     private static bool HasForbiddenCharacter(string text)
     {
         for (var i = 0; i < text.Length; i++)
         {
-            if (text[i] < 0x7F && UriEscaping.IsForbiddenInUri(text[i]))
+            if (text[i] < 0x80 && UriEscaping.IsForbiddenInUri(text[i]))
             {
                 return true;
             }

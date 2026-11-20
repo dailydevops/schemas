@@ -725,7 +725,7 @@ internal static class Qt3QNameSelection
         ),
         (
             "fn-static-base-uri/fn-static-base-15",
-            "the case needs the static base URI http://www.example.com of its static context, which a call does not reach; the function of the default catalog holds none: #752, XP-08 (#187)"
+            "the case needs the static base URI http://www.example.com of its static context, which a call does not reach; the function of the default catalog holds none: #806, #752"
         ),
         (
             "fn-encode-for-uri/K-EncodeURIfunc-6",

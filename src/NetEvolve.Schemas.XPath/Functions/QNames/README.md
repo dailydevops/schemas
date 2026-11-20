@@ -28,16 +28,17 @@ The QName functions (section 11 of the XPath 2.0 Functions and Operators), the U
 
 ## Limitations
 
-- The function conversion has no `xs:QName` and no `element()` item type (the kind tests belong to the sequence type matcher, #227): a
+- The function conversion has no `xs:QName` and no `element()` item type (the function conversion waits for sequence types as parameter types, #613): a
   QName parameter is declared `xs:anyAtomicType?` and an element parameter `node()`, and the function raises XPTY0004 for an atomic
   value that is no QName and for a node that is no element.
 - A call reaches the evaluation context only, which carries no static context, so `fn:static-base-uri` and the one-argument form of
-  `fn:resolve-uri` use a static base URI that the function holds, as `fn:compare` does (#752, #806, #187). The functions of the default catalog
+  `fn:resolve-uri` use a static base URI that the function holds, as `fn:compare` does (#806, #752). The functions of the default catalog
   hold none: `fn:static-base-uri()` is the empty sequence, and `fn:resolve-uri` with one relative reference is FONS0005. A host registers
   functions built over its own `Uri`; a relative `Uri` counts as none.
 - `fn:resolve-uri` refuses (FORG0002) a character that no URI may contain, because the XML escaping of the resolution would change the
-  string the caller wrote; a character beyond ASCII is escaped as UTF-8 octets, as `fn:iri-to-uri` does. A base with a fragment is
-  FORG0002.
+  string the caller wrote; a character beyond ASCII is escaped as UTF-8 octets, as `fn:iri-to-uri` does. A base with a fragment or with
+  such a character is FORG0002 first, also for an absolute reference, which is then returned as it is; a base that is no absolute URI
+  matters for a relative reference only.
 - The lexical QName of `fn:resolve-QName` and `fn:QName` is whitespace-collapsed as the cast to `xs:QName` does.
 - A lone surrogate in the argument of `fn:encode-for-uri` or `fn:iri-to-uri` is escaped as U+FFFD (`%EF%BF%BD`).
 - `fn:namespace-uri-for-prefix`, `fn:in-scope-prefixes`, and `fn:resolve-QName` answer from the namespace nodes of the tree; an element of

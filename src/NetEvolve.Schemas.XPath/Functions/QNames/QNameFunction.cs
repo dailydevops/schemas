@@ -15,7 +15,7 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// <remarks>
 /// Limitations: the group follows XPath 2.0 and its Functions and Operators 1.0, 11 Functions Related to QNames, 8 Functions on
 /// anyURI, and <c>fn:base-uri</c> of 14. The function conversion has no <c>xs:QName</c> and no <c>element()</c> item type (the kind
-/// tests belong to the sequence type matcher, #227), so a QName parameter is declared <c>xs:anyAtomicType?</c> and an element parameter
+/// tests wait for the sequence types of the function conversion, #613), so a QName parameter is declared <c>xs:anyAtomicType?</c> and an element parameter
 /// <c>node()</c>; the function itself raises XPTY0004 for an atomic value that is no QName and for a node that is no element.
 /// </remarks>
 internal abstract class QNameFunction : NodeFunction
