@@ -7,7 +7,7 @@ using NetEvolve.Arguments;
 /// <remarks>
 /// Limitation: an anonymous type has no name yet. The design proposes a synthetic name that numbers the anonymous types of a schema
 /// document, and a component carries neither its document nor that number, so <see cref="IsAnonymous"/> is <see langword="true"/> and both
-/// names are empty until the component model supplies them. The typed value and the data model type of such a node are not affected,
+/// names are empty until the component model supplies them (#792). The typed value and the data model type of such a node are not affected,
 /// because they follow the nearest built-in ancestor.
 /// </remarks>
 internal readonly struct XsdTypeName : IEquatable<XsdTypeName>

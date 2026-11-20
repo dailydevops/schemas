@@ -83,4 +83,28 @@ public class AnnotationValueTests
         await Assert.That(annotation == default).IsFalse();
         await Assert.That(annotation.GetHashCode()).IsEqualTo(run.Annotation(first).GetHashCode());
     }
+
+    [Test]
+    public async Task Types_AreInternal_UntilTheAssemblyOfTheValidatorExposesThem()
+    {
+        var names = new[]
+        {
+            typeof(XsdAnnotation),
+            typeof(XsdTypeName),
+            typeof(XsdValidity),
+            typeof(XsdTypedValueKind),
+            typeof(IAnnotationSink),
+            typeof(AnnotationTable),
+            typeof(AnnotationListener),
+            typeof(AnnotationSource),
+        };
+
+        var visible = 0;
+        foreach (var type in names)
+        {
+            visible += type.IsPublic ? 1 : 0;
+        }
+
+        await Assert.That(visible).IsEqualTo(0);
+    }
 }

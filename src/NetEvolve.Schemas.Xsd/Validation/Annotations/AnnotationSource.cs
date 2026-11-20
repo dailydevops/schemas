@@ -28,7 +28,7 @@ using NetEvolve.Schemas.Xsd.Validation.Core;
 /// another number of items, a nilled element, and an element with element-only content leave it empty, and atomization then falls back to
 /// <c>xs:untypedAtomic</c>. Reading those through <see cref="XsdAnnotation.CopyTypedValue"/> is complete. The XPath evaluator does not take an
 /// annotation source yet, so <c>fn:data</c> inside an expression sees the untyped default; <see cref="Data"/> applies the atomization of
-/// <c>fn:data</c> with this source.
+/// <c>fn:data</c> with this source. The evaluator wiring and the multi-item slot are #791.
 /// </para>
 /// </remarks>
 internal sealed class AnnotationSource : IXdmTypeAnnotationSource
