@@ -9,6 +9,7 @@ using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.Elements;
+using NetEvolve.Schemas.Xsd.OpenContent;
 using NetEvolve.Schemas.Xsd.SchemaDocuments;
 using NetEvolve.Schemas.Xsd.SimpleTypes.Definitions;
 using NetEvolve.Schemas.Xsd.Substitution;
@@ -30,8 +31,10 @@ using NetEvolve.Schemas.Xsd.Wildcards.Core;
 /// <para>
 /// Limitations: whether a derivation is valid (final base types, the content of an extension or restriction against the base:
 /// <c>cos-ct-extends</c>, <c>derivation-ok-restriction</c>, <c>cos-ct-derived-ok</c>) is XSD-10 and XSD-62; compiling the content
-/// model is XSD-09; open content is XSD-20 and assertions are XSD-23, so the XSD 1.1 mapping rules are not applied (an extension
-/// combines base and own content as a sequence, also for <c>all</c> groups); at most one attribute of type ID
+/// model is XSD-09; assertions are XSD-23 and the XSD 1.1 <c>all</c> group is XSD-19, so those mapping rules are not applied
+/// (an extension combines base and own content as a sequence, also for <c>all</c> groups); open content (XSD-20) follows the
+/// mapping rules of XSD 1.1 and is given to the factories as the <c>openContent</c> child and the <c>defaultOpenContent</c> of the
+/// schema, see <see cref="OpenContentRules"/> for the limitation of the extension case; at most one attribute of type ID
 /// (<c>ct-props-correct.5</c>) is not checked because the simple type definition cannot tell derivation from <c>ID</c> yet;
 /// circular derivation cannot arise because the base is resolved before the type exists, so the pipeline that orders the
 /// construction reports it (<c>ct-props-correct.3</c>); the registered <c>anyType</c> is a placeholder without content, it is
@@ -70,6 +73,7 @@ internal sealed class ComplexTypeDefinition : IReferencingComponent, IBlockedTyp
         ContentKind = content.Kind;
         ContentParticle = content.Particle;
         SimpleContentType = content.SimpleType;
+        OpenContent = content.OpenContent;
         _uses = uses;
         AttributeWildcard = attributeWildcard;
         _sites = sites;
@@ -120,6 +124,9 @@ internal sealed class ComplexTypeDefinition : IReferencingComponent, IBlockedTyp
     /// <summary>Gets the attribute wildcard, <see langword="null"/> for none.</summary>
     public IWildcard? AttributeWildcard { get; }
 
+    /// <summary>Gets the open content of an element-only or mixed content type, <see langword="null"/> for none.</summary>
+    public OpenContentProperty? OpenContent { get; }
+
     /// <inheritdoc />
     public int ReferenceCount => _sites.Length;
 
@@ -147,6 +154,8 @@ internal sealed class ComplexTypeDefinition : IReferencingComponent, IBlockedTyp
     /// <param name="attributeUses">The uses of the attributes and attribute groups in document order.</param>
     /// <param name="attributeWildcard">The complete attribute wildcard of the own children, <see langword="null"/> for none.</param>
     /// <param name="reporter">The reporter.</param>
+    /// <param name="openContent">The <c>openContent</c> child, <see langword="null"/> for none.</param>
+    /// <param name="defaultOpenContent">The <c>defaultOpenContent</c> child of the schema, <see langword="null"/> for none.</param>
     /// <returns>The definition.</returns>
     internal static ComplexTypeDefinition Implicit(
         ComplexTypeHeader header,
@@ -154,17 +163,29 @@ internal sealed class ComplexTypeDefinition : IReferencingComponent, IBlockedTyp
         Particle? explicitContent,
         IReadOnlyList<AttributeUse> attributeUses,
         IWildcard? attributeWildcard,
-        XsdIssueReporter reporter
+        XsdIssueReporter reporter,
+        OpenContentElement? openContent = null,
+        OpenContentElement? defaultOpenContent = null
     )
     {
         Argument.ThrowIfNull(attributeUses);
         Argument.ThrowIfNull(reporter);
 
+        // Without a base that has open content the resolution cannot fail, so its result is not needed.
+        _ = TryOpen(
+            header.Location,
+            Restricted(mixed, EffectiveContent(header.Location, mixed, explicitContent)),
+            openContent,
+            defaultOpenContent,
+            reporter,
+            out var content
+        );
+
         return Create(
             header,
             XsdDerivationMethod.Restriction,
             AnyType,
-            Restricted(mixed, EffectiveContent(header.Location, mixed, explicitContent)),
+            content,
             explicitContent,
             attributeUses,
             attributeWildcard,
@@ -181,6 +202,8 @@ internal sealed class ComplexTypeDefinition : IReferencingComponent, IBlockedTyp
     /// <param name="attributeUses">The uses of the attributes and attribute groups in document order.</param>
     /// <param name="attributeWildcard">The complete attribute wildcard of the own children, <see langword="null"/> for none.</param>
     /// <param name="reporter">The reporter.</param>
+    /// <param name="openContent">The <c>openContent</c> child, <see langword="null"/> for none.</param>
+    /// <param name="defaultOpenContent">The <c>defaultOpenContent</c> child of the schema, <see langword="null"/> for none.</param>
     /// <returns>The definition, <see langword="null"/> after an issue was reported.</returns>
     internal static ComplexTypeDefinition? FromComplexContent(
         ComplexTypeHeader header,
@@ -190,7 +213,9 @@ internal sealed class ComplexTypeDefinition : IReferencingComponent, IBlockedTyp
         Particle? explicitContent,
         IReadOnlyList<AttributeUse> attributeUses,
         IWildcard? attributeWildcard,
-        XsdIssueReporter reporter
+        XsdIssueReporter reporter,
+        OpenContentElement? openContent = null,
+        OpenContentElement? defaultOpenContent = null
     )
     {
         GuardDerivation(method, baseType, attributeUses, reporter);
@@ -214,6 +239,11 @@ internal sealed class ComplexTypeDefinition : IReferencingComponent, IBlockedTyp
             content = Restricted(mixed, effective);
         }
         else if (!TryExtend(header.Location, parent, mixed, effective, reporter, out content))
+        {
+            return null;
+        }
+
+        if (!TryOpen(header.Location, content, openContent, defaultOpenContent, reporter, out content))
         {
             return null;
         }
@@ -373,7 +403,12 @@ internal sealed class ComplexTypeDefinition : IReferencingComponent, IBlockedTyp
     {
         if (effective is null)
         {
-            content = new Content(parent.ContentKind, parent.ContentParticle, parent.SimpleContentType);
+            content = new Content(
+                parent.ContentKind,
+                parent.ContentParticle,
+                parent.SimpleContentType,
+                parent.OpenContent
+            );
             return true;
         }
 
@@ -398,8 +433,59 @@ internal sealed class ComplexTypeDefinition : IReferencingComponent, IBlockedTyp
         content = new Content(
             mixed ? ComplexContentKind.Mixed : ComplexContentKind.ElementOnly,
             Particle.Create(location, 1, 1, sequence),
-            null
+            null,
+            parent.OpenContent
         );
+        return true;
+    }
+
+    // Steps 5 and 6 of the mapping rule for the content type (3.4.2.3.3): the open content of the explicit content type, and the
+    // wildcard element over it. Open content belongs to element-only and mixed content, and an empty explicit content type
+    // that gets open content becomes element-only with an empty sequence.
+    private static bool TryOpen(
+        DocumentLocation location,
+        Content explicitContent,
+        OpenContentElement? own,
+        OpenContentElement? schemaDefault,
+        XsdIssueReporter reporter,
+        out Content content
+    )
+    {
+        content = explicitContent;
+        if (explicitContent.Kind == ComplexContentKind.Simple || (own is null && schemaDefault is null))
+        {
+            return true;
+        }
+
+        if (
+            !OpenContentRules.TryResolve(
+                own,
+                schemaDefault,
+                explicitContent.Kind == ComplexContentKind.Empty,
+                explicitContent.OpenContent,
+                location,
+                reporter,
+                out var open
+            )
+        )
+        {
+            return false;
+        }
+
+        if (ReferenceEquals(open, explicitContent.OpenContent))
+        {
+            return true;
+        }
+
+        content =
+            explicitContent.Kind == ComplexContentKind.Empty
+                ? new Content(
+                    ComplexContentKind.ElementOnly,
+                    Particle.Create(location, 1, 1, ModelGroup.Create(ModelGroupCompositor.Sequence, location, [])),
+                    null,
+                    open
+                )
+                : new Content(explicitContent.Kind, explicitContent.Particle, null, open);
         return true;
     }
 
@@ -566,11 +652,17 @@ internal sealed class ComplexTypeDefinition : IReferencingComponent, IBlockedTyp
     [StructLayout(LayoutKind.Auto)]
     private readonly struct Content
     {
-        internal Content(ComplexContentKind kind, Particle? particle, SimpleTypeDefinition? simpleType)
+        internal Content(
+            ComplexContentKind kind,
+            Particle? particle,
+            SimpleTypeDefinition? simpleType,
+            OpenContentProperty? openContent = null
+        )
         {
             Kind = kind;
             Particle = particle;
             SimpleType = simpleType;
+            OpenContent = openContent;
         }
 
         public ComplexContentKind Kind { get; }
@@ -578,5 +670,7 @@ internal sealed class ComplexTypeDefinition : IReferencingComponent, IBlockedTyp
         public Particle? Particle { get; }
 
         public SimpleTypeDefinition? SimpleType { get; }
+
+        public OpenContentProperty? OpenContent { get; }
     }
 }

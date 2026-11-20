@@ -12,6 +12,7 @@ using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.ContentModels.Automaton;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Elements;
+using NetEvolve.Schemas.Xsd.OpenContent;
 
 internal sealed partial class StreamingValidator
 {
@@ -215,7 +216,7 @@ internal sealed partial class StreamingValidator
             return;
         }
 
-        if (!TryStep(parent, id, qname, out var matched))
+        if (!TryStep(parent, id, qname, out var matched, out var byOpenContent))
         {
             // Limitation: the run ceiling has no catalog code of its own; the nearest engine limit is reported (#610).
             if (parent.Counting is { CeilingExceeded: true })
@@ -246,6 +247,12 @@ internal sealed partial class StreamingValidator
             return;
         }
 
+        if (byOpenContent)
+        {
+            OpenWildcard(parent, parent.Open.Wildcard, name, qname, location);
+            return;
+        }
+
         var term = program.Terms[matched.ParticleIndex];
         if (term is ElementDeclaration element)
         {
@@ -257,8 +264,20 @@ internal sealed partial class StreamingValidator
         }
     }
 
-    private static bool TryStep(ElementFrame frame, int id, XPathQName qname, out MatchedParticle matched)
+    private static bool TryStep(
+        ElementFrame frame,
+        int id,
+        XPathQName qname,
+        out MatchedParticle matched,
+        out bool byOpenContent
+    )
     {
+        byOpenContent = false;
+        if (frame.Open.IsActive)
+        {
+            return frame.Open.TryStep(id, qname, out matched, out byOpenContent);
+        }
+
         if (frame.Counting is { } counting)
         {
             return counting.TryStep(id, qname, out matched);
@@ -382,6 +401,7 @@ internal sealed partial class StreamingValidator
             var run = pool is { Count: > 0 } ? pool.Pop() : automaton.CreateRun();
             run.Reset();
             frame.Counting = run;
+            frame.Open = complex.OpenContent is { } countingOpen ? new OpenContentRun(countingOpen, run) : default;
         }
         else
         {
@@ -389,6 +409,7 @@ internal sealed partial class StreamingValidator
             var run = pool is { Count: > 0 } ? pool.Pop() : program.AllGroup!.CreateRun();
             run.Reset();
             frame.AllRun = run;
+            frame.Open = complex.OpenContent is { } allOpen ? new OpenContentRun(allOpen, run) : default;
         }
     }
 
@@ -455,13 +476,21 @@ internal sealed partial class StreamingValidator
         Span<int> ids = stackalloc int[MaxExpectedNames];
         var wildcard = false;
         var written = 0;
-        if (frame.Counting is { } counting)
+        // Once the suffix began the content model no longer accepts a child, only the wildcard does.
+        var inSuffix = frame.Open.InSuffix;
+        if (!inSuffix && frame.Counting is { } counting)
         {
             written = counting.CollectExpected(ids, out wildcard);
         }
-        else if (frame.AllRun is { } all)
+        else if (!inSuffix && frame.AllRun is { } all)
         {
             written = incomplete ? all.CollectMissing(ids) : all.CollectExpected(ids, out wildcard);
+        }
+
+        if (!incomplete)
+        {
+            // At the end of the content only the content model can complete it; open content never does.
+            wildcard |= frame.Open.WildcardExpected;
         }
 
         if (written == 0 && !wildcard)

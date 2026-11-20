@@ -7,7 +7,8 @@ using NetEvolve.Schemas.Xsd.Contracts;
 /// <summary>Derivation Valid (Extension) (<c>cos-ct-extends</c>, Structures 3.4.6).</summary>
 /// <remarks>
 /// Limitations: the clause 1.5 (it must be possible to derive the type in two steps, an extension and then a restriction) is
-/// not checked (#675); open content and assertions of XSD 1.1 are not considered, so the XSD 1.0 constraint applies in both versions;
+/// not checked (#675); assertions of XSD 1.1 are not considered, so the XSD 1.0 constraint applies in both versions; the clauses
+/// 1.4.3.2.2.3 and 1.4.3.2.2.4 on open content are checked when the complex type is constructed (<c>OpenContentRules</c>), not here;
 /// the first violated clause is the one reported.
 /// </remarks>
 internal static class ExtensionValidity
