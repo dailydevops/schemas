@@ -18,7 +18,7 @@ using NetEvolve.Schemas.Xsd.Wildcards.Core;
 /// <remarks>
 /// <para>
 /// Limitations: this is the Structures 1.0 rule, so an element that a wildcard also allows is ambiguous; the element
-/// priority of XSD 1.1 is XSD-21. The input is the compiled <see cref="CountingAutomaton"/> and the component of every
+/// priority of XSD 1.1 is <c>DeterminismCheck11</c> (#306). The input is the compiled <see cref="CountingAutomaton"/> and the component of every
 /// position, because the automaton keeps neither locations nor expanded names; the position of a term is its index in
 /// <c>terms</c>, which is the document order of the leaves with the particles that cannot occur left out, the numbering
 /// of the compiler. All groups are not automata and are not checked here. The analysis stops at an internal ceiling of

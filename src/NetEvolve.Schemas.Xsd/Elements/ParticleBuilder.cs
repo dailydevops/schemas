@@ -15,7 +15,7 @@ using NetEvolve.Schemas.Xsd.Wildcards.Core;
 /// <c>choice</c>, <c>all</c>, local and referenced <c>element</c>, <see langword="group"/> references, and <c>any</c>.
 /// </summary>
 /// <remarks>
-/// Limitations: XSD 1.1 <c>notNamespace</c> and <c>notQName</c> on <c>any</c> are not read (#306), and the restrictions of the
+/// Limitations: XSD 1.1 <c>notNamespace</c> and <c>notQName</c> on <c>any</c> are not read until the 1.1 pipeline (XSD-78) uses <c>NegatedWildcard</c> (#306), and the restrictions of the
 /// <c>all</c> group (XSD-60 #279, XSD-19 #275) are not checked.
 /// </remarks>
 internal sealed class ParticleBuilder

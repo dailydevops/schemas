@@ -11,7 +11,7 @@ using NetEvolve.Arguments;
 /// <remarks>
 /// Limitation: the operations follow the intensional definitions of Structures 1.0, 3.10.6, so a negation is a subset
 /// only of the same negation even when it allows fewer names. <c>notNamespace</c> and <c>notQName</c> of XSD 1.1 are
-/// not modeled (XSD-21).
+/// modeled by <c>NameConstraint</c> in <c>Wildcards/Negation</c> (#306).
 /// </remarks>
 internal sealed class NamespaceConstraint : IEquatable<NamespaceConstraint>
 {
