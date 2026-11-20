@@ -22,8 +22,8 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// </para>
 /// <para>
 /// Limitations: NaN is the value of the NaN property of the decimal format, not the pattern separator property that the text of 4.7.5 names
-/// (an editorial slip: the same sentence calls it the NaN symbol in XSLT 2.0). A mantissa that rounds up to the next power of ten is scaled
-/// again (9.96 with <c>0.0e0</c> gives <c>1.0e1</c>), which the text of 4.7.5 does not say.
+/// (an editorial slip: the same sentence calls it the NaN symbol in XSLT 2.0). A mantissa that rounds up to the next power of ten is not
+/// scaled again (9.96 with <c>0.0e0</c> gives <c>10.0e0</c>), as the conformance cases expect.
 /// </para>
 /// </remarks>
 internal static class NumberFormatter
@@ -141,14 +141,8 @@ internal static class NumberFormatter
             number = new NumberDigits(number.Digits, sub.ScalingFactor);
         }
 
-        number = number.Round(sub.MaximumFractionSize, out var carried);
-        if (carried && sub.HasExponent)
-        {
-            // The mantissa became 10^N: 1 and the point at N places is 10^(N-1) again, one power higher.
-            number = new NumberDigits(number.Digits, sub.ScalingFactor);
-            exponent++;
-        }
-
+        // A mantissa that rounds up to 10^N stays so: 0.99999999 with 0.0e0 is 10.0e-1 (the QT3 cases numberformat301 to 304).
+        number = number.Round(sub.MaximumFractionSize);
         output.Append(sub.Prefix);
         WriteInteger(number, sub, format, ref output);
         WriteFraction(number, sub, format, ref output);

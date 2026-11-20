@@ -14,7 +14,7 @@ using NetEvolve.Arguments;
 /// the positions are N, 2N, 3N, and so on (one separator counts), a grouping separator at the end of the integer part and two adjacent
 /// grouping separators are allowed, and the minimum integer size is one for a picture without a zero digit and a decimal separator. 3.1: every
 /// digit of the family is a digit sign, an exponent separator between two active characters starts the exponent, the grouping is regular when
-/// every multiple of the size up to the digits of the integer part carries a separator, the two grouping positions above are errors, and the
+/// every multiple of the size below the number of integer digits carries a separator, the two grouping positions above are errors, and the
 /// sizes are adjusted so that a picture without a mandatory digit still shows one.
 /// </para>
 /// <para>Limitation: a picture with an exponent separator but without a decimal separator and without a mandatory digit in the mantissa (<c>#e0</c>) gets the adjusted fraction size of 4.7.4, so the formatter writes the decimal separator before the one fraction digit although the picture names none; the literal text would fuse the fraction digit to the integer digits.</para>
@@ -590,14 +590,16 @@ internal static class NumberPictureParser
             return size;
         }
 
-        // 3.1: the greatest size of which every position is a multiple, and every multiple within the integer digits holds a position.
+        // 3.1: the greatest size of which every position is a multiple, and every multiple between two digits of the integer part holds a
+        // position: a multiple at the number of digits would be a separator before the first digit, which a regular grouping does not need
+        // (the QT3 cases numberformat312 and numberformat320: ##,## and ,##0 are regular).
         var gcd = 0;
         for (var i = 0; i < positive.Count; i++)
         {
             gcd = Gcd(gcd, positive[i]);
         }
 
-        for (var multiple = gcd; multiple <= integerDigits; multiple += gcd)
+        for (var multiple = gcd; multiple < integerDigits; multiple += gcd)
         {
             if (!positive.Contains(multiple))
             {

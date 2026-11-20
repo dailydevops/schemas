@@ -30,14 +30,12 @@ internal readonly struct NumberDigits
 
     /// <summary>Rounds to a number of fraction digits, a tie to the even neighbor: <c>fn:round-half-to-even</c> of the converted number.</summary>
     /// <param name="maximumFraction">The maximum number of fraction digits.</param>
-    /// <param name="carried">The rounding made the number the next power of ten, so the digit string is <c>1</c> and the point moved one place.</param>
-    /// <returns>The rounded digits.</returns>
+    /// <returns>The rounded digits; a number that rounds up to the next power of ten is the digit <c>1</c> with the point one place further.</returns>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="maximumFraction"/> is negative.</exception>
-    public NumberDigits Round(int maximumFraction, out bool carried)
+    public NumberDigits Round(int maximumFraction)
     {
         Argument.ThrowIfLessThan(maximumFraction, 0);
 
-        carried = false;
         var keep = (long)Point + maximumFraction;
         if (keep >= Digits.Length)
         {
@@ -68,7 +66,6 @@ internal readonly struct NumberDigits
 
         if (index < 0)
         {
-            carried = true;
             return new NumberDigits("1", Point + 1);
         }
 

@@ -20,7 +20,7 @@ In plain XPath 2.0 without the flag the call is not bound, which the compiler re
 | -------------------------------------- | -------------------------------------------------------- | ---------------------------------------------------------------------- |
 | Digit signs of a picture               | only the zero digit, and the optional digit              | every digit of the family (`999` is `000`), and the optional digit    |
 | Exponent separator                     | none: `e` is passive, rejected between two active characters (`0.0e0`), a literal at the edge (`0.0e`) | between two active characters it starts the exponent: `00.000e0` gives `12.346e2` |
-| Regular grouping                       | positions N, 2N, 3N, and so on; one separator counts     | every multiple of the size up to the integer digits has a separator    |
+| Regular grouping                       | positions N, 2N, 3N, and so on; one separator counts     | every multiple of the size below the number of integer digits has a separator (`##,##` is regular, `####,##` is not) |
 | Grouping separator at the end / adjacent | allowed                                                | `FODF1310`                                                             |
 | Minimum sizes                          | integer size 1 only when there is no zero digit and no decimal separator | adjusted so that a picture without a mandatory digit still shows one (`#.#` gives `.0` for zero) |
 
@@ -57,8 +57,8 @@ allocates the digit string of the value and the analysis of the picture.
 - XPath 3.0 uses the 3.1 rules; there is no third rule set.
 - NaN is the NaN property of the decimal format. The text of 4.7.5 names the pattern separator property, an editorial slip, because the same
   step reads the NaN symbol in XSLT 2.0.
-- A mantissa that rounds up to the next power of ten is scaled again (`9.96` with `0.0e0` gives `1.0e1`); the text of 4.7.5 does not say.
+- A mantissa that rounds up to the next power of ten is not scaled again (`9.96` with `0.0e0` gives `10.0e0`, `0.99999999` gives `10.0e-1`), which is what the QT3 cases `numberformat301` to `numberformat304` expect.
 - A picture with an exponent separator and no decimal separator and no mandatory digit in the mantissa (`#e0`) gets the adjusted fraction
-  size of 4.7.4, and the decimal separator is written before the fraction digit, although the picture names none.
+  size of 4.7.4, and the decimal separator is written before the fraction digit, although the picture names none (the QT3 case `numberformat231` expects `0.2e0` for `#e0`).
 - Reading `xsl:decimal-format` declarations and wiring them into the slot is SCH-83; `fn:format-integer` is XP-35; date and time
   formatting is XP-63; the QT3 set `fn/format-number` joins the selection with XP-74.
