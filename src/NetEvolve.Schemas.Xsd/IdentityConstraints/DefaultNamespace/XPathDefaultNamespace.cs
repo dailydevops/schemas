@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Text;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
+using NetEvolve.Schemas.XPath.Subsets;
 using NetEvolve.Schemas.XPath.Syntax.Parser;
 using NetEvolve.Schemas.XPath.Syntax.Tree;
 using NetEvolve.Schemas.Xsd.Components;
@@ -104,8 +105,13 @@ internal static class XPathDefaultNamespace
         var namespaceName = Resolve(path, scope, version);
         var xpath = path.FindAttribute("xpath");
 
-        // A path that does not parse is the definition's to report.
-        if (namespaceName.Length == 0 || xpath is null || !XPathParser.TryParse(xpath.AsSpan(), out var tree, out _))
+        // A path that does not parse, or that the subset rejects, is the definition's to report as the author wrote it.
+        if (
+            namespaceName.Length == 0
+            || xpath is null
+            || !XPathParser.TryParse(xpath.AsSpan(), out var tree, out _)
+            || !Profile(path).Accepts(tree!, out _)
+        )
         {
             return;
         }
@@ -140,6 +146,11 @@ internal static class XPathDefaultNamespace
         path.AddNamespace(prefix, namespaceName);
         path.SetAttribute("xpath", text.ToString());
     }
+
+    private static XPathSubsetChecker Profile(SchemaSyntaxNode path) =>
+        string.Equals(path.Name.LocalName, "selector", StringComparison.Ordinal)
+            ? XPathSubsetChecker.Selector
+            : XPathSubsetChecker.Field;
 
     // The restricted subset has no other place for a name than the child axis; the attribute axis keeps its names.
     private static void CollectElementNames(SyntaxNode node, List<int> offsets)
