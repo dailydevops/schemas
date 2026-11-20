@@ -15,6 +15,8 @@ registration file (`Registration.cs`) stages the group into the default catalog;
 
 - An `xs:integer` and an `xs:decimal` are exact at any width: an integer beyond 64 bits stays an `xs:integer` (an item of the decimal
   family that carries the `xs:integer` type) through `fn:abs` and `fn:round-half-to-even` with a negative precision.
+- An argument of a type derived from `xs:integer` (`xs:int`, `xs:long`, `xs:unsignedByte`, and so on) is accepted where the parameter is
+  `xs:numeric`, and the QT3 cases that build such arguments are selected in `Qt3NumericSelection` (#746).
 - A floating-point zero keeps the sign of the argument: `fn:round(-0.3e0)`, `fn:ceiling(-0.3e0)`, and `fn:floor(-0e0)` give negative
   zero, and `fn:abs(-0e0)` gives positive zero. NaN and the infinities are their own result.
 - `fn:round` rounds a double by its exact fraction (the floor of the value, then the tie test), not by `Math.Floor(value + 0.5)`,
@@ -33,8 +35,6 @@ registration file (`Registration.cs`) stages the group into the default catalog;
   or an infinity.
 - A precision of an `xs:integer` beyond 64 bits is saturated to the 64-bit range by `fn:round-half-to-even`, which keeps every digit for a
   positive precision and clears every digit for a negative one (#719).
-- The arguments of derived integer types (`xs:int`, `xs:long`, and so on) are cast to derived types now, but the
-  QT3 cases that build them stay excluded in `Qt3NumericSelection` until #746 selects them.
 - The XPath 1.0 compatibility mode is not applied by the functions: it converts the arguments of a call before the function sees them
   (`Compatibility/CompatibilityFunctionConversion`), and `fn:floor`, `fn:ceiling`, `fn:round`, and `fn:abs` keep the XPath 2.0 rules for a
   string or an untyped argument that is not a number.

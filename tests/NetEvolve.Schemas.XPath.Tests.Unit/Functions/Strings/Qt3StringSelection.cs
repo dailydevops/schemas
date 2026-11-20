@@ -17,7 +17,7 @@ namespace NetEvolve.Schemas.XPath.Tests.Unit.Functions.Strings;
 /// stays open until #295.
 /// </para>
 /// <para>
-/// Cases per test set, as selected of applicable: concat 46 of 95; substring 42 of 48; substring-before 31 of 35; substring-after 32 of 36; contains 28 of 35; starts-with 28 of 33; ends-with 26 of 32; translate 41 of 42; normalize-space 31 of 35; string-length 26 of 33; upper-case 25 of 29; lower-case 24 of 28; string-join 32 of 34; normalize-unicode 37 of 45; codepoints-to-string 54 of 68; string-to-codepoints 35 of 44. In all, 538 of 672 applicable cases are selected and 134 are excluded.
+/// Cases per test set, as selected of applicable: concat 91 of 95; substring 42 of 48; substring-before 31 of 35; substring-after 32 of 36; contains 28 of 35; starts-with 28 of 33; ends-with 26 of 32; translate 41 of 42; normalize-space 31 of 35; string-length 26 of 33; upper-case 25 of 29; lower-case 24 of 28; string-join 32 of 34; normalize-unicode 37 of 45; codepoints-to-string 54 of 68; string-to-codepoints 35 of 44. In all, 538 of 672 applicable cases are selected and 134 are excluded.
 /// </para>
 /// <para>
 /// An assertion is written for <see cref="Sequences.Qt3SequenceFixture.Satisfies"/>: <c>T</c> or <c>F</c> for a boolean, <c>S:</c> and
@@ -160,6 +160,199 @@ internal static class Qt3StringSelection
         ("fn-concat/K2-ConcatFunc-1", "concat((\"a\", \"b\"), \"c\")", "X:XPTY0004"),
         ("fn-concat/K2-ConcatFunc-2", "concat(\"1\", \"2\", \"3\", (\"a\", \"b\"), \"c\")", "X:XPTY0004"),
         ("fn-concat/K2-ConcatFunc-3", "concat(\"1\", \"2\", \"3\", \"c\", (\"a\", \"b\"))", "X:XPTY0004"),
+        (
+            "fn-concat/fn-concatint2args-1",
+            "fn:concat(xs:int(\"-2147483648\"),xs:int(\"-2147483648\"))",
+            "S:-2147483648-2147483648"
+        ),
+        (
+            "fn-concat/fn-concatint2args-2",
+            "fn:concat(xs:int(\"-1873914410\"),xs:int(\"-2147483648\"))",
+            "S:-1873914410-2147483648"
+        ),
+        (
+            "fn-concat/fn-concatint2args-3",
+            "fn:concat(xs:int(\"2147483647\"),xs:int(\"-2147483648\"))",
+            "S:2147483647-2147483648"
+        ),
+        (
+            "fn-concat/fn-concatint2args-4",
+            "fn:concat(xs:int(\"-2147483648\"),xs:int(\"-1873914410\"))",
+            "S:-2147483648-1873914410"
+        ),
+        (
+            "fn-concat/fn-concatint2args-5",
+            "fn:concat(xs:int(\"-2147483648\"),xs:int(\"2147483647\"))",
+            "S:-21474836482147483647"
+        ),
+        (
+            "fn-concat/fn-concatlng2args-1",
+            "fn:concat(xs:long(\"-92233720368547758\"),xs:long(\"-92233720368547758\"))",
+            "S:-92233720368547758-92233720368547758"
+        ),
+        (
+            "fn-concat/fn-concatlng2args-2",
+            "fn:concat(xs:long(\"-47175562203048468\"),xs:long(\"-92233720368547758\"))",
+            "S:-47175562203048468-92233720368547758"
+        ),
+        (
+            "fn-concat/fn-concatlng2args-3",
+            "fn:concat(xs:long(\"92233720368547758\"),xs:long(\"-92233720368547758\"))",
+            "S:92233720368547758-92233720368547758"
+        ),
+        (
+            "fn-concat/fn-concatlng2args-4",
+            "fn:concat(xs:long(\"-92233720368547758\"),xs:long(\"-47175562203048468\"))",
+            "S:-92233720368547758-47175562203048468"
+        ),
+        (
+            "fn-concat/fn-concatlng2args-5",
+            "fn:concat(xs:long(\"-92233720368547758\"),xs:long(\"92233720368547758\"))",
+            "S:-9223372036854775892233720368547758"
+        ),
+        (
+            "fn-concat/fn-concatnint2args-1",
+            "fn:concat(xs:negativeInteger(\"-999999999999999999\"),xs:negativeInteger(\"-999999999999999999\"))",
+            "S:-999999999999999999-999999999999999999"
+        ),
+        (
+            "fn-concat/fn-concatnint2args-2",
+            "fn:concat(xs:negativeInteger(\"-297014075999096793\"),xs:negativeInteger(\"-999999999999999999\"))",
+            "S:-297014075999096793-999999999999999999"
+        ),
+        (
+            "fn-concat/fn-concatnint2args-3",
+            "fn:concat(xs:negativeInteger(\"-1\"),xs:negativeInteger(\"-999999999999999999\"))",
+            "S:-1-999999999999999999"
+        ),
+        (
+            "fn-concat/fn-concatnint2args-4",
+            "fn:concat(xs:negativeInteger(\"-999999999999999999\"),xs:negativeInteger(\"-297014075999096793\"))",
+            "S:-999999999999999999-297014075999096793"
+        ),
+        (
+            "fn-concat/fn-concatnint2args-5",
+            "fn:concat(xs:negativeInteger(\"-999999999999999999\"),xs:negativeInteger(\"-1\"))",
+            "S:-999999999999999999-1"
+        ),
+        (
+            "fn-concat/fn-concatnni2args-1",
+            "fn:concat(xs:nonNegativeInteger(\"0\"),xs:nonNegativeInteger(\"0\"))",
+            "S:00"
+        ),
+        (
+            "fn-concat/fn-concatnni2args-2",
+            "fn:concat(xs:nonNegativeInteger(\"303884545991464527\"),xs:nonNegativeInteger(\"0\"))",
+            "S:3038845459914645270"
+        ),
+        (
+            "fn-concat/fn-concatnni2args-3",
+            "fn:concat(xs:nonNegativeInteger(\"999999999999999999\"),xs:nonNegativeInteger(\"0\"))",
+            "S:9999999999999999990"
+        ),
+        (
+            "fn-concat/fn-concatnni2args-4",
+            "fn:concat(xs:nonNegativeInteger(\"0\"),xs:nonNegativeInteger(\"303884545991464527\"))",
+            "S:0303884545991464527"
+        ),
+        (
+            "fn-concat/fn-concatnni2args-5",
+            "fn:concat(xs:nonNegativeInteger(\"0\"),xs:nonNegativeInteger(\"999999999999999999\"))",
+            "S:0999999999999999999"
+        ),
+        (
+            "fn-concat/fn-concatnpi2args-1",
+            "fn:concat(xs:nonPositiveInteger(\"-999999999999999999\"),xs:nonPositiveInteger(\"-999999999999999999\"))",
+            "S:-999999999999999999-999999999999999999"
+        ),
+        (
+            "fn-concat/fn-concatnpi2args-2",
+            "fn:concat(xs:nonPositiveInteger(\"-475688437271870490\"),xs:nonPositiveInteger(\"-999999999999999999\"))",
+            "S:-475688437271870490-999999999999999999"
+        ),
+        (
+            "fn-concat/fn-concatnpi2args-3",
+            "fn:concat(xs:nonPositiveInteger(\"0\"),xs:nonPositiveInteger(\"-999999999999999999\"))",
+            "S:0-999999999999999999"
+        ),
+        (
+            "fn-concat/fn-concatnpi2args-4",
+            "fn:concat(xs:nonPositiveInteger(\"-999999999999999999\"),xs:nonPositiveInteger(\"-475688437271870490\"))",
+            "S:-999999999999999999-475688437271870490"
+        ),
+        (
+            "fn-concat/fn-concatnpi2args-5",
+            "fn:concat(xs:nonPositiveInteger(\"-999999999999999999\"),xs:nonPositiveInteger(\"0\"))",
+            "S:-9999999999999999990"
+        ),
+        ("fn-concat/fn-concatpint2args-1", "fn:concat(xs:positiveInteger(\"1\"),xs:positiveInteger(\"1\"))", "S:11"),
+        (
+            "fn-concat/fn-concatpint2args-2",
+            "fn:concat(xs:positiveInteger(\"52704602390610033\"),xs:positiveInteger(\"1\"))",
+            "S:527046023906100331"
+        ),
+        (
+            "fn-concat/fn-concatpint2args-3",
+            "fn:concat(xs:positiveInteger(\"999999999999999999\"),xs:positiveInteger(\"1\"))",
+            "S:9999999999999999991"
+        ),
+        (
+            "fn-concat/fn-concatpint2args-4",
+            "fn:concat(xs:positiveInteger(\"1\"),xs:positiveInteger(\"52704602390610033\"))",
+            "S:152704602390610033"
+        ),
+        (
+            "fn-concat/fn-concatpint2args-5",
+            "fn:concat(xs:positiveInteger(\"1\"),xs:positiveInteger(\"999999999999999999\"))",
+            "S:1999999999999999999"
+        ),
+        ("fn-concat/fn-concatsht2args-1", "fn:concat(xs:short(\"-32768\"),xs:short(\"-32768\"))", "S:-32768-32768"),
+        ("fn-concat/fn-concatsht2args-2", "fn:concat(xs:short(\"-5324\"),xs:short(\"-32768\"))", "S:-5324-32768"),
+        ("fn-concat/fn-concatsht2args-3", "fn:concat(xs:short(\"32767\"),xs:short(\"-32768\"))", "S:32767-32768"),
+        ("fn-concat/fn-concatsht2args-4", "fn:concat(xs:short(\"-32768\"),xs:short(\"-5324\"))", "S:-32768-5324"),
+        ("fn-concat/fn-concatsht2args-5", "fn:concat(xs:short(\"-32768\"),xs:short(\"32767\"))", "S:-3276832767"),
+        ("fn-concat/fn-concatulng2args-1", "fn:concat(xs:unsignedLong(\"0\"),xs:unsignedLong(\"0\"))", "S:00"),
+        (
+            "fn-concat/fn-concatulng2args-2",
+            "fn:concat(xs:unsignedLong(\"130747108607674654\"),xs:unsignedLong(\"0\"))",
+            "S:1307471086076746540"
+        ),
+        (
+            "fn-concat/fn-concatulng2args-3",
+            "fn:concat(xs:unsignedLong(\"184467440737095516\"),xs:unsignedLong(\"0\"))",
+            "S:1844674407370955160"
+        ),
+        (
+            "fn-concat/fn-concatulng2args-4",
+            "fn:concat(xs:unsignedLong(\"0\"),xs:unsignedLong(\"130747108607674654\"))",
+            "S:0130747108607674654"
+        ),
+        (
+            "fn-concat/fn-concatulng2args-5",
+            "fn:concat(xs:unsignedLong(\"0\"),xs:unsignedLong(\"184467440737095516\"))",
+            "S:0184467440737095516"
+        ),
+        ("fn-concat/fn-concatusht2args-1", "fn:concat(xs:unsignedShort(\"0\"),xs:unsignedShort(\"0\"))", "S:00"),
+        (
+            "fn-concat/fn-concatusht2args-2",
+            "fn:concat(xs:unsignedShort(\"44633\"),xs:unsignedShort(\"0\"))",
+            "S:446330"
+        ),
+        (
+            "fn-concat/fn-concatusht2args-3",
+            "fn:concat(xs:unsignedShort(\"65535\"),xs:unsignedShort(\"0\"))",
+            "S:655350"
+        ),
+        (
+            "fn-concat/fn-concatusht2args-4",
+            "fn:concat(xs:unsignedShort(\"0\"),xs:unsignedShort(\"44633\"))",
+            "S:044633"
+        ),
+        (
+            "fn-concat/fn-concatusht2args-5",
+            "fn:concat(xs:unsignedShort(\"0\"),xs:unsignedShort(\"65535\"))",
+            "S:065535"
+        ),
         ("fn-substring/fn-substring-2", "fn:substring(\"metadata\", 4, 3)", "S:ada"),
         ("fn-substring/fn-substring-3", "fn:substring(\"12345\", 1.5, 2.6)", "S:234"),
         ("fn-substring/fn-substring-4", "fn:substring(\"12345\", 0, 3)", "S:12"),
@@ -1245,141 +1438,6 @@ internal static class Qt3StringSelection
     /// <summary>Every applicable case that the selection leaves out, one by one, with the reason and the issue that closes it.</summary>
     public static readonly (string Id, string Reason)[] Exclusions =
     [
-        ("fn-concat/fn-concatint2args-1", "the constructor xs:int needs casting to the derived types: XP-23 (#299)"),
-        ("fn-concat/fn-concatint2args-2", "the constructor xs:int needs casting to the derived types: XP-23 (#299)"),
-        ("fn-concat/fn-concatint2args-3", "the constructor xs:int needs casting to the derived types: XP-23 (#299)"),
-        ("fn-concat/fn-concatint2args-4", "the constructor xs:int needs casting to the derived types: XP-23 (#299)"),
-        ("fn-concat/fn-concatint2args-5", "the constructor xs:int needs casting to the derived types: XP-23 (#299)"),
-        ("fn-concat/fn-concatlng2args-1", "the constructor xs:long needs casting to the derived types: XP-23 (#299)"),
-        ("fn-concat/fn-concatlng2args-2", "the constructor xs:long needs casting to the derived types: XP-23 (#299)"),
-        ("fn-concat/fn-concatlng2args-3", "the constructor xs:long needs casting to the derived types: XP-23 (#299)"),
-        ("fn-concat/fn-concatlng2args-4", "the constructor xs:long needs casting to the derived types: XP-23 (#299)"),
-        ("fn-concat/fn-concatlng2args-5", "the constructor xs:long needs casting to the derived types: XP-23 (#299)"),
-        (
-            "fn-concat/fn-concatusht2args-1",
-            "the constructor xs:unsignedShort needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-concat/fn-concatusht2args-2",
-            "the constructor xs:unsignedShort needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-concat/fn-concatusht2args-3",
-            "the constructor xs:unsignedShort needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-concat/fn-concatusht2args-4",
-            "the constructor xs:unsignedShort needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-concat/fn-concatusht2args-5",
-            "the constructor xs:unsignedShort needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-concat/fn-concatnint2args-1",
-            "the constructor xs:negativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-concat/fn-concatnint2args-2",
-            "the constructor xs:negativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-concat/fn-concatnint2args-3",
-            "the constructor xs:negativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-concat/fn-concatnint2args-4",
-            "the constructor xs:negativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-concat/fn-concatnint2args-5",
-            "the constructor xs:negativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-concat/fn-concatpint2args-1",
-            "the constructor xs:positiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-concat/fn-concatpint2args-2",
-            "the constructor xs:positiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-concat/fn-concatpint2args-3",
-            "the constructor xs:positiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-concat/fn-concatpint2args-4",
-            "the constructor xs:positiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-concat/fn-concatpint2args-5",
-            "the constructor xs:positiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-concat/fn-concatulng2args-1",
-            "the constructor xs:unsignedLong needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-concat/fn-concatulng2args-2",
-            "the constructor xs:unsignedLong needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-concat/fn-concatulng2args-3",
-            "the constructor xs:unsignedLong needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-concat/fn-concatulng2args-4",
-            "the constructor xs:unsignedLong needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-concat/fn-concatulng2args-5",
-            "the constructor xs:unsignedLong needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-concat/fn-concatnpi2args-1",
-            "the constructor xs:nonPositiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-concat/fn-concatnpi2args-2",
-            "the constructor xs:nonPositiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-concat/fn-concatnpi2args-3",
-            "the constructor xs:nonPositiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-concat/fn-concatnpi2args-4",
-            "the constructor xs:nonPositiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-concat/fn-concatnpi2args-5",
-            "the constructor xs:nonPositiveInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-concat/fn-concatnni2args-1",
-            "the constructor xs:nonNegativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-concat/fn-concatnni2args-2",
-            "the constructor xs:nonNegativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-concat/fn-concatnni2args-3",
-            "the constructor xs:nonNegativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-concat/fn-concatnni2args-4",
-            "the constructor xs:nonNegativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        (
-            "fn-concat/fn-concatnni2args-5",
-            "the constructor xs:nonNegativeInteger needs casting to the derived types: XP-23 (#299)"
-        ),
-        ("fn-concat/fn-concatsht2args-1", "the constructor xs:short needs casting to the derived types: XP-23 (#299)"),
-        ("fn-concat/fn-concatsht2args-2", "the constructor xs:short needs casting to the derived types: XP-23 (#299)"),
-        ("fn-concat/fn-concatsht2args-3", "the constructor xs:short needs casting to the derived types: XP-23 (#299)"),
-        ("fn-concat/fn-concatsht2args-4", "the constructor xs:short needs casting to the derived types: XP-23 (#299)"),
-        ("fn-concat/fn-concatsht2args-5", "the constructor xs:short needs casting to the derived types: XP-23 (#299)"),
         ("fn-concat/fn-concat-12", "a function of the boolean and numeric group: XP-58 (#271)"),
         ("fn-concat/fn-concat-14", "a function of the boolean and numeric group: XP-58 (#271)"),
         ("fn-concat/fn-concat-17", "the test fixture has no lowering for this expression form: XP-14 (#295)"),

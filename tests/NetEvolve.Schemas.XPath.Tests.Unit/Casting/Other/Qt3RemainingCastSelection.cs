@@ -14,7 +14,7 @@ namespace NetEvolve.Schemas.XPath.Tests.Unit.Casting.Other;
 /// <para>
 /// A case whose assertion is <c>not(E)</c> is listed as <c>E</c> with the opposite boolean, because the function <c>fn:not</c> belongs to the
 /// boolean function group that has not landed; the value of the case is the same. Cases of these two sets that name a type of the derived types
-/// (<c>xs:int</c>, <c>xs:token</c>, and the like) belong to XP-23 (#299).
+/// (<c>xs:int</c>, <c>xs:token</c>, and the like) are carried by <see cref="Derived.Qt3DerivedCastSelection"/> (XP-23, #299).
 /// </para>
 /// <para>
 /// Limitation: the QT3 runner of the integration tests still has no evaluator behind it (#295), so these cases run through the lowerings of
@@ -28,7 +28,7 @@ namespace NetEvolve.Schemas.XPath.Tests.Unit.Casting.Other;
 /// <para>
 /// Every XPath 2.0 case of the two sets that names one of these types is accounted for: it is in <see cref="Cases"/>, in <see cref="Excluded"/>, or in
 /// <see cref="OutOfShape"/>, whose expression is not made of literals, constructors, and the operators above and has the reason beside it: a function
-/// of a group that has not landed, a for expression, the context item, or a derived type (XP-23, #299).
+/// of a group that has not landed, a for expression, the context item, or a derived type (carried by <see cref="Derived.Qt3DerivedCastSelection"/>).
 /// </para>
 /// </remarks>
 internal static class Qt3RemainingCastSelection
@@ -3204,7 +3204,7 @@ internal static class Qt3RemainingCastSelection
     /// <summary>
     /// The cases of the QT3 sets <c>xs/anyURI</c>, <c>xs/base64Binary</c>, and <c>xs/hexBinary</c>, the <c>xs/*</c> sets of the types of this
     /// package that XPath 2.0 covers, in the same form. Out: <c>xs/dateTimeStamp</c> (XSD 1.1, XPath 3.1), <c>xs/error</c> (XPath 3.0),
-    /// <c>xs/normalizedString</c> and <c>xs/token</c> (derived types, XP-23), <c>xs/numeric</c> (not a type of this package), and the four
+    /// <c>xs/normalizedString</c> and <c>xs/token</c> (derived types, carried by <see cref="Derived.Qt3DerivedCastSelection"/>), <c>xs/numeric</c> (not a type of this package), and the four
     /// cases that call <c>fn:count</c> or <c>fn:codepoints-to-string</c> (<c>base64-908</c>, <c>base64-909</c>, <c>cbcl-base64binary-001</c>,
     /// <c>cbcl-hexbinary-001</c>), whose functions have not landed. <c>Z</c> is the empty sequence.
     /// </summary>
@@ -3579,17 +3579,17 @@ internal static class Qt3RemainingCastSelection
             "prod-CastExpr/K2-SeqExprCast-426",
             "The function fn:string-join belongs to a function group that has not landed."
         ),
-        ("prod-CastExpr/K2-SeqExprCast-480", "The case names a derived type, which belongs to XP-23 (#299)."),
+        ("prod-CastExpr/K2-SeqExprCast-480", "The case names a derived type: Qt3DerivedCastSelection carries it."),
         ("prod-CastExpr/K2-SeqExprCast-488", "The function fn:QName belongs to a function group that has not landed."),
-        ("prod-CastExpr/K2-SeqExprCast-489", "The case names a derived type, which belongs to XP-23 (#299)."),
-        ("prod-CastExpr/K2-SeqExprCast-490", "The case names a derived type, which belongs to XP-23 (#299)."),
-        ("prod-CastExpr/K2-SeqExprCast-491", "The case names a derived type, which belongs to XP-23 (#299)."),
-        ("prod-CastExpr/K2-SeqExprCast-492", "The case names a derived type, which belongs to XP-23 (#299)."),
-        ("prod-CastExpr/K2-SeqExprCast-493", "The case names a derived type, which belongs to XP-23 (#299)."),
-        ("prod-CastExpr/K2-SeqExprCast-494", "The case names a derived type, which belongs to XP-23 (#299)."),
-        ("prod-CastExpr/K2-SeqExprCast-501", "The case names a derived type, which belongs to XP-23 (#299)."),
-        ("prod-CastExpr/K2-SeqExprCast-502", "The case names a derived type, which belongs to XP-23 (#299)."),
-        ("prod-CastExpr/K2-SeqExprCast-503", "The case names a derived type, which belongs to XP-23 (#299)."),
+        ("prod-CastExpr/K2-SeqExprCast-489", "The case names a derived type: Qt3DerivedCastSelection carries it."),
+        ("prod-CastExpr/K2-SeqExprCast-490", "The case names a derived type: Qt3DerivedCastSelection carries it."),
+        ("prod-CastExpr/K2-SeqExprCast-491", "The case names a derived type: Qt3DerivedCastSelection carries it."),
+        ("prod-CastExpr/K2-SeqExprCast-492", "The case names a derived type: Qt3DerivedCastSelection carries it."),
+        ("prod-CastExpr/K2-SeqExprCast-493", "The case names a derived type: Qt3DerivedCastSelection carries it."),
+        ("prod-CastExpr/K2-SeqExprCast-494", "The case names a derived type: Qt3DerivedCastSelection carries it."),
+        ("prod-CastExpr/K2-SeqExprCast-501", "The case names a derived type: Qt3DerivedCastSelection carries it."),
+        ("prod-CastExpr/K2-SeqExprCast-502", "The case names a derived type: Qt3DerivedCastSelection carries it."),
+        ("prod-CastExpr/K2-SeqExprCast-503", "The case names a derived type: Qt3DerivedCastSelection carries it."),
         ("prod-CastableExpr/CastableAs648", "A for expression has no lowering yet."),
         (
             "prod-CastableExpr/K-SeqExprCastable-17",
