@@ -24,7 +24,10 @@ using NetEvolve.Schemas.Xml.Regex.XPathDialect;
 /// matched as the code point of that surrogate. In the XPath dialect an alternation prefers its first matching alternative
 /// over a longer one, as the engines behind the XPath functions do, and <c>$</c> and <c>^</c> follow the text of the flag
 /// <c>m</c>: with it, no line starts after a final newline and the end of the input is no line end after one. The backtracking
-/// machine keeps its stack in a pooled array that grows with the work done, at most 3 integers per step. The instance is
+/// machine stops a loop at the first iteration that matches the empty string, as backtracking engines do, while the automaton
+/// drops such an iteration; for a loop whose body can match the empty string, such as <c>(?:b?|c)*</c>, the two can therefore
+/// pick different matches, each of them a valid one. The backtracking machine keeps its stack in a pooled array that grows with
+/// the work done, at most 3 integers per step. The instance is
 /// immutable and may be shared between threads; a call keeps its state on the stack or in a pooled array. Capture
 /// enumeration, replace, and tokenize are not part of this type (DT-57).
 /// </remarks>
