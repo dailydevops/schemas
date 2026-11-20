@@ -168,4 +168,21 @@ public class PointlessParticleTests
             "rcase-RecurseLax.2",
             12
         );
+
+    [Test]
+    public async Task Group_ThatIsIgnored_LeavesTheSameParticleAsTheBase()
+    {
+        var particle = El("a");
+
+        await AssertValid(_check.Check(Seq([particle]), particle));
+    }
+
+    [Test]
+    public async Task Sequence_ThatMayRepeat_InsideASequence_IsNotSpliced() =>
+        await AssertViolation(
+            _check.Check(Seq([El("a"), Seq([El("b"), El("c")], 1, 2, 12)], line: 10), Seq([El("a"), El("b"), El("c")])),
+            XsdRuleCodes.RcaseRecurse,
+            "rcase-Recurse.2.2",
+            12
+        );
 }

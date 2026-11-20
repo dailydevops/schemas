@@ -277,4 +277,40 @@ public class ParticleRestrictionGroupTests
             12
         );
     }
+
+    [Test]
+    public async Task GroupDefinitions_AreComparedLikeTheirGroups_InEveryCell()
+    {
+        var pair = ModelGroupCompositor.Sequence;
+
+        await AssertValid(_check.Check(El("a"), Ref(pair, [El("a"), El("b", 0, 1)])));
+        await AssertValid(_check.Check(Ref(pair, [El("a"), El("b")]), Any(null, XsdProcessContents.Lax, 0, Unbounded)));
+        await AssertValid(_check.Check(Ref(pair, [El("a"), El("b")]), Ref(pair, [El("a"), El("b")])));
+        await AssertViolation(
+            _check.Check(Any(line: 10), Ref(pair, [El("a"), El("b")])),
+            XsdRuleCodes.CosParticleRestrict,
+            "cos-particle-restrict.2",
+            10
+        );
+        await AssertViolation(
+            _check.Check(Ref(pair, [El("a"), El("b")], 10), El("a")),
+            XsdRuleCodes.CosParticleRestrict,
+            "cos-particle-restrict.2",
+            10
+        );
+    }
+
+    [Test]
+    public async Task NSRecurseCheckCardinality_UnboundedMember_MakesTheTotalUnbounded()
+    {
+        await AssertValid(
+            _check.Check(Seq([El("a", 0, Unbounded), El("b", 0, 1)]), Any(null, XsdProcessContents.Lax, 0, Unbounded))
+        );
+        await AssertViolation(
+            _check.Check(Seq([El("a", 0, 1), El("b", 0, 1)], 1, 1, 10), Any(null, XsdProcessContents.Lax, 0, 1)),
+            XsdRuleCodes.RangeOk,
+            "range-ok.2",
+            10
+        );
+    }
 }

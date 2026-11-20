@@ -20,7 +20,7 @@ public class ParticleRestrictionElementTests
         _check.Check(Of(restriction, line: 10), Of(baseDeclaration, line: 20));
 
     [Test]
-    [Arguments(0L, 1L, 1L, 2L, true, "")]
+    [Arguments(1L, 1L, 1L, 2L, true, "")]
     [Arguments(1L, 2L, 1L, 2L, true, "")]
     [Arguments(2L, 2L, 1L, 3L, true, "")]
     [Arguments(1L, Unbounded, 0L, Unbounded, true, "")]
