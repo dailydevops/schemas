@@ -135,6 +135,8 @@ internal sealed class ConstraintPath
             {
                 case ContextItemExpression:
                     break;
+                case AxisStep { Predicates.Count: > 0 }:
+                    return;
                 case AxisStep { Axis: Axis.DescendantOrSelf }:
                     descendant = true;
                     break;
