@@ -476,11 +476,13 @@ internal sealed partial class StreamingValidator
         Span<int> ids = stackalloc int[MaxExpectedNames];
         var wildcard = false;
         var written = 0;
-        if (frame.Counting is { } counting)
+        // Once the suffix began the content model no longer accepts a child, only the wildcard does.
+        var inSuffix = frame.Open.InSuffix;
+        if (!inSuffix && frame.Counting is { } counting)
         {
             written = counting.CollectExpected(ids, out wildcard);
         }
-        else if (frame.AllRun is { } all)
+        else if (!inSuffix && frame.AllRun is { } all)
         {
             written = incomplete ? all.CollectMissing(ids) : all.CollectExpected(ids, out wildcard);
         }

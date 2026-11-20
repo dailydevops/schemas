@@ -66,6 +66,9 @@ internal struct OpenContentRun
     public readonly bool WildcardExpected =>
         _open is not null && (_open.Mode == OpenContentMode.Interleave || CanEnd());
 
+    /// <summary>Gets a value indicating whether the suffix began: from then on only the wildcard accepts a child.</summary>
+    public readonly bool InSuffix => _inSuffix;
+
     /// <summary>Returns to the state before the first child, also the wrapped run.</summary>
     public void Reset()
     {
