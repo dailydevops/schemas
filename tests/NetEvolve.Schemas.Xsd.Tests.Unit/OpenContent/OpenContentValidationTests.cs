@@ -324,4 +324,14 @@ public class OpenContentValidationTests
         await Assert.That(suffixIncomplete[0].Message).DoesNotContain("any element the wildcard allows");
         await Assert.That(suffixComplete[0].Message).Contains("any element the wildcard allows");
     }
+
+    [Test]
+    public async Task IncompleteContent_AtTheEndTag_DoesNotOfferTheWildcard()
+    {
+        // Open content never completes the content, so the message names only the missing declared element.
+        var issues = Run(Schema(AThenB(), OwnOpen(OpenContentMode.Interleave)), "<r><a/></r>");
+
+        await AssertContentIssue(issues, "cvc-complex-type.2.4", "'b'");
+        await Assert.That(issues[0].Message).DoesNotContain("any element the wildcard allows");
+    }
 }
