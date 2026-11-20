@@ -111,7 +111,7 @@ public class XPathDefaultNamespaceApplyTests
     }
 
     [Test]
-    public async Task Apply_Twice_QualifiesOnce()
+    public async Task Apply_SameScopeTwice_QualifiesOnce()
     {
         var constraint = Constraint(Schema(string.Empty, Unique("a/b", "urn:q", "@a", null)));
         XPathDefaultNamespace.Apply(constraint, Scope, XsdVersion.V11);
@@ -122,6 +122,45 @@ public class XPathDefaultNamespaceApplyTests
         await Assert.That(constraint.GetChildNode(0).FindAttribute("xpath")).IsEqualTo(once);
         await Assert.That(constraint.GetChildNode(0).TryResolvePrefix("xdn1", out _)).IsFalse();
     }
+
+    private const string ChameleonSchema =
+        "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xpathDefaultNamespace=\"##targetNamespace\">"
+        + "<xs:element name=\"x\"><xs:unique name=\"u\"><xs:selector xpath=\"a/b\"/><xs:field xpath=\"@c\"/></xs:unique></xs:element>"
+        + "</xs:schema>";
+
+    [Test]
+    public async Task Apply_ChameleonTreeForTwoScopes_BindsEachScopeToItsOwnNamespace()
+    {
+        // A chameleon include gives every including namespace the same parsed tree.
+        var constraint = Constraint(ChameleonSchema);
+        var registry = new FakeComponentRegistry([]);
+        var scopeA = new SchemaNamespaceScope("urn:A", true);
+        var scopeB = new SchemaNamespaceScope("urn:B", true);
+
+        XPathDefaultNamespace.Apply(constraint, scopeA, XsdVersion.V11);
+        var first = IdentityConstraintDefinition.Create(constraint, scopeA, registry, Reporter());
+        XPathDefaultNamespace.Apply(constraint, scopeB, XsdVersion.V11);
+        var second = IdentityConstraintDefinition.Create(constraint, scopeB, registry, Reporter());
+
+        await Assert.That(first!.Selector).IsEqualTo("xdn:a/xdn:b");
+        await Assert.That(first.SelectorBindings[0].Value).IsEqualTo("urn:A");
+        await Assert.That(second!.Selector).IsEqualTo("xdn:a/xdn:b");
+        await Assert.That(second.SelectorBindings[0].Key).IsEqualTo(first.SelectorBindings[0].Key);
+        await Assert.That(second.SelectorBindings[0].Value).IsEqualTo("urn:B");
+    }
+
+    [Test]
+    public async Task Apply_ChameleonTreeForAScopeWithoutNamespace_RestoresThePathAsWritten()
+    {
+        var constraint = Constraint(ChameleonSchema);
+        XPathDefaultNamespace.Apply(constraint, new SchemaNamespaceScope("urn:A", true), XsdVersion.V11);
+
+        XPathDefaultNamespace.Apply(constraint, new SchemaNamespaceScope(string.Empty, true), XsdVersion.V11);
+
+        await Assert.That(constraint.GetChildNode(0).FindAttribute("xpath")).IsEqualTo("a/b");
+    }
+
+    private static XsdIssueReporter Reporter() => new(new ValidationIssueCollector(ValidationLimits.Default));
 
     [Test]
     public async Task Apply_PrefixDeclaredInTheSchema_PicksAnotherPrefix()
