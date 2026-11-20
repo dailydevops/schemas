@@ -9,8 +9,8 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// <c>xs:untypedAtomic</c> cast to <c>xs:string</c>, and the casts of a pair of a general comparison.
 /// </summary>
 /// <remarks>
-/// Limitation: XPath 1.0 compatibility mode, which compares by the first item and converts the operands to a number, a string, or a
-/// boolean, is not applied (XP-20).
+/// XPath 1.0 compatibility mode, which converts the operands of a general comparison to a boolean, a number, or a string, is not applied here:
+/// its node is <see cref="Compatibility.CompatibilityGeneralComparisonNode"/>.
 /// </remarks>
 internal static class ComparisonOperands
 {

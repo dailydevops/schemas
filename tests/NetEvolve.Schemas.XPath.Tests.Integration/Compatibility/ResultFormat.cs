@@ -52,6 +52,12 @@ internal static class ResultFormat
                 return Text(text);
             }
 
+            // namespace-uri() returns an xs:anyURI, where the baseline has a string.
+            if (item.TryGetAnyUri(out var uri))
+            {
+                return Text(uri!);
+            }
+
             return NumericPromotion.TryToDouble(item, out var number)
                 ? Number(number)
                 : "other:" + item.Kind.ToString();

@@ -4,6 +4,7 @@ using System;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Model;
 using NetEvolve.Schemas.XPath.Api;
+using NetEvolve.Schemas.XPath.Compatibility;
 using NetEvolve.Schemas.XPath.Compilation;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Errors;
@@ -187,7 +188,7 @@ internal static class CompatibilityFixture
         return builder.Complete();
     }
 
-    private static CallNode LowerCall(FunctionCall node, LoweringContext context)
+    private static ExecutableNode LowerCall(FunctionCall node, LoweringContext context)
     {
         var arity = node.Arguments.Count;
         var qname = new XPathQName(FunctionNamespace, node.Name.LocalName);
@@ -210,7 +211,10 @@ internal static class CompatibilityFixture
             arguments[i] = context.Lower(node.Arguments[i]);
         }
 
-        return new CallNode(function!, arguments);
+        // The public API (XP-19) lowers a call the same way: the node of compatibility mode converts the arguments first.
+        return context.StaticContext.XPath10Compatibility
+            ? new CompatibilityCallNode(function!, arguments)
+            : new CallNode(function!, arguments);
     }
 
     private sealed class CallNode(XPathFunction function, ExecutableNode[] arguments) : ExecutableNode

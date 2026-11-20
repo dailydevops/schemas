@@ -26,7 +26,7 @@ public class GeneralComparisonTests
 
     [Test]
     [Arguments("$yes > 0.5", "false", "XPTY0004")]
-    [Arguments("$no < 0.5", "false", "XPTY0004")]
+    [Arguments("$no < 0.5", "true", "XPTY0004")]
     public async Task ABooleanAgainstANumber_IsNotComparedAsNumbersInXPath20(
         string expression,
         string compatibility,

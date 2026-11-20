@@ -44,7 +44,7 @@ internal sealed class NumberFunction : NumericFunction
         return XPathEvaluationStatus.Ok;
     }
 
-    private static XdmItem ToDouble(in XdmItem item)
+    internal static XdmItem ToDouble(in XdmItem item)
     {
         if (item.Kind == XdmItemKind.XsDouble)
         {
