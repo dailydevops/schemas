@@ -232,6 +232,26 @@ public class XmlDocumentLoaderTests
 
     [Test]
     [MethodDataSource(nameof(Kinds))]
+    public async Task Load_MaxDistinctNamesFromOptions_ReachesTheOwnedNameTableForEveryInputKind(
+        InputKind kind,
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var options = XmlReaderOptions.Default.WithLimits(XmlReaderLimits.Default.WithMaxDistinctNames(3));
+        const string Names = "<a><b/><c/><d/></a>";
+        var expected = await FailAsync(InputKind.CharSpan, Names, options, cancellationToken: cancellationToken);
+
+        var actual = await FailAsync(kind, Names, options, cancellationToken: cancellationToken);
+
+        await Assert.That(expected.Diagnostic!.Code.Alias).IsEqualTo("XML1111");
+        await Assert.That(actual.Diagnostic!.Code.Alias).IsEqualTo("XML1111");
+        await Assert.That(actual.Diagnostic.Position).IsEqualTo(expected.Diagnostic.Position);
+    }
+
+    [Test]
+    [MethodDataSource(nameof(Kinds))]
     public async Task Load_LimitFromOptions_GivesSameCodeAndPositionForEveryInputKind(
         InputKind kind,
         CancellationToken cancellationToken
