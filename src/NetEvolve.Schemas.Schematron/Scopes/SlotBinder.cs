@@ -39,6 +39,7 @@ internal sealed class SlotBinder : ISlotBinder
     private readonly int[] _stamps;
     private readonly byte[] _states;
     private int[] _stack = new int[16];
+    private int _depth;
     private int _patternEpoch = 1;
     private int _firingEpoch = 1;
     private int _evaluating;
@@ -140,7 +141,7 @@ internal sealed class SlotBinder : ISlotBinder
             if (state == InProgress)
             {
                 ReportCycle(slot);
-                _cycleReported = true;
+                _cycleReported = _evaluating > 0;
                 status = QueryStatus.Problem;
             }
             else if (state == Failed || Resolve(slot) != Bound)
@@ -152,27 +153,38 @@ internal sealed class SlotBinder : ISlotBinder
         return status;
     }
 
+    // Re-entrant: evaluating a value can call a function whose body binds slots, which starts a nested walk. The nested walk
+    // starts above the entries of this one (_depth), so the slots in progress are exactly the slots on the path of the evaluation.
     private byte Resolve(int root)
     {
-        var top = Push(0, root);
-        while (top > 0)
+        var start = _depth;
+        try
         {
-            var slot = _stack[top - 1];
-            var state = StateOf(slot);
-            if (state is Bound or Failed)
+            var top = Push(start, root);
+            while (top > start)
             {
-                top--;
+                var slot = _stack[top - 1];
+                var state = StateOf(slot);
+                if (state is Bound or Failed)
+                {
+                    top--;
+                }
+                else if (state == InProgress)
+                {
+                    // Every value it reads is settled, because those were pushed above it and have been removed again.
+                    top--;
+                    _depth = top;
+                    Settle(slot);
+                }
+                else
+                {
+                    top = Expand(slot, top);
+                }
             }
-            else if (state == InProgress)
-            {
-                // Every value it reads is settled, because those were pushed above it and have been removed again.
-                top--;
-                Settle(slot);
-            }
-            else
-            {
-                top = Expand(slot, top);
-            }
+        }
+        finally
+        {
+            _depth = start;
         }
 
         return StateOf(root);
