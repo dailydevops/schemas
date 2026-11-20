@@ -24,6 +24,10 @@ public class HelperTests
         await Assert.That(() => new UriEscapingFunction("encode-for-uri", null!)).Throws<ArgumentNullException>();
 
     [Test]
+    public async Task PrefixFromQNameFunction_ANullName_IsRefused() =>
+        await Assert.That(() => PrefixFromQNameFunction.NCNameItem(null!)).Throws<ArgumentNullException>();
+
+    [Test]
     public async Task InScopeNamespaces_AMissingElement_IsRefused()
     {
         await Assert

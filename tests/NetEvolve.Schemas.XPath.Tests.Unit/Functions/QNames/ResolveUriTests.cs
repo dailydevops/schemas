@@ -74,7 +74,7 @@ public class ResolveUriTests
     ) => await Assert.That(QNamesHarness.Run("resolve-uri", relative, baseText)).IsEqualTo(expected);
 
     [Test]
-    public async Task ResolveUri_AnAbsoluteReference_IsReturnedWithoutLookingAtTheBase()
+    public async Task ResolveUri_AnAbsoluteReference_IsReturnedWithoutRequiringAnAbsoluteBase()
     {
         await Assert
             .That(QNamesHarness.Run("resolve-uri", "string:http://www.examples.com", "string:"))
@@ -88,6 +88,15 @@ public class ResolveUriTests
     }
 
     [Test]
+    [Arguments("http://a/b", "http://x/y#f")]
+    [Arguments("http://a/b", "http://x/y z")]
+    [Arguments("http://a/b", "http://x/\u007F")]
+    public async Task ResolveUri_AnInvalidBase_IsFORG0002EvenForAnAbsoluteReference(string relative, string baseText) =>
+        await Assert
+            .That(QNamesHarness.Run("resolve-uri", "string:" + relative, "string:" + baseText))
+            .IsEqualTo("error:FORG0002");
+
+    [Test]
     [Arguments("a.html", "b.html")]
     [Arguments("a.html", "")]
     [Arguments("b.html", "http://www.example.com/a.html#fragment")]
@@ -98,6 +107,8 @@ public class ResolveUriTests
     [Arguments("a%zz", "http://www.example.com/")]
     [Arguments("a", "http://www.example.com/that doc.html")]
     [Arguments("a", "http://www.example.com/{x}")]
+    [Arguments("a\u007F", "http://www.example.com/")]
+    [Arguments("a", "http://www.example.com/\u007F")]
     public async Task ResolveUri_AReferenceOrABaseThatIsNotAValidUri_IsFORG0002(string relative, string baseText) =>
         await Assert
             .That(QNamesHarness.Run("resolve-uri", "string:" + relative, "string:" + baseText))
