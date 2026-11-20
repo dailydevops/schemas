@@ -37,12 +37,17 @@ public class ExponentTests
     public async Task Exponent31_SizesSignAndSpecialValues(string value, string picture, string expected) =>
         await Assert.That(FormatNumberHarness.Xpath31(value, picture)).IsEqualTo(expected);
 
-    // Rounding the mantissa up to 10 to the power of the scaling factor moves the exponent: 9.96 is 1.0e1, not 10.0e0.
+    // The mantissa is chosen first and rounded after that: rounding it up to 10 to the power of the scaling factor does not scale it again
+    // (the conformance cases numberformat301 to numberformat304 expect 10.0e-1 for 0.99999999 with 0.0e0).
     [Test]
-    [Arguments("decimal:9.96", "0.0e0", "1.0e1")]
-    [Arguments("decimal:99.96", "00.0e0", "10.0e1")]
-    [Arguments("decimal:0.996", ".0e0", ".1e1")]
-    public async Task Exponent31_MantissaThatRoundsUpToTheNextPower_IsNormalizedAgain(
+    [Arguments("decimal:9.96", "0.0e0", "10.0e0")]
+    [Arguments("decimal:99.96", "00.0e0", "100.0e0")]
+    [Arguments("decimal:0.996", ".0e0", "1.0e0")]
+    [Arguments("decimal:0.99999999", ".#e0", "1.0e0")]
+    [Arguments("decimal:0.99999999", ".0e0", "1.0e0")]
+    [Arguments("decimal:0.99999999", "#.#e0", "1e0")]
+    [Arguments("decimal:0.99999999", "0.0e0", "10.0e-1")]
+    public async Task Exponent31_MantissaThatRoundsUpToTheNextPower_IsNotScaledAgain(
         string value,
         string picture,
         string expected

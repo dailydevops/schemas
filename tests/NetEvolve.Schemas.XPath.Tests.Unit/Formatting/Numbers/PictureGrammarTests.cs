@@ -67,6 +67,17 @@ public class PictureGrammarTests
     [Arguments("integer:123456789012345", "#########,###,###", "123,456,789,012,345", "123456789,012,345")]
     [Arguments("integer:123456789", "#,###", "123,456,789", "123,456,789")]
     [Arguments("integer:123456789", "#,###,###", "123,456,789", "123,456,789")]
+    [Arguments("integer:642120", "##,##", "64,21,20", "64,21,20")]
+    [Arguments("integer:642120", "####,##", "64,21,20", "6421,20")]
+    [Arguments("integer:642120", "###,##", "64,21,20", "6421,20")]
+    [Arguments("integer:642120", "##,#,#", "6,4,2,1,2,0", "6421,2,0")]
+    [Arguments("integer:642120", "#,#,#", "6,4,2,1,2,0", "6,4,2,1,2,0")]
+    [Arguments("integer:642120", "00,00", "64,21,20", "64,21,20")]
+    [Arguments("integer:3000000", ",##0", "3,000,000", "3,000,000")]
+    [Arguments("integer:123456789", "###,##,00", "1,23,45,67,89", "12345,67,89")]
+    [Arguments("integer:123456789", "#,##,##,00", "1,23,45,67,89", "1,23,45,67,89")]
+    [Arguments("integer:123456789", "####,###,##,0", "123,456,78,9", "123,456,78,9")]
+    [Arguments("integer:987654321", "###,##0,00.00", "9876,543,21.00", "9876,543,21.00")]
     public async Task Picture_RegularGrouping_FollowsTheRulesOfEachSpecification(
         string value,
         string picture,
