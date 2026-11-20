@@ -551,12 +551,7 @@ public readonly struct XsdDateTime : IEquatable<XsdDateTime>
             }
         }
 
-        var error = ParseSeconds(text, start, pos, out second, out fractionCapAt, out var nonZero, out errorOffset);
-        if (error != DatatypeError.None)
-        {
-            return error;
-        }
-
+        ParseSeconds(text, start, pos, out second, out fractionCapAt, out var nonZero);
         if (minute > 59 || whole > 59 || hour > 24 || (hour == 24 && (minute != 0 || nonZero)))
         {
             errorOffset = start;
@@ -566,39 +561,32 @@ public readonly struct XsdDateTime : IEquatable<XsdDateTime>
         return DatatypeError.None;
     }
 
-    private static DatatypeError ParseSeconds(
+    // The scanned form is two digits and an optional decimal point with digits, which XsdDecimal accepts unless the digit
+    // cap is exceeded.
+    private static void ParseSeconds(
         ReadOnlySpan<char> text,
         int start,
         int end,
         out XsdDecimal second,
         out int fractionCapAt,
-        out bool nonZero,
-        out int errorOffset
+        out bool nonZero
     )
     {
         second = XsdDecimal.Zero;
         fractionCapAt = -1;
-        nonZero = false;
-        errorOffset = 0;
-        var parsed = XsdDecimal.Parse(text.Slice(start, end - start));
+        var seconds = text.Slice(start, end - start);
+        var parsed = XsdDecimal.Parse(seconds);
         if (parsed.Success)
         {
             second = parsed.Value;
             nonZero = second.Sign != 0;
-            return DatatypeError.None;
-        }
-
-        if (parsed.Error != DatatypeError.DigitCap)
-        {
-            errorOffset = start + parsed.ErrorOffset;
-            return parsed.Error;
+            return;
         }
 
         // The fraction is beyond the cap: the rest of the form is checked first, and the 24:00:00 rule needs only to know
         // whether the seconds are zero.
         fractionCapAt = start + parsed.ErrorOffset;
-        nonZero = HasNonZeroDigit(text.Slice(start, end - start));
-        return DatatypeError.None;
+        nonZero = HasNonZeroDigit(seconds);
     }
 
     private static bool HasNonZeroDigit(ReadOnlySpan<char> text)
