@@ -178,6 +178,123 @@ public class GlobalEvaluationTests
     }
 
     [Test]
+    public async Task Circularity_OfAGlobalThatCallsAFunctionReadingIt_IsXtde0640_ReportedOnceAndMemoized()
+    {
+        var fixture = new GlobalFixture();
+        var h = fixture.Start(
+            EmptySchema(),
+            X("variable", 10, A("name", "g"), A("select", "f:x()")),
+            Fx.Simple("x", "xs:integer", [], "$g", 20)
+        );
+
+        var first = h.Ensure("g");
+        var again = h.Ensure("g");
+
+        await Assert.That(first).IsEqualTo(QueryStatus.Problem);
+        await Assert.That(again).IsEqualTo(QueryStatus.Problem);
+        await Assert.That(Codes(h.Problems)).IsEqualTo("NES3301/XTDE0640");
+        await Assert.That(h.Problems.Problems[0].Location.Line).IsEqualTo(10);
+        await Assert.That(h.Binds("g")).IsEqualTo(0);
+        await Assert.That(h.Run.Active).IsEqualTo(0);
+        await Assert.That(h.Run.MaxActive).IsEqualTo(0);
+    }
+
+    [Test]
+    public async Task Circularity_OfASchemaLetThatCallsAFunctionReadingIt_IsXtde0640()
+    {
+        var fixture = new GlobalFixture();
+        var h = fixture.Start(Schema(lets: [Let("g", "f:x()")]), Fx.Simple("x", "xs:integer", [], "$g", 20));
+
+        var status = h.Ensure("g");
+
+        await Assert.That(status).IsEqualTo(QueryStatus.Problem);
+        await Assert.That(Codes(h.Problems)).IsEqualTo("NES3301/XTDE0640");
+        await Assert.That(h.Run.MaxActive).IsEqualTo(0);
+    }
+
+    [Test]
+    public async Task Circularity_ThroughTwoFunctionsAndTwoGlobals_IsXtde0640_OnceForTheWholeCycle()
+    {
+        var fixture = new GlobalFixture();
+        var h = fixture.Start(
+            EmptySchema(),
+            X("variable", 10, A("name", "a"), A("select", "f:x()")),
+            X("variable", 11, A("name", "b"), A("select", "f:y()")),
+            Fx.Simple("x", "xs:integer", [], "$b", 20),
+            Fx.Simple("y", "xs:integer", [], "$a", 21)
+        );
+
+        var first = h.Ensure("a");
+        var other = h.Ensure("b");
+
+        await Assert.That(first).IsEqualTo(QueryStatus.Problem);
+        await Assert.That(other).IsEqualTo(QueryStatus.Problem);
+        await Assert.That(Codes(h.Problems)).IsEqualTo("NES3301/XTDE0640");
+        await Assert.That(h.Run.Active).IsEqualTo(0);
+    }
+
+    [Test]
+    public async Task Circularity_ThroughAFunction_DoesNotDisturbAVariableThatDoesNotTakePart()
+    {
+        var fixture = new GlobalFixture();
+        var h = fixture.Start(
+            EmptySchema(),
+            X("variable", 10, A("name", "g"), A("select", "f:x()")),
+            X("variable", 11, A("name", "fine"), A("select", "1 + 1")),
+            Fx.Simple("x", "xs:integer", [], "$g", 20)
+        );
+
+        var cyclic = h.Ensure("g");
+        var fine = h.Ensure("fine");
+
+        await Assert.That(cyclic).IsEqualTo(QueryStatus.Problem);
+        await Assert.That(fine).IsEqualTo(QueryStatus.Ok);
+        await Assert.That(h.Value("fine")).IsEqualTo("2");
+        await Assert.That(Codes(h.Problems)).IsEqualTo("NES3301/XTDE0640");
+    }
+
+    [Test]
+    public async Task Evaluation_OfAGlobalWhoseFunctionBindsAnotherGlobal_WhileAnOuterWalkIsPending_IsNoCycle()
+    {
+        var fixture = new GlobalFixture();
+        var h = fixture.Start(
+            EmptySchema(),
+            X("variable", 10, A("name", "r"), A("select", "$a + 1")),
+            X("variable", 11, A("name", "a"), A("select", "f:x()")),
+            X("variable", 12, A("name", "b"), A("select", "2")),
+            Fx.Simple("x", "xs:integer", [], "$b", 20)
+        );
+
+        var first = h.Ensure("r");
+        var second = h.Ensure("r");
+
+        await Assert.That(first).IsEqualTo(QueryStatus.Ok);
+        await Assert.That(second).IsEqualTo(QueryStatus.Ok);
+        await Assert.That(h.Value("r")).IsEqualTo("3");
+        await Assert.That(h.Problems.Problems.Count).IsEqualTo(0);
+    }
+
+    [Test]
+    public async Task Circularity_ThroughAFunction_WhoseSlotIsBelowAnotherSlotOnTheWalk_IsXtde0640_ReportedOnce()
+    {
+        var fixture = new GlobalFixture();
+        var h = fixture.Start(
+            EmptySchema(),
+            X("variable", 10, A("name", "r"), A("select", "$a + 1")),
+            X("variable", 11, A("name", "a"), A("select", "f:x()")),
+            Fx.Simple("x", "xs:integer", [], "$r", 20)
+        );
+
+        var first = h.Ensure("r");
+        var second = h.Ensure("r");
+
+        await Assert.That(first).IsEqualTo(QueryStatus.Problem);
+        await Assert.That(second).IsEqualTo(QueryStatus.Problem);
+        await Assert.That(Codes(h.Problems)).IsEqualTo("NES3301/XTDE0640");
+        await Assert.That(h.Run.Active).IsEqualTo(0);
+    }
+
+    [Test]
     public async Task Circularity_IsOnlyAnErrorWhenTheCircularVariableIsUsed()
     {
         var fixture = new GlobalFixture();
