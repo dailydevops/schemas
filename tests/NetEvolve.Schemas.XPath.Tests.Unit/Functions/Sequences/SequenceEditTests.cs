@@ -161,6 +161,32 @@ public class SequenceEditTests
     ) => await Assert.That(SequencesHarness.Run("remove", target, "integer:" + position)).IsEqualTo(expected);
 
     [Test]
+    [Arguments("10000000000000000000000000", "integer:1,integer:2,integer:3,string:X")]
+    [Arguments("-10000000000000000000000000", "string:X,integer:1,integer:2,integer:3")]
+    public async Task InsertBefore_WithAPositionBeyondSixtyFourBits_AppendsOrPrepends(
+        string position,
+        string expected
+    ) =>
+        await Assert
+            .That(
+                SequencesHarness.Run(
+                    "insert-before",
+                    "integer:1|integer:2|integer:3",
+                    "integer:" + position,
+                    "string:X"
+                )
+            )
+            .IsEqualTo(expected);
+
+    [Test]
+    [Arguments("10000000000000000000000000")]
+    [Arguments("-10000000000000000000000000")]
+    public async Task Remove_WithAPositionBeyondSixtyFourBits_RemovesNothing(string position) =>
+        await Assert
+            .That(SequencesHarness.Run("remove", "integer:1|integer:2|integer:3", "integer:" + position))
+            .IsEqualTo("integer:1,integer:2,integer:3");
+
+    [Test]
     [Arguments("()", "")]
     [Arguments("integer:1", "integer:1")]
     [Arguments("integer:1|integer:2|integer:3", "integer:3,integer:2,integer:1")]

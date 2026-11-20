@@ -59,6 +59,14 @@ public class FunctionAvailableTests
         await Assert.That(Run(WithUser(), "function-available", S(name), I(arity))).IsEqualTo("boolean:false");
 
     [Test]
+    [Arguments("string-length", "10000000000000000000000000")]
+    [Arguments("string-length", "-10000000000000000000000000")]
+    [Arguments("f:gln", "10000000000000000000000000")]
+    [Arguments("f:gln", "-10000000000000000000000000")]
+    public async Task FunctionAvailable_ForAnArityBeyondSixtyFourBits_IsFalse(string name, string arity) =>
+        await Assert.That(Run(WithUser(), "function-available", S(name), Wide(arity))).IsEqualTo("boolean:false");
+
+    [Test]
     [Arguments("current", 0)]
     [Arguments("system-property", 1)]
     [Arguments("function-available", 1)]

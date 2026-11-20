@@ -71,6 +71,37 @@ public class XdmWideIntegerTests
     }
 
     [Test]
+    [Arguments(0L)]
+    [Arguments(5L)]
+    [Arguments(-5L)]
+    [Arguments(long.MaxValue)]
+    [Arguments(long.MinValue)]
+    public async Task GetSaturatedInteger_OnAnInlineInteger_ReturnsTheValue(long value) =>
+        await Assert.That(XdmItem.FromInteger(value).GetSaturatedInteger()).IsEqualTo(value);
+
+    [Test]
+    public async Task GetSaturatedInteger_OnAnIntegerBeyondSixtyFourBits_SaturatesWithTheSignKept()
+    {
+        await Assert.That(XdmItem.FromBigInteger(Beyond).GetSaturatedInteger()).IsEqualTo(long.MaxValue);
+        await Assert.That(XdmItem.FromBigInteger(-Beyond).GetSaturatedInteger()).IsEqualTo(long.MinValue);
+        await Assert
+            .That(XdmItem.FromBigInteger(new BigInteger(long.MaxValue) + 1).GetSaturatedInteger())
+            .IsEqualTo(long.MaxValue);
+        await Assert
+            .That(XdmItem.FromBigInteger(new BigInteger(long.MinValue) - 1).GetSaturatedInteger())
+            .IsEqualTo(long.MinValue);
+    }
+
+    [Test]
+    public async Task GetSaturatedInteger_OnOtherItems_ReturnsZero()
+    {
+        await Assert.That(XdmItem.FromDouble(5).GetSaturatedInteger()).IsEqualTo(0L);
+        await Assert.That(XdmItem.FromString("5").GetSaturatedInteger()).IsEqualTo(0L);
+        await Assert.That(XdmItem.FromDecimal(new XsdDecimal(5, 0)).GetSaturatedInteger()).IsEqualTo(0L);
+        await Assert.That(default(XdmItem).GetSaturatedInteger()).IsEqualTo(0L);
+    }
+
+    [Test]
     public async Task WideIntegersOfTheSameValue_AreEqualAndHashEqual()
     {
         var first = XdmItem.FromBigInteger(Beyond);

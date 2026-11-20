@@ -55,7 +55,7 @@ internal sealed class FunctionAvailableFunction : XPathFunction
         }
         else
         {
-            _ = invocation.Arguments[1][0].TryGetInteger(out var arity);
+            var arity = invocation.Arguments[1][0].GetSaturatedInteger();
             available = arity is >= 0 and <= int.MaxValue && _scope.IsAvailable(name, (int)arity);
         }
 
