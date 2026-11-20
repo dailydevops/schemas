@@ -9,7 +9,7 @@ using NetEvolve.Schemas.XPath.Syntax.Tree;
 /// <summary>The base of the numeric and boolean functions: every one is a built-in function of the <c>fn</c> namespace, and the parameter types they share are declared once.</summary>
 /// <remarks>
 /// Limitations: the group follows XPath 2.0 and its Functions and Operators 1.0, sections 6.4, 9, and 2 (<c>fn:number</c>); the XPath 1.0
-/// compatibility mode is not applied (XP-20). <c>fn:round</c> with a precision is a function of Functions and Operators 3.0 and is not
+/// compatibility mode converts the arguments of a call before the function sees them (<see cref="Compatibility.CompatibilityFunctionConversion"/>). <c>fn:round</c> with a precision is a function of Functions and Operators 3.0 and is not
 /// registered in any language version (#727).
 /// </remarks>
 internal abstract class NumericFunction : XPathFunction

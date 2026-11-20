@@ -221,7 +221,7 @@ public class GeneralComparisonTests
     [Test]
     public async Task Booleans_AreComparedAsBooleans_AndNotByTheirEffectiveValue()
     {
-        // Limitation: the rules of XPath 1.0 compatibility mode, which convert the other operand to a boolean, are not applied (XP-20).
+        // The rules of XPath 1.0 compatibility mode, which convert the other operand to a boolean, belong to the Compatibility tests.
         await Assert.That(Outcome("b:true", "=", "b:true")).IsEqualTo("true");
         await Assert.That(Outcome("b:false", "<", "b:true")).IsEqualTo("true");
         await Assert.That(Outcome("b:true", "=", "i:1")).IsEqualTo("XPTY0004");

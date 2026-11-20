@@ -20,7 +20,7 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// match, as XPath 2.0, 3.5.2 allows, so <c>(1, "a") = 1</c> is true while <c>("a", 1) = 1</c> is XPTY0004.
 /// </para>
 /// <para>
-/// Limitation: XPath 1.0 compatibility mode is not applied (XP-20). Both operands are atomized completely before the first pair is
+/// Limitation: XPath 1.0 compatibility mode is not applied here: the lowering selects <see cref="Compatibility.CompatibilityGeneralComparisonNode"/> for it. Both operands are atomized completely before the first pair is
 /// tried. The cast of an <c>xs:untypedAtomic</c> item to <c>xs:double</c>, <c>xs:float</c>, <c>xs:boolean</c>, or <c>xs:integer</c>
 /// (<see cref="Functions.Binding.UntypedAtomicCast"/>) allocates nothing, pinned by <c>UntypedAtomicCastAllocationTests</c>; only a
 /// decimal, date and time, or duration target is boxed (#661). Pairs of items that need no cast allocate nothing.
