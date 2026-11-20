@@ -96,6 +96,17 @@ public class Qt3NumericSelectionTests
     }
 
     [Test]
+    public async Task Exclusions_DoNotWaitForTheCastingToTheDerivedTypes()
+    {
+        foreach (var (id, reason) in Qt3NumericSelection.Exclusions)
+        {
+            // The casting to the derived types has landed (XP-23, #299), so no reason waits for it any more.
+            await Assert.That(reason.Contains("XP-23", StringComparison.Ordinal)).IsFalse().Because($"{id}: {reason}");
+            await Assert.That(reason.Contains("#299", StringComparison.Ordinal)).IsFalse().Because($"{id}: {reason}");
+        }
+    }
+
+    [Test]
     public async Task Selection_HasACaseInEveryTestSet()
     {
         var sets = new HashSet<string>(StringComparer.Ordinal);
