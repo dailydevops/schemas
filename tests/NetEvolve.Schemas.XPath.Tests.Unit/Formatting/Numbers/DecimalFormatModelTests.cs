@@ -124,6 +124,10 @@ public class DecimalFormatModelTests
     }
 
     [Test]
+    public async Task UnknownFormatError_NullName_ThrowsArgumentNullException() =>
+        await Assert.That(() => FormatNumberErrors.UnknownFormat(false, null!)).Throws<ArgumentNullException>();
+
+    [Test]
     public async Task TryCreate_NullFormat_ThrowsArgumentNullException() =>
         await Assert
             .That(() => DecimalFormatModel.TryCreate(null!, NumberPictureRules.Xpath31, out _, out _))
