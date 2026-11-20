@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Schematron.Tests.Unit.Fakes;
 using NetEvolve.Schemas.Schematron.Xslt.Functions;
+using NetEvolve.Schemas.Schematron.Xslt.Globals;
 using NetEvolve.Schemas.XPath.Api;
 using static NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Functions.FunctionFixture;
 using static NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Functions.FunctionTree;
@@ -184,7 +185,7 @@ public class FunctionCompileTests
     public async Task Compile_ParamThroughTheRegistryAtTheChildPosition_YieldsTheDeclarationWithTheNextSlot()
     {
         var fixture = Create("a", "b");
-        var node = Declaration(Param("p", "xs:integer", 10));
+        var node = ChildOfDeclaration(Function("f:t", null, 9, Param("p", "xs:integer", 10)));
 
         var executable = fixture.Compile(node, fixture.FunctionScope, XsltPosition.Child);
         var (run, _) = fixture.CreateRun();
@@ -202,7 +203,7 @@ public class FunctionCompileTests
     public async Task Compile_ParamThroughTheRegistryAtTheChildPosition_ReportsAnInvalidParamAndYieldsNothing()
     {
         var fixture = Create();
-        var node = Declaration(Param("p", "xs:nothing", 10));
+        var node = ChildOfDeclaration(Function("f:t", null, 9, Param("p", "xs:nothing", 10)));
 
         var executable = fixture.Compile(node, fixture.FunctionScope, XsltPosition.Child);
 
@@ -604,15 +605,17 @@ public class FunctionCompileTests
     }
 
     [Test]
-    public async Task Compile_ParamAndVariableAsDeclaration_AreMisplacedUntilTheGlobalsPackageExtendsThem()
+    public async Task Compile_ParamAndVariableAsDeclaration_AreGlobalDeclarationsOfTheGlobalsPackage()
     {
         var fixture = Create();
         var nodes = Declarations(Param("p", null, 10), Variable("v", "1", null, 11));
 
-        _ = fixture.Compile(nodes[0], fixture.FunctionScope, XsltPosition.Declaration);
-        _ = fixture.Compile(nodes[1], fixture.FunctionScope, XsltPosition.Declaration);
+        var param = fixture.Compile(nodes[0], fixture.FunctionScope, XsltPosition.Declaration);
+        var variable = fixture.Compile(nodes[1], fixture.FunctionScope, XsltPosition.Declaration);
 
-        await Assert.That(Codes(fixture.Problems)).IsEqualTo("NES3003/XTSE0010,NES3003/XTSE0010");
+        await Assert.That(fixture.Problems.Problems.Count).IsEqualTo(0);
+        await Assert.That(param).IsTypeOf<XsltGlobalDeclaration>();
+        await Assert.That(variable).IsTypeOf<XsltGlobalDeclaration>();
     }
 
     [Test]
