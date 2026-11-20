@@ -35,6 +35,7 @@ public class CopyTests
         _ = children[2].TryGetNode(out var copiedC);
 
         await Assert.That(status).IsEqualTo(QueryStatus.Ok);
+        await Assert.That(PathQuery.Describe(copy[0])).IsEqualTo("Element:s=t");
         await Assert
             .That(NodeDump.Of(sink.Document))
             .IsEqualTo("<r><s xmlns:q='urn:q' k='1' j='2'><a/><b>t</b><!--c--><?p d?><c/></s></r>");

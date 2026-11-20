@@ -181,6 +181,20 @@ public class ElementAttributeTests
     }
 
     [Test]
+    public async Task Attribute_WithContent_HasNoSeparatorByDefault_AndTheSelectFormHasASpace()
+    {
+        var content = new ConstructionHarness(
+            "<out><xsl:attribute name=\"a\"><xsl:sequence select=\"1\"/><xsl:sequence select=\"2\"/></xsl:attribute></out>"
+        );
+        var spaced = new ConstructionHarness(
+            "<out><xsl:attribute name=\"a\"><xsl:sequence select=\"1\"/><xsl:sequence select=\"2\"/></xsl:attribute><xsl:attribute name=\"b\" select=\"(1,2)\"/></out>"
+        );
+
+        await Assert.That(content.Tree()).IsEqualTo("<out a='12'/>");
+        await Assert.That(spaced.Tree()).IsEqualTo("<out a='12' b='1 2'/>");
+    }
+
+    [Test]
     public async Task Attribute_WithContent_ConcatenatesTextNodesWithoutASeparator()
     {
         var harness = new ConstructionHarness(

@@ -36,6 +36,14 @@ public class SimpleNodeTests
     }
 
     [Test]
+    public async Task Comment_WithHyphens_GetsASpaceAfterAHyphenThatIsFollowedByAHyphenOrEndsTheComment()
+    {
+        var harness = new ConstructionHarness("<out><xsl:comment>a--b-c-</xsl:comment></out>");
+
+        await Assert.That(harness.Tree()).IsEqualTo("<out><!--a- -b-c- --></out>");
+    }
+
+    [Test]
     public async Task Comment_InAnItemSequence_IsACommentNode()
     {
         var harness = new ConstructionHarness("<xsl:comment>c</xsl:comment>");
@@ -68,6 +76,16 @@ public class SimpleNodeTests
         );
 
         await Assert.That(harness.Tree()).IsEqualTo("<out><?t 1 2?></out>");
+    }
+
+    [Test]
+    public async Task ProcessingInstruction_WithTheEndMarkerInTheData_GetsASpaceBetweenTheQuestionMarkAndTheBracket()
+    {
+        var harness = new ConstructionHarness(
+            "<out><xsl:processing-instruction name=\"t\" select=\"'a?&gt;b'\"/></out>"
+        );
+
+        await Assert.That(harness.Tree()).IsEqualTo("<out><?t a? >b?></out>");
     }
 
     [Test]

@@ -23,6 +23,15 @@ public class ConstructionCompileTests
     }
 
     [Test]
+    public async Task Namespace_WithoutSelectAndWithoutContent_IsXtse0910()
+    {
+        var harness = new ConstructionHarness("<xsl:namespace name=\"p\"/>");
+
+        await Assert.That(harness.Executable).IsNull();
+        await Assert.That(harness.CompileCodes).IsEqualTo("NES3005/XTSE0910");
+    }
+
+    [Test]
     [Arguments("<xsl:attribute name=\"a\" select=\"1\">x</xsl:attribute>", "NES3003/XTSE0840")]
     [Arguments(
         "<xsl:processing-instruction name=\"p\" select=\"1\">x</xsl:processing-instruction>",
