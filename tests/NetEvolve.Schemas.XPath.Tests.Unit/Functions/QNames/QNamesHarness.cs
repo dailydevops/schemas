@@ -32,8 +32,6 @@ internal static class QNamesHarness
     internal const string FunctionNamespace = "http://www.w3.org/2005/xpath-functions";
     internal const string XmlNamespace = "http://www.w3.org/XML/1998/namespace";
 
-    private const string FunctionTypePrefix = "NetEvolve.Schemas.XPath.Functions.QNames.";
-
     private static readonly XmlDocumentTree Main = BuildMain();
     private static readonly XmlDocumentTree Second = BuildSecond();
 
@@ -55,15 +53,23 @@ internal static class QNamesHarness
             out function
         );
 
-    /// <summary>Creates a function of the group by its type name, so that the tests compile before the type exists.</summary>
-    internal static XPathFunction? Make(string typeName, params object?[] arguments)
-    {
-        var type = typeof(XPathFunction).Assembly.GetType(FunctionTypePrefix + typeName);
-        return type is null ? null : (XPathFunction?)Activator.CreateInstance(type, arguments);
-    }
-
     /// <summary>Calls a function of the default catalog in a fresh evaluation context without a focus.</summary>
     internal static string Run(string local, params string[] arguments) => RunWith(null, local, arguments);
+
+    /// <summary>Calls a function of the default catalog with one string argument that may contain the separators of the argument notation.</summary>
+    internal static string RunString(string local, string value)
+    {
+        TryResolve(local, 1, out var function);
+        using var context = new XPathEvaluationContext();
+        try
+        {
+            return Show(function!.Call(context, [XdmSequence.Create(XdmItem.FromString(value))]));
+        }
+        catch (XPathException failure)
+        {
+            return "error:" + failure.Diagnostic.Code;
+        }
+    }
 
     /// <summary>Calls a function of the default catalog with the given context item.</summary>
     internal static string RunWithContextItem(string contextItem, string local, params string[] arguments) =>

@@ -15,7 +15,7 @@ public class UriEscapingTests
     private const string Unreserved = "abcXYZ019-_.~";
     private const string Reserved = "/?#[]@!$&'()*+,;=";
 
-    private static string Run(string function, string text) => QNamesHarness.Run(function, "string:" + text);
+    private static string Run(string function, string text) => QNamesHarness.RunString(function, text);
 
     [Test]
     [Arguments(Unreserved, "string:" + Unreserved)]

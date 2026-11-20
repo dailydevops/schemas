@@ -20,6 +20,10 @@ namespace NetEvolve.Schemas.XPath.Tests.Unit.Functions.QNames;
 /// builds the same value, because the lowerings of the fixture have no static namespaces.
 /// </para>
 /// <para>
+/// The same holds for the case <c>fn-resolve-uri-33</c>, which asserts the string value of an <c>xs:anyURI</c> result: the fixture renders
+/// no <c>xs:anyURI</c> item, so the call is wrapped in <c>fn:string</c>, which gives the same string value.
+/// </para>
+/// <para>
 /// An assertion is written for <see cref="Numerics.Qt3NumericFixture.Satisfies"/>: <c>T</c> or <c>F</c> for a boolean, <c>S:</c> and <c>N:</c> for
 /// a string value (<c>N:</c> with normalized space), <c>E:</c> for one value equal to an expression, <c>D:</c> for a sequence deep-equal
 /// to an expression, <c>C:</c> for an item count, <c>Y:</c> for an item of a type, and <c>X:</c> for an error code. Alternatives
@@ -79,17 +83,11 @@ internal static class Qt3QNameSelection
         ),
         ("fn-QName/ExpandedQNameConstructFunc016", "fn:QName( xs:integer(\"100\"), \"person\" )", "X:XPTY0004"),
         ("fn-QName/K-ExpandedQNameConstructFunc-1", "QName()", "X:XPST0017"),
-        ("fn-QName/K-ExpandedQNameConstructFunc-10", "QName((), \"local\") eq xs:QName(\"local\")", "T"),
         ("fn-QName/K-ExpandedQNameConstructFunc-2", "QName(\"http://www.example.com/\")", "X:XPST0017"),
         (
             "fn-QName/K-ExpandedQNameConstructFunc-3",
             "QName(\"http://www.example.com/\", \"ncname\", \"error\")",
             "X:XPST0017"
-        ),
-        (
-            "fn-QName/K-ExpandedQNameConstructFunc-4",
-            "QName(\"http://www.w3.org/2005/xpath-functions\", \"prefix:local\") eq xs:QName(\"fn:local\")",
-            "T"
         ),
         ("fn-QName/K-ExpandedQNameConstructFunc-5", "QName(\"http://www.example.com/\", \"1asd:error\")", "X:FOCA0002"),
         ("fn-QName/K-ExpandedQNameConstructFunc-6", "QName(\"\", \"error:ncname\")", "X:FOCA0002"),
@@ -99,7 +97,6 @@ internal static class Qt3QNameSelection
             "QName(\"my:qName\", \"http://example.com/MyErrorNS\")",
             "X:FOCA0002"
         ),
-        ("fn-QName/K-ExpandedQNameConstructFunc-9", "QName(\"\", \"local\") eq xs:QName(\"local\")", "T"),
         ("fn-QName/K2-ExpandedQNameConstructFunc-1", "fn:QName((), ())", "X:XPTY0004"),
         ("fn-QName/cbcl-qname-001", "fn:QName('', ' ')", "X:FOCA0002"),
         ("fn-QName/qName-1", "xs:QName(20)", "X:XPTY0004"),
@@ -204,6 +201,21 @@ internal static class Qt3QNameSelection
         ("fn-local-name-from-QName/LocalNameFromQNameFunc009", "fn:local-name-from-QName(\"\")", "X:XPTY0004"),
         ("fn-local-name-from-QName/LocalNameFromQNameFunc011", "fn:local-name-from-QName()", "X:XPST0017"),
         (
+            "fn-local-name-from-QName/LocalNameFromQNameFunc012",
+            "fn:local-name-from-Qname((/root/elemQN)[1])",
+            "X:XPST0017"
+        ),
+        (
+            "fn-local-name-from-QName/LocalNameFromQNameFunc013",
+            "fn:local-name-from-qname((/root/elemQN)[1])",
+            "X:XPST0017"
+        ),
+        (
+            "fn-local-name-from-QName/LocalNameFromQNameFunc014",
+            "fn:localnamefromQName((/root/elemQN)[1])",
+            "X:XPST0017"
+        ),
+        (
             "fn-local-name-from-QName/LocalNameFromQNameFunc016",
             "fn:local-name-from-QName(xs:integer(\"100\"))",
             "X:XPTY0004"
@@ -230,6 +242,21 @@ internal static class Qt3QNameSelection
         ("fn-namespace-uri-from-QName/NamespaceURIFromQNameFunc007", "fn:namespace-uri-from-QName(((),()))", "C:0"),
         ("fn-namespace-uri-from-QName/NamespaceURIFromQNameFunc009", "fn:namespace-uri-from-QName(\"\")", "X:XPTY0004"),
         ("fn-namespace-uri-from-QName/NamespaceURIFromQNameFunc011", "fn:namespace-uri-from-QName()", "X:XPST0017"),
+        (
+            "fn-namespace-uri-from-QName/NamespaceURIFromQNameFunc012",
+            "fn:namespace-uri-from-qname((/root/elemQN)[1])",
+            "X:XPST0017"
+        ),
+        (
+            "fn-namespace-uri-from-QName/NamespaceURIFromQNameFunc013",
+            "fn:namespace-uri-from-Qname((/root/elemQN)[1])",
+            "X:XPST0017"
+        ),
+        (
+            "fn-namespace-uri-from-QName/NamespaceURIFromQNameFunc014",
+            "fn:namespaceURIfromQName((/root/elemQN)[1])",
+            "X:XPST0017"
+        ),
         (
             "fn-namespace-uri-from-QName/NamespaceURIFromQNameFunc016",
             "fn:namespace-uri-from-QName(xs:integer(\"100\"))",
@@ -273,11 +300,6 @@ internal static class Qt3QNameSelection
         (
             "fn-resolve-uri/K-ResolveURIFunc-6",
             "resolve-uri(\"http://www.example.com/absolute\", \"http://www.example.com/\") eq xs:anyURI(\"http://www.example.com/absolute\")",
-            "T"
-        ),
-        (
-            "fn-resolve-uri/cbcl-fn-resolve-uri-001",
-            "boolean(resolve-uri(string-join(for $x in 1 to 10 return \"blah\",\"z\"),\"http://localhost/\"))",
             "T"
         ),
         ("fn-resolve-uri/fn-resolve-uri-1", "fn:count(fn:resolve-uri((),\"BaseValue\"))", "E:0"),
@@ -385,7 +407,7 @@ internal static class Qt3QNameSelection
         ),
         (
             "fn-resolve-uri/fn-resolve-uri-33",
-            "resolve-uri(\"http://www.example.com/books.xml\", \"urn:doi:234567\")",
+            "fn:string(resolve-uri(\"http://www.example.com/books.xml\", \"urn:doi:234567\"))",
             "S:http://www.example.com/books.xml\tX:FORG0002"
         ),
         ("fn-resolve-uri/fn-resolve-uri-4", "fn:resolve-uri(\"examples\",\"http:%%\")", "X:FORG0002"),
@@ -416,17 +438,10 @@ internal static class Qt3QNameSelection
         ),
         ("fn-base-uri/K-BaseURIFunc-1", "base-uri((), \"wrong param\")", "X:XPST0017"),
         ("fn-base-uri/K-BaseURIFunc-2", "empty(base-uri(()))", "T"),
-        ("fn-base-uri/fn-base-uri-2", "(1 to 100)[fn:base-uri()]", "X:XPTY0004"),
         ("fn-base-uri/fn-base-uri-3", "fn:count(fn:base-uri(()))", "E:0"),
         ("fn-static-base-uri/K-StaticBaseURIFunc-1", "static-base-uri(.)", "X:XPST0017"),
         ("fn-static-base-uri/K-StaticBaseURIFunc-2", "static-base-uri(1, 2)", "X:XPST0017"),
-        ("fn-static-base-uri/K-StaticBaseURIFunc-3", "if(static-base-uri()) then true() else true()", "T"),
         ("fn-static-base-uri/fn-static-base-1", "fn:static-base-uri(\"A argument\")", "X:XPST0017"),
-        (
-            "fn-static-base-uri/fn-static-base-15",
-            "static-base-uri()",
-            "S:http://www.example.com\tS:http://www.example.com/"
-        ),
         ("fn-encode-for-uri/K-EncodeURIfunc-1", "encode-for-uri()", "X:XPST0017"),
         (
             "fn-encode-for-uri/K-EncodeURIfunc-2",
@@ -443,11 +458,6 @@ internal static class Qt3QNameSelection
             "fn-encode-for-uri/K-EncodeURIfunc-5",
             "concat(\"http://www.example.com/\", encode-for-uri(\"100% organic\")) eq \"http://www.example.com/100%25%20organic\"",
             "T"
-        ),
-        (
-            "fn-encode-for-uri/K-EncodeURIfunc-6",
-            "normalize-space(encode-for-uri((\"some string\", current-time())[1] treat as xs:string))",
-            "S:some%20string"
         ),
         ("fn-encode-for-uri/fn-encode-for-uri-1", "(fn:encode-for-uri(\"example\"))", "S:example"),
         ("fn-encode-for-uri/fn-encode-for-uri-10", "(fn:encode-for-uri(\"examples(example\"))", "S:examples%28example"),
@@ -483,11 +493,6 @@ internal static class Qt3QNameSelection
         ("fn-iri-to-uri/K-IRIToURIfunc-1", "iri-to-uri()", "X:XPST0017"),
         ("fn-iri-to-uri/K-IRIToURIfunc-2", "iri-to-uri(\"http://example.com/\", \"wrong param\")", "X:XPST0017"),
         ("fn-iri-to-uri/K-IRIToURIfunc-3", "iri-to-uri(()) eq \"\"", "T"),
-        (
-            "fn-iri-to-uri/K-IRIToURIfunc-4",
-            "normalize-space(iri-to-uri((\"somestring\", current-time())[1])) eq \"somestring\"",
-            "T\tX:XPTY0004"
-        ),
         ("fn-iri-to-uri/K2-IRIToURIfunc-1", "iri-to-uri()", "X:XPST0017"),
         (
             "fn-iri-to-uri/K2-IRIToURIfunc-10",
@@ -567,6 +572,18 @@ internal static class Qt3QNameSelection
             "the case reads the document of the environment auction, which the fixture of the sequence group cannot load; the evaluator-backed runner runs the case: XP-14 (#295)"
         ),
         (
+            "fn-QName/K-ExpandedQNameConstructFunc-10",
+            "the case compares two QNames by eq, which has no entry in the comparison table until the QName value type (#545)"
+        ),
+        (
+            "fn-QName/K-ExpandedQNameConstructFunc-4",
+            "the case compares two QNames by eq, which has no entry in the comparison table until the QName value type (#545), and writes xs:QName(\"fn:local\"), which the constructor resolves against no namespaces (#644)"
+        ),
+        (
+            "fn-QName/K-ExpandedQNameConstructFunc-9",
+            "the case compares two QNames by eq, which has no entry in the comparison table until the QName value type (#545)"
+        ),
+        (
             "fn-prefix-from-QName/fn-prefix-from-qname-21",
             "the case reads the document of the environment atomic, which the fixture of the sequence group cannot load; the evaluator-backed runner runs the case: XP-14 (#295)"
         ),
@@ -600,18 +617,6 @@ internal static class Qt3QNameSelection
         ),
         (
             "fn-local-name-from-QName/LocalNameFromQNameFunc010",
-            "the case reads the document of the environment qname, which the fixture of the sequence group cannot load; the evaluator-backed runner runs the case: XP-14 (#295)"
-        ),
-        (
-            "fn-local-name-from-QName/LocalNameFromQNameFunc012",
-            "the case reads the document of the environment qname, which the fixture of the sequence group cannot load; the evaluator-backed runner runs the case: XP-14 (#295)"
-        ),
-        (
-            "fn-local-name-from-QName/LocalNameFromQNameFunc013",
-            "the case reads the document of the environment qname, which the fixture of the sequence group cannot load; the evaluator-backed runner runs the case: XP-14 (#295)"
-        ),
-        (
-            "fn-local-name-from-QName/LocalNameFromQNameFunc014",
             "the case reads the document of the environment qname, which the fixture of the sequence group cannot load; the evaluator-backed runner runs the case: XP-14 (#295)"
         ),
         (
@@ -667,18 +672,6 @@ internal static class Qt3QNameSelection
             "the case reads the document of the environment qname, which the fixture of the sequence group cannot load; the evaluator-backed runner runs the case: XP-14 (#295)"
         ),
         (
-            "fn-namespace-uri-from-QName/NamespaceURIFromQNameFunc012",
-            "the case reads the document of the environment qname, which the fixture of the sequence group cannot load; the evaluator-backed runner runs the case: XP-14 (#295)"
-        ),
-        (
-            "fn-namespace-uri-from-QName/NamespaceURIFromQNameFunc013",
-            "the case reads the document of the environment qname, which the fixture of the sequence group cannot load; the evaluator-backed runner runs the case: XP-14 (#295)"
-        ),
-        (
-            "fn-namespace-uri-from-QName/NamespaceURIFromQNameFunc014",
-            "the case reads the document of the environment qname, which the fixture of the sequence group cannot load; the evaluator-backed runner runs the case: XP-14 (#295)"
-        ),
-        (
             "fn-namespace-uri-from-QName/NamespaceURIFromQNameFunc015",
             "the case reads the document of the environment fsx, which the fixture of the sequence group cannot load; the evaluator-backed runner runs the case: XP-14 (#295)"
         ),
@@ -717,6 +710,30 @@ internal static class Qt3QNameSelection
         (
             "fn-in-scope-prefixes/fn-in-scope-prefixes-26",
             "the case reads the document of the environment pathdata, which the fixture of the sequence group cannot load; the evaluator-backed runner runs the case: XP-14 (#295)"
+        ),
+        (
+            "fn-resolve-uri/cbcl-fn-resolve-uri-001",
+            "the fixture of the sequence group has no lowering for the for expression; the evaluator-backed runner runs the case: XP-14 (#295)"
+        ),
+        (
+            "fn-base-uri/fn-base-uri-2",
+            "the fixture of the sequence group has no lowering for a predicate; the evaluator-backed runner runs the case: XP-14 (#295)"
+        ),
+        (
+            "fn-static-base-uri/K-StaticBaseURIFunc-3",
+            "the fixture of the sequence group has no lowering for the conditional expression; the evaluator-backed runner runs the case: XP-14 (#295)"
+        ),
+        (
+            "fn-static-base-uri/fn-static-base-15",
+            "the case needs the static base URI http://www.example.com of its static context, which a call does not reach; the function of the default catalog holds none: #752, XP-08 (#187)"
+        ),
+        (
+            "fn-encode-for-uri/K-EncodeURIfunc-6",
+            "the fixture of the sequence group has no lowering for a predicate; the evaluator-backed runner runs the case: XP-14 (#295)"
+        ),
+        (
+            "fn-iri-to-uri/K-IRIToURIfunc-4",
+            "the fixture of the sequence group has no lowering for a predicate; the evaluator-backed runner runs the case: XP-14 (#295)"
         ),
     ];
 }

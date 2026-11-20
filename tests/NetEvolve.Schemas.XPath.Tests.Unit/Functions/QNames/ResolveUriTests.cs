@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.XPath.Tests.Unit.Functions.QNames;
 
 using System;
 using System.Threading.Tasks;
+using NetEvolve.Schemas.XPath.Functions.QNames;
 
 /// <summary>
 /// <c>fn:resolve-uri</c> (Functions and Operators 1.0, 8.1): the reference resolution examples of RFC 3986 section 5.4, the errors
@@ -128,22 +129,20 @@ public class ResolveUriTests
     [Test]
     public async Task ResolveUri_WithAStaticBaseUri_TheOneArgumentFormResolvesAgainstIt()
     {
-        var function = QNamesHarness.Make("ResolveUriFunction", new Uri("http://a/b/c/d;p?q"));
+        var function = new ResolveUriFunction(new Uri("http://a/b/c/d;p?q"));
 
-        await Assert.That(function).IsNotNull();
-        await Assert.That(QNamesHarness.RunFunction(function!, null, "string:g")).IsEqualTo("anyURI:http://a/b/c/g");
-        await Assert.That(QNamesHarness.RunFunction(function!, null, "string:")).IsEqualTo("anyURI:http://a/b/c/d;p?q");
+        await Assert.That(QNamesHarness.RunFunction(function, null, "string:g")).IsEqualTo("anyURI:http://a/b/c/g");
+        await Assert.That(QNamesHarness.RunFunction(function, null, "string:")).IsEqualTo("anyURI:http://a/b/c/d;p?q");
         await Assert
-            .That(QNamesHarness.RunFunction(function!, null, "string:g", "string:http://x/y/z"))
+            .That(QNamesHarness.RunFunction(function, null, "string:g", "string:http://x/y/z"))
             .IsEqualTo("anyURI:http://x/y/g");
     }
 
     [Test]
     public async Task ResolveUri_ARelativeStaticBaseUri_IsNoBaseUri()
     {
-        var function = QNamesHarness.Make("ResolveUriFunction", new Uri("sub/dir", UriKind.Relative));
+        var function = new ResolveUriFunction(new Uri("sub/dir", UriKind.Relative));
 
-        await Assert.That(function).IsNotNull();
-        await Assert.That(QNamesHarness.RunFunction(function!, null, "string:g")).IsEqualTo("error:FONS0005");
+        await Assert.That(QNamesHarness.RunFunction(function, null, "string:g")).IsEqualTo("error:FONS0005");
     }
 }

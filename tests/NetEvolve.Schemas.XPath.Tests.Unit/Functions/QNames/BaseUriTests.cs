@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.XPath.Tests.Unit.Functions.QNames;
 
 using System;
 using System.Threading.Tasks;
+using NetEvolve.Schemas.XPath.Functions.QNames;
 
 /// <summary>
 /// <c>fn:base-uri</c> and <c>fn:static-base-uri</c> (Functions and Operators 1.0, 14.5 and 8.2): the base URI of a node as
@@ -51,18 +52,16 @@ public class BaseUriTests
     [Test]
     public async Task StaticBaseUri_AFunctionHoldingAnAbsoluteUri_GivesItAsAnyUri()
     {
-        var function = QNamesHarness.Make("StaticBaseUriFunction", new Uri("http://example.com/base/"));
+        var function = new StaticBaseUriFunction(new Uri("http://example.com/base/"));
 
-        await Assert.That(function).IsNotNull();
-        await Assert.That(QNamesHarness.RunFunction(function!, null)).IsEqualTo("anyURI:http://example.com/base/");
+        await Assert.That(QNamesHarness.RunFunction(function, null)).IsEqualTo("anyURI:http://example.com/base/");
     }
 
     [Test]
     public async Task StaticBaseUri_ARelativeUri_IsNoStaticBaseUri()
     {
-        var function = QNamesHarness.Make("StaticBaseUriFunction", new Uri("sub/dir", UriKind.Relative));
+        var function = new StaticBaseUriFunction(new Uri("sub/dir", UriKind.Relative));
 
-        await Assert.That(function).IsNotNull();
-        await Assert.That(QNamesHarness.RunFunction(function!, null)).IsEqualTo(string.Empty);
+        await Assert.That(QNamesHarness.RunFunction(function, null)).IsEqualTo(string.Empty);
     }
 }
