@@ -1,5 +1,6 @@
 namespace NetEvolve.Schemas.Xsd.Tests.Unit.OpenContent;
 
+using System;
 using System.Collections.Generic;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;
@@ -309,6 +310,28 @@ public class OpenContentValidationTests
 
         await Assert.That(issues.Count).IsEqualTo(1);
         await Assert.That(issues[0].Constraint).IsEqualTo("cvc-complex-type.2.4");
+    }
+
+    [Test]
+    [Arguments(false)]
+    [Arguments(true)]
+    public async Task CountedNesting_ExceedingTheRunCeiling_IsNotAcceptedAsOpenContent(bool suffix)
+    {
+        var mode = suffix ? OpenContentMode.Suffix : OpenContentMode.Interleave;
+        var content = SchemaFixture.Group(
+            ModelGroupCompositor.Sequence,
+            1,
+            70,
+            SchemaFixture.Part("a", SchemaFixture.Simple("string"), 1, 70)
+        );
+        var elements = new string('x', 60).Replace("x", "<a/>", StringComparison.Ordinal);
+
+        // The wildcard allows every name, so it would take the a that the run refuses at its ceiling; the engine limit is
+        // reported instead.
+        var issues = Run(Schema(content, OwnOpen(mode, "##any")), "<r>" + elements + "</r>");
+
+        await Assert.That(issues.Count).IsEqualTo(1);
+        await Assert.That(issues[0].Code).IsEqualTo(ValidationHarness.Code("engine-content-model-transitions"));
     }
 
     // ---- messages ----------------------------------------------------------------------------------------------------

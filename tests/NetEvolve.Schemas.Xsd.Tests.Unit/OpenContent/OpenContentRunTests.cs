@@ -105,6 +105,28 @@ public class OpenContentRunTests
     }
 
     [Test]
+    [Arguments(false)]
+    [Arguments(true)]
+    public async Task RunBeyondTheConfigurationCeiling_IsNotHiddenByOpenContent(bool suffix)
+    {
+        var mode = suffix ? OpenContentMode.Suffix : OpenContentMode.Interleave;
+        // (a{1,70}){1,70} keeps well over 1,024 counter configurations alive after about 46 a.
+        var counting = AutomatonTestKit.Compile(AutomatonTestKit.Seq(1, 70, AutomatonTestKit.El(A, 1, 70))).CreateRun();
+        var accepted = 0;
+        while (accepted < 70 && counting.TryStep(A, out _))
+        {
+            accepted++;
+        }
+
+        var run = new OpenContentRun(Open(mode), counting);
+
+        // The wildcard allows the foreign name, but the run gave up, so the validator must still report the ceiling.
+        await Assert.That(counting.CeilingExceeded).IsTrue();
+        await Assert.That(Foreigner(ref run, out var open)).IsFalse();
+        await Assert.That(open).IsFalse();
+    }
+
+    [Test]
     public async Task Interleave_DeclaredElementOutOfOrder_IsAcceptedAsOpenContentWhenTheWildcardAllowsIt()
     {
         var run = Sequence(OpenContentMode.Interleave);
