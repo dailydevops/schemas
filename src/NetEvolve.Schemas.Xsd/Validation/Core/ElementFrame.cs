@@ -29,8 +29,11 @@ internal sealed class ElementFrame
     internal bool ContentFailed;
     internal bool TextReported;
     internal bool HasText;
+    internal bool IsNilled;
+    internal bool UndeclaredRoot;
+    internal int NamespaceMark;
 
-    internal void Start(XmlName name, XPathQName qname, DocumentLocation location, int ordinal)
+    internal void Start(XmlName name, XPathQName qname, DocumentLocation location, int ordinal, int namespaceMark)
     {
         Name = name;
         QName = qname;
@@ -49,5 +52,8 @@ internal sealed class ElementFrame
         ContentFailed = false;
         TextReported = false;
         HasText = false;
+        IsNilled = false;
+        UndeclaredRoot = false;
+        NamespaceMark = namespaceMark;
     }
 }

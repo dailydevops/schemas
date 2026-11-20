@@ -41,6 +41,7 @@ internal sealed partial class StreamingValidator
         }
 
         var frame = _frames[_depth - 1];
+        BeginContent(frame);
         if (_onStart.Length > 0)
         {
             var info = new ElementStartInfo(
@@ -68,6 +69,12 @@ internal sealed partial class StreamingValidator
             default:
                 AssessAttributes(frame);
                 break;
+        }
+
+        // The attributes of a nilled element are assessed against its type; from here on only its absent content counts.
+        if (frame.IsNilled)
+        {
+            frame.Content = FrameContent.Nilled;
         }
     }
 
@@ -325,7 +332,8 @@ internal sealed partial class StreamingValidator
 
     private ReadOnlySpan<char> ValueOf(AttributeEntry entry) => _attributeChars.AsSpan(entry.Start, entry.Length);
 
-    // The attributes of the schema instance namespace that control assessment itself are not assessed here (XSD-55, #308).
+    // The attributes of the schema instance namespace that control assessment itself are not assessed as attributes: xsi:type and
+    // xsi:nil are decided in BeginContent, the schema location hints are XSD-77.
     private bool IsXsiControl(XmlName name, out XPathQName qname)
     {
         qname = new XPathQName(Names.GetString(name.NamespaceUri), Names.GetString(name.Local));
