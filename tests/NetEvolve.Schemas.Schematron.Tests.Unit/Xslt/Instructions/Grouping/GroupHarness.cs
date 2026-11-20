@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Instructions.Grouping;
 
 using System.Threading;
+using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Model;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Schematron.Tests.Unit.Fakes;
@@ -29,10 +30,12 @@ internal sealed class GroupHarness
         XmlElem element,
         string document = "",
         string binding = "xslt2",
-        CancellationToken cancellationToken = default,
-        string[]? variables = null
+        string[]? variables = null,
+        CancellationToken cancellationToken = default
     )
     {
+        Argument.ThrowIfNull(binding);
+
         _variables = variables ?? [];
         Binding = new GroupBinding(binding);
         var builder = new XsltRegistryBuilder();

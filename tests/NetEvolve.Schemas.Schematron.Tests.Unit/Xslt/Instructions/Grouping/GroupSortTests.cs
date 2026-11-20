@@ -76,7 +76,7 @@ public class GroupSortTests
     [Test]
     public async Task Sort_ByTheInitialItem_OrdersTheGroupsByTheirFirstMember()
     {
-        var harness = new GroupHarness(By("*", "@k", 10, Sort("join(.)", null, 11), KeyAndMembers(12)), Doc);
+        var harness = new GroupHarness(By("*", "@k", 10, Sort("show(.)", null, 11), KeyAndMembers(12)), Doc);
 
         await Assert.That(harness.Result()).IsEqualTo("a:i=a;b:i=b i=b;c:i=c;");
     }
@@ -98,11 +98,7 @@ public class GroupSortTests
                 "@k",
                 10,
                 Sort("current-grouping-key()", "descending", 11),
-                X(
-                    "value-of",
-                    12,
-                    A("select", "concat(position(), '/', last(), ':', string(current-grouping-key()), ';')")
-                )
+                X("value-of", 12, A("select", "concat(position(), '/', last(), ':', key(current-grouping-key()), ';')"))
             ),
             "i=a i=b i=c"
         );

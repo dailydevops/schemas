@@ -16,6 +16,13 @@ public sealed class XPathHostSlots
     /// <summary>Gets or sets the current group.</summary>
     public XdmSequence? CurrentGroup { get; set; }
 
+    /// <summary>
+    /// Gets or sets the current grouping key (XSLT <c>current-grouping-key()</c>): the key that the items of the current group share. It
+    /// is unset (<see langword="null"/>) outside a grouping instruction and for a grouping by pattern; an empty sequence is a set slot
+    /// that holds no key.
+    /// </summary>
+    public XdmSequence? CurrentGroupingKey { get; set; }
+
     /// <summary>Gets or sets the groups captured by the last regular expression match.</summary>
     public XPathRegexGroups? RegexGroups { get; set; }
 
@@ -30,6 +37,7 @@ public sealed class XPathHostSlots
     {
         CurrentItem = null;
         CurrentGroup = null;
+        CurrentGroupingKey = null;
         RegexGroups = null;
         DecimalFormats = null;
         Keys = null;

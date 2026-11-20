@@ -124,7 +124,7 @@ public class GroupByTests
     public async Task Body_Focus_IsTheInitialItem_ItsPositionAmongTheGroups_AndTheNumberOfGroups()
     {
         var harness = new GroupHarness(
-            By("*", "@k", 10, X("value-of", 11, A("select", "concat(position(), '/', last(), ':', join(.), ';')"))),
+            By("*", "@k", 10, X("value-of", 11, A("select", "concat(position(), '/', last(), ':', show(.), ';')"))),
             "i=b i=a i=b"
         );
 
@@ -169,13 +169,13 @@ public class GroupByTests
     }
 
     [Test]
-    public async Task Nested_InnerGroupingRestoresTheGroupAndKeyOfTheOuterOne()
+    public async Task Slots_AreRestoredAfterNestedInstruction()
     {
         var inner = By(
             "current-group()",
             "@j",
             12,
-            X("value-of", 13, A("select", "concat(string(current-grouping-key()), '.')"))
+            X("value-of", 13, A("select", "concat(key(current-grouping-key()), '.')"))
         );
         var harness = new GroupHarness(
             By(
@@ -183,7 +183,7 @@ public class GroupByTests
                 "@k",
                 10,
                 inner,
-                X("value-of", 14, A("select", "concat(string(current-grouping-key()), count(current-group()), ';')"))
+                X("value-of", 14, A("select", "concat(key(current-grouping-key()), count(current-group()), ';')"))
             ),
             "i=a/x i=a/y i=b/x"
         );
@@ -195,7 +195,8 @@ public class GroupByTests
     public async Task GroupBy_ARunThatCannotHoldTheCurrentGroup_IsAProblemNotASilentWrongResult()
     {
         var harness = new GroupHarness(By("*", "@k", 10, Members(11)), "i=a");
-        var frame = new XsltFrame(new PlainRun()) { Focus = new QueryFocus(harness.Document.Root, 1, 1) };
+        using var plain = new PlainRun();
+        var frame = new XsltFrame(plain) { Focus = new QueryFocus(harness.Document.Root, 1, 1) };
 
         var status = harness.Executable!.TryExecute(frame, harness.Sink);
 
@@ -263,7 +264,7 @@ public class GroupByTests
     }
 
     [Test]
-    public async Task GroupBy_EveryGroup_IsACancellationPoint()
+    public async Task GroupBy_EveryItem_IsACancellationPoint()
     {
         using var source = new CancellationTokenSource();
         var harness = new GroupHarness(By("*", "@k", 10, Members(11)), "i=a i=b i=c", cancellationToken: source.Token);
@@ -271,6 +272,18 @@ public class GroupByTests
 
         await Assert.That(() => harness.Execute()).Throws<System.OperationCanceledException>();
         await Assert.That(harness.Sink.Events.Count).IsEqualTo(0);
+    }
+
+    [Test]
+    public async Task GroupBy_EveryGroup_IsACancellationPoint()
+    {
+        using var source = new CancellationTokenSource();
+        var harness = new GroupHarness(By("*", "@k", 10, Members(11)), "i=a i=b i=c", cancellationToken: source.Token);
+        var sink = new CancelOnTextSink(source);
+
+        // The token is canceled while the first group writes; the check before the second group stops the instruction.
+        await Assert.That(() => harness.Execute(sink)).Throws<System.OperationCanceledException>();
+        await Assert.That(sink.Texts).IsEqualTo(1);
     }
 
     private sealed class PlainRun : IQueryRun

@@ -1,7 +1,12 @@
 namespace NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Instructions.Grouping;
 
+using System;
 using System.Threading.Tasks;
+using NetEvolve.Schemas.Schematron.Model;
+using NetEvolve.Schemas.Schematron.Seams;
+using NetEvolve.Schemas.Schematron.Tests.Unit.Fakes;
 using NetEvolve.Schemas.Schematron.Xslt.Functions;
+using NetEvolve.Schemas.Schematron.Xslt.Instructions.Grouping;
 using static NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Functions.FunctionTree;
 using static NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Instructions.Grouping.Gr;
 
@@ -223,7 +228,6 @@ public class GroupCompileTests
             By("$a", "$b", 10, X("sort", 11, A("select", "$c")), X("value-of", 12, A("select", "$d"))),
             string.Empty,
             "xslt2",
-            default,
             ["a", "b", "c", "d"]
         );
 
@@ -235,18 +239,11 @@ public class GroupCompileTests
     [Test]
     public async Task Executable_ReportsTheSlotsOfTheKeyAndOfThePattern()
     {
-        var adjacent = new GroupHarness(
-            Adjacent("*", "$b", 10, Members(11)),
-            string.Empty,
-            "xslt2",
-            default,
-            ["a", "b"]
-        );
+        var adjacent = new GroupHarness(Adjacent("*", "$b", 10, Members(11)), string.Empty, "xslt2", ["a", "b"]);
         var starting = new GroupHarness(
             Starting("*", "i[@k = $b]", 10, Members(11)),
             string.Empty,
             "xslt2",
-            default,
             ["a", "b"]
         );
 
@@ -267,11 +264,34 @@ public class GroupCompileTests
             ),
             "i=a i=a i=b",
             "xslt2",
-            default,
             ["g"]
         );
 
         await Assert.That(((IXsltLocalSlots)harness.Executable!).SlotEnd).IsEqualTo(2);
         await Assert.That(harness.Result()).IsEqualTo("2;1;");
     }
+
+    [Test]
+    public async Task Compile_ACollationThatIsAnAttributeValueTemplate_IsTheUnsupportedConstructError()
+    {
+        var harness = new GroupHarness(
+            Group(10, [("select", "*"), ("group-by", "@k"), ("collation", "{$c}")], Members(11))
+        );
+
+        await Assert.That(harness.Executable).IsNull();
+        await Assert.That(harness.CompileCodes).IsEqualTo(Code(SchematronDiagnosticCodes.XsltUnsupported));
+    }
+
+    [Test]
+    public async Task Compile_WithoutABindingInTheContext_IsAnInvalidOperation()
+    {
+        var node = Declaration(By("*", "@k", 10, Members(11)));
+        var scope = new QueryStaticScope([], [], GroupHarness.Module, SchematronEdition.Iso2016);
+        var context = new XsltCompileContext(node, scope, _ => null, new FakeProblemSink());
+
+        await Assert.That(() => TryCompile(context)).Throws<InvalidOperationException>();
+    }
+
+    private static bool TryCompile(XsltCompileContext context) =>
+        new XsltForEachGroupInstruction().TryCompile(context, out _, out _);
 }

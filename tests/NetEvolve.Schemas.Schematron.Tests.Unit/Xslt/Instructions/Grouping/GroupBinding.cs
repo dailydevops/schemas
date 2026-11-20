@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using System.Threading;
+using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Schematron.Tests.Unit.Fakes;
 using NetEvolve.Schemas.Schematron.Xslt.Instructions.Grouping;
@@ -22,7 +23,7 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// instruction cannot run real XPath; this binding knows a small language and nothing else. Terms: <c>.</c>, <c>*</c> (the child
 /// elements of the context node), <c>@name</c>, <c>'text'</c>, <c>$name</c>, <c>()</c>, a typed literal such as <c>int:1</c>,
 /// <c>dec:1.5</c>, <c>dbl:1e0</c>, <c>dbl:NaN</c>, <c>bool:true</c>, or <c>date:2020-01-01</c>, a sequence <c>(a, b)</c> or <c>a, b</c>,
-/// the comparison <c>a = b</c> over the text of the items, and the calls <c>count</c>, <c>string</c>, <c>join</c> (the text of every
+/// the comparison <c>a = b</c> over the text of the items, and the calls <c>count</c>, <c>key</c> (the text of the first item), <c>show</c> (the text of every
 /// item, separated by a space), <c>concat</c>, <c>position</c>, <c>last</c>, <c>error</c> (fails), and the two functions under test
 /// <c>current-group</c> and <c>current-grouping-key</c>, which are the host functions of the package called with the slots of the run.
 /// The text of an element is its name, then <c>=k</c> and <c>/j</c> for the attributes <c>k</c> and <c>j</c>, as in
@@ -32,6 +33,8 @@ internal sealed class GroupBinding : IQueryBinding
 {
     internal GroupBinding(string name = "xslt2")
     {
+        Argument.ThrowIfNull(name);
+
         Name = name;
         Functions = XsltGroupingFunctions.Create(this);
     }
@@ -94,9 +97,21 @@ internal sealed class GroupBinding : IQueryBinding
         internal override ReadOnlySpan<int> ReferencedSlots => slots;
     }
 
-    internal sealed class EvaluationException(SchematronProblem problem) : Exception("group test evaluation failure")
+    internal sealed class EvaluationException : Exception
     {
-        internal SchematronProblem Problem { get; } = problem;
+        internal EvaluationException()
+            : this(default(SchematronProblem)) { }
+
+        internal EvaluationException(string message)
+            : base(message) { }
+
+        internal EvaluationException(string message, Exception innerException)
+            : base(message, innerException) { }
+
+        internal EvaluationException(SchematronProblem problem)
+            : base("group test evaluation failure") => Problem = problem;
+
+        internal SchematronProblem Problem { get; }
     }
 
     internal static EvaluationException Failure(string constraint, string message) =>
@@ -282,8 +297,8 @@ internal sealed class GroupBinding : IQueryBinding
             return name switch
             {
                 "count" => XdmSequence.Create(XdmItem.FromInteger(values[0].Count)),
-                "string" => Text(values[0].Count == 0 ? string.Empty : Show(values[0][0])),
-                "join" => Text(Join(values[0])),
+                "key" => Text(values[0].Count == 0 ? string.Empty : Show(values[0][0])),
+                "show" => Text(Join(values[0])),
                 "concat" => Text(string.Concat(Array.ConvertAll(values, v => Join(v)))),
                 "position" => XdmSequence.Create(XdmItem.FromInteger(focus.Position)),
                 "last" => XdmSequence.Create(XdmItem.FromInteger(focus.ResolveSize())),
@@ -372,14 +387,14 @@ internal sealed class GroupBinding : IQueryBinding
                     Expect(')');
                     return inner;
                 case '\'':
-                    var close = text.IndexOf('\'', _at + 1);
-                    if (close < 0)
+                    var length = text.AsSpan(_at + 1).IndexOf('\'');
+                    if (length < 0)
                     {
                         throw new FormatException("A string literal is not closed.");
                     }
 
-                    var value = text.Substring(_at + 1, close - _at - 1);
-                    _at = close + 1;
+                    var value = text.Substring(_at + 1, length);
+                    _at += length + 2;
                     return new Literal(XdmSequence.Create(XdmItem.FromString(value)));
                 case '.':
                     _at++;
@@ -392,13 +407,13 @@ internal sealed class GroupBinding : IQueryBinding
                     return new Attribute(Name());
                 case '$':
                     _at++;
-                    return Variable(Name());
+                    return ParseVariable(Name());
                 default:
                     return ParseNamed();
             }
         }
 
-        private Node Variable(string name)
+        private Variable ParseVariable(string name)
         {
             for (var slot = scope.VariableNames.Count - 1; slot >= 0; slot--)
             {
@@ -498,146 +513,5 @@ internal sealed class GroupBinding : IQueryBinding
                 _at++;
             }
         }
-    }
-}
-
-/// <summary>
-/// The run of the grouping tests. It holds the current group and the grouping key as a real run does for the slots of the XPath host
-/// (the instruction writes them through <see cref="IXsltGroupRun"/>), evaluates <c>current-group()</c> and
-/// <c>current-grouping-key()</c> with the host functions of the package over those slots, and records every evaluation.
-/// </summary>
-internal sealed class GroupRun(GroupBinding owner) : IXsltGroupRun
-{
-    private readonly Dictionary<int, XdmSequence> _values = [];
-    private SchematronProblem _problem;
-    private XdmSequence? _group;
-    private XdmSequence? _key;
-
-    /// <summary>Gets the texts of the evaluations with the position and the size of their focus, as <c>text@position/size</c>.</summary>
-    internal List<string> Evaluations { get; } = [];
-
-    /// <summary>Gets what the instruction wrote into the slots, one entry per write, as <c>group:count</c> or <c>key:text</c> (<c>-</c> for absent).</summary>
-    internal List<string> Writes { get; } = [];
-
-    public XdmSequence? CurrentGroup
-    {
-        get => _group;
-        set
-        {
-            _group = value;
-            Writes.Add("group:" + (value is { } g ? g.Count.ToString(CultureInfo.InvariantCulture) : "-"));
-        }
-    }
-
-    public XdmSequence? CurrentGroupingKey
-    {
-        get => _key;
-        set
-        {
-            _key = value;
-            Writes.Add("key:" + (value is { } k ? (k.Count == 0 ? "empty" : GroupBinding.Show(k[0])) : "-"));
-        }
-    }
-
-    public QueryStatus TryEvaluateBoolean(QueryExpression expression, in QueryFocus focus, out bool value)
-    {
-        value = false;
-        try
-        {
-            var result = Evaluate(expression, in focus);
-            value = result.Count > 0 && Effective(result[0]);
-            return QueryStatus.Ok;
-        }
-        catch (GroupBinding.EvaluationException failure)
-        {
-            _problem = failure.Problem;
-            return QueryStatus.Problem;
-        }
-    }
-
-    public QueryStatus TryEvaluate(QueryExpression expression, in QueryFocus focus, ISequenceSink sink)
-    {
-        try
-        {
-            var value = Evaluate(expression, in focus);
-            for (var i = 0; i < value.Count; i++)
-            {
-                var item = value[i];
-                sink.Item(in item);
-            }
-
-            return QueryStatus.Ok;
-        }
-        catch (GroupBinding.EvaluationException failure)
-        {
-            _problem = failure.Problem;
-            return QueryStatus.Problem;
-        }
-    }
-
-    public QueryStatus TryBindVariable(int slot, QueryExpression value, in QueryFocus focus)
-    {
-        try
-        {
-            _values[slot] = Evaluate(value, in focus);
-            return QueryStatus.Ok;
-        }
-        catch (GroupBinding.EvaluationException failure)
-        {
-            _problem = failure.Problem;
-            return QueryStatus.Problem;
-        }
-    }
-
-    public void BindVariable(int slot, string value) => _values[slot] = XdmSequence.Create(XdmItem.FromString(value));
-
-    public SchematronProblem GetProblem() => _problem;
-
-    public void Dispose() { }
-
-    internal void SetValue(int slot, in XdmSequence value) => _values[slot] = value;
-
-    internal bool TryGetValue(int slot, out XdmSequence value) => _values.TryGetValue(slot, out value);
-
-    /// <summary>Calls the host function of the binding with the slots of this run, as the XPath run of #628 will.</summary>
-    internal XdmSequence CallHost(string name)
-    {
-        var function = Array.Find(owner.Functions, f =>
-            string.Equals(f.Name.LocalName, name, StringComparison.Ordinal)
-        );
-        if (function is null)
-        {
-            throw GroupBinding.Failure("XPST0017", $"No function {name} under the binding '{owner.Name}'.");
-        }
-
-        using var context = new XPathEvaluationContext();
-        context.Host.CurrentGroup = _group;
-        context.Host.CurrentGroupingKey = _key;
-        var call = new XPathFunctionCall(context, default);
-        return function.Invoke(ref call) == XPathEvaluationStatus.Error
-            ? throw GroupBinding.Failure(call.Diagnostic.Code.ToString(), call.Diagnostic.Message)
-            : call.Result;
-    }
-
-    private XdmSequence Evaluate(QueryExpression expression, in QueryFocus focus)
-    {
-        var typed = (GroupBinding.GroupExpression)expression;
-        Evaluations.Add($"{typed.Text}@{focus.Position}/{focus.ResolveSize()}");
-        return typed.Node.Evaluate(this, in focus);
-    }
-
-    private static bool Effective(in XdmItem item)
-    {
-        if (item.TryGetBoolean(out var boolean) && item.Kind == XdmItemKind.Boolean)
-        {
-            return boolean;
-        }
-
-        if (item.TryGetInteger(out var integer))
-        {
-            return integer != 0;
-        }
-
-        return item.IsNode || !string.IsNullOrEmpty(GroupBinding.Show(in item));
     }
 }

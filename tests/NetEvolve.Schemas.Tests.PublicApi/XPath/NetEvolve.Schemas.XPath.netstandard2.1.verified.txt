@@ -27,6 +27,7 @@
     public sealed class XPathHostSlots
     {
         public NetEvolve.Schemas.XPath.Xdm.Values.XdmSequence? CurrentGroup { get; set; }
+        public NetEvolve.Schemas.XPath.Xdm.Values.XdmSequence? CurrentGroupingKey { get; set; }
         public NetEvolve.Schemas.XPath.Xdm.Values.XdmItem? CurrentItem { get; set; }
         public NetEvolve.Schemas.XPath.Abstractions.IXPathDecimalFormatProvider? DecimalFormats { get; set; }
         public NetEvolve.Schemas.XPath.Abstractions.IXPathKeyProvider? Keys { get; set; }

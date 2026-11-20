@@ -68,6 +68,8 @@ public class GroupingArchitectureTests
         CancellationToken cancellationToken
     )
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var sources = await SourcesAsync(cancellationToken);
         var instruction = sources.Find(source =>
             string.Equals(source.File, "XsltForEachGroupInstruction.cs", StringComparison.Ordinal)
@@ -84,6 +86,8 @@ public class GroupingArchitectureTests
     [Test]
     public async Task Grouping_ContainNoPatternCodeOfTheirOwn(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var sources = await SourcesAsync(cancellationToken);
         var offenders = new List<string>();
         foreach (var (file, text) in sources)
@@ -123,6 +127,8 @@ public class GroupingArchitectureTests
         CancellationToken cancellationToken
     )
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var offenders = new List<string>();
         foreach (var (file, text) in await SourcesAsync(cancellationToken))
         {

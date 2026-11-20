@@ -101,7 +101,7 @@ public class GroupBoundaryTests
     public async Task StartingAndEnding_AGroupingKeyUnderXslt3_IsTheDynamicErrorXtde1071()
     {
         var harness = new GroupHarness(
-            Starting("*", "h", 10, X("value-of", 11, A("select", "string(current-grouping-key())"))),
+            Starting("*", "h", 10, X("value-of", 11, A("select", "key(current-grouping-key())"))),
             "h p",
             "xslt3"
         );

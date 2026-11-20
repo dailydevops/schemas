@@ -21,6 +21,8 @@ public class GroupFunctionTests
 {
     private static string Call(string binding, string function, XdmSequence? group = null, XdmSequence? key = null)
     {
+        NetEvolve.Arguments.Argument.ThrowIfNull(binding);
+
         var functions = XsltGroupingFunctions.Create(
             new XPathQueryBinding(binding, binding.StartsWith("xslt", StringComparison.Ordinal))
         );
@@ -60,7 +62,7 @@ public class GroupFunctionTests
     }
 
     [Test]
-    public async Task CurrentGroup_Outside_Xslt3_RaisesTheDynamicError()
+    public async Task CurrentGroup_Outside_Xslt3_RaisesDynamicError()
     {
         await Assert.That(Call("xslt3", "current-group")).IsEqualTo("error:XTDE1061");
 
@@ -75,26 +77,48 @@ public class GroupFunctionTests
     }
 
     [Test]
-    public async Task CurrentGroupingKey_Outside_Xslt2_IsEmpty()
+    public async Task CurrentGroupingKey_Outside_PerBinding()
     {
         await Assert.That(Call("xslt2", "current-grouping-key")).IsEqualTo("count:0");
-
-        var harness = new GroupHarness(X("value-of", 10, A("select", "concat(count(current-grouping-key()), ';')")));
-        await Assert.That(harness.Result()).IsEqualTo("0;");
-    }
-
-    [Test]
-    public async Task CurrentGroupingKey_Outside_Xslt3_RaisesTheDynamicError()
-    {
         await Assert.That(Call("xslt3", "current-grouping-key")).IsEqualTo("error:XTDE1071");
 
-        var harness = new GroupHarness(
+        var xslt2 = new GroupHarness(X("value-of", 10, A("select", "concat(count(current-grouping-key()), ';')")));
+        var xslt3 = new GroupHarness(
             X("value-of", 10, A("select", "concat(count(current-grouping-key()), ';')")),
             string.Empty,
             "xslt3"
         );
+        await Assert.That(xslt2.Result()).IsEqualTo("0;");
         await Assert
-            .That(harness.Result())
+            .That(xslt3.Result())
+            .IsEqualTo("problem:" + SchematronDiagnosticCodes.EvaluationFailed + "/XTDE1071");
+    }
+
+    [Test]
+    public async Task BothFunctions_Outside_Xslt2_ReturnTheEmptySequence()
+    {
+        var harness = new GroupHarness(
+            X("value-of", 10, A("select", "concat(count(current-group()), count(current-grouping-key()), ';')"))
+        );
+
+        await Assert.That(harness.Result()).IsEqualTo("00;");
+    }
+
+    [Test]
+    public async Task BothFunctions_Outside_Xslt3_RaiseTheDynamicErrors()
+    {
+        var group = new GroupHarness(X("value-of", 10, A("select", "count(current-group())")), string.Empty, "xslt3");
+        var key = new GroupHarness(
+            X("value-of", 10, A("select", "count(current-grouping-key())")),
+            string.Empty,
+            "xslt3"
+        );
+
+        await Assert
+            .That(group.Result())
+            .IsEqualTo("problem:" + SchematronDiagnosticCodes.EvaluationFailed + "/XTDE1061");
+        await Assert
+            .That(key.Result())
             .IsEqualTo("problem:" + SchematronDiagnosticCodes.EvaluationFailed + "/XTDE1071");
     }
 

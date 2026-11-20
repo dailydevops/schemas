@@ -40,11 +40,11 @@ internal static class Gr
         Group(line, [("select", select), ("group-ending-with", pattern)], content);
 
     /// <summary>The body that writes the items of the current group, then a semicolon: <c>i=a i=b;</c>.</summary>
-    internal static XmlElem Members(int line) => X("value-of", line, A("select", "concat(join(current-group()), ';')"));
+    internal static XmlElem Members(int line) => X("value-of", line, A("select", "concat(show(current-group()), ';')"));
 
     /// <summary>The body that writes the grouping key, a colon, the items of the current group, then a semicolon: <c>a:i=a i=b;</c>.</summary>
     internal static XmlElem KeyAndMembers(int line) =>
-        X("value-of", line, A("select", "concat(string(current-grouping-key()), ':', join(current-group()), ';')"));
+        X("value-of", line, A("select", "concat(key(current-grouping-key()), ':', show(current-group()), ';')"));
 
     /// <summary>An <c>xsl:sort</c> with a select and an order.</summary>
     internal static XmlElem Sort(string select, string? order, int line) =>
