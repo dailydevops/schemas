@@ -3,6 +3,7 @@ namespace NetEvolve.Schemas.Schematron.Bindings.Registry;
 using System;
 using System.Collections.Generic;
 using NetEvolve.Arguments;
+using NetEvolve.Schemas.Schematron.Bindings.Xslt1;
 using NetEvolve.Schemas.Schematron.Model;
 using NetEvolve.Schemas.Schematron.Seams;
 
@@ -39,13 +40,14 @@ internal sealed class QueryBindingRegistry
         _supported = string.Join(", ", names);
     }
 
-    /// <summary>Gets the registry with the bindings of the XPath 2.0 contract.</summary>
+    /// <summary>
+    /// Gets the registry with the bindings of the XPath 2.0 contract and, for <c>xpath</c>, <c>xslt</c>, and <c>xslt1</c>, the bindings of
+    /// <see cref="Registration"/> that turn XPath 1.0 compatibility mode on (SCH-16, #310).
+    /// </summary>
     internal static QueryBindingRegistry Default { get; } =
         new([
-            new XPathQueryBinding("xpath", allowsXsltInstructions: false),
+            .. Registration.Create(),
             new XPathQueryBinding("xpath2", allowsXsltInstructions: false),
-            new XPathQueryBinding("xslt", allowsXsltInstructions: true),
-            new XPathQueryBinding("xslt1", allowsXsltInstructions: true),
             new XPathQueryBinding("xslt2", allowsXsltInstructions: true),
             new XPathQueryBinding("xslt3", allowsXsltInstructions: true),
         ]);
