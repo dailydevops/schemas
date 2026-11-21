@@ -7,12 +7,12 @@ using static NetEvolve.Schemas.Xsd.Tests.Unit.Compilation.CompilationFixture;
 public class CheckTests
 {
     [Test]
-    public async Task TypeDerivation_RestrictionThatDropsARequiredAttribute_IsReported()
+    public async Task TypeDerivation_RestrictionThatMakesARequiredAttributeOptional_IsReported()
     {
         var compilation = Compile(
             Schema(
                 "<xs:complexType name=\"b\"><xs:attribute name=\"a\" use=\"required\"/></xs:complexType>"
-                    + "<xs:complexType name=\"d\"><xs:complexContent><xs:restriction base=\"t:b\"/></xs:complexContent></xs:complexType>"
+                    + "<xs:complexType name=\"d\"><xs:complexContent><xs:restriction base=\"t:b\"><xs:attribute name=\"a\"/></xs:restriction></xs:complexContent></xs:complexType>"
             )
         );
 
@@ -78,7 +78,7 @@ public class CheckTests
     {
         var compilation = Compile(
             Schema(
-                "<xs:complexType name=\"c\"><xs:sequence><xs:element name=\"a\" minOccurs=\"0\"/><xs:any namespace=\"##targetNamespace\"/></xs:sequence></xs:complexType>"
+                "<xs:complexType name=\"c\"><xs:sequence><xs:element name=\"a\" minOccurs=\"0\"/><xs:any/></xs:sequence></xs:complexType>"
             )
         );
 
@@ -126,25 +126,49 @@ public class CheckTests
     [Test]
     [Arguments("<xs:element name=\"e\" type=\"xs:int\" default=\"abc\"/>")]
     [Arguments(
-        "<xs:element name=\"e\"><xs:simpleType><xs:restriction base=\"xs:int\"/></xs:simpleType></xs:element>",
-        true
+        "<xs:complexType name=\"c\"><xs:sequence><xs:element name=\"e\" type=\"xs:int\" fixed=\"x\"/></xs:sequence></xs:complexType>"
     )]
+    public async Task ValueConstraint_OfAnElementThatIsNotValidForItsType_IsReported(string body)
+    {
+        var compilation = Compile(Schema(body));
+
+        await Assert.That(Codes(compilation)).IsEquivalentTo([XsdRuleCodes.CosValidDefault]);
+    }
+
+    [Test]
     [Arguments("<xs:attribute name=\"a\" type=\"xs:int\" fixed=\"abc\"/>")]
     [Arguments(
         "<xs:complexType name=\"c\"><xs:attribute name=\"a\" type=\"xs:int\" default=\"abc\"/></xs:complexType>"
     )]
-    [Arguments(
-        "<xs:complexType name=\"c\"><xs:sequence><xs:element name=\"e\" type=\"xs:int\" fixed=\"x\"/></xs:sequence></xs:complexType>"
-    )]
-    public async Task ValueConstraint_AValueThatIsNotValidForTheType_IsReported(string body, bool valid = false)
+    public async Task ValueConstraint_OfAnAttributeThatIsNotValidForItsType_IsReported(string body)
     {
         var compilation = Compile(Schema(body));
 
-        await Assert.That(compilation.IsValid).IsEqualTo(valid);
-        if (!valid)
-        {
-            await Assert.That(Codes(compilation)).IsEquivalentTo([XsdRuleCodes.CosValidDefault]);
-        }
+        await Assert.That(Codes(compilation)).IsEquivalentTo([XsdRuleCodes.APropsCorrect]);
+    }
+
+    [Test]
+    public async Task ValueConstraint_OfAnAttributeUseThatIsNotValidForTheDeclaredType_IsReported()
+    {
+        var compilation = Compile(
+            Schema(
+                "<xs:attribute name=\"g\" type=\"xs:int\"/><xs:complexType name=\"c\"><xs:attribute ref=\"t:g\" default=\"abc\"/></xs:complexType>"
+            )
+        );
+
+        await Assert.That(Codes(compilation)).IsEquivalentTo([XsdRuleCodes.AuPropsCorrect]);
+    }
+
+    [Test]
+    public async Task ValueConstraint_OfAnElementWithAValidDefault_IsValid()
+    {
+        var compilation = Compile(
+            Schema(
+                "<xs:element name=\"e\" type=\"xs:int\" default=\"7\"/><xs:attribute name=\"a\" type=\"xs:boolean\" fixed=\"true\"/>"
+            )
+        );
+
+        await Assert.That(Describe(compilation)).IsEmpty();
     }
 
     [Test]

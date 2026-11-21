@@ -236,7 +236,7 @@ public class ConstructionTests
     [Arguments("<xs:attribute name=\"a\" default=\"1\" fixed=\"1\"/>", "src-attribute.1")]
     [Arguments(
         "<xs:simpleType name=\"s\"><xs:restriction base=\"xs:int\"><xs:pattern value=\"1\"/><xs:pattern value=\"(\"/></xs:restriction></xs:simpleType>",
-        "pattern"
+        "src-pattern-value"
     )]
     public async Task Representation_Violation_IsOneLocatedErrorOfItsConstraint(string body, string constraint)
     {
@@ -262,7 +262,7 @@ public class ConstructionTests
                     + "</xs:sequence><xs:anyAttribute processContents=\"skip\"/></xs:complexType>"
                     + "<xs:complexType name=\"itemType\"><xs:simpleContent><xs:extension base=\"t:small\"><xs:attribute name=\"id\" type=\"xs:ID\" use=\"required\"/></xs:extension></xs:simpleContent></xs:complexType>"
                     + "<xs:simpleType name=\"small\"><xs:restriction base=\"xs:integer\"><xs:minInclusive value=\"1\"/><xs:maxInclusive value=\"9\"/><xs:totalDigits value=\"1\"/></xs:restriction></xs:simpleType>"
-                    + "<xs:simpleType name=\"color\" final=\"list\"><xs:restriction base=\"xs:string\"><xs:enumeration value=\"red\"/><xs:enumeration value=\"blue\"/><xs:pattern value=\"[a-z]+\"/></xs:restriction></xs:simpleType>"
+                    + "<xs:simpleType name=\"color\" final=\"restriction\"><xs:restriction base=\"xs:string\"><xs:enumeration value=\"red\"/><xs:enumeration value=\"blue\"/><xs:pattern value=\"[a-z]+\"/></xs:restriction></xs:simpleType>"
                     + "<xs:simpleType name=\"colors\"><xs:list itemType=\"t:color\"/></xs:simpleType>"
                     + "<xs:simpleType name=\"colorsOrNumber\"><xs:union memberTypes=\"t:colors xs:int\"/></xs:simpleType>"
             )
