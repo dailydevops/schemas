@@ -43,6 +43,41 @@ internal sealed class CounterZone
         return new(size, new long[size * size]);
     }
 
+    /// <summary>Creates the zone that holds one valuation of the counters.</summary>
+    /// <param name="values">The value of each counter, counter 1 first.</param>
+    /// <returns>The zone.</returns>
+    internal static CounterZone Point(long[] values)
+    {
+        Argument.ThrowIfNull(values);
+
+        var zone = Origin(values.Length);
+        for (var i = 0; i < values.Length; i++)
+        {
+            zone = zone.Assign(i + 1, values[i]);
+        }
+
+        return zone;
+    }
+
+    /// <summary>Gets the values of the counters when the zone holds only one valuation.</summary>
+    /// <param name="values">The value of each counter, counter 1 first.</param>
+    /// <returns><see langword="true"/> when every counter has one value.</returns>
+    internal bool TryPoint(out long[] values)
+    {
+        values = new long[Variables];
+        for (var v = 1; v < _size; v++)
+        {
+            if (Minimum(v) != Maximum(v))
+            {
+                return false;
+            }
+
+            values[v - 1] = Minimum(v);
+        }
+
+        return true;
+    }
+
     /// <summary>Gets the smallest value of a counter in the zone.</summary>
     /// <param name="variable">The counter, from 1.</param>
     /// <returns>The smallest value.</returns>

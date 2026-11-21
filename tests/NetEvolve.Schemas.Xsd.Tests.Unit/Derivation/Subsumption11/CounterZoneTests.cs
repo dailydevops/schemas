@@ -139,11 +139,31 @@ public class CounterZoneTests
     }
 
     [Test]
+    public async Task Point_HoldsOneValuation_AndTryPointReadsItBack()
+    {
+        var zone = CounterZone.Point([4, 0, 9]);
+
+        await Assert.That(zone.Contains([4, 0, 9])).IsTrue();
+        await Assert.That(zone.Contains([4, 1, 9])).IsFalse();
+        await Assert.That(zone.TryPoint(out var values)).IsTrue();
+        await Assert.That(values).IsEquivalentTo(new long[] { 4, 0, 9 });
+    }
+
+    [Test]
+    public async Task TryPoint_OfAZoneWithSeveralValues_IsFalse()
+    {
+        var zone = CounterZone.Point([1, 1]).Hull(CounterZone.Point([1, 2]));
+
+        await Assert.That(zone.TryPoint(out _)).IsFalse();
+    }
+
+    [Test]
     public async Task Guards_RejectInvalidArguments()
     {
         var zone = CounterZone.Origin(1);
 
         await Assert.That(() => CounterZone.Origin(-1)).Throws<ArgumentOutOfRangeException>();
+        await Assert.That(() => CounterZone.Point(null!)).Throws<ArgumentNullException>();
         await Assert.That(() => zone.Contains(null!)).Throws<ArgumentNullException>();
         await Assert.That(() => zone.Contains([1, 2])).Throws<ArgumentOutOfRangeException>();
         await Assert.That(() => zone.IsSubsetOf(null!)).Throws<ArgumentNullException>();

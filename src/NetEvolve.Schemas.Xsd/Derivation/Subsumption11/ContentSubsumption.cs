@@ -225,9 +225,10 @@ internal sealed class ContentSubsumption
         {
             case (ElementDeclaration element, ElementDeclaration baseElement):
                 return CorrespondElements(at, element, baseElement);
-            case (ElementDeclaration, IWildcard baseWildcard):
-                // Clauses 1 and 2: skip and lax subsume an element declaration, strict does not (clause 3 needs both strict).
-                return baseWildcard.ProcessContents == XsdProcessContents.Strict
+            case (ElementDeclaration element, IWildcard baseWildcard):
+                // Clauses 1 and 2: skip and lax subsume an element declaration, strict does not (clause 3 needs both strict);
+                // a global declaration is the governing declaration of its name for the wildcard too, so it subsumes itself.
+                return baseWildcard.ProcessContents == XsdProcessContents.Strict && !element.IsGlobal
                     ? Fail("3", at, "A strict wildcard of the base is bound more strictly than an element declaration.")
                     : ParticleViolation.None;
             case (IWildcard wildcard, IWildcard baseWildcard):

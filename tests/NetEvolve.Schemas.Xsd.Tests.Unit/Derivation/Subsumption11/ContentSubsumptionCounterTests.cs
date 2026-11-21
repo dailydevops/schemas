@@ -56,8 +56,8 @@ public class ContentSubsumptionCounterTests
         var largest = Check(El("a", Billion, Billion), El("a", 1, Billion * 4));
 
         await Assert.That(large.Work).IsEqualTo(small.Work);
-        await Assert.That(large.Work).IsLessThan(100);
-        await Assert.That(largest.Work).IsLessThan(100);
+        await Assert.That(large.Work).IsLessThan(300);
+        await Assert.That(largest.Work).IsLessThan(300);
     }
 
     [Test]

@@ -37,7 +37,7 @@ internal sealed class SubsumptionSearch
     internal const int MaxVariables = 24;
 
     /// <summary>The number of different zones of one pair of positions that are kept before their hull is widened.</summary>
-    internal const int WidenAfter = 8;
+    internal const int WidenAfter = 64;
 
     /// <summary>The ceiling of the bounds that all zones of one check hold together, which limits its memory.</summary>
     internal const long MaxCells = 1L << 23;
@@ -89,14 +89,21 @@ internal sealed class SubsumptionSearch
     /// <returns>The first violation in the order of the exploration, none when the restriction is accepted, and whether the work limit was hit.</returns>
     internal (ParticleViolation Violation, bool Exceeded) Run()
     {
-        Add(0, 0, CounterZone.Origin(_caps.Length));
+        Add(0, 0, CounterZone.Origin(_caps.Length), true);
         while (_queue.Count > 0)
         {
             var work = _queue.Dequeue();
             var violation = Expand(work);
+
+            // A violation that was found from a zone that is more than the reachable values might not be one.
+            if (violation.IsViolation && !work.Exact)
+            {
+                return (ParticleViolation.None, true);
+            }
+
             if (violation.IsViolation || _exceeded)
             {
-                return (violation, _exceeded && !violation.IsViolation);
+                return (violation, _exceeded);
             }
         }
 
@@ -282,15 +289,16 @@ internal sealed class SubsumptionSearch
         return _exceeded;
     }
 
-    private void Enqueue(int restrictionSource, int baseSource, CounterZone zone)
+    private void Enqueue(int restrictionSource, int baseSource, CounterZone zone, bool exact)
     {
         var size = _caps.Length + 1L;
         _cells += size * size;
         _exceeded |= _cells > MaxCells;
-        _queue.Enqueue(new Item(restrictionSource, baseSource, zone));
+        _queue.Enqueue(new Item(restrictionSource, baseSource, zone, exact));
     }
 
-    private void Add(int restrictionSource, int baseSource, CounterZone zone)
+    // A zone is exact when it holds the reachable values and no others.
+    private void Add(int restrictionSource, int baseSource, CounterZone zone, bool exact)
     {
         var key = ((long)restrictionSource << 32) | (uint)baseSource;
         if (!_pairs.TryGetValue(key, out var pair))
@@ -299,12 +307,15 @@ internal sealed class SubsumptionSearch
             _pairs.Add(key, pair);
         }
 
+        pair.Exact &= exact;
         if (pair.Widened is { } widened)
         {
             if (!zone.IsSubsetOf(widened))
             {
+                // The widened zone of a progression holds all its values; anything else it gets is an over-approximation.
+                pair.Exact = false;
                 pair.Widened = widened.Widen(zone, _caps);
-                Enqueue(restrictionSource, baseSource, pair.Widened);
+                Enqueue(restrictionSource, baseSource, pair.Widened, false);
             }
 
             return;
@@ -318,10 +329,12 @@ internal sealed class SubsumptionSearch
             }
         }
 
+        // A zone that holds the ones kept before replaces them.
+        _ = pair.Zones.RemoveAll(known => known.IsSubsetOf(zone));
         pair.Zones.Add(zone);
         if (pair.Zones.Count <= WidenAfter)
         {
-            Enqueue(restrictionSource, baseSource, zone);
+            Enqueue(restrictionSource, baseSource, zone, exact);
             return;
         }
 
@@ -331,9 +344,69 @@ internal sealed class SubsumptionSearch
             hull = hull.Hull(pair.Zones[i]);
         }
 
+        // The values of a loop that two counters run in step are points on a line, and the hull of a line is exact; the
+        // widened zone then reaches the largest values at once.
+        if (NextPoint(pair.Zones) is { } next)
+        {
+            hull = hull.Widen(next, _caps);
+        }
+        else
+        {
+            pair.Exact = false;
+        }
+
         pair.Zones.Clear();
         pair.Widened = hull;
-        Enqueue(restrictionSource, baseSource, hull);
+        Enqueue(restrictionSource, baseSource, hull, pair.Exact);
+    }
+
+    // The point after the last of zones that are points of one line: each step adds zero or one to every counter.
+    internal static CounterZone? NextPoint(IReadOnlyList<CounterZone> zones)
+    {
+        long[]? previous = null;
+        long[]? step = null;
+        foreach (var zone in zones)
+        {
+            if (!zone.TryPoint(out var point))
+            {
+                return null;
+            }
+
+            if (previous is not null)
+            {
+                var difference = new long[point.Length];
+                for (var v = 0; v < point.Length; v++)
+                {
+                    difference[v] = point[v] - previous[v];
+                    if (difference[v] is not (0 or 1))
+                    {
+                        return null;
+                    }
+                }
+
+                if (step is not null && !difference.AsSpan().SequenceEqual(step))
+                {
+                    return null;
+                }
+
+                step = difference;
+            }
+
+            previous = point;
+        }
+
+        if (step is null)
+        {
+            return null;
+        }
+
+        var next = new long[previous!.Length];
+        for (var v = 0; v < next.Length; v++)
+        {
+            next[v] = previous[v] + step[v];
+        }
+
+        return CounterZone.Point(next);
     }
 
     private ParticleViolation Expand(Item work)
@@ -355,22 +428,86 @@ internal sealed class SubsumptionSearch
         foreach (var symbol in moves.Symbols)
         {
             _ = baseMoves.BySymbol.TryGetValue(symbol, out var baseList);
-            foreach (var t in moves.BySymbol[symbol])
+            violation = ExpandSymbol(work, moves.BySymbol[symbol], baseList);
+            if (violation.IsViolation || _exceeded)
             {
-                if (Spend(1))
-                {
-                    return ParticleViolation.None;
-                }
-
-                violation = Step(work, t, baseList);
-                if (violation.IsViolation)
-                {
-                    return violation;
-                }
+                return violation;
             }
         }
 
         return ParticleViolation.None;
+    }
+
+    // The moves of the restriction on one name. The restriction takes its element declarations before its wildcards, as the
+    // base does: a wildcard only gets the values of the counters for which no element declaration of the restriction can take
+    // the name.
+    private ParticleViolation ExpandSymbol(Item work, List<int> list, List<int>? baseList)
+    {
+        var automaton = _restriction.Automaton!;
+        var pieces = new List<CounterZone> { work.Zone };
+        for (var tier = 0; tier < 2 && pieces.Count > 0; tier++)
+        {
+            foreach (var t in list)
+            {
+                var move = automaton.GetTransition(t);
+                if (automaton.IsWildcard(move.Target) != (tier == 1))
+                {
+                    continue;
+                }
+
+                var atoms = AtomsOf(_restriction, 0, move.ActionStart, move.ActionCount);
+                foreach (var piece in pieces)
+                {
+                    if (Meet(piece, atoms) is not { } guard)
+                    {
+                        continue;
+                    }
+
+                    if (Spend(1))
+                    {
+                        return ParticleViolation.None;
+                    }
+
+                    var violation = Step(work, guard, move, baseList);
+                    if (violation.IsViolation)
+                    {
+                        return violation;
+                    }
+                }
+            }
+
+            if (tier == 0)
+            {
+                pieces = WithoutElements(pieces, list);
+            }
+        }
+
+        return ParticleViolation.None;
+    }
+
+    // The values of the counters for which no element move of the list is enabled.
+    private List<CounterZone> WithoutElements(List<CounterZone> pieces, List<int> list)
+    {
+        var automaton = _restriction.Automaton!;
+        foreach (var t in list)
+        {
+            var move = automaton.GetTransition(t);
+            if (automaton.IsWildcard(move.Target))
+            {
+                continue;
+            }
+
+            var atoms = AtomsOf(_restriction, 0, move.ActionStart, move.ActionCount);
+            var outside = new List<CounterZone>();
+            foreach (var piece in pieces)
+            {
+                outside.AddRange(Outside(piece, atoms));
+            }
+
+            pieces = outside;
+        }
+
+        return pieces;
     }
 
     // The restriction may end here: the base must be able to end for every value of the counters.
@@ -405,17 +542,9 @@ internal sealed class SubsumptionSearch
         );
     }
 
-    // One move of the restriction against the moves of the base for the same name.
-    private ParticleViolation Step(Item work, int transition, List<int>? baseList)
+    // One move of the restriction, for the values of the counters in the guard, against the moves of the base for the same name.
+    private ParticleViolation Step(Item work, CounterZone guard, AutomatonTransition move, List<int>? baseList)
     {
-        var automaton = _restriction.Automaton!;
-        var move = automaton.GetTransition(transition);
-        var guard = Meet(work.Zone, AtomsOf(_restriction, 0, move.ActionStart, move.ActionCount));
-        if (guard is null)
-        {
-            return ParticleViolation.None;
-        }
-
         var remaining = new List<CounterZone> { guard };
 
         // An element declaration of the base is taken before a wildcard, and then the first move in position order.
@@ -441,7 +570,7 @@ internal sealed class SubsumptionSearch
                             return violation;
                         }
 
-                        Advance(covered, move, baseMove);
+                        Advance(covered, move, baseMove, work.Exact);
                     }
 
                     outside.AddRange(Outside(piece, atoms));
@@ -462,13 +591,13 @@ internal sealed class SubsumptionSearch
             );
     }
 
-    private void Advance(CounterZone zone, AutomatonTransition move, AutomatonTransition baseMove)
+    private void Advance(CounterZone zone, AutomatonTransition move, AutomatonTransition baseMove, bool exact)
     {
         foreach (var afterRestriction in Apply(zone, _restriction, 0, move.ActionStart, move.ActionCount))
         {
             foreach (var next in Apply(afterRestriction, _base, _offset, baseMove.ActionStart, baseMove.ActionCount))
             {
-                Add(move.Target + 1, baseMove.Target + 1, next);
+                Add(move.Target + 1, baseMove.Target + 1, next, exact);
             }
         }
     }
@@ -509,11 +638,12 @@ internal sealed class SubsumptionSearch
     [StructLayout(LayoutKind.Auto)]
     private readonly struct Item
     {
-        internal Item(int restriction, int baseSource, CounterZone zone)
+        internal Item(int restriction, int baseSource, CounterZone zone, bool exact)
         {
             Restriction = restriction;
             Base = baseSource;
             Zone = zone;
+            Exact = exact;
         }
 
         internal int Restriction { get; }
@@ -521,6 +651,8 @@ internal sealed class SubsumptionSearch
         internal int Base { get; }
 
         internal CounterZone Zone { get; }
+
+        internal bool Exact { get; }
     }
 
     private sealed class Moves
@@ -541,5 +673,7 @@ internal sealed class SubsumptionSearch
         internal List<CounterZone> Zones { get; } = [];
 
         internal CounterZone? Widened { get; set; }
+
+        internal bool Exact { get; set; } = true;
     }
 }
