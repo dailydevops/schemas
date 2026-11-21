@@ -6,6 +6,7 @@ using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Model;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Schematron.Xslt.Construction;
+using NetEvolve.Schemas.Schematron.Xslt.Functions;
 using NetEvolve.Schemas.Schematron.Xslt.Instructions.Construction;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.XPath.Xdm.Values;
@@ -58,19 +59,6 @@ internal static class LetContentTree
         local = end < 0 ? key : key.Substring(end + 1);
     }
 
-    private static bool IsBlank(string text)
-    {
-        foreach (var c in text)
-        {
-            if (c is not (' ' or '\t' or '\n' or '\r'))
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
     // One build: the first problem of any writer ends it, and nothing after it is written.
     private sealed class Pass
     {
@@ -89,7 +77,7 @@ internal static class LetContentTree
                 switch (children[i])
                 {
                     case SchematronText text:
-                        if (!IsBlank(text.Text))
+                        if (!XsltElementReader.IsWhitespace(text.Text))
                         {
                             writer.Text(text.Text.AsSpan());
                         }
