@@ -14,6 +14,8 @@ internal sealed partial class CoreParseRun
     private const string SchematronNamespace = "http://purl.oclc.org/dsdl/schematron";
     private const string XsltNamespace = "http://www.w3.org/1999/XSL/Transform";
 
+    private static readonly string[] UnsupportedCopyOfAttributes = ["type", "validation"];
+
     private readonly XmlNameTable _names;
     private readonly XmlDocumentTree? _positions;
     private readonly string? _systemId;
@@ -517,6 +519,7 @@ internal sealed partial class CoreParseRun
     private SchematronMessagePart[] ParseParts(XmlNode element, CoreInline allowed)
     {
         List<SchematronMessagePart>? parts = null;
+        var hasCopyOf = false;
         for (var child = element.FirstChild; !child.IsEmpty; child = child.NextSibling)
         {
             if (child.Kind == XmlNodeKind.Text)
@@ -528,12 +531,25 @@ internal sealed partial class CoreParseRun
                 var part = ParsePart(child, allowed, element);
                 if (part is not null)
                 {
+                    hasCopyOf |= part is SchematronCopyOf;
                     (parts ??= []).Add(part);
                 }
             }
         }
 
-        return parts is null ? Array.Empty<SchematronMessagePart>() : parts.ToArray();
+        if (parts is null)
+        {
+            return Array.Empty<SchematronMessagePart>();
+        }
+
+        // The formatting around an xsl:copy-of is no content: as in a let and in XSLT 2.0 section 4.3, white space alone is dropped, and a
+        // copied attribute would otherwise follow a text node (XTDE0410).
+        if (hasCopyOf)
+        {
+            _ = parts.RemoveAll(static part => part is SchematronText text && IsBlank(text.Text));
+        }
+
+        return parts.ToArray();
     }
 
     private SchematronMessagePart? ParsePart(XmlNode element, CoreInline allowed, XmlNode host)
@@ -593,7 +609,7 @@ internal sealed partial class CoreParseRun
     private SchematronCopyOf ParseCopyOf(XmlNode element)
     {
         var select = Required(element, "select");
-        foreach (var unsupported in new[] { "type", "validation" })
+        foreach (var unsupported in UnsupportedCopyOfAttributes)
         {
             if (Attribute(element, unsupported) is not null)
             {

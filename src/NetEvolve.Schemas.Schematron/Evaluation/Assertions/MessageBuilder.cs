@@ -156,6 +156,11 @@ internal sealed class MessageBuilder
         for (var i = 0; i < parts.Length; i++)
         {
             var part = parts[i];
+            if (IsBlankText(part))
+            {
+                continue;
+            }
+
             var mark = into.Length;
             var isCopy = part.Kind == MessagePartKind.CopyOf;
             var status = isCopy ? AppendCopyOf(part, in focus, into, content) : AppendPart(part, in focus, into);
@@ -172,6 +177,25 @@ internal sealed class MessageBuilder
         }
 
         return QueryStatus.Ok;
+    }
+
+    // White space alone around an xsl:copy-of is formatting, not content (XSLT 2.0 section 4.3): it would end the attributes of the holder.
+    private static bool IsBlankText(MessagePart part)
+    {
+        if (part.Kind != MessagePartKind.Text)
+        {
+            return false;
+        }
+
+        foreach (var c in part.Text)
+        {
+            if (c is not (' ' or '\t' or '\n' or '\r'))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private QueryStatus AppendPart(MessagePart part, in QueryFocus focus, TextSink into)

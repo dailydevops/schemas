@@ -36,7 +36,6 @@ internal sealed class AssertionEvaluator : IDisposable
     private string[] _propertyIds = [];
     private string[] _propertyTexts = [];
     private IFindingContent?[] _propertyContents = [];
-    private IFindingContent?[] _diagnosticContents = [];
 
     /// <summary>Initializes a new instance of the <see cref="AssertionEvaluator"/> class.</summary>
     /// <param name="run">The run that evaluates the expressions.</param>
@@ -123,13 +122,7 @@ internal sealed class AssertionEvaluator : IDisposable
 
         _message.Clear();
         _ = _builder.Build(assertion.Message, in focus, _message);
-        var diagnostics = BuildReferences(
-            assertion.Diagnostics,
-            in focus,
-            ref _diagnosticIds,
-            ref _diagnosticTexts,
-            ref _diagnosticContents
-        );
+        var diagnostics = BuildDiagnostics(assertion.Diagnostics, in focus);
         var properties = BuildReferences(
             assertion.Properties,
             in focus,
@@ -209,7 +202,31 @@ internal sealed class AssertionEvaluator : IDisposable
         return _subject.First;
     }
 
-    // Renders each referenced message; one that fails is dropped from both lists, so ids and texts stay aligned.
+    // Renders each diagnostic as text; one that fails is dropped from both lists, so ids and texts stay aligned.
+    private int BuildDiagnostics(CompiledMessage[] references, in QueryFocus focus)
+    {
+        if (_diagnosticIds.Length < references.Length)
+        {
+            _diagnosticIds = new string[references.Length];
+            _diagnosticTexts = new string[references.Length];
+        }
+
+        var count = 0;
+        for (var i = 0; i < references.Length; i++)
+        {
+            _reference.Clear();
+            if (_builder.Build(references[i], in focus, _reference) == QueryStatus.Ok)
+            {
+                _diagnosticIds[count] = references[i].Id;
+                _diagnosticTexts[count] = _reference.ToString();
+                count++;
+            }
+        }
+
+        return count;
+    }
+
+    // Renders each property, with its content when it holds xsl:copy-of; one that fails is dropped from all three lists.
     private int BuildReferences(
         CompiledMessage[] references,
         in QueryFocus focus,
