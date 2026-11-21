@@ -67,7 +67,7 @@ internal sealed class ParticleBuilder
         };
 
     // Returns null for annotations and after an issue that leaves no particle to build.
-    private Particle? BuildParticle(SchemaSyntaxNode node, XsdIssueReporter reporter)
+    internal Particle? BuildParticle(SchemaSyntaxNode node, XsdIssueReporter reporter)
     {
         var local = node.Name.LocalName;
         if (local is not ("element" or "group" or "any") && !IsCompositor(local))

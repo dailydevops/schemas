@@ -10,7 +10,6 @@
 1.0/vc024-11/vc024-11.xsd
 1.0/vc024-11/vc024.n1.xml
 1.0/vc024-11/vc024.v1.xml
-1.0/vc902/vc902.xsd
 1.1/vc001/vc001.n1.xml
 1.1/vc001/vc001.v1.xml
 1.1/vc001/vc001.xsd

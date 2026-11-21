@@ -1,10 +1,6 @@
-1.0/au_attrdecl00101m1_n/AU_attrDecl00101m1_n
-1.0/au_attrdecl00101m1_p/AU_attrDecl00101m1_p
 1.0/au_attrdecl00101m1_p/Positive
-1.0/au_required00101m1/AU_required00101m1
 1.0/au_required00101m1/Negative
 1.0/au_required00101m1/Positive
-1.0/au_valconstr00101m1/AU_valConstr00101m1
 1.0/au_valconstr00101m1/Negative
 1.0/au_valconstr00101m1/Positive
 1.1/au_attrdecl00101m1_n/AU_attrDecl00101m1_n
