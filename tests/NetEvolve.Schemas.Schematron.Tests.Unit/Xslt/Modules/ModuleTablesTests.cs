@@ -157,6 +157,43 @@ public class ModuleTablesTests
     }
 
     [Test]
+    public async Task Tables_SameModuleWithAFunctionIncludedTwiceAtOneLevel_IsTheStaticErrorXtse0770()
+    {
+        var harness = Linked(
+            Sheet(Include("lib.xsl"), Include("lib.xsl")),
+            (LibraryModule, Sheet(Fn("double", "$a * 2")))
+        );
+
+        var ok = harness.Compile();
+
+        await Assert.That(ok).IsFalse();
+        await Assert.That(harness.Set.Declarations.Count).IsEqualTo(2);
+        await Assert.That(harness.Compiled).IsEqualTo(1);
+        await Assert.That(Codes(harness.Problems)).IsEqualTo("NES3200/XTSE0770");
+        var problem = harness.Problems.Problems[0];
+        await Assert.That(problem.Message).Contains("f:double").And.Contains(LibraryModule);
+        await Assert.That(problem.Location.Source).IsEqualTo(LibraryModule);
+    }
+
+    [Test]
+    public async Task Tables_SharedModuleWithAKeyInADiamond_AddsTheKeyOnce()
+    {
+        var harness = Linked(
+            Sheet(Import("a.xsl"), Import("b.xsl")),
+            ("file:///m/a.xsl", Sheet(Import("c.xsl"))),
+            ("file:///m/b.xsl", Sheet(Import("c.xsl"))),
+            ("file:///m/c.xsl", Sheet("<xsl:key name=\"k\" match=\"item\" use=\"@code\"/>"))
+        );
+
+        var ok = harness.Compile();
+
+        await Assert.That(ok).IsTrue();
+        await Assert.That(harness.Set.Declarations.Count).IsEqualTo(2);
+        await Assert.That(harness.Tables.Keys.TryGet(new XPathQName(string.Empty, "k"), out var declarations)).IsTrue();
+        await Assert.That(declarations.Length).IsEqualTo(1);
+    }
+
+    [Test]
     public async Task Tables_TemplateInAModule_IsTheUnsupportedConstructErrorWithTheModuleUriAndLocation()
     {
         var harness = Linked(

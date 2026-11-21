@@ -290,6 +290,22 @@ public class ModuleLinkerTests
     }
 
     [Test]
+    public async Task Import_InvalidModuleReferencedTwice_IsLoadedAndReportedOnce(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var harness = new ModuleHarness(limits: ValidationLimits.Default.WithMaxExternalResources(1));
+        _ = harness.Files.Add("file:///m/lib.xsl", "<doc xmlns=\"urn:x\"/>");
+
+        var ok = harness.Link(Sheet(Import("lib.xsl"), Import("./lib.xsl")));
+
+        await Assert.That(ok).IsFalse();
+        await Assert.That(harness.Files.Requests.Count).IsEqualTo(1);
+        await Assert.That(harness.Problems.Problems.Count).IsEqualTo(1);
+        await Assert.That(harness.Problems.Problems[0].Code).IsEqualTo(SchematronDiagnosticCodes.ModuleInvalid);
+    }
+
+    [Test]
     public async Task Import_TransformRoot_IsAStylesheetModule(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
