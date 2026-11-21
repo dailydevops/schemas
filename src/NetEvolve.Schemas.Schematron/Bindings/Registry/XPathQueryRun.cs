@@ -190,8 +190,10 @@ internal sealed class XPathQueryRun : IQueryRun
     {
         if (focus.Item.Kind == XdmItemKind.None)
         {
-            _context.RestoreFocus(default);
-            _context.Host.CurrentItem = null;
+            // The focus type of the context is internal to the XPath package and outside the seam, so the public reset clears the focus; the
+            // variables are set after it, and the slot of the decimal formats is set again.
+            _context.Reset();
+            _context.Host.DecimalFormats = NoDecimalFormats.Instance;
             return;
         }
 
