@@ -13,8 +13,8 @@ using NetEvolve.Schemas.XPath.Api;
 /// </summary>
 /// <remarks>
 /// Limitations: the message is the string value of the constructed content, so the structure of a message is not kept, and the
-/// content is built as text, which does not allow a literal result element in it until the construction instructions of SCH-67
-/// (#253) provide a tree sink for it; the <c>terminate</c> value is a constant (#681); where the messages of a validation run go is
+/// content is built as text, which does not allow a literal result element in it: a construction instruction in the content is the
+/// unsupported construct error, and a message built as a tree is left out (#820); the <c>terminate</c> value is a constant (#681); where the messages of a validation run go is
 /// #683.
 /// </remarks>
 internal sealed class XsltMessageInstruction : IXsltInstruction

@@ -12,8 +12,9 @@ using NetEvolve.Schemas.XPath.Xdm.Nodes;
 /// the variables declared before it. A parent instruction with a sequence constructor of its own uses this class for its content.
 /// </summary>
 /// <remarks>
-/// Limitation: character data other than white space in a sequence constructor creates a text node, which the instructions of
-/// SCH-67 (#253) provides, with the literal result elements; until then it is reported as not supported. Comments and processing instructions are ignored.
+/// Character data other than white space is a text node of the sequence constructor; it compiles through the callback of the context
+/// like an element, and the registry answers with the synthetic text node entry (design #150 EP-9), which the construction folder
+/// registers; without that entry it is the unsupported construct error. Comments and processing instructions are ignored.
 /// </remarks>
 internal static class XsltSequenceConstructor
 {
@@ -43,7 +44,7 @@ internal static class XsltSequenceConstructor
         {
             ok &= node.Kind switch
             {
-                XmlNodeKind.Text => TryAcceptText(context, node),
+                XmlNodeKind.Text => TryCompileText(context, node, names, instructions),
                 XmlNodeKind.Element => TryCompileElement(context, node, names, instructions),
                 _ => true,
             };
@@ -57,20 +58,28 @@ internal static class XsltSequenceConstructor
         return ok;
     }
 
-    private static bool TryAcceptText(XsltCompileContext context, XmlNode text)
+    private static bool TryCompileText(
+        XsltCompileContext context,
+        XmlNode text,
+        List<string> names,
+        List<XsltExecutable> instructions
+    )
     {
         if (XsltElementReader.IsWhitespace(text.StringValue))
         {
             return true;
         }
 
-        XsltProblems.Report(
-            context.Problems,
-            SchematronDiagnosticCodes.XsltUnsupported,
-            "Text in a sequence constructor is not supported yet.",
-            new XPathNode(text.Parent)
-        );
-        return false;
+        var outer = context.Scope;
+        var scope = new QueryStaticScope(outer.Namespaces, names.ToArray(), outer.BaseUri, outer.Edition);
+        var compiled = context.CompileChildIn(new XPathNode(text), scope);
+        if (compiled is null)
+        {
+            return false;
+        }
+
+        instructions.Add(compiled);
+        return true;
     }
 
     private static bool TryCompileElement(
