@@ -19,7 +19,8 @@ using NetEvolve.Schemas.Xml.Contracts;
 /// comments inside them are not recorded. XSLT-namespace elements inside <c>pattern</c>, <see langword="group"/>, <c>rule</c>, <c>phase</c>,
 /// diagnostics, properties, and message text are rejected as <c>SCH-ELEMENT-MISPLACED</c> when the query binding is an XSLT
 /// binding or absent, and skipped under the XPath bindings. The element content of <see langword="let"/> is exempt: it is kept as
-/// data, elements of the XSLT namespace included (SCH-84, #289).
+/// data, elements of the XSLT namespace included, and <c>xsl:copy-of</c> is kept in the content of a <c>property</c> under an
+/// XSLT binding (SCH-84, #289).
 /// </para>
 /// </remarks>
 internal sealed partial class CoreParseRun
@@ -200,13 +201,7 @@ internal sealed partial class CoreParseRun
         var id = Required(element, "id");
         var role = Attribute(element, "role");
         var scheme = Attribute(element, "scheme");
-        return new SchematronProperty(
-            Location(element),
-            id,
-            role,
-            scheme,
-            ParseMessage(element, CoreInline.Diagnostic)
-        );
+        return new SchematronProperty(Location(element), id, role, scheme, ParseMessage(element, CoreInline.Property));
     }
 
     private SchematronForeignElement ParseForeign(XmlNode element)

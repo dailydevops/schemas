@@ -57,31 +57,39 @@ public class PropertyContentTests
     {
         private readonly IQueryRun _run;
 
-        internal Harness(SchematronProperty property, bool embedded = true)
+        internal Harness(
+            SchematronProperty property,
+            bool embedded = true,
+            string[]? variables = null,
+            int maxTextLength = 1000
+        )
         {
             Binding = new AssertionTestBinding();
+            Binder = new RecordingSlotBinder();
             Sink = new ContentSink();
             Problems = new FakeProblemSink();
             Schema = AssertionModel.Schema(null, [property]);
             Rule = new RuleScope(
                 AssertionModel.Rule(),
                 [],
-                new QueryStaticScope([], [], null, SchematronEdition.Iso2016)
+                new QueryStaticScope([], variables ?? [], null, SchematronEdition.Iso2016)
             );
             var mapper = new IssueMapper(new ValidationIssueCollector(ValidationLimits.Default), Sink);
             _run = Binding.BeginRun(null!, default);
             Evaluator = new AssertionEvaluator(
                 _run,
-                new RecordingSlotBinder(),
+                Binder,
                 mapper,
                 Problems,
                 "file:///instance.xml",
-                1000,
+                maxTextLength,
                 embedded ? new EmbeddedContent() : null
             );
         }
 
         internal AssertionTestBinding Binding { get; }
+
+        internal RecordingSlotBinder Binder { get; }
 
         internal ContentSink Sink { get; }
 
@@ -300,7 +308,11 @@ public class PropertyContentTests
         await Assert.That(part.Expression).IsNotNull();
         await Assert.That(compiled.Properties[0].HasCopyOf).IsTrue();
         await Assert.That(compiled.Message.HasCopyOf).IsFalse();
-        await Assert.That(h.Binding.Compiled).Contains(c => c.Text == "sel" && c.Kind == QueryExpressionKind.Value);
+        await Assert
+            .That(h.Binding.Compiled)
+            .Contains(c =>
+                string.Equals(c.Text, "sel", StringComparison.Ordinal) && c.Kind == QueryExpressionKind.Value
+            );
     }
 
     [Test]
@@ -313,6 +325,45 @@ public class PropertyContentTests
         var ok = AssertionCompiler.TryCompile(assertion, h.Rule, h.Schema, h.Binding, in at, h.Problems, out _);
 
         await Assert.That(ok).IsFalse();
+        await Assert.That(h.Problems.Problems.Count).IsEqualTo(1);
+    }
+
+    [Test]
+    public async Task CopyOf_ReadingAVariableThatFailsToBind_DropsThePropertyWithoutAnotherProblem()
+    {
+        using var h = new Harness(PropertyOf(CopyOf("$v")), variables: ["v"]);
+        _ = h.Binder.Failing.Add(0);
+
+        h.Fire();
+
+        await Assert.That(h.Sink.Findings).IsEqualTo(1);
+        await Assert.That(h.Sink.Properties.Count).IsEqualTo(0);
+        await Assert.That(h.Problems.Problems.Count).IsEqualTo(0);
+    }
+
+    [Test]
+    public async Task CopyOf_LongerThanTheLimit_IsCutAndDropsTheProperty()
+    {
+        using var h = new Harness(PropertyOf(CopyOf("sel")), maxTextLength: 3);
+        h.Binding.Items["sel"] = [XdmItem.FromString("seven")];
+
+        h.Fire();
+
+        await Assert.That(h.Sink.Findings).IsEqualTo(1);
+        await Assert.That(h.Sink.Properties.Count).IsEqualTo(0);
+        await Assert.That(h.Problems.Problems.Count).IsEqualTo(1);
+        await Assert.That(h.Problems.Problems[0].Message).Contains("longer than the limit");
+    }
+
+    [Test]
+    public async Task Property_WithTextLongerThanTheLimit_AndCopyOf_IsCutAndDropped()
+    {
+        using var h = new Harness(PropertyOf(Text("a long text"), CopyOf("sel")), maxTextLength: 3);
+        h.Binding.Items["sel"] = [XdmItem.FromString("x")];
+
+        h.Fire();
+
+        await Assert.That(h.Sink.Properties.Count).IsEqualTo(0);
         await Assert.That(h.Problems.Problems.Count).IsEqualTo(1);
     }
 }

@@ -281,6 +281,6 @@ public class FindingContentBuilderTests
         builder.Dispose();
         builder.Dispose();
 
-        await Assert.That(true).IsTrue();
+        await Assert.That(() => builder.Text("late".AsSpan())).Throws<InvalidOperationException>();
     }
 }

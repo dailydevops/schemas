@@ -3,18 +3,33 @@
 namespace NetEvolve.Schemas.Schematron;
 
 using System;
+using NetEvolve.Schemas.Schematron.Seams;
 
 /// <summary>The ids and rendered texts of the diagnostics or properties an assertion references. Valid only during the callback.</summary>
 public readonly ref struct SchematronReferenceList
 {
     private readonly ReadOnlySpan<string> _ids;
     private readonly ReadOnlySpan<string> _texts;
+    private readonly ReadOnlySpan<IFindingContent?> _contents;
 
-    internal SchematronReferenceList(ReadOnlySpan<string> ids, ReadOnlySpan<string> texts)
+    internal SchematronReferenceList(
+        ReadOnlySpan<string> ids,
+        ReadOnlySpan<string> texts,
+        ReadOnlySpan<IFindingContent?> contents = default
+    )
     {
         _ids = ids;
         _texts = texts;
+        _contents = contents;
     }
+
+    /// <summary>
+    /// Gets the structured content of a reference, which a property with <c>xsl:copy-of</c> has besides its text, or <see langword="null"/>
+    /// when the reference has none (SCH-84, #289). It is an owned snapshot, so the report writer may keep it after the callback.
+    /// </summary>
+    /// <param name="index">The zero-based index.</param>
+    /// <returns>The content, or <see langword="null"/>.</returns>
+    internal IFindingContent? ContentAt(int index) => (uint)index < (uint)_contents.Length ? _contents[index] : null;
 
     /// <summary>Gets the number of references.</summary>
     public int Count => _ids.Length;

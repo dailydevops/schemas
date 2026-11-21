@@ -13,6 +13,9 @@ internal enum CoreInline
     Direction = 8,
     Span = 16,
 
+    /// <summary>The <c>xsl:copy-of</c> of the XSLT namespace, which only a <c>property</c> admits (SCH-84, #289).</summary>
+    CopyOf = 32,
+
     /// <summary>The set of <c>p</c> and <c>active</c>.</summary>
     Plain = Emphasis | Direction | Span,
 
@@ -21,4 +24,7 @@ internal enum CoreInline
 
     /// <summary>The set of <c>assert</c> and <c>report</c>.</summary>
     Message = Diagnostic | Name,
+
+    /// <summary>The set of <c>property</c>.</summary>
+    Property = Diagnostic | CopyOf,
 }

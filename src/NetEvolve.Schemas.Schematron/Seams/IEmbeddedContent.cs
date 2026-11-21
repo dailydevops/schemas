@@ -5,8 +5,9 @@ using NetEvolve.Schemas.Schematron.Model;
 
 /// <summary>
 /// The places where Schematron embeds content that the XSLT construction builds (SCH-84, #289): the element content of a
-/// <see langword="let"/>, which becomes a temporary tree bound to the slot of the variable. The stages that need it (the slot binder)
-/// know only this seam, so they stay free of the XSLT folders.
+/// <see langword="let"/>, which becomes a temporary tree bound to the slot of the variable, and the content of a <c>property</c> that holds
+/// <c>xsl:copy-of</c>, which becomes a snapshot that the report writer puts into the finding. The stages that need it (the slot binder
+/// and the message builder) know only this seam, so they stay free of the XSLT folders.
 /// </summary>
 internal interface IEmbeddedContent
 {
@@ -22,4 +23,8 @@ internal interface IEmbeddedContent
         IReadOnlyList<SchematronNode> content,
         out SchematronProblem problem
     );
+
+    /// <summary>Begins the content of one referenced property.</summary>
+    /// <returns>The builder, which receives the items and the text of the property in order.</returns>
+    IFindingContentBuilder BeginFindingContent();
 }

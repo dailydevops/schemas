@@ -11,8 +11,9 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>
 /// The embedding of XSLT construction into Schematron elements (SCH-84, #289): the element content of a <see langword="let"/> is built
-/// into a temporary tree and bound to the slot of the variable. One instance serves one run; every temporary tree of the run uses
-/// its one name table, which is the run-owned, caller-supplied table of design #150 EP-8 and is never frozen by the library.
+/// into a temporary tree and bound to the slot of the variable, and the content of a <c>property</c> with <c>xsl:copy-of</c> is built into
+/// a snapshot for the report writer. One instance serves one run; every temporary tree of the run uses its one name table, which is
+/// the run-owned, caller-supplied table of design #150 EP-8 and is never frozen by the library.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -75,4 +76,7 @@ internal sealed class EmbeddedContent : IEmbeddedContent
         values.SetValue(slot, XdmSequence.Create(document));
         return QueryStatus.Ok;
     }
+
+    /// <inheritdoc />
+    public IFindingContentBuilder BeginFindingContent() => new FindingContentBuilder(_names);
 }

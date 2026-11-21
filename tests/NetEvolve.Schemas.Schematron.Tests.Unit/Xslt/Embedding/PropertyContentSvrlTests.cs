@@ -195,8 +195,10 @@ public class PropertyContentSvrlTests
         string[] texts = ["t"];
 
         var list = new SchematronReferenceList(ids, texts);
+        var first = list.ContentAt(0);
+        var outside = list.ContentAt(5);
 
-        await Assert.That(list.ContentAt(0)).IsNull();
-        await Assert.That(list.ContentAt(5)).IsNull();
+        await Assert.That(first).IsNull();
+        await Assert.That(outside).IsNull();
     }
 }

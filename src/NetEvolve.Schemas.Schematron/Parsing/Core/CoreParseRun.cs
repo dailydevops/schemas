@@ -541,6 +541,11 @@ internal sealed partial class CoreParseRun
         var kind = Classify(element);
         if (kind == CoreElement.Foreign)
         {
+            if ((allowed & CoreInline.CopyOf) != CoreInline.None && IsCopyOf(element))
+            {
+                return ParseCopyOf(element);
+            }
+
             RejectXslt(element, host);
             return null;
         }
@@ -557,24 +562,67 @@ internal sealed partial class CoreParseRun
 
         if (kind == CoreElement.Emphasis && (allowed & CoreInline.Emphasis) != CoreInline.None)
         {
-            return new SchematronEmphasis(Location(element), ParseParts(element, allowed));
+            return new SchematronEmphasis(Location(element), ParseParts(element, allowed & ~CoreInline.CopyOf));
         }
 
         if (kind == CoreElement.Direction && (allowed & CoreInline.Direction) != CoreInline.None)
         {
             var value = Attribute(element, "value");
-            return new SchematronDirection(Location(element), value, ParseParts(element, allowed));
+            return new SchematronDirection(Location(element), value, ParseParts(element, allowed & ~CoreInline.CopyOf));
         }
 
         if (kind == CoreElement.Span && (allowed & CoreInline.Span) != CoreInline.None)
         {
             var styleClass = Attribute(element, "class");
-            return new SchematronSpan(Location(element), styleClass, ParseParts(element, allowed));
+            return new SchematronSpan(Location(element), styleClass, ParseParts(element, allowed & ~CoreInline.CopyOf));
         }
 
         Reject(element, kind, LocalName(host));
         return null;
     }
+
+    // xsl:copy-of is kept only under an XSLT binding; under an XPath binding the XSLT content is skipped like all of it.
+    private bool IsCopyOf(XmlNode element) =>
+        _rejectXslt
+        && _hasXsltNamespace
+        && element.Name.NamespaceUri == _xsltNamespace
+        && string.Equals(LocalName(element), "copy-of", StringComparison.Ordinal);
+
+    // The copy of nodes into a message is the one XSLT instruction a property takes. The attributes that select a typed copy
+    // (type, validation) or leave the namespace nodes out (copy-namespaces="no", #813) are not supported.
+    private SchematronCopyOf ParseCopyOf(XmlNode element)
+    {
+        var select = Required(element, "select");
+        foreach (var unsupported in new[] { "type", "validation" })
+        {
+            if (Attribute(element, unsupported) is not null)
+            {
+                ReportCopyOf(element, "The attribute '" + unsupported + "' of 'xsl:copy-of' is not supported.");
+            }
+        }
+
+        var namespaces = Attribute(element, "copy-namespaces");
+        if (namespaces is "no" or "false" or "0")
+        {
+            ReportCopyOf(
+                element,
+                "The value '" + namespaces + "' of 'copy-namespaces' on 'xsl:copy-of' is not supported."
+            );
+        }
+        else if (namespaces is not (null or "yes" or "true" or "1"))
+        {
+            Report(
+                SchematronDiagnosticCodes.AttributeInvalid,
+                "The attribute 'copy-namespaces' of 'xsl:copy-of' must be 'yes' or 'no'.",
+                Location(element)
+            );
+        }
+
+        return new SchematronCopyOf(Location(element), select);
+    }
+
+    private void ReportCopyOf(XmlNode element, string message) =>
+        Report(SchematronDiagnosticCodes.XsltUnsupported, message, Location(element));
 
     private CoreElement Classify(XmlNode element)
     {
