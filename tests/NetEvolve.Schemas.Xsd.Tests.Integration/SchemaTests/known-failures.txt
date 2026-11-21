@@ -1,0 +1,360 @@
+# The schema tests of XSD 1.0 of the W3C XML Schema Test Suite that the compilation pipeline does not pass yet.
+# One line per case, sorted by test set and case id: test set, case id, issue (- when no issue is open), reason.
+# The test KnownFailuresTests keeps this list equal to the baseline: a case that starts to pass leaves both.
+# Regenerate the baseline with SchemaBaselineTests.Baseline_Regenerate, then update this list.
+ibmMeta-anyAttribute	1.0/s3_10_6ii01/s3_10_6v01s	-	The test group has no version attribute but its schema uses an XSD 1.1 construct, which strict 1.0 mode rejects (design 146, DP-16).
+ibmMeta-anyAttribute	1.0/s3_10_6ii02/s3_10_6v02s	-	The test group has no version attribute but its schema uses an XSD 1.1 construct, which strict 1.0 mode rejects (design 146, DP-16).
+ibmMeta-anyAttribute	1.0/s3_10_6ii04/s3_10_6v04s	-	The test group has no version attribute but its schema uses an XSD 1.1 construct, which strict 1.0 mode rejects (design 146, DP-16).
+ibmMeta-unitsLength	1.0/d2_4_1_3si01/d2_4_1_3si01s	#874	A schema constraint that the pipeline does not check; not analyzed yet.
+ibmMeta-wildcard	1.0/s3_10_1ii08/s3_10_1ii08s	-	The test group has no version attribute but its schema uses an XSD 1.1 construct, which strict 1.0 mode rejects (design 146, DP-16).
+ibmMeta-wildcard	1.0/s3_10_1ii09/s3_10_1ii09s	-	The test group has no version attribute but its schema uses an XSD 1.1 construct, which strict 1.0 mode rejects (design 146, DP-16).
+msMeta-Additional_w3c	1.0/addB008/addB008	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
+msMeta-Additional_w3c	1.0/addB035/addB035	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
+msMeta-Additional_w3c	1.0/addB041/addB041	#874	A schema constraint that the pipeline does not check; not analyzed yet.
+msMeta-Additional_w3c	1.0/addB053/addB053	#874	A schema constraint that the pipeline does not check; not analyzed yet.
+msMeta-Additional_w3c	1.0/addB078/addB078	#874	A schema constraint that the pipeline does not check; not analyzed yet.
+msMeta-Additional_w3c	1.0/addB078A/addB078A	#874	A schema constraint that the pipeline does not check; not analyzed yet.
+msMeta-Additional_w3c	1.0/addB078B/addB078B	#874	A schema constraint that the pipeline does not check; not analyzed yet.
+msMeta-Additional_w3c	1.0/addB110/addB110	#874	A schema constraint that the pipeline does not check; not analyzed yet.
+msMeta-Additional_w3c	1.0/addB111/addB111	#874	A schema constraint that the pipeline does not check; not analyzed yet.
+msMeta-Additional_w3c	1.0/addB141/addB141	#874	A schema constraint that the pipeline does not check; not analyzed yet.
+msMeta-Additional_w3c	1.0/addB180/addB180	#868	The element declaration has no substitution group affiliation yet.
+msMeta-Additional_w3c	1.0/addB183/addB183	#864	Fixed values are compared as strings, not in the value space.
+msMeta-Additional_w3c	1.0/addC001/addC001	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
+msMeta-Additional_w3c	1.0/isDefault060_2/isDefault060_2	#874	A schema constraint that the pipeline does not check; not analyzed yet.
+msMeta-Additional_w3c	1.0/isDefault069/isDefault069	#874	A schema constraint that the pipeline does not check; not analyzed yet.
+msMeta-Additional_w3c	1.0/isDefault078/isDefault078	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
+msMeta-Annotations_w3c	1.0/annotA013/annotA013	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
+msMeta-Annotations_w3c	1.0/annotA014/annotA014	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
+msMeta-Annotations_w3c	1.0/annotB025/annotB025	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
+msMeta-Annotations_w3c	1.0/annotF001/annotF001	#874	A schema constraint that the pipeline does not check; not analyzed yet.
+msMeta-Annotations_w3c	1.0/annotF003/annotF003	#874	A schema constraint that the pipeline does not check; not analyzed yet.
+msMeta-AttributeGroup_w3c	1.0/attgC028/attgC028	#874	A schema constraint that the pipeline does not check; not analyzed yet.
+msMeta-AttributeGroup_w3c	1.0/attgZ002/attgZ002	#869	A redefinition is not checked against the redefined component.
+msMeta-AttributeGroup_w3c	1.0/attgZ003/attgZ003	#869	A redefinition is not checked against the redefined component.
+msMeta-Attribute_w3c	1.0/attZ013a/attZ013a	#871	A value constraint on a declaration of type ID is accepted.
+msMeta-Attribute_w3c	1.0/attZ013b/attZ013b	#871	A value constraint on a declaration of type ID is accepted.
+msMeta-DataTypes_w3c	1.0/IDREFS_length007_396/IDREFS_length007_396	#862	length together with minLength or maxLength in one step is accepted.
+msMeta-DataTypes_w3c	1.0/IDREF_length006_525/IDREF_length006_525	#862	length together with minLength or maxLength in one step is accepted.
+msMeta-DataTypes_w3c	1.0/IDREF_length007_526/IDREF_length007_526	#862	length together with minLength or maxLength in one step is accepted.
+msMeta-DataTypes_w3c	1.0/ID_length006_503/ID_length006_503	#862	length together with minLength or maxLength in one step is accepted.
+msMeta-DataTypes_w3c	1.0/ID_length007_504/ID_length007_504	#862	length together with minLength or maxLength in one step is accepted.
+msMeta-DataTypes_w3c	1.0/NCName_length006_481/NCName_length006_481	#862	length together with minLength or maxLength in one step is accepted.
+msMeta-DataTypes_w3c	1.0/NCName_length007_482/NCName_length007_482	#862	length together with minLength or maxLength in one step is accepted.
+msMeta-DataTypes_w3c	1.0/NMTOKENS_length007_439/NMTOKENS_length007_439	#862	length together with minLength or maxLength in one step is accepted.
+msMeta-DataTypes_w3c	1.0/NMTOKEN_length006_416/NMTOKEN_length006_416	#862	length together with minLength or maxLength in one step is accepted.
+msMeta-DataTypes_w3c	1.0/NMTOKEN_length007_417/NMTOKEN_length007_417	#862	length together with minLength or maxLength in one step is accepted.
+msMeta-DataTypes_w3c	1.0/NOTATION_length001_1372/NOTATION_length001_1372	#860	A restriction step of NOTATION needs no enumeration; only the type that a declaration uses does.
+msMeta-DataTypes_w3c	1.0/NOTATION_length002_1373/NOTATION_length002_1373	#860	A restriction step of NOTATION needs no enumeration; only the type that a declaration uses does.
+msMeta-DataTypes_w3c	1.0/NOTATION_length003_1374/NOTATION_length003_1374	#860	A restriction step of NOTATION needs no enumeration; only the type that a declaration uses does.
+msMeta-DataTypes_w3c	1.0/NOTATION_length003_302/NOTATION_length003_302	#860	A restriction step of NOTATION needs no enumeration; only the type that a declaration uses does.
+msMeta-DataTypes_w3c	1.0/NOTATION_maxLength001_1379/NOTATION_maxLength001_1379	#860	A restriction step of NOTATION needs no enumeration; only the type that a declaration uses does.
+msMeta-DataTypes_w3c	1.0/NOTATION_maxLength002_1380/NOTATION_maxLength002_1380	#860	A restriction step of NOTATION needs no enumeration; only the type that a declaration uses does.
+msMeta-DataTypes_w3c	1.0/NOTATION_maxLength003_1381/NOTATION_maxLength003_1381	#860	A restriction step of NOTATION needs no enumeration; only the type that a declaration uses does.
+msMeta-DataTypes_w3c	1.0/NOTATION_maxLength003_316/NOTATION_maxLength003_316	#860	A restriction step of NOTATION needs no enumeration; only the type that a declaration uses does.
+msMeta-DataTypes_w3c	1.0/NOTATION_minLength001_1375/NOTATION_minLength001_1375	#860	A restriction step of NOTATION needs no enumeration; only the type that a declaration uses does.
+msMeta-DataTypes_w3c	1.0/NOTATION_minLength002_1376/NOTATION_minLength002_1376	#860	A restriction step of NOTATION needs no enumeration; only the type that a declaration uses does.
+msMeta-DataTypes_w3c	1.0/NOTATION_minLength003_1377/NOTATION_minLength003_1377	#860	A restriction step of NOTATION needs no enumeration; only the type that a declaration uses does.
+msMeta-DataTypes_w3c	1.0/NOTATION_minLength003_309/NOTATION_minLength003_309	#860	A restriction step of NOTATION needs no enumeration; only the type that a declaration uses does.
+msMeta-DataTypes_w3c	1.0/NOTATION_minLength004_1378/NOTATION_minLength004_1378	#860	A restriction step of NOTATION needs no enumeration; only the type that a declaration uses does.
+msMeta-DataTypes_w3c	1.0/NOTATION_minLength007_313/NOTATION_minLength007_313	#860	A restriction step of NOTATION needs no enumeration; only the type that a declaration uses does.
+msMeta-DataTypes_w3c	1.0/NOTATION_pattern001_1382/NOTATION_pattern001_1382	#860	A restriction step of NOTATION needs no enumeration; only the type that a declaration uses does.
+msMeta-DataTypes_w3c	1.0/NOTATION_pattern001_319/NOTATION_pattern001_319	#860	A restriction step of NOTATION needs no enumeration; only the type that a declaration uses does.
+msMeta-DataTypes_w3c	1.0/Name_length006_459/Name_length006_459	#862	length together with minLength or maxLength in one step is accepted.
+msMeta-DataTypes_w3c	1.0/Name_length007_460/Name_length007_460	#862	length together with minLength or maxLength in one step is accepted.
+msMeta-DataTypes_w3c	1.0/QName_length006_283/QName_length006_283	#862	length together with minLength or maxLength in one step is accepted.
+msMeta-DataTypes_w3c	1.0/QName_length007_284/QName_length007_284	#862	length together with minLength or maxLength in one step is accepted.
+msMeta-DataTypes_w3c	1.0/anyURI_a002_1337/anyURI_a002_1337	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
+msMeta-DataTypes_w3c	1.0/anyURI_a003_1338/anyURI_a003_1338	#874	A schema constraint that the pipeline does not check; not analyzed yet.
+msMeta-DataTypes_w3c	1.0/anyURI_a004_1339/anyURI_a004_1339	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
+msMeta-DataTypes_w3c	1.0/anyURI_a006_1341/anyURI_a006_1341	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
+msMeta-DataTypes_w3c	1.0/anyURI_a008_1343/anyURI_a008_1343	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
+msMeta-DataTypes_w3c	1.0/anyURI_a009_1344/anyURI_a009_1344	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
+msMeta-DataTypes_w3c	1.0/anyURI_b004_1354/anyURI_b004_1354	#874	A schema constraint that the pipeline does not check; not analyzed yet.
+msMeta-DataTypes_w3c	1.0/anyURI_b006_1356/anyURI_b006_1356	#874	A schema constraint that the pipeline does not check; not analyzed yet.
+msMeta-DataTypes_w3c	1.0/anyURI_length006_262/anyURI_length006_262	#862	length together with minLength or maxLength in one step is accepted.
+msMeta-DataTypes_w3c	1.0/anyURI_length007_263/anyURI_length007_263	#862	length together with minLength or maxLength in one step is accepted.
+msMeta-DataTypes_w3c	1.0/base64Binary_length006_241/base64Binary_length006_241	#862	length together with minLength or maxLength in one step is accepted.
+msMeta-DataTypes_w3c	1.0/base64Binary_length007_242/base64Binary_length007_242	#862	length together with minLength or maxLength in one step is accepted.
+msMeta-DataTypes_w3c	1.0/dtZ107447_a_2245/dtZ107447_a_2245	#874	A schema constraint that the pipeline does not check; not analyzed yet.
+msMeta-DataTypes_w3c	1.0/hexBinary_length006_220/hexBinary_length006_220	#862	length together with minLength or maxLength in one step is accepted.
+msMeta-DataTypes_w3c	1.0/hexBinary_length007_221/hexBinary_length007_221	#862	length together with minLength or maxLength in one step is accepted.
+msMeta-DataTypes_w3c	1.0/language_length006_373/language_length006_373	#862	length together with minLength or maxLength in one step is accepted.
+msMeta-DataTypes_w3c	1.0/language_length007_374/language_length007_374	#862	length together with minLength or maxLength in one step is accepted.
+msMeta-DataTypes_w3c	1.0/normalizedString_length006_327/normalizedString_length006_327	#862	length together with minLength or maxLength in one step is accepted.
+msMeta-DataTypes_w3c	1.0/normalizedString_length007_328/normalizedString_length007_328	#862	length together with minLength or maxLength in one step is accepted.
+msMeta-DataTypes_w3c	1.0/string_length006_5/string_length006_5	#862	length together with minLength or maxLength in one step is accepted.
+msMeta-DataTypes_w3c	1.0/string_length007_6/string_length007_6	#862	length together with minLength or maxLength in one step is accepted.
+msMeta-DataTypes_w3c	1.0/token_length006_350/token_length006_350	#862	length together with minLength or maxLength in one step is accepted.
+msMeta-DataTypes_w3c	1.0/token_length007_351/token_length007_351	#862	length together with minLength or maxLength in one step is accepted.
+msMeta-Element_w3c	1.0/elemS001/elemS001	#868	The element declaration has no substitution group affiliation yet.
+msMeta-Element_w3c	1.0/elemS004/elemS004	#868	The element declaration has no substitution group affiliation yet.
+msMeta-Element_w3c	1.0/elemS005/elemS005	#868	The element declaration has no substitution group affiliation yet.
+msMeta-Element_w3c	1.0/elemS006/elemS006	#868	The element declaration has no substitution group affiliation yet.
+msMeta-Element_w3c	1.0/elemZ006/elemZ006	#872	A component of a document that is not imported or included is visible.
+msMeta-Element_w3c	1.0/elemZ007/elemZ007	#872	A component of a document that is not imported or included is visible.
+msMeta-Element_w3c	1.0/elemZ021g/elemZ021g	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
+msMeta-Element_w3c	1.0/elemZ022b/elemZ022b	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
+msMeta-Element_w3c	1.0/elemZ027_a/elemZ027_a	#868	The element declaration has no substitution group affiliation yet.
+msMeta-Element_w3c	1.0/elemZ027_b/elemZ027_b	#868	The element declaration has no substitution group affiliation yet.
+msMeta-Element_w3c	1.0/elemZ027_e/elemZ027_e	#868	The element declaration has no substitution group affiliation yet.
+msMeta-Element_w3c	1.0/elemZ027_f/elemZ027_f	#868	The element declaration has no substitution group affiliation yet.
+msMeta-Element_w3c	1.0/elemZ028c/elemZ028c	#868	The element declaration has no substitution group affiliation yet.
+msMeta-Element_w3c	1.0/elemZ028d/elemZ028d	#868	The element declaration has no substitution group affiliation yet.
+msMeta-Element_w3c	1.0/elemZ028f1/elemZ028f1	#868	The element declaration has no substitution group affiliation yet.
+msMeta-Element_w3c	1.0/elemZ028f2/elemZ028f2	#868	The element declaration has no substitution group affiliation yet.
+msMeta-Element_w3c	1.0/elemZ028f3/elemZ028f3	#868	The element declaration has no substitution group affiliation yet.
+msMeta-Element_w3c	1.0/elemZ032a/elemZ032a	#871	A value constraint on a declaration of type ID is accepted.
+msMeta-Element_w3c	1.0/elemZ032b/elemZ032b	#871	A value constraint on a declaration of type ID is accepted.
+msMeta-Errata10_w3c	1.0/errC005/errC005	#865	A local element declaration with abstract or final is accepted.
+msMeta-Errata10_w3c	1.0/errC006/errC006	#865	A local element declaration with abstract or final is accepted.
+msMeta-Group_w3c	1.0/groupA008/groupA008	#874	A schema constraint that the pipeline does not check; not analyzed yet.
+msMeta-IdentityConstraint_w3c	1.0/idC019/idC019	#874	A schema constraint that the pipeline does not check; not analyzed yet.
+msMeta-IdentityConstraint_w3c	1.0/idZ011/idZ011	#871	A value constraint on a declaration of type ID is accepted.
+msMeta-ModelGroups_w3c	1.0/mgH014/mgH014	#863	The particle restriction check reports a restriction that the suite accepts.
+msMeta-ModelGroups_w3c	1.0/mgO001/mgO001	#866	The all group limits of 1.0 miss this case.
+msMeta-ModelGroups_w3c	1.0/mgO013/mgO013	#866	The all group limits of 1.0 miss this case.
+msMeta-ModelGroups_w3c	1.0/mgO018/mgO018	#866	The all group limits of 1.0 miss this case.
+msMeta-ModelGroups_w3c	1.0/mgO019/mgO019	#866	The all group limits of 1.0 miss this case.
+msMeta-ModelGroups_w3c	1.0/mgQ001/mgQ001	#866	The all group limits of 1.0 miss this case.
+msMeta-Notations_w3c	1.0/notatB001/notatB001	#870	Notation declarations are not components yet.
+msMeta-Notations_w3c	1.0/notatB005/notatB005	#870	Notation declarations are not components yet.
+msMeta-Notations_w3c	1.0/notatG001/notatG001	#870	Notation declarations are not components yet.
+msMeta-Notations_w3c	1.0/notatG003/notatG003	#870	Notation declarations are not components yet.
+msMeta-Particles_w3c	1.0/particlesDa011/particlesDa011	#865	A local element declaration with abstract or final is accepted.
+msMeta-Particles_w3c	1.0/particlesEc009/particlesEc009	#874	A schema constraint that the pipeline does not check; not analyzed yet.
+msMeta-Particles_w3c	1.0/particlesHa008/particlesHa008	#874	A schema constraint that the pipeline does not check; not analyzed yet.
+msMeta-Particles_w3c	1.0/particlesHa070/particlesHa070	#863	The particle restriction check reports a restriction that the suite accepts.
+msMeta-Particles_w3c	1.0/particlesHa080/particlesHa080	#863	The particle restriction check reports a restriction that the suite accepts.
+msMeta-Particles_w3c	1.0/particlesHa084/particlesHa084	#863	The particle restriction check reports a restriction that the suite accepts.
+msMeta-Particles_w3c	1.0/particlesIh001/particlesIh001	#868	The element declaration has no substitution group affiliation yet.
+msMeta-Particles_w3c	1.0/particlesJq010/particlesJq010	#863	The particle restriction check reports a restriction that the suite accepts.
+msMeta-Particles_w3c	1.0/particlesJs001/particlesJs001	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
+msMeta-Particles_w3c	1.0/particlesQ013/particlesQ013	#863	The particle restriction check reports a restriction that the suite accepts.
+msMeta-Particles_w3c	1.0/particlesQ016/particlesQ016	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
+msMeta-Particles_w3c	1.0/particlesQ022/particlesQ022	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
+msMeta-Particles_w3c	1.0/particlesR013/particlesR013	#863	The particle restriction check reports a restriction that the suite accepts.
+msMeta-Particles_w3c	1.0/particlesR016/particlesR016	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
+msMeta-Particles_w3c	1.0/particlesR022/particlesR022	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
+msMeta-Particles_w3c	1.0/particlesZ001/particlesZ001	#863	The particle restriction check reports a restriction that the suite accepts.
+msMeta-Particles_w3c	1.0/particlesZ008/particlesZ008	#868	The element declaration has no substitution group affiliation yet.
+msMeta-Particles_w3c	1.0/particlesZ014/particlesZ014	#874	A schema constraint that the pipeline does not check; not analyzed yet.
+msMeta-Regex_w3c	1.0/RegexTest_1005/RegexTest_1005	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1048/RegexTest_1048	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1049/RegexTest_1049	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1050/RegexTest_1050	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1051/RegexTest_1051	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1052/RegexTest_1052	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1053/RegexTest_1053	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1054/RegexTest_1054	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1055/RegexTest_1055	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1119/RegexTest_1119	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1152/RegexTest_1152	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1165/RegexTest_1165	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1166/RegexTest_1166	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1167/RegexTest_1167	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1168/RegexTest_1168	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1169/RegexTest_1169	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1170/RegexTest_1170	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1218/RegexTest_1218	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1219/RegexTest_1219	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1220/RegexTest_1220	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1221/RegexTest_1221	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1222/RegexTest_1222	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1223/RegexTest_1223	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1224/RegexTest_1224	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1252/RegexTest_1252	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1288/RegexTest_1288	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1301/RegexTest_1301	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1302/RegexTest_1302	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1303/RegexTest_1303	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1304/RegexTest_1304	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1305/RegexTest_1305	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1306/RegexTest_1306	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1342/RegexTest_1342	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1343/RegexTest_1343	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1366/RegexTest_1366	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1367/RegexTest_1367	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1368/RegexTest_1368	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1369/RegexTest_1369	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1431/RegexTest_1431	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1432/RegexTest_1432	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1462/RegexTest_1462	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1463/RegexTest_1463	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1464/RegexTest_1464	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1465/RegexTest_1465	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1467/RegexTest_1467	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1468/RegexTest_1468	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1469/RegexTest_1469	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1470/RegexTest_1470	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1489/RegexTest_1489	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1505/RegexTest_1505	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1506/RegexTest_1506	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1507/RegexTest_1507	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1508/RegexTest_1508	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1509/RegexTest_1509	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1510/RegexTest_1510	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1511/RegexTest_1511	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1512/RegexTest_1512	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1513/RegexTest_1513	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1514/RegexTest_1514	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1515/RegexTest_1515	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1516/RegexTest_1516	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1517/RegexTest_1517	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1518/RegexTest_1518	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1519/RegexTest_1519	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1520/RegexTest_1520	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1521/RegexTest_1521	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1523/RegexTest_1523	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1525/RegexTest_1525	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1526/RegexTest_1526	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1527/RegexTest_1527	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1528/RegexTest_1528	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1529/RegexTest_1529	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1530/RegexTest_1530	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1531/RegexTest_1531	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1532/RegexTest_1532	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1533/RegexTest_1533	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1534/RegexTest_1534	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1535/RegexTest_1535	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1536/RegexTest_1536	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1537/RegexTest_1537	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1538/RegexTest_1538	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1539/RegexTest_1539	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1540/RegexTest_1540	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_1541/RegexTest_1541	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_488/RegexTest_488	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_489/RegexTest_489	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_506/RegexTest_506	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_508/RegexTest_508	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_529/RegexTest_529	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_564/RegexTest_564	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_565/RegexTest_565	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_566/RegexTest_566	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_567/RegexTest_567	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_568/RegexTest_568	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_569/RegexTest_569	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_570/RegexTest_570	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_571/RegexTest_571	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_635/RegexTest_635	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_668/RegexTest_668	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_681/RegexTest_681	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_682/RegexTest_682	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_683/RegexTest_683	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_684/RegexTest_684	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_685/RegexTest_685	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_686/RegexTest_686	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_734/RegexTest_734	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_735/RegexTest_735	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_736/RegexTest_736	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_737/RegexTest_737	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_738/RegexTest_738	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_739/RegexTest_739	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_740/RegexTest_740	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_768/RegexTest_768	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_804/RegexTest_804	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_817/RegexTest_817	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_818/RegexTest_818	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_819/RegexTest_819	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_820/RegexTest_820	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_821/RegexTest_821	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_822/RegexTest_822	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_858/RegexTest_858	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_859/RegexTest_859	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_882/RegexTest_882	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_883/RegexTest_883	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_884/RegexTest_884	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_885/RegexTest_885	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_947/RegexTest_947	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_948/RegexTest_948	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_978/RegexTest_978	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_979/RegexTest_979	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_980/RegexTest_980	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_981/RegexTest_981	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_983/RegexTest_983	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_984/RegexTest_984	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_985/RegexTest_985	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/RegexTest_986/RegexTest_986	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/reF56/reF56	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Regex_w3c	1.0/reZ001/reZ001	#858	The regex parser rejects the anchors ^ and $ outside a character class.
+msMeta-Schema_w3c	1.0/schB8/schB8	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
+msMeta-Schema_w3c	1.0/schD7/schD7	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
+msMeta-Schema_w3c	1.0/schD8/schD8	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
+msMeta-Schema_w3c	1.0/schE1/schE1	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
+msMeta-Schema_w3c	1.0/schE2/schE2	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
+msMeta-Schema_w3c	1.0/schE3/schE3	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
+msMeta-Schema_w3c	1.0/schE9/schE9	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
+msMeta-Schema_w3c	1.0/schF1/schF1	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
+msMeta-Schema_w3c	1.0/schG2/schG2	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
+msMeta-Schema_w3c	1.0/schG8/schG8	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
+msMeta-Schema_w3c	1.0/schG9/schG9	#872	A component of a document that is not imported or included is visible.
+msMeta-Schema_w3c	1.0/schH9/schH9	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
+msMeta-Schema_w3c	1.0/schL1/schL1	#869	A redefinition is not checked against the redefined component.
+msMeta-Schema_w3c	1.0/schL10/schL10	#869	A redefinition is not checked against the redefined component.
+msMeta-Schema_w3c	1.0/schL5/schL5	#869	A redefinition is not checked against the redefined component.
+msMeta-Schema_w3c	1.0/schL6/schL6	#869	A redefinition is not checked against the redefined component.
+msMeta-Schema_w3c	1.0/schL8/schL8	#869	A redefinition is not checked against the redefined component.
+msMeta-Schema_w3c	1.0/schM10/schM10	#869	A redefinition is not checked against the redefined component.
+msMeta-Schema_w3c	1.0/schM3/schM3	#869	A redefinition is not checked against the redefined component.
+msMeta-Schema_w3c	1.0/schM4/schM4	#869	A redefinition is not checked against the redefined component.
+msMeta-Schema_w3c	1.0/schM5/schM5	#869	A redefinition is not checked against the redefined component.
+msMeta-Schema_w3c	1.0/schN12/schN12	#869	A redefinition is not checked against the redefined component.
+msMeta-Schema_w3c	1.0/schN6/schN6	#869	A redefinition is not checked against the redefined component.
+msMeta-Schema_w3c	1.0/schO2/schO2	#869	A redefinition is not checked against the redefined component.
+msMeta-Schema_w3c	1.0/schR5/schR5	#869	A redefinition is not checked against the redefined component.
+msMeta-Schema_w3c	1.0/schZ001_78029-a/schZ001_78029-a	#865	A local element declaration with abstract or final is accepted.
+msMeta-Schema_w3c	1.0/schZ002_78029-b/schZ002_78029-b	#865	A local element declaration with abstract or final is accepted.
+msMeta-Schema_w3c	1.0/schZ004/schZ004	#872	A component of a document that is not imported or included is visible.
+msMeta-Schema_w3c	1.0/schZ005/schZ005	#872	A component of a document that is not imported or included is visible.
+msMeta-Schema_w3c	1.0/schZ006/schZ006	#869	A redefinition is not checked against the redefined component.
+msMeta-Schema_w3c	1.0/schZ012_b/schZ012_b	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
+msMeta-Schema_w3c	1.0/schZ012_c/schZ012_c	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
+msMeta-Schema_w3c	1.0/schZ014_b/schZ014_b	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
+msMeta-SimpleType_w3c	1.0/stZ005/stZ005	#874	A schema constraint that the pipeline does not check; not analyzed yet.
+msMeta-SimpleType_w3c	1.0/stZ006/stZ006	#874	A schema constraint that the pipeline does not check; not analyzed yet.
+msMeta-SimpleType_w3c	1.0/stZ010/stZ010	#874	A schema constraint that the pipeline does not check; not analyzed yet.
+msMeta-SimpleType_w3c	1.0/stZ011/stZ011	#874	A schema constraint that the pipeline does not check; not analyzed yet.
+msMeta-SimpleType_w3c	1.0/stZ012/stZ012	#868	The element declaration has no substitution group affiliation yet.
+msMeta-SimpleType_w3c	1.0/stZ041/stZ041	#874	A schema constraint that the pipeline does not check; not analyzed yet.
+msMeta-SimpleType_w3c	1.0/stZ048/stZ048	#868	The element declaration has no substitution group affiliation yet.
+msMeta-SimpleType_w3c	1.0/stZ049/stZ049	#868	The element declaration has no substitution group affiliation yet.
+msMeta-SimpleType_w3c	1.0/stZ070/stZ070	#874	A schema constraint that the pipeline does not check; not analyzed yet.
+msMeta-Wildcards_w3c	1.0/wildG006/wildG006	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
+msMeta-Wildcards_w3c	1.0/wildG010/wildG010	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
+msMeta-Wildcards_w3c	1.0/wildZ011/wildZ011	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
+msMeta-Wildcards_w3c	1.0/wildZ013a/wildZ013a	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
+msMeta-Wildcards_w3c	1.0/wildZ013b/wildZ013b	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
+msMeta-Wildcards_w3c	1.0/wildZ013c/wildZ013c	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
+msMeta-Wildcards_w3c	1.0/wildZ013d/wildZ013d	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
+msMeta-Wildcards_w3c	1.0/wildZ013e/wildZ013e	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
+msMeta-Wildcards_w3c	1.0/wildZ013f/wildZ013f	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
+saxonMeta-Complex	1.0/complex019/complex019.xsd	#874	A schema constraint that the pipeline does not check; not analyzed yet.
+saxonMeta-Complex	1.0/complex020/complex020.xsd	#874	A schema constraint that the pipeline does not check; not analyzed yet.
+saxonMeta-Missing	1.0/missing001/missing001.xsd	-	A reference to a type that no document declares is src-resolve here; the suite accepts incomplete schemas.
+saxonMeta-Missing	1.0/missing003/missing003.xsd	-	A reference to a type that no document declares is src-resolve here; the suite accepts incomplete schemas.
+saxonMeta-Missing	1.0/missing006/missing006.xsd	-	A reference to a type that no document declares is src-resolve here; the suite accepts incomplete schemas.
+saxonMeta-VC	1.0/vc001/vc001.xsd	-	The test group has no version attribute but its schema uses an XSD 1.1 construct, which strict 1.0 mode rejects (design 146, DP-16).
+saxonMeta-VC	1.0/vc002/vc002.xsd	-	The test group has no version attribute but its schema uses an XSD 1.1 construct, which strict 1.0 mode rejects (design 146, DP-16).
+saxonMeta-VC	1.0/vc014/vc014.xsd	-	The test group has no version attribute but its schema uses an XSD 1.1 construct, which strict 1.0 mode rejects (design 146, DP-16).
+saxonMeta-VC	1.0/vc024-11/vc024-11.xsd	-	The test group has no version attribute but its schema uses an XSD 1.1 construct, which strict 1.0 mode rejects (design 146, DP-16).
+saxonMeta-XmlVersions	1.0/xv001/xv001.xsd	#861	The reader does not accept a schema document that declares XML 1.1.
+saxonMeta-XmlVersions	1.0/xv002/xv002.xsd	#861	The reader does not accept a schema document that declares XML 1.1.
+saxonMeta-XmlVersions	1.0/xv003/xv003.xsd	#861	The reader does not accept a schema document that declares XML 1.1.
+saxonMeta-XmlVersions	1.0/xv004/xv004.xsd	#861	The reader does not accept a schema document that declares XML 1.1.
+saxonMeta-XmlVersions	1.0/xv005/xv005.xsd	#861	The reader does not accept a schema document that declares XML 1.1.
+saxonMeta-XmlVersions	1.0/xv006/xv006.xsd	#861	The reader does not accept a schema document that declares XML 1.1.
+saxonMeta-XmlVersions	1.0/xv007/xv007.xsd	#861	The reader does not accept a schema document that declares XML 1.1.
+saxonMeta-XmlVersions	1.0/xv008/xv008.xsd	#861	The reader does not accept a schema document that declares XML 1.1.
+saxonMeta-XmlVersions	1.0/xv009/xv009.xsd	#861	The reader does not accept a schema document that declares XML 1.1.
+sunMeta-ElemDecl	1.0/substgrpexcl00202m2/substGrpExcl00202m2	#874	A schema constraint that the pipeline does not check; not analyzed yet.
+sunMeta-ElemDecl	1.0/substgrpexcl00303m2/substGrpExcl00303m2	#874	A schema constraint that the pipeline does not check; not analyzed yet.
+sunMeta-ElemDecl	1.0/valueconstraint00401m8/valueConstraint00401m8	#874	A schema constraint that the pipeline does not check; not analyzed yet.
+sunMeta-ElemDecl	1.0/valueconstraint00402m8/valueConstraint00402m8	#874	A schema constraint that the pipeline does not check; not analyzed yet.
+sunMeta-ElemDecl	1.0/valueconstraint01001m2/valueConstraint01001m2	#874	A schema constraint that the pipeline does not check; not analyzed yet.
+sunMeta-ElemDecl	1.0/valueconstraint01001m3/valueConstraint01001m3	#874	A schema constraint that the pipeline does not check; not analyzed yet.
+sunMeta-ElemDecl	1.0/valueconstraint01001m5/valueConstraint01001m5	#874	A schema constraint that the pipeline does not check; not analyzed yet.
+sunMeta-ElemDecl	1.0/valueconstraint01001m6/valueConstraint01001m6	#874	A schema constraint that the pipeline does not check; not analyzed yet.
+sunMeta-Notation	1.0/name00101m2/name00101m2	#870	Notation declarations are not components yet.
+sunMeta-Notation	1.0/publicid00201m1/publicId00201m1	#870	Notation declarations are not components yet.
+sunMeta-suntest	1.0/xsd009.e/xsd009.e	#874	A schema constraint that the pipeline does not check; not analyzed yet.
+sunMeta-suntest	1.0/xsd010.e/xsd010.e	#874	A schema constraint that the pipeline does not check; not analyzed yet.
