@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 
 /// <summary>An attribute definition of an attribute-list declaration (production 53).</summary>
-/// <remarks>Limitation: the default value is the literal as written, with references unexpanded and unnormalized (XML-16).</remarks>
+/// <remarks>The default value is the literal as written, with references unexpanded and unnormalized; the reader expands and normalizes it when it adds the defaulted attribute to an element (XML-16).</remarks>
 public sealed class DtdAttributeDefinition
 {
     internal DtdAttributeDefinition(

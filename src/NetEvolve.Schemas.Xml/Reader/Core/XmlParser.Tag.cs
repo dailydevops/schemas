@@ -4,6 +4,8 @@ using System;
 using System.Runtime.InteropServices;
 using NetEvolve.Schemas.Xml.Buffers;
 using NetEvolve.Schemas.Xml.Contracts;
+using NetEvolve.Schemas.Xml.Dtd.Contracts;
+using NetEvolve.Schemas.Xml.Dtd.Model;
 using NetEvolve.Schemas.Xml.Limits;
 using NetEvolve.Schemas.Xml.Namespaces;
 
@@ -18,6 +20,9 @@ internal sealed partial class XmlParser
         internal int ValueStart;
         internal int ValueLength;
         internal bool IsDeclaration;
+        internal bool IsDefault;
+        internal bool IsChanged;
+        internal DtdAttributeType? Type;
         internal XmlPosition Position;
         internal XmlName Name;
         internal XmlNamespaceBinding Binding;
@@ -182,6 +187,11 @@ internal sealed partial class XmlParser
         where TSink : IXmlSink
     {
         _inTag = false;
+        if (!ApplyAttributeDeclarations())
+        {
+            return false;
+        }
+
         var tag = _tag.WrittenSpan;
         if (!ResolveStartTag(tag, out var name))
         {
@@ -190,11 +200,16 @@ internal sealed partial class XmlParser
 
         EndText();
         sink.StartElement(name, _startPosition);
+
+        // Only a sink of a reference type is offered the declaration facts: a boxed copy of a struct sink would lose its state.
+        var infoSink =
+            _attributeDeclarations is not null && !typeof(TSink).IsValueType ? sink as IXmlAttributeInfoSink : null;
         for (var i = 0; i < _attributeCount; i++)
         {
             if (_attributes[i].IsDeclaration)
             {
                 sink.NamespaceDeclaration(_attributes[i].Binding.Prefix, _attributes[i].Binding.Uri);
+                infoSink?.AttributeInfo(AttributeFacts(i));
             }
         }
 
@@ -203,6 +218,7 @@ internal sealed partial class XmlParser
             if (!_attributes[i].IsDeclaration)
             {
                 sink.Attribute(_attributes[i].Name, tag.Slice(_attributes[i].ValueStart, _attributes[i].ValueLength));
+                infoSink?.AttributeInfo(AttributeFacts(i));
             }
         }
 

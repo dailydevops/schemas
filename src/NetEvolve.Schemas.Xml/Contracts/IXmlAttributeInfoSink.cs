@@ -16,9 +16,11 @@ using NetEvolve.Schemas.Xml.Dtd.Contracts;
 /// <see cref="ValidationAttributeInfo.DeclaredType"/>. The memory in the argument is valid only during the call.
 /// </para>
 /// <para>
-/// Limitation: only a sink of a reference type is offered the event, because the reader reaches the optional interface
-/// without boxing and a boxed copy of a struct sink would lose its changes (#TODO). A struct sink receives the events of
-/// <see cref="IXmlSink"/> only.
+/// Limitations: only a sink of a reference type is offered the event, because the reader reaches the optional interface
+/// without boxing and a boxed copy of a struct sink would lose its changes (#879); a struct sink receives the events of
+/// <see cref="IXmlSink"/> only. <see cref="NetEvolve.Schemas.Xml.Model.Traversal.XmlTreePump"/> does not report the event for a document model (#880). The flag that
+/// tells whether the normalization by the declared type changed the value stays internal until the validating pipeline (XML-68)
+/// settles the contract.
 /// </para>
 /// </remarks>
 public interface IXmlAttributeInfoSink : IXmlSink

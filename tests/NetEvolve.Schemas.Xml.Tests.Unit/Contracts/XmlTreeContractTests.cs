@@ -343,6 +343,8 @@ public class XmlTreeContractTests
                 nameof(XmlNode.NextAttribute),
                 nameof(XmlNode.FirstNamespace),
                 nameof(XmlNode.NextNamespace),
+                nameof(XmlNode.AttributeType),
+                nameof(XmlNode.IsSpecified),
                 nameof(XmlNode.StringValue),
                 nameof(XmlNode.BaseUri),
                 nameof(XmlNode.DocumentUri),

@@ -16,11 +16,16 @@ public class AttributeDefaultLimitTests
     [Test]
     public async Task DefaultedAttribute_CountsTowardsTheAttributesPerElement()
     {
-        var limits = XmlReaderLimits.Default.WithMaxAttributesPerElement(2);
         const string declarations = "<!ATTLIST a d1 CDATA \"1\" d2 CDATA \"2\" d3 CDATA \"3\">";
 
-        var fits = AttributeHarness.Read(Doc(declarations, "<a d1=\"x\"/>"), limits);
-        var exceeds = AttributeHarness.Read(Doc(declarations, "<a/>"), limits);
+        var fits = AttributeHarness.Read(
+            Doc(declarations, "<a d1=\"x\"/>"),
+            XmlReaderLimits.Default.WithMaxAttributesPerElement(3)
+        );
+        var exceeds = AttributeHarness.Read(
+            Doc(declarations, "<a d1=\"x\"/>"),
+            XmlReaderLimits.Default.WithMaxAttributesPerElement(2)
+        );
 
         await Assert.That(fits.Code).IsNull();
         await Assert.That(exceeds.Code).IsEqualTo("XML1103");
@@ -107,6 +112,51 @@ public class AttributeDefaultLimitTests
         await Assert
             .That(run.ErrorPosition)
             .IsEqualTo(new XmlPosition(2, 1, xml.IndexOf("<a/>", StringComparison.Ordinal)));
+    }
+
+    // The constraints on the references of a default value belong to the declaration, so they hold without a use of the default.
+    [Test]
+    public async Task DefaultValue_ReferencingAnExternalEntity_IsRejectedWhetherOrNotTheAttributeIsSpecified()
+    {
+        var run = AttributeHarness.Read(
+            Doc("<!ENTITY e SYSTEM \"x.ent\"><!ATTLIST a d CDATA \"x &e; y\">", "<a d=\"specified\"/>")
+        );
+
+        await Assert.That(run.Status).IsEqualTo(XmlReadStatus.Error);
+        await Assert.That(run.Code).IsEqualTo("XML0022");
+        await Assert.That(run.ErrorPosition).IsEqualTo(new XmlPosition(1, 1, 0));
+    }
+
+    [Test]
+    public async Task DefaultValue_ReferencingAnUnparsedEntity_IsRejectedForAnElementThatNeverAppears()
+    {
+        var run = AttributeHarness.Read(
+            Doc("<!NOTATION n SYSTEM \"u\"><!ENTITY e SYSTEM \"x\" NDATA n><!ATTLIST b d CDATA \"&e;\">", "<a/>")
+        );
+
+        await Assert.That(run.Code).IsEqualTo("XML0021");
+    }
+
+    [Test]
+    public async Task DefaultValue_ReferencingAnUndeclaredEntity_IsRejectedForAnElementThatNeverAppears()
+    {
+        var run = AttributeHarness.Read(Doc("<!ATTLIST b d CDATA \"&u;\">", "<a/>"));
+
+        await Assert.That(run.Code).IsEqualTo("XML0008");
+    }
+
+    [Test]
+    public async Task DefaultValue_ReferencingAnEntityAnotherDeclarationMayProvide_IsAccepted()
+    {
+        // With an external subset the entity may be declared there, so the reference is skipped (section 4.1).
+        var withSubset = AttributeHarness.Read("<!DOCTYPE a SYSTEM \"x.dtd\" [<!ATTLIST a d CDATA \"&u;\">]><a/>");
+        var withParameterEntity = AttributeHarness.Read(
+            "<!DOCTYPE a [<!ENTITY % p \"\">%p;<!ATTLIST a d CDATA \"&u;\">]><a/>"
+        );
+
+        await Assert.That(withSubset.Code).IsNull();
+        await Assert.That(withSubset.Events).IsEqualTo("<a|@d={Cdata!}|/a");
+        await Assert.That(withParameterEntity.Code).IsNull();
     }
 
     [Test]

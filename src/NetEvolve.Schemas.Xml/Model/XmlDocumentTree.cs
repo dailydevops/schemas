@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Contracts;
+using NetEvolve.Schemas.Xml.Dtd.Model;
 
 /// <summary>
 /// The immutable struct-of-arrays arena that backs every tree built by <see cref="XmlTreeBuilder"/>.
@@ -26,6 +27,7 @@ using NetEvolve.Schemas.Xml.Contracts;
 public sealed class XmlDocumentTree : XmlTree
 {
     private const string XmlNamespaceUri = "http://www.w3.org/XML/1998/namespace";
+    private const int NotSpecified = 0x80;
 
     private readonly byte[] _kinds;
     private readonly int[] _parents;
@@ -40,6 +42,7 @@ public sealed class XmlDocumentTree : XmlTree
     private readonly XmlPosition[]? _positions;
     private readonly Uri? _documentUri;
     private readonly Dictionary<string, int>? _ids;
+    private readonly byte[]? _facts;
     private readonly XmlNameTable _nameTable;
     private readonly IReadOnlyList<XmlUnparsedEntity> _unparsedEntities;
     private readonly IReadOnlyList<XmlNotation> _notations;
@@ -62,6 +65,7 @@ public sealed class XmlDocumentTree : XmlTree
         XmlPosition[]? positions,
         Uri? documentUri,
         Dictionary<string, int>? ids,
+        byte[]? facts,
         XmlUnparsedEntity[] unparsedEntities,
         XmlNotation[] notations
     )
@@ -80,6 +84,7 @@ public sealed class XmlDocumentTree : XmlTree
         _positions = positions;
         _documentUri = documentUri;
         _ids = ids;
+        _facts = facts;
         _unparsedEntities = Array.AsReadOnly(unparsedEntities);
         _notations = Array.AsReadOnly(notations);
         _hasXmlBase =
@@ -140,6 +145,21 @@ public sealed class XmlDocumentTree : XmlTree
     /// <param name="index">The index of a namespace node.</param>
     /// <returns>The symbol.</returns>
     internal XmlSymbol GetNamespaceUri(int index) => _names[index].NamespaceUri;
+
+    // The facts of an attribute row in one byte: the declared type plus one in the low seven bits (zero for none), and the
+    // high bit for an attribute that the document did not specify.
+    internal static byte EncodeFacts(DtdAttributeType? type, bool isSpecified) =>
+        (byte)((type is { } declared ? (int)declared + 1 : 0) | (isSpecified ? 0 : NotSpecified));
+
+    /// <inheritdoc />
+    protected internal override DtdAttributeType? GetAttributeType(int index)
+    {
+        var declared = _facts is null ? 0 : _facts[index] & ~NotSpecified;
+        return declared == 0 ? null : (DtdAttributeType)(declared - 1);
+    }
+
+    /// <inheritdoc />
+    protected internal override bool GetIsSpecified(int index) => _facts is null || (_facts[index] & NotSpecified) == 0;
 
     /// <inheritdoc />
     protected internal override XmlNodeKind GetKind(int index) => (XmlNodeKind)_kinds[index];

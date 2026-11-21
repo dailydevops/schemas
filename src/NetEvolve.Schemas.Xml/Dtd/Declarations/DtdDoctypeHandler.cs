@@ -1,7 +1,9 @@
 namespace NetEvolve.Schemas.Xml.Dtd.Declarations;
 
+using System;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Contracts;
+using NetEvolve.Schemas.Xml.Dtd.Attributes;
 using NetEvolve.Schemas.Xml.Dtd.Contracts;
 using NetEvolve.Schemas.Xml.Dtd.External.Subset;
 using NetEvolve.Schemas.Xml.Dtd.Model;
@@ -9,13 +11,15 @@ using NetEvolve.Schemas.Xml.Reader.Core;
 
 /// <summary>
 /// The doctype seam of the reader with DTD processing enabled: it parses the internal subset into a model and, when the
-/// options of external access are given, the external subset and the external parameter entities.
+/// options of external access are given, the external subset and the external parameter entities. It also answers the
+/// attribute definitions of an element type (<see cref="IXmlAttributeDeclarations"/>, XML-16) from the model it parsed.
 /// </summary>
-internal sealed class DtdDoctypeHandler : IXmlDoctypeHandler
+internal sealed class DtdDoctypeHandler : IXmlDoctypeHandler, IXmlAttributeDeclarations
 {
     private readonly XmlReaderLimits _limits;
     private readonly ExternalSubsetReader? _external;
     private readonly string? _baseUri;
+    private DtdAttributeTable? _attributes;
 
     internal DtdDoctypeHandler(XmlReaderLimits limits)
     {
@@ -45,11 +49,16 @@ internal sealed class DtdDoctypeHandler : IXmlDoctypeHandler
     internal DtdDeclarations? Declarations { get; private set; }
 
     /// <inheritdoc />
+    public DtdElementAttributes? Find(ReadOnlySpan<char> elementName) =>
+        (_attributes ??= new DtdAttributeTable(this)).Find(elementName);
+
+    /// <inheritdoc />
     public XmlErrorCode? Handle(in XmlDoctypeInfo doctype)
     {
         var error = DtdSubsetParser.Parse(in doctype, _limits, _external, _baseUri, out var declarations);
         Declarations = declarations;
 
-        return error;
+        // The default values of the attribute definitions are checked once the declarations are complete (XML-16).
+        return error ?? (declarations is null ? null : DtdDefaultReferences.Validate(declarations));
     }
 }

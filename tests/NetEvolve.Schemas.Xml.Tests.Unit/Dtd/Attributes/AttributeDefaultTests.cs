@@ -173,8 +173,8 @@ public class AttributeDefaultTests
     [Test]
     public async Task Default_IsNotExpandedWhenTheDocumentSpecifiesTheAttribute()
     {
-        // The default is expanded where it is applied, so a default that cannot be expanded is no error here.
-        var run = AttributeHarness.Read(Doc("<!ATTLIST a d CDATA \"&undeclared;\">", "<a d=\"x\"/>"));
+        // The replacement text is read where the default is applied, so a default that cannot be expanded is no error here.
+        var run = AttributeHarness.Read(Doc("<!ENTITY e \"<b/>\"><!ATTLIST a d CDATA \"&e;\">", "<a d=\"x\"/>"));
 
         await Assert.That(run.Code).IsNull();
         await Assert.That(run.Events).IsEqualTo("<a|@d=x{Cdata}|/a");
@@ -183,10 +183,20 @@ public class AttributeDefaultTests
     [Test]
     public async Task Default_OfAnElementThatNeverAppears_IsNotExpanded()
     {
-        var run = AttributeHarness.Read(Doc("<!ATTLIST other d CDATA \"&undeclared;\">", "<a/>"));
+        var run = AttributeHarness.Read(Doc("<!ENTITY e \"<b/>\"><!ATTLIST other d CDATA \"&e;\">", "<a/>"));
 
         await Assert.That(run.Code).IsNull();
         await Assert.That(run.Events).IsEqualTo("<a|/a");
+    }
+
+    [Test]
+    public async Task Default_WithPredefinedAndCharacterReferences_IsAcceptedWhereverItIsDeclared()
+    {
+        var run = AttributeHarness.Read(
+            Doc("<!ATTLIST other d CDATA \"&amp;&lt;&gt;&apos;&quot;&#65;&#x42;\">", "<a/>")
+        );
+
+        await Assert.That(run.Code).IsNull();
     }
 
     [Test]

@@ -77,6 +77,6 @@ public readonly record struct ValidationAttributeInfo
     /// the normalization without the declaration would have; the reader sets it, and the validity constraint Standalone
     /// Document Declaration (section 2.9, third clause) reads it.
     /// </summary>
-    /// <remarks>Limitation: internal until the composition (XML-68) and the normalization (XML-16) settle the contract; a step outside the assembly does not see it.</remarks>
+    /// <remarks>Limitation: internal until the composition (XML-68) settles the contract, so a step outside the assembly does not see it; the reader sets it when it normalizes by the declared type (XML-16).</remarks>
     internal bool IsChangedByNormalization { get; }
 }
