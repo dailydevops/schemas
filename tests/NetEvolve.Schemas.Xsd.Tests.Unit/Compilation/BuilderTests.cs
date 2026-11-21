@@ -98,6 +98,7 @@ public class BuilderTests
         await Assert
             .That(() => context.SimpleTypes.BuildAnonymous(null!, kit.Units[0]))
             .Throws<ArgumentNullException>();
+        await Assert.That(() => context.SimpleTypes.ReadFacets(null!)).Throws<ArgumentNullException>();
         await Assert.That(() => context.ComplexTypes.Build((Definition)null!)).Throws<ArgumentNullException>();
         await Assert
             .That(() => context.ComplexTypes.BuildAnonymous(kit.Node(1), null!))
