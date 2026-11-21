@@ -17,7 +17,8 @@ using NetEvolve.Schemas.XPath.Xdm.Nodes;
 /// in the module that holds it. A declaration that the registry knows but no table takes is reported the same way.
 /// </summary>
 /// <remarks>
-/// A module that is placed twice is compiled once and added at each placement, so the two ranks decide and no duplicate is raised.
+/// A module that is placed twice is compiled once and added at each placement, so the two ranks decide and no duplicate is raised;
+/// a key has no precedence and is added once.
 /// Every declaration is compiled, also one that a declaration of a higher precedence shadows, because a static error in a module is
 /// an error of the stylesheet. Two declarations of one function or one global at the same precedence are the errors of the tables
 /// (XTSE0770 and XTSE0630); this step adds the modules of both declarations to the message and the module to the location, which
@@ -55,13 +56,16 @@ internal static class XsltModuleCompiler
         var ok = true;
         foreach (var declaration in set.Declarations)
         {
-            if (!compiled.TryGetValue(declaration.Element, out var executable))
+            var first = !compiled.TryGetValue(declaration.Element, out var executable);
+            if (first)
             {
                 executable = Compile(declaration, registry, compile, problems);
                 compiled.Add(declaration.Element, executable);
             }
 
-            ok &= executable is not null && Merge(declaration, executable, functions, globals, keys, winners, problems);
+            ok &=
+                executable is not null
+                && Merge(declaration, executable, first, functions, globals, keys, winners, problems);
         }
 
         tables = new XsltModuleTables(functions.Build(), globals.Build(), XsltKeyTable.Create(keys));
@@ -96,6 +100,7 @@ internal static class XsltModuleCompiler
     private static bool Merge(
         XsltModuleDeclaration declaration,
         XsltExecutable executable,
+        bool first,
         XsltFunctionTableBuilder functions,
         XsltGlobalTableBuilder globals,
         List<XsltKeyComponent> keys,
@@ -127,7 +132,12 @@ internal static class XsltModuleCompiler
 
                 break;
             case XsltKeyDeclaration keyDeclaration:
-                keys.Add(keyDeclaration.Component);
+                // A key has no precedence: a module placed twice adds it once, or the key list would hold identical duplicates.
+                if (first)
+                {
+                    keys.Add(keyDeclaration.Component);
+                }
+
                 return true;
             default:
                 problems.Add(
