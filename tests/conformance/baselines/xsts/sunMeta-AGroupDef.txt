@@ -1,9 +1,3 @@
-1.0/ag_attrusens00101m1_p/Positive
-1.0/ag_attrwcard00101m1/Positive
-1.0/ag_name00101m1_p/Positive
-1.0/ag_targetns00101m1_p/Positive
-1.0/annotation00101m1/Positive
-1.0/annotation00101m4/Positive
 1.1/ag_attrusens00101m1_n/AG_attrUseNS00101m1_n
 1.1/ag_attrusens00101m1_p/AG_attrUseNS00101m1_p
 1.1/ag_attrusens00101m1_p/Positive

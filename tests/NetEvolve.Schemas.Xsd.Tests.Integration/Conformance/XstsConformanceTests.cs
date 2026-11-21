@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using NetEvolve.Schemas.Conformance.Baseline;
 using NetEvolve.Schemas.Conformance.Reporting;
 using NetEvolve.Schemas.Conformance.Results;
+using NetEvolve.Schemas.Xsd.Tests.Integration.InstanceTests;
 using NetEvolve.Schemas.Xsd.Tests.Integration.SchemaTests;
 using NetEvolve.Schemas.Xsd.Tests.Integration.Xsts;
 
@@ -13,6 +14,8 @@ public class XstsConformanceTests
     private static readonly ConcurrentBag<CaseResult> ChunkResults = [];
 
     private static readonly ConcurrentBag<string> SchemaCaseKeys = [];
+
+    private static readonly ConcurrentBag<string> InstanceCaseKeys = [];
 
     /// <summary>The number of cases the pinned suite selects for XSD 1.0; a new pin changes it on purpose.</summary>
     private const int SelectedCaseCount10 = 39271;
@@ -141,7 +144,7 @@ public class XstsConformanceTests
 
         var results = await XstsRunner.RunAsync(
             new XstsSelection(cases, []),
-            new SchemaXstsValidator(await XstsSuite.LoadRootAsync(cancellationToken)),
+            new InstanceXstsValidator(await XstsSuite.LoadRootAsync(cancellationToken)),
             cancellationToken
         );
         foreach (var xstsCase in cases)
@@ -152,6 +155,13 @@ public class XstsConformanceTests
             )
             {
                 SchemaCaseKeys.Add(SchemaRateReport.KeyOf(xstsCase.TestSet, xstsCase.Id));
+            }
+            else if (
+                xstsCase.Case.Kind == XstsKind.Instance
+                && string.Equals(xstsCase.Version, XstsVersions.V10, StringComparison.Ordinal)
+            )
+            {
+                InstanceCaseKeys.Add(SchemaRateReport.KeyOf(xstsCase.TestSet, xstsCase.Id));
             }
         }
         foreach (var result in results)
@@ -180,6 +190,12 @@ public class XstsConformanceTests
             [.. ChunkResults],
             new HashSet<string>(SchemaCaseKeys, StringComparer.Ordinal),
             Environment.GetEnvironmentVariable(ConformanceRateReporter.SummaryVariable)
+        );
+        SchemaRateReport.Publish(
+            [.. ChunkResults],
+            new HashSet<string>(InstanceCaseKeys, StringComparer.Ordinal),
+            Environment.GetEnvironmentVariable(ConformanceRateReporter.SummaryVariable),
+            InstanceRateReport.Package
         );
     }
 }
