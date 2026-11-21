@@ -157,4 +157,38 @@ public class ContentSubsumptionWildcardTests
             line: 4
         );
     }
+
+    [Test]
+    public async Task Priority_OfAnElementDeclaration_AlsoHoldsInTheRestriction()
+    {
+        // The restriction binds a to its declaration where it also has a wildcard that allows a: the same model is its own restriction.
+        Particle Model() => Seq([El("a", 0, 1), Any(min: 0, max: Unbounded)]);
+        var same = Model();
+
+        await AssertSubsumed(same, same);
+        await AssertSubsumed(Model(), Model());
+        await AssertSubsumed(
+            Seq([El("a", 0, 2), Any(min: 0, max: Unbounded)]),
+            Seq([El("a", 0, 2), Any(min: 0, max: Unbounded)])
+        );
+    }
+
+    [Test]
+    public async Task Priority_OfAnElementDeclaration_StillLetsTheRestrictionWildcardTakeOtherNames() =>
+        await AssertNotSubsumed(
+            Seq([El("a", 0, 1), Any(Only("urn:x"), min: 0, max: Unbounded, line: 5)]),
+            Seq([El("a", 0, 1), Any(Only("urn:y"), min: 0, max: Unbounded)]),
+            line: 5
+        );
+
+    [Test]
+    public async Task GlobalElement_AgainstAStrictWildcard_IsItsOwnGoverningDeclaration_AndIsSubsumed()
+    {
+        // The wildcard of the base binds an element named a to the global declaration a, which is the one of the restriction.
+        await AssertSubsumed(Of(Declaration("a", global: true)), Any(Only(Tns), process: XsdProcessContents.Strict));
+        await AssertSubsumed(
+            Seq([Of(Declaration("a", global: true)), Of(Declaration("b", global: true))]),
+            Any(Only(Tns), process: XsdProcessContents.Strict, min: 0, max: Unbounded)
+        );
+    }
 }

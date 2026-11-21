@@ -1,5 +1,6 @@
 namespace NetEvolve.Schemas.Xsd.Tests.Unit.Derivation.Subsumption11;
 
+using NetEvolve.Schemas.Xsd.Derivation.Subsumption11;
 using static NetEvolve.Schemas.Xsd.Tests.Unit.Derivation.Particles10.ParticleKit;
 using static NetEvolve.Schemas.Xsd.Tests.Unit.Derivation.Subsumption11.SubsumptionKit;
 
@@ -110,4 +111,35 @@ public class ContentSubsumptionCounterTests
     [Test]
     public async Task Counter_ThatExitsAndIsEnteredAgain_IsComparedPerVisit() =>
         await AssertSubsumed(Seq([El("a", 2, 3), El("b")], 1, Unbounded), Seq([El("a", 1, 5), El("b")], 0, Unbounded));
+
+    [Test]
+    public async Task Counters_ThatAreNotInStep_AreDecidedExactlyWhileTheirValuesAreFew() =>
+        // Even counts from two to twenty: the values of the two counters are related by more than a difference bound.
+        await AssertSubsumed(Seq([Seq([El("a", 2, 2)])], 1, 10), El("a", 2, 20));
+
+    [Test]
+    public async Task Counters_ThatAreNotInStep_AreNeverReportedFromAnOverApproximation()
+    {
+        // Valid, and too many values to be kept apart: not a violation, whatever the verdict is.
+        var valid = Check(Seq([Seq([El("a", 2, 2)])], 1, Billion), El("a", 2, 2 * Billion));
+
+        await Assert.That(valid.Verdict).IsNotEqualTo(SubsumptionVerdict.NotSubsumed);
+
+        // Invalid, and found only in the widened zone: no verdict, instead of a violation that might be wrong.
+        var invalid = Check(Seq([Seq([El("a", 2, 2)])], 1, Billion), El("a", 2, Billion));
+
+        await Assert.That(invalid.Verdict).IsEqualTo(SubsumptionVerdict.Undecided);
+        await Assert.That(invalid.Violation.Clause).IsEqualTo("cos-content-act-restrict.ceiling");
+    }
+
+    [Test]
+    public async Task Counters_InStep_AreStillReportedAtTheBillion()
+    {
+        await AssertNotSubsumed(El("a", Billion, Billion, line: 4), El("a", Billion - 1, Billion - 1), line: 4);
+        await AssertNotSubsumed(
+            Seq([El("a", line: 4), El("b")], 1, Billion),
+            Seq([El("a"), El("b")], 1, Billion - 1),
+            line: 4
+        );
+    }
 }
