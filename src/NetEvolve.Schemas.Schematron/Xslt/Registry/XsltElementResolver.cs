@@ -21,7 +21,7 @@ internal static class XsltElementResolver
 
     /// <summary>Resolves an element; on failure <paramref name="problem"/> is set.</summary>
     /// <param name="registry">The registry.</param>
-    /// <param name="element">The element node.</param>
+    /// <param name="element">The element node, or a text node of a sequence constructor.</param>
     /// <param name="where">The position the compiler is filling.</param>
     /// <param name="moduleSystemId">The system identifier of the module that holds the element, or <see langword="null"/> for the document URI of the tree.</param>
     /// <param name="instruction">The entry when the result is <see langword="true"/>.</param>
@@ -38,6 +38,11 @@ internal static class XsltElementResolver
     {
         Argument.ThrowIfNull(registry);
         Argument.ThrowIfNull(element.Tree);
+        if (element.Kind == XdmNodeKind.Text)
+        {
+            return TryResolveText(registry, element, moduleSystemId, out instruction, out problem);
+        }
+
         Argument.ThrowIfNotEqual((int)element.Kind, (int)XdmNodeKind.Element);
 
         var names = element.Tree.Names;
@@ -80,6 +85,30 @@ internal static class XsltElementResolver
                 );
                 return false;
         }
+    }
+
+    // Character data of a sequence constructor has no name: the registry holds one synthetic entry for it. The problem is located at the
+    // element that holds the text, because a text node has no start tag.
+    private static bool TryResolveText(
+        IXsltInstructionRegistry registry,
+        XPathNode text,
+        string? moduleSystemId,
+        out IXsltInstruction instruction,
+        out SchematronProblem problem
+    )
+    {
+        if (registry.TryGetSynthetic(XsltSyntheticElement.TextNode, out instruction))
+        {
+            problem = default;
+            return true;
+        }
+
+        problem = new SchematronProblem(
+            SchematronDiagnosticCodes.XsltUnsupported,
+            "The XSLT construct 'text node' is not supported.",
+            LocationOf(new XPathNode(text.Node.Parent), moduleSystemId)
+        );
+        return false;
     }
 
     private static string Describe(XsltPosition position)
