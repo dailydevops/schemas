@@ -174,6 +174,18 @@ public class StructureTests
     }
 
     [Test]
+    public async Task Pipeline_ValuesOfTheQNameTypes_AreNotTrimmedOfNonXmlWhitespace()
+    {
+        // Only #x20, #x9, #xA and #xD collapse; a non-breaking space stays part of the QName value.
+        var root = Parse("<xs:element name=\"e\" type=\"" + (char)0xA0 + "xs:string\"/>");
+        var reporter = new XsdIssueReporter(new ValidationIssueCollector(ValidationLimits.Default));
+
+        DocumentPreparation.Prepare(root, XsdVersion.V10, reporter);
+
+        await Assert.That(root.GetChildNode(0).FindAttribute("type")).IsEqualTo((char)0xA0 + "xs:string");
+    }
+
+    [Test]
     public async Task Pipeline_TheXmlPrefix_IsDeclaredWithoutADeclaration()
     {
         var compilation = Compile(
