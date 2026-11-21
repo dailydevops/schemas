@@ -86,6 +86,7 @@ internal sealed partial class StreamingValidator : IXmlSink
     /// <param name="documentUri">The source reported in the locations, <see langword="null"/> for none.</param>
     /// <param name="listeners">The listeners in their fixed order.</param>
     /// <param name="derivation">The derivation check that <c>xsi:type</c> is judged by, <see langword="null"/> for the type derivation check of the schema version.</param>
+    /// <param name="readerLimits">The limits of the reader that feeds the validator, <see langword="null"/> for the defaults.</param>
     internal StreamingValidator(
         ValidationModel model,
         ISimpleValueAssessor assessor,
@@ -93,7 +94,8 @@ internal sealed partial class StreamingValidator : IXmlSink
         ValidationLimits limits,
         string? documentUri,
         IReadOnlyList<ValidationListener> listeners,
-        IDerivationCheck? derivation = null
+        IDerivationCheck? derivation = null,
+        XmlReaderLimits? readerLimits = null
     )
     {
         Argument.ThrowIfNull(model);
@@ -102,6 +104,7 @@ internal sealed partial class StreamingValidator : IXmlSink
         Argument.ThrowIfNull(limits);
         Argument.ThrowIfNull(listeners);
 
+        _ = readerLimits;
         _model = model;
         _assessor = assessor;
         _reporter = reporter;

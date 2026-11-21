@@ -1,0 +1,193 @@
+namespace NetEvolve.Schemas.Xsd.Tests.Unit.Validation.Assembly;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using NetEvolve.Schemas.Xsd.Tests.Unit.Composition;
+using NetEvolve.Schemas.Xsd.Validation.Assembly;
+using NetEvolve.Schemas.Xsd.Versioning.Constructs;
+using XsdVersion = NetEvolve.Schemas.Xml.Datatypes.Contracts.XsdVersion;
+
+/// <summary>
+/// Under the default builder every XSD 1.1 construct of the table of #242 and the three value constructs that no row of that
+/// table names yields its coded not-yet-supported schema error and never a silent pass (design #146 DP-16).
+/// </summary>
+public class NotYetSupportedTests
+{
+    private const string Types = "<xs:simpleType name=\"s\"><xs:restriction base=\"xs:string\"/></xs:simpleType>";
+
+    private static readonly Dictionary<string, (string Body, string Attributes, int Code)> Constructs = new(
+        StringComparer.Ordinal
+    )
+    {
+        ["assert"] = (
+            "<xs:complexType name=\"c\"><xs:sequence/><xs:assert test=\"true()\"/></xs:complexType>",
+            "",
+            4060
+        ),
+        ["assertion"] = (
+            "<xs:simpleType name=\"s\"><xs:restriction base=\"xs:integer\"><xs:assertion test=\"$value gt 0\"/></xs:restriction></xs:simpleType>",
+            "",
+            4061
+        ),
+        ["alternative"] = (
+            "<xs:element name=\"e\" type=\"xs:string\"><xs:alternative test=\"true()\" type=\"xs:string\"/></xs:element>",
+            "",
+            4062
+        ),
+        ["openContent"] = (
+            "<xs:complexType name=\"c\"><xs:openContent><xs:any/></xs:openContent><xs:sequence/></xs:complexType>",
+            "",
+            4063
+        ),
+        ["defaultOpenContent"] = ("<xs:defaultOpenContent><xs:any/></xs:defaultOpenContent>", "", 4064),
+        ["override"] = ("<xs:override schemaLocation=\"o.xsd\"/>", "", 4065),
+        ["defaultAttributes"] = ("<xs:attributeGroup name=\"g\"/>", "defaultAttributes=\"t:g\"", 4066),
+        ["defaultAttributesApply"] = ("<xs:complexType name=\"c\" defaultAttributesApply=\"false\"/>", "", 4067),
+        ["notNamespace"] = (
+            "<xs:complexType name=\"c\"><xs:sequence><xs:any notNamespace=\"urn:x\"/></xs:sequence></xs:complexType>",
+            "",
+            4068
+        ),
+        ["notQName"] = (
+            "<xs:complexType name=\"c\"><xs:sequence><xs:any notQName=\"##defined\"/></xs:sequence></xs:complexType>",
+            "",
+            4069
+        ),
+        ["xpathDefaultNamespace"] = (Types, "xpathDefaultNamespace=\"##local\"", 4070),
+        ["inheritable"] = ("<xs:attribute name=\"a\" type=\"xs:string\" inheritable=\"true\"/>", "", 4071),
+        ["targetNamespace"] = (
+            "<xs:complexType name=\"c\"><xs:sequence><xs:element name=\"e\" type=\"xs:string\" targetNamespace=\"urn:o\"/></xs:sequence></xs:complexType>",
+            "",
+            4072
+        ),
+        ["explicitTimezone"] = (
+            "<xs:simpleType name=\"s\"><xs:restriction base=\"xs:dateTime\"><xs:explicitTimezone value=\"required\"/></xs:restriction></xs:simpleType>",
+            "",
+            4073
+        ),
+        ["identityConstraintRef"] = (
+            "<xs:element name=\"e\" type=\"xs:string\"><xs:key name=\"k\"><xs:selector xpath=\".\"/><xs:field xpath=\".\"/></xs:key></xs:element>"
+                + "<xs:element name=\"f\" type=\"xs:string\"><xs:key ref=\"t:k\"/></xs:element>",
+            "",
+            4074
+        ),
+        ["substitutionGroupList"] = (
+            "<xs:element name=\"a\" type=\"xs:string\"/><xs:element name=\"b\" type=\"xs:string\"/>"
+                + "<xs:element name=\"c\" type=\"xs:string\" substitutionGroup=\"t:a t:b\"/>",
+            "",
+            4075
+        ),
+        ["precisionDecimal"] = (
+            "<xs:simpleType name=\"s\"><xs:restriction base=\"xs:precisionDecimal\"/></xs:simpleType>",
+            "",
+            4076
+        ),
+    };
+
+    public static IEnumerable<Func<string>> Names() => Constructs.Keys.Select(k => (Func<string>)(() => k));
+
+    [Test]
+    [MethodDataSource(nameof(Names))]
+    public async Task Build_Version11_YieldsTheCodedNotYetSupportedError(string name)
+    {
+        var (body, attributes, code) = Constructs[name];
+
+        var exception = BuildFailure(body, attributes, XsdVersion.V11);
+
+        var matches = exception.Issues.Where(i => i.Code.Number == code).ToArray();
+        await Assert.That(matches.Length).IsGreaterThanOrEqualTo(1);
+        await Assert.That(matches[0].Severity).IsEqualTo(IssueSeverity.Error);
+        await Assert.That(matches[0].Location.Line).IsGreaterThan(0);
+        await Assert.That(matches[0].Location.Source).IsEqualTo(AssemblyFixture.SchemaId);
+        await Assert.That(matches[0].Message).Contains("not supported yet");
+    }
+
+    [Test]
+    [MethodDataSource(nameof(Names))]
+    public async Task Build_Version11_RaisesNoCascadeOfUnrelatedErrors(string name)
+    {
+        var (body, attributes, code) = Constructs[name];
+
+        var exception = BuildFailure(body, attributes, XsdVersion.V11);
+
+        // The gate stops the pipeline before any component is built (DP-16), so only the gate (and the structure of the document) report.
+        await Assert.That(exception.Issues.Any(i => i.Code.Number == code)).IsTrue();
+        await Assert
+            .That(exception.Issues.Any(i => i.Code == XsdRuleCodes.SrcResolve))
+            .IsFalse()
+            .Because("a gate error ends the run before the references are resolved");
+    }
+
+    [Test]
+    public async Task Table_EveryRowOfTheStrict10TableHasANotYetSupportedCounterpart()
+    {
+        var counterparts = Xsd11ConstructTable.Entries.Select(e => e.NotYetSupported.Code.Number).ToArray();
+
+        foreach (var entry in Strict10ConstructTable.Entries)
+        {
+            await Assert.That(counterparts).Contains(entry.Rule.Code.Number + 40);
+        }
+
+        await Assert.That(counterparts.Distinct().Count()).IsEqualTo(counterparts.Length);
+        await Assert.That(Constructs.Values.Select(c => c.Code).Order()).IsEquivalentTo(counterparts.Order());
+    }
+
+    [Test]
+    public async Task Build_Version10_ReportsTheStrictCodeAndNotTheNotYetSupportedCode()
+    {
+        var (body, attributes, _) = Constructs["notQName"];
+
+        var exception = BuildFailure(body, attributes, XsdVersion.V10);
+
+        await Assert.That(exception.Issues.Any(i => i.Code == XsdRuleCodes.Strict10NotQName)).IsTrue();
+        await Assert.That(exception.Issues.Any(i => i.Code == XsdRuleCodes.NotYetSupportedNotQName)).IsFalse();
+    }
+
+    [Test]
+    public async Task Build_Version11_WithoutAnyConstruct_Succeeds()
+    {
+        var validator = AssemblyFixture.Build(AssemblyFixture.Schema, XsdVersion.V11);
+
+        await Assert.That(validator.Version).IsEqualTo(XsdVersion.V11);
+    }
+
+    [Test]
+    public async Task Build_Version11_AnIncludedDocumentWithAConstructIsReported()
+    {
+        var included = AssemblyFixture.WrapSchema(
+            "<xs:complexType name=\"c\"><xs:sequence><xs:any notQName=\"##defined\"/></xs:sequence></xs:complexType>"
+        );
+        var root = AssemblyFixture.WrapSchema("<xs:include schemaLocation=\"inc.xsd\"/>");
+        var resolver = new MapResolver().Add("file:///inc.xsd", included);
+
+        var exception = AssemblyFixture.Failure(() =>
+            SchemaValidator.ForXsd().WithResolver(resolver).AddSchema(root.AsMemory(), AssemblyFixture.SchemaId).Build()
+        );
+
+        await Assert.That(exception.Issues.Any(i => i.Code == XsdRuleCodes.NotYetSupportedNotQName)).IsTrue();
+    }
+
+    [Test]
+    public async Task Build_Version11_AQNameOfAnotherNamespaceNamedPrecisionDecimal_IsNotReported()
+    {
+        var schema = AssemblyFixture.WrapSchema(
+            "<xs:simpleType name=\"precisionDecimal\"><xs:restriction base=\"xs:string\"/></xs:simpleType>"
+                + "<xs:element name=\"e\" type=\"t:precisionDecimal\"/>"
+        );
+
+        var validator = AssemblyFixture.Build(schema, XsdVersion.V11);
+
+        await Assert.That(validator).IsNotNull();
+    }
+
+    private static SchemaCompilationException BuildFailure(string body, string attributes, XsdVersion version) =>
+        AssemblyFixture.Failure(() =>
+            SchemaValidator
+                .ForXsd()
+                .WithVersion(version)
+                .AddSchema(AssemblyFixture.WrapSchema(body, attributes).AsMemory(), AssemblyFixture.SchemaId)
+                .Build()
+        );
+}

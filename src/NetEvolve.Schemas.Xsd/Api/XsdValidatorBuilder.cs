@@ -3,6 +3,7 @@
 namespace NetEvolve.Schemas;
 
 using System;
+using System.IO;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Resources;
@@ -34,6 +35,33 @@ public sealed class XsdValidatorBuilder : SchemaValidatorBuilder<XsdValidatorBui
         _version = version;
         return this;
     }
+
+    /// <summary>Adds a schema document given as characters; the memory is borrowed until <c>Build</c> returns.</summary>
+    /// <param name="content">The document.</param>
+    /// <param name="systemId">The system identifier and base URI of the document, or <see langword="null"/>.</param>
+    /// <returns>This builder.</returns>
+    public XsdValidatorBuilder AddSchema(ReadOnlyMemory<char> content, string? systemId = null) =>
+        throw new NotSupportedException("Schema sources are not available yet.");
+
+    /// <summary>Adds a schema document given as bytes; the memory is borrowed until <c>Build</c> returns.</summary>
+    /// <param name="content">The document.</param>
+    /// <param name="systemId">The system identifier and base URI of the document, or <see langword="null"/>.</param>
+    /// <returns>This builder.</returns>
+    public XsdValidatorBuilder AddSchema(ReadOnlyMemory<byte> content, string? systemId = null) =>
+        throw new NotSupportedException("Schema sources are not available yet.");
+
+    /// <summary>Adds a schema document read from a stream at <c>Build</c> or <c>BuildAsync</c>; the stream is never disposed.</summary>
+    /// <param name="stream">The stream.</param>
+    /// <param name="systemId">The system identifier and base URI of the document, or <see langword="null"/>.</param>
+    /// <returns>This builder.</returns>
+    public XsdValidatorBuilder AddSchema(Stream stream, string? systemId = null) =>
+        throw new NotSupportedException("Schema sources are not available yet.");
+
+    /// <summary>Selects whether the validator processes the document type declaration of an instance; off by default.</summary>
+    /// <param name="enabled"><see langword="true"/> to read the internal subset and validate ENTITY values against it.</param>
+    /// <returns>This builder.</returns>
+    public XsdValidatorBuilder WithDtdProcessing(bool enabled) =>
+        throw new NotSupportedException("DTD processing is not available yet.");
 
     /// <inheritdoc />
     protected override IXsdValidator CreateValidator(ValidationLimits limits, IResourceResolver resolver) =>

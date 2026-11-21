@@ -50,15 +50,6 @@ public class ForXsdBuilderTests
     }
 
     [Test]
-    public async Task ForXsd_Build_ThrowsUntilTheValidatorAssemblyLands()
-    {
-        var builder = SchemaValidator.ForXsd();
-
-        await Assert.That(() => builder.Build()).Throws<NotSupportedException>();
-        await Assert.That(async () => await builder.BuildAsync()).Throws<NotSupportedException>();
-    }
-
-    [Test]
     public async Task ForXsd_ExtensionMember_And_NamedClass_ReturnSameBuilderTypeAndDefaults()
     {
         var viaMember = SchemaValidator.ForXsd();
