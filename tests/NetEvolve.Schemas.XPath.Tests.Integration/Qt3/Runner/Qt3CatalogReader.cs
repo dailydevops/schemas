@@ -40,7 +40,16 @@ internal static class Qt3CatalogReader
                     test?.Value ?? string.Empty,
                     queryFile is null ? null : Path.Combine(directory, queryFile),
                     (string?)element.Element(Ns + "environment")?.Attribute("ref"),
-                    new Qt3Assertion(assertion?.Name.LocalName ?? "none", (string?)assertion?.Attribute("code")),
+                    new Qt3Assertion(
+                        assertion?.Name.LocalName ?? "none",
+                        (string?)assertion?.Attribute("code"),
+                        assertion?.Value ?? string.Empty,
+                        string.Equals(
+                            (string?)assertion?.Attribute("normalize-space"),
+                            "true",
+                            StringComparison.Ordinal
+                        )
+                    ),
                     ReadDependencies(element)
                 )
             );
