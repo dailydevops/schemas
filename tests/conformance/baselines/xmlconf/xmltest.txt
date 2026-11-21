@@ -1,8 +1,3 @@
-xmltest/not-wf-sa-078
-xmltest/not-wf-sa-079
-xmltest/not-wf-sa-080
-xmltest/not-wf-sa-082
-xmltest/not-wf-sa-084
 xmltest/not-wf-sa-085
 xmltest/not-wf-sa-180
 xmltest/valid-sa-012
