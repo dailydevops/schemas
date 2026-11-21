@@ -15,8 +15,8 @@ public class HostileTimeBoundTests
         cancellationToken.ThrowIfCancellationRequested();
 
         var timedOut = await HostileInputs.RunBoundedAsync(
-            () => Task.Delay(TimeSpan.FromMilliseconds(900), cancellationToken),
-            TimeSpan.FromMilliseconds(300),
+            () => Task.Delay(TimeSpan.FromMilliseconds(2500), cancellationToken),
+            TimeSpan.FromMilliseconds(2000),
             cancellationToken
         );
 
