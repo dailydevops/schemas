@@ -1,0 +1,7 @@
+baseline-runtime: 10.0
+# Accepted differences between this library and System.Xml.Schema, compared on the net10.0 leg only.
+# The line above records the major and minor version of the runtime that produced the baseline verdicts.
+# One entry per line, five fields separated by " | ":
+#   case id | difference kind | observed difference | specification reference | reason
+# Difference kinds: SchemaVerdict, InstanceVerdict, IssuePositions. The observed difference repeats the harness output exactly.
+# The triage of the real differences fills this list (XSD-64); an entry whose difference no longer occurs fails as stale.
