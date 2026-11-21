@@ -17,6 +17,13 @@ using NetEvolve.Schemas.Xml.Model;
 /// </remarks>
 internal static class SeamDuplicates
 {
+    private const BindingFlags AllDeclared =
+        BindingFlags.Instance
+        | BindingFlags.Static
+        | BindingFlags.Public
+        | BindingFlags.NonPublic
+        | BindingFlags.DeclaredOnly;
+
     private static readonly TimeSpan MatchTimeout = TimeSpan.FromSeconds(1);
 
     internal static IReadOnlyList<SeamKind> Seams { get; } =
@@ -44,9 +51,23 @@ internal static class SeamDuplicates
     /// <param name="assemblies">The assemblies to scan.</param>
     /// <param name="seams">The seams to look for.</param>
     internal static IReadOnlyList<string> Find(IEnumerable<Assembly> assemblies, IReadOnlyList<SeamKind> seams) =>
-        assemblies is null || seams is null ? ["stub"] : [];
+        [
+            .. assemblies
+                .SelectMany(assembly => assembly.GetTypes())
+                .Where(type => !type.Name.Contains('<', StringComparison.Ordinal))
+                .SelectMany(type =>
+                    seams
+                        .Where(seam => seam.Implements(type) || seam.IsNamedLikeIt(type.Name))
+                        .Select(seam => $"{seam.Name}: {type.FullName}")
+                )
+                .Distinct(StringComparer.Ordinal)
+                .OrderBy(entry => entry, StringComparer.Ordinal),
+        ];
 
-    private static bool ProducesTree(Type type) => type is null;
+    // The tree builder is the sink that produces a tree; a decorating or consuming sink holds none.
+    private static bool ProducesTree(Type type) =>
+        type.GetMethods(AllDeclared).Any(method => method.ReturnType == typeof(XmlDocumentTree))
+        || type.GetFields(AllDeclared).Any(field => field.FieldType == typeof(XmlDocumentTree));
 
     private static Func<string, bool> Named(string pattern) =>
         name => Regex.IsMatch(name, pattern, RegexOptions.CultureInvariant, MatchTimeout);
