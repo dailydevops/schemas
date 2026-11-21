@@ -16,6 +16,10 @@ internal sealed class CompiledMessage
         Id = id;
         Location = location;
         Parts = parts;
+        for (var i = 0; i < parts.Length; i++)
+        {
+            HasCopyOf |= parts[i].Kind == MessagePartKind.CopyOf;
+        }
     }
 
     /// <summary>Gets the id of the diagnostic or property, empty for the message of the assertion itself.</summary>
@@ -24,4 +28,7 @@ internal sealed class CompiledMessage
     internal DocumentLocation Location { get; }
 
     internal MessagePart[] Parts { get; }
+
+    /// <summary>Gets a value indicating whether a part is an <c>xsl:copy-of</c>, so the property has structured content besides its text.</summary>
+    internal bool HasCopyOf { get; }
 }

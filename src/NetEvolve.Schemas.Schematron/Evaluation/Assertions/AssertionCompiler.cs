@@ -195,6 +195,10 @@ internal static class AssertionCompiler
                 return Compile(binding, valueOf.Select, QueryExpressionKind.Value, scope, problems, out var select)
                     ? new MessagePart(MessagePartKind.ValueOf, valueOf.Location, expression: select)
                     : null;
+            case SchematronCopyOf copyOf:
+                return Compile(binding, copyOf.Select, QueryExpressionKind.Value, scope, problems, out var copied)
+                    ? new MessagePart(MessagePartKind.CopyOf, copyOf.Location, expression: copied)
+                    : null;
             case SchematronName name:
                 QueryExpression? path = null;
                 return

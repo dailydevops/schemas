@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Diagnostics;
 using NetEvolve.Schemas.Schematron.Model;
+using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Text.NameTable;
 using NetEvolve.Schemas.Xml.Writer;
@@ -32,7 +33,9 @@ using NetEvolve.Schemas.Xml.Writer;
 /// Limitations: <c>schematronEdition</c> is written for the 2025 edition only because the run information holds the edition,
 /// not the attribute text, so an explicit <c>2016</c> reads as an absent attribute; an SVRL <c>id</c> is written only for an
 /// author id, never for a generated or expanded one; a <c>svrl:error</c> in the output is not a failure of the run, and the
-/// text of a message that holds characters XML 1.0 forbids makes the Xml writer throw.
+/// text of a message that holds characters XML 1.0 forbids makes the Xml writer throw. A property that holds <c>xsl:copy-of</c> is written
+/// with its copied attributes on <c>svrl:text</c> and its copied nodes as the content of <c>svrl:text</c> (SCH-84, #289); the buffer
+/// limit counts the string value of that content and not its markup.
 /// </para>
 /// </remarks>
 public sealed class SvrlReportSink : ISchematronReportSink, IAsyncDisposable, IDisposable
@@ -56,6 +59,7 @@ public sealed class SvrlReportSink : ISchematronReportSink, IAsyncDisposable, ID
     private readonly SvrlBuffer _head = new();
     private readonly SvrlBuffer _body = new();
     private readonly bool[] _hasChild = new bool[MaxDepth];
+    private readonly List<IFindingContent> _contents = [];
     private int _depth;
     private int _headBase;
     private bool _begun;
@@ -150,7 +154,7 @@ public sealed class SvrlReportSink : ISchematronReportSink, IAsyncDisposable, ID
         _patternOpen = true;
         _overflowed = false;
         _head.Clear();
-        _body.Clear();
+        ClearBody();
         _head.PutKind(pattern.IsGroup ? GroupKind : PatternKind);
         _head.PutText(pattern.Id);
         _head.PutText(pattern.Documents);
@@ -342,7 +346,7 @@ public sealed class SvrlReportSink : ISchematronReportSink, IAsyncDisposable, ID
         }
 
         _overflowed = true;
-        _body.Clear();
+        ClearBody();
         PutError(
             _document,
             "/",
@@ -372,7 +376,27 @@ public sealed class SvrlReportSink : ISchematronReportSink, IAsyncDisposable, ID
         {
             _body.PutText(references.IdAt(i));
             _body.PutText(references.TextAt(i));
+            _body.PutNumber(Keep(references.ContentAt(i)));
         }
+    }
+
+    // The structured content of a property is an owned snapshot, so it is kept until its pattern is written; the buffer holds its place
+    // (one-based, zero for none). Limitation: the buffer limit counts the string value of the content, which is its text, and not the markup.
+    private int Keep(IFindingContent? content)
+    {
+        if (content is null)
+        {
+            return 0;
+        }
+
+        _contents.Add(content);
+        return _contents.Count;
+    }
+
+    private void ClearBody()
+    {
+        _body.Clear();
+        _contents.Clear();
     }
 
     private void DeclareSchemaNamespaces()
@@ -459,7 +483,7 @@ public sealed class SvrlReportSink : ISchematronReportSink, IAsyncDisposable, ID
         }
 
         _head.Clear();
-        _body.Clear();
+        ClearBody();
     }
 
     private void WriteFiredRule(ref SvrlBufferReader reader)
@@ -498,16 +522,29 @@ public sealed class SvrlReportSink : ISchematronReportSink, IAsyncDisposable, ID
             Open(element);
             _xml.Attribute(attribute, reader.ReadText());
             _xml.EndAttributes();
-            WriteText(reader.ReadText());
+            var text = reader.ReadText();
+            var kept = reader.ReadNumber();
+            WriteText(text, kept == 0 ? null : _contents[kept - 1]);
             Close(element);
         }
     }
 
-    private void WriteText(ReadOnlySpan<char> text)
+    private void WriteText(ReadOnlySpan<char> text, IFindingContent? content = null)
     {
         Open(_names.Text);
+
+        // The attributes that xsl:copy-of copied belong to this element, so they precede the end of its start tag.
+        content?.WriteAttributes(_xml);
         _xml.EndAttributes();
-        _xml.Text(text, XmlTextKind.Text);
+        if (content is null)
+        {
+            _xml.Text(text, XmlTextKind.Text);
+        }
+        else
+        {
+            content.WriteChildren(_xml);
+        }
+
         Close(_names.Text);
     }
 

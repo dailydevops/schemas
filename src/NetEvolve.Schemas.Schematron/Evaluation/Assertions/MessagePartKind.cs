@@ -20,4 +20,7 @@ internal enum MessagePartKind : byte
 
     /// <summary>A <c>span</c>.</summary>
     Span = 5,
+
+    /// <summary>An <c>xsl:copy-of</c> in a property: the string value of the items of its <see langword="select"/> expression in the text, and the items themselves in the content.</summary>
+    CopyOf = 6,
 }

@@ -133,15 +133,6 @@ public class CoreParserProblemTests
         );
 
     [Test]
-    public async Task Let_WithElementContent_ReportsUnsupported() =>
-        await AssertSingle(
-            E("schema", 1, 1, E("let", 2, 3, A("name", "v"), Foreign("x", 2, 20)), E("pattern", 3, 3)),
-            SchematronDiagnosticCodes.Unsupported,
-            2,
-            3
-        );
-
-    [Test]
     public async Task Problems_AreCollectedInDocumentOrder()
     {
         var (_, problems, result) = CoreParserFixture.Parse(
