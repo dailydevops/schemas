@@ -12,9 +12,8 @@ namespace NetEvolve.Schemas.XPath.Tests.Unit.Functions.Strings;
 /// </summary>
 /// <remarks>
 /// <para>
-/// Limitation: the QT3 runner of the integration tests still has no evaluator behind it (#295, XP-14), so these cases run through the
-/// lowerings of <see cref="Sequences.Qt3SequenceFixture"/> and not through the runner, and the baselines are unchanged. The end-to-end run
-/// stays open until #295.
+/// Limitation: these cases were selected before the QT3 runner of the integration tests had an evaluator, and they run through the
+/// lowerings of <see cref="Sequences.Qt3SequenceFixture"/> and not through the runner. The end-to-end run is the QT3 runner (#295), whose baselines list only the cases that do not pass.
 /// </para>
 /// <para>
 /// Cases per test set, as selected of applicable: concat 91 of 95; substring 42 of 48; substring-before 31 of 35; substring-after 32 of 36; contains 28 of 35; starts-with 28 of 33; ends-with 26 of 32; translate 41 of 42; normalize-space 31 of 35; string-length 26 of 33; upper-case 25 of 29; lower-case 24 of 28; string-join 32 of 34; normalize-unicode 37 of 45; codepoints-to-string 54 of 68; string-to-codepoints 35 of 44. In all, 583 of 672 applicable cases are selected and 89 are excluded.

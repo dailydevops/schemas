@@ -10,9 +10,9 @@ namespace NetEvolve.Schemas.XPath.Tests.Unit.Functions.Sequences;
 /// </summary>
 /// <remarks>
 /// <para>
-/// Limitation: the QT3 runner of the integration tests still has no evaluator behind it (#295), so these cases run through the lowerings of
+/// Limitation: these cases were selected before the QT3 runner of the integration tests had an evaluator, and they run through the lowerings of
 /// <see cref="Qt3SequenceFixture"/> (test-local for the literals, function calls, and ranges; production for arithmetic, comparison,
-/// cast, and castable) and not through the runner, and the baselines of the eleven test sets are unchanged. The end-to-end run stays open until #295.
+/// cast, and castable) and not through the runner. The end-to-end run is the QT3 runner (#295), whose baselines list only the cases that do not pass.
 /// </para>
 /// <para>
 /// Cases per test set, as three numbers: selected by the XPath 2.0 rule; of those, the ones without a further dependency or environment

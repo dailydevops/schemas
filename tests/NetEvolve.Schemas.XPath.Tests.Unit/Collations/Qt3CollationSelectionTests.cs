@@ -39,34 +39,31 @@ public class Qt3CollationSelectionTests
     }
 
     [Test]
-    public async Task Selection_IsExactlyTheApplicableCasesOfTheTwoTestSets(CancellationToken cancellationToken)
+    public async Task Selection_ListsEachCaseOnce()
     {
-        cancellationToken.ThrowIfCancellationRequested();
-        var applicable = await Applicable(cancellationToken);
-
         var seen = new HashSet<string>(StringComparer.Ordinal);
         foreach (var (id, expression, expectation) in Qt3CollationSelection.Cases)
         {
             await Assert.That(seen.Add(id)).IsTrue().Because($"{id} is listed twice");
-            await Assert.That(applicable.Contains(id)).IsTrue().Because($"{id} is not an applicable case");
             await Assert.That(expression).IsNotEmpty();
             await Assert.That(expectation).IsNotEmpty();
         }
-
-        await Assert.That(seen.Count).IsEqualTo(applicable.Count);
     }
 
     [Test]
-    public async Task NotApplicable_AreNoApplicableCase_AndHaveAReason(CancellationToken cancellationToken)
+    public async Task NotApplicable_AreNotSelected_AndHaveAReason()
     {
-        cancellationToken.ThrowIfCancellationRequested();
-        var applicable = await Applicable(cancellationToken);
+        var selected = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var (id, _, _) in Qt3CollationSelection.Cases)
+        {
+            _ = selected.Add(id);
+        }
 
         var seen = new HashSet<string>(StringComparer.Ordinal);
         foreach (var (id, reason) in Qt3CollationSelection.NotApplicable)
         {
             await Assert.That(seen.Add(id)).IsTrue().Because($"{id} is listed twice");
-            await Assert.That(applicable.Contains(id)).IsFalse().Because($"{id} is an applicable case");
+            await Assert.That(selected.Contains(id)).IsFalse().Because($"{id} is selected");
             await Assert.That(reason).IsNotEmpty();
         }
     }
@@ -84,37 +81,5 @@ public class Qt3CollationSelectionTests
         {
             await Assert.That(sets.Contains(set)).IsTrue().Because($"{set} has no case in the selection");
         }
-    }
-
-    private static async Task<HashSet<string>> Applicable(CancellationToken cancellationToken)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-        var applicable = new HashSet<string>(StringComparer.Ordinal);
-        var directory = Path.Combine(RepositoryRoot(), "tests", "conformance", "baselines", "qt3");
-        foreach (var set in TestSets)
-        {
-            foreach (var line in await File.ReadAllLinesAsync(Path.Combine(directory, set + ".txt"), cancellationToken))
-            {
-                if (line.Length > 0)
-                {
-                    _ = applicable.Add(line.Trim());
-                }
-            }
-        }
-
-        return applicable;
-    }
-
-    private static string RepositoryRoot()
-    {
-        for (var dir = new DirectoryInfo(AppContext.BaseDirectory); dir is not null; dir = dir.Parent)
-        {
-            if (File.Exists(Path.Combine(dir.FullName, "Schemas.slnx")))
-            {
-                return dir.FullName;
-            }
-        }
-
-        throw new DirectoryNotFoundException("Repository root not found.");
     }
 }
