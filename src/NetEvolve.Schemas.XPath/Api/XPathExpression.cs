@@ -16,7 +16,7 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// </para>
 /// <para>
 /// Limitations: only XPath 2.0 is enabled, so a static context of another version does not compile (<c>XP0001</c>). The prefixes
-/// <c>fn</c> and <c>xs</c> are not predeclared by <see cref="XPathStaticContext.Default"/>; declare them with
+/// <c>fn</c> and <c>xs</c> are not predeclared by <see cref="XPathStaticContext.Default"/> (#876); declare them with
 /// <see cref="XPathStaticContext.Builder.WithNamespace"/>. Every host slot counts as provided at compile time, so a function that needs a
 /// slot is visible and raises XPDY0002 when the slot of the evaluation context is unset; a function that needs the XSLT host flag is not
 /// visible through this class. A dynamic error carries the location of the expression that raised it only where the operator knows it

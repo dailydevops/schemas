@@ -25,7 +25,7 @@ using NetEvolve.Schemas.XPath.Types;
 /// </summary>
 /// <remarks>
 /// Limitations: only XPath 2.0 is enabled, so a static context of another version is rejected with <see cref="VersionNotEnabled"/>
-/// (design #123, AP10). The prefixes <c>fn</c> and <c>xs</c> are not predeclared by <see cref="XPathStaticContext.Default"/>; a caller
+/// (design #123, AP10). The prefixes <c>fn</c> and <c>xs</c> are not predeclared by <see cref="XPathStaticContext.Default"/> (#876); a caller
 /// declares them. The public API compiles under every host slot and no host flag; the internal overload takes both.
 /// </remarks>
 internal static class XPathEngine
