@@ -132,7 +132,7 @@ internal sealed class ArithmeticOperatorTable
     /// <remarks>
     /// Allocates nothing. The exact entry is one dictionary lookup; substitution scans the entries of the operator. When two entries
     /// match and the types of neither derive from the types of the other (for example <c>(decimal, integer)</c> and
-    /// <c>(integer, decimal)</c> for two integers), the one registered first wins.
+    /// <c>(integer, decimal)</c> for two integers), the one registered first wins. It returns <see langword="false"/> when the most specific match is a contextual entry, even if a less specific plain entry also matches; <c>TryGetContextual</c> finds both kinds.
     /// </remarks>
     public bool TryGet(
         ArithmeticOperator @operator,
