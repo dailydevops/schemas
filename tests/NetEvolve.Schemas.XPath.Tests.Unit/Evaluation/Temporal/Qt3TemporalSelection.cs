@@ -11,16 +11,13 @@ namespace NetEvolve.Schemas.XPath.Tests.Unit.Evaluation.Temporal;
 /// </summary>
 /// <remarks>
 /// <para>
-/// A case whose assertion is <c>not(E)</c> is listed as <c>E</c> with the opposite boolean, because the function <c>fn:not</c> belongs to the
-/// boolean function group (XP-58, #271) that has not landed; the value of the case is the same.
-/// </para>
-/// <para>
 /// Limitation: the QT3 runner of the integration tests still has no evaluator behind it (#295), so these cases run through the lowerings of
 /// <see cref="TemporalFixture"/> and not through the runner; the end-to-end run stays open until #295, as for the casting rows (#265, #301).
 /// <see cref="NotXPath20"/> lists the cases that depend on XQuery 1.0 or 3.0 and are never selected for XPath 2.0 (the dependency rule of the QT3
-/// selector of the integration tests). <see cref="OutOfShape"/> lists every other case of the sets with the reason: the expression uses a function
-/// of a group that has not landed (<c>fn:boolean</c>, <c>fn:number</c>, <c>fn:true</c>, <c>fn:false</c>, and the like), the negation of a value
-/// that is not a boolean (it needs the effective boolean value of XP-58), or an assertion of another shape. The cases that read
+/// selector of the integration tests). <see cref="OutOfShape"/> lists every other case of the sets with the reason: the assertion is an
+/// XPath expression over <c>$result</c>, or the expected value needs the comparison of durations by value in <c>fn:distinct-values</c> (#732). The
+/// functions of the boolean, numeric, and sequence groups (<c>fn:not</c>, <c>fn:boolean</c>, <c>fn:number</c>, <c>fn:true</c>, <c>fn:false</c>,
+/// <c>fn:round-half-to-even</c>, and the like) have landed, so the cases that use them run, with the expression of the suite unchanged. The cases that read
 /// <c>fn:implicit-timezone</c> in a conditional run with the implicit timezone of the default context, which is UTC, so they take the branch of
 /// that timezone; the hand-written tests cover the other implicit timezones. The lists are taken mechanically from the pinned suite.
 /// </para>
@@ -62,6 +59,31 @@ internal static class Qt3TemporalSelection
             "S:2004-11-01Z"
         ),
         (
+            "op-add-dayTimeDuration-to-date/op-add-dayTimeDuration-to-datealt-2",
+            "fn:string((xs:date(\"2000-12-12Z\") + xs:dayTimeDuration(\"P19DT13H10M\"))) and fn:false()",
+            "F"
+        ),
+        (
+            "op-add-dayTimeDuration-to-date/op-add-dayTimeDuration-to-date-3",
+            "fn:string((xs:date(\"1999-10-23Z\") + xs:dayTimeDuration(\"P19DT13H10M\"))) or fn:false()",
+            "T"
+        ),
+        (
+            "op-add-dayTimeDuration-to-date/op-add-dayTimeDuration-to-date-4",
+            "fn:not(fn:string(xs:date(\"1998-09-12Z\") + xs:dayTimeDuration(\"P02DT07H01M\")))",
+            "F"
+        ),
+        (
+            "op-add-dayTimeDuration-to-date/op-add-dayTimeDuration-to-date-5",
+            "fn:boolean(fn:string(xs:date(\"1962-03-12Z\") + xs:dayTimeDuration(\"P03DT08H06M\")))",
+            "T"
+        ),
+        (
+            "op-add-dayTimeDuration-to-date/op-add-dayTimeDuration-to-date-6",
+            "fn:number(xs:date(\"1988-01-28Z\") + xs:dayTimeDuration(\"P10DT08H01M\"))",
+            "S:NaN"
+        ),
+        (
             "op-add-dayTimeDuration-to-date/op-add-dayTimeDuration-to-date-7",
             "fn:string(xs:date(\"1989-07-05Z\") + xs:dayTimeDuration(\"P01DT09H02M\"))",
             "S:1989-07-06Z"
@@ -79,6 +101,11 @@ internal static class Qt3TemporalSelection
         (
             "op-add-dayTimeDuration-to-date/op-add-dayTimeDuration-to-date-10",
             "fn:string((xs:date(\"1985-07-05Z\") + xs:dayTimeDuration(\"P03DT01H04M\"))) or fn:string((xs:date(\"1985-07-05Z\") + xs:dayTimeDuration(\"P01DT01H03M\")))",
+            "T"
+        ),
+        (
+            "op-add-dayTimeDuration-to-date/op-add-dayTimeDuration-to-date-12",
+            "fn:string((xs:date(\"1980-03-02Z\") + xs:dayTimeDuration(\"P05DT08H11M\"))) and (fn:true())",
             "T"
         ),
         (
@@ -142,6 +169,31 @@ internal static class Qt3TemporalSelection
             "S:2000-11-02T12:27:00"
         ),
         (
+            "op-add-dayTimeDuration-to-dateTime/op-add-dayTimeDuration-to-dateTime-2",
+            "fn:string((xs:dateTime(\"2000-12-12T11:10:03Z\") + xs:dayTimeDuration(\"P12DT10H07M\"))) and fn:false()",
+            "F"
+        ),
+        (
+            "op-add-dayTimeDuration-to-dateTime/op-add-dayTimeDuration-to-dateTime-3",
+            "fn:string((xs:dateTime(\"1999-10-23T03:12:23Z\") + xs:dayTimeDuration(\"P19DT13H10M\"))) or fn:false()",
+            "T"
+        ),
+        (
+            "op-add-dayTimeDuration-to-dateTime/op-add-dayTimeDuration-to-dateTime-4",
+            "fn:not(fn:string(xs:dateTime(\"1998-09-12T13:23:23Z\") + xs:dayTimeDuration(\"P02DT07H01M\")))",
+            "F"
+        ),
+        (
+            "op-add-dayTimeDuration-to-dateTime/op-add-dayTimeDuration-to-dateTime-5",
+            "fn:boolean(fn:string(xs:dateTime(\"1962-03-12T12:34:09Z\") + xs:dayTimeDuration(\"P03DT08H06M\")))",
+            "T"
+        ),
+        (
+            "op-add-dayTimeDuration-to-dateTime/op-add-dayTimeDuration-to-dateTime-6",
+            "fn:number(xs:dateTime(\"1988-01-28T12:34:12Z\") + xs:dayTimeDuration(\"P10DT08H01M\"))",
+            "S:NaN"
+        ),
+        (
             "op-add-dayTimeDuration-to-dateTime/op-add-dayTimeDuration-to-dateTime-7",
             "fn:string(xs:dateTime(\"1989-07-05T10:10:10Z\") + xs:dayTimeDuration(\"P01DT09H02M\"))",
             "S:1989-07-06T19:12:10Z"
@@ -159,6 +211,11 @@ internal static class Qt3TemporalSelection
         (
             "op-add-dayTimeDuration-to-dateTime/op-add-dayTimeDuration-to-dateTime-10",
             "fn:string((xs:dateTime(\"1985-07-05T14:14:14Z\") + xs:dayTimeDuration(\"P03DT01H04M\"))) or fn:string((xs:dateTime(\"1985-07-05T15:15:15Z\") + xs:dayTimeDuration(\"P01DT01H03M\")))",
+            "T"
+        ),
+        (
+            "op-add-dayTimeDuration-to-dateTime/op-add-dayTimeDuration-to-dateTime-12",
+            "fn:string((xs:dateTime(\"1980-03-02T16:12:10Z\") + xs:dayTimeDuration(\"P05DT08H11M\"))) and (fn:true())",
             "T"
         ),
         (
@@ -237,6 +294,26 @@ internal static class Qt3TemporalSelection
             "S:02:27:00+03:00"
         ),
         (
+            "op-add-dayTimeDuration-to-time/op-add-dayTimeDuration-to-time-3",
+            "fn:string((xs:time(\"12:12:01Z\") + xs:dayTimeDuration(\"P19DT13H10M\"))) or fn:false()",
+            "T"
+        ),
+        (
+            "op-add-dayTimeDuration-to-time/op-add-dayTimeDuration-to-time-4",
+            "fn:not(fn:string(xs:time(\"13:12:00Z\") + xs:dayTimeDuration(\"P02DT07H01M\")))",
+            "F"
+        ),
+        (
+            "op-add-dayTimeDuration-to-time/op-add-dayTimeDuration-to-time-5",
+            "fn:boolean(fn:string(xs:time(\"02:02:02Z\") + xs:dayTimeDuration(\"P03DT08H06M\")))",
+            "T"
+        ),
+        (
+            "op-add-dayTimeDuration-to-time/op-add-dayTimeDuration-to-time-6",
+            "fn:number(xs:time(\"01:01:01Z\") + xs:dayTimeDuration(\"P10DT08H01M\"))",
+            "S:NaN"
+        ),
+        (
             "op-add-dayTimeDuration-to-time/op-add-dayTimeDuration-to-time-7",
             "fn:string(xs:time(\"10:02:03Z\") + xs:dayTimeDuration(\"P01DT09H02M\"))",
             "S:19:04:03Z"
@@ -254,6 +331,11 @@ internal static class Qt3TemporalSelection
         (
             "op-add-dayTimeDuration-to-time/op-add-dayTimeDuration-to-time-10",
             "fn:string((xs:time(\"02:03:01Z\") + xs:dayTimeDuration(\"P03DT01H04M\"))) or fn:string((xs:time(\"02:03:01Z\") + xs:dayTimeDuration(\"P01DT01H03M\")))",
+            "T"
+        ),
+        (
+            "op-add-dayTimeDuration-to-time/op-add-dayTimeDuration-to-timealt-12",
+            "fn:string((xs:time(\"02:02:02Z\") + xs:dayTimeDuration(\"P05DT08H11M\"))) and (fn:true())",
             "T"
         ),
         (
@@ -275,6 +357,11 @@ internal static class Qt3TemporalSelection
             "op-add-dayTimeDuration-to-time/op-add-dayTimeDuration-to-time-16",
             "(xs:time(\"09:06:07Z\") + xs:dayTimeDuration(\"P18DT02H02M\")) ge xs:time(\"01:01:01Z\")",
             "T"
+        ),
+        (
+            "op-add-dayTimeDuration-to-time/op-add-dayTimeDuration-to-time-17",
+            "fn:string(xs:time(\"12:07:08Z\") + xs:dayTimeDuration(\"P12DT10H07M\")) and fn:false()",
+            "F"
         ),
         (
             "op-add-dayTimeDuration-to-time/K-TimeAddDTD-1",
@@ -322,6 +409,31 @@ internal static class Qt3TemporalSelection
             "S:P8DT5M"
         ),
         (
+            "op-add-dayTimeDurations/op-add-dayTimeDurations-2",
+            "fn:string(xs:dayTimeDuration(\"P10DT10H11M\") + xs:dayTimeDuration(\"P12DT10H07M\")) and fn:false()",
+            "F"
+        ),
+        (
+            "op-add-dayTimeDurations/op-add-dayTimeDurations-3",
+            "fn:string(xs:dayTimeDuration(\"P20DT20H10M\") + xs:dayTimeDuration(\"P19DT13H10M\")) or fn:false()",
+            "T"
+        ),
+        (
+            "op-add-dayTimeDurations/op-add-dayTimeDurations-4",
+            "fn:not(fn:string(xs:dayTimeDuration(\"P11DT12H04M\") + xs:dayTimeDuration(\"P02DT07H01M\")))",
+            "F"
+        ),
+        (
+            "op-add-dayTimeDurations/op-add-dayTimeDurations-5",
+            "fn:boolean(fn:string(xs:dayTimeDuration(\"P05DT09H08M\") + xs:dayTimeDuration(\"P03DT08H06M\")))",
+            "T"
+        ),
+        (
+            "op-add-dayTimeDurations/op-add-dayTimeDurations-6",
+            "fn:number(xs:dayTimeDuration(\"P02DT06H09M\") + xs:dayTimeDuration(\"P10DT08H01M\"))",
+            "S:NaN"
+        ),
+        (
             "op-add-dayTimeDurations/op-add-dayTimeDurations-7",
             "fn:string(xs:dayTimeDuration(\"P03DT04H08M\") + xs:dayTimeDuration(\"P01DT09H02M\"))",
             "S:P4DT13H10M"
@@ -345,6 +457,11 @@ internal static class Qt3TemporalSelection
             "op-add-dayTimeDurations/op-add-dayTimeDurations-11",
             "(xs:dayTimeDuration(\"P42DT10H10M\") + xs:dayTimeDuration(\"P10DT10H10M\")) div (xs:dayTimeDuration(\"P42DT10H10M\") + xs:dayTimeDuration(\"P10DT10H10M\"))",
             "S:1"
+        ),
+        (
+            "op-add-dayTimeDurations/op-add-dayTimeDurations-12",
+            "fn:string((xs:dayTimeDuration(\"P10DT08H11M\") + xs:dayTimeDuration(\"P05DT08H11M\"))) and (fn:true())",
+            "T"
         ),
         (
             "op-add-dayTimeDurations/op-add-dayTimeDurations-13",
@@ -412,6 +529,31 @@ internal static class Qt3TemporalSelection
             "S:2001-12-30"
         ),
         (
+            "op-add-yearMonthDuration-to-date/op-add-yearMonthDuration-to-date-2",
+            "fn:string(xs:date(\"2000-12-12Z\") + xs:dayTimeDuration(\"P12DT10H07M\")) and fn:false()",
+            "F"
+        ),
+        (
+            "op-add-yearMonthDuration-to-date/op-add-yearMonthDuration-to-date-3",
+            "fn:string((xs:date(\"1999-10-23Z\") + xs:yearMonthDuration(\"P19Y12M\"))) or fn:false()",
+            "T"
+        ),
+        (
+            "op-add-yearMonthDuration-to-date/op-add-yearMonthDuration-to-date-4",
+            "fn:not(fn:string(xs:date(\"1998-09-12Z\") + xs:yearMonthDuration(\"P20Y03M\")))",
+            "F"
+        ),
+        (
+            "op-add-yearMonthDuration-to-date/op-add-yearMonthDuration-to-date-5",
+            "fn:boolean(fn:string(xs:date(\"1962-03-12Z\") + xs:yearMonthDuration(\"P10Y01M\")))",
+            "T"
+        ),
+        (
+            "op-add-yearMonthDuration-to-date/op-add-yearMonthDuration-to-date-6",
+            "fn:number(xs:date(\"1988-01-28Z\") + xs:yearMonthDuration(\"P09Y02M\"))",
+            "S:NaN"
+        ),
+        (
             "op-add-yearMonthDuration-to-date/op-add-yearMonthDuration-to-date-7",
             "fn:string(xs:date(\"1989-07-05Z\") + xs:yearMonthDuration(\"P08Y04M\"))",
             "S:1997-11-05Z"
@@ -429,6 +571,11 @@ internal static class Qt3TemporalSelection
         (
             "op-add-yearMonthDuration-to-date/op-add-yearMonthDuration-to-date-10",
             "fn:string((xs:date(\"1985-07-05Z\") + xs:yearMonthDuration(\"P02Y02M\"))) or fn:string((xs:date(\"1985-07-05Z\") + xs:yearMonthDuration(\"P02Y02M\")))",
+            "T"
+        ),
+        (
+            "op-add-yearMonthDuration-to-date/op-add-yearMonthDuration-to-date-12",
+            "fn:string((xs:date(\"1980-03-02Z\") + xs:yearMonthDuration(\"P05Y05M\"))) and (fn:true())",
             "T"
         ),
         (
@@ -502,6 +649,31 @@ internal static class Qt3TemporalSelection
             "S:2001-12-30T11:12:00"
         ),
         (
+            "op-add-yearMonthDuration-to-dateTime/op-add-yearMonthDuration-to-dateTime-2",
+            "fn:string(xs:dateTime(\"2000-12-12T12:12:12Z\") + xs:dayTimeDuration(\"P12DT10H07M\")) and fn:false()",
+            "F"
+        ),
+        (
+            "op-add-yearMonthDuration-to-dateTime/op-add-yearMonthDuration-to-dateTime-3",
+            "fn:string((xs:dateTime(\"1999-10-23T13:45:45Z\") + xs:yearMonthDuration(\"P19Y12M\"))) or fn:false()",
+            "T"
+        ),
+        (
+            "op-add-yearMonthDuration-to-dateTime/op-add-yearMonthDuration-to-dateTime-4",
+            "fn:not(fn:string(xs:dateTime(\"1998-09-12T13:56:12Z\") + xs:yearMonthDuration(\"P20Y03M\")))",
+            "F"
+        ),
+        (
+            "op-add-yearMonthDuration-to-dateTime/op-add-yearMonthDuration-to-dateTimealt-5",
+            "fn:boolean(fn:string(xs:dateTime(\"1962-03-12T10:12:34Z\") + xs:yearMonthDuration(\"P10Y01M\")))",
+            "T"
+        ),
+        (
+            "op-add-yearMonthDuration-to-dateTime/op-add-yearMonthDuration-to-dateTime-6",
+            "fn:number(xs:dateTime(\"1988-01-28T13:45:23Z\") + xs:yearMonthDuration(\"P09Y02M\"))",
+            "S:NaN"
+        ),
+        (
             "op-add-yearMonthDuration-to-dateTime/op-add-yearMonthDuration-to-dateTime-7",
             "fn:string(xs:dateTime(\"1989-07-05T14:34:36Z\") + xs:yearMonthDuration(\"P08Y04M\"))",
             "S:1997-11-05T14:34:36Z"
@@ -519,6 +691,11 @@ internal static class Qt3TemporalSelection
         (
             "op-add-yearMonthDuration-to-dateTime/op-add-yearMonthDuration-to-dateTime-10",
             "fn:string((xs:dateTime(\"1985-07-05T09:09:09Z\") + xs:yearMonthDuration(\"P02Y02M\"))) or fn:string((xs:dateTime(\"1985-07-05T09:09:09Z\") + xs:yearMonthDuration(\"P02Y02M\")))",
+            "T"
+        ),
+        (
+            "op-add-yearMonthDuration-to-dateTime/op-add-yearMonthDuration-to-dateTime-12",
+            "fn:string((xs:dateTime(\"1980-03-02T02:02:02Z\") + xs:yearMonthDuration(\"P05Y05M\"))) and (fn:true())",
             "T"
         ),
         (
@@ -602,6 +779,31 @@ internal static class Qt3TemporalSelection
             "S:P6Y2M"
         ),
         (
+            "op-add-yearMonthDurations/op-add-yearMonthDurations-2",
+            "fn:string(xs:yearMonthDuration(\"P10Y11M\") + xs:yearMonthDuration(\"P12Y07M\")) and fn:false()",
+            "F"
+        ),
+        (
+            "op-add-yearMonthDurations/op-add-yearMonthDurations-3",
+            "fn:string(xs:yearMonthDuration(\"P20Y10M\") + xs:yearMonthDuration(\"P19Y10M\")) or fn:false()",
+            "T"
+        ),
+        (
+            "op-add-yearMonthDurations/op-add-yearMonthDurations-4",
+            "fn:not(fn:string(xs:yearMonthDuration(\"P11Y04M\") + xs:yearMonthDuration(\"P02Y11M\")))",
+            "F"
+        ),
+        (
+            "op-add-yearMonthDurations/op-add-yearMonthDurations-5",
+            "fn:boolean(fn:string(xs:yearMonthDuration(\"P05Y08M\") + xs:yearMonthDuration(\"P03Y06M\")))",
+            "T"
+        ),
+        (
+            "op-add-yearMonthDurations/op-add-yearMonthDurations-6",
+            "fn:number(xs:yearMonthDuration(\"P02Y09M\") + xs:yearMonthDuration(\"P10Y01M\"))",
+            "S:NaN"
+        ),
+        (
             "op-add-yearMonthDurations/op-add-yearMonthDurations-7",
             "fn:string(xs:yearMonthDuration(\"P03Y08M\") + xs:yearMonthDuration(\"P01Y02M\"))",
             "S:P4Y10M"
@@ -625,6 +827,11 @@ internal static class Qt3TemporalSelection
             "op-add-yearMonthDurations/op-add-yearMonthDurations-11",
             "(xs:yearMonthDuration(\"P42Y10M\") + xs:yearMonthDuration(\"P28Y10M\")) div (xs:yearMonthDuration(\"P10Y10M\") + xs:yearMonthDuration(\"P60Y10M\"))",
             "S:1"
+        ),
+        (
+            "op-add-yearMonthDurations/op-add-yearMonthDurations-12",
+            "fn:string((xs:yearMonthDuration(\"P10Y11M\") + xs:yearMonthDuration(\"P05Y07M\"))) and (fn:true())",
+            "T"
         ),
         (
             "op-add-yearMonthDurations/op-add-yearMonthDurations-13",
@@ -682,14 +889,24 @@ internal static class Qt3TemporalSelection
         ("op-date-equal/op-date-equal2args-19", "xs:date(\"1970-01-01Z\") ge xs:date(\"1983-11-17Z\")", "F"),
         ("op-date-equal/op-date-equal2args-20", "xs:date(\"1970-01-01Z\") ge xs:date(\"2030-12-31Z\")", "F"),
         ("op-date-equal/K-DateEQ-1", "xs:date(\"2004-08-12\") eq xs:date(\"2004-08-12\")", "T"),
-        ("op-date-equal/K-DateEQ-2", "xs:date(\"2004-08-12\") eq xs:date(\"2003-08-12\")", "F"),
+        ("op-date-equal/K-DateEQ-2", "not(xs:date(\"2004-08-12\") eq xs:date(\"2003-08-12\"))", "T"),
         ("op-date-equal/K-DateEQ-3", "xs:date(\"2004-08-12\") ne xs:date(\"2004-07-12\")", "T"),
-        ("op-date-equal/K-DateEQ-4", "xs:date(\"2004-07-12\") ne xs:date(\"2004-07-12\")", "F"),
+        ("op-date-equal/K-DateEQ-4", "not(xs:date(\"2004-07-12\") ne xs:date(\"2004-07-12\"))", "T"),
         ("op-date-equal/K-DateEQ-5", "xs:date(\"1999-12-04-00:00\") eq xs:date(\"1999-12-04Z\")", "T"),
         ("op-date-equal/K-DateEQ-6", "xs:date(\"1999-12-04+00:00\") eq xs:date(\"1999-12-04Z\")", "T"),
         ("op-date-equal/K-DateEQ-7", "xs:date(\"1999-12-04Z\") eq xs:date(\"1999-12-04Z\")", "T"),
         ("op-date-equal/K-DateEQ-8", "xs:date(\"1999-12-04-00:00\") eq xs:date(\"1999-12-04+00:00\")", "T"),
         ("op-date-equal/K2-DateEQ-1", "xs:time(\"01:01:01-03:00\") ne xs:time(\"01:01:01+03:00\")", "T"),
+        (
+            "op-date-equal/cbcl-date-eq-001",
+            "xs:date(\"-25252734927766555-06-07+02:00\") = xs:date(\"25252734927766555-07-28\")",
+            "X:FODT0001\tF"
+        ),
+        (
+            "op-date-equal/cbcl-date-ne-001",
+            "xs:date(\"25252734927766555-07-28\") != xs:date(\"-25252734927766555-06-07+02:00\")",
+            "X:FODT0001\tT"
+        ),
         ("op-date-equal/cbcl-date-equal-002", "xs:date(\"2008-01-30\") eq xs:date(\"2008-01-31+09:00\")", "F"),
         ("op-date-equal/cbcl-date-equal-003", "xs:date(\"2008-01-31+09:00\") eq xs:date(\"2008-01-30\")", "F"),
         ("op-date-equal/cbcl-date-equal-004", "xs:date(\"2008-01-31\") eq xs:date(\"2008-01-31+09:00\")", "F"),
@@ -758,9 +975,26 @@ internal static class Qt3TemporalSelection
             "(xs:date(\"2004-12-25-12:00\") gt xs:date(\"2004-12-26+12:00\"))",
             "F"
         ),
-        ("op-date-greater-than/op-date-greater-than-4", "xs:date(\"2005-04-02Z\") ge xs:date(\"2005-04-02Z\")", "T"),
-        ("op-date-greater-than/op-date-greater-than-5", "xs:date(\"2000-11-09Z\") gt xs:date(\"2000-11-10Z\")", "F"),
-        ("op-date-greater-than/op-date-greater-than-6", "xs:date(\"2005-10-23Z\") ge xs:date(\"2005-10-25Z\")", "F"),
+        (
+            "op-date-greater-than/op-date-greater-than-3",
+            "fn:not((xs:date(\"2005-12-26Z\") gt xs:date(\"2005-12-25Z\")))",
+            "F"
+        ),
+        (
+            "op-date-greater-than/op-date-greater-than-4",
+            "fn:not(xs:date(\"2005-04-02Z\") ge xs:date(\"2005-04-02Z\"))",
+            "F"
+        ),
+        (
+            "op-date-greater-than/op-date-greater-than-5",
+            "fn:not(xs:date(\"2000-11-09Z\") gt xs:date(\"2000-11-10Z\"))",
+            "T"
+        ),
+        (
+            "op-date-greater-than/op-date-greater-than-6",
+            "fn:not(xs:date(\"2005-10-23Z\") ge xs:date(\"2005-10-25Z\"))",
+            "T"
+        ),
         (
             "op-date-greater-than/op-date-greater-than-7",
             "(xs:date(\"2000-01-01Z\") gt xs:date(\"2000-01-01Z\")) and (xs:date(\"2001-02-02Z\") gt xs:date(\"2001-03-02Z\"))",
@@ -781,12 +1015,37 @@ internal static class Qt3TemporalSelection
             "(xs:date(\"1976-10-25Z\") ge xs:date(\"1976-10-28Z\")) or (xs:date(\"1980-08-11Z\") ge xs:date(\"1980-08-10Z\"))",
             "T"
         ),
+        (
+            "op-date-greater-than/op-date-greater-than-11",
+            "(xs:date(\"1980-05-18Z\") gt xs:date(\"1980-05-17Z\")) or (fn:true())",
+            "T"
+        ),
+        (
+            "op-date-greater-than/op-date-greater-than-12",
+            "(xs:date(\"2000-10-25Z\") ge xs:date(\"2000-10-26Z\")) or (fn:true())",
+            "T"
+        ),
+        (
+            "op-date-greater-than/op-date-greater-than-13",
+            "(xs:date(\"1980-01-01Z\") gt xs:date(\"1980-10-01Z\")) or (fn:false())",
+            "F"
+        ),
+        (
+            "op-date-greater-than/op-date-greater-than-14",
+            "(xs:date(\"1980-10-25Z\") ge xs:date(\"1980-10-26Z\")) or (fn:false())",
+            "F"
+        ),
         ("op-date-greater-than/K-DateGT-1", "xs:date(\"2004-07-13\") gt xs:date(\"2004-07-12\")", "T"),
-        ("op-date-greater-than/K-DateGT-2", "xs:date(\"2004-07-12\") gt xs:date(\"2004-07-12\")", "F"),
-        ("op-date-greater-than/K-DateGT-3", "xs:date(\"2004-07-12\") gt xs:date(\"2004-07-13\")", "F"),
+        ("op-date-greater-than/K-DateGT-2", "not(xs:date(\"2004-07-12\") gt xs:date(\"2004-07-12\"))", "T"),
+        ("op-date-greater-than/K-DateGT-3", "not(xs:date(\"2004-07-12\") gt xs:date(\"2004-07-13\"))", "T"),
         ("op-date-greater-than/K-DateGT-4", "xs:date(\"2004-07-12\") ge xs:date(\"2004-07-12\")", "T"),
         ("op-date-greater-than/K-DateGT-5", "xs:date(\"2004-07-13\") ge xs:date(\"2004-07-12\")", "T"),
-        ("op-date-greater-than/K-DateGT-6", "xs:date(\"2004-07-11\") ge xs:date(\"2004-07-12\")", "F"),
+        ("op-date-greater-than/K-DateGT-6", "not(xs:date(\"2004-07-11\") ge xs:date(\"2004-07-12\"))", "T"),
+        (
+            "op-date-greater-than/cbcl-date-gt-001",
+            "xs:date(\"25252734927766555-07-28\") > xs:date(\"-25252734927766555-06-07+02:00\")",
+            "X:FODT0001\tT"
+        ),
         (
             "op-date-greater-than/cbcl-date-greater-equal-002",
             "xs:date(\"2008-01-30\") lt xs:date(\"2008-01-31+09:00\")",
@@ -843,9 +1102,14 @@ internal static class Qt3TemporalSelection
             "(xs:date(\"2004-12-25-12:00\") le xs:date(\"2004-12-26+12:00\"))",
             "T"
         ),
-        ("op-date-less-than/op-date-less-than-4", "xs:date(\"2005-04-02Z\") le xs:date(\"2005-04-02Z\")", "T"),
-        ("op-date-less-than/op-date-less-than-5", "xs:date(\"2000-12-25Z\") lt xs:date(\"2000-11-25Z\")", "F"),
-        ("op-date-less-than/op-date-less-than-6", "xs:date(\"2005-10-25Z\") le xs:date(\"2005-10-23Z\")", "F"),
+        (
+            "op-date-less-than/op-date-less-than-3",
+            "fn:not((xs:date(\"2005-12-25Z\") lt xs:date(\"2005-12-26Z\")))",
+            "F"
+        ),
+        ("op-date-less-than/op-date-less-than-4", "fn:not(xs:date(\"2005-04-02Z\") le xs:date(\"2005-04-02Z\"))", "F"),
+        ("op-date-less-than/op-date-less-than-5", "fn:not(xs:date(\"2000-12-25Z\") lt xs:date(\"2000-11-25Z\"))", "T"),
+        ("op-date-less-than/op-date-less-than-6", "fn:not(xs:date(\"2005-10-25Z\") le xs:date(\"2005-10-23Z\"))", "T"),
         (
             "op-date-less-than/op-date-less-than-7",
             "(xs:date(\"2000-01-01Z\") lt xs:date(\"2000-01-01Z\")) and (xs:date(\"2001-02-02Z\") lt xs:date(\"2001-03-02Z\"))",
@@ -866,12 +1130,37 @@ internal static class Qt3TemporalSelection
             "(xs:date(\"1976-10-25Z\") le xs:date(\"1976-10-28Z\")) or (xs:date(\"1980-08-11Z\") le xs:date(\"1980-08-10Z\"))",
             "T"
         ),
+        (
+            "op-date-less-than/op-date-less-than-11",
+            "(xs:date(\"1980-05-18Z\") lt xs:date(\"1980-05-17Z\")) or (fn:true())",
+            "T"
+        ),
+        (
+            "op-date-less-than/op-date-less-than-12",
+            "(xs:date(\"2000-10-25Z\") le xs:date(\"2000-10-26Z\")) or (fn:true())",
+            "T"
+        ),
+        (
+            "op-date-less-than/op-date-less-than-13",
+            "(xs:date(\"1980-01-01Z\") lt xs:date(\"1980-10-01Z\")) or (fn:false())",
+            "T"
+        ),
+        (
+            "op-date-less-than/op-date-less-than-14",
+            "(xs:date(\"1980-10-25Z\") le xs:date(\"1980-10-26Z\")) or (fn:false())",
+            "T"
+        ),
         ("op-date-less-than/K-DateLT-1", "xs:date(\"2004-07-12\") lt xs:date(\"2004-07-13\")", "T"),
-        ("op-date-less-than/K-DateLT-2", "xs:date(\"2004-07-13\") lt xs:date(\"2004-07-12\")", "F"),
-        ("op-date-less-than/K-DateLT-3", "xs:date(\"2004-07-13\") lt xs:date(\"2004-07-13\")", "F"),
+        ("op-date-less-than/K-DateLT-2", "not(xs:date(\"2004-07-13\") lt xs:date(\"2004-07-12\"))", "T"),
+        ("op-date-less-than/K-DateLT-3", "not(xs:date(\"2004-07-13\") lt xs:date(\"2004-07-13\"))", "T"),
         ("op-date-less-than/K-DateLT-4", "xs:date(\"2004-07-12\") le xs:date(\"2004-07-12\")", "T"),
         ("op-date-less-than/K-DateLT-5", "xs:date(\"2004-07-12\") le xs:date(\"2004-07-12\")", "T"),
-        ("op-date-less-than/K-DateLT-6", "xs:date(\"2004-07-13\") le xs:date(\"2004-07-12\")", "F"),
+        ("op-date-less-than/K-DateLT-6", "not(xs:date(\"2004-07-13\") le xs:date(\"2004-07-12\"))", "T"),
+        (
+            "op-date-less-than/cbcl-date-ge-001",
+            "xs:date(\"25252734927766555-07-28\") >= xs:date(\"-25252734927766555-06-07+02:00\")",
+            "X:FODT0001\tT"
+        ),
         ("op-date-less-than/cbcl-date-less-than-002", "xs:date(\"2008-01-30\") lt xs:date(\"2008-01-31+09:00\")", "T"),
         ("op-date-less-than/cbcl-date-less-than-003", "xs:date(\"2008-01-31+09:00\") lt xs:date(\"2008-01-30\")", "F"),
         ("op-date-less-than/cbcl-date-less-than-004", "xs:date(\"2008-01-31\") lt xs:date(\"2008-01-31+09:00\")", "F"),
@@ -987,8 +1276,8 @@ internal static class Qt3TemporalSelection
         ),
         (
             "op-dateTime-equal/K-DateTimeEQ-2",
-            "xs:dateTime(\"2004-08-12T23:01:04.12\") eq xs:dateTime(\"2004-08-12T23:01:04.13\")",
-            "F"
+            "not(xs:dateTime(\"2004-08-12T23:01:04.12\") eq xs:dateTime(\"2004-08-12T23:01:04.13\"))",
+            "T"
         ),
         (
             "op-dateTime-equal/K-DateTimeEQ-3",
@@ -997,8 +1286,8 @@ internal static class Qt3TemporalSelection
         ),
         (
             "op-dateTime-equal/K-DateTimeEQ-4",
-            "xs:dateTime(\"2004-07-12T23:01:04.12\") ne xs:dateTime(\"2004-07-12T23:01:04.12\")",
-            "F"
+            "not(xs:dateTime(\"2004-07-12T23:01:04.12\") ne xs:dateTime(\"2004-07-12T23:01:04.12\"))",
+            "T"
         ),
         (
             "op-dateTime-equal/K-DateTimeEQ-5",
@@ -1246,19 +1535,24 @@ internal static class Qt3TemporalSelection
             "T"
         ),
         (
+            "op-dateTime-greater-than/op-dateTime-greater-than-3",
+            "fn:not((xs:dateTime(\"2004-04-02T12:00:00Z\") gt xs:dateTime(\"2003-04-02T12:00:00Z\")))",
+            "F"
+        ),
+        (
             "op-dateTime-greater-than/op-dateTime-greater-than-4",
-            "xs:dateTime(\"2002-04-02T12:00:00Z\") ge xs:dateTime(\"2002-04-02T12:00:00Z\")",
-            "T"
+            "fn:not(xs:dateTime(\"2002-04-02T12:00:00Z\") ge xs:dateTime(\"2002-04-02T12:00:00Z\"))",
+            "F"
         ),
         (
             "op-dateTime-greater-than/op-dateTime-greater-than-5",
-            "xs:dateTime(\"2002-04-02T12:00:00Z\") gt xs:dateTime(\"2002-05-02T12:00:00Z\")",
-            "F"
+            "fn:not(xs:dateTime(\"2002-04-02T12:00:00Z\") gt xs:dateTime(\"2002-05-02T12:00:00Z\"))",
+            "T"
         ),
         (
             "op-dateTime-greater-than/op-dateTime-greater-than-6",
-            "xs:dateTime(\"2002-04-02T12:00:00Z\") ge xs:dateTime(\"2008-04-02T12:00:00Z\")",
-            "F"
+            "fn:not(xs:dateTime(\"2002-04-02T12:00:00Z\") ge xs:dateTime(\"2008-04-02T12:00:00Z\"))",
+            "T"
         ),
         (
             "op-dateTime-greater-than/op-dateTime-greater-than-7",
@@ -1281,19 +1575,39 @@ internal static class Qt3TemporalSelection
             "T"
         ),
         (
+            "op-dateTime-greater-than/op-dateTime-greater-than-11",
+            "(xs:dateTime(\"1990-04-02T12:00:10Z\") gt xs:dateTime(\"2006-06-02T12:10:00Z\")) or (fn:true())",
+            "T"
+        ),
+        (
+            "op-dateTime-greater-than/op-dateTime-greater-than-12",
+            "(xs:dateTime(\"1970-04-02T12:00:20Z\") ge xs:dateTime(\"1980-04-02T12:00:20Z\")) or (fn:true())",
+            "T"
+        ),
+        (
+            "op-dateTime-greater-than/op-dateTime-greater-than-13",
+            "(xs:dateTime(\"1981-04-02T12:00:00Z\") gt xs:dateTime(\"2003-04-02T12:10:00Z\")) or (fn:false())",
+            "F"
+        ),
+        (
+            "op-dateTime-greater-than/op-dateTime-greater-than-14",
+            "(xs:dateTime(\"1976-04-03T12:00:00Z\") ge xs:dateTime(\"2002-07-02T12:00:30Z\")) or (fn:false())",
+            "F"
+        ),
+        (
             "op-dateTime-greater-than/K-DateTimeGT-1",
             "xs:dateTime(\"2004-07-13T23:01:04.12\") gt xs:dateTime(\"2004-07-12T23:01:04.12\")",
             "T"
         ),
         (
             "op-dateTime-greater-than/K-DateTimeGT-2",
-            "xs:dateTime(\"2004-07-12T23:01:04.12\") gt xs:dateTime(\"2004-07-12T23:01:04.12\")",
-            "F"
+            "not(xs:dateTime(\"2004-07-12T23:01:04.12\") gt xs:dateTime(\"2004-07-12T23:01:04.12\"))",
+            "T"
         ),
         (
             "op-dateTime-greater-than/K-DateTimeGT-3",
-            "xs:dateTime(\"2004-07-12T23:01:04.12\") gt xs:dateTime(\"2004-07-13T23:01:04.12\")",
-            "F"
+            "not(xs:dateTime(\"2004-07-12T23:01:04.12\") gt xs:dateTime(\"2004-07-13T23:01:04.12\"))",
+            "T"
         ),
         (
             "op-dateTime-greater-than/K-DateTimeGT-4",
@@ -1307,8 +1621,8 @@ internal static class Qt3TemporalSelection
         ),
         (
             "op-dateTime-greater-than/K-DateTimeGT-6",
-            "xs:dateTime(\"2004-07-11T23:01:04.12\") ge xs:dateTime(\"2004-07-12T23:01:04.12\")",
-            "F"
+            "not(xs:dateTime(\"2004-07-11T23:01:04.12\") ge xs:dateTime(\"2004-07-12T23:01:04.12\"))",
+            "T"
         ),
         (
             "op-dateTime-greater-than/cbcl-dateTime-greater-than-002",
@@ -1401,19 +1715,24 @@ internal static class Qt3TemporalSelection
             "F"
         ),
         (
+            "op-dateTime-less-than/op-dateTime-less-than-3",
+            "fn:not((xs:dateTime(\"2002-04-02T12:00:00Z\") lt xs:dateTime(\"2003-04-02T12:00:00Z\")))",
+            "F"
+        ),
+        (
             "op-dateTime-less-than/op-dateTime-less-than-4",
-            "xs:dateTime(\"2002-04-02T12:00:00Z\") le xs:dateTime(\"2002-04-02T12:00:00Z\")",
-            "T"
+            "fn:not(xs:dateTime(\"2002-04-02T12:00:00Z\") le xs:dateTime(\"2002-04-02T12:00:00Z\"))",
+            "F"
         ),
         (
             "op-dateTime-less-than/op-dateTime-less-than-5",
-            "xs:dateTime(\"2002-05-02T12:00:00Z\") lt xs:dateTime(\"2002-04-02T12:00:00Z\")",
-            "F"
+            "fn:not(xs:dateTime(\"2002-05-02T12:00:00Z\") lt xs:dateTime(\"2002-04-02T12:00:00Z\"))",
+            "T"
         ),
         (
             "op-dateTime-less-than/op-dateTime-less-than-6",
-            "xs:dateTime(\"2004-04-02T12:00:00Z\") le xs:dateTime(\"2002-04-02T12:00:00Z\")",
-            "F"
+            "fn:not(xs:dateTime(\"2004-04-02T12:00:00Z\") le xs:dateTime(\"2002-04-02T12:00:00Z\"))",
+            "T"
         ),
         (
             "op-dateTime-less-than/op-dateTime-less-than-7",
@@ -1436,19 +1755,39 @@ internal static class Qt3TemporalSelection
             "T"
         ),
         (
+            "op-dateTime-less-than/op-dateTime-less-than-11",
+            "(xs:dateTime(\"1990-04-02T12:00:10Z\") lt xs:dateTime(\"2006-06-02T12:10:00Z\")) or (fn:true())",
+            "T"
+        ),
+        (
+            "op-dateTime-less-than/op-dateTime-less-than-12",
+            "(xs:dateTime(\"1970-04-02T12:00:20Z\") le xs:dateTime(\"1980-04-02T12:00:20Z\")) or (fn:true())",
+            "T"
+        ),
+        (
+            "op-dateTime-less-than/op-dateTime-less-than-13",
+            "(xs:dateTime(\"1981-04-02T12:00:00Z\") lt xs:dateTime(\"2003-04-02T12:10:00Z\")) or (fn:false())",
+            "T"
+        ),
+        (
+            "op-dateTime-less-than/op-dateTime-less-than-14",
+            "(xs:dateTime(\"1976-04-03T12:00:00Z\") le xs:dateTime(\"2002-07-02T12:00:30Z\")) or (fn:false())",
+            "T"
+        ),
+        (
             "op-dateTime-less-than/K-DateTimeLT-1",
             "xs:dateTime(\"2004-07-12T23:01:04.12\") lt xs:dateTime(\"2004-07-13T23:01:04.12\")",
             "T"
         ),
         (
             "op-dateTime-less-than/K-DateTimeLT-2",
-            "xs:dateTime(\"2004-07-13T23:01:04.12\") lt xs:dateTime(\"2004-07-12T23:01:04.12\")",
-            "F"
+            "not(xs:dateTime(\"2004-07-13T23:01:04.12\") lt xs:dateTime(\"2004-07-12T23:01:04.12\"))",
+            "T"
         ),
         (
             "op-dateTime-less-than/K-DateTimeLT-3",
-            "xs:dateTime(\"2004-07-13T23:01:04.12\") lt xs:dateTime(\"2004-07-13T23:01:04.12\")",
-            "F"
+            "not(xs:dateTime(\"2004-07-13T23:01:04.12\") lt xs:dateTime(\"2004-07-13T23:01:04.12\"))",
+            "T"
         ),
         (
             "op-dateTime-less-than/K-DateTimeLT-4",
@@ -1462,8 +1801,8 @@ internal static class Qt3TemporalSelection
         ),
         (
             "op-dateTime-less-than/K-DateTimeLT-6",
-            "xs:dateTime(\"2004-07-13T23:01:04.12\") le xs:dateTime(\"2004-07-12T23:01:04.12\")",
-            "F"
+            "not(xs:dateTime(\"2004-07-13T23:01:04.12\") le xs:dateTime(\"2004-07-12T23:01:04.12\"))",
+            "T"
         ),
         (
             "op-dateTime-less-than/cbcl-dateTime-less-than-002",
@@ -1556,19 +1895,24 @@ internal static class Qt3TemporalSelection
             "T"
         ),
         (
+            "op-dayTimeDuration-greater-than/op-dayTimeDuration-greater-than-3",
+            "fn:not((xs:dayTimeDuration(\"P15DT12H\") gt xs:dayTimeDuration(\"P14DT11H\")))",
+            "F"
+        ),
+        (
             "op-dayTimeDuration-greater-than/op-dayTimeDuration-greater-than-4",
-            "xs:dayTimeDuration(\"P10DT11H\") ge xs:dayTimeDuration(\"P10DT10H\")",
-            "T"
+            "fn:not(xs:dayTimeDuration(\"P10DT11H\") ge xs:dayTimeDuration(\"P10DT10H\"))",
+            "F"
         ),
         (
             "op-dayTimeDuration-greater-than/op-dayTimeDuration-greater-than-5",
-            "xs:dayTimeDuration(\"P08DT10H\") gt xs:dayTimeDuration(\"P9DT09H\")",
-            "F"
+            "fn:not(xs:dayTimeDuration(\"P08DT10H\") gt xs:dayTimeDuration(\"P9DT09H\"))",
+            "T"
         ),
         (
             "op-dayTimeDuration-greater-than/op-dayTimeDuration-greater-than-6",
-            "xs:dayTimeDuration(\"P07DT09H\") ge xs:dayTimeDuration(\"P09DT09H\")",
-            "F"
+            "fn:not(xs:dayTimeDuration(\"P07DT09H\") ge xs:dayTimeDuration(\"P09DT09H\"))",
+            "T"
         ),
         (
             "op-dayTimeDuration-greater-than/op-dayTimeDuration-greater-than-7",
@@ -1591,19 +1935,39 @@ internal static class Qt3TemporalSelection
             "T"
         ),
         (
+            "op-dayTimeDuration-greater-than/op-dayTimeDuration-greater-than-11",
+            "(xs:dayTimeDuration(\"P10DT02H\") gt xs:dayTimeDuration(\"P01DT10H\")) or (fn:true())",
+            "T"
+        ),
+        (
+            "op-dayTimeDuration-greater-than/op-dayTimeDuration-greater-than-12",
+            "(xs:dayTimeDuration(\"P10DT01H\") ge xs:dayTimeDuration(\"P09DT05H\")) or (fn:true())",
+            "T"
+        ),
+        (
+            "op-dayTimeDuration-greater-than/op-dayTimeDuration-greater-than-13",
+            "(xs:dayTimeDuration(\"P30DT10H\") gt xs:dayTimeDuration(\"P01DT02H\")) or (fn:false())",
+            "T"
+        ),
+        (
+            "op-dayTimeDuration-greater-than/op-dayTimeDuration-greater-than-14",
+            "(xs:dayTimeDuration(\"P10DT05H\") ge xs:dayTimeDuration(\"P20DT10H\")) or (fn:false())",
+            "F"
+        ),
+        (
             "op-dayTimeDuration-greater-than/K-DayTimeDurationGT-1",
             "xs:dayTimeDuration(\"P3DT08H34M12.144S\") gt xs:dayTimeDuration(\"P3DT08H34M12.143S\")",
             "T"
         ),
         (
             "op-dayTimeDuration-greater-than/K-DayTimeDurationGT-2",
-            "xs:dayTimeDuration(\"P3DT08H34M12.144S\") gt xs:dayTimeDuration(\"P3DT08H34M12.144S\")",
-            "F"
+            "not(xs:dayTimeDuration(\"P3DT08H34M12.144S\") gt xs:dayTimeDuration(\"P3DT08H34M12.144S\"))",
+            "T"
         ),
         (
             "op-dayTimeDuration-greater-than/K-DayTimeDurationGT-3",
-            "xs:dayTimeDuration(\"P3DT08H34M12.144S\") gt xs:dayTimeDuration(\"P3DT08H34M12.145S\")",
-            "F"
+            "not(xs:dayTimeDuration(\"P3DT08H34M12.144S\") gt xs:dayTimeDuration(\"P3DT08H34M12.145S\"))",
+            "T"
         ),
         (
             "op-dayTimeDuration-greater-than/K-DayTimeDurationGT-4",
@@ -1617,8 +1981,8 @@ internal static class Qt3TemporalSelection
         ),
         (
             "op-dayTimeDuration-greater-than/K-DayTimeDurationGT-6",
-            "xs:dayTimeDuration(\"P3DT08H34M12.143S\") ge xs:dayTimeDuration(\"P3DT08H34M12.144S\")",
-            "F"
+            "not(xs:dayTimeDuration(\"P3DT08H34M12.143S\") ge xs:dayTimeDuration(\"P3DT08H34M12.144S\"))",
+            "T"
         ),
         (
             "op-dayTimeDuration-less-than/op-dayTimeDuration-less-than2args-1",
@@ -1671,19 +2035,24 @@ internal static class Qt3TemporalSelection
             "F"
         ),
         (
-            "op-dayTimeDuration-less-than/op-dayTimeDuration-less-than-4",
-            "xs:dayTimeDuration(\"P10DT110H\") le xs:dayTimeDuration(\"P10DT11H\")",
+            "op-dayTimeDuration-less-than/op-dayTimeDuration-less-than-3",
+            "fn:not((xs:dayTimeDuration(\"P13DT12H\") lt xs:dayTimeDuration(\"P14DT11H\")))",
             "F"
+        ),
+        (
+            "op-dayTimeDuration-less-than/op-dayTimeDuration-less-than-4",
+            "fn:not(xs:dayTimeDuration(\"P10DT110H\") le xs:dayTimeDuration(\"P10DT11H\"))",
+            "T"
         ),
         (
             "op-dayTimeDuration-less-than/op-dayTimeDuration-less-than-5",
-            "xs:dayTimeDuration(\"P10DT10H\") lt xs:dayTimeDuration(\"P9DT09H\")",
-            "F"
+            "fn:not(xs:dayTimeDuration(\"P10DT10H\") lt xs:dayTimeDuration(\"P9DT09H\"))",
+            "T"
         ),
         (
             "op-dayTimeDuration-less-than/op-dayTimeDuration-less-than-6",
-            "xs:dayTimeDuration(\"P10DT09H\") le xs:dayTimeDuration(\"P09DT09H\")",
-            "F"
+            "fn:not(xs:dayTimeDuration(\"P10DT09H\") le xs:dayTimeDuration(\"P09DT09H\"))",
+            "T"
         ),
         (
             "op-dayTimeDuration-less-than/op-dayTimeDuration-less-than-7",
@@ -1706,19 +2075,39 @@ internal static class Qt3TemporalSelection
             "F"
         ),
         (
+            "op-dayTimeDuration-less-than/op-dayTimeDuration-less-than-11",
+            "(xs:dayTimeDuration(\"P10DT02H\") lt xs:dayTimeDuration(\"P01DT10H\")) or (fn:true())",
+            "T"
+        ),
+        (
+            "op-dayTimeDuration-less-than/op-dayTimeDuration-less-than-12",
+            "(xs:dayTimeDuration(\"P10DT01H\") le xs:dayTimeDuration(\"P09DT05H\")) or (fn:true())",
+            "T"
+        ),
+        (
+            "op-dayTimeDuration-less-than/op-dayTimeDuration-less-than-13",
+            "(xs:dayTimeDuration(\"P30DT10H\") lt xs:dayTimeDuration(\"P01DT02H\")) or (fn:false())",
+            "F"
+        ),
+        (
+            "op-dayTimeDuration-less-than/op-dayTimeDuration-less-than-14",
+            "(xs:dayTimeDuration(\"P10DT05H\") le xs:dayTimeDuration(\"P20DT10H\")) or (fn:false())",
+            "T"
+        ),
+        (
             "op-dayTimeDuration-less-than/K-DayTimeDurationLT-1",
             "xs:dayTimeDuration(\"P3DT08H34M12.142S\") lt xs:dayTimeDuration(\"P3DT08H34M12.143S\")",
             "T"
         ),
         (
             "op-dayTimeDuration-less-than/K-DayTimeDurationLT-2",
-            "xs:dayTimeDuration(\"P3DT08H34M12.143S\") lt xs:dayTimeDuration(\"P3DT08H34M12.143S\")",
-            "F"
+            "not(xs:dayTimeDuration(\"P3DT08H34M12.143S\") lt xs:dayTimeDuration(\"P3DT08H34M12.143S\"))",
+            "T"
         ),
         (
             "op-dayTimeDuration-less-than/K-DayTimeDurationLT-3",
-            "xs:dayTimeDuration(\"P3DT08H34M12.144S\") lt xs:dayTimeDuration(\"P3DT08H34M12.143S\")",
-            "F"
+            "not(xs:dayTimeDuration(\"P3DT08H34M12.144S\") lt xs:dayTimeDuration(\"P3DT08H34M12.143S\"))",
+            "T"
         ),
         (
             "op-dayTimeDuration-less-than/K-DayTimeDurationLT-4",
@@ -1732,8 +2121,8 @@ internal static class Qt3TemporalSelection
         ),
         (
             "op-dayTimeDuration-less-than/K-DayTimeDurationLT-6",
-            "xs:dayTimeDuration(\"P3DT08H34M12.143S\") le xs:dayTimeDuration(\"P3DT08H34M12.142S\")",
-            "F"
+            "not(xs:dayTimeDuration(\"P3DT08H34M12.143S\") le xs:dayTimeDuration(\"P3DT08H34M12.142S\"))",
+            "T"
         ),
         (
             "op-divide-dayTimeDuration-by-dayTimeDuration/op-divide-dayTimeDuration-by-dayTimeDuration2args-1",
@@ -1761,6 +2150,36 @@ internal static class Qt3TemporalSelection
             "E:0"
         ),
         (
+            "op-divide-dayTimeDuration-by-dayTimeDuration/op-divide-dayTimeDuration-by-dTD-1",
+            "fn:round-half-to-even((xs:dayTimeDuration(\"P2DT53M11S\") div xs:dayTimeDuration(\"P1DT10H\")),15)",
+            "E:1.437834967320261\tE:1.4378349673"
+        ),
+        (
+            "op-divide-dayTimeDuration-by-dayTimeDuration/op-divide-dayTimeDuration-by-dTD-2",
+            "xs:dayTimeDuration(\"P10DT10H11M\") div xs:dayTimeDuration(\"P12DT10H07M\") and fn:false()",
+            "F"
+        ),
+        (
+            "op-divide-dayTimeDuration-by-dayTimeDuration/op-divide-dayTimeDuration-by-dTD-3",
+            "xs:dayTimeDuration(\"P20DT20H10M\") div xs:dayTimeDuration(\"P19DT13H10M\") or fn:false()",
+            "T"
+        ),
+        (
+            "op-divide-dayTimeDuration-by-dayTimeDuration/op-divide-dayTimeDuration-by-dTD-4",
+            "fn:not(xs:dayTimeDuration(\"P11DT12H04M\") div xs:dayTimeDuration(\"P02DT07H01M\"))",
+            "F"
+        ),
+        (
+            "op-divide-dayTimeDuration-by-dayTimeDuration/op-divide-dayTimeDuration-by-dTD-5",
+            "fn:boolean(xs:dayTimeDuration(\"P05DT09H08M\") div xs:dayTimeDuration(\"P03DT08H06M\"))",
+            "T"
+        ),
+        (
+            "op-divide-dayTimeDuration-by-dayTimeDuration/op-divide-dayTimeDuration-by-dTD-6",
+            "fn:number(xs:dayTimeDuration(\"P02DT06H09M\") div xs:dayTimeDuration(\"P02DT06H09M\"))",
+            "E:1"
+        ),
+        (
             "op-divide-dayTimeDuration-by-dayTimeDuration/op-divide-dayTimeDuration-by-dTD-7",
             "fn:string(xs:dayTimeDuration(\"P08DT06H08M\") div xs:dayTimeDuration(\"P08DT06H08M\"))",
             "E:\"1\""
@@ -1778,6 +2197,16 @@ internal static class Qt3TemporalSelection
         (
             "op-divide-dayTimeDuration-by-dayTimeDuration/op-divide-dayTimeDuration-by-dTD-10",
             "(xs:dayTimeDuration(\"P05DT09H02M\") div xs:dayTimeDuration(\"P03DT01H04M\")) or (xs:dayTimeDuration(\"P05DT05H03M\") div xs:dayTimeDuration(\"P01DT01H03M\"))",
+            "T"
+        ),
+        (
+            "op-divide-dayTimeDuration-by-dayTimeDuration/op-divide-dayTimeDuration-by-dTD-11",
+            "fn:round-half-to-even( (xs:dayTimeDuration(\"P42DT10H10M\") div xs:dayTimeDuration(\"P10DT10H10M\")) div (xs:dayTimeDuration(\"P20DT10H10M\") div xs:dayTimeDuration(\"P18DT10H10M\")) ,15)",
+            "E:3.671399617754547"
+        ),
+        (
+            "op-divide-dayTimeDuration-by-dayTimeDuration/op-divide-dayTimeDuration-by-dTD-12",
+            "(xs:dayTimeDuration(\"P10DT08H11M\") div xs:dayTimeDuration(\"P05DT08H11M\")) and (fn:true())",
             "T"
         ),
         (
@@ -1836,6 +2265,31 @@ internal static class Qt3TemporalSelection
             "S:PT0S"
         ),
         (
+            "op-divide-dayTimeDuration/op-divide-dayTimeDuration-2",
+            "fn:string((xs:dayTimeDuration(\"P10DT10H11M\")) div 2.0) and fn:false()",
+            "F"
+        ),
+        (
+            "op-divide-dayTimeDuration/op-divide-dayTimeDuration-3",
+            "fn:string((xs:dayTimeDuration(\"P20DT20H10M\") div 2.0)) or fn:false()",
+            "T"
+        ),
+        (
+            "op-divide-dayTimeDuration/op-divide-dayTimeDuration-4",
+            "fn:not(fn:string(xs:dayTimeDuration(\"P11DT12H04M\") div 2.0))",
+            "F"
+        ),
+        (
+            "op-divide-dayTimeDuration/op-divide-dayTimeDuration-5",
+            "fn:boolean(fn:string(xs:dayTimeDuration(\"P05DT09H08M\") div 2.0))",
+            "T"
+        ),
+        (
+            "op-divide-dayTimeDuration/op-divide-dayTimeDuration-6",
+            "fn:number(xs:dayTimeDuration(\"P02DT06H09M\") div 2.0)",
+            "S:NaN"
+        ),
+        (
             "op-divide-dayTimeDuration/op-divide-dayTimeDuration-7",
             "fn:string(xs:dayTimeDuration(\"P03DT04H08M\") div 2.0)",
             "S:P1DT14H4M"
@@ -1859,6 +2313,11 @@ internal static class Qt3TemporalSelection
             "op-divide-dayTimeDuration/op-divide-dayTimeDuration-11",
             "(xs:dayTimeDuration(\"P42DT10H10M\") div 2.0) div (xs:dayTimeDuration(\"P42DT10H10M\") div 2.0)",
             "S:1"
+        ),
+        (
+            "op-divide-dayTimeDuration/op-divide-dayTimeDuration-12",
+            "fn:string((xs:dayTimeDuration(\"P10DT08H11M\") div 2.0)) and (fn:true())",
+            "T"
         ),
         (
             "op-divide-dayTimeDuration/op-divide-dayTimeDuration-13",
@@ -1980,6 +2439,31 @@ internal static class Qt3TemporalSelection
             "E:-2.5"
         ),
         (
+            "op-divide-yearMonthDuration-by-yearMonthDuration/op-divide-yearMonthDuration-by-yMD-2",
+            "xs:yearMonthDuration(\"P10Y11M\") div xs:yearMonthDuration(\"P12Y07M\") and fn:false()",
+            "F"
+        ),
+        (
+            "op-divide-yearMonthDuration-by-yearMonthDuration/op-divide-yearMonthDuration-by-yMD-3",
+            "xs:yearMonthDuration(\"P20Y10M\") div xs:yearMonthDuration(\"P19Y10M\") or fn:false()",
+            "T"
+        ),
+        (
+            "op-divide-yearMonthDuration-by-yearMonthDuration/op-divide-yearMonthDuration-by-yMD-4",
+            "fn:not(xs:yearMonthDuration(\"P11Y04M\") div xs:yearMonthDuration(\"P02Y11M\"))",
+            "F"
+        ),
+        (
+            "op-divide-yearMonthDuration-by-yearMonthDuration/op-divide-yearMonthDuration-by-yMD-5",
+            "fn:boolean(xs:yearMonthDuration(\"P05Y08M\") div xs:yearMonthDuration(\"P03Y06M\"))",
+            "T"
+        ),
+        (
+            "op-divide-yearMonthDuration-by-yearMonthDuration/op-divide-yearMonthDuration-by-yMD-6",
+            "fn:number(xs:yearMonthDuration(\"P02Y09M\") div xs:yearMonthDuration(\"P02Y09M\"))",
+            "E:1"
+        ),
+        (
             "op-divide-yearMonthDuration-by-yearMonthDuration/op-divide-yearMonthDuration-by-yMD-7",
             "fn:string(xs:yearMonthDuration(\"P03Y08M\") div xs:yearMonthDuration(\"P03Y08M\"))",
             "E:\"1\""
@@ -1997,6 +2481,16 @@ internal static class Qt3TemporalSelection
         (
             "op-divide-yearMonthDuration-by-yearMonthDuration/op-divide-yearMonthDuration-by-yMD-10",
             "(xs:yearMonthDuration(\"P05Y02M\") div xs:yearMonthDuration(\"P03Y04M\")) or (xs:yearMonthDuration(\"P05Y03M\") div xs:yearMonthDuration(\"P01Y03M\"))",
+            "T"
+        ),
+        (
+            "op-divide-yearMonthDuration-by-yearMonthDuration/op-divide-yearMonthDuration-by-yMD-11",
+            "round-half-to-even( (xs:yearMonthDuration(\"P42Y10M\") div xs:yearMonthDuration(\"P20Y10M\")) div (xs:yearMonthDuration(\"P20Y11M\") div xs:yearMonthDuration(\"P18Y11M\")), 15)",
+            "E:1.859410358565737"
+        ),
+        (
+            "op-divide-yearMonthDuration-by-yearMonthDuration/op-divide-yearMonthDuration-by-yMD-12",
+            "(xs:yearMonthDuration(\"P10Y11M\") div xs:yearMonthDuration(\"P05Y07M\")) and (fn:true())",
             "T"
         ),
         (
@@ -2060,6 +2554,31 @@ internal static class Qt3TemporalSelection
             "S:P1Y11M"
         ),
         (
+            "op-divide-yearMonthDuration/op-divide-yearMonthDuration-2",
+            "fn:string((xs:yearMonthDuration(\"P10Y11M\") div 2.0)) and fn:false()",
+            "F"
+        ),
+        (
+            "op-divide-yearMonthDuration/op-divide-yearMonthDuration-3",
+            "fn:string((xs:yearMonthDuration(\"P20Y10M\") div 2.0)) or fn:false()",
+            "T"
+        ),
+        (
+            "op-divide-yearMonthDuration/op-divide-yearMonthDuration-4",
+            "fn:not(fn:string(xs:yearMonthDuration(\"P11Y04M\") div 2.0))",
+            "F"
+        ),
+        (
+            "op-divide-yearMonthDuration/op-divide-yearMonthDuration-5",
+            "fn:boolean(fn:string(xs:yearMonthDuration(\"P05Y08M\") div 2.0))",
+            "T"
+        ),
+        (
+            "op-divide-yearMonthDuration/op-divide-yearMonthDuration-6",
+            "fn:number(xs:yearMonthDuration(\"P02Y09M\") div 2.0)",
+            "S:NaN"
+        ),
+        (
             "op-divide-yearMonthDuration/op-divide-yearMonthDuration-7",
             "fn:string(xs:yearMonthDuration(\"P03Y08M\") div 2.0)",
             "S:P1Y10M"
@@ -2085,6 +2604,11 @@ internal static class Qt3TemporalSelection
             "S:1"
         ),
         (
+            "op-divide-yearMonthDuration/op-divide-yearMonthDuration-12",
+            "fn:string((xs:yearMonthDuration(\"P10Y11M\") div 2.0)) and (fn:true())",
+            "T"
+        ),
+        (
             "op-divide-yearMonthDuration/op-divide-yearMonthDuration-13",
             "(xs:yearMonthDuration(\"P23Y11M\") div 2.0) eq xs:yearMonthDuration(\"P23Y11M\")",
             "F"
@@ -2103,6 +2627,11 @@ internal static class Qt3TemporalSelection
             "op-divide-yearMonthDuration/op-divide-yearMonthDuration-16",
             "(xs:yearMonthDuration(\"P13Y09M\") div 2.0) ge xs:yearMonthDuration(\"P18Y02M\")",
             "F"
+        ),
+        (
+            "op-divide-yearMonthDuration/op-divide-yearMonthDuration-17",
+            "for $i in (-2, -4, -10, -50, +50, +10, +4, +2) return (xs:yearMonthDuration(\"P5M\") div $i)",
+            "S:-P2M -P1M P0M P0M P0M P1M P1M P3M"
         ),
         (
             "op-divide-yearMonthDuration/K-YearMonthDurationDivide-1",
@@ -2147,10 +2676,50 @@ internal static class Qt3TemporalSelection
         ("op-duration-equal/op-duration-equal-11", "xs:duration(\"P365D\") ne xs:duration(\"P365D\")", "F"),
         ("op-duration-equal/op-duration-equal-12", "xs:duration(\"P36D\") eq xs:duration(\"P39D\")", "F"),
         ("op-duration-equal/op-duration-equal-13", "xs:duration(\"P36D\") ne xs:duration(\"P39D\")", "T"),
-        ("op-duration-equal/op-duration-equal-14", "xs:duration(\"P36D\") eq xs:duration(\"P36D\")", "T"),
-        ("op-duration-equal/op-duration-equal-15", "xs:duration(\"P36D\") ne xs:duration(\"P36D\")", "F"),
+        ("op-duration-equal/op-duration-equal-14", "fn:not(xs:duration(\"P36D\") eq xs:duration(\"P36D\"))", "F"),
+        ("op-duration-equal/op-duration-equal-15", "fn:not(xs:duration(\"P36D\") ne xs:duration(\"P36D\"))", "T"),
         ("op-duration-equal/op-duration-equal-16", "xs:boolean(xs:duration(\"P36D\") eq xs:duration(\"P36D\"))", "T"),
         ("op-duration-equal/op-duration-equal-17", "xs:boolean(xs:duration(\"P36D\") ne xs:duration(\"P36D\"))", "F"),
+        (
+            "op-duration-equal/op-duration-equal-18",
+            "(xs:duration(\"P36D\") eq xs:duration(\"P36D\")) and fn:true()",
+            "T"
+        ),
+        (
+            "op-duration-equal/op-duration-equal-19",
+            "(xs:duration(\"P36D\") ne xs:duration(\"P36D\")) and fn:true()",
+            "F"
+        ),
+        (
+            "op-duration-equal/op-duration-equal-20",
+            "(xs:duration(\"P36D\") eq xs:duration(\"P36D\")) or fn:true()",
+            "T"
+        ),
+        (
+            "op-duration-equal/op-duration-equal-21",
+            "(xs:duration(\"P36D\") ne xs:duration(\"P36D\")) or fn:true()",
+            "T"
+        ),
+        (
+            "op-duration-equal/op-duration-equal-22",
+            "(xs:duration(\"P36D\") eq xs:duration(\"P36D\")) and fn:false()",
+            "F"
+        ),
+        (
+            "op-duration-equal/op-duration-equal-23",
+            "(xs:duration(\"P36D\") ne xs:duration(\"P36D\")) and fn:false()",
+            "F"
+        ),
+        (
+            "op-duration-equal/op-duration-equal-24",
+            "(xs:duration(\"P36D\") eq xs:duration(\"P36D\")) or fn:false()",
+            "T"
+        ),
+        (
+            "op-duration-equal/op-duration-equal-25",
+            "(xs:duration(\"P36D\") ne xs:duration(\"P36D\")) or fn:false()",
+            "F"
+        ),
         ("op-duration-equal/op-duration-equal-26", "xs:yearMonthDuration('P0Y') eq xs:dayTimeDuration('P0D')", "T"),
         ("op-duration-equal/op-duration-equal-27", "xs:yearMonthDuration('P1Y') eq xs:dayTimeDuration('P365D')", "F"),
         (
@@ -2354,6 +2923,11 @@ internal static class Qt3TemporalSelection
             "F"
         ),
         (
+            "op-duration-equal/distinct-duration-equal-2",
+            "fn:distinct-values((xs:yearMonthDuration('P1Y'), xs:dayTimeDuration('P365D')))",
+            "S:P1Y P365D\tS:P365D P1Y"
+        ),
+        (
             "op-duration-equal/K-DurationEQ-1",
             "xs:duration(\"P1999Y10M3DT08H34M12.143S\") eq xs:duration(\"P1999Y10M3DT08H34M12.143S\")",
             "T"
@@ -2361,8 +2935,8 @@ internal static class Qt3TemporalSelection
         ("op-duration-equal/K-DurationEQ-2", "xs:duration(\"PT0S\") eq xs:duration(\"PT0S\")", "T"),
         (
             "op-duration-equal/K-DurationEQ-3",
-            "xs:duration(\"P1999Y10M3DT08H34M12.043S\") eq xs:duration(\"P1999Y10M3DT08H34M12.143S\")",
-            "F"
+            "not(xs:duration(\"P1999Y10M3DT08H34M12.043S\") eq xs:duration(\"P1999Y10M3DT08H34M12.143S\"))",
+            "T"
         ),
         (
             "op-duration-equal/K-DurationEQ-4",
@@ -2371,8 +2945,8 @@ internal static class Qt3TemporalSelection
         ),
         (
             "op-duration-equal/K-DurationEQ-5",
-            "xs:duration(\"P1999Y10M3DT08H34M12.143S\") ne xs:duration(\"P1999Y10M3DT08H34M12.143S\")",
-            "F"
+            "not(xs:duration(\"P1999Y10M3DT08H34M12.143S\") ne xs:duration(\"P1999Y10M3DT08H34M12.143S\"))",
+            "T"
         ),
         ("op-duration-equal/K-DurationEQ-6", "xs:duration(\"P1Y\") ne xs:duration(\"P365D\")", "T"),
         ("op-duration-equal/K-DurationEQ-7", "xs:duration(\"P1Y\") eq xs:duration(\"P12M\")", "T"),
@@ -2573,8 +3147,8 @@ internal static class Qt3TemporalSelection
         ),
         (
             "op-duration-equal/K-DayTimeDurationEQ-3",
-            "xs:dayTimeDuration(\"P3DT08H34M12.043S\") eq xs:dayTimeDuration(\"P3DT08H34M12.143S\")",
-            "F"
+            "not(xs:dayTimeDuration(\"P3DT08H34M12.043S\") eq xs:dayTimeDuration(\"P3DT08H34M12.143S\"))",
+            "T"
         ),
         (
             "op-duration-equal/K-DayTimeDurationEQ-4",
@@ -2583,8 +3157,8 @@ internal static class Qt3TemporalSelection
         ),
         (
             "op-duration-equal/K-DayTimeDurationEQ-5",
-            "xs:dayTimeDuration(\"P3DT08H34M12.143S\") ne xs:dayTimeDuration(\"P3DT08H34M12.143S\")",
-            "F"
+            "not(xs:dayTimeDuration(\"P3DT08H34M12.143S\") ne xs:dayTimeDuration(\"P3DT08H34M12.143S\"))",
+            "T"
         ),
         (
             "op-duration-equal/K-DayTimeDurationEQ-6",
@@ -2613,8 +3187,8 @@ internal static class Qt3TemporalSelection
         ),
         (
             "op-duration-equal/K-YearMonthDurationEQ-3",
-            "xs:yearMonthDuration(\"P1999Y\") eq xs:yearMonthDuration(\"P1999Y10M\")",
-            "F"
+            "not(xs:yearMonthDuration(\"P1999Y\") eq xs:yearMonthDuration(\"P1999Y10M\"))",
+            "T"
         ),
         (
             "op-duration-equal/K-YearMonthDurationEQ-4",
@@ -2623,8 +3197,8 @@ internal static class Qt3TemporalSelection
         ),
         (
             "op-duration-equal/K-YearMonthDurationEQ-5",
-            "xs:yearMonthDuration(\"P1999Y10M\") ne xs:yearMonthDuration(\"P1999Y10M\")",
-            "F"
+            "not(xs:yearMonthDuration(\"P1999Y10M\") ne xs:yearMonthDuration(\"P1999Y10M\"))",
+            "T"
         ),
         (
             "op-duration-equal/K-YearMonthDurationEQ-6",
@@ -2647,9 +3221,10 @@ internal static class Qt3TemporalSelection
         ("op-gDay-equal/op-gDay-equal2args-9", "xs:gDay(\"---01Z\") ne xs:gDay(\"---14Z\")", "T"),
         ("op-gDay-equal/op-gDay-equal2args-10", "xs:gDay(\"---01Z\") ne xs:gDay(\"---31Z\")", "T"),
         ("op-gDay-equal/op-gDay-equal-2", "(xs:gDay(\"---12-05:00\") eq xs:gDay(\"---12Z\"))", "F"),
-        ("op-gDay-equal/op-gDay-equal-4", "xs:gDay(\"---05Z\") ne xs:gDay(\"---06Z\")", "T"),
-        ("op-gDay-equal/op-gDay-equal-5", "xs:gDay(\"---11Z\") eq xs:gDay(\"---10Z\")", "F"),
-        ("op-gDay-equal/op-gDay-equal-6", "xs:gDay(\"---05Z\") ne xs:gDay(\"---05Z\")", "F"),
+        ("op-gDay-equal/op-gDay-equal-3", "fn:not((xs:gDay(\"---12Z\") eq xs:gDay(\"---12Z\")))", "F"),
+        ("op-gDay-equal/op-gDay-equal-4", "fn:not(xs:gDay(\"---05Z\") ne xs:gDay(\"---06Z\"))", "F"),
+        ("op-gDay-equal/op-gDay-equal-5", "fn:not(xs:gDay(\"---11Z\") eq xs:gDay(\"---10Z\"))", "T"),
+        ("op-gDay-equal/op-gDay-equal-6", "fn:not(xs:gDay(\"---05Z\") ne xs:gDay(\"---05Z\"))", "T"),
         (
             "op-gDay-equal/op-gDay-equal-7",
             "(xs:gDay(\"---04Z\") eq xs:gDay(\"---02Z\")) and (xs:gDay(\"---01Z\") eq xs:gDay(\"---12Z\"))",
@@ -2670,10 +3245,14 @@ internal static class Qt3TemporalSelection
             "(xs:gDay(\"---06Z\") ne xs:gDay(\"---06Z\")) or (xs:gDay(\"---08Z\") ne xs:gDay(\"---09Z\"))",
             "T"
         ),
+        ("op-gDay-equal/op-gDay-equal-11", "(xs:gDay(\"---03Z\") eq xs:gDay(\"---01Z\")) or (fn:true())", "T"),
+        ("op-gDay-equal/op-gDay-equal-12", "(xs:gDay(\"---08Z\") ne xs:gDay(\"---07Z\")) or (fn:true())", "T"),
+        ("op-gDay-equal/op-gDay-equal-13", "(xs:gDay(\"---05Z\") eq xs:gDay(\"---05Z\")) or (fn:false())", "T"),
+        ("op-gDay-equal/op-gDay-equal-14", "(xs:gDay(\"---09Z\") ne xs:gDay(\"---09Z\")) or (fn:false())", "F"),
         ("op-gDay-equal/K-gDayEQ-1", "xs:gDay(\" ---31 \") eq xs:gDay(\"---31\")", "T"),
-        ("op-gDay-equal/K-gDayEQ-2", "xs:gDay(\"---31\") eq xs:gDay(\"---01\")", "F"),
+        ("op-gDay-equal/K-gDayEQ-2", "not(xs:gDay(\"---31\") eq xs:gDay(\"---01\"))", "T"),
         ("op-gDay-equal/K-gDayEQ-3", "xs:gDay(\"---01\") ne xs:gDay(\"---10\")", "T"),
-        ("op-gDay-equal/K-gDayEQ-4", "xs:gDay(\"---01\") ne xs:gDay(\"---01\")", "F"),
+        ("op-gDay-equal/K-gDayEQ-4", "not(xs:gDay(\"---01\") ne xs:gDay(\"---01\"))", "T"),
         ("op-gDay-equal/K-gDayEQ-5", "xs:gDay(\"---01-00:00\") eq xs:gDay(\"---01Z\")", "T"),
         ("op-gDay-equal/K-gDayEQ-6", "xs:gDay(\"---01+00:00\") eq xs:gDay(\"---01Z\")", "T"),
         ("op-gDay-equal/K-gDayEQ-7", "xs:gDay(\"---01Z\") eq xs:gDay(\"---01Z\")", "T"),
@@ -2743,9 +3322,10 @@ internal static class Qt3TemporalSelection
         ("op-gMonth-equal/op-gMonth-equal2args-9", "xs:gMonth(\"--01Z\") ne xs:gMonth(\"--07Z\")", "T"),
         ("op-gMonth-equal/op-gMonth-equal2args-10", "xs:gMonth(\"--01Z\") ne xs:gMonth(\"--12Z\")", "T"),
         ("op-gMonth-equal/op-gMonth-equal-2", "(xs:gMonth(\"--12-05:00\") eq xs:gMonth(\"--12Z\"))", "F"),
-        ("op-gMonth-equal/op-gMonth-equal-4", "xs:gMonth(\"--05Z\") ne xs:gMonth(\"--06Z\")", "T"),
-        ("op-gMonth-equal/op-gMonth-equal-5", "xs:gMonth(\"--11Z\") eq xs:gMonth(\"--10Z\")", "F"),
-        ("op-gMonth-equal/op-gMonth-equal-6", "xs:gMonth(\"--05Z\") ne xs:gMonth(\"--05Z\")", "F"),
+        ("op-gMonth-equal/op-gMonth-equal-3", "fn:not((xs:gMonth(\"--12Z\") eq xs:gMonth(\"--12Z\")))", "F"),
+        ("op-gMonth-equal/op-gMonth-equal-4", "fn:not(xs:gMonth(\"--05Z\") ne xs:gMonth(\"--06Z\"))", "F"),
+        ("op-gMonth-equal/op-gMonth-equal-5", "fn:not(xs:gMonth(\"--11Z\") eq xs:gMonth(\"--10Z\"))", "T"),
+        ("op-gMonth-equal/op-gMonth-equal-6", "fn:not(xs:gMonth(\"--05Z\") ne xs:gMonth(\"--05Z\"))", "T"),
         (
             "op-gMonth-equal/op-gMonth-equal-7",
             "(xs:gMonth(\"--04Z\") eq xs:gMonth(\"--02Z\")) and (xs:gMonth(\"--01Z\") eq xs:gMonth(\"--12Z\"))",
@@ -2766,10 +3346,14 @@ internal static class Qt3TemporalSelection
             "(xs:gMonth(\"--06Z\") ne xs:gMonth(\"--06Z\")) or (xs:gMonth(\"--08Z\") ne xs:gMonth(\"--09Z\"))",
             "T"
         ),
+        ("op-gMonth-equal/op-gMonth-equal-11", "(xs:gMonth(\"--03Z\") eq xs:gMonth(\"--01Z\")) or (fn:true())", "T"),
+        ("op-gMonth-equal/op-gMonth-equal-12", "(xs:gMonth(\"--08Z\") ne xs:gMonth(\"--07Z\")) or (fn:true())", "T"),
+        ("op-gMonth-equal/op-gMonth-equal-13", "(xs:gMonth(\"--05Z\") eq xs:gMonth(\"--05Z\")) or (fn:false())", "T"),
+        ("op-gMonth-equal/op-gMonth-equal-14", "(xs:gMonth(\"--09Z\") ne xs:gMonth(\"--09Z\")) or (fn:false())", "F"),
         ("op-gMonth-equal/K-gMonthEQ-1", "xs:gMonth(\"--11 \") eq xs:gMonth(\"--11\")", "T"),
-        ("op-gMonth-equal/K-gMonthEQ-2", "xs:gMonth(\"--11\") eq xs:gMonth(\"--01\")", "F"),
+        ("op-gMonth-equal/K-gMonthEQ-2", "not(xs:gMonth(\"--11\") eq xs:gMonth(\"--01\"))", "T"),
         ("op-gMonth-equal/K-gMonthEQ-3", "xs:gMonth(\"--12\") ne xs:gMonth(\"--10\")", "T"),
-        ("op-gMonth-equal/K-gMonthEQ-4", "xs:gMonth(\"--03\") ne xs:gMonth(\"--03\")", "F"),
+        ("op-gMonth-equal/K-gMonthEQ-4", "not(xs:gMonth(\"--03\") ne xs:gMonth(\"--03\"))", "T"),
         ("op-gMonth-equal/K-gMonthEQ-5", "xs:gMonth(\"--01-00:00\") eq xs:gMonth(\"--01Z\")", "T"),
         ("op-gMonth-equal/K-gMonthEQ-6", "xs:gMonth(\"--01+00:00\") eq xs:gMonth(\"--01Z\")", "T"),
         ("op-gMonth-equal/K-gMonthEQ-7", "xs:gMonth(\"--01Z\") eq xs:gMonth(\"--01Z\")", "T"),
@@ -2865,9 +3449,26 @@ internal static class Qt3TemporalSelection
             "T"
         ),
         ("op-gMonthDay-equal/op-gMonthDay-equal-2", "(xs:gMonthDay(\"--12-25Z\") eq xs:gMonthDay(\"--12-26Z\"))", "F"),
-        ("op-gMonthDay-equal/op-gMonthDay-equal-4", "xs:gMonthDay(\"--05-01Z\") ne xs:gMonthDay(\"--06-12Z\")", "T"),
-        ("op-gMonthDay-equal/op-gMonthDay-equal-5", "xs:gMonthDay(\"--11-10Z\") eq xs:gMonthDay(\"--10-02Z\")", "F"),
-        ("op-gMonthDay-equal/op-gMonthDay-equal-6", "xs:gMonthDay(\"--05-10Z\") ne xs:gMonthDay(\"--05-10Z\")", "F"),
+        (
+            "op-gMonthDay-equal/op-gMonthDay-equal-3",
+            "fn:not((xs:gMonthDay(\"--12-10Z\") eq xs:gMonthDay(\"--12-10Z\")))",
+            "F"
+        ),
+        (
+            "op-gMonthDay-equal/op-gMonthDay-equal-4",
+            "fn:not(xs:gMonthDay(\"--05-01Z\") ne xs:gMonthDay(\"--06-12Z\"))",
+            "F"
+        ),
+        (
+            "op-gMonthDay-equal/op-gMonthDay-equal-5",
+            "fn:not(xs:gMonthDay(\"--11-10Z\") eq xs:gMonthDay(\"--10-02Z\"))",
+            "T"
+        ),
+        (
+            "op-gMonthDay-equal/op-gMonthDay-equal-6",
+            "fn:not(xs:gMonthDay(\"--05-10Z\") ne xs:gMonthDay(\"--05-10Z\"))",
+            "T"
+        ),
         (
             "op-gMonthDay-equal/op-gMonthDay-equal-7",
             "(xs:gMonthDay(\"--04-02Z\") eq xs:gMonthDay(\"--02-03Z\")) and (xs:gMonthDay(\"--01-07Z\") eq xs:gMonthDay(\"--12-10Z\"))",
@@ -2888,10 +3489,30 @@ internal static class Qt3TemporalSelection
             "(xs:gMonthDay(\"--06-02Z\") ne xs:gMonthDay(\"--06-09Z\")) or (xs:gMonthDay(\"--08-06Z\") ne xs:gMonthDay(\"--09-01Z\"))",
             "T"
         ),
+        (
+            "op-gMonthDay-equal/op-gMonthDay-equal-11",
+            "(xs:gMonthDay(\"--03-04Z\") eq xs:gMonthDay(\"--01-07Z\")) or (fn:true())",
+            "T"
+        ),
+        (
+            "op-gMonthDay-equal/op-gMonthDay-equal-12",
+            "(xs:gMonthDay(\"--08-04Z\") ne xs:gMonthDay(\"--07-12Z\")) or (fn:true())",
+            "T"
+        ),
+        (
+            "op-gMonthDay-equal/op-gMonthDay-equal-13",
+            "(xs:gMonthDay(\"--05-05Z\") eq xs:gMonthDay(\"--05-05Z\")) or (fn:false())",
+            "T"
+        ),
+        (
+            "op-gMonthDay-equal/op-gMonthDay-equal-14",
+            "(xs:gMonthDay(\"--09-09Z\") ne xs:gMonthDay(\"--09-10Z\")) or (fn:false())",
+            "T"
+        ),
         ("op-gMonthDay-equal/K-gMonthDayEQ-1", "xs:gMonthDay(\"--04-01 \") eq xs:gMonthDay(\"--04-01\")", "T"),
-        ("op-gMonthDay-equal/K-gMonthDayEQ-2", "xs:gMonthDay(\"--03-03\") eq xs:gMonthDay(\"--04-03\")", "F"),
+        ("op-gMonthDay-equal/K-gMonthDayEQ-2", "not(xs:gMonthDay(\"--03-03\") eq xs:gMonthDay(\"--04-03\"))", "T"),
         ("op-gMonthDay-equal/K-gMonthDayEQ-3", "xs:gMonthDay(\"--04-12\") ne xs:gMonthDay(\"--04-11\")", "T"),
-        ("op-gMonthDay-equal/K-gMonthDayEQ-4", "xs:gMonthDay(\"--04-11\") ne xs:gMonthDay(\"--04-11\")", "F"),
+        ("op-gMonthDay-equal/K-gMonthDayEQ-4", "not(xs:gMonthDay(\"--04-11\") ne xs:gMonthDay(\"--04-11\"))", "T"),
         ("op-gMonthDay-equal/K-gMonthDayEQ-5", "xs:gMonthDay(\"--03-01-00:00\") eq xs:gMonthDay(\"--03-01Z\")", "T"),
         ("op-gMonthDay-equal/K-gMonthDayEQ-6", "xs:gMonthDay(\"--03-01+00:00\") eq xs:gMonthDay(\"--03-01Z\")", "T"),
         ("op-gMonthDay-equal/K-gMonthDayEQ-7", "xs:gMonthDay(\"--03-01Z\") eq xs:gMonthDay(\"--03-01Z\")", "T"),
@@ -2982,9 +3603,10 @@ internal static class Qt3TemporalSelection
         ("op-gYear-equal/op-gYear-equal2args-10", "xs:gYear(\"1970Z\") ne xs:gYear(\"2030Z\")", "T"),
         ("op-gYear-equal/op-gYear-equal-1", "(xs:gYear(\"2005-12:00\") eq xs:gYear(\"2005+12:00\"))", "F"),
         ("op-gYear-equal/op-gYear-equal-2", "(xs:gYear(\"1976-05:00\") eq xs:gYear(\"1976-05:00\"))", "T"),
-        ("op-gYear-equal/op-gYear-equalNew-4", "xs:gYear(\"2005Z\") ne xs:gYear(\"2006Z\")", "T"),
-        ("op-gYear-equal/op-gYear-equal-5", "xs:gYear(\"2000Z\") eq xs:gYear(\"2001Z\")", "F"),
-        ("op-gYear-equal/op-gYear-equalNew-6", "xs:gYear(\"2005Z\") ne xs:gYear(\"2005Z\")", "F"),
+        ("op-gYear-equal/op-gYear-equalNew-3", "fn:not((xs:gYear(\"1995Z\") eq xs:gYear(\"1995Z\")))", "F"),
+        ("op-gYear-equal/op-gYear-equalNew-4", "fn:not(xs:gYear(\"2005Z\") ne xs:gYear(\"2006Z\"))", "F"),
+        ("op-gYear-equal/op-gYear-equal-5", "fn:not(xs:gYear(\"2000Z\") eq xs:gYear(\"2001Z\"))", "T"),
+        ("op-gYear-equal/op-gYear-equalNew-6", "fn:not(xs:gYear(\"2005Z\") ne xs:gYear(\"2005Z\"))", "T"),
         (
             "op-gYear-equal/op-gYear-equalNew-7",
             "(xs:gYear(\"2000Z\") eq xs:gYear(\"2000Z\")) and (xs:gYear(\"2001Z\") eq xs:gYear(\"2001Z\"))",
@@ -3005,10 +3627,14 @@ internal static class Qt3TemporalSelection
             "(xs:gYear(\"1976Z\") ne xs:gYear(\"1976Z\")) or (xs:gYear(\"1980Z\") ne xs:gYear(\"1980Z\"))",
             "F"
         ),
+        ("op-gYear-equal/op-gYear-equal-11", "(xs:gYear(\"1980Z\") eq xs:gYear(\"1980Z\")) or (fn:true())", "T"),
+        ("op-gYear-equal/op-gYear-equalNew-12", "(xs:gYear(\"2000Z\") ne xs:gYear(\"2000Z\")) or (fn:true())", "T"),
+        ("op-gYear-equal/op-gYear-equal-13", "(xs:gYear(\"1980Z\") eq xs:gYear(\"1980Z\")) or (fn:false())", "T"),
+        ("op-gYear-equal/op-gYear-equal-14", "(xs:gYear(\"1980Z\") ne xs:gYear(\"1980Z\")) or (fn:false())", "F"),
         ("op-gYear-equal/K-gYearEQ-1", "xs:gYear(\" 1956 \") eq xs:gYear(\"1956\")", "T"),
-        ("op-gYear-equal/K-gYearEQ-2", "xs:gYear(\"1956\") eq xs:gYear(\"1958\")", "F"),
+        ("op-gYear-equal/K-gYearEQ-2", "not(xs:gYear(\"1956\") eq xs:gYear(\"1958\"))", "T"),
         ("op-gYear-equal/K-gYearEQ-3", "xs:gYear(\"1956\") ne xs:gYear(\"1958\")", "T"),
-        ("op-gYear-equal/K-gYearEQ-4", "xs:gYear(\"1956\") ne xs:gYear(\"1956\")", "F"),
+        ("op-gYear-equal/K-gYearEQ-4", "not(xs:gYear(\"1956\") ne xs:gYear(\"1956\"))", "T"),
         ("op-gYear-equal/K-gYearEQ-5", "xs:gYear(\"1956-00:00\") eq xs:gYear(\"1956Z\")", "T"),
         ("op-gYear-equal/K-gYearEQ-6", "xs:gYear(\"1956+00:00\") eq xs:gYear(\"1956Z\")", "T"),
         ("op-gYear-equal/K-gYearEQ-7", "xs:gYear(\"1956Z\") eq xs:gYear(\"1956Z\")", "T"),
@@ -3114,19 +3740,24 @@ internal static class Qt3TemporalSelection
             "F"
         ),
         (
+            "op-gYearMonth-equal/op-gYearMonth-equalNew-3",
+            "fn:not((xs:gYearMonth(\"1995-02Z\") eq xs:gYearMonth(\"1995-02Z\")))",
+            "F"
+        ),
+        (
             "op-gYearMonth-equal/op-gYearMonth-equalNew-4",
-            "xs:gYearMonth(\"2005-02Z\") ne xs:gYearMonth(\"2006-03Z\")",
-            "T"
+            "fn:not(xs:gYearMonth(\"2005-02Z\") ne xs:gYearMonth(\"2006-03Z\"))",
+            "F"
         ),
         (
             "op-gYearMonth-equal/op-gYearMonth-equalNew-5",
-            "xs:gYearMonth(\"2000-01Z\") eq xs:gYearMonth(\"2001-04Z\")",
-            "F"
+            "fn:not(xs:gYearMonth(\"2000-01Z\") eq xs:gYearMonth(\"2001-04Z\"))",
+            "T"
         ),
         (
             "op-gYearMonth-equal/op-gYearMonth-equalNew-6",
-            "xs:gYearMonth(\"2005-01Z\") ne xs:gYearMonth(\"2005-01Z\")",
-            "F"
+            "fn:not(xs:gYearMonth(\"2005-01Z\") ne xs:gYearMonth(\"2005-01Z\"))",
+            "T"
         ),
         (
             "op-gYearMonth-equal/op-gYearMonth-equalNew-7",
@@ -3148,10 +3779,30 @@ internal static class Qt3TemporalSelection
             "(xs:gYearMonth(\"1976-01Z\") ne xs:gYearMonth(\"1976-02Z\")) or (xs:gYearMonth(\"1980-03Z\") ne xs:gYearMonth(\"1980-04Z\"))",
             "T"
         ),
+        (
+            "op-gYearMonth-equal/op-gYearMonth-equalNew-11",
+            "(xs:gYearMonth(\"1980-05Z\") eq xs:gYearMonth(\"1980-05Z\")) or (fn:true())",
+            "T"
+        ),
+        (
+            "op-gYearMonth-equal/op-gYearMonth-equalNew-12",
+            "(xs:gYearMonth(\"2000-06Z\") ne xs:gYearMonth(\"2000-07Z\")) or (fn:true())",
+            "T"
+        ),
+        (
+            "op-gYearMonth-equal/op-gYearMonth-equalNew-13",
+            "(xs:gYearMonth(\"1980-09Z\") eq xs:gYearMonth(\"1980-09Z\")) or (fn:false())",
+            "T"
+        ),
+        (
+            "op-gYearMonth-equal/op-gYearMonth-equalNew-14",
+            "(xs:gYearMonth(\"1980-03Z\") ne xs:gYearMonth(\"1980-03Z\")) or (fn:false())",
+            "F"
+        ),
         ("op-gYearMonth-equal/K-gYearMonthEQ-1", "xs:gYearMonth(\"2001-01 \") eq xs:gYearMonth(\"2001-01\")", "T"),
-        ("op-gYearMonth-equal/K-gYearMonthEQ-2", "xs:gYearMonth(\"2001-03\") eq xs:gYearMonth(\"2000-03\")", "F"),
+        ("op-gYearMonth-equal/K-gYearMonthEQ-2", "not(xs:gYearMonth(\"2001-03\") eq xs:gYearMonth(\"2000-03\"))", "T"),
         ("op-gYearMonth-equal/K-gYearMonthEQ-3", "xs:gYearMonth(\"2001-12\") ne xs:gYearMonth(\"2001-11\")", "T"),
-        ("op-gYearMonth-equal/K-gYearMonthEQ-4", "xs:gYearMonth(\"1995-11\") ne xs:gYearMonth(\"1995-11\")", "F"),
+        ("op-gYearMonth-equal/K-gYearMonthEQ-4", "not(xs:gYearMonth(\"1995-11\") ne xs:gYearMonth(\"1995-11\"))", "T"),
         (
             "op-gYearMonth-equal/K-gYearMonthEQ-5",
             "xs:gYearMonth(\"1999-01-00:00\") eq xs:gYearMonth(\"1999-01Z\")",
@@ -3239,6 +3890,31 @@ internal static class Qt3TemporalSelection
             "S:PT4H33M"
         ),
         (
+            "op-multiply-dayTimeDuration/op-multiply-dayTimeDuration-2",
+            "fn:string((xs:dayTimeDuration(\"P10DT10H11M\")) * 2.0) and fn:false()",
+            "F"
+        ),
+        (
+            "op-multiply-dayTimeDuration/op-multiply-dayTimeDuration-3",
+            "fn:string((xs:dayTimeDuration(\"P20DT20H10M\") * 2.0)) or fn:false()",
+            "T"
+        ),
+        (
+            "op-multiply-dayTimeDuration/op-multiply-dayTimeDuration-4",
+            "fn:not(fn:string(xs:dayTimeDuration(\"P11DT12H04M\") * 2.0))",
+            "F"
+        ),
+        (
+            "op-multiply-dayTimeDuration/op-multiply-dayTimeDuration-5",
+            "fn:boolean(fn:string(xs:dayTimeDuration(\"P05DT09H08M\") *2.0))",
+            "T"
+        ),
+        (
+            "op-multiply-dayTimeDuration/op-multiply-dayTimeDuration-6",
+            "fn:number(xs:dayTimeDuration(\"P02DT06H09M\") *2.0)",
+            "S:NaN"
+        ),
+        (
             "op-multiply-dayTimeDuration/op-multiply-dayTimeDuration-7",
             "fn:string(xs:dayTimeDuration(\"P03DT04H08M\") * 2.0)",
             "S:P6DT8H16M"
@@ -3264,6 +3940,11 @@ internal static class Qt3TemporalSelection
             "S:1"
         ),
         (
+            "op-multiply-dayTimeDuration/op-multiply-dayTimeDuration-12",
+            "fn:string((xs:dayTimeDuration(\"P10DT08H11M\") * 2.0)) and (fn:true())",
+            "T"
+        ),
+        (
             "op-multiply-dayTimeDuration/op-multiply-dayTimeDuration-13",
             "(xs:dayTimeDuration(\"P23DT11H11M\") * 2.0) eq xs:dayTimeDuration(\"P23DT11H11M\")",
             "F"
@@ -3282,6 +3963,16 @@ internal static class Qt3TemporalSelection
             "op-multiply-dayTimeDuration/op-multiply-dayTimeDuration-16",
             "(xs:dayTimeDuration(\"P13DT09H09M\") * 2.0) ge xs:dayTimeDuration(\"P18DT02H02M\")",
             "T"
+        ),
+        (
+            "op-multiply-dayTimeDuration/op-multiply-dayTimeDuration-17",
+            "fn:count(xs:dayTimeDuration(\"P13DT09H09M\") * -0)",
+            "S:1"
+        ),
+        (
+            "op-multiply-dayTimeDuration/op-multiply-dayTimeDuration-18",
+            "fn:count(xs:dayTimeDuration(\"P13DT09H09M\") * +0)",
+            "S:1"
         ),
         (
             "op-multiply-dayTimeDuration/K-DayTimeDurationMultiply-1",
@@ -3364,6 +4055,31 @@ internal static class Qt3TemporalSelection
             "S:P6Y9M"
         ),
         (
+            "op-multiply-yearMonthDuration/op-multiply-yearMonthDuration-2",
+            "fn:string((xs:yearMonthDuration(\"P10Y11M\")) * 2.0) and fn:false()",
+            "F"
+        ),
+        (
+            "op-multiply-yearMonthDuration/op-multiply-yearMonthDuration-3",
+            "fn:string((xs:yearMonthDuration(\"P20Y10M\") * 2.0)) or fn:false()",
+            "T"
+        ),
+        (
+            "op-multiply-yearMonthDuration/op-multiply-yearMonthDuration-4",
+            "fn:not(fn:string(xs:yearMonthDuration(\"P11Y04M\") * 2.0))",
+            "F"
+        ),
+        (
+            "op-multiply-yearMonthDuration/op-multiply-yearMonthDuration-5",
+            "fn:boolean(fn:string(xs:yearMonthDuration(\"P05Y08M\") * 2.0))",
+            "T"
+        ),
+        (
+            "op-multiply-yearMonthDuration/op-multiply-yearMonthDuration-6",
+            "fn:number(xs:yearMonthDuration(\"P02Y09M\") * 2.0)",
+            "S:NaN"
+        ),
+        (
             "op-multiply-yearMonthDuration/op-multiply-yearMonthDuration-7",
             "fn:string(xs:yearMonthDuration(\"P03Y08M\") * 2.0)",
             "S:P7Y4M"
@@ -3389,6 +4105,11 @@ internal static class Qt3TemporalSelection
             "S:1"
         ),
         (
+            "op-multiply-yearMonthDuration/op-multiply-yearMonthDuration-12",
+            "fn:string((xs:yearMonthDuration(\"P10Y11M\") * 2.0)) and (fn:true())",
+            "T"
+        ),
+        (
             "op-multiply-yearMonthDuration/op-multiply-yearMonthDuration-13",
             "(xs:yearMonthDuration(\"P23Y11M\") * 2.0) eq xs:yearMonthDuration(\"P23Y11M\")",
             "F"
@@ -3407,6 +4128,26 @@ internal static class Qt3TemporalSelection
             "op-multiply-yearMonthDuration/op-multiply-yearMonthDuration-16",
             "(xs:yearMonthDuration(\"P13Y09M\") - xs:yearMonthDuration(\"P18Y02M\")) ge xs:yearMonthDuration(\"P18Y02M\")",
             "F"
+        ),
+        (
+            "op-multiply-yearMonthDuration/op-multiply-yearMonthDuration-17",
+            "fn:count((xs:yearMonthDuration(\"P13Y09M\") *+0))",
+            "S:1"
+        ),
+        (
+            "op-multiply-yearMonthDuration/op-multiply-yearMonthDuration-18",
+            "fn:count((xs:yearMonthDuration(\"P13Y09M\") *-0))",
+            "S:1"
+        ),
+        (
+            "op-multiply-yearMonthDuration/op-multiply-yearMonthDuration-19",
+            "xs:yearMonthDuration(\"P13Y09M\") * fn:number(())",
+            "X:FOCA0005"
+        ),
+        (
+            "op-multiply-yearMonthDuration/op-multiply-yearMonthDuration-20",
+            "for $i in (-3.9, -3.5, -3.1, -0.9, -0.5, -0.1, +0.1, +0.5, +0.9, +3.1, +3.5, +3.9) return xs:yearMonthDuration(\"P1M\") * $i",
+            "S:-P4M -P3M -P3M -P1M P0M P0M P0M P1M P1M P3M P4M P4M"
         ),
         (
             "op-multiply-yearMonthDuration/K-YearMonthDurationMultiply-1",
@@ -3491,6 +4232,21 @@ internal static class Qt3TemporalSelection
             "S:P730D"
         ),
         (
+            "op-subtract-dateTimes/op-subtract-dateTimes-yielding-DTD-4",
+            "fn:not(fn:string(xs:dateTime(\"1998-09-12T11:12:12Z\") - xs:dateTime(\"1996-02-02T01:01:01Z\")))",
+            "F"
+        ),
+        (
+            "op-subtract-dateTimes/op-subtract-dateTimes-yielding-DTD-5",
+            "fn:boolean(fn:string(xs:dateTime(\"1962-03-12T10:09:09Z\") - xs:dateTime(\"1961-02-01T20:10:10Z\")))",
+            "T"
+        ),
+        (
+            "op-subtract-dateTimes/op-subtract-dateTimes-yielding-DTD-6",
+            "fn:number(xs:dateTime(\"1988-01-28T10:09:08Z\") - xs:dateTime(\"1987-01-01T01:01:02Z\"))",
+            "S:NaN"
+        ),
+        (
             "op-subtract-dateTimes/op-subtract-dateTimes-yielding-DTD-7",
             "fn:string(xs:dateTime(\"1989-07-05T02:02:02Z\") - xs:dateTime(\"1988-01-28T03:03:03Z\"))",
             "S:P523DT22H58M59S"
@@ -3516,6 +4272,11 @@ internal static class Qt3TemporalSelection
             "S:0"
         ),
         (
+            "op-subtract-dateTimes/op-subtract-dateTimes-yielding-DTD-12",
+            "fn:string((xs:dateTime(\"1980-03-02T11:11:11Z\") - xs:dateTime(\"1981-12-12T12:12:12Z\"))) and (fn:true())",
+            "T"
+        ),
+        (
             "op-subtract-dateTimes/op-subtract-dateTimes-yielding-DTD-13",
             "fn:string((xs:dateTime(\"1980-05-05T13:13:13Z\") - xs:dateTime(\"1979-10-05T14:14:14Z\"))) eq xs:string(xs:dayTimeDuration(\"P17DT10H02M\"))",
             "F"
@@ -3533,6 +4294,16 @@ internal static class Qt3TemporalSelection
         (
             "op-subtract-dateTimes/op-subtract-dateTimes-yielding-DTD-16",
             "fn:string((xs:dateTime(\"1977-12-12T01:02:02Z\") - xs:dateTime(\"1976-12-12T02:03:04Z\"))) ge xs:string(xs:dayTimeDuration(\"P18DT02H02M\"))",
+            "T"
+        ),
+        (
+            "op-subtract-dateTimes/op-subtract-dateTimes-yielding-DTD-17",
+            "fn:string(xs:dateTime(\"2000-12-12T12:07:08Z\") - xs:dateTime(\"1999-12-12T13:08:09Z\")) and fn:false()",
+            "F"
+        ),
+        (
+            "op-subtract-dateTimes/op-subtract-dateTimes-yielding-DTD-18",
+            "fn:string((xs:dateTime(\"1999-10-23T03:02:01Z\") - xs:dateTime(\"1998-09-09T04:04:05Z\"))) or fn:false()",
             "T"
         ),
         (
@@ -3563,6 +4334,11 @@ internal static class Qt3TemporalSelection
         (
             "op-subtract-dateTimes/K-dateTimesSubtract-4",
             "xs:dateTime(\"1999-10-12T08:01:23\") * xs:dateTime(\"1999-10-12T08:01:23\")",
+            "X:XPTY0004"
+        ),
+        (
+            "op-subtract-dateTimes/K-dateTimesSubtract-5",
+            "xs:dateTime(\"1999-10-12T08:01:23\") mod xs:dateTime(\"1999-10-12T08:01:23\")",
             "X:XPTY0004"
         ),
         (
@@ -3606,6 +4382,21 @@ internal static class Qt3TemporalSelection
             "S:P5DT7H"
         ),
         (
+            "op-subtract-dates/op-subtract-dates-yielding-DTD-4",
+            "fn:not(fn:string(xs:date(\"1998-09-12Z\") - xs:date(\"1998-09-21Z\")))",
+            "F"
+        ),
+        (
+            "op-subtract-dates/op-subtract-dates-yielding-DTD-5",
+            "fn:boolean(fn:string(xs:date(\"1962-03-12Z\") - xs:date(\"1962-03-12Z\")))",
+            "T"
+        ),
+        (
+            "op-subtract-dates/op-subtract-dates-yielding-DTD-6",
+            "fn:number(xs:date(\"1988-01-28Z\") - xs:date(\"2001-03-02\"))",
+            "S:NaN"
+        ),
+        (
             "op-subtract-dates/op-subtract-dates-yielding-DTD-7",
             "fn:string(xs:date(\"1989-07-05Z\") - xs:date(\"1962-09-04Z\"))",
             "S:P9801D"
@@ -3631,6 +4422,11 @@ internal static class Qt3TemporalSelection
             "S:0"
         ),
         (
+            "op-subtract-dates/op-subtract-dates-yielding-DTD-12",
+            "fn:string((xs:date(\"1980-03-02Z\") - xs:date(\"2001-09-11Z\"))) and (fn:true())",
+            "T"
+        ),
+        (
             "op-subtract-dates/op-subtract-dates-yielding-DTD-13",
             "fn:string((xs:date(\"1980-05-05Z\") - xs:date(\"1981-12-03Z\"))) eq xs:string(xs:dayTimeDuration(\"P17DT10H02M\"))",
             "F"
@@ -3648,6 +4444,16 @@ internal static class Qt3TemporalSelection
         (
             "op-subtract-dates/op-subtract-dates-yielding-DTD-16",
             "fn:string((xs:date(\"1977-12-12Z\") - xs:date(\"1976-12-12Z\"))) ge xs:string(xs:dayTimeDuration(\"P17DT10H02M\"))",
+            "T"
+        ),
+        (
+            "op-subtract-dates/op-subtract-dates-yielding-DTD-17",
+            "fn:string(xs:date(\"2000-12-12Z\") - xs:date(\"2000-11-11Z\")) and fn:false()",
+            "F"
+        ),
+        (
+            "op-subtract-dates/op-subtract-dates-yielding-DTD-18",
+            "fn:string((xs:date(\"1999-10-23Z\") - xs:date(\"1998-09-09Z\"))) or fn:false()",
             "T"
         ),
         (
@@ -3673,6 +4479,7 @@ internal static class Qt3TemporalSelection
         ("op-subtract-dates/K-DatesSubtract-3", "xs:date(\"1999-10-12\") + xs:date(\"1999-10-12\")", "X:XPTY0004"),
         ("op-subtract-dates/K-DatesSubtract-4", "xs:date(\"1999-10-12\") div xs:date(\"1999-10-12\")", "X:XPTY0004"),
         ("op-subtract-dates/K-DatesSubtract-5", "xs:date(\"1999-10-12\") * xs:date(\"1999-10-12\")", "X:XPTY0004"),
+        ("op-subtract-dates/K-DatesSubtract-6", "xs:date(\"1999-10-12\") mod xs:date(\"1999-10-12\")", "X:XPTY0004"),
         (
             "op-subtract-dates/cbcl-subtract-dates-001",
             "xs:date(\"-25252734927766554-12-31\") - xs:date(\"25252734927766554-12-31\")",
@@ -3724,6 +4531,31 @@ internal static class Qt3TemporalSelection
             "S:2000-10-26"
         ),
         (
+            "op-subtract-dayTimeDuration-from-date/op-subtract-dayTimeDuration-from-date-2",
+            "fn:string(xs:date(\"2000-12-12Z\") - xs:dayTimeDuration(\"P12DT10H07M\")) and fn:false()",
+            "F"
+        ),
+        (
+            "op-subtract-dayTimeDuration-from-date/op-subtract-dayTimeDuration-from-date-3",
+            "fn:string((xs:date(\"1999-10-23Z\") - xs:dayTimeDuration(\"P19DT13H10M\"))) or fn:false()",
+            "T"
+        ),
+        (
+            "op-subtract-dayTimeDuration-from-date/op-subtract-dayTimeDuration-from-date-4",
+            "fn:not(fn:string(xs:date(\"1998-09-12Z\") - xs:dayTimeDuration(\"P02DT07H01M\")))",
+            "F"
+        ),
+        (
+            "op-subtract-dayTimeDuration-from-date/op-subtract-dayTimeDuration-from-date-5",
+            "fn:boolean(fn:string(xs:date(\"1962-03-12Z\") - xs:dayTimeDuration(\"P03DT08H06M\")))",
+            "T"
+        ),
+        (
+            "op-subtract-dayTimeDuration-from-date/op-subtract-dayTimeDuration-from-date-6",
+            "fn:number(xs:date(\"1988-01-28Z\") - xs:dayTimeDuration(\"P10DT08H01M\"))",
+            "S:NaN"
+        ),
+        (
             "op-subtract-dayTimeDuration-from-date/op-subtract-dayTimeDuration-from-date-7",
             "fn:string(xs:date(\"1989-07-05Z\") - xs:dayTimeDuration(\"P01DT09H02M\"))",
             "S:1989-07-03Z"
@@ -3741,6 +4573,11 @@ internal static class Qt3TemporalSelection
         (
             "op-subtract-dayTimeDuration-from-date/op-subtract-dayTimeDuration-from-date-10",
             "fn:string((xs:date(\"1985-07-05Z\") - xs:dayTimeDuration(\"P03DT01H04M\"))) or fn:string((xs:date(\"1985-07-05Z\") - xs:dayTimeDuration(\"P01DT01H03M\")))",
+            "T"
+        ),
+        (
+            "op-subtract-dayTimeDuration-from-date/op-subtract-dayTimeDuration-from-date-12",
+            "fn:string((xs:date(\"1980-03-02Z\") - xs:dayTimeDuration(\"P05DT08H11M\"))) and (fn:true())",
             "T"
         ),
         (
@@ -3799,6 +4636,31 @@ internal static class Qt3TemporalSelection
             "S:2000-10-27T09:57:00"
         ),
         (
+            "op-subtract-dayTimeDuration-from-dateTime/op-subtract-dayTimeDuration-from-dateTime-2",
+            "fn:string(xs:dateTime(\"2000-12-12T11:10:03Z\") - xs:dayTimeDuration(\"P12DT10H07M\")) and fn:false()",
+            "F"
+        ),
+        (
+            "op-subtract-dayTimeDuration-from-dateTime/op-subtract-dayTimeDuration-from-dateTime-3",
+            "fn:string((xs:dateTime(\"1999-10-23T03:12:23Z\") - xs:dayTimeDuration(\"P19DT13H10M\"))) or fn:false()",
+            "T"
+        ),
+        (
+            "op-subtract-dayTimeDuration-from-dateTime/op-subtract-dayTimeDuration-from-dateTime-4",
+            "fn:not(fn:string(xs:dateTime(\"1998-09-12T13:23:23Z\") - xs:dayTimeDuration(\"P02DT07H01M\")))",
+            "F"
+        ),
+        (
+            "op-subtract-dayTimeDuration-from-dateTime/op-subtract-dayTimeDuration-from-dateTime-5",
+            "fn:boolean(fn:string(xs:dateTime(\"1962-03-12T12:34:09Z\") - xs:dayTimeDuration(\"P03DT08H06M\")))",
+            "T"
+        ),
+        (
+            "op-subtract-dayTimeDuration-from-dateTime/op-subtract-dayTimeDuration-from-dateTime-6",
+            "fn:number(xs:dateTime(\"1988-01-28T12:34:12Z\") - xs:dayTimeDuration(\"P10DT08H01M\"))",
+            "S:NaN"
+        ),
+        (
             "op-subtract-dayTimeDuration-from-dateTime/op-subtract-dayTimeDuration-from-dateTime-7",
             "fn:string(xs:dateTime(\"1989-07-05T10:10:10Z\") - xs:dayTimeDuration(\"P01DT09H02M\"))",
             "S:1989-07-04T01:08:10Z"
@@ -3816,6 +4678,11 @@ internal static class Qt3TemporalSelection
         (
             "op-subtract-dayTimeDuration-from-dateTime/op-subtract-dayTimeDuration-from-dateTime-10",
             "fn:string((xs:dateTime(\"1985-07-05T14:14:14Z\") - xs:dayTimeDuration(\"P03DT01H04M\"))) or fn:string((xs:dateTime(\"1985-07-05T15:15:15Z\") - xs:dayTimeDuration(\"P01DT01H03M\")))",
+            "T"
+        ),
+        (
+            "op-subtract-dayTimeDuration-from-dateTime/op-subtract-dayTimeDuration-from-dateTime-12",
+            "fn:string((xs:dateTime(\"1980-03-02T16:12:10Z\") - xs:dayTimeDuration(\"P05DT08H11M\"))) and (fn:true())",
             "T"
         ),
         (
@@ -3874,6 +4741,26 @@ internal static class Qt3TemporalSelection
             "S:22:10:00-05:00"
         ),
         (
+            "op-subtract-dayTimeDuration-from-time/op-subtract-dayTimeDuration-from-time-3",
+            "fn:string((xs:time(\"12:12:01Z\") - xs:dayTimeDuration(\"P19DT13H10M\"))) or fn:false()",
+            "T"
+        ),
+        (
+            "op-subtract-dayTimeDuration-from-time/op-subtract-dayTimeDuration-from-time-4",
+            "fn:not(fn:string(xs:time(\"20:50:50Z\") - xs:dayTimeDuration(\"P02DT07H01M\")))",
+            "F"
+        ),
+        (
+            "op-subtract-dayTimeDuration-from-time/op-subtract-dayTimeDuration-from-time-5",
+            "fn:boolean(fn:string(xs:time(\"23:55:55Z\") - xs:dayTimeDuration(\"P03DT08H06M\")))",
+            "T"
+        ),
+        (
+            "op-subtract-dayTimeDuration-from-time/op-subtract-dayTimeDuration-from-time-6",
+            "fn:number(xs:time(\"10:11:45Z\") - xs:dayTimeDuration(\"P10DT08H01M\"))",
+            "S:NaN"
+        ),
+        (
             "op-subtract-dayTimeDuration-from-time/op-subtract-dayTimeDuration-from-time-7",
             "fn:string(xs:time(\"19:45:55Z\") - xs:dayTimeDuration(\"P01DT09H02M\"))",
             "S:10:43:55Z"
@@ -3891,6 +4778,11 @@ internal static class Qt3TemporalSelection
         (
             "op-subtract-dayTimeDuration-from-time/op-subtract-dayTimeDuration-from-time-10",
             "fn:string((xs:time(\"23:45:50Z\") - xs:dayTimeDuration(\"P03DT01H04M\"))) or fn:string((xs:time(\"23:45:50Z\") + xs:dayTimeDuration(\"P01DT01H03M\")))",
+            "T"
+        ),
+        (
+            "op-subtract-dayTimeDuration-from-time/op-subtract-dayTimeDuration-from-time-12",
+            "fn:string((xs:time(\"02:02:02Z\") - xs:dayTimeDuration(\"P05DT08H11M\"))) and (fn:true())",
             "T"
         ),
         (
@@ -3912,6 +4804,11 @@ internal static class Qt3TemporalSelection
             "op-subtract-dayTimeDuration-from-time/op-subtract-dayTimeDuration-from-time-16",
             "fn:string((xs:time(\"09:06:07Z\") - xs:dayTimeDuration(\"P18DT02H02M\"))) ge fn:string(xs:time(\"01:01:01Z\"))",
             "T"
+        ),
+        (
+            "op-subtract-dayTimeDuration-from-time/op-subtract-dayTimeDuration-from-time-17",
+            "fn:string(xs:time(\"12:07:08Z\") - xs:dayTimeDuration(\"P12DT10H07M\")) and fn:false()",
+            "F"
         ),
         (
             "op-subtract-dayTimeDuration-from-time/K-TimeSubtractDTD-1",
@@ -3969,6 +4866,31 @@ internal static class Qt3TemporalSelection
             "S:P1DT1H30M"
         ),
         (
+            "op-subtract-dayTimeDurations/op-subtract-dayTimeDurations-2",
+            "fn:string(xs:dayTimeDuration(\"P10DT10H11M\") - xs:dayTimeDuration(\"P12DT10H07M\")) and fn:false()",
+            "F"
+        ),
+        (
+            "op-subtract-dayTimeDurations/op-subtract-dayTimeDurations-3",
+            "fn:string(xs:dayTimeDuration(\"P20DT20H10M\") - xs:dayTimeDuration(\"P19DT13H10M\")) or fn:false()",
+            "T"
+        ),
+        (
+            "op-subtract-dayTimeDurations/op-subtract-dayTimeDurations-4",
+            "fn:not(fn:string(xs:dayTimeDuration(\"P11DT12H04M\") - xs:dayTimeDuration(\"P02DT07H01M\")))",
+            "F"
+        ),
+        (
+            "op-subtract-dayTimeDurations/op-subtract-dayTimeDurations-5",
+            "fn:boolean(fn:string(xs:dayTimeDuration(\"P05DT09H08M\") - xs:dayTimeDuration(\"P03DT08H06M\")))",
+            "T"
+        ),
+        (
+            "op-subtract-dayTimeDurations/op-subtract-dayTimeDurations-6",
+            "fn:number(xs:dayTimeDuration(\"P02DT06H09M\") - xs:dayTimeDuration(\"P10DT08H01M\"))",
+            "S:NaN"
+        ),
+        (
             "op-subtract-dayTimeDurations/op-subtract-dayTimeDurations-7",
             "fn:string(xs:dayTimeDuration(\"P03DT04H08M\") - xs:dayTimeDuration(\"P01DT09H02M\"))",
             "S:P1DT19H6M"
@@ -3992,6 +4914,11 @@ internal static class Qt3TemporalSelection
             "op-subtract-dayTimeDurations/op-subtract-dayTimeDurations-11",
             "(xs:dayTimeDuration(\"P42DT10H10M\") - xs:dayTimeDuration(\"P10DT10H10M\")) div (xs:dayTimeDuration(\"P20DT10H10M\") - xs:dayTimeDuration(\"P18DT10H10M\"))",
             "S:16"
+        ),
+        (
+            "op-subtract-dayTimeDurations/op-subtract-dayTimeDurations-12",
+            "fn:string((xs:dayTimeDuration(\"P10DT08H11M\") - xs:dayTimeDuration(\"P05DT08H11M\"))) and (fn:true())",
+            "T"
         ),
         (
             "op-subtract-dayTimeDurations/op-subtract-dayTimeDurations-13",
@@ -4058,6 +4985,16 @@ internal static class Qt3TemporalSelection
             "xs:duration(\"P3Y3M\") - xs:dayTimeDuration(\"P3D\")",
             "X:XPTY0004"
         ),
+        (
+            "op-subtract-dayTimeDurations/K2-DayTimeDurationSubtract-1",
+            "(current-time() - xs:dayTimeDuration(\"PT3H\")) ne current-time()",
+            "T"
+        ),
+        (
+            "op-subtract-dayTimeDurations/K2-DayTimeDurationSubtract-2",
+            "(current-dateTime() - xs:dayTimeDuration(\"PT3H\")) lt current-dateTime()",
+            "T"
+        ),
         ("op-subtract-times/op-subtract-times2args-1", "xs:time(\"00:00:00Z\") - xs:time(\"00:00:00Z\")", "S:PT0S"),
         (
             "op-subtract-times/op-subtract-times2args-2",
@@ -4087,6 +5024,21 @@ internal static class Qt3TemporalSelection
         ),
         ("op-subtract-times/op-subtract-times-3", "xs:time(\"17:00:00-06:00\") - xs:time(\"08:00:00+09:00\")", "S:P1D"),
         (
+            "op-subtract-times/op-subtract-times-4",
+            "fn:not(fn:string(xs:time(\"13:00:00Z\") - xs:time(\"14:00:00Z\")))",
+            "F"
+        ),
+        (
+            "op-subtract-times/op-subtract-times-5",
+            "fn:boolean(fn:string(xs:time(\"13:00:00Z\") - xs:time(\"10:00:00Z\")))",
+            "T"
+        ),
+        (
+            "op-subtract-times/op-subtract-times-6",
+            "fn:number(xs:time(\"13:00:00Z\") - xs:time(\"12:00:00Z\"))",
+            "S:NaN"
+        ),
+        (
             "op-subtract-times/op-subtract-times-7",
             "fn:string(xs:time(\"13:00:00Z\") - xs:time(\"17:00:00Z\"))",
             "S:-PT4H"
@@ -4106,6 +5058,11 @@ internal static class Qt3TemporalSelection
             "op-subtract-times/op-subtract-times-11",
             "(xs:time(\"23:00:00Z\") - xs:time(\"17:00:00Z\")) div (xs:time(\"13:00:00Z\") - xs:time(\"10:00:00Z\"))",
             "S:2"
+        ),
+        (
+            "op-subtract-times/op-subtract-times-12",
+            "fn:string((xs:time(\"17:00:00Z\") - xs:time(\"13:00:00Z\"))) and (fn:true())",
+            "T"
         ),
         (
             "op-subtract-times/op-subtract-times-13",
@@ -4142,6 +5099,7 @@ internal static class Qt3TemporalSelection
         ("op-subtract-times/K-TimeSubtract-5", "xs:time(\"08:01:23\") + xs:time(\"08:01:23\")", "X:XPTY0004"),
         ("op-subtract-times/K-TimeSubtract-6", "xs:time(\"08:01:23\") * xs:time(\"08:01:23\")", "X:XPTY0004"),
         ("op-subtract-times/K-TimeSubtract-7", "xs:time(\"08:01:23\") div xs:time(\"08:01:23\")", "X:XPTY0004"),
+        ("op-subtract-times/K-TimeSubtract-8", "xs:time(\"08:01:23\") mod xs:time(\"08:01:23\")", "X:XPTY0004"),
         (
             "op-subtract-times/cbcl-subtract-times-001",
             "xs:time(\"12:00:00+01:00\") - xs:time(\"12:00:00\") - implicit-timezone()",
@@ -4151,6 +5109,16 @@ internal static class Qt3TemporalSelection
             "op-subtract-times/cbcl-subtract-times-002",
             "xs:time(\"12:00:00\") - xs:time(\"12:00:00+01:00\") + implicit-timezone()",
             "S:PT1H"
+        ),
+        (
+            "op-subtract-times/cbcl-subtract-times-003",
+            "fn:adjust-time-to-timezone(xs:time(\"12:00:00\")) - fn:adjust-time-to-timezone(xs:time(\"08:00:00+05:00\"), xs:dayTimeDuration(\"PT1H\")) + implicit-timezone()",
+            "S:PT9H"
+        ),
+        (
+            "op-subtract-times/cbcl-subtract-times-004",
+            "fn:adjust-time-to-timezone(xs:time(\"08:00:00+05:00\"), xs:dayTimeDuration(\"PT1H\")) - fn:adjust-time-to-timezone(xs:time(\"12:00:00\")) - implicit-timezone()",
+            "S:-PT9H"
         ),
         (
             "op-subtract-yearMonthDuration-from-date/op-subtract-yearMonthDuration-from-date2args-1",
@@ -4193,6 +5161,21 @@ internal static class Qt3TemporalSelection
             "S:1999-09-30-05:00"
         ),
         (
+            "op-subtract-yearMonthDuration-from-date/op-subtract-yearMonthDuration-from-date-4",
+            "fn:not(fn:string(xs:date(\"1998-09-12Z\") - xs:yearMonthDuration(\"P20Y03M\")))",
+            "F"
+        ),
+        (
+            "op-subtract-yearMonthDuration-from-date/op-subtract-yearMonthDuration-from-date-5",
+            "fn:boolean(fn:string(xs:date(\"1962-03-12Z\") - xs:yearMonthDuration(\"P10Y01M\")))",
+            "T"
+        ),
+        (
+            "op-subtract-yearMonthDuration-from-date/op-subtract-yearMonthDuration-from-date-6",
+            "fn:number(xs:date(\"1988-01-28Z\") - xs:yearMonthDuration(\"P09Y02M\"))",
+            "S:NaN"
+        ),
+        (
             "op-subtract-yearMonthDuration-from-date/op-subtract-yearMonthDuration-from-date-7",
             "fn:string(xs:date(\"1989-07-05Z\") - xs:yearMonthDuration(\"P08Y04M\"))",
             "S:1981-03-05Z"
@@ -4210,6 +5193,11 @@ internal static class Qt3TemporalSelection
         (
             "op-subtract-yearMonthDuration-from-date/op-subtract-yearMonthDuration-from-date-10",
             "fn:string((xs:date(\"1985-07-05Z\") - xs:yearMonthDuration(\"P02Y02M\"))) or fn:string((xs:date(\"1985-07-05Z\") - xs:yearMonthDuration(\"P02Y02M\")))",
+            "T"
+        ),
+        (
+            "op-subtract-yearMonthDuration-from-date/op-subtract-yearMonthDuration-from-date-12",
+            "fn:string((xs:date(\"1980-03-02Z\") - xs:yearMonthDuration(\"P05Y05M\"))) and (fn:true())",
             "T"
         ),
         (
@@ -4231,6 +5219,16 @@ internal static class Qt3TemporalSelection
             "op-subtract-yearMonthDuration-from-date/op-subtract-yearMonthDuration-from-date-16",
             "(xs:date(\"1977-12-12Z\") - xs:yearMonthDuration(\"P18Y02M\")) ge xs:date(\"1977-12-12Z\")",
             "F"
+        ),
+        (
+            "op-subtract-yearMonthDuration-from-date/op-subtract-yearMonthDuration-from-date-17",
+            "fn:string(xs:date(\"2000-12-12Z\") - xs:yearMonthDuration(\"P18Y11M\")) and fn:false()",
+            "F"
+        ),
+        (
+            "op-subtract-yearMonthDuration-from-date/op-subtract-yearMonthDuration-from-date-18",
+            "fn:string((xs:date(\"1999-10-23Z\") - xs:yearMonthDuration(\"P19Y12M\"))) or fn:false()",
+            "T"
         ),
         (
             "op-subtract-yearMonthDuration-from-date/K-DateSubtractYMD-1",
@@ -4268,6 +5266,31 @@ internal static class Qt3TemporalSelection
             "S:1999-08-30T11:12:00"
         ),
         (
+            "op-subtract-yearMonthDuration-from-dateTime/op-subtract-yearMonthDuration-from-dateTime-2",
+            "fn:string(xs:dateTime(\"2000-12-12T12:12:12Z\") - xs:dayTimeDuration(\"P12DT10H07M\")) and fn:false()",
+            "F"
+        ),
+        (
+            "op-subtract-yearMonthDuration-from-dateTime/op-subtract-yearMonthDuration-from-dateTime-3",
+            "fn:string((xs:dateTime(\"1999-10-23T13:45:45Z\") - xs:yearMonthDuration(\"P19Y12M\"))) or fn:false()",
+            "T"
+        ),
+        (
+            "op-subtract-yearMonthDuration-from-dateTime/op-subtract-yearMonthDuration-from-dateTime-4",
+            "fn:not(fn:string(xs:dateTime(\"1998-09-12T13:56:12Z\") - xs:yearMonthDuration(\"P20Y03M\")))",
+            "F"
+        ),
+        (
+            "op-subtract-yearMonthDuration-from-dateTime/op-subtract-yearMonthDuration-from-dateTime-5",
+            "fn:boolean(fn:string(xs:dateTime(\"1962-03-12T10:12:34Z\") - xs:yearMonthDuration(\"P10Y01M\")))",
+            "T"
+        ),
+        (
+            "op-subtract-yearMonthDuration-from-dateTime/op-subtract-yearMonthDuration-from-dateTime-6",
+            "fn:number(xs:dateTime(\"1988-01-28T13:45:23Z\") - xs:yearMonthDuration(\"P09Y02M\"))",
+            "S:NaN"
+        ),
+        (
             "op-subtract-yearMonthDuration-from-dateTime/op-subtract-yearMonthDuration-from-dateTime-7",
             "fn:string(xs:dateTime(\"1989-07-05T14:34:36Z\") - xs:yearMonthDuration(\"P08Y04M\"))",
             "S:1981-03-05T14:34:36Z"
@@ -4285,6 +5308,11 @@ internal static class Qt3TemporalSelection
         (
             "op-subtract-yearMonthDuration-from-dateTime/op-subtract-yearMonthDuration-from-dateTime-10",
             "fn:string((xs:dateTime(\"1985-07-05T09:09:09Z\") - xs:yearMonthDuration(\"P02Y02M\"))) or fn:string((xs:dateTime(\"1985-07-05T09:09:09Z\") - xs:yearMonthDuration(\"P02Y02M\")))",
+            "T"
+        ),
+        (
+            "op-subtract-yearMonthDuration-from-dateTime/op-subtract-yearMonthDuration-from-dateTime-12",
+            "fn:string((xs:dateTime(\"1980-03-02T02:02:02Z\") - xs:yearMonthDuration(\"P05Y05M\"))) and (fn:true())",
             "T"
         ),
         (
@@ -4343,6 +5371,31 @@ internal static class Qt3TemporalSelection
             "S:-P4M"
         ),
         (
+            "op-subtract-yearMonthDurations/op-subtract-yearMonthDurations-2",
+            "fn:string(xs:yearMonthDuration(\"P10Y11M\") - xs:yearMonthDuration(\"P12Y07M\")) and fn:false()",
+            "F"
+        ),
+        (
+            "op-subtract-yearMonthDurations/op-subtract-yearMonthDurations-3",
+            "fn:string(xs:yearMonthDuration(\"P20Y10M\") - xs:yearMonthDuration(\"P19Y10M\")) or fn:false()",
+            "T"
+        ),
+        (
+            "op-subtract-yearMonthDurations/op-subtract-yearMonthDurations-4",
+            "fn:not(fn:string(xs:yearMonthDuration(\"P11Y04M\") - xs:yearMonthDuration(\"P02Y11M\")))",
+            "F"
+        ),
+        (
+            "op-subtract-yearMonthDurations/op-subtract-yearMonthDurations-5",
+            "fn:boolean(fn:string(xs:yearMonthDuration(\"P05Y08M\") - xs:yearMonthDuration(\"P03Y06M\")))",
+            "T"
+        ),
+        (
+            "op-subtract-yearMonthDurations/op-subtract-yearMonthDurations-6",
+            "fn:number(xs:yearMonthDuration(\"P02Y09M\") - xs:yearMonthDuration(\"P10Y01M\"))",
+            "S:NaN"
+        ),
+        (
             "op-subtract-yearMonthDurations/op-subtract-yearMonthDurations-7",
             "fn:string(xs:yearMonthDuration(\"P03Y08M\") - xs:yearMonthDuration(\"P01Y02M\"))",
             "S:P2Y6M"
@@ -4366,6 +5419,11 @@ internal static class Qt3TemporalSelection
             "op-subtract-yearMonthDurations/op-subtract-yearMonthDurations-11",
             "(xs:yearMonthDuration(\"P42Y10M\") - xs:yearMonthDuration(\"P20Y10M\")) div (xs:yearMonthDuration(\"P20Y11M\") - xs:yearMonthDuration(\"P18Y11M\"))",
             "S:11"
+        ),
+        (
+            "op-subtract-yearMonthDurations/op-subtract-yearMonthDurations-12",
+            "fn:string((xs:yearMonthDuration(\"P10Y11M\") - xs:yearMonthDuration(\"P05Y07M\"))) and (fn:true())",
+            "T"
         ),
         (
             "op-subtract-yearMonthDurations/op-subtract-yearMonthDurations-13",
@@ -4453,9 +5511,9 @@ internal static class Qt3TemporalSelection
         ("op-time-equal/op-time-equal2args-19", "xs:time(\"00:00:00Z\") ge xs:time(\"08:03:35Z\")", "F"),
         ("op-time-equal/op-time-equal2args-20", "xs:time(\"00:00:00Z\") ge xs:time(\"23:59:59Z\")", "F"),
         ("op-time-equal/K-TimeEQ-1", "xs:time(\"23:01:04.12\") eq xs:time(\"23:01:04.12\")", "T"),
-        ("op-time-equal/K-TimeEQ-2", "xs:time(\"23:01:04.12\") eq xs:time(\"23:01:04.13\")", "F"),
+        ("op-time-equal/K-TimeEQ-2", "not(xs:time(\"23:01:04.12\") eq xs:time(\"23:01:04.13\"))", "T"),
         ("op-time-equal/K-TimeEQ-3", "xs:time(\"23:01:05.12\") ne xs:time(\"23:01:04.12\")", "T"),
-        ("op-time-equal/K-TimeEQ-4", "xs:time(\"23:01:04.12\") ne xs:time(\"23:01:04.12\")", "F"),
+        ("op-time-equal/K-TimeEQ-4", "not(xs:time(\"23:01:04.12\") ne xs:time(\"23:01:04.12\"))", "T"),
         ("op-time-equal/K-TimeEQ-5", "xs:time(\"16:00:12.345-00:00\") eq xs:time(\"16:00:12.345Z\")", "T"),
         ("op-time-equal/K-TimeEQ-6", "xs:time(\"16:00:12.345+00:00\") eq xs:time(\"16:00:12.345Z\")", "T"),
         ("op-time-equal/K-TimeEQ-7", "xs:time(\"16:00:12.345Z\") eq xs:time(\"16:00:12.345Z\")", "T"),
@@ -4508,9 +5566,26 @@ internal static class Qt3TemporalSelection
             "(xs:time(\"08:00:00+09:00\") ge xs:time(\"17:00:00-06:00\"))",
             "F"
         ),
-        ("op-time-greater-than/op-time-greater-than-4", "xs:time(\"13:00:00Z\") ge xs:time(\"10:00:00Z\")", "T"),
-        ("op-time-greater-than/op-time-greater-than-5", "xs:time(\"13:00:00Z\") gt xs:time(\"14:00:00Z\")", "F"),
-        ("op-time-greater-than/op-time-greater-than-6", "xs:time(\"13:00:00Z\") ge xs:time(\"17:00:00Z\")", "F"),
+        (
+            "op-time-greater-than/op-time-greater-than-3",
+            "fn:not((xs:time(\"14:00:00Z\") gt xs:time(\"13:00:00Z\")))",
+            "F"
+        ),
+        (
+            "op-time-greater-than/op-time-greater-than-4",
+            "fn:not(xs:time(\"13:00:00Z\") ge xs:time(\"10:00:00Z\"))",
+            "F"
+        ),
+        (
+            "op-time-greater-than/op-time-greater-than-5",
+            "fn:not(xs:time(\"13:00:00Z\") gt xs:time(\"14:00:00Z\"))",
+            "T"
+        ),
+        (
+            "op-time-greater-than/op-time-greater-than-6",
+            "fn:not(xs:time(\"13:00:00Z\") ge xs:time(\"17:00:00Z\"))",
+            "T"
+        ),
         (
             "op-time-greater-than/op-time-greater-than-7",
             "(xs:time(\"13:00:00Z\") gt xs:time(\"17:00:00Z\")) and (xs:time(\"13:00:00Z\") gt xs:time(\"17:00:00Z\"))",
@@ -4531,12 +5606,32 @@ internal static class Qt3TemporalSelection
             "(xs:time(\"13:00:00Z\") ge xs:time(\"17:00:00Z\")) or (xs:time(\"13:00:00Z\") ge xs:time(\"17:00:00Z\"))",
             "F"
         ),
+        (
+            "op-time-greater-than/op-time-greater-than-11",
+            "(xs:time(\"13:00:00Z\") gt xs:time(\"17:00:00Z\")) or (fn:true())",
+            "T"
+        ),
+        (
+            "op-time-greater-than/op-time-greater-than-12",
+            "(xs:time(\"13:00:00Z\") ge xs:time(\"17:00:00Z\")) or (fn:true())",
+            "T"
+        ),
+        (
+            "op-time-greater-than/op-time-greater-than-13",
+            "(xs:time(\"13:00:00Z\") gt xs:time(\"17:00:00Z\")) or (fn:false())",
+            "F"
+        ),
+        (
+            "op-time-greater-than/op-time-greater-than-14",
+            "(xs:time(\"13:00:00Z\") ge xs:time(\"17:00:00Z\")) or (fn:false())",
+            "F"
+        ),
         ("op-time-greater-than/K-TimeGT-1", "xs:time(\"23:01:03.12\") lt xs:time(\"23:01:04.12\")", "T"),
-        ("op-time-greater-than/K-TimeGT-2", "xs:time(\"23:01:04.12\") lt xs:time(\"23:01:04.12\")", "F"),
-        ("op-time-greater-than/K-TimeGT-3", "xs:time(\"23:01:05.12\") lt xs:time(\"23:01:04.12\")", "F"),
+        ("op-time-greater-than/K-TimeGT-2", "not(xs:time(\"23:01:04.12\") lt xs:time(\"23:01:04.12\"))", "T"),
+        ("op-time-greater-than/K-TimeGT-3", "not(xs:time(\"23:01:05.12\") lt xs:time(\"23:01:04.12\"))", "T"),
         ("op-time-greater-than/K-TimeGT-4", "xs:time(\"23:01:04.12\") le xs:time(\"23:01:04.12\")", "T"),
         ("op-time-greater-than/K-TimeGT-5", "xs:time(\"23:01:03.12\") le xs:time(\"23:01:04.12\")", "T"),
-        ("op-time-greater-than/K-TimeGT-6", "xs:time(\"23:01:05.12\") le xs:time(\"23:01:04.12\")", "F"),
+        ("op-time-greater-than/K-TimeGT-6", "not(xs:time(\"23:01:05.12\") le xs:time(\"23:01:04.12\"))", "T"),
         (
             "op-time-greater-than/cbcl-time-greater-than-002",
             "xs:time(\"14:00:00-12:00\") gt xs:time(\"02:00:00\")",
@@ -4589,9 +5684,10 @@ internal static class Qt3TemporalSelection
         ("op-time-less-than/op-time-less-than2args-10", "xs:time(\"00:00:00Z\") ge xs:time(\"23:59:59Z\")", "F"),
         ("op-time-less-than/op-time-less-than-1", "(xs:time(\"12:00:00-05:00\") lt xs:time(\"23:00:00+06:00\"))", "F"),
         ("op-time-less-than/op-time-less-than-2", "xs:time(\"11:00:00-05:00\") lt xs:time(\"17:00:00Z\")", "T"),
-        ("op-time-less-than/op-time-less-than-4", "xs:time(\"13:00:00Z\") le xs:time(\"14:00:00Z\")", "T"),
-        ("op-time-less-than/op-time-less-than-5", "xs:time(\"13:00:00Z\") lt xs:time(\"10:00:00Z\")", "F"),
-        ("op-time-less-than/op-time-less-than-6", "xs:time(\"13:00:00Z\") le xs:time(\"12:00:00Z\")", "F"),
+        ("op-time-less-than/op-time-less-than-3", "fn:not((xs:time(\"13:00:00Z\") lt xs:time(\"14:00:00Z\")))", "F"),
+        ("op-time-less-than/op-time-less-than-4", "fn:not(xs:time(\"13:00:00Z\") le xs:time(\"14:00:00Z\"))", "F"),
+        ("op-time-less-than/op-time-less-than-5", "fn:not(xs:time(\"13:00:00Z\") lt xs:time(\"10:00:00Z\"))", "T"),
+        ("op-time-less-than/op-time-less-than-6", "fn:not(xs:time(\"13:00:00Z\") le xs:time(\"12:00:00Z\"))", "T"),
         (
             "op-time-less-than/op-time-less-than-7",
             "(xs:time(\"13:00:00Z\") lt xs:time(\"17:00:00Z\")) and (xs:time(\"13:00:00Z\") lt xs:time(\"17:00:00Z\"))",
@@ -4612,12 +5708,32 @@ internal static class Qt3TemporalSelection
             "(xs:time(\"13:00:00Z\") le xs:time(\"17:00:00Z\")) or (xs:time(\"13:00:00Z\") le xs:time(\"17:00:00Z\"))",
             "T"
         ),
+        (
+            "op-time-less-than/op-time-less-than-11",
+            "(xs:time(\"13:00:00Z\") lt xs:time(\"17:00:00Z\")) or (fn:true())",
+            "T"
+        ),
+        (
+            "op-time-less-than/op-time-less-than-12",
+            "(xs:time(\"13:00:00Z\") le xs:time(\"17:00:00Z\")) or (fn:true())",
+            "T"
+        ),
+        (
+            "op-time-less-than/op-time-less-than-13",
+            "(xs:time(\"13:00:00Z\") lt xs:time(\"17:00:00Z\")) or (fn:false())",
+            "T"
+        ),
+        (
+            "op-time-less-than/op-time-less-than-14",
+            "(xs:time(\"13:00:00Z\") le xs:time(\"17:00:00Z\")) or (fn:false())",
+            "T"
+        ),
         ("op-time-less-than/K-TimeLT-1", "xs:time(\"23:01:05.12\") gt xs:time(\"23:01:04.12\")", "T"),
-        ("op-time-less-than/K-TimeLT-2", "xs:time(\"23:01:03.12\") gt xs:time(\"23:01:04.12\")", "F"),
-        ("op-time-less-than/K-TimeLT-3", "xs:time(\"23:01:04.12\") gt xs:time(\"23:01:04.12\")", "F"),
+        ("op-time-less-than/K-TimeLT-2", "not(xs:time(\"23:01:03.12\") gt xs:time(\"23:01:04.12\"))", "T"),
+        ("op-time-less-than/K-TimeLT-3", "not(xs:time(\"23:01:04.12\") gt xs:time(\"23:01:04.12\"))", "T"),
         ("op-time-less-than/K-TimeLT-4", "xs:time(\"23:01:04.12\") ge xs:time(\"23:01:04.12\")", "T"),
         ("op-time-less-than/K-TimeLT-5", "xs:time(\"23:01:05.12\") ge xs:time(\"23:01:04.12\")", "T"),
-        ("op-time-less-than/K-TimeLT-6", "xs:time(\"23:01:03.12\") ge xs:time(\"23:01:04.12\")", "F"),
+        ("op-time-less-than/K-TimeLT-6", "not(xs:time(\"23:01:03.12\") ge xs:time(\"23:01:04.12\"))", "T"),
         ("op-time-less-than/cbcl-time-less-than-002", "xs:time(\"14:00:00-12:00\") lt xs:time(\"02:00:00\")", "F"),
         ("op-time-less-than/cbcl-time-less-than-003", "xs:time(\"02:00:00\") lt xs:time(\"14:00:00-12:00\")", "T"),
         (
@@ -4693,19 +5809,24 @@ internal static class Qt3TemporalSelection
             "T"
         ),
         (
+            "op-yearMonthDuration-greater-than/op-yearMonthDuration-greater-than-3",
+            "fn:not((xs:yearMonthDuration(\"P20Y123M\") gt xs:yearMonthDuration(\"P20Y11M\")))",
+            "F"
+        ),
+        (
             "op-yearMonthDuration-greater-than/op-yearMonthDuration-greater-than-4",
-            "xs:yearMonthDuration(\"P20Y10M\") ge xs:yearMonthDuration(\"P20Y10M\")",
-            "T"
+            "fn:not(xs:yearMonthDuration(\"P20Y10M\") ge xs:yearMonthDuration(\"P20Y10M\"))",
+            "F"
         ),
         (
             "op-yearMonthDuration-greater-than/op-yearMonthDuration-greater-than-5",
-            "xs:yearMonthDuration(\"P20Y09M\") gt xs:yearMonthDuration(\"P20Y10M\")",
-            "F"
+            "fn:not(xs:yearMonthDuration(\"P20Y09M\") gt xs:yearMonthDuration(\"P20Y10M\"))",
+            "T"
         ),
         (
             "op-yearMonthDuration-greater-than/op-yearMonthDuration-greater-than-6",
-            "xs:yearMonthDuration(\"P10Y07M\") ge xs:yearMonthDuration(\"P10Y09M\")",
-            "F"
+            "fn:not(xs:yearMonthDuration(\"P10Y07M\") ge xs:yearMonthDuration(\"P10Y09M\"))",
+            "T"
         ),
         (
             "op-yearMonthDuration-greater-than/op-yearMonthDuration-greater-than-7",
@@ -4728,19 +5849,39 @@ internal static class Qt3TemporalSelection
             "T"
         ),
         (
+            "op-yearMonthDuration-greater-than/op-yearMonthDuration-greater-than-11",
+            "(xs:yearMonthDuration(\"P10Y02M\") gt xs:yearMonthDuration(\"P01Y10M\")) or (fn:true())",
+            "T"
+        ),
+        (
+            "op-yearMonthDuration-greater-than/op-yearMonthDuration-greater-than-12",
+            "(xs:yearMonthDuration(\"P10Y01M\") ge xs:yearMonthDuration(\"P09Y05M\")) or (fn:true())",
+            "T"
+        ),
+        (
+            "op-yearMonthDuration-greater-than/op-yearMonthDuration-greater-than-13",
+            "(xs:yearMonthDuration(\"P30Y10M\") gt xs:yearMonthDuration(\"P01Y02M\")) or (fn:false())",
+            "T"
+        ),
+        (
+            "op-yearMonthDuration-greater-than/op-yearMonthDuration-greater-than-14",
+            "(xs:yearMonthDuration(\"P10Y05M\") ge xs:yearMonthDuration(\"P20Y10M\")) or (fn:false())",
+            "F"
+        ),
+        (
             "op-yearMonthDuration-greater-than/K-YearMonthDurationGT-1",
             "xs:yearMonthDuration(\"P1999Y10M\") gt xs:yearMonthDuration(\"P1999Y9M\")",
             "T"
         ),
         (
             "op-yearMonthDuration-greater-than/K-YearMonthDurationGT-2",
-            "xs:yearMonthDuration(\"P1999Y10M\") gt xs:yearMonthDuration(\"P1999Y10M\")",
-            "F"
+            "not(xs:yearMonthDuration(\"P1999Y10M\") gt xs:yearMonthDuration(\"P1999Y10M\"))",
+            "T"
         ),
         (
             "op-yearMonthDuration-greater-than/K-YearMonthDurationGT-3",
-            "xs:yearMonthDuration(\"P1999Y10M\") gt xs:yearMonthDuration(\"P1999Y11M\")",
-            "F"
+            "not(xs:yearMonthDuration(\"P1999Y10M\") gt xs:yearMonthDuration(\"P1999Y11M\"))",
+            "T"
         ),
         (
             "op-yearMonthDuration-greater-than/K-YearMonthDurationGT-4",
@@ -4754,8 +5895,8 @@ internal static class Qt3TemporalSelection
         ),
         (
             "op-yearMonthDuration-greater-than/K-YearMonthDurationGT-6",
-            "xs:yearMonthDuration(\"P1999Y9M\") ge xs:yearMonthDuration(\"P1999Y10M\")",
-            "F"
+            "not(xs:yearMonthDuration(\"P1999Y9M\") ge xs:yearMonthDuration(\"P1999Y10M\"))",
+            "T"
         ),
         (
             "op-yearMonthDuration-less-than/op-yearMonthDuration-less-than2args-1",
@@ -4808,19 +5949,24 @@ internal static class Qt3TemporalSelection
             "F"
         ),
         (
+            "op-yearMonthDuration-less-than/op-yearMonthDuration-less-than-3",
+            "fn:not((xs:yearMonthDuration(\"P20Y10M\") lt xs:yearMonthDuration(\"P20Y11M\")))",
+            "F"
+        ),
+        (
             "op-yearMonthDuration-less-than/op-yearMonthDuration-less-than-4",
-            "xs:yearMonthDuration(\"P20Y10M\") le xs:yearMonthDuration(\"P20Y10M\")",
-            "T"
+            "fn:not(xs:yearMonthDuration(\"P20Y10M\") le xs:yearMonthDuration(\"P20Y10M\"))",
+            "F"
         ),
         (
             "op-yearMonthDuration-less-than/op-yearMonthDuration-less-than-5",
-            "xs:yearMonthDuration(\"P20Y10M\") lt xs:yearMonthDuration(\"P20Y09M\")",
-            "F"
+            "fn:not(xs:yearMonthDuration(\"P20Y10M\") lt xs:yearMonthDuration(\"P20Y09M\"))",
+            "T"
         ),
         (
             "op-yearMonthDuration-less-than/op-yearMonthDuration-less-than-6",
-            "xs:yearMonthDuration(\"P10Y09M\") le xs:yearMonthDuration(\"P10Y07M\")",
-            "F"
+            "fn:not(xs:yearMonthDuration(\"P10Y09M\") le xs:yearMonthDuration(\"P10Y07M\"))",
+            "T"
         ),
         (
             "op-yearMonthDuration-less-than/op-yearMonthDuration-less-thanNew-7",
@@ -4843,19 +5989,39 @@ internal static class Qt3TemporalSelection
             "F"
         ),
         (
+            "op-yearMonthDuration-less-than/op-yearMonthDuration-less-than-11",
+            "(xs:yearMonthDuration(\"P10Y02M\") lt xs:yearMonthDuration(\"P01Y10M\")) or (fn:true())",
+            "T"
+        ),
+        (
+            "op-yearMonthDuration-less-than/op-yearMonthDuration-less-than-12",
+            "(xs:yearMonthDuration(\"P10Y01M\") le xs:yearMonthDuration(\"P09Y05M\")) or (fn:true())",
+            "T"
+        ),
+        (
+            "op-yearMonthDuration-less-than/op-yearMonthDuration-less-than-13",
+            "(xs:yearMonthDuration(\"P30Y10M\") lt xs:yearMonthDuration(\"P01Y02M\")) or (fn:false())",
+            "F"
+        ),
+        (
+            "op-yearMonthDuration-less-than/op-yearMonthDuration-less-than-14",
+            "(xs:yearMonthDuration(\"P10Y05M\") le xs:yearMonthDuration(\"P20Y10M\")) or (fn:false())",
+            "T"
+        ),
+        (
             "op-yearMonthDuration-less-than/K-YearMonthDurationLT-1",
             "xs:yearMonthDuration(\"P1999Y9M\") lt xs:yearMonthDuration(\"P1999Y10M\")",
             "T"
         ),
         (
             "op-yearMonthDuration-less-than/K-YearMonthDurationLT-2",
-            "xs:yearMonthDuration(\"P1999Y10M\") lt xs:yearMonthDuration(\"P1999Y10M\")",
-            "F"
+            "not(xs:yearMonthDuration(\"P1999Y10M\") lt xs:yearMonthDuration(\"P1999Y10M\"))",
+            "T"
         ),
         (
             "op-yearMonthDuration-less-than/K-YearMonthDurationLT-3",
-            "xs:yearMonthDuration(\"P1999Y10M\") lt xs:yearMonthDuration(\"P1999Y9M\")",
-            "F"
+            "not(xs:yearMonthDuration(\"P1999Y10M\") lt xs:yearMonthDuration(\"P1999Y9M\"))",
+            "T"
         ),
         (
             "op-yearMonthDuration-less-than/K-YearMonthDurationLT-4",
@@ -4869,988 +6035,24 @@ internal static class Qt3TemporalSelection
         ),
         (
             "op-yearMonthDuration-less-than/K-YearMonthDurationLT-6",
-            "xs:yearMonthDuration(\"P1999Y10M\") le xs:yearMonthDuration(\"P1999Y9M\")",
-            "F"
+            "not(xs:yearMonthDuration(\"P1999Y10M\") le xs:yearMonthDuration(\"P1999Y9M\"))",
+            "T"
         ),
     ];
 
     public static readonly (string Id, string Reason)[] OutOfShape =
     [
         (
-            "op-add-dayTimeDuration-to-date/op-add-dayTimeDuration-to-datealt-2",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-add-dayTimeDuration-to-date/op-add-dayTimeDuration-to-date-3",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-add-dayTimeDuration-to-date/op-add-dayTimeDuration-to-date-4",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-add-dayTimeDuration-to-date/op-add-dayTimeDuration-to-date-5",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-add-dayTimeDuration-to-date/op-add-dayTimeDuration-to-date-6",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-add-dayTimeDuration-to-date/op-add-dayTimeDuration-to-date-12",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-add-dayTimeDuration-to-dateTime/op-add-dayTimeDuration-to-dateTime-2",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-add-dayTimeDuration-to-dateTime/op-add-dayTimeDuration-to-dateTime-3",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-add-dayTimeDuration-to-dateTime/op-add-dayTimeDuration-to-dateTime-4",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-add-dayTimeDuration-to-dateTime/op-add-dayTimeDuration-to-dateTime-5",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-add-dayTimeDuration-to-dateTime/op-add-dayTimeDuration-to-dateTime-6",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-add-dayTimeDuration-to-dateTime/op-add-dayTimeDuration-to-dateTime-12",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-add-dayTimeDuration-to-time/op-add-dayTimeDuration-to-time-3",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-add-dayTimeDuration-to-time/op-add-dayTimeDuration-to-time-4",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-add-dayTimeDuration-to-time/op-add-dayTimeDuration-to-time-5",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-add-dayTimeDuration-to-time/op-add-dayTimeDuration-to-time-6",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-add-dayTimeDuration-to-time/op-add-dayTimeDuration-to-timealt-12",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-add-dayTimeDuration-to-time/op-add-dayTimeDuration-to-time-17",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-add-dayTimeDurations/op-add-dayTimeDurations-2",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-add-dayTimeDurations/op-add-dayTimeDurations-3",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-add-dayTimeDurations/op-add-dayTimeDurations-4",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-add-dayTimeDurations/op-add-dayTimeDurations-5",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-add-dayTimeDurations/op-add-dayTimeDurations-6",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-add-dayTimeDurations/op-add-dayTimeDurations-12",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-add-yearMonthDuration-to-date/op-add-yearMonthDuration-to-date-2",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-add-yearMonthDuration-to-date/op-add-yearMonthDuration-to-date-3",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-add-yearMonthDuration-to-date/op-add-yearMonthDuration-to-date-4",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-add-yearMonthDuration-to-date/op-add-yearMonthDuration-to-date-5",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-add-yearMonthDuration-to-date/op-add-yearMonthDuration-to-date-6",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-add-yearMonthDuration-to-date/op-add-yearMonthDuration-to-date-12",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-add-yearMonthDuration-to-dateTime/op-add-yearMonthDuration-to-dateTime-2",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-add-yearMonthDuration-to-dateTime/op-add-yearMonthDuration-to-dateTime-3",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-add-yearMonthDuration-to-dateTime/op-add-yearMonthDuration-to-dateTime-4",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-add-yearMonthDuration-to-dateTime/op-add-yearMonthDuration-to-dateTimealt-5",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-add-yearMonthDuration-to-dateTime/op-add-yearMonthDuration-to-dateTime-6",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-add-yearMonthDuration-to-dateTime/op-add-yearMonthDuration-to-dateTime-12",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-add-yearMonthDurations/op-add-yearMonthDurations-2",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-add-yearMonthDurations/op-add-yearMonthDurations-3",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-add-yearMonthDurations/op-add-yearMonthDurations-4",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-add-yearMonthDurations/op-add-yearMonthDurations-5",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-add-yearMonthDurations/op-add-yearMonthDurations-6",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-add-yearMonthDurations/op-add-yearMonthDurations-12",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-date-equal/cbcl-date-eq-001",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-date-equal/cbcl-date-ne-001",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-date-greater-than/op-date-greater-than-3",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-date-greater-than/op-date-greater-than-11",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-date-greater-than/op-date-greater-than-12",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-date-greater-than/op-date-greater-than-13",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-date-greater-than/op-date-greater-than-14",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-date-greater-than/cbcl-date-gt-001",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-date-less-than/op-date-less-than-3",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-date-less-than/op-date-less-than-11",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-date-less-than/op-date-less-than-12",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-date-less-than/op-date-less-than-13",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-date-less-than/op-date-less-than-14",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-date-less-than/cbcl-date-ge-001",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-dateTime-greater-than/op-dateTime-greater-than-3",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-dateTime-greater-than/op-dateTime-greater-than-11",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-dateTime-greater-than/op-dateTime-greater-than-12",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-dateTime-greater-than/op-dateTime-greater-than-13",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-dateTime-greater-than/op-dateTime-greater-than-14",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-dateTime-less-than/op-dateTime-less-than-3",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-dateTime-less-than/op-dateTime-less-than-11",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-dateTime-less-than/op-dateTime-less-than-12",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-dateTime-less-than/op-dateTime-less-than-13",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-dateTime-less-than/op-dateTime-less-than-14",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-dayTimeDuration-greater-than/op-dayTimeDuration-greater-than-3",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-dayTimeDuration-greater-than/op-dayTimeDuration-greater-than-11",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-dayTimeDuration-greater-than/op-dayTimeDuration-greater-than-12",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-dayTimeDuration-greater-than/op-dayTimeDuration-greater-than-13",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-dayTimeDuration-greater-than/op-dayTimeDuration-greater-than-14",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-dayTimeDuration-less-than/op-dayTimeDuration-less-than-3",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-dayTimeDuration-less-than/op-dayTimeDuration-less-than-11",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-dayTimeDuration-less-than/op-dayTimeDuration-less-than-12",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-dayTimeDuration-less-than/op-dayTimeDuration-less-than-13",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-dayTimeDuration-less-than/op-dayTimeDuration-less-than-14",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-divide-dayTimeDuration-by-dayTimeDuration/op-divide-dayTimeDuration-by-dTD-1",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-divide-dayTimeDuration-by-dayTimeDuration/op-divide-dayTimeDuration-by-dTD-2",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-divide-dayTimeDuration-by-dayTimeDuration/op-divide-dayTimeDuration-by-dTD-3",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-divide-dayTimeDuration-by-dayTimeDuration/op-divide-dayTimeDuration-by-dTD-4",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-divide-dayTimeDuration-by-dayTimeDuration/op-divide-dayTimeDuration-by-dTD-5",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-divide-dayTimeDuration-by-dayTimeDuration/op-divide-dayTimeDuration-by-dTD-6",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-divide-dayTimeDuration-by-dayTimeDuration/op-divide-dayTimeDuration-by-dTD-11",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-divide-dayTimeDuration-by-dayTimeDuration/op-divide-dayTimeDuration-by-dTD-12",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
             "op-divide-dayTimeDuration/op-divide-dayTimeDuration2args-2",
-            "The assertion is not one of the shapes of the selection."
+            "The assertion is an XPath expression over $result (abs(seconds-from-duration($result)) lt 1e-100), not one of the shapes of the selection."
         ),
         (
             "op-divide-dayTimeDuration/op-divide-dayTimeDuration2args-3",
-            "The assertion is not one of the shapes of the selection."
-        ),
-        (
-            "op-divide-dayTimeDuration/op-divide-dayTimeDuration-2",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-divide-dayTimeDuration/op-divide-dayTimeDuration-3",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-divide-dayTimeDuration/op-divide-dayTimeDuration-4",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-divide-dayTimeDuration/op-divide-dayTimeDuration-5",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-divide-dayTimeDuration/op-divide-dayTimeDuration-6",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-divide-dayTimeDuration/op-divide-dayTimeDuration-12",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-divide-yearMonthDuration-by-yearMonthDuration/op-divide-yearMonthDuration-by-yMD-2",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-divide-yearMonthDuration-by-yearMonthDuration/op-divide-yearMonthDuration-by-yMD-3",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-divide-yearMonthDuration-by-yearMonthDuration/op-divide-yearMonthDuration-by-yMD-4",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-divide-yearMonthDuration-by-yearMonthDuration/op-divide-yearMonthDuration-by-yMD-5",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-divide-yearMonthDuration-by-yearMonthDuration/op-divide-yearMonthDuration-by-yMD-6",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-divide-yearMonthDuration-by-yearMonthDuration/op-divide-yearMonthDuration-by-yMD-11",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-divide-yearMonthDuration-by-yearMonthDuration/op-divide-yearMonthDuration-by-yMD-12",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-divide-yearMonthDuration/op-divide-yearMonthDuration-2",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-divide-yearMonthDuration/op-divide-yearMonthDuration-3",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-divide-yearMonthDuration/op-divide-yearMonthDuration-4",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-divide-yearMonthDuration/op-divide-yearMonthDuration-5",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-divide-yearMonthDuration/op-divide-yearMonthDuration-6",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-divide-yearMonthDuration/op-divide-yearMonthDuration-12",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-divide-yearMonthDuration/op-divide-yearMonthDuration-17",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-duration-equal/op-duration-equal-18",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-duration-equal/op-duration-equal-19",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-duration-equal/op-duration-equal-20",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-duration-equal/op-duration-equal-21",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-duration-equal/op-duration-equal-22",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-duration-equal/op-duration-equal-23",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-duration-equal/op-duration-equal-24",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-duration-equal/op-duration-equal-25",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
+            "The assertion is an XPath expression over $result (abs(seconds-from-duration($result)) lt 1e-100), not one of the shapes of the selection."
         ),
         (
             "op-duration-equal/distinct-duration-equal-1",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-duration-equal/distinct-duration-equal-2",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-gDay-equal/op-gDay-equal-3",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-gDay-equal/op-gDay-equal-11",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-gDay-equal/op-gDay-equal-12",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-gDay-equal/op-gDay-equal-13",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-gDay-equal/op-gDay-equal-14",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-gMonth-equal/op-gMonth-equal-3",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-gMonth-equal/op-gMonth-equal-11",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-gMonth-equal/op-gMonth-equal-12",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-gMonth-equal/op-gMonth-equal-13",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-gMonth-equal/op-gMonth-equal-14",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-gMonthDay-equal/op-gMonthDay-equal-3",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-gMonthDay-equal/op-gMonthDay-equal-11",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-gMonthDay-equal/op-gMonthDay-equal-12",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-gMonthDay-equal/op-gMonthDay-equal-13",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-gMonthDay-equal/op-gMonthDay-equal-14",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-gYear-equal/op-gYear-equalNew-3",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-gYear-equal/op-gYear-equal-11",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-gYear-equal/op-gYear-equalNew-12",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-gYear-equal/op-gYear-equal-13",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-gYear-equal/op-gYear-equal-14",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-gYearMonth-equal/op-gYearMonth-equalNew-3",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-gYearMonth-equal/op-gYearMonth-equalNew-11",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-gYearMonth-equal/op-gYearMonth-equalNew-12",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-gYearMonth-equal/op-gYearMonth-equalNew-13",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-gYearMonth-equal/op-gYearMonth-equalNew-14",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-multiply-dayTimeDuration/op-multiply-dayTimeDuration-2",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-multiply-dayTimeDuration/op-multiply-dayTimeDuration-3",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-multiply-dayTimeDuration/op-multiply-dayTimeDuration-4",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-multiply-dayTimeDuration/op-multiply-dayTimeDuration-5",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-multiply-dayTimeDuration/op-multiply-dayTimeDuration-6",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-multiply-dayTimeDuration/op-multiply-dayTimeDuration-12",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-multiply-dayTimeDuration/op-multiply-dayTimeDuration-17",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-multiply-dayTimeDuration/op-multiply-dayTimeDuration-18",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-multiply-yearMonthDuration/op-multiply-yearMonthDuration-2",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-multiply-yearMonthDuration/op-multiply-yearMonthDuration-3",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-multiply-yearMonthDuration/op-multiply-yearMonthDuration-4",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-multiply-yearMonthDuration/op-multiply-yearMonthDuration-5",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-multiply-yearMonthDuration/op-multiply-yearMonthDuration-6",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-multiply-yearMonthDuration/op-multiply-yearMonthDuration-12",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-multiply-yearMonthDuration/op-multiply-yearMonthDuration-17",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-multiply-yearMonthDuration/op-multiply-yearMonthDuration-18",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-multiply-yearMonthDuration/op-multiply-yearMonthDuration-19",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-multiply-yearMonthDuration/op-multiply-yearMonthDuration-20",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-dateTimes/op-subtract-dateTimes-yielding-DTD-4",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-dateTimes/op-subtract-dateTimes-yielding-DTD-5",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-dateTimes/op-subtract-dateTimes-yielding-DTD-6",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-dateTimes/op-subtract-dateTimes-yielding-DTD-12",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-dateTimes/op-subtract-dateTimes-yielding-DTD-17",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-dateTimes/op-subtract-dateTimes-yielding-DTD-18",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-dateTimes/K-dateTimesSubtract-5",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-dates/op-subtract-dates-yielding-DTD-4",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-dates/op-subtract-dates-yielding-DTD-5",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-dates/op-subtract-dates-yielding-DTD-6",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-dates/op-subtract-dates-yielding-DTD-12",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-dates/op-subtract-dates-yielding-DTD-17",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-dates/op-subtract-dates-yielding-DTD-18",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-dates/K-DatesSubtract-6",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-dayTimeDuration-from-date/op-subtract-dayTimeDuration-from-date-2",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-dayTimeDuration-from-date/op-subtract-dayTimeDuration-from-date-3",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-dayTimeDuration-from-date/op-subtract-dayTimeDuration-from-date-4",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-dayTimeDuration-from-date/op-subtract-dayTimeDuration-from-date-5",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-dayTimeDuration-from-date/op-subtract-dayTimeDuration-from-date-6",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-dayTimeDuration-from-date/op-subtract-dayTimeDuration-from-date-12",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-dayTimeDuration-from-dateTime/op-subtract-dayTimeDuration-from-dateTime-2",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-dayTimeDuration-from-dateTime/op-subtract-dayTimeDuration-from-dateTime-3",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-dayTimeDuration-from-dateTime/op-subtract-dayTimeDuration-from-dateTime-4",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-dayTimeDuration-from-dateTime/op-subtract-dayTimeDuration-from-dateTime-5",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-dayTimeDuration-from-dateTime/op-subtract-dayTimeDuration-from-dateTime-6",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-dayTimeDuration-from-dateTime/op-subtract-dayTimeDuration-from-dateTime-12",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-dayTimeDuration-from-time/op-subtract-dayTimeDuration-from-time-3",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-dayTimeDuration-from-time/op-subtract-dayTimeDuration-from-time-4",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-dayTimeDuration-from-time/op-subtract-dayTimeDuration-from-time-5",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-dayTimeDuration-from-time/op-subtract-dayTimeDuration-from-time-6",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-dayTimeDuration-from-time/op-subtract-dayTimeDuration-from-time-12",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-dayTimeDuration-from-time/op-subtract-dayTimeDuration-from-time-17",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-dayTimeDurations/op-subtract-dayTimeDurations-2",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-dayTimeDurations/op-subtract-dayTimeDurations-3",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-dayTimeDurations/op-subtract-dayTimeDurations-4",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-dayTimeDurations/op-subtract-dayTimeDurations-5",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-dayTimeDurations/op-subtract-dayTimeDurations-6",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-dayTimeDurations/op-subtract-dayTimeDurations-12",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-dayTimeDurations/K2-DayTimeDurationSubtract-1",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-dayTimeDurations/K2-DayTimeDurationSubtract-2",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-times/op-subtract-times-4",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-times/op-subtract-times-5",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-times/op-subtract-times-6",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-times/op-subtract-times-12",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-times/K-TimeSubtract-8",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-times/cbcl-subtract-times-003",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-times/cbcl-subtract-times-004",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-yearMonthDuration-from-date/op-subtract-yearMonthDuration-from-date-4",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-yearMonthDuration-from-date/op-subtract-yearMonthDuration-from-date-5",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-yearMonthDuration-from-date/op-subtract-yearMonthDuration-from-date-6",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-yearMonthDuration-from-date/op-subtract-yearMonthDuration-from-date-12",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-yearMonthDuration-from-date/op-subtract-yearMonthDuration-from-date-17",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-yearMonthDuration-from-date/op-subtract-yearMonthDuration-from-date-18",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-yearMonthDuration-from-dateTime/op-subtract-yearMonthDuration-from-dateTime-2",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-yearMonthDuration-from-dateTime/op-subtract-yearMonthDuration-from-dateTime-3",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-yearMonthDuration-from-dateTime/op-subtract-yearMonthDuration-from-dateTime-4",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-yearMonthDuration-from-dateTime/op-subtract-yearMonthDuration-from-dateTime-5",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-yearMonthDuration-from-dateTime/op-subtract-yearMonthDuration-from-dateTime-6",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-yearMonthDuration-from-dateTime/op-subtract-yearMonthDuration-from-dateTime-12",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-yearMonthDurations/op-subtract-yearMonthDurations-2",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-yearMonthDurations/op-subtract-yearMonthDurations-3",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-yearMonthDurations/op-subtract-yearMonthDurations-4",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-yearMonthDurations/op-subtract-yearMonthDurations-5",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-yearMonthDurations/op-subtract-yearMonthDurations-6",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-subtract-yearMonthDurations/op-subtract-yearMonthDurations-12",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-time-greater-than/op-time-greater-than-3",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-time-greater-than/op-time-greater-than-11",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-time-greater-than/op-time-greater-than-12",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-time-greater-than/op-time-greater-than-13",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-time-greater-than/op-time-greater-than-14",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-time-less-than/op-time-less-than-3",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-time-less-than/op-time-less-than-11",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-time-less-than/op-time-less-than-12",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-time-less-than/op-time-less-than-13",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-time-less-than/op-time-less-than-14",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-yearMonthDuration-greater-than/op-yearMonthDuration-greater-than-3",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-yearMonthDuration-greater-than/op-yearMonthDuration-greater-than-11",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-yearMonthDuration-greater-than/op-yearMonthDuration-greater-than-12",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-yearMonthDuration-greater-than/op-yearMonthDuration-greater-than-13",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-yearMonthDuration-greater-than/op-yearMonthDuration-greater-than-14",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-yearMonthDuration-less-than/op-yearMonthDuration-less-than-3",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-yearMonthDuration-less-than/op-yearMonthDuration-less-than-11",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-yearMonthDuration-less-than/op-yearMonthDuration-less-than-12",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-yearMonthDuration-less-than/op-yearMonthDuration-less-than-13",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
-        ),
-        (
-            "op-yearMonthDuration-less-than/op-yearMonthDuration-less-than-14",
-            "The expression uses a construct outside literals, constructors, the operators under test, and fn:string."
+            "fn:distinct-values compares two durations of different subtypes by representation, so it keeps both of two equal zero durations; the comparison by value is open in #732."
         ),
     ];
 

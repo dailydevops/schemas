@@ -1,5 +1,10 @@
 namespace NetEvolve.Schemas.XPath.Tests.Unit.Evaluation.Temporal;
 
+using System;
+using NetEvolve.Schemas.XPath.Context;
+using NetEvolve.Schemas.XPath.Errors;
+using NetEvolve.Schemas.XPath.Functions.Sequences;
+using NetEvolve.Schemas.XPath.Xdm.Values;
 using static TemporalFixture;
 
 public class TemporalAggregateTests
@@ -30,21 +35,38 @@ public class TemporalAggregateTests
         await Assert.That(Value(expression)).IsEqualTo(expected);
 
     [Test]
-    [Arguments(0, "fn:max((xs:dateTime('2000-01-01T10:00:00'), xs:dateTime('2000-01-01T10:00:00Z')))", "10:00:00")]
-    [Arguments(120, "fn:max((xs:dateTime('2000-01-01T10:00:00'), xs:dateTime('2000-01-01T10:00:00Z')))", "Z")]
-    [Arguments(-300, "fn:max((xs:dateTime('2000-01-01T10:00:00'), xs:dateTime('2000-01-01T10:00:00Z')))", "10:00:00")]
-    [Arguments(120, "fn:min((xs:dateTime('2000-01-01T10:00:00'), xs:dateTime('2000-01-01T10:00:00Z')))", "10:00:00")]
+    [Arguments(
+        0,
+        "fn:max((xs:dateTime('2000-01-01T10:00:00'), xs:dateTime('2000-01-01T10:00:00Z')))",
+        "DateTime:2000-01-01T10:00:00"
+    )]
+    [Arguments(
+        120,
+        "fn:max((xs:dateTime('2000-01-01T10:00:00'), xs:dateTime('2000-01-01T10:00:00Z')))",
+        "DateTime:2000-01-01T10:00:00Z"
+    )]
+    [Arguments(
+        -300,
+        "fn:max((xs:dateTime('2000-01-01T10:00:00'), xs:dateTime('2000-01-01T10:00:00Z')))",
+        "DateTime:2000-01-01T10:00:00"
+    )]
+    [Arguments(
+        120,
+        "fn:min((xs:dateTime('2000-01-01T10:00:00'), xs:dateTime('2000-01-01T10:00:00Z')))",
+        "DateTime:2000-01-01T10:00:00"
+    )]
+    [Arguments(
+        -300,
+        "fn:min((xs:dateTime('2000-01-01T10:00:00'), xs:dateTime('2000-01-01T10:00:00Z')))",
+        "DateTime:2000-01-01T10:00:00Z"
+    )]
     public async Task MinAndMax_UseTheImplicitTimezoneOfTheDynamicContext(
         int implicitTimezone,
         string expression,
-        string suffix
-    )
-    {
+        string expected
+    ) =>
         // Equal values: the first of them is the result; otherwise the one that is later (max) or earlier (min) on the timeline.
-        var value = Value(expression, implicitTimezone);
-
-        await Assert.That(value).EndsWith(suffix);
-    }
+        await Assert.That(Value(expression, implicitTimezone)).IsEqualTo(expected);
 
     [Test]
     [Arguments("fn:sum((xs:dayTimeDuration('P1D'), xs:dayTimeDuration('PT1H')))", "DayTimeDuration:P1DT1H")]
@@ -73,4 +95,39 @@ public class TemporalAggregateTests
     [Arguments("fn:avg((xs:duration('P1D'), xs:duration('P3D')))")]
     public async Task AValueThatCannotBeOrderedOrAddedTogether_RaisesForg0006(string expression) =>
         await Assert.That(Code(expression)).IsEqualTo("FORG0006");
+
+    [Test]
+    public async Task Sum_OfNumbers_WithoutAContext_RaisesArgumentNullException()
+    {
+        var numbers = Run("(1, 2)").Result;
+
+        await Assert.That(() => AggregateInput.Sum(numbers, null!)).Throws<ArgumentNullException>();
+    }
+
+    [Test]
+    public async Task Sum_OfDurations_WithoutAContext_RaisesArgumentNullException()
+    {
+        var durations = Run("(xs:dayTimeDuration('PT1H'), xs:dayTimeDuration('PT2H'))").Result;
+
+        await Assert.That(() => AggregateInput.Sum(durations, null!)).Throws<ArgumentNullException>();
+    }
+
+    [Test]
+    public async Task DivideDuration_WithoutAContext_RaisesArgumentNullException()
+    {
+        var total = Run("xs:dayTimeDuration('PT3H')").Result[0];
+
+        await Assert.That(() => AggregateInput.DivideDuration(total, 3, null!)).Throws<ArgumentNullException>();
+    }
+
+    [Test]
+    public async Task DivideDuration_OfAValueThatIsNotADuration_RaisesForg0006()
+    {
+        var total = Run("3").Result[0];
+        using var context = new XPathEvaluationContext();
+
+        var error = await Assert.That(() => AggregateInput.DivideDuration(total, 3, context)).Throws<XPathException>();
+
+        await Assert.That(error!.Diagnostic.Code).IsEqualTo("FORG0006");
+    }
 }

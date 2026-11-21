@@ -106,7 +106,8 @@ internal sealed class ComparisonOperatorTable
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="relation"/> is not a defined relation.</exception>
     /// <remarks>
     /// Allocates nothing. The exact entry is one dictionary lookup; substitution scans the entries of the relation. When two entries
-    /// match and the types of neither derive from the types of the other, the one registered first wins.
+    /// match and the types of neither derive from the types of the other, the one registered first wins. It returns <see langword="false"/> when
+    /// the most specific match is a contextual entry, even if a less specific plain entry also matches; <c>TryGetContextual</c> finds both kinds.
     /// </remarks>
     public bool TryGet(
         ComparisonRelation relation,

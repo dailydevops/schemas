@@ -1,5 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Functions.Sequences;
 
+using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Evaluation.Arithmetic;
@@ -38,9 +39,12 @@ internal static class AggregateInput
     /// <param name="items">The atomized items, not empty.</param>
     /// <param name="context">The dynamic context.</param>
     /// <returns>The sum, in the promoted type, or a duration of the type of the items.</returns>
+    /// <exception cref="System.ArgumentNullException"><paramref name="context"/> is <see langword="null"/>.</exception>
     /// <exception cref="XPathException">An item is not a number (FORG0006) or cannot be cast (FORG0001), the sum overflows (FOAR0002 for a number, FODT0002 for a duration), or the durations are of two subtypes (FORG0006).</exception>
     public static XdmItem Sum(in XdmSequence items, XPathEvaluationContext context)
     {
+        Argument.ThrowIfNull(context);
+
         if (TemporalAggregation.IsSummable(items[0]))
         {
             return SumDurations(in items, context);
@@ -80,9 +84,13 @@ internal static class AggregateInput
     /// <param name="count">The number of items.</param>
     /// <param name="context">The dynamic context.</param>
     /// <returns>The average, a duration of the type of the sum.</returns>
+    /// <exception cref="System.ArgumentNullException"><paramref name="context"/> is <see langword="null"/>.</exception>
     /// <exception cref="XPathException">The quotient is beyond the range (FODT0002).</exception>
-    public static XdmItem DivideDuration(in XdmItem total, int count, XPathEvaluationContext context) =>
-        TemporalAggregation.TryApply(
+    public static XdmItem DivideDuration(in XdmItem total, int count, XPathEvaluationContext context)
+    {
+        Argument.ThrowIfNull(context);
+
+        return TemporalAggregation.TryApply(
             ArithmeticOperator.Divide,
             total,
             XdmItem.FromInteger(count),
@@ -91,6 +99,7 @@ internal static class AggregateInput
         )
             ? average
             : throw XPathErrors.Exception(XPathErrorCodes.FORG0006);
+    }
 
     /// <summary>Determines whether an item is an <c>xs:integer</c>, <c>xs:decimal</c>, <c>xs:float</c>, or <c>xs:double</c>.</summary>
     /// <param name="item">The item.</param>

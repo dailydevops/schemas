@@ -3,6 +3,9 @@ namespace NetEvolve.Schemas.XPath.Tests.Unit.Evaluation.Temporal;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using NetEvolve.Arguments;
+using NetEvolve.Schemas.Xml.Datatypes.DateTime;
+using NetEvolve.Schemas.Xml.Datatypes.Duration;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Evaluation.Arithmetic;
 using NetEvolve.Schemas.XPath.Evaluation.Comparison;
@@ -15,6 +18,7 @@ public class TemporalOperatorTableTests
 {
     private const string TemporalNamespace = "NetEvolve.Schemas.XPath.Evaluation.Temporal";
 
+    private static readonly Type[] TemporalValueTypes = [typeof(XsdDateTime), typeof(XsdDuration)];
     private static readonly XdmTypeId Duration = XdmTypeId.Duration;
     private static readonly XdmTypeId YearMonth = XdmTypeId.YearMonthDuration;
     private static readonly XdmTypeId DayTime = XdmTypeId.DayTimeDuration;
@@ -221,6 +225,11 @@ public class TemporalOperatorTableTests
     {
         // The folders of the numeric arithmetic and of the comparisons are the shared files of this work package; they know entries
         // only as delegates in a table, and the registration of the temporal entries is the single place that knows the temporal types.
+        // The scan reads the types of the Evaluation.Temporal namespace and the value types XsdDateTime and XsdDuration, in signatures,
+        // fields, locals, and the call targets of the IL. Looser reading: the kinds XdmItemKind.Date, Time, DateTime, and the durations are
+        // not scanned. A member of an enumeration compiles to an integer constant, which the IL does not tell from any other integer, and
+        // the comparison folder names these kinds on purpose: ComparisonOperands maps the kind of an operand to the cast target of an
+        // xs:untypedAtomic operand, which is no knowledge of an operator.
         var assembly = typeof(TemporalOperators).Assembly;
         var violations = new List<string>();
         var checkedTypes = 0;
@@ -249,6 +258,20 @@ public class TemporalOperatorTableTests
         var violations = new List<string>();
 
         Scan(typeof(ReferencingFixture), violations);
+
+        await Assert.That(violations).IsNotEmpty();
+    }
+
+    [Test]
+    [Arguments(typeof(ReferencingDurationFixture))]
+    [Arguments(typeof(ReferencingDateTimeFixture))]
+    public async Task TheScanOfTheNumericTypes_ReportsAFixtureThatReferencesAnXsdTemporalValueType(Type fixture)
+    {
+        Argument.ThrowIfNull(fixture);
+
+        var violations = new List<string>();
+
+        Scan(fixture, violations);
 
         await Assert.That(violations).IsNotEmpty();
     }
@@ -412,10 +435,33 @@ public class TemporalOperatorTableTests
     private static void Collect(Type used, Type owner, List<string> violations)
     {
         var element = used.HasElementType ? used.GetElementType()! : used;
-        if ((element.Namespace ?? string.Empty).StartsWith(TemporalNamespace, StringComparison.Ordinal))
+        if (
+            (element.Namespace ?? string.Empty).StartsWith(TemporalNamespace, StringComparison.Ordinal)
+            || Array.IndexOf(TemporalValueTypes, element) >= 0
+        )
         {
             violations.Add($"{owner.Name} references {element.FullName}");
         }
+
+        if (element.IsGenericType)
+        {
+            foreach (var argument in element.GetGenericArguments())
+            {
+                Collect(argument, owner, violations);
+            }
+        }
+    }
+
+    /// <summary>The violating fixture: a type of the arithmetic folder shape that takes a duration value.</summary>
+    private static class ReferencingDurationFixture
+    {
+        internal static XsdDuration Zero() => default;
+    }
+
+    /// <summary>The violating fixture: a type of the comparison folder shape that takes a dateTime value.</summary>
+    private static class ReferencingDateTimeFixture
+    {
+        internal static bool IsDefault(in XsdDateTime value) => value.Equals(default);
     }
 
     /// <summary>The violating fixture: a type of the arithmetic folder shape that calls the temporal registration.</summary>
