@@ -79,7 +79,7 @@ public class XmlConfOutputSuiteTests
         await Assert.That(report.TestSets.SelectMany(s => s.Regressions)).IsEmpty();
         await Assert.That(report.TestSets.SelectMany(s => s.UnexpectedPasses)).IsEmpty();
         await Assert.That(report.IsSuccess).IsTrue();
-        await Assert.That(report.Counts.Passed).IsGreaterThan(0);
+        await Assert.That(report.Counts.Failed).IsEqualTo(BaselinedCaseCount);
     }
 
     [Test]
