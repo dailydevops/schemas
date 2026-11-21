@@ -4,6 +4,7 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using NetEvolve.Arguments;
+using NetEvolve.Schemas.Xml.Dtd.Model;
 
 /// <summary>A handle for one node of an <see cref="XmlTree"/>: the tree and an index. Every member delegates to the tree.</summary>
 /// <remarks>
@@ -64,6 +65,12 @@ public readonly struct XmlNode : IEquatable<XmlNode>
 
     /// <summary>Gets the next in-scope namespace node; empty for none.</summary>
     public XmlNode NextNamespace => Wrap(_tree!.GetNextNamespace(Index));
+
+    /// <summary>Gets the declared type of an attribute node (including <see cref="DtdAttributeType.Id"/>); <see langword="null"/> for other nodes, an undeclared attribute, and a tree built without DTD processing.</summary>
+    public DtdAttributeType? AttributeType => _tree!.GetAttributeType(Index);
+
+    /// <summary>Gets a value indicating whether the document specified the node; <see langword="false"/> only for an attribute that was added from the default of its attribute definition.</summary>
+    public bool IsSpecified => _tree!.GetIsSpecified(Index);
 
     /// <summary>Gets the string value.</summary>
     public string StringValue => _tree!.GetStringValue(Index);

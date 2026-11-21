@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Buffers;
 using NetEvolve.Schemas.Xml.Contracts;
+using NetEvolve.Schemas.Xml.Dtd.Contracts;
 using NetEvolve.Schemas.Xml.Text.NameTable;
 
 /// <summary>
@@ -28,7 +29,7 @@ using NetEvolve.Schemas.Xml.Text.NameTable;
 /// (node count, text length) is out of scope here and belongs to XML-08.
 /// </para>
 /// </remarks>
-public sealed class XmlTreeBuilder : IXmlSink, IDisposable
+public sealed class XmlTreeBuilder : IXmlAttributeInfoSink, IDisposable
 {
     private readonly bool _ownsNames;
     private readonly bool _trackPositions;
@@ -162,6 +163,9 @@ public sealed class XmlTreeBuilder : IXmlSink, IDisposable
         _ = AddRow(XmlNodeKind.Attribute, Parent(), name, default);
         _other.Append(value);
     }
+
+    /// <inheritdoc />
+    public void AttributeInfo(in ValidationAttributeInfo attribute) { }
 
     /// <inheritdoc />
     public void EndAttributes() => FlushTag();
