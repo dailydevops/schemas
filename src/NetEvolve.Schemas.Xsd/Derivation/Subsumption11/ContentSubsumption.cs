@@ -36,17 +36,20 @@ using NetEvolve.Schemas.Xsd.Wildcards.Negation;
 /// (<c>mg-props-correct.2</c>), and an <c>all</c> group on either side, which the standard allows an implementation to accept
 /// provisionally. A check that exceeds its work limit or a ceiling of the content model (more positions or transitions than the
 /// automaton compiler accepts, more than <see cref="SubsumptionSearch.MaxVariables"/> counters, or an occurrence bound of 2^60 or
-/// more) gives <see cref="SubsumptionVerdict.Undecided"/>, and a report of it is an error with the clause
+/// more), or finds a violation only in a zone that is not exact (see <see cref="SubsumptionSearch"/>), gives
+/// <see cref="SubsumptionVerdict.Undecided"/>, and a report of it is an error with the clause
 /// <c>cos-content-act-restrict.ceiling</c>, as the other analyses of content models fail when they exceed a ceiling.
 /// </para>
 /// <para>
 /// Limitations: an element that a wildcard of the restriction matches is bound by the keyword of the wildcard, although it has the
-/// global element declaration of its name as governing declaration when one exists, which the content model does not know; the
+/// global element declaration of its name as governing declaration when one exists, which the content model does not know (a
+/// global element declaration of the restriction is its own governing declaration for a wildcard of the base); the
 /// names that <c>##defined</c> refers to and that neither model declares are not told apart; an element declaration is compared
 /// as itself, not as the substitution group it heads (#817); identity constraints (clause 4.3, #818) and type tables (clause 4.6,
 /// #319) are not compared yet because the element declaration carries neither; the fixed values of clause 4.2 are compared
-/// by their lexical form; the restriction is read as all its moves and the base as deterministic with the priority of an element
-/// declaration over a wildcard, see <see cref="SubsumptionSearch"/>; occurrence bounds above <see cref="long.MaxValue"/> are
+/// by their lexical form; both models are read with the priority of an element declaration over a wildcard, see <see cref="SubsumptionSearch"/>, and
+/// the counters of a loop that are not run in step are decided only up to <see cref="SubsumptionSearch.WidenAfter"/> values per
+/// pair of positions; occurrence bounds above <see cref="long.MaxValue"/> are
 /// read as unbounded (<see cref="Particle"/>). The recursion over nested groups is bounded by the depth of the schema documents,
 /// and the number of positions by the ceiling of the automaton compiler, which a group definition that is used many times
 /// reaches before it is expanded further.

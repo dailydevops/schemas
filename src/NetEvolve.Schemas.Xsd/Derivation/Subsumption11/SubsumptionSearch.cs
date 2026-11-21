@@ -21,14 +21,24 @@ using NetEvolve.Schemas.Xsd.Elements;
 /// The alphabet is every element name of the two models, every name that a wildcard disallows, and one name of each namespace
 /// that occurs, which stands for all the other names of that namespace. A move of the restriction on a name is checked against
 /// the base: where the guards of the moves of the base do not cover the zone, the restriction accepts a sequence that the base
-/// does not. The base is read as deterministic, with the priority of XSD 1.1: a move on an element declaration is taken
-/// before a move on a wildcard, and among equal ones the first in position order, so that a base that is not deterministic
-/// (<c>cos-nonambig</c>) is read as the first move; the restriction is read as all its moves.
+/// does not. Both models are read with the priority that Unique Particle Attribution (Structures 1.1, 3.8.6.4) gives an element
+/// declaration: a move on an element declaration is taken before a move on a wildcard, which only gets the values of the
+/// counters for which no element declaration takes the name. Among the moves of one kind the base takes the first in position
+/// order, so that a base that is not deterministic (<c>cos-nonambig</c>) is read as its first move, and the restriction takes
+/// all of them.
 /// </para>
 /// <para>
-/// Limitations: a zone is a convex set, so after <see cref="WidenAfter"/> different zones of one pair of positions their hull is
-/// widened; this is exact for the loops of one counter that two models run in step, and an over-approximation otherwise, where a
-/// restriction can be reported that is valid. The search stops at a work limit and then has no verdict.
+/// A zone is a convex set, so the zones of one pair of positions are merged by their hull once there are more than
+/// <see cref="WidenAfter"/> of them. The hull is exact when the zones are the points of a loop that counters run in step (each
+/// step adds one to some of them): the widened zone then holds exactly the values that the loop reaches before a counter
+/// stops it. Otherwise it is an over-approximation, which keeps a restriction that is valid from being rejected, but a
+/// violation that is found from such a zone might be spurious, so it is not reported as one: the check has no verdict
+/// (<see cref="SubsumptionVerdict.Undecided"/>). The search also stops at a work limit and at a ceiling of the memory of its zones.
+/// </para>
+/// <para>
+/// Limitations: the values of counters that are not run in step, and more than <see cref="WidenAfter"/> per pair of positions,
+/// are not decided; the restriction as a language is read with the priority of an element declaration, so a sequence that
+/// the base could take only through a wildcard where an element declaration of the same name has priority is not accepted.
 /// </para>
 /// </remarks>
 internal sealed class SubsumptionSearch
