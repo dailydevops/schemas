@@ -431,6 +431,59 @@ public class XPathQueryBindingTests
     public async Task BeginRun_NullResources_Throws() =>
         await Assert.That(() => Xpath2().BeginRun(null!, default)).Throws<ArgumentNullException>();
 
+    [Test]
+    public async Task Constructor_NullName_Throws() =>
+        await Assert.That(() => new XPathQueryBinding(null!, false)).Throws<ArgumentNullException>();
+
+    [Test]
+    public async Task TryEvaluateBoolean_NullExpression_Throws()
+    {
+        using var run = Begin();
+
+        await Assert
+            .That(() => run.TryEvaluateBoolean(null!, new QueryFocus(Document, 1, 1), out _))
+            .Throws<ArgumentNullException>();
+    }
+
+    [Test]
+    public async Task TryEvaluate_NullExpression_Throws()
+    {
+        using var run = Begin();
+
+        await Assert
+            .That(() => run.TryEvaluate(null!, new QueryFocus(Document, 1, 1), new CountingSink()))
+            .Throws<ArgumentNullException>();
+    }
+
+    [Test]
+    public async Task TryEvaluate_NullSink_Throws()
+    {
+        using var run = Begin();
+        var expression = Compile(Xpath2(), "r/a", [], null, QueryExpressionKind.Nodes);
+
+        await Assert
+            .That(() => run.TryEvaluate(expression, new QueryFocus(Document, 1, 1), null!))
+            .Throws<ArgumentNullException>();
+    }
+
+    [Test]
+    public async Task TryBindVariable_NullValue_Throws()
+    {
+        using var run = Begin();
+
+        await Assert
+            .That(() => run.TryBindVariable(0, null!, new QueryFocus(Document, 1, 1)))
+            .Throws<ArgumentNullException>();
+    }
+
+    [Test]
+    public async Task BindVariable_NullValue_Throws()
+    {
+        using var run = Begin();
+
+        await Assert.That(() => run.BindVariable(0, null!)).Throws<ArgumentNullException>();
+    }
+
     private sealed class CountingSink : ISequenceSink
     {
         internal int Items { get; private set; }
