@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xsd.Tests.Integration.Conformance;
 
 using System.Collections.Concurrent;
-using System.Runtime.CompilerServices;
 using NetEvolve.Schemas.Conformance.Baseline;
 using NetEvolve.Schemas.Conformance.Reporting;
 using NetEvolve.Schemas.Conformance.Results;
@@ -27,26 +26,34 @@ public class XstsConformanceTests
     /// <summary>The number of selected cases that one set test runs (decision P6 of the conformance spike).</summary>
     private const int SetSize = 100;
 
-    /// <summary>The chunks of every test set of the selection; the baselines list failures only, so they cannot give the sizes.</summary>
-    public static async IAsyncEnumerable<Func<(string TestSet, int Chunk)>> Chunks(
-        [EnumeratorCancellation] CancellationToken cancellationToken = default
-    )
+    /// <summary>
+    /// The chunks of every test set. The sizes come from the committed manifest, so discovery needs no download; the baselines list
+    /// failures only and cannot give them. <c>Suite_TestSetSizes_EqualTheCommittedManifest</c> pins the manifest to the suite.
+    /// </summary>
+    public static IEnumerable<Func<(string TestSet, int Chunk)>> Chunks()
     {
-        cancellationToken.ThrowIfCancellationRequested();
-        var selection = await XstsSuite.LoadSelectionAsync(cancellationToken);
-        foreach (
-            var group in selection
-                .Selected.GroupBy(c => c.TestSet, StringComparer.Ordinal)
-                .OrderBy(g => g.Key, StringComparer.Ordinal)
-        )
+        foreach (var (testSet, count) in TestSetSizes.Load())
         {
-            var count = group.Count();
             for (var chunk = 0; chunk * SetSize < count; chunk++)
             {
-                var captured = (group.Key, chunk);
+                var captured = (testSet, chunk);
                 yield return () => captured;
             }
         }
+    }
+
+    [Test]
+    public async Task Suite_TestSetSizes_EqualTheCommittedManifest(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var selection = await XstsSuite.LoadSelectionAsync(cancellationToken);
+
+        var sizes = selection
+            .Selected.GroupBy(c => c.TestSet, StringComparer.Ordinal)
+            .Select(g => (g.Key, g.Count()))
+            .OrderBy(s => s.Key, StringComparer.Ordinal);
+
+        await Assert.That(sizes).IsEquivalentTo(TestSetSizes.Load());
     }
 
     [Test]

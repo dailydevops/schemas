@@ -3,13 +3,14 @@ namespace NetEvolve.Schemas.Xsd.Tests.Integration.SchemaTests;
 using System.Collections.Concurrent;
 using NetEvolve.Schemas.Conformance.Baseline;
 using NetEvolve.Schemas.Conformance.Results;
+using NetEvolve.Schemas.Xsd.Tests.Integration.Conformance;
 using NetEvolve.Schemas.Xsd.Tests.Integration.Xsts;
 
 /// <summary>The known-failure baselines of the XSTS schema tests: one file per test set that has a failing case.</summary>
 public class SchemaBaselineTests
 {
     /// <summary>
-    /// Regenerates the baseline files from the failures of the pipeline; run it with the explicit filter after a deliberate change.
+    /// Regenerates the baseline files from the failures of the pipeline and the manifest of the test set sizes; run it with the explicit filter after a deliberate change.
     /// Every case that is not a schema test of XSD 1.0 is not observed and stays a failure, so the files keep them.
     /// </summary>
     [Test]
@@ -46,6 +47,12 @@ public class SchemaBaselineTests
         {
             BaselineFiles.Save(XstsSuite.BaselineDirectory, testSet, ids);
         }
+
+        var sizes = selection
+            .Selected.GroupBy(c => c.TestSet, StringComparer.Ordinal)
+            .OrderBy(g => g.Key, StringComparer.Ordinal)
+            .Select(g => g.Key + "\t" + g.Count().ToString(System.Globalization.CultureInfo.InvariantCulture) + "\n");
+        await File.WriteAllTextAsync(TestSetSizes.ManifestPath, string.Concat(sizes), cancellationToken);
 
         await Assert.That(failures).IsNotEmpty();
     }
