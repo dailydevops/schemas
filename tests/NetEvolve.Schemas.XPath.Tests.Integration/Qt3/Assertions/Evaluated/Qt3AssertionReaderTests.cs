@@ -37,6 +37,26 @@ public class Qt3AssertionReaderTests
     }
 
     [Test]
+    public async Task Read_ResultWithIndentation_FindsTheAssertionElement()
+    {
+        var assertion = ReadCase("\n   <assert-count>2</assert-count>\n").Assertion;
+
+        await Assert.That(assertion.Kind).IsEqualTo("assert-count");
+        await Assert.That(assertion.Value).IsEqualTo("2");
+    }
+
+    [Test]
+    [Arguments(" ", " ")]
+    [Arguments("&#13;", "\r")]
+    [Arguments("&#9;&#10;", "\t\n")]
+    public async Task Read_AssertStringValueOfOnlyWhitespace_KeepsTheWhitespace(string text, string expected)
+    {
+        var assertion = ReadCase($"<assert-string-value>{text}</assert-string-value>").Assertion;
+
+        await Assert.That(assertion.Value).IsEqualTo(expected);
+    }
+
+    [Test]
     [Arguments("<assert-true/>")]
     [Arguments("<error code=\"XPST0003\"/>")]
     [Arguments("<assert-xml>x</assert-xml>")]
