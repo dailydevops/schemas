@@ -26,6 +26,8 @@ public class XPathSeamTests
         // The Xsd annotation source types the value of an annotated node with the casting table and atomizes with its annotation slot, instead of a second copy of the lexical mappings (XSD-16, #305).
         "NetEvolve.Schemas.XPath.Casting.Core",
         "NetEvolve.Schemas.XPath.Evaluation.Atomization",
+        // The Schematron xsl:decimal-format merge checks the merged format with the decimal format model of the picture engine (XTSE1295, XTSE1300), instead of a second copy of its rules (SCH-83, #288, #272 D9).
+        "NetEvolve.Schemas.XPath.Formatting.Numbers",
     ];
 
     private static readonly string[] AllowedFriends =
