@@ -171,5 +171,17 @@ public class CounterZoneTests
         await Assert.That(() => zone.Widen(null!, [1])).Throws<ArgumentNullException>();
         await Assert.That(() => zone.Widen(zone, null!)).Throws<ArgumentNullException>();
         await Assert.That(() => zone.Widen(zone, [1, 2])).Throws<ArgumentOutOfRangeException>();
+        await Assert.That(() => zone.Minimum(0)).Throws<ArgumentOutOfRangeException>();
+        await Assert.That(() => zone.Minimum(2)).Throws<ArgumentOutOfRangeException>();
+        await Assert.That(() => zone.Maximum(0)).Throws<ArgumentOutOfRangeException>();
+        await Assert.That(() => zone.Maximum(2)).Throws<ArgumentOutOfRangeException>();
+        await Assert.That(() => zone.AtLeast(0, 0)).Throws<ArgumentOutOfRangeException>();
+        await Assert.That(() => zone.AtLeast(2, 0)).Throws<ArgumentOutOfRangeException>();
+        await Assert.That(() => zone.AtMost(0, 0)).Throws<ArgumentOutOfRangeException>();
+        await Assert.That(() => zone.AtMost(2, 0)).Throws<ArgumentOutOfRangeException>();
+        await Assert.That(() => zone.Assign(0, 0)).Throws<ArgumentOutOfRangeException>();
+        await Assert.That(() => zone.Assign(2, 0)).Throws<ArgumentOutOfRangeException>();
+        await Assert.That(() => zone.Increment(0)).Throws<ArgumentOutOfRangeException>();
+        await Assert.That(() => zone.Increment(2)).Throws<ArgumentOutOfRangeException>();
     }
 }

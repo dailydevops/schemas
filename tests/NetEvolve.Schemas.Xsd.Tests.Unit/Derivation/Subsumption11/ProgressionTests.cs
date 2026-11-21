@@ -45,4 +45,8 @@ public class ProgressionTests
 
     [Test]
     public async Task OneZone_HasNoStep() => await Assert.That(SubsumptionSearch.NextPoint([Point(1, 0)])).IsNull();
+
+    [Test]
+    public async Task NextPoint_OfNull_Throws() =>
+        await Assert.That(() => SubsumptionSearch.NextPoint(null!)).Throws<ArgumentNullException>();
 }
