@@ -3,6 +3,9 @@ namespace NetEvolve.Schemas.XPath.Tests.Unit.Evaluation.Temporal;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using NetEvolve.Arguments;
+using NetEvolve.Schemas.Xml.Datatypes.DateTime;
+using NetEvolve.Schemas.Xml.Datatypes.Duration;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Evaluation.Arithmetic;
 using NetEvolve.Schemas.XPath.Evaluation.Comparison;
@@ -254,6 +257,20 @@ public class TemporalOperatorTableTests
     }
 
     [Test]
+    [Arguments(typeof(ReferencingDurationFixture))]
+    [Arguments(typeof(ReferencingDateTimeFixture))]
+    public async Task TheScanOfTheNumericTypes_ReportsAFixtureThatReferencesAnXsdTemporalValueType(Type fixture)
+    {
+        Argument.ThrowIfNull(fixture);
+
+        var violations = new List<string>();
+
+        Scan(fixture, violations);
+
+        await Assert.That(violations).IsNotEmpty();
+    }
+
+    [Test]
     public async Task ARegisteredTemporalOperator_IsReadByTheNodesOfTheArithmeticFolder_WithoutEditingThem()
     {
         // The arithmetic lowering reads the table at evaluation: a table with the numeric entries only rejects the pair, the same table
@@ -416,6 +433,18 @@ public class TemporalOperatorTableTests
         {
             violations.Add($"{owner.Name} references {element.FullName}");
         }
+    }
+
+    /// <summary>The violating fixture: a type of the arithmetic folder shape that takes a duration value.</summary>
+    private static class ReferencingDurationFixture
+    {
+        internal static XsdDuration Zero() => default;
+    }
+
+    /// <summary>The violating fixture: a type of the comparison folder shape that takes a dateTime value.</summary>
+    private static class ReferencingDateTimeFixture
+    {
+        internal static bool IsDefault(in XsdDateTime value) => value.Equals(default);
     }
 
     /// <summary>The violating fixture: a type of the arithmetic folder shape that calls the temporal registration.</summary>
