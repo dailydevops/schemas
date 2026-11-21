@@ -80,7 +80,7 @@ internal static class DocumentPreparation
         {
             if (node.FindAttribute(name) is { } value && value.Length > 0 && !IsTrimmed(value))
             {
-                node.SetAttribute(name, value.Trim());
+                node.SetAttribute(name, Trim(value));
             }
         }
 
@@ -95,8 +95,26 @@ internal static class DocumentPreparation
         }
     }
 
+    // Whitespace collapse strips only #x20, #x9, #xA and #xD, not every Unicode whitespace character.
     private static bool IsTrimmed(string value) =>
-        !char.IsWhiteSpace(value[0]) && !char.IsWhiteSpace(value[value.Length - 1]);
+        !WhitespaceNormalizer.IsXmlSpace(value[0]) && !WhitespaceNormalizer.IsXmlSpace(value[value.Length - 1]);
+
+    private static string Trim(string value)
+    {
+        var start = 0;
+        var end = value.Length;
+        while (start < end && WhitespaceNormalizer.IsXmlSpace(value[start]))
+        {
+            start++;
+        }
+
+        while (end > start && WhitespaceNormalizer.IsXmlSpace(value[end - 1]))
+        {
+            end--;
+        }
+
+        return value.Substring(start, end - start);
+    }
 
     private static void CheckId(
         SchemaSyntaxNode node,
