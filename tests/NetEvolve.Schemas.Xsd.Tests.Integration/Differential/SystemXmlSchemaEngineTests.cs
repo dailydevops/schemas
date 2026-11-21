@@ -77,7 +77,7 @@ public class SystemXmlSchemaEngineTests
         cancellationToken.ThrowIfCancellationRequested();
         using var directory = new TempDirectory();
 
-        var result = await RunAsync(directory, Schema, "<a>\nnot a number</a>", cancellationToken);
+        var result = await RunAsync(directory, Schema, "<a>not a number</a>", cancellationToken);
 
         await Assert.That(result.Schema).IsEqualTo(Verdict.Valid);
         await Assert.That(result.Instance).IsEqualTo(Verdict.Invalid);
@@ -91,7 +91,7 @@ public class SystemXmlSchemaEngineTests
         cancellationToken.ThrowIfCancellationRequested();
         using var directory = new TempDirectory();
 
-        var result = await RunAsync(directory, Schema, "<a>\n<b></a>", cancellationToken);
+        var result = await RunAsync(directory, Schema, "<a>\n1</b>", cancellationToken);
 
         await Assert.That(result.Instance).IsEqualTo(Verdict.Invalid);
         await Assert.That(result.Issues.Count).IsEqualTo(1);
