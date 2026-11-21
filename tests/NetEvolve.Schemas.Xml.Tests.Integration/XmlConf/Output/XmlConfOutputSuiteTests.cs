@@ -10,13 +10,21 @@ public class XmlConfOutputSuiteTests
     private const int OutputCaseCount = 387;
 
     /// <summary>
-    /// The number of output cases without a document type declaration: the comparison runs for them. It is zero for the
-    /// pinned suite: an output file belongs to a valid case, and a valid document needs a document type declaration.
+    /// The number of output cases that are compared with their output file: every case that needs no external entity, no
+    /// namespace processing switch, and no processing instruction of the internal subset. All of them match (XML-16).
     /// </summary>
-    private const int ActivatedCaseCount = 0;
+    private const int ComparedCaseCount = 260;
 
-    /// <summary>The number of output cases left in the baseline: every case with a document type declaration and every case that fails the comparison.</summary>
-    private const int BaselinedCaseCount = 387;
+    /// <summary>The number of output cases left in the baseline: each one has a reason that the result carries.</summary>
+    private const int BaselinedCaseCount = 127;
+
+    /// <summary>The reasons for which a case is left out of the comparison, and how many cases have each.</summary>
+    private static readonly (string Reason, int Count)[] LeftOutReasons =
+    [
+        (XmlConfOutputRunner.NeedsExternalEntities, 125),
+        (XmlConfOutputRunner.NeedsNamespacesOff, 1),
+        (XmlConfOutputRunner.NeedsSubsetProcessingInstruction, 1),
+    ];
 
     private static string BaselineDirectory { get; } =
         Path.Combine(
@@ -56,13 +64,7 @@ public class XmlConfOutputSuiteTests
         var baselines = LoadBaselines(results);
 
         await Assert.That(results.Count).IsEqualTo(OutputCaseCount);
-        await Assert
-            .That(
-                results.Count(r =>
-                    !string.Equals(r.Reason, XmlConfOutputRunner.NeedsDtdProcessing, StringComparison.Ordinal)
-                )
-            )
-            .IsEqualTo(ActivatedCaseCount);
+        await Assert.That(results.Count(r => r.Outcome == CaseOutcome.Pass)).IsEqualTo(ComparedCaseCount);
         await Assert.That(baselines.Values.Sum(b => b.Count)).IsEqualTo(BaselinedCaseCount);
     }
 
@@ -83,24 +85,37 @@ public class XmlConfOutputSuiteTests
     }
 
     [Test]
-    public async Task Suite_BaselinedCases_AreLeftOutOnlyBecauseTheyNeedDtdProcessing(
-        CancellationToken cancellationToken
-    )
+    public async Task Suite_ComparedCases_AllEqualTheirOutputFile(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var results = await RunAsync(cancellationToken);
+        var compared = results.Where(r => !IsLeftOut(r)).ToList();
+
+        await Assert.That(compared.Count).IsEqualTo(ComparedCaseCount);
+        await Assert.That(compared.Where(r => r.Outcome != CaseOutcome.Pass).Select(r => r.CaseId)).IsEmpty();
+    }
+
+    [Test]
+    public async Task Suite_BaselinedCases_AreLeftOutOnlyForAListedReason(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         var results = await RunAsync(cancellationToken);
         var baselines = LoadBaselines(results);
 
-        await Assert
-            .That(
-                results.All(r =>
-                    r.Outcome == CaseOutcome.Fail
-                    && string.Equals(r.Reason, XmlConfOutputRunner.NeedsDtdProcessing, StringComparison.Ordinal)
-                )
-            )
-            .IsTrue();
-        await Assert.That(results.All(r => baselines[r.TestSet].Contains(r.CaseId))).IsTrue();
+        await Assert.That(results.Where(IsLeftOut).All(r => r.Outcome == CaseOutcome.Fail)).IsTrue();
+        await Assert.That(results.Where(IsLeftOut).All(r => baselines[r.TestSet].Contains(r.CaseId))).IsTrue();
+        foreach (var (reason, count) in LeftOutReasons)
+        {
+            await Assert
+                .That(results.Count(r => string.Equals(r.Reason, reason, StringComparison.Ordinal)))
+                .IsEqualTo(count);
+        }
+
+        await Assert.That(LeftOutReasons.Sum(r => r.Count)).IsEqualTo(BaselinedCaseCount);
     }
+
+    private static bool IsLeftOut(CaseResult result) =>
+        LeftOutReasons.Any(r => string.Equals(r.Reason, result.Reason, StringComparison.Ordinal));
 
     /// <summary>Regenerates the output baseline files from the run; run it with the explicit filter after a deliberate change.</summary>
     [Test]
