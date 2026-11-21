@@ -1324,6 +1324,19 @@ namespace NetEvolve.Schemas.Xml.Interop
         public bool AllowDocumentType { get; }
     }
 }
+namespace NetEvolve.Schemas.Xml.Model.Loading
+{
+    public static class XmlDocumentLoader
+    {
+        public static NetEvolve.Schemas.Xml.Model.XmlDocumentTree Load(System.Buffers.ReadOnlySequence<byte> input, NetEvolve.Schemas.Xml.Contracts.XmlReaderOptions? options = null, System.Uri? baseUri = null) { }
+        public static NetEvolve.Schemas.Xml.Model.XmlDocumentTree Load(System.Buffers.ReadOnlySequence<char> input, NetEvolve.Schemas.Xml.Contracts.XmlReaderOptions? options = null, System.Uri? baseUri = null) { }
+        public static NetEvolve.Schemas.Xml.Model.XmlDocumentTree Load(System.ReadOnlySpan<byte> input, NetEvolve.Schemas.Xml.Contracts.XmlReaderOptions? options = null, System.Uri? baseUri = null) { }
+        public static NetEvolve.Schemas.Xml.Model.XmlDocumentTree Load(System.ReadOnlySpan<char> input, NetEvolve.Schemas.Xml.Contracts.XmlReaderOptions? options = null, System.Uri? baseUri = null) { }
+        public static System.Threading.Tasks.ValueTask<NetEvolve.Schemas.Xml.Model.XmlDocumentTree> LoadAsync(System.IO.Stream stream, NetEvolve.Schemas.Xml.Contracts.XmlReaderOptions? options = null, System.Uri? baseUri = null, System.Threading.CancellationToken cancellationToken = default) { }
+        public static NetEvolve.Schemas.Xml.Model.XmlDocumentTree LoadFromMemory(System.ReadOnlyMemory<byte> input, NetEvolve.Schemas.Xml.Contracts.XmlReaderOptions? options = null, System.Uri? baseUri = null) { }
+        public static NetEvolve.Schemas.Xml.Model.XmlDocumentTree LoadFromMemory(System.ReadOnlyMemory<char> input, NetEvolve.Schemas.Xml.Contracts.XmlReaderOptions? options = null, System.Uri? baseUri = null) { }
+    }
+}
 namespace NetEvolve.Schemas.Xml.Model.Traversal
 {
     public static class XmlTreePump
