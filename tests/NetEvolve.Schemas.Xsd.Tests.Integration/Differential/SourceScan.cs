@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.Xsd.Tests.Integration.Differential;
 
 /// <summary>Finds source files that use System.Xml.Schema.</summary>
+/// <remarks>Only <c>//</c> comments are stripped, so a <c>//</c> inside a string literal truncates the rest of that line.</remarks>
 internal static class SourceScan
 {
     private const string Token = "System.Xml.Schema";
