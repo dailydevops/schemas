@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.XPath.Tests.Integration.Qt3.Engine;
 
 using System.Globalization;
+using System.Xml.Linq;
 using NetEvolve.Schemas.Conformance.Results;
 using NetEvolve.Schemas.XPath.Tests.Integration.Qt3.Assertions.Static;
 using NetEvolve.Schemas.XPath.Tests.Integration.Qt3.Runner;
@@ -187,18 +188,34 @@ public class Qt3EngineTests
     }
 
     [Test]
-    public async Task Evaluate_StaticBaseUri_FollowsTheEnvironment()
+    public async Task Evaluate_SourceWithUri_LoadsTheDocumentUnderThatUri()
     {
-        var given = "<environment name=\"b\"><static-base-uri uri=\"http://example.com/base/\"/></environment>";
-        var undefined = "<environment name=\"u\"><static-base-uri uri=\"#UNDEFINED\"/></environment>";
+        var environment =
+            "<environment name=\"u\"><source role=\".\" file=\"doc.xml\" uri=\"http://example.com/doc.xml\"/></environment>";
 
-        var set = Evaluate(given + CaseXml("string(static-base-uri())", environment: "<environment ref=\"b\"/>"));
-        var none = Evaluate(undefined + CaseXml("empty(static-base-uri())", environment: "<environment ref=\"u\"/>"));
-        var unspecified = Evaluate(CaseXml("empty(static-base-uri())"));
+        var result = Evaluate(environment + CaseXml("string(base-uri(/))", environment: "<environment ref=\"u\"/>"));
 
-        await Assert.That(set.Items[0]).IsEqualTo("http://example.com/base/");
-        await Assert.That(Text(none.Items[0])).IsEqualTo("true");
-        await Assert.That(Text(unspecified.Items[0])).IsEqualTo("true");
+        await Assert.That(result.Items[0]).IsEqualTo("http://example.com/doc.xml");
+    }
+
+    [Test]
+    public async Task Read_StaticBaseUri_IsKeptExceptForUndefined()
+    {
+        var given = Qt3EnvironmentReader.Read(
+            XElement.Parse(
+                $"<environment xmlns=\"{Catalog}\"><static-base-uri uri=\"http://example.com/base/\"/></environment>"
+            ),
+            "."
+        );
+        var undefined = Qt3EnvironmentReader.Read(
+            XElement.Parse($"<environment xmlns=\"{Catalog}\"><static-base-uri uri=\"#UNDEFINED\"/></environment>"),
+            "."
+        );
+        var absent = Qt3EnvironmentReader.Read(XElement.Parse($"<environment xmlns=\"{Catalog}\"/>"), ".");
+
+        await Assert.That(given.StaticBaseUri).IsEqualTo("http://example.com/base/");
+        await Assert.That(undefined.StaticBaseUri).IsNull();
+        await Assert.That(absent.StaticBaseUri).IsNull();
     }
 
     [Test]
