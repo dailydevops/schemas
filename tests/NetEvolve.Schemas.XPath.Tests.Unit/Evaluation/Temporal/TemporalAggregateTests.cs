@@ -33,21 +33,38 @@ public class TemporalAggregateTests
         await Assert.That(Value(expression)).IsEqualTo(expected);
 
     [Test]
-    [Arguments(0, "fn:max((xs:dateTime('2000-01-01T10:00:00'), xs:dateTime('2000-01-01T10:00:00Z')))", "10:00:00")]
-    [Arguments(120, "fn:max((xs:dateTime('2000-01-01T10:00:00'), xs:dateTime('2000-01-01T10:00:00Z')))", "Z")]
-    [Arguments(-300, "fn:max((xs:dateTime('2000-01-01T10:00:00'), xs:dateTime('2000-01-01T10:00:00Z')))", "10:00:00")]
-    [Arguments(120, "fn:min((xs:dateTime('2000-01-01T10:00:00'), xs:dateTime('2000-01-01T10:00:00Z')))", "10:00:00")]
+    [Arguments(
+        0,
+        "fn:max((xs:dateTime('2000-01-01T10:00:00'), xs:dateTime('2000-01-01T10:00:00Z')))",
+        "DateTime:2000-01-01T10:00:00"
+    )]
+    [Arguments(
+        120,
+        "fn:max((xs:dateTime('2000-01-01T10:00:00'), xs:dateTime('2000-01-01T10:00:00Z')))",
+        "DateTime:2000-01-01T10:00:00Z"
+    )]
+    [Arguments(
+        -300,
+        "fn:max((xs:dateTime('2000-01-01T10:00:00'), xs:dateTime('2000-01-01T10:00:00Z')))",
+        "DateTime:2000-01-01T10:00:00"
+    )]
+    [Arguments(
+        120,
+        "fn:min((xs:dateTime('2000-01-01T10:00:00'), xs:dateTime('2000-01-01T10:00:00Z')))",
+        "DateTime:2000-01-01T10:00:00"
+    )]
+    [Arguments(
+        -300,
+        "fn:min((xs:dateTime('2000-01-01T10:00:00'), xs:dateTime('2000-01-01T10:00:00Z')))",
+        "DateTime:2000-01-01T10:00:00Z"
+    )]
     public async Task MinAndMax_UseTheImplicitTimezoneOfTheDynamicContext(
         int implicitTimezone,
         string expression,
-        string suffix
-    )
-    {
+        string expected
+    ) =>
         // Equal values: the first of them is the result; otherwise the one that is later (max) or earlier (min) on the timeline.
-        var value = Value(expression, implicitTimezone);
-
-        await Assert.That(value).EndsWith(suffix);
-    }
+        await Assert.That(Value(expression, implicitTimezone)).IsEqualTo(expected);
 
     [Test]
     [Arguments("fn:sum((xs:dayTimeDuration('P1D'), xs:dayTimeDuration('PT1H')))", "DayTimeDuration:P1DT1H")]
