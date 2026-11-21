@@ -11,7 +11,8 @@ using NetEvolve.Schemas.Tests.Architecture.Schematron;
 /// <remarks>
 /// Limitations: the other families (Versioning, Elements, Attributes, ComplexTypes, Wildcards, Derivation, ContentModels,
 /// and so on) are constrained only by the rule that keeps them off the runtime validator. SimpleTypes and
-/// IdentityConstraints are exempt from that rule because their checks and listeners attach to the validator today.
+/// IdentityConstraints are exempt from that rule because their checks and listeners attach to the validator today, and Compilation
+/// because the composition root of the pipeline compiles the content models through the validation model (XSD-75).
 /// </remarks>
 internal static class XsdLayering
 {
@@ -43,7 +44,8 @@ internal static class XsdLayering
             "SchemaModelDoesNotDependOnTheRuntimeValidator",
             "Validation",
             "IdentityConstraints",
-            "SimpleTypes"
+            "SimpleTypes",
+            "Compilation"
         ),
     ];
 }
