@@ -149,15 +149,15 @@ public class QueryBindingRegistryTests
     }
 
     [Test]
-    public async Task XPathBinding_Compile_IsStubbedUntilEvaluationExists()
+    public async Task XPathBinding_CompilesAnExpressionOfTheScope()
     {
         QueryBindingRegistry.Default.TryResolve(Schema("xpath2"), out var binding, out _);
+        var scope = new QueryStaticScope([], [], null, SchematronEdition.Iso2016);
 
-        var ok = binding.TryCompile("1", QueryExpressionKind.Boolean, default!, out _, out var problem);
+        var ok = binding.TryCompile("1 = 1", QueryExpressionKind.Boolean, scope, out var expression, out _);
 
-        await Assert.That(ok).IsFalse();
-        await Assert.That(problem.Code).IsEqualTo(SchematronDiagnosticCodes.NotImplemented);
-        await Assert.That(() => binding.BeginRun(default!, default)).Throws<SchemaCompilationException>();
+        await Assert.That(ok).IsTrue();
+        await Assert.That(expression).IsNotNull();
     }
 
     [Test]

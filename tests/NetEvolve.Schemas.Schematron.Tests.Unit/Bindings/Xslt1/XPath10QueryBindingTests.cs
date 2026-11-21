@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.Schematron.Tests.Unit.Bindings.Xslt1;
 
 using System;
 using NetEvolve.Schemas;
+using NetEvolve.Schemas.Resources;
 using NetEvolve.Schemas.Schematron.Bindings.Registry;
 using NetEvolve.Schemas.Schematron.Bindings.Xslt1;
 using NetEvolve.Schemas.Schematron.Model;
@@ -185,14 +186,16 @@ public class XPath10QueryBindingTests
         await Assert.That(() => new XPath10QueryBinding(null!, false)).Throws<ArgumentNullException>();
 
     [Test]
-    public async Task Compile_IsStubbedUntilEvaluationExists()
+    public async Task Compile_AndRun_UseTheCompatibilityMode()
     {
         var binding = Resolve(null);
+        var ok = binding.TryCompile("'abc' = 1", QueryExpressionKind.Boolean, Scope(), out var expression, out _);
+        using var run = binding.BeginRun(new QueryResources(DenyAllResourceResolver.Instance), default);
 
-        var ok = binding.TryCompile("1", QueryExpressionKind.Boolean, Scope(), out _, out var problem);
+        var status = run.TryEvaluateBoolean(expression, default, out var value);
 
-        await Assert.That(ok).IsFalse();
-        await Assert.That(problem.Code).IsEqualTo(SchematronDiagnosticCodes.NotImplemented);
-        await Assert.That(() => binding.BeginRun(default!, default)).Throws<SchemaCompilationException>();
+        await Assert.That(ok).IsTrue();
+        await Assert.That(status).IsEqualTo(QueryStatus.Ok);
+        await Assert.That(value).IsFalse();
     }
 }

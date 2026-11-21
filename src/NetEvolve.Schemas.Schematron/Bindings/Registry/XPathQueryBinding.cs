@@ -2,27 +2,111 @@ namespace NetEvolve.Schemas.Schematron.Bindings.Registry;
 
 using System;
 using System.Threading;
-using NetEvolve.Schemas.Schematron.Diagnostics;
+using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Seams;
+using NetEvolve.Schemas.XPath.Api;
+using NetEvolve.Schemas.XPath.Context;
+using NetEvolve.Schemas.XPath.Errors;
 
 /// <summary>
-/// The binding for the XPath 2.0 contract, shared by the names <c>xpath2</c>, <c>xslt2</c>, and <c>xslt3</c> (design #137 AP-25).
+/// The binding for the XPath 2.0 contract, shared by the names <c>xpath2</c>, <c>xslt2</c>, and <c>xslt3</c> (design #137 AP-25). The
+/// names <c>xslt</c>, <c>xslt1</c>, and <c>xpath</c> use the same implementation with XPath 1.0 compatibility mode on (SCH-16, #310).
 /// </summary>
 /// <remarks>
-/// Limitation: compilation and evaluation are stubbed until the XPath evaluator lands (XP-19). The names <c>xslt</c>,
-/// <c>xslt1</c>, and <c>xpath</c> use the binding of <c>Bindings/Xslt1</c> (SCH-16), which turns XPath 1.0 compatibility mode on.
+/// <para>
+/// Compilation goes through the public API of the XPath package (XP-19, #297). The static context holds the namespaces and the
+/// variables of the scope; a variable is found by its slot, because <see cref="QueryStaticScope.VariableNames"/> may hold a name
+/// twice and the last entry wins (<see cref="SlotReferences"/>). A static error is <see cref="SchematronDiagnosticCodes.VariableUndefined"/>
+/// for an undeclared variable (XPST0008) and <see cref="SchematronDiagnosticCodes.ExpressionInvalid"/> otherwise; the XPath code is the
+/// constraint.
+/// </para>
+/// <para>
+/// Limitations: the seam does not hand the binding the location of the construct that holds the expression, so a problem is located by
+/// the base URI of the scope and by the line and column within the expression text (the convention of the pattern matcher), and the
+/// location of a dynamic problem has no line and column. The stylesheet functions, the keys, and the decimal formats of an XSLT
+/// stylesheet are not wired (#832, #628, #250): a run starts with an empty set of decimal formats, so a named format is unknown. Without
+/// an extension the binding has the functions of XPath 2.0 only.
+/// </para>
 /// </remarks>
 internal sealed class XPathQueryBinding : IQueryBinding
 {
-    internal XPathQueryBinding(string name, bool allowsXsltInstructions)
+    private readonly bool _xpath10Compatibility;
+    private readonly StaticContextExtension? _extension;
+
+    /// <summary>Initializes a new instance of the <see cref="XPathQueryBinding"/> class.</summary>
+    /// <param name="name">The canonical lower-case name.</param>
+    /// <param name="allowsXsltInstructions">Whether XSLT instructions are allowed; <see langword="false"/> for the <c>xpath</c> family.</param>
+    /// <param name="xpath10Compatibility">Whether XPath 1.0 compatibility mode is on.</param>
+    /// <param name="extension">Adds the host functions to every static context, or <see langword="null"/> for none.</param>
+    internal XPathQueryBinding(
+        string name,
+        bool allowsXsltInstructions,
+        bool xpath10Compatibility = false,
+        StaticContextExtension? extension = null
+    )
     {
         Name = name;
         AllowsXsltInstructions = allowsXsltInstructions;
+        _xpath10Compatibility = xpath10Compatibility;
+        _extension = extension;
     }
+
+    /// <summary>
+    /// Adds the host functions of a composition to the static context of an expression. The layering rule keeps the XSLT library out of
+    /// reach of a binding, so the composition (<c>Pipeline</c>) hands the functions in.
+    /// </summary>
+    /// <param name="binding">The binding that compiles.</param>
+    /// <param name="statics">The static context of the scope.</param>
+    /// <param name="activeHost">The slots and flags that the host provides.</param>
+    /// <returns>The static context with the functions.</returns>
+    internal delegate XPathStaticContext StaticContextExtension(
+        IQueryBinding binding,
+        XPathStaticContext statics,
+        out XPathHostRequirements activeHost
+    );
 
     public string Name { get; }
 
     public bool AllowsXsltInstructions { get; }
+
+    /// <summary>
+    /// Creates the static context of the expressions in <paramref name="scope"/>: the prefixed namespace declarations, the visible
+    /// variables, the base URI when it is absolute, and the compatibility mode when asked for.
+    /// </summary>
+    /// <param name="scope">The compile-time scope.</param>
+    /// <param name="xpath10Compatibility">Whether XPath 1.0 compatibility mode is on.</param>
+    /// <returns>The static context.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="scope"/> is <see langword="null"/>.</exception>
+    internal static XPathStaticContext CreateStaticContext(QueryStaticScope scope, bool xpath10Compatibility)
+    {
+        Argument.ThrowIfNull(scope);
+
+        var builder = XPathStaticContext.Default.ToBuilder().WithXPath10Compatibility(xpath10Compatibility);
+        for (var i = 0; i < scope.Namespaces.Count; i++)
+        {
+            var declaration = scope.Namespaces[i];
+            if (declaration.Prefix.Length > 0)
+            {
+                _ = builder.WithNamespace(declaration.Prefix, declaration.NamespaceName);
+            }
+        }
+
+        // An empty entry is a slot that is not visible at this position.
+        for (var i = 0; i < scope.VariableNames.Count; i++)
+        {
+            if (scope.VariableNames[i].Length > 0)
+            {
+                _ = builder.WithVariable(new XPathQName(string.Empty, scope.VariableNames[i]));
+            }
+        }
+
+        if (scope.BaseUri is not null && Uri.TryCreate(scope.BaseUri, UriKind.Absolute, out var baseUri))
+        {
+            _ = builder.WithBaseUri(baseUri);
+        }
+
+        return builder.Build();
+    }
 
     public bool TryCompile(
         ReadOnlySpan<char> text,
@@ -32,15 +116,76 @@ internal sealed class XPathQueryBinding : IQueryBinding
         out SchematronProblem problem
     )
     {
-        expression = null!;
-        problem = new SchematronProblem(
-            SchematronDiagnosticCodes.NotImplemented,
-            $"The Schematron stage 'query evaluation' of the '{Name}' binding is not implemented yet.",
-            new DocumentLocation(null, 0, 0)
+        Argument.ThrowIfNull(scope);
+
+        var source = text.ToString();
+
+        var statics = CreateStaticContext(scope, _xpath10Compatibility);
+        var activeHost = XPathEngine.AllSlots;
+        if (_extension is not null)
+        {
+            statics = _extension(this, statics, out activeHost);
+        }
+
+        var result = XPathExpression.TryCompile(text, statics, activeHost);
+        if (!result.Success)
+        {
+            expression = null!;
+            problem = StaticProblem(source, scope, result.Diagnostic);
+            return false;
+        }
+
+        SlotReferences.Collect(text, scope, out var slots, out var names);
+        expression = new XPathQueryExpression(
+            result.Expression!,
+            new DocumentLocation(scope.BaseUri, 0, 0),
+            slots,
+            names,
+            scope.DeclaredType
         );
-        return false;
+        problem = default;
+        return true;
     }
 
-    public IQueryRun BeginRun(QueryResources resources, CancellationToken cancellationToken) =>
-        throw NotImplementedFailure.For("query evaluation");
+    public IQueryRun BeginRun(QueryResources resources, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        Argument.ThrowIfNull(resources);
+
+        return new XPathQueryRun(resources, cancellationToken);
+    }
+
+    private static SchematronProblem StaticProblem(string source, QueryStaticScope scope, in XPathDiagnostic diagnostic)
+    {
+        var (line, column) = LineAndColumn(source, diagnostic.Offset);
+        return new SchematronProblem(
+            diagnostic.QName == XPathErrorCodes.XPST0008
+                ? SchematronDiagnosticCodes.VariableUndefined
+                : SchematronDiagnosticCodes.ExpressionInvalid,
+            diagnostic.Message,
+            new DocumentLocation(scope.BaseUri, line, column),
+            diagnostic.QName.LocalName
+        );
+    }
+
+    // The same convention as the pattern matcher (namespace Patterns, which the layering rule keeps out of reach of a binding).
+    private static (int Line, int Column) LineAndColumn(string text, int offset)
+    {
+        var line = 1;
+        var column = 1;
+        for (var i = 0; i < offset && i < text.Length; i++)
+        {
+            if (text[i] == '\n')
+            {
+                line++;
+                column = 1;
+            }
+            else
+            {
+                column++;
+            }
+        }
+
+        return (line, column);
+    }
 }

@@ -14,9 +14,8 @@ using NetEvolve.Schemas.XPath.Context;
 /// expression of such a schema comes from <see cref="CreateStaticContext"/>.
 /// </summary>
 /// <remarks>
-/// Limitations: compilation and evaluation stay stubbed like those of <see cref="XPathQueryBinding"/> until the public API of the XPath
-/// package lands (XP-19, #297), so this binding hands out the static context and nothing evaluates under it in production yet. Only
-/// the mode is wired; the incompatibilities of Appendix I and the missing namespace axis (XPST0010) remain, see the README of this folder.
+/// Compilation and evaluation are those of <see cref="XPathQueryBinding"/> with the mode on (SCH-55, #311). Only the mode is wired; the
+/// incompatibilities of Appendix I and the missing namespace axis (XPST0010) remain, see the README of this folder.
 /// </remarks>
 internal sealed class XPath10QueryBinding : IQueryBinding
 {
@@ -25,12 +24,17 @@ internal sealed class XPath10QueryBinding : IQueryBinding
     /// <summary>Initializes a new instance of the <see cref="XPath10QueryBinding"/> class.</summary>
     /// <param name="name">The canonical lower-case name.</param>
     /// <param name="allowsXsltInstructions">Whether XSLT instructions are allowed; <see langword="false"/> for <c>xpath</c>.</param>
+    /// <param name="extension">Adds the host functions to every static context, or <see langword="null"/> for none.</param>
     /// <exception cref="ArgumentNullException"><paramref name="name"/> is <see langword="null"/>.</exception>
-    internal XPath10QueryBinding(string name, bool allowsXsltInstructions)
+    internal XPath10QueryBinding(
+        string name,
+        bool allowsXsltInstructions,
+        XPathQueryBinding.StaticContextExtension? extension = null
+    )
     {
         Argument.ThrowIfNull(name);
 
-        _inner = new XPathQueryBinding(name, allowsXsltInstructions);
+        _inner = new XPathQueryBinding(name, allowsXsltInstructions, xpath10Compatibility: true, extension);
     }
 
     public string Name => _inner.Name;
@@ -44,36 +48,8 @@ internal sealed class XPath10QueryBinding : IQueryBinding
     /// <param name="scope">The compile-time scope.</param>
     /// <returns>The static context.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="scope"/> is <see langword="null"/>.</exception>
-    internal static XPathStaticContext CreateStaticContext(QueryStaticScope scope)
-    {
-        Argument.ThrowIfNull(scope);
-
-        var builder = XPathStaticContext.Default.ToBuilder().WithXPath10Compatibility(true);
-        for (var i = 0; i < scope.Namespaces.Count; i++)
-        {
-            var declaration = scope.Namespaces[i];
-            if (declaration.Prefix.Length > 0)
-            {
-                _ = builder.WithNamespace(declaration.Prefix, declaration.NamespaceName);
-            }
-        }
-
-        // An empty entry is a slot that is not visible at this position.
-        for (var i = 0; i < scope.VariableNames.Count; i++)
-        {
-            if (scope.VariableNames[i].Length > 0)
-            {
-                _ = builder.WithVariable(new XPathQName(string.Empty, scope.VariableNames[i]));
-            }
-        }
-
-        if (scope.BaseUri is not null && Uri.TryCreate(scope.BaseUri, UriKind.Absolute, out var baseUri))
-        {
-            _ = builder.WithBaseUri(baseUri);
-        }
-
-        return builder.Build();
-    }
+    internal static XPathStaticContext CreateStaticContext(QueryStaticScope scope) =>
+        XPathQueryBinding.CreateStaticContext(scope, xpath10Compatibility: true);
 
     public bool TryCompile(
         ReadOnlySpan<char> text,
