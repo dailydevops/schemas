@@ -42,6 +42,8 @@ public class LetContentSlotTests
             problem = default;
             return QueryStatus.Ok;
         }
+
+        public IFindingContentBuilder BeginFindingContent() => throw new System.NotSupportedException();
     }
 
     private sealed class FailingContent : IEmbeddedContent
@@ -61,6 +63,8 @@ public class LetContentSlotTests
             );
             return QueryStatus.Problem;
         }
+
+        public IFindingContentBuilder BeginFindingContent() => throw new System.NotSupportedException();
     }
 
     [Test]
