@@ -123,6 +123,7 @@ internal sealed class CompilationRun
         Argument.ThrowIfNull(documents);
 
         var units = Compose(documents, cancellationToken);
+        Prepare(units);
         if (!HasGateErrors(units))
         {
             Build(units, cancellationToken);
@@ -192,6 +193,19 @@ internal sealed class CompilationRun
         }
 
         return units;
+    }
+
+    // Each document is prepared once, also when several units share it.
+    private void Prepare(List<UnitScope> units)
+    {
+        var prepared = new HashSet<SchemaDocument>();
+        foreach (var unit in units)
+        {
+            if (prepared.Add(unit.Unit.Document))
+            {
+                DocumentPreparation.Prepare(unit.Unit.Document.Root!, _version, _reporter);
+            }
+        }
     }
 
     // Strict 1.0 mode rejects every 1.1 construct of every document; nothing is built after that (design #146 DP-16).
@@ -318,7 +332,10 @@ internal sealed class CompilationRun
                 )
             )
             {
-                var constraint = IdentityConstraintDefinition.Create(child, unit.Scope, _registry, _reporter);
+                // The document parser reported an empty name (a name is an NCName); the factory of the definition expects a non-empty one.
+                var constraint = child.FindAttribute("name") is { Length: 0 }
+                    ? null
+                    : IdentityConstraintDefinition.Create(child, unit.Scope, _registry, _reporter);
                 if (constraint is not null)
                 {
                     _constraints.Add(constraint);

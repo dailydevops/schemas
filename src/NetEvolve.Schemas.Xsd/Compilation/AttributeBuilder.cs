@@ -135,16 +135,7 @@ internal sealed class AttributeBuilder : IComponentBuilder
             return null;
         }
 
-        if (node.FindAttribute("default") is not null && node.FindAttribute("fixed") is not null)
-        {
-            _context.Report(
-                XsdRuleCodes.SrcAttribute,
-                node.Location,
-                "An attribute declaration must not have both default and fixed.",
-                "src-attribute.1"
-            );
-        }
-
+        CheckRepresentation(node, isGlobal);
         var type = ReadType(node, unit);
         if (type is null)
         {
@@ -164,13 +155,7 @@ internal sealed class AttributeBuilder : IComponentBuilder
             : AttributeDeclaration.Local(
                 name,
                 unit.TargetNamespace,
-                string.Equals(
-                    node.FindAttribute("form") ?? SyntaxValues.Root(node).FindAttribute("attributeFormDefault"),
-                    "qualified",
-                    StringComparison.Ordinal
-                )
-                    ? AttributeForm.Qualified
-                    : AttributeForm.Unqualified,
+                FormOf(node),
                 node.Location,
                 type,
                 constraint,
@@ -182,6 +167,39 @@ internal sealed class AttributeBuilder : IComponentBuilder
         }
 
         return declaration;
+    }
+
+    // The form of a local declaration: its own attribute, else the default of the schema (Structures 3.2.2).
+    private static AttributeForm FormOf(SchemaSyntaxNode node) =>
+        string.Equals(
+            node.FindAttribute("form") ?? SyntaxValues.Root(node).FindAttribute("attributeFormDefault"),
+            "qualified",
+            StringComparison.Ordinal
+        )
+            ? AttributeForm.Qualified
+            : AttributeForm.Unqualified;
+
+    private void CheckRepresentation(SchemaSyntaxNode node, bool isGlobal)
+    {
+        if (isGlobal && (node.FindAttribute("form") is not null || node.FindAttribute("use") is not null))
+        {
+            _context.Report(
+                XsdRuleCodes.SrcAttribute,
+                node.Location,
+                "A global attribute declaration must not have a form or a use attribute.",
+                "src-attribute.3.2"
+            );
+        }
+
+        if (node.FindAttribute("default") is not null && node.FindAttribute("fixed") is not null)
+        {
+            _context.Report(
+                XsdRuleCodes.SrcAttribute,
+                node.Location,
+                "An attribute declaration must not have both default and fixed.",
+                "src-attribute.1"
+            );
+        }
     }
 
     private SimpleTypeDefinition? ReadType(SchemaSyntaxNode node, UnitScope unit)

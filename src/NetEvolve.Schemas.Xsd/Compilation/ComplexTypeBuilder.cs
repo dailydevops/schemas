@@ -91,6 +91,16 @@ internal sealed class ComplexTypeBuilder : IComponentBuilder
         Argument.ThrowIfNull(node);
         Argument.ThrowIfNull(unit);
 
+        if (node.FindAttribute("name") is not null)
+        {
+            _context.Report(
+                XsdRuleCodes.SrcCt,
+                node.Location,
+                "A complex type definition that is not a child of schema must not have a name.",
+                "src-ct.5"
+            );
+        }
+
         var header = new ComplexTypeHeader(
             default,
             node.Location,

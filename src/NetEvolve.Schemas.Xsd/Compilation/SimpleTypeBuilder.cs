@@ -82,6 +82,16 @@ internal sealed class SimpleTypeBuilder : IComponentBuilder
         Argument.ThrowIfNull(node);
         Argument.ThrowIfNull(unit);
 
+        if (node.FindAttribute("name") is not null)
+        {
+            _context.Report(
+                XsdRuleCodes.SrcSimpleType,
+                node.Location,
+                "A simple type definition that is not a child of schema must not have a name.",
+                "src-simple-type.3"
+            );
+        }
+
         return Construct(node, unit, default, XsdDerivationMethod.None);
     }
 
@@ -108,14 +118,9 @@ internal sealed class SimpleTypeBuilder : IComponentBuilder
             }
         }
 
+        // The content that is not exactly one of the three is reported with the children of every schema element (SchemaStructure).
         if (count != 1)
         {
-            _context.Report(
-                XsdRuleCodes.SrcSimpleType,
-                node.Location,
-                "A simple type definition must have exactly one of restriction, list, and union.",
-                "src-simple-type.1"
-            );
             return _context.Placeholder(name, node.Location);
         }
 
