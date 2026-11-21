@@ -66,20 +66,45 @@ internal static class HostileInputs
         var watch = Stopwatch.StartNew();
         try
         {
-            // A load that does not return cannot be aborted; the bound turns it into a failure instead of a hung run.
-            await Task.Run(() => LoadCoreAsync(kind, xml, options, cancellationToken), cancellationToken)
-                .WaitAsync(timeBound, cancellationToken);
+            var timedOut = await RunBoundedAsync(
+                () => LoadCoreAsync(kind, xml, options, cancellationToken),
+                timeBound,
+                cancellationToken
+            );
+
+            return new Outcome(null, watch.Elapsed, timedOut);
         }
         catch (XmlParseException exception)
         {
             return new Outcome(exception.Diagnostic?.Code, watch.Elapsed, false);
         }
+    }
+
+    /// <summary>Runs work and reports whether it did not end within the bound.</summary>
+    /// <param name="work">The work.</param>
+    /// <param name="timeBound">The time the work may take.</param>
+    /// <param name="cancellationToken">A token to cancel the wait.</param>
+    /// <returns><see langword="true"/> when the work did not end within the bound.</returns>
+    /// <remarks>Work that does not return cannot be aborted; the bound turns it into a failure instead of a hung run.</remarks>
+    internal static async Task<bool> RunBoundedAsync(
+        Func<Task> work,
+        TimeSpan timeBound,
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var task = Task.Run(work, cancellationToken);
+        try
+        {
+            await task.WaitAsync(timeBound, cancellationToken);
+        }
         catch (TimeoutException)
         {
-            return new Outcome(null, watch.Elapsed, true);
+            return true;
         }
 
-        return new Outcome(null, watch.Elapsed, false);
+        return false;
     }
 
     private static async Task LoadCoreAsync(
