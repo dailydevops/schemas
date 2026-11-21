@@ -116,6 +116,10 @@ internal static class TemporalValues
     /// <param name="value">The finite double.</param>
     /// <returns>The decimal.</returns>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> is an infinity.</exception>
+    /// <remarks>
+    /// The shortest form is decision D6 of the date, time, and duration operators (#300); <c>DecimalArithmetic.FromDouble</c> converts the
+    /// exact binary value instead.
+    /// </remarks>
     public static XsdDecimal ToDecimal(double value)
     {
         Argument.ThrowIfGreaterThan(Math.Abs(value), double.MaxValue, nameof(value));
