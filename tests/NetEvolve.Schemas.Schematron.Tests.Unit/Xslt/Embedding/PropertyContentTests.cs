@@ -256,6 +256,54 @@ public class PropertyContentTests
     }
 
     [Test]
+    public async Task CopyOf_OfAnAttribute_WithFormattingWhiteSpaceAround_StillCopiesIt()
+    {
+        using var h = new Harness(PropertyOf(Text("\n  "), CopyOf("sel"), Text("\n")));
+        h.Binding.Items["sel"] = [XdmItem.FromNode(AssertionTree.Node("id"))];
+
+        h.Fire();
+
+        await Assert.That(h.Problems.Problems.Count).IsEqualTo(0);
+        await Assert.That(h.Sink.Properties.Count).IsEqualTo(1);
+        var property = h.Sink.Properties[0];
+        await Assert.That(property.Text).IsEqualTo("7");
+        await Assert.That(Holder(property.Content!, "@*")).IsEqualTo("Attribute:id=7");
+        await Assert.That(Holder(property.Content!, "node()")).IsEqualTo(string.Empty);
+    }
+
+    [Test]
+    public async Task CopyOf_OfAnElement_WithFormattingWhiteSpaceAround_KeepsOnlyTheCopiedNodes()
+    {
+        using var h = new Harness(PropertyOf(Text("\n  "), CopyOf("sel"), Text("\n")));
+        h.Binding.Items["sel"] = [XdmItem.FromNode(AssertionTree.Node("order1"))];
+
+        h.Fire();
+
+        await Assert.That(h.Problems.Problems.Count).IsEqualTo(0);
+        var property = h.Sink.Properties[0];
+        await Assert.That(property.Text).IsEqualTo("txt12");
+        await Assert.That(Holder(property.Content!, "order/@id")).IsEqualTo("Attribute:id=7");
+        await Assert.That(Holder(property.Content!, "node()")).IsEqualTo("Element:order=txt12");
+    }
+
+    [Test]
+    public async Task CopyOf_WithFormattingWhiteSpaceBetweenMixedParts_KeepsTheTextThatHasContent()
+    {
+        using var h = new Harness(
+            PropertyOf(Text("\n  "), CopyOf("sel"), Text("\n  "), ValueOf("val"), Text("\n  tail"))
+        );
+        h.Binding.Items["sel"] = [XdmItem.FromString("v")];
+        h.Binding.Texts["val"] = "w";
+
+        h.Fire();
+
+        await Assert.That(h.Problems.Problems.Count).IsEqualTo(0);
+        var property = h.Sink.Properties[0];
+        await Assert.That(property.Text).IsEqualTo("vw\n  tail");
+        await Assert.That(Holder(property.Content!, "node()")).IsEqualTo("Text:=vw\n  tail");
+    }
+
+    [Test]
     public async Task CopyOf_WhoseSelectFails_DropsThePropertyAndReportsOnce()
     {
         using var h = new Harness(PropertyOf(Text("x"), CopyOf("bad")));

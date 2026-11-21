@@ -77,6 +77,46 @@ public class PropertyCopyOfParseTests
     }
 
     [Test]
+    public async Task CopyOf_WithFormattingWhiteSpaceAround_DropsTheWhiteSpaceParts()
+    {
+        var (schema, problems) = Parse(null, "\n  ", Xsl("copy-of", 3, 20, A("select", "@id")), "\n");
+
+        await Assert.That(problems.Count).IsEqualTo(0);
+        var parts = Parts(schema);
+        await Assert.That(parts.Length).IsEqualTo(1);
+        await Assert.That(parts[0]).IsTypeOf<SchematronCopyOf>();
+    }
+
+    [Test]
+    public async Task CopyOf_WithFormattingWhiteSpaceBetweenMixedParts_KeepsTheTextThatHasContent()
+    {
+        var (schema, problems) = Parse(
+            null,
+            "\n  ",
+            Xsl("copy-of", 3, 20, A("select", "a")),
+            "\n  ",
+            E("value-of", 4, 5, A("select", "b")),
+            "\n  tail \n"
+        );
+
+        await Assert.That(problems.Count).IsEqualTo(0);
+        var parts = Parts(schema);
+        await Assert.That(parts.Length).IsEqualTo(3);
+        await Assert.That(parts[0]).IsTypeOf<SchematronCopyOf>();
+        await Assert.That(parts[1]).IsTypeOf<SchematronValueOf>();
+        await Assert.That(((SchematronText)parts[2]).Text).IsEqualTo("\n  tail \n");
+    }
+
+    [Test]
+    public async Task Property_WithoutCopyOf_KeepsItsWhiteSpaceText()
+    {
+        var (schema, problems) = Parse(null, "\n  ", E("value-of", 4, 5, A("select", "b")), "\n");
+
+        await Assert.That(problems.Count).IsEqualTo(0);
+        await Assert.That(Parts(schema).Length).IsEqualTo(3);
+    }
+
+    [Test]
     [Arguments("xslt")]
     [Arguments("xslt1")]
     [Arguments("xslt2")]
