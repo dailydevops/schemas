@@ -20,12 +20,15 @@ internal sealed class MessageBuilder
     private readonly IProblemSink _problems;
     private readonly ValueOfSink _values = new();
     private readonly NodeSink _nodes = new();
+    private readonly CopyOfSink _copies = new();
+    private readonly IEmbeddedContent? _embedded;
 
     /// <summary>Initializes a new instance of the <see cref="MessageBuilder"/> class.</summary>
     /// <param name="run">The run that evaluates the expressions.</param>
     /// <param name="binder">Binds the variables an expression reads.</param>
     /// <param name="problems">Receives the problem of a part that fails.</param>
-    internal MessageBuilder(IQueryRun run, ISlotBinder binder, IProblemSink problems)
+    /// <param name="embedded">Builds the structured content of a property with <c>xsl:copy-of</c>, or <see langword="null"/> when there is none.</param>
+    internal MessageBuilder(IQueryRun run, ISlotBinder binder, IProblemSink problems, IEmbeddedContent? embedded = null)
     {
         Argument.ThrowIfNull(run);
         Argument.ThrowIfNull(binder);
@@ -34,6 +37,7 @@ internal sealed class MessageBuilder
         _run = run;
         _binder = binder;
         _problems = problems;
+        _embedded = embedded;
     }
 
     /// <summary>Appends the text of a message; a part that fails is reported once and ends the text, which keeps what was built before it.</summary>
@@ -47,6 +51,60 @@ internal sealed class MessageBuilder
         Argument.ThrowIfNull(into);
 
         return Append(message.Parts, in focus, into);
+    }
+
+    /// <summary>
+    /// Appends the text of a message and, for a property that holds <c>xsl:copy-of</c>, builds its structured content in the same pass:
+    /// the nodes that the expression selects and the text of the other parts, in order (SCH-84, #289).
+    /// </summary>
+    /// <param name="message">The compiled message.</param>
+    /// <param name="focus">The context node of the fired rule.</param>
+    /// <param name="into">The sink that receives the text.</param>
+    /// <param name="content">The snapshot of the content, or <see langword="null"/> when the message has no <c>xsl:copy-of</c>.</param>
+    /// <returns><see cref="QueryStatus.Problem"/> when a part failed, the content was not allowed, or the text was cut.</returns>
+    internal QueryStatus Build(
+        CompiledMessage message,
+        in QueryFocus focus,
+        TextSink into,
+        out IFindingContent? content
+    )
+    {
+        Argument.ThrowIfNull(message);
+        Argument.ThrowIfNull(into);
+
+        content = null;
+        if (!message.HasCopyOf)
+        {
+            return Append(message.Parts, in focus, into);
+        }
+
+        if (_embedded is null)
+        {
+            var missing = new SchematronProblem(
+                SchematronDiagnosticCodes.XsltUnsupported,
+                "The property holds xsl:copy-of, and the run has no component that builds its content.",
+                message.Location
+            );
+            _problems.Add(in missing);
+            return QueryStatus.Problem;
+        }
+
+        using var builder = _embedded.BeginFindingContent();
+        var status = AppendWithContent(message.Parts, in focus, into, builder);
+        if (status != QueryStatus.Ok)
+        {
+            return status;
+        }
+
+        if (!builder.TryComplete(out var completed, out var problem))
+        {
+            var located = new SchematronProblem(problem.Code, problem.Message, message.Location, problem.Constraint);
+            _problems.Add(in located);
+            return QueryStatus.Problem;
+        }
+
+        content = completed;
+        return QueryStatus.Ok;
     }
 
     private static void AppendName(in XPathNode node, TextSink into)
@@ -77,37 +135,138 @@ internal sealed class MessageBuilder
     {
         for (var i = 0; i < parts.Length; i++)
         {
-            var part = parts[i];
-            var status = QueryStatus.Ok;
-            switch (part.Kind)
+            var status = AppendPart(parts[i], in focus, into);
+            if (status != QueryStatus.Ok)
             {
-                case MessagePartKind.Text:
-                    into.Text(part.Text.AsSpan());
-                    break;
-                case MessagePartKind.ValueOf:
-                    status = AppendValue(part, in focus, into);
-                    break;
-                case MessagePartKind.Name:
-                    status = AppendName(part, in focus, into);
-                    break;
-                default:
-                    status = Append(part.Children, in focus, into);
-                    break;
+                return status;
+            }
+        }
+
+        return QueryStatus.Ok;
+    }
+
+    // The parts of a property with xsl:copy-of: each part adds its text to the text of the property and its items to the content.
+    private QueryStatus AppendWithContent(
+        MessagePart[] parts,
+        in QueryFocus focus,
+        TextSink into,
+        IFindingContentBuilder content
+    )
+    {
+        for (var i = 0; i < parts.Length; i++)
+        {
+            var part = parts[i];
+            if (IsBlankText(part))
+            {
+                continue;
             }
 
+            var mark = into.Length;
+            var isCopy = part.Kind == MessagePartKind.CopyOf;
+            var status = isCopy ? AppendCopyOf(part, in focus, into, content) : AppendPart(part, in focus, into);
             if (status != QueryStatus.Ok)
             {
                 return status;
             }
 
-            if (into.IsTruncated)
+            // A copy-of pushed its items itself; the text of every other part is the text it appended.
+            if (!isCopy)
             {
-                Report($"The message is longer than the limit of {into.MaxLength} characters and was cut.", part);
-                return QueryStatus.Problem;
+                content.Text(into.Written.Slice(mark));
             }
         }
 
         return QueryStatus.Ok;
+    }
+
+    // White space alone around an xsl:copy-of is formatting, not content (XSLT 2.0 section 4.3): it would end the attributes of the holder.
+    private static bool IsBlankText(MessagePart part)
+    {
+        if (part.Kind != MessagePartKind.Text)
+        {
+            return false;
+        }
+
+        foreach (var c in part.Text)
+        {
+            if (c is not (' ' or '\t' or '\n' or '\r'))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private QueryStatus AppendPart(MessagePart part, in QueryFocus focus, TextSink into)
+    {
+        var status = QueryStatus.Ok;
+        switch (part.Kind)
+        {
+            case MessagePartKind.Text:
+                into.Text(part.Text.AsSpan());
+                break;
+            case MessagePartKind.ValueOf:
+                status = AppendValue(part, in focus, into);
+                break;
+            case MessagePartKind.Name:
+                status = AppendName(part, in focus, into);
+                break;
+            default:
+                status = Append(part.Children, in focus, into);
+                break;
+        }
+
+        if (status != QueryStatus.Ok)
+        {
+            return status;
+        }
+
+        return CheckLength(part, into);
+    }
+
+    private QueryStatus AppendCopyOf(
+        MessagePart part,
+        in QueryFocus focus,
+        TextSink into,
+        IFindingContentBuilder content
+    )
+    {
+        var expression = part.Expression!;
+        if (_binder.EnsureBound(expression.ReferencedSlots) != QueryStatus.Ok)
+        {
+            return QueryStatus.Problem;
+        }
+
+        // A copy-of that fails leaves nothing of itself in the text; the property is dropped as a whole.
+        var mark = into.Length;
+        _copies.Begin(into, content);
+        if (_run.TryEvaluate(expression, in focus, _copies) != QueryStatus.Ok)
+        {
+            into.Rewind(mark);
+            ReportRun();
+            return QueryStatus.Problem;
+        }
+
+        if (into.Failure is { } failure)
+        {
+            into.Rewind(mark);
+            Report(failure, part);
+            return QueryStatus.Problem;
+        }
+
+        return CheckLength(part, into);
+    }
+
+    private QueryStatus CheckLength(MessagePart part, TextSink into)
+    {
+        if (!into.IsTruncated)
+        {
+            return QueryStatus.Ok;
+        }
+
+        Report($"The message is longer than the limit of {into.MaxLength} characters and was cut.", part);
+        return QueryStatus.Problem;
     }
 
     private QueryStatus AppendValue(MessagePart part, in QueryFocus focus, TextSink into)

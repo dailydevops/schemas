@@ -35,6 +35,7 @@ internal sealed class AssertionEvaluator : IDisposable
     private string[] _diagnosticTexts = [];
     private string[] _propertyIds = [];
     private string[] _propertyTexts = [];
+    private IFindingContent?[] _propertyContents = [];
 
     /// <summary>Initializes a new instance of the <see cref="AssertionEvaluator"/> class.</summary>
     /// <param name="run">The run that evaluates the expressions.</param>
@@ -43,13 +44,15 @@ internal sealed class AssertionEvaluator : IDisposable
     /// <param name="problems">Receives the problem of a part that fails.</param>
     /// <param name="instanceSystemId">The system identifier of the instance, or <see langword="null"/>.</param>
     /// <param name="maxTextLength">The most characters of one message, diagnostic, or property.</param>
+    /// <param name="embedded">Builds the structured content of a property with <c>xsl:copy-of</c>, or <see langword="null"/> when the run has none.</param>
     internal AssertionEvaluator(
         IQueryRun run,
         ISlotBinder binder,
         IssueMapper events,
         IProblemSink problems,
         string? instanceSystemId,
-        int maxTextLength
+        int maxTextLength,
+        IEmbeddedContent? embedded = null
     )
     {
         Argument.ThrowIfNull(run);
@@ -63,7 +66,7 @@ internal sealed class AssertionEvaluator : IDisposable
         _events = events;
         _problems = problems;
         _source = instanceSystemId;
-        _builder = new MessageBuilder(run, binder, problems);
+        _builder = new MessageBuilder(run, binder, problems, embedded);
         _message = new TextSink(maxTextLength);
         _reference = new TextSink(maxTextLength);
         _path = new TextSink(int.MaxValue);
@@ -119,8 +122,14 @@ internal sealed class AssertionEvaluator : IDisposable
 
         _message.Clear();
         _ = _builder.Build(assertion.Message, in focus, _message);
-        var diagnostics = BuildReferences(assertion.Diagnostics, in focus, ref _diagnosticIds, ref _diagnosticTexts);
-        var properties = BuildReferences(assertion.Properties, in focus, ref _propertyIds, ref _propertyTexts);
+        var diagnostics = BuildDiagnostics(assertion.Diagnostics, in focus);
+        var properties = BuildReferences(
+            assertion.Properties,
+            in focus,
+            ref _propertyIds,
+            ref _propertyTexts,
+            ref _propertyContents
+        );
 
         ReadOnlySpan<char> path = default;
         if (_events.WantsLocationPath)
@@ -148,7 +157,11 @@ internal sealed class AssertionEvaluator : IDisposable
             annotations.Severity.AsSpan(),
             _message.Written,
             new SchematronReferenceList(_diagnosticIds.AsSpan(0, diagnostics), _diagnosticTexts.AsSpan(0, diagnostics)),
-            new SchematronReferenceList(_propertyIds.AsSpan(0, properties), _propertyTexts.AsSpan(0, properties)),
+            new SchematronReferenceList(
+                _propertyIds.AsSpan(0, properties),
+                _propertyTexts.AsSpan(0, properties),
+                _propertyContents.AsSpan(0, properties)
+            ),
             issue
         );
         _events.Finding(in finding);
@@ -189,13 +202,13 @@ internal sealed class AssertionEvaluator : IDisposable
         return _subject.First;
     }
 
-    // Renders each referenced message; one that fails is dropped from both lists, so ids and texts stay aligned.
-    private int BuildReferences(CompiledMessage[] references, in QueryFocus focus, ref string[] ids, ref string[] texts)
+    // Renders each diagnostic as text; one that fails is dropped from both lists, so ids and texts stay aligned.
+    private int BuildDiagnostics(CompiledMessage[] references, in QueryFocus focus)
     {
-        if (ids.Length < references.Length)
+        if (_diagnosticIds.Length < references.Length)
         {
-            ids = new string[references.Length];
-            texts = new string[references.Length];
+            _diagnosticIds = new string[references.Length];
+            _diagnosticTexts = new string[references.Length];
         }
 
         var count = 0;
@@ -204,8 +217,40 @@ internal sealed class AssertionEvaluator : IDisposable
             _reference.Clear();
             if (_builder.Build(references[i], in focus, _reference) == QueryStatus.Ok)
             {
+                _diagnosticIds[count] = references[i].Id;
+                _diagnosticTexts[count] = _reference.ToString();
+                count++;
+            }
+        }
+
+        return count;
+    }
+
+    // Renders each property, with its content when it holds xsl:copy-of; one that fails is dropped from all three lists.
+    private int BuildReferences(
+        CompiledMessage[] references,
+        in QueryFocus focus,
+        ref string[] ids,
+        ref string[] texts,
+        ref IFindingContent?[] contents
+    )
+    {
+        if (ids.Length < references.Length)
+        {
+            ids = new string[references.Length];
+            texts = new string[references.Length];
+            contents = new IFindingContent?[references.Length];
+        }
+
+        var count = 0;
+        for (var i = 0; i < references.Length; i++)
+        {
+            _reference.Clear();
+            if (_builder.Build(references[i], in focus, _reference, out var content) == QueryStatus.Ok)
+            {
                 ids[count] = references[i].Id;
                 texts[count] = _reference.ToString();
+                contents[count] = content;
                 count++;
             }
         }

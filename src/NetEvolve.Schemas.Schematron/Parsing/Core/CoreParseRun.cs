@@ -14,6 +14,8 @@ internal sealed partial class CoreParseRun
     private const string SchematronNamespace = "http://purl.oclc.org/dsdl/schematron";
     private const string XsltNamespace = "http://www.w3.org/1999/XSL/Transform";
 
+    private static readonly string[] UnsupportedCopyOfAttributes = ["type", "validation"];
+
     private readonly XmlNameTable _names;
     private readonly XmlDocumentTree? _positions;
     private readonly string? _systemId;
@@ -364,33 +366,67 @@ internal sealed partial class CoreParseRun
         var name = Required(element, "name");
         var declaredType = Attribute(element, "as");
         var value = Attribute(element, "value");
+        var content = ReadLetContent(element);
         if (value is null)
         {
-            if (SkipToElement(element.FirstChild).IsEmpty)
+            if (content is null)
             {
                 Report(
                     SchematronDiagnosticCodes.AttributeMissing,
-                    "The element 'let' requires the attribute 'value'.",
-                    Location(element)
-                );
-            }
-            else
-            {
-                Report(
-                    SchematronDiagnosticCodes.Unsupported,
-                    "A 'let' with element content is not supported; use the 'value' attribute.",
+                    "The element 'let' requires the attribute 'value' or element content.",
                     Location(element)
                 );
             }
 
             value = string.Empty;
         }
-        else
+        else if (content is not null)
         {
-            RejectChildren(element, "let");
+            Report(
+                SchematronDiagnosticCodes.ElementMisplaced,
+                "The element 'let' has either the attribute 'value' or content, not both.",
+                Location(element)
+            );
+            content = null;
         }
 
-        return new SchematronLet(Location(element), name, declaredType, value);
+        return new SchematronLet(Location(element), name, declaredType, value, content);
+    }
+
+    // The content of a let is data: elements of any namespace, the XSLT namespace included, and text, kept as written and built into a
+    // temporary tree when the variable is bound. White space alone, as around the children of an element, is no content.
+    private SchematronNode[]? ReadLetContent(XmlNode element)
+    {
+        List<SchematronNode>? content = null;
+        var hasContent = false;
+        for (var child = element.FirstChild; !child.IsEmpty; child = child.NextSibling)
+        {
+            if (child.Kind == XmlNodeKind.Text)
+            {
+                (content ??= []).Add(new SchematronText(Location(element), child.StringValue));
+                hasContent |= !IsBlank(child.StringValue);
+            }
+            else if (child.Kind == XmlNodeKind.Element)
+            {
+                (content ??= []).Add(ParseForeign(child));
+                hasContent = true;
+            }
+        }
+
+        return hasContent ? content!.ToArray() : null;
+    }
+
+    private static bool IsBlank(string text)
+    {
+        foreach (var c in text)
+        {
+            if (c is not (' ' or '\t' or '\n' or '\r'))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private SchematronPhase ParsePhase(XmlNode element)
@@ -483,6 +519,7 @@ internal sealed partial class CoreParseRun
     private SchematronMessagePart[] ParseParts(XmlNode element, CoreInline allowed)
     {
         List<SchematronMessagePart>? parts = null;
+        var hasCopyOf = false;
         for (var child = element.FirstChild; !child.IsEmpty; child = child.NextSibling)
         {
             if (child.Kind == XmlNodeKind.Text)
@@ -494,12 +531,25 @@ internal sealed partial class CoreParseRun
                 var part = ParsePart(child, allowed, element);
                 if (part is not null)
                 {
+                    hasCopyOf |= part is SchematronCopyOf;
                     (parts ??= []).Add(part);
                 }
             }
         }
 
-        return parts is null ? Array.Empty<SchematronMessagePart>() : parts.ToArray();
+        if (parts is null)
+        {
+            return Array.Empty<SchematronMessagePart>();
+        }
+
+        // The formatting around an xsl:copy-of is no content: as in a let and in XSLT 2.0 section 4.3, white space alone is dropped, and a
+        // copied attribute would otherwise follow a text node (XTDE0410).
+        if (hasCopyOf)
+        {
+            _ = parts.RemoveAll(static part => part is SchematronText text && IsBlank(text.Text));
+        }
+
+        return parts.ToArray();
     }
 
     private SchematronMessagePart? ParsePart(XmlNode element, CoreInline allowed, XmlNode host)
@@ -507,6 +557,11 @@ internal sealed partial class CoreParseRun
         var kind = Classify(element);
         if (kind == CoreElement.Foreign)
         {
+            if ((allowed & CoreInline.CopyOf) != CoreInline.None && IsCopyOf(element))
+            {
+                return ParseCopyOf(element);
+            }
+
             RejectXslt(element, host);
             return null;
         }
@@ -523,24 +578,67 @@ internal sealed partial class CoreParseRun
 
         if (kind == CoreElement.Emphasis && (allowed & CoreInline.Emphasis) != CoreInline.None)
         {
-            return new SchematronEmphasis(Location(element), ParseParts(element, allowed));
+            return new SchematronEmphasis(Location(element), ParseParts(element, allowed & ~CoreInline.CopyOf));
         }
 
         if (kind == CoreElement.Direction && (allowed & CoreInline.Direction) != CoreInline.None)
         {
             var value = Attribute(element, "value");
-            return new SchematronDirection(Location(element), value, ParseParts(element, allowed));
+            return new SchematronDirection(Location(element), value, ParseParts(element, allowed & ~CoreInline.CopyOf));
         }
 
         if (kind == CoreElement.Span && (allowed & CoreInline.Span) != CoreInline.None)
         {
             var styleClass = Attribute(element, "class");
-            return new SchematronSpan(Location(element), styleClass, ParseParts(element, allowed));
+            return new SchematronSpan(Location(element), styleClass, ParseParts(element, allowed & ~CoreInline.CopyOf));
         }
 
         Reject(element, kind, LocalName(host));
         return null;
     }
+
+    // xsl:copy-of is kept only under an XSLT binding; under an XPath binding the XSLT content is skipped like all of it.
+    private bool IsCopyOf(XmlNode element) =>
+        _rejectXslt
+        && _hasXsltNamespace
+        && element.Name.NamespaceUri == _xsltNamespace
+        && string.Equals(LocalName(element), "copy-of", StringComparison.Ordinal);
+
+    // The copy of nodes into a message is the one XSLT instruction a property takes. The attributes that select a typed copy
+    // (type, validation) or leave the namespace nodes out (copy-namespaces="no", #813) are not supported.
+    private SchematronCopyOf ParseCopyOf(XmlNode element)
+    {
+        var select = Required(element, "select");
+        foreach (var unsupported in UnsupportedCopyOfAttributes)
+        {
+            if (Attribute(element, unsupported) is not null)
+            {
+                ReportCopyOf(element, "The attribute '" + unsupported + "' of 'xsl:copy-of' is not supported.");
+            }
+        }
+
+        var namespaces = Attribute(element, "copy-namespaces");
+        if (namespaces is "no" or "false" or "0")
+        {
+            ReportCopyOf(
+                element,
+                "The value '" + namespaces + "' of 'copy-namespaces' on 'xsl:copy-of' is not supported."
+            );
+        }
+        else if (namespaces is not (null or "yes" or "true" or "1"))
+        {
+            Report(
+                SchematronDiagnosticCodes.AttributeInvalid,
+                "The attribute 'copy-namespaces' of 'xsl:copy-of' must be 'yes' or 'no'.",
+                Location(element)
+            );
+        }
+
+        return new SchematronCopyOf(Location(element), select);
+    }
+
+    private void ReportCopyOf(XmlNode element, string message) =>
+        Report(SchematronDiagnosticCodes.XsltUnsupported, message, Location(element));
 
     private CoreElement Classify(XmlNode element)
     {

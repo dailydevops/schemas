@@ -17,8 +17,9 @@ using NetEvolve.Schemas.Schematron.Seams;
 /// A slot that is already bound is found by an array index and costs no allocation. Not thread-safe: one binder per run.
 /// A global <c>xsl:variable</c> or <c>xsl:param</c> (SCH-66) is a slot of the schema level and is bound here like a schema
 /// <see langword="let"/>: lazily, once per run, with the circularity error XTDE0640 and a caller value for a parameter.
-/// Limitation: the values themselves live in the variable table of the run of the binding; a temporary tree as a value
-/// (SCH-84, #794) is not bound here yet.
+/// A <see langword="let"/> with element content (SCH-84, #289) is a slot that holds no expression: it is bound by the
+/// <see cref="IEmbeddedContent"/> of the run, as a temporary tree, once per span like any other slot. Limitation: the values themselves live
+/// in the variable table of the run of the binding; a global <c>xsl:variable</c> with content (#794) is not bound here yet.
 /// A cycle that runs through the body of a stylesheet function cannot be seen by the walk over the slots a value reads: the call
 /// binds the slots of the body from inside the evaluation of the value. A slot that is in progress when <see cref="EnsureBound"/>
 /// is entered is therefore a cycle (XTDE0640), reported once; the slots on the path of the evaluation fail without a new issue.
@@ -34,6 +35,7 @@ internal sealed class SlotBinder : ISlotBinder
     private readonly IQueryRun _run;
     private readonly QueryFocus _document;
     private readonly IProblemSink _problems;
+    private readonly IEmbeddedContent? _embedded;
     private readonly VariableSlot?[] _declarations;
     private readonly string?[] _external;
     private readonly int[] _stamps;
@@ -52,7 +54,14 @@ internal sealed class SlotBinder : ISlotBinder
     /// <param name="run">The run that evaluates and holds the values.</param>
     /// <param name="document">The focus of the schema, phase, and pattern level: the document node.</param>
     /// <param name="problems">Receives the problem of a failed slot, once.</param>
-    internal SlotBinder(ScopePlan plan, IQueryRun run, in QueryFocus document, IProblemSink problems)
+    /// <param name="embedded">Builds the value of a <see langword="let"/> with element content, or <see langword="null"/> when the run has none.</param>
+    internal SlotBinder(
+        ScopePlan plan,
+        IQueryRun run,
+        in QueryFocus document,
+        IProblemSink problems,
+        IEmbeddedContent? embedded = null
+    )
     {
         Argument.ThrowIfNull(plan);
         Argument.ThrowIfNull(run);
@@ -63,6 +72,7 @@ internal sealed class SlotBinder : ISlotBinder
         _document = document;
         _focus = document;
         _problems = problems;
+        _embedded = embedded;
         _declarations = new VariableSlot?[plan.SlotCount];
         _external = new string?[plan.SlotCount];
         _stamps = new int[plan.SlotCount];
@@ -240,6 +250,10 @@ internal sealed class SlotBinder : ISlotBinder
             _run.BindVariable(slot, literal);
             Mark(slot, Bound);
         }
+        else if (declaration.Content is not null)
+        {
+            BindContent(slot, declaration);
+        }
         else if (declaration.Value is null)
         {
             Fail(
@@ -254,6 +268,30 @@ internal sealed class SlotBinder : ISlotBinder
         else
         {
             Evaluate(slot, declaration.Value, declaration.Level == ScopeLevel.Rule ? _focus : _document);
+        }
+    }
+
+    // The value of a let with element content is built from the content as it was parsed; it reads no variable, so nothing is pending.
+    private void BindContent(int slot, VariableSlot declaration)
+    {
+        if (_embedded is null)
+        {
+            Fail(
+                slot,
+                new SchematronProblem(
+                    SchematronDiagnosticCodes.XsltUnsupported,
+                    $"The variable '{declaration.Name}' has element content, and the run has no component that builds it.",
+                    declaration.Location
+                )
+            );
+        }
+        else if (_embedded.TryBindLetContent(_run, slot, declaration.Content!, out var problem) == QueryStatus.Ok)
+        {
+            Mark(slot, Bound);
+        }
+        else
+        {
+            Fail(slot, new SchematronProblem(problem.Code, problem.Message, declaration.Location, problem.Constraint));
         }
     }
 

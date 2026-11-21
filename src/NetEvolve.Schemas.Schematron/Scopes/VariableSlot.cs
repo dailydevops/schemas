@@ -1,6 +1,8 @@
 namespace NetEvolve.Schemas.Schematron.Scopes;
 
+using System.Collections.Generic;
 using NetEvolve.Arguments;
+using NetEvolve.Schemas.Schematron.Model;
 using NetEvolve.Schemas.Schematron.Seams;
 
 /// <summary>One declared variable: its slot, its compiled value, and what is known about its type before any evaluation.</summary>
@@ -14,7 +16,8 @@ internal sealed class VariableSlot
         QueryExpression? value,
         string? declaredType,
         SchematronProblem? staticProblem,
-        bool isParameter = false
+        bool isParameter = false,
+        IReadOnlyList<SchematronNode>? content = null
     )
     {
         Argument.ThrowIfNull(name);
@@ -28,6 +31,7 @@ internal sealed class VariableSlot
         DeclaredType = declaredType;
         StaticProblem = staticProblem;
         IsParameter = isParameter;
+        Content = content;
     }
 
     internal string Name { get; }
@@ -52,4 +56,10 @@ internal sealed class VariableSlot
 
     /// <summary>Gets a value indicating whether the variable is a schema-level <c>param</c>, which the caller can set.</summary>
     internal bool IsParameter { get; }
+
+    /// <summary>
+    /// Gets the element content of a <see langword="let"/> without a <see langword="value"/> attribute, or <see langword="null"/>; the binder
+    /// builds it into a temporary tree when the slot is read, and <see cref="Value"/> is <see langword="null"/> then.
+    /// </summary>
+    internal IReadOnlyList<SchematronNode>? Content { get; }
 }
