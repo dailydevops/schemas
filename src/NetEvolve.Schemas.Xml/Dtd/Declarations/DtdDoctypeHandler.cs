@@ -58,7 +58,8 @@ internal sealed class DtdDoctypeHandler : IXmlDoctypeHandler, IXmlAttributeDecla
         var error = DtdSubsetParser.Parse(in doctype, _limits, _external, _baseUri, out var declarations);
         Declarations = declarations;
 
-        // The default values of the attribute definitions are checked once the declarations are complete (XML-16).
-        return error ?? (declarations is null ? null : DtdDefaultReferences.Validate(declarations));
+        // The default values of the attribute definitions are checked once the declarations are complete (XML-16); the parser
+        // returns the model exactly when it returns no error.
+        return error ?? DtdDefaultReferences.Validate(declarations!);
     }
 }

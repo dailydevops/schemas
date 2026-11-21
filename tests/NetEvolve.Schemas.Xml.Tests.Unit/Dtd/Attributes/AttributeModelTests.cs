@@ -167,6 +167,25 @@ public class AttributeModelTests
     }
 
     [Test]
+    public async Task Builder_InfoWithoutATypeForAnAttributeTheDocumentDidNotSpecify_IsKept()
+    {
+        using var builder = new XmlTreeBuilder();
+        var info = new ValidationAttributeInfo("d".AsMemory(), "v".AsMemory(), null, isSpecified: false, default);
+        builder.StartDocument(default);
+        builder.StartElement(default, default);
+        builder.Attribute(default, "v".AsSpan());
+        builder.AttributeInfo(in info);
+        builder.EndAttributes();
+        builder.EndElement(default);
+        builder.EndDocument();
+
+        var attribute = builder.Complete().Document.FirstChild.FirstAttribute;
+
+        await Assert.That(attribute.AttributeType).IsNull();
+        await Assert.That(attribute.IsSpecified).IsFalse();
+    }
+
+    [Test]
     public async Task OtherTrees_ReportNoTypeAndEveryNodeIsSpecified()
     {
         var tree = new FakeXmlTree();
