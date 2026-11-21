@@ -28,12 +28,14 @@ internal static class CompileChecks
     /// <summary>Runs the checks.</summary>
     /// <param name="context">The build context that holds what was built.</param>
     /// <param name="derivation">The derivation check.</param>
+    /// <param name="particles">The particle restriction step of XSD 1.0, <see langword="null"/> when the pipeline does not compose it.</param>
     /// <param name="definitions">The model group definitions that were built.</param>
     /// <param name="version">The XSD version.</param>
     /// <param name="reporter">The reporter.</param>
     internal static void Run(
         BuildContext context,
         TypeDerivationCheck derivation,
+        ParticleRestriction? particles,
         IReadOnlyList<ModelGroupDefinition> definitions,
         XsdVersion version,
         XsdIssueReporter reporter
@@ -47,7 +49,7 @@ internal static class CompileChecks
         derivation.ReportAll(context.BuiltComplexTypes, reporter);
         CheckValueConstraints(context, version, reporter);
         CheckContents(context, version, reporter);
-        CheckRestrictions(context, version, reporter);
+        CheckRestrictions(context, particles, reporter);
         for (var i = 0; i < definitions.Count; i++)
         {
             AllGroupLimits10.CheckDefinition(definitions[i], version, reporter);
@@ -106,15 +108,19 @@ internal static class CompileChecks
         }
     }
 
-    // Particle Valid (Restriction) of XSD 1.0; XSD 1.1 checks the restriction by subsumption (XSD-78, #360).
-    private static void CheckRestrictions(BuildContext context, XsdVersion version, XsdIssueReporter reporter)
+    // Particle Valid (Restriction) of XSD 1.0 is a step that the pipeline composes for 1.0 only; XSD 1.1 checks the restriction by
+    // subsumption (XSD-78, #360). A pipeline without the step checks nothing here (design #146 DP-15).
+    private static void CheckRestrictions(
+        BuildContext context,
+        ParticleRestriction? particles,
+        XsdIssueReporter reporter
+    )
     {
-        if (version != XsdVersion.V10)
+        if (particles is null)
         {
             return;
         }
 
-        var particles = new ParticleRestriction(new TypeDerivationOk(version));
         for (var i = 0; i < context.BuiltComplexTypes.Count; i++)
         {
             var type = context.BuiltComplexTypes[i];

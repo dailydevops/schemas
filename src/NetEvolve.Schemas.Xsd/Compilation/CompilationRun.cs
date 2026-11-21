@@ -12,6 +12,7 @@ using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Composition;
 using NetEvolve.Schemas.Xsd.ContentModels.Determinism;
 using NetEvolve.Schemas.Xsd.Contracts;
+using NetEvolve.Schemas.Xsd.Derivation.Particles10;
 using NetEvolve.Schemas.Xsd.Derivation.Types;
 using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.Elements;
@@ -53,6 +54,7 @@ internal sealed class CompilationRun
     private readonly ComponentResolver _componentResolver;
     private readonly TypeDerivationCheck _derivation;
     private readonly DeterminismChecker _determinism;
+    private readonly ParticleRestriction? _particleRestriction;
     private readonly List<ModelGroupDefinition> _definitions = [];
     private readonly List<IdentityConstraintDefinition> _constraints = [];
 
@@ -74,24 +76,39 @@ internal sealed class CompilationRun
         _componentResolver = new ComponentResolver(version);
         _derivation = new TypeDerivationCheck(version);
         _determinism = new DeterminismChecker();
+        _particleRestriction =
+            version == XsdVersion.V10 ? new ParticleRestriction(new TypeDerivationOk(version)) : null;
     }
 
     /// <summary>
     /// Gets the steps the run composes: the real implementations of the seams of the contract. The element and model group
     /// builders are bound to the namespace scope of a document, so the run creates one of each per unit; the types are listed here.
     /// </summary>
-    internal IReadOnlyList<object> Steps =>
-        [
-            _componentResolver,
-            _derivation,
-            _determinism,
-            _context.SimpleTypes,
-            _context.ComplexTypes,
-            _context.Attributes,
-            _context.AttributeGroups,
-            new ElementDeclarationBuilder(NoNamespace),
-            new ModelGroupDefinitionBuilder(NoNamespace),
-        ];
+    internal IReadOnlyList<object> Steps
+    {
+        get
+        {
+            var steps = new List<object>
+            {
+                _componentResolver,
+                _derivation,
+                _determinism,
+                _context.SimpleTypes,
+                _context.ComplexTypes,
+                _context.Attributes,
+                _context.AttributeGroups,
+                new ElementDeclarationBuilder(NoNamespace),
+                new ModelGroupDefinitionBuilder(NoNamespace),
+            };
+            if (_particleRestriction is not null)
+            {
+                // A step of one version is composed for that version only (design #146 DP-15).
+                steps.Add(_particleRestriction);
+            }
+
+            return steps;
+        }
+    }
 
     /// <summary>Reads a schema document given as characters.</summary>
     /// <param name="schema">The document.</param>
@@ -129,7 +146,7 @@ internal sealed class CompilationRun
             Build(units, cancellationToken);
             cancellationToken.ThrowIfCancellationRequested();
             Resolve();
-            CompileChecks.Run(_context, _derivation, _definitions, _version, _reporter);
+            CompileChecks.Run(_context, _derivation, _particleRestriction, _definitions, _version, _reporter);
         }
 
         cancellationToken.ThrowIfCancellationRequested();

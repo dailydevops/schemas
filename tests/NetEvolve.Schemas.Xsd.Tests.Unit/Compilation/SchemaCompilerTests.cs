@@ -261,4 +261,22 @@ public class SchemaCompilerTests
             .Throws<ArgumentOutOfRangeException>();
         await Assert.That(() => Compiler().Compile((IReadOnlyList<SchemaInput>)null!)).Throws<ArgumentNullException>();
     }
+
+    [Test]
+    public async Task Steps_ComposeTheParticleRestrictionOfXsd10ForThatVersionOnly()
+    {
+        await Assert
+            .That(
+                Compiler(XsdVersion.V10)
+                    .Steps.OfType<NetEvolve.Schemas.Xsd.Derivation.Particles10.ParticleRestriction>()
+                    .Count()
+            )
+            .IsEqualTo(1);
+        await Assert
+            .That(
+                Compiler(XsdVersion.V11)
+                    .Steps.OfType<NetEvolve.Schemas.Xsd.Derivation.Particles10.ParticleRestriction>()
+            )
+            .IsEmpty();
+    }
 }
