@@ -13,6 +13,8 @@ internal static class HostileInputs
 {
     private const string BaseUri = "http://corpus.test/hostile.xml";
     private const int SegmentSize = 1021;
+    private const int IdleFactor = 30;
+    private static readonly TimeSpan PollInterval = TimeSpan.FromMilliseconds(25);
 
     /// <summary>The result of one load.</summary>
     /// <param name="Code">The code of the diagnostic, <see langword="null"/> when the load succeeded or did not end.</param>
@@ -82,10 +84,17 @@ internal static class HostileInputs
 
     /// <summary>Runs work and reports whether it did not end within the bound.</summary>
     /// <param name="work">The work.</param>
-    /// <param name="timeBound">The time the work may take.</param>
+    /// <param name="timeBound">The processor time the work may use.</param>
     /// <param name="cancellationToken">A token to cancel the wait.</param>
     /// <returns><see langword="true"/> when the work did not end within the bound.</returns>
-    /// <remarks>Work that does not return cannot be aborted; the bound turns it into a failure instead of a hung run.</remarks>
+    /// <remarks>
+    /// The bound counts the processor time of the process, not the wall clock: a machine that is busy with other test
+    /// projects slows a load down without making the library slow, and a load that loops or explodes still spends the
+    /// bound within seconds. This is only exact while no other test runs, so the tests that call it do not run in
+    /// parallel. Work that waits without using the processor is stopped by the wall clock after
+    /// <see cref="IdleFactor"/> times the bound. Work that does not return cannot be aborted; the bound turns it into
+    /// a failure instead of a hung run.
+    /// </remarks>
     internal static async Task<bool> RunBoundedAsync(
         Func<Task> work,
         TimeSpan timeBound,
@@ -94,17 +103,26 @@ internal static class HostileInputs
     {
         cancellationToken.ThrowIfCancellationRequested();
 
+        using var process = Process.GetCurrentProcess();
+        var processorStart = process.TotalProcessorTime;
+        var watch = Stopwatch.StartNew();
         var task = Task.Run(work, cancellationToken);
-        try
+        while (true)
         {
-            await task.WaitAsync(timeBound, cancellationToken);
-        }
-        catch (TimeoutException)
-        {
-            return true;
-        }
+            _ = await Task.WhenAny(task, Task.Delay(PollInterval, cancellationToken));
+            if (task.IsCompleted)
+            {
+                await task;
 
-        return false;
+                return false;
+            }
+
+            process.Refresh();
+            if (process.TotalProcessorTime - processorStart >= timeBound || watch.Elapsed >= timeBound * IdleFactor)
+            {
+                return true;
+            }
+        }
     }
 
     private static async Task LoadCoreAsync(

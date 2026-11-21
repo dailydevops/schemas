@@ -35,7 +35,7 @@ public static partial class HostileCorpus
         ]
     );
 
-    /// <summary>The time every file may take on every input kind.</summary>
+    /// <summary>The processor time every file may use on every input kind.</summary>
     internal static TimeSpan TimeBound { get; } = TimeSpan.FromSeconds(10);
 
     /// <summary>Gets the names of the files of the corpus.</summary>

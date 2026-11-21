@@ -4,8 +4,10 @@ using NetEvolve.Schemas.Xml.Contracts;
 
 /// <summary>
 /// Hostile input corpus (XML-21): every file ends in a coded diagnostic within a time bound, on every input kind, and no
-/// file reaches the resolver under the default options.
+/// file reaches the resolver under the default options. The time bound is processor time of the process, so no other test
+/// runs next to these.
 /// </summary>
+[NotInParallel]
 public class HostileCorpusTests
 {
     private static readonly HostileInputKind[] Kinds = Enum.GetValues<HostileInputKind>();

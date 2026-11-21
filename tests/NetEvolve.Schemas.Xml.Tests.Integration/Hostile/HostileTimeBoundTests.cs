@@ -49,4 +49,23 @@ public class HostileTimeBoundTests
 
         await Assert.That(timedOut).IsTrue();
     }
+
+    [Test]
+    [NotInParallel]
+    public async Task RunBounded_WithWorkThatNeverEndsWithoutUsingTheProcessor_TimesOutOnTheWallClock(
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        using var stop = new CancellationTokenSource();
+        var timedOut = await HostileInputs.RunBoundedAsync(
+            () => Task.Delay(Timeout.InfiniteTimeSpan, stop.Token),
+            TimeSpan.FromMilliseconds(30),
+            cancellationToken
+        );
+        await stop.CancelAsync();
+
+        await Assert.That(timedOut).IsTrue();
+    }
 }
