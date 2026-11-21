@@ -1,5 +1,8 @@
 namespace NetEvolve.Schemas.XPath.Tests.Unit.Evaluation.Temporal;
 
+using System;
+using NetEvolve.Schemas.XPath.Functions.Sequences;
+using NetEvolve.Schemas.XPath.Xdm.Values;
 using static TemporalFixture;
 
 public class TemporalAggregateTests
@@ -73,4 +76,28 @@ public class TemporalAggregateTests
     [Arguments("fn:avg((xs:duration('P1D'), xs:duration('P3D')))")]
     public async Task AValueThatCannotBeOrderedOrAddedTogether_RaisesForg0006(string expression) =>
         await Assert.That(Code(expression)).IsEqualTo("FORG0006");
+
+    [Test]
+    public async Task Sum_OfNumbers_WithoutAContext_RaisesArgumentNullException()
+    {
+        var numbers = Run("(1, 2)").Result;
+
+        await Assert.That(() => AggregateInput.Sum(numbers, null!)).Throws<ArgumentNullException>();
+    }
+
+    [Test]
+    public async Task Sum_OfDurations_WithoutAContext_RaisesArgumentNullException()
+    {
+        var durations = Run("(xs:dayTimeDuration('PT1H'), xs:dayTimeDuration('PT2H'))").Result;
+
+        await Assert.That(() => AggregateInput.Sum(durations, null!)).Throws<ArgumentNullException>();
+    }
+
+    [Test]
+    public async Task DivideDuration_WithoutAContext_RaisesArgumentNullException()
+    {
+        var total = Run("xs:dayTimeDuration('PT3H')").Result[0];
+
+        await Assert.That(() => AggregateInput.DivideDuration(total, 3, null!)).Throws<ArgumentNullException>();
+    }
 }
