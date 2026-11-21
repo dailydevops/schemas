@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.Schematron.Parsing.Core;
 
 using System;
 using System.Collections.Generic;
+using NetEvolve.Schemas.Schematron.Editions;
 using NetEvolve.Schemas.Schematron.Model;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Xml.Contracts;
@@ -148,23 +149,17 @@ internal sealed partial class CoreParseRun
 
     private SchematronEdition ReadEdition(XmlNode element, out string? text)
     {
-        text = Attribute(element, "schematronEdition");
-        if (text is null || string.Equals(text, "2016", StringComparison.Ordinal))
+        text = Attribute(element, SchematronEditionDetector.AttributeName);
+        if (!SchematronEditionDetector.TryDetect(text, out var edition))
         {
-            return SchematronEdition.Iso2016;
+            Report(
+                SchematronDiagnosticCodes.EditionUnknown,
+                SchematronEditionDetector.UnknownMessage(text!),
+                Location(element)
+            );
         }
 
-        if (string.Equals(text, "2025", StringComparison.Ordinal))
-        {
-            return SchematronEdition.Iso2025;
-        }
-
-        Report(
-            SchematronDiagnosticCodes.EditionUnknown,
-            "The schematronEdition value '" + text + "' is not known.",
-            Location(element)
-        );
-        return SchematronEdition.Iso2016;
+        return edition;
     }
 
     private SchematronNamespace ParseNamespace(XmlNode element)
