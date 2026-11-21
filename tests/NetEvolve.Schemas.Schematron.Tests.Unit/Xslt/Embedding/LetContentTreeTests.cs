@@ -13,7 +13,7 @@ using NetEvolve.Schemas.XPath.Xdm.Nodes;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>
-/// A <c>let</c> with element content is a temporary tree: a document node whose children are copies of the content, kept as written
+/// A <see langword="let"/> with element content is a temporary tree: a document node whose children are copies of the content, kept as written
 /// and never run as XSLT instructions, bound to the slot of the variable.
 /// </summary>
 public class LetContentTreeTests
@@ -31,11 +31,11 @@ public class LetContentTreeTests
 
     private static KeyValuePair<string, string> Attr(string key, string value) => new(key, value);
 
-    private static (QueryStatus Status, XdmItem Document, SchematronProblem Problem, MiniRun Run) Bind(
+    private static (QueryStatus Status, XdmItem Document, SchematronProblem Problem) Bind(
         params SchematronNode[] content
     )
     {
-        var run = new MiniRun();
+        using var run = new MiniRun();
         var status = new EmbeddedContent().TryBindLetContent(run, 4, content, out var problem);
         XdmItem document = default;
         if (run.TryGetValue(4, out var value) && value.Count == 1)
@@ -43,7 +43,7 @@ public class LetContentTreeTests
             document = value[0];
         }
 
-        return (status, document, problem, run);
+        return (status, document, problem);
     }
 
     private static string Path(in XdmItem context, string path)
@@ -62,7 +62,7 @@ public class LetContentTreeTests
     [Test]
     public async Task Content_IsADocumentNode_WhoseChildrenAreAddressableByPath()
     {
-        var (status, document, _, _) = Bind(
+        var (status, document, _) = Bind(
             Element(
                 string.Empty,
                 "root",
@@ -84,7 +84,9 @@ public class LetContentTreeTests
     [Test]
     public async Task Content_BindsExactlyOneValueToTheSlot()
     {
-        var (_, _, _, run) = Bind(Element(string.Empty, "root"));
+        using var run = new MiniRun();
+
+        _ = new EmbeddedContent().TryBindLetContent(run, 4, [Element(string.Empty, "root")], out _);
 
         _ = run.TryGetValue(4, out var value);
 
@@ -95,7 +97,7 @@ public class LetContentTreeTests
     [Test]
     public async Task Content_OfTwoElementsAndText_HasThreeChildrenInOrder()
     {
-        var (_, document, _, _) = Bind(Element(string.Empty, "a"), Text("between"), Element(string.Empty, "b"));
+        var (_, document, _) = Bind(Element(string.Empty, "a"), Text("between"), Element(string.Empty, "b"));
 
         await Assert.That(Path(in document, "/*")).IsEqualTo("Element:a=|Element:b=");
         await Assert.That(Path(in document, "/node()")).IsEqualTo("Element:a=|Text:=between|Element:b=");
@@ -104,7 +106,7 @@ public class LetContentTreeTests
     [Test]
     public async Task Content_OfText_IsADocumentWithOneTextNode()
     {
-        var (status, document, _, _) = Bind(Text("hello"));
+        var (status, document, _) = Bind(Text("hello"));
 
         _ = document.TryGetNode(out var node);
 
@@ -116,7 +118,7 @@ public class LetContentTreeTests
     [Test]
     public async Task Content_WhiteSpaceOnlyText_IsStripped()
     {
-        var (_, document, _, _) = Bind(
+        var (_, document, _) = Bind(
             Text("\n  "),
             Element(string.Empty, "a", null, Text("\n   "), Element(string.Empty, "b"), Text(" x ")),
             Text("\n")
@@ -129,7 +131,7 @@ public class LetContentTreeTests
     [Test]
     public async Task Content_ElementInTheXsltNamespace_IsCopiedAsAnElementAndNeverRun()
     {
-        var (status, document, problem, _) = Bind(
+        var (status, document, problem) = Bind(
             Element(
                 EmbeddingNodes.XsltNamespace,
                 "message",
@@ -157,7 +159,7 @@ public class LetContentTreeTests
     [Test]
     public async Task Content_ElementInANamespace_DeclaresTheNamespaceOnce()
     {
-        var (_, document, _, _) = Bind(
+        var (_, document, _) = Bind(
             Element("urn:a", "outer", null, Element("urn:a", "inner"), Element("urn:b", "other"))
         );
 
@@ -174,7 +176,7 @@ public class LetContentTreeTests
     [Test]
     public async Task Content_AttributeInANamespace_GetsAGeneratedPrefix()
     {
-        var (status, document, _, _) = Bind(Element("urn:a", "root", [Attr("{urn:b}id", "7")]));
+        var (status, document, _) = Bind(Element("urn:a", "root", [Attr("{urn:b}id", "7")]));
 
         _ = PathQuery.Select(in document, "/*/@*")[0].TryGetNode(out var attribute);
         var names = attribute.Tree!.Names;
@@ -190,7 +192,7 @@ public class LetContentTreeTests
     public async Task Content_BoundTwice_IsTwoIndependentTrees()
     {
         var embedded = new EmbeddedContent();
-        var run = new MiniRun();
+        using var run = new MiniRun();
         SchematronNode[] content = [Element(string.Empty, "root")];
 
         _ = embedded.TryBindLetContent(run, 1, content, out _);
@@ -208,7 +210,7 @@ public class LetContentTreeTests
     [Test]
     public async Task Content_WithARunThatCannotHoldAValue_IsTheUnsupportedConstructError()
     {
-        var run = new PlainRun();
+        using var run = new PlainRun();
 
         var status = new EmbeddedContent().TryBindLetContent(run, 0, [Text("x")], out var problem);
 
@@ -219,7 +221,7 @@ public class LetContentTreeTests
     [Test]
     public async Task Content_WithAFullNameTable_IsTheLimitStop()
     {
-        var run = new MiniRun();
+        using var run = new MiniRun();
         var embedded = new EmbeddedContent(new SpanInterningNameTable(1));
 
         var status = embedded.TryBindLetContent(
@@ -237,11 +239,10 @@ public class LetContentTreeTests
     public async Task TryBindLetContent_NullArguments_Throw()
     {
         var embedded = new EmbeddedContent();
+        using var run = new MiniRun();
 
         await Assert.That(() => embedded.TryBindLetContent(null!, 0, [], out _)).Throws<ArgumentNullException>();
-        await Assert
-            .That(() => embedded.TryBindLetContent(new MiniRun(), 0, null!, out _))
-            .Throws<ArgumentNullException>();
+        await Assert.That(() => embedded.TryBindLetContent(run, 0, null!, out _)).Throws<ArgumentNullException>();
         await Assert.That(() => new EmbeddedContent(null!)).Throws<ArgumentNullException>();
     }
 

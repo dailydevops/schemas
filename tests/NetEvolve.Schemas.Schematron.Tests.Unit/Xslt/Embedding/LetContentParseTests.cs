@@ -7,7 +7,7 @@ using NetEvolve.Schemas.Schematron.Tests.Unit.Parsing.Core;
 using static NetEvolve.Schemas.Schematron.Tests.Unit.Parsing.Core.TestTree;
 using static NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Embedding.EmbeddingNodes;
 
-/// <summary>The parser keeps the element content of a <c>let</c> as data and reports a <c>let</c> that has both a value and content.</summary>
+/// <summary>The parser keeps the element content of a <see langword="let"/> as data and reports a <see langword="let"/> that has both a value and content.</summary>
 public class LetContentParseTests
 {
     private static (SchematronLet? Let, int Problems, DiagnosticCode? Code) ParseLet(params object[] content)

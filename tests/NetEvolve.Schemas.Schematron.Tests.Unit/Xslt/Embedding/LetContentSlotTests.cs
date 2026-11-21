@@ -13,7 +13,7 @@ using NetEvolve.Schemas.Schematron.Xslt.Embedding;
 using NetEvolve.Schemas.XPath.Xdm.Nodes;
 using static NetEvolve.Schemas.Schematron.Tests.Unit.Scopes.ScopeModel;
 
-/// <summary>A <c>let</c> with element content is a slot of its level that the binder fills lazily with the temporary tree.</summary>
+/// <summary>A <see langword="let"/> with element content is a slot of its level that the binder fills lazily with the temporary tree.</summary>
 public class LetContentSlotTests
 {
     private static readonly XPathNode Doc = PatternFixture.Node("doc");
@@ -112,13 +112,8 @@ public class LetContentSlotTests
     {
         var fixture = ScopeFixture.Create(Schema(lets: [Let("z", "1"), ContentLet("tree")]));
         var embedded = new CountingContent();
-        var binder = new SlotBinder(
-            fixture.Plan,
-            new MiniRun(),
-            new QueryFocus(Doc, 1, 1),
-            new FakeProblemSink(),
-            embedded
-        );
+        using var run = new MiniRun();
+        var binder = new SlotBinder(fixture.Plan, run, new QueryFocus(Doc, 1, 1), new FakeProblemSink(), embedded);
 
         await Assert.That(embedded.Binds).IsEqualTo(0);
         var first = binder.EnsureBound([1]);
@@ -134,7 +129,7 @@ public class LetContentSlotTests
     public async Task Binder_BindsTheRealTreeIntoTheRun()
     {
         var fixture = ScopeFixture.Create(Schema(lets: [ContentLet("tree")]));
-        var run = new MiniRun();
+        using var run = new MiniRun();
         var binder = new SlotBinder(
             fixture.Plan,
             run,
@@ -156,13 +151,8 @@ public class LetContentSlotTests
     {
         var fixture = ScopeFixture.Create(Schema(patterns: Pattern("p", [], Rule("r", "x", ContentLet("tree")))));
         var embedded = new CountingContent();
-        var binder = new SlotBinder(
-            fixture.Plan,
-            new MiniRun(),
-            new QueryFocus(Doc, 1, 1),
-            new FakeProblemSink(),
-            embedded
-        );
+        using var run = new MiniRun();
+        var binder = new SlotBinder(fixture.Plan, run, new QueryFocus(Doc, 1, 1), new FakeProblemSink(), embedded);
         var slot = fixture.Plan.RuleStart;
         binder.BeginPattern(fixture.Plan.Patterns[0]);
 
@@ -180,7 +170,8 @@ public class LetContentSlotTests
     {
         var fixture = ScopeFixture.Create(Schema(lets: [ContentLet("tree")]));
         var problems = new FakeProblemSink();
-        var binder = new SlotBinder(fixture.Plan, new MiniRun(), new QueryFocus(Doc, 1, 1), problems);
+        using var run = new MiniRun();
+        var binder = new SlotBinder(fixture.Plan, run, new QueryFocus(Doc, 1, 1), problems);
 
         var first = binder.EnsureBound([0]);
         var second = binder.EnsureBound([0]);
@@ -195,13 +186,8 @@ public class LetContentSlotTests
     {
         var fixture = ScopeFixture.Create(Schema(lets: [ContentLet("tree")]));
         var problems = new FakeProblemSink();
-        var binder = new SlotBinder(
-            fixture.Plan,
-            new MiniRun(),
-            new QueryFocus(Doc, 1, 1),
-            problems,
-            new FailingContent()
-        );
+        using var run = new MiniRun();
+        var binder = new SlotBinder(fixture.Plan, run, new QueryFocus(Doc, 1, 1), problems, new FailingContent());
 
         var first = binder.EnsureBound([0]);
         var second = binder.EnsureBound([0]);

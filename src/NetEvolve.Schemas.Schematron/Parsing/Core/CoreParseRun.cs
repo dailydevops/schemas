@@ -364,33 +364,67 @@ internal sealed partial class CoreParseRun
         var name = Required(element, "name");
         var declaredType = Attribute(element, "as");
         var value = Attribute(element, "value");
+        var content = ReadLetContent(element);
         if (value is null)
         {
-            if (SkipToElement(element.FirstChild).IsEmpty)
+            if (content is null)
             {
                 Report(
                     SchematronDiagnosticCodes.AttributeMissing,
-                    "The element 'let' requires the attribute 'value'.",
-                    Location(element)
-                );
-            }
-            else
-            {
-                Report(
-                    SchematronDiagnosticCodes.Unsupported,
-                    "A 'let' with element content is not supported; use the 'value' attribute.",
+                    "The element 'let' requires the attribute 'value' or element content.",
                     Location(element)
                 );
             }
 
             value = string.Empty;
         }
-        else
+        else if (content is not null)
         {
-            RejectChildren(element, "let");
+            Report(
+                SchematronDiagnosticCodes.ElementMisplaced,
+                "The element 'let' has either the attribute 'value' or content, not both.",
+                Location(element)
+            );
+            content = null;
         }
 
-        return new SchematronLet(Location(element), name, declaredType, value);
+        return new SchematronLet(Location(element), name, declaredType, value, content);
+    }
+
+    // The content of a let is data: elements of any namespace, the XSLT namespace included, and text, kept as written and built into a
+    // temporary tree when the variable is bound. White space alone, as around the children of an element, is no content.
+    private SchematronNode[]? ReadLetContent(XmlNode element)
+    {
+        List<SchematronNode>? content = null;
+        var hasContent = false;
+        for (var child = element.FirstChild; !child.IsEmpty; child = child.NextSibling)
+        {
+            if (child.Kind == XmlNodeKind.Text)
+            {
+                (content ??= []).Add(new SchematronText(Location(element), child.StringValue));
+                hasContent |= !IsBlank(child.StringValue);
+            }
+            else if (child.Kind == XmlNodeKind.Element)
+            {
+                (content ??= []).Add(ParseForeign(child));
+                hasContent = true;
+            }
+        }
+
+        return hasContent ? content!.ToArray() : null;
+    }
+
+    private static bool IsBlank(string text)
+    {
+        foreach (var c in text)
+        {
+            if (c is not (' ' or '\t' or '\n' or '\r'))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private SchematronPhase ParsePhase(XmlNode element)

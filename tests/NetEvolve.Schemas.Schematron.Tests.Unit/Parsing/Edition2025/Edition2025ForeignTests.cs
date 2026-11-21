@@ -174,24 +174,23 @@ public class Edition2025ForeignTests
     }
 
     [Test]
-    public async Task XsltElement_InLet_IsNotMisplaced()
-    {
-        var (_, problems, result) = Parse(
-            Schema2025(E("let", 2, 3, A("name", "v"), A("value", "1"), Xsl("sequence", 2, 30)), E("pattern", 3, 3))
-        );
-
-        await Assert.That(result).IsTrue();
-        await Assert.That(problems.Count).IsEqualTo(0);
-    }
-
-    [Test]
-    public async Task XsltElement_InLetWithoutValue_ReportsUnsupported() =>
+    public async Task XsltElement_InLetWithValue_IsTheCodedErrorForValueAndContent() =>
         await AssertSingle(
-            Schema2025(E("let", 2, 3, A("name", "v"), Xsl("sequence", 2, 30)), E("pattern", 3, 3)),
-            SchematronDiagnosticCodes.Unsupported,
+            Schema2025(E("let", 2, 3, A("name", "v"), A("value", "1"), Xsl("sequence", 2, 30)), E("pattern", 3, 3)),
+            SchematronDiagnosticCodes.ElementMisplaced,
             2,
             3
         );
+
+    [Test]
+    public async Task XsltElement_InLetWithoutValue_IsKeptAsContentAndNotMisplaced()
+    {
+        var schema = ParseValid(Schema2025(E("let", 2, 3, A("name", "v"), Xsl("sequence", 2, 30)), E("pattern", 3, 3)));
+
+        var element = (SchematronForeignElement)schema.Lets[0].Content![0];
+        await Assert.That(element.NamespaceUri).IsEqualTo(XslNamespace);
+        await Assert.That(element.LocalName).IsEqualTo("sequence");
+    }
 
     [Test]
     public async Task XsltElement_InLibraryPattern_IsMisplaced_WhenXsltBinding()

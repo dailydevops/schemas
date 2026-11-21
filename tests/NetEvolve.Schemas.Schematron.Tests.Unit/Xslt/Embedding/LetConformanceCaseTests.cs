@@ -7,12 +7,13 @@ using NetEvolve.Schemas.Schematron.Tests.Unit.Parsing.Core;
 using NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Functions;
 using NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Instructions.Construction;
 using NetEvolve.Schemas.Schematron.Xslt.Embedding;
+using NetEvolve.Schemas.XPath.Xdm.Nodes;
 using static NetEvolve.Schemas.Schematron.Tests.Unit.Parsing.Core.TestTree;
 using static NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Embedding.EmbeddingNodes;
 
 /// <summary>
 /// The case of the Schematron conformance suite <c>iso-rule-based-validation/let-value-element-content.xml</c>, as far as this package
-/// reaches it: a <c>let</c> whose content is an <c>xsl:message</c> with <c>terminate="yes"</c> and the text after it. The case
+/// reaches it: a <see langword="let"/> whose content is an <c>xsl:message</c> with <c>terminate="yes"</c> and the text after it. The case
 /// parses, the value is a document node that holds the message as an element, nothing terminates, and the string value of the
 /// variable contains the text of the message (the test of the second schema of the case, <c>contains($foobar, 'NOT terminate')</c>).
 /// The end-to-end run of the case needs the XPath evaluator and the compile pipeline, which are not on main (#297), so the conformance
@@ -59,7 +60,7 @@ public class LetConformanceCaseTests
     [Test]
     public async Task LetValueElementContent_IsADocumentThatHoldsTheMessageAsAnElement_AndDoesNotTerminate()
     {
-        var run = new MiniRun();
+        using var run = new MiniRun();
 
         var status = new EmbeddedContent().TryBindLetContent(run, 0, ParseCase().Content!, out var problem);
 
@@ -76,7 +77,7 @@ public class LetConformanceCaseTests
     [Test]
     public async Task LetValueElementContent_StringValue_ContainsTheTextOfTheMessage()
     {
-        var run = new MiniRun();
+        using var run = new MiniRun();
         _ = new EmbeddedContent().TryBindLetContent(run, 0, ParseCase().Content!, out _);
 
         _ = run.TryGetValue(0, out var value);

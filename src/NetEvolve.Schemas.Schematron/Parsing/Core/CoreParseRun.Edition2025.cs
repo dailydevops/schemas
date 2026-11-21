@@ -18,8 +18,8 @@ using NetEvolve.Schemas.Xml.Contracts;
 /// <c>library</c> (design #137 AP-3 as narrowed by #150 EP-11); namespace declarations on kept foreign elements and
 /// comments inside them are not recorded. XSLT-namespace elements inside <c>pattern</c>, <see langword="group"/>, <c>rule</c>, <c>phase</c>,
 /// diagnostics, properties, and message text are rejected as <c>SCH-ELEMENT-MISPLACED</c> when the query binding is an XSLT
-/// binding or absent, and skipped under the XPath bindings; the element-content form of <see langword="let"/> is excluded and stays
-/// the decision of its own issue.
+/// binding or absent, and skipped under the XPath bindings. The element content of <see langword="let"/> is exempt: it is kept as
+/// data, elements of the XSLT namespace included (SCH-84, #289).
 /// </para>
 /// </remarks>
 internal sealed partial class CoreParseRun

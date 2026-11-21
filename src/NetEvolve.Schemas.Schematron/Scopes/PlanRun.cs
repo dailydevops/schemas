@@ -197,6 +197,12 @@ internal sealed class PlanRun
                 continue;
             }
 
+            if (let.Content is not null)
+            {
+                DeclareContent(let, slot, level, into);
+                continue;
+            }
+
             var declared = DeclaredType(let);
             var value = Compile(let.Value, slot, declared);
             var problem = ConstantProblem(let, declared);
@@ -213,6 +219,26 @@ internal sealed class PlanRun
                 into.Add(new VariableSlot(let.Name, slot, level, let.Location, value, declared, problem));
             }
         }
+    }
+
+    // A let with element content has no expression to compile: its value is a temporary tree that the binder builds when the slot is
+    // read. The name is visible to the later values at once. An as type is not supported with content yet (SCH-84, #289).
+    private void DeclareContent(SchematronLet let, int slot, ScopeLevel level, List<VariableSlot> into)
+    {
+        _names[slot] = let.Name;
+        if (let.DeclaredType is not null)
+        {
+            var problem = new SchematronProblem(
+                SchematronDiagnosticCodes.Unsupported,
+                $"The variable '{let.Name}' has element content and the type '{let.DeclaredType}'; a type is not supported with element content.",
+                let.Location
+            );
+            _problems.Add(in problem);
+            _ok = false;
+            return;
+        }
+
+        into.Add(new VariableSlot(let.Name, slot, level, let.Location, null, null, null, content: let.Content));
     }
 
     // Compiles a value in the scope of its position: everything declared before slot, and nothing after it.
