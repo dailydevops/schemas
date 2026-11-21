@@ -1,5 +1,8 @@
 namespace NetEvolve.Schemas.Xsd.Tests.Integration.Differential;
 
+using System.Net;
+using System.Net.Sockets;
+
 /// <summary>The baseline adapter, checked with small schemas on the leg that runs the baseline.</summary>
 [BaselineLeg]
 public class SystemXmlSchemaEngineTests
@@ -117,12 +120,52 @@ public class SystemXmlSchemaEngineTests
     {
         cancellationToken.ThrowIfCancellationRequested();
         using var directory = new TempDirectory();
-        const string Importing =
-            "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n  <xs:import namespace=\"http://www.w3.org/XML/1998/namespace\" schemaLocation=\"http://127.0.0.1:9/xml.xsd\"/>\n  <xs:element name=\"a\" type=\"xs:int\"/>\n</xs:schema>";
+        var port = FreeLoopbackPort();
+        var prefix = $"http://127.0.0.1:{port}/";
+        using var listener = new HttpListener();
+        listener.Prefixes.Add(prefix);
+        listener.Start();
+        var requests = 0;
+        var serving = Task.Run(
+            async () =>
+            {
+                try
+                {
+                    while (true)
+                    {
+                        var context = await listener.GetContextAsync();
+                        _ = Interlocked.Increment(ref requests);
+                        context.Response.StatusCode = 404;
+                        context.Response.Close();
+                    }
+                }
+                catch (HttpListenerException)
+                {
+                    // The listener was stopped.
+                }
+                catch (ObjectDisposedException)
+                {
+                    // The listener was disposed.
+                }
+            },
+            cancellationToken
+        );
+        var importing =
+            $"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n  <xs:import namespace=\"http://www.w3.org/XML/1998/namespace\" schemaLocation=\"{prefix}xml.xsd\"/>\n  <xs:element name=\"a\" type=\"xs:int\"/>\n</xs:schema>";
 
-        var result = await RunAsync(directory, Importing, "<a>1</a>", cancellationToken);
+        var result = await RunAsync(directory, importing, "<a>1</a>", cancellationToken);
+        listener.Stop();
+        await serving;
 
         await Assert.That(result.Schema).IsEqualTo(Verdict.Valid);
         await Assert.That(result.Instance).IsEqualTo(Verdict.Valid);
+        await Assert.That(requests).IsEqualTo(0);
+    }
+
+    private static int FreeLoopbackPort()
+    {
+        using var probe = new TcpListener(IPAddress.Loopback, 0);
+        probe.Start();
+        return ((IPEndPoint)probe.LocalEndpoint).Port;
     }
 }
