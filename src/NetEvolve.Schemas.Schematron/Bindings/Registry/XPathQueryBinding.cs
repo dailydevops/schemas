@@ -48,6 +48,8 @@ internal sealed class XPathQueryBinding : IQueryBinding
         StaticContextExtension? extension = null
     )
     {
+        Argument.ThrowIfNull(name);
+
         Name = name;
         AllowsXsltInstructions = allowsXsltInstructions;
         _xpath10Compatibility = xpath10Compatibility;

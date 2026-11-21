@@ -11,19 +11,19 @@ source ──> Parse ──> Resolve ──> Expand ──> Compile ──> Comp
            edition                            rules       tree ─> evaluate ─> events ─> issues and caller sink
 ```
 
-| File                       | Role                                                                                                              |
-| -------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| `SchematronPipeline.cs`    | `ISchematronPipeline`: runs the four stages in order; a stage with problems stops the later ones.                 |
-| `SchemaSourceReader.cs`    | Reads a stream source (sync or async), bounded by `MaxResourceSize`, and keeps its bytes for a second build.      |
-| `SchematronModelParser.cs` | Stage Parse: Xml tree, `xi:include`, object model, edition.                                                       |
-| `ModelExpander.cs`         | Stage Expand: abstract rules, then abstract patterns.                                                             |
-| `SchematronSchemaCompiler.cs` | Stage Compile: binding, parameters, phase, scopes, rule sets.                                                  |
-| `PipelineBindings.cs`      | The registry of a build: the bindings with the XSLT 2.0 functions for the XSLT family.                            |
-| `CompiledProgram.cs`       | The immutable result of the build; read by every run.                                                             |
-| `ValidationRun.cs`         | One validation call: instance tree, run of the binding, evaluation, events.                                       |
-| `InstanceReader.cs`        | Reads an instance through the loader of the Xml package, for every input kind.                                    |
-| `XmlIssues.cs`             | Reader options from `ValidationLimits`, and the issue of a failed read.                                           |
-| `BuildProblems.cs`         | The problems of a build as the issues of one `SchemaCompilationException`.                                        |
+| File                          | Role                                                                                                         |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `SchematronPipeline.cs`       | `ISchematronPipeline`: runs the four stages in order; a stage with problems stops the later ones.            |
+| `SchemaSourceReader.cs`       | Reads a stream source (sync or async), bounded by `MaxResourceSize`, and keeps its bytes for a second build. |
+| `SchematronModelParser.cs`    | Stage Parse: Xml tree, `xi:include`, object model, edition.                                                  |
+| `ModelExpander.cs`            | Stage Expand: abstract rules, then abstract patterns.                                                        |
+| `SchematronSchemaCompiler.cs` | Stage Compile: binding, parameters, phase, scopes, rule sets.                                                |
+| `PipelineBindings.cs`         | The registry of a build: the bindings with the XSLT 2.0 functions for the XSLT family.                       |
+| `CompiledProgram.cs`          | The immutable result of the build; read by every run.                                                        |
+| `ValidationRun.cs`            | One validation call: instance tree, run of the binding, evaluation, events.                                  |
+| `InstanceReader.cs`           | Reads an instance through the loader of the Xml package, for every input kind.                               |
+| `XmlIssues.cs`                | Reader options from `ValidationLimits`, and the issue of a failed read.                                      |
+| `BuildProblems.cs`            | The problems of a build as the issues of one `SchemaCompilationException`.                                   |
 
 The instance is read only through the readers of the Xml package (an architecture test pins it), so there is no second parse path; a
 `Stream` is read into a pooled buffer by the base of the validator.

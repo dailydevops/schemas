@@ -50,6 +50,8 @@ internal sealed class XPathQueryRun : IQueryRun
 
     public QueryStatus TryEvaluateBoolean(QueryExpression expression, in QueryFocus focus, out bool value)
     {
+        Argument.ThrowIfNull(expression);
+
         var query = Cast(expression);
         value = false;
         if (!TryRun(query, in focus, out var sequence))
@@ -70,6 +72,9 @@ internal sealed class XPathQueryRun : IQueryRun
 
     public QueryStatus TryEvaluate(QueryExpression expression, in QueryFocus focus, ISequenceSink sink)
     {
+        Argument.ThrowIfNull(expression);
+        Argument.ThrowIfNull(sink);
+
         var query = Cast(expression);
         if (!TryRun(query, in focus, out var sequence))
         {
@@ -86,6 +91,8 @@ internal sealed class XPathQueryRun : IQueryRun
 
     public QueryStatus TryBindVariable(int slot, QueryExpression value, in QueryFocus focus)
     {
+        Argument.ThrowIfNull(value);
+
         var query = Cast(value);
         if (!TryRun(query, in focus, out var sequence))
         {
@@ -109,9 +116,9 @@ internal sealed class XPathQueryRun : IQueryRun
 
     public void BindVariable(int slot, string value)
     {
-        Debug.Assert(value is not null, "The value of a parameter is a string.");
+        Argument.ThrowIfNull(value);
 
-        Store(slot, XdmSequence.Create(XdmItem.FromString(value!)));
+        Store(slot, XdmSequence.Create(XdmItem.FromString(value)));
     }
 
     public SchematronProblem GetProblem() => _problem;

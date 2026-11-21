@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.Schematron.Pipeline;
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Bindings.Registry;
 using NetEvolve.Schemas.Schematron.Evaluation.Patterns;
@@ -85,7 +84,7 @@ internal sealed class SchematronSchemaCompiler : ISchemaCompiler
         compiled = new CompiledProgram(
             effective,
             selection.EffectivePhase,
-            TitleOf(effective.Title),
+            RuleSetCompiler.TitleText(effective.Title),
             binding,
             matcher,
             new QueryResources(settings.Resolver),
@@ -172,25 +171,5 @@ internal sealed class SchematronSchemaCompiler : ISchemaCompiler
         }
 
         return false;
-    }
-
-    // The text of the title: the plain text parts in order; the span and emphasis parts of a title carry no information a report needs.
-    private static string TitleOf(SchematronTitle? title)
-    {
-        if (title is null)
-        {
-            return string.Empty;
-        }
-
-        var text = new StringBuilder();
-        foreach (var part in title.Parts)
-        {
-            if (part is SchematronText plain)
-            {
-                _ = text.Append(plain.Text);
-            }
-        }
-
-        return text.ToString();
     }
 }
