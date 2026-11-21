@@ -60,9 +60,22 @@ The W3C QT3 test suite is pinned by commit, not by branch. The archive is the Gi
 - **Selection:** XPath 2.0 cases (`XP20`, `XP20+`, `XP10+`). XQuery and XSLT cases are never selected.
   Cases that need XSD 1.1, XML 1.1, schema import, schema validation, static typing, the namespace axis, or
   a non-codepoint collation are excluded; each exclusion keeps its reason in the selection result.
-- **Baseline:** `tests/conformance/baselines/qt3/<test-set>.txt` lists every selected case of one test set as
-  `<test-set>/<case-name>`, one per line. Test sets without a selected case have no file. Regenerate the files
-  with the explicit test `Qt3BaselineTests.Baseline_Regenerate` after a deliberate filter change.
+- **Engine:** `Qt3Engine` evaluates each case with the public XPath API. It loads the environment of the case
+  (the sources, the namespace bindings, the parameters, and the static base URI; defined in the case, the test
+  set, or the catalog) with the Xml document loader and binds the context item and the variables.
+- **Assertions:** `error`, `assert-true`, `assert-false`, `assert-empty`, `assert`, `assert-eq`, `assert-count`,
+  and `assert-string-value` decide a case. Every other kind (`assert-xml`, `assert-deep-eq`, `assert-permutation`,
+  `assert-type`, the serialization assertions, and the compound `any-of`, `all-of`, and `not`) is skipped and
+  never counts as passed.
+- **Limitations:** the schema, collection, resource, collation, decimal-format, function-library, and
+  context-item elements of an environment are ignored. The static base URI is absent unless the environment
+  gives one, so a result never depends on the checkout path. A case whose query raises an engine condition that is
+  no error of the specifications (a limit, a document that does not load, an unexpected exception) fails, also
+  where the case expects `error code="*"`.
+- **Baseline:** `tests/conformance/baselines/qt3/<test-set>.txt` lists every selected case of one test set that
+  does not pass, failed or skipped, as `<test-set>/<case-name>`, one per line. A case that passes but is still
+  listed fails the run, so a baseline only shrinks on purpose. Test sets without a selected case have no file.
+  Regenerate the files with the explicit test `Qt3BaselineTests.Baseline_Regenerate` after a deliberate change.
 
 ## Suites without releases
 

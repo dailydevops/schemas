@@ -27,13 +27,3 @@ xs-base64Binary/base64-112
 xs-base64Binary/base64-113
 xs-base64Binary/base64-114
 xs-base64Binary/base64-115
-xs-base64Binary/base64-901
-xs-base64Binary/base64-902
-xs-base64Binary/base64-903
-xs-base64Binary/base64-904
-xs-base64Binary/base64-905
-xs-base64Binary/base64-906
-xs-base64Binary/base64-907
-xs-base64Binary/base64-908
-xs-base64Binary/base64-909
-xs-base64Binary/cbcl-base64binary-001

@@ -1,9 +1,4 @@
-fn-in-scope-prefixes/K-InScopePrefixesFunc-1
-fn-in-scope-prefixes/K-InScopePrefixesFunc-2
-fn-in-scope-prefixes/fn-in-scope-prefixes-2
 fn-in-scope-prefixes/fn-in-scope-prefixes-21
 fn-in-scope-prefixes/fn-in-scope-prefixes-22
-fn-in-scope-prefixes/fn-in-scope-prefixes-23
 fn-in-scope-prefixes/fn-in-scope-prefixes-24
 fn-in-scope-prefixes/fn-in-scope-prefixes-25
-fn-in-scope-prefixes/fn-in-scope-prefixes-26

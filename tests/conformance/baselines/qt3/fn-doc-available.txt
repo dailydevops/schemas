@@ -2,7 +2,6 @@ fn-doc-available/K2-SeqDocAvailableFunc-1
 fn-doc-available/cbcl-doc-available-001
 fn-doc-available/cbcl-doc-available-002
 fn-doc-available/cbcl-doc-available-003
-fn-doc-available/fn-doc-available-1
 fn-doc-available/fn-doc-available-2
 fn-doc-available/fn-doc-available-3
 fn-doc-available/fn-doc-available-4

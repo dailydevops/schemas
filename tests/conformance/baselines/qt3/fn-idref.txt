@@ -1,7 +1,6 @@
 fn-idref/K2-SeqIDREFFunc-1
 fn-idref/K2-SeqIDREFFunc-2
 fn-idref/K2-SeqIDREFFunc-3
-fn-idref/fn-idref-1
 fn-idref/fn-idref-2
 fn-idref/fn-idref-22
 fn-idref/fn-idref-3

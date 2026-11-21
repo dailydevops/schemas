@@ -1,13 +1,7 @@
 op-QName-equal/K-QNameEQ-1
-op-QName-equal/K-QNameEQ-10
 op-QName-equal/K-QNameEQ-2
 op-QName-equal/K-QNameEQ-3
 op-QName-equal/K-QNameEQ-4
-op-QName-equal/K-QNameEQ-5
-op-QName-equal/K-QNameEQ-6
-op-QName-equal/K-QNameEQ-7
-op-QName-equal/K-QNameEQ-8
-op-QName-equal/K-QNameEQ-9
 op-QName-equal/op-qname-equal-1
 op-QName-equal/op-qname-equal-10
 op-QName-equal/op-qname-equal-11
@@ -32,5 +26,3 @@ op-QName-equal/op-qname-equal-6
 op-QName-equal/op-qname-equal-7
 op-QName-equal/op-qname-equal-8
 op-QName-equal/op-qname-equal-9
-op-QName-equal/value-comparison-1
-op-QName-equal/value-comparison-2

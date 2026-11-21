@@ -1,15 +1,12 @@
 fn-error/K-ErrorFunc-1
 fn-error/K-ErrorFunc-10
 fn-error/K-ErrorFunc-2
-fn-error/K-ErrorFunc-3
 fn-error/K-ErrorFunc-4
 fn-error/K-ErrorFunc-5
 fn-error/K-ErrorFunc-6
 fn-error/K-ErrorFunc-7
 fn-error/K-ErrorFunc-8
-fn-error/K-ErrorFunc-9
 fn-error/K2-ErrorFunc-1
-fn-error/K2-ErrorFunc-3
 fn-error/cbcl-error-002
 fn-error/cbcl-error-003
 fn-error/cbcl-error-004
@@ -49,7 +46,6 @@ fn-error/fn-error-16
 fn-error/fn-error-17
 fn-error/fn-error-18
 fn-error/fn-error-19
-fn-error/fn-error-2
 fn-error/fn-error-20
 fn-error/fn-error-22
 fn-error/fn-error-23

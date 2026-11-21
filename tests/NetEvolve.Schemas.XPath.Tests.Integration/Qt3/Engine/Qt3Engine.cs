@@ -34,6 +34,8 @@ using QName = NetEvolve.Schemas.XPath.Tests.Integration.Qt3.Assertions.Static.QN
 internal sealed class Qt3Engine : IQt3Engine
 {
     private static readonly XPathQName Result = new(string.Empty, "result");
+    private static readonly SemaphoreSlim Gate = new(1, 1);
+    private static Qt3Engine? s_shared;
 
     private readonly Qt3EnvironmentCatalog _environments;
     private readonly ConcurrentDictionary<string, Lazy<XmlDocumentTree>> _documents = new(StringComparer.Ordinal);
@@ -42,13 +44,24 @@ internal sealed class Qt3Engine : IQt3Engine
     /// <param name="suiteRoot">The directory of the QT3 suite, <c>catalog.xml</c> inside.</param>
     public Qt3Engine(string suiteRoot) => _environments = new Qt3EnvironmentCatalog(suiteRoot);
 
-    /// <summary>Creates the engine for the pinned suite; the archive is downloaded once and cached by checksum.</summary>
+    /// <summary>
+    /// Gets the engine for the pinned suite, shared by all tests so that a source document loads once; the archive is downloaded once and
+    /// cached by checksum.
+    /// </summary>
     /// <param name="cancellationToken">A token to cancel the fetch.</param>
     /// <returns>The engine.</returns>
-    public static async Task<Qt3Engine> CreateAsync(CancellationToken cancellationToken)
+    public static async Task<Qt3Engine> GetSharedAsync(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        return new Qt3Engine(await Qt3Suite.GetRootAsync(cancellationToken).ConfigureAwait(false));
+        await Gate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            return s_shared ??= new Qt3Engine(await Qt3Suite.GetRootAsync(cancellationToken).ConfigureAwait(false));
+        }
+        finally
+        {
+            _ = Gate.Release();
+        }
     }
 
     public EngineResult Evaluate(Qt3Case testCase)

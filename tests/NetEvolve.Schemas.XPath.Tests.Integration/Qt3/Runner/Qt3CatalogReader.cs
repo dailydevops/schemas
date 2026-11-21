@@ -24,7 +24,8 @@ internal static class Qt3CatalogReader
 
     private static Qt3TestSet ReadSet(string file)
     {
-        var root = XDocument.Load(file).Root!;
+        // White space is kept: an assert-string-value of only white space expects exactly that string.
+        var root = XDocument.Load(file, LoadOptions.PreserveWhitespace).Root!;
         var directory = Path.GetDirectoryName(file)!;
         var name = (string)root.Attribute("name")!;
         var cases = new List<Qt3Case>();
@@ -32,7 +33,7 @@ internal static class Qt3CatalogReader
         {
             var test = element.Element(Ns + "test");
             var queryFile = (string?)test?.Attribute("file");
-            var assertion = element.Element(Ns + "result")?.FirstNode as XElement;
+            var assertion = element.Element(Ns + "result")?.Elements().FirstOrDefault();
             cases.Add(
                 new Qt3Case(
                     name,

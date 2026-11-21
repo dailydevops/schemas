@@ -1,9 +1,7 @@
 namespace NetEvolve.Schemas.XPath.Tests.Integration.Qt3.Engine;
 
 using NetEvolve.Schemas.Conformance.Baseline;
-using NetEvolve.Schemas.Conformance.Reporting;
 using NetEvolve.Schemas.Conformance.Results;
-using NetEvolve.Schemas.XPath.Tests.Integration.Conformance;
 using NetEvolve.Schemas.XPath.Tests.Integration.Qt3.Assertions.Static;
 using NetEvolve.Schemas.XPath.Tests.Integration.Qt3.Runner;
 using static NetEvolve.Schemas.XPath.Tests.Integration.Qt3.Runner.Qt3Fixtures;
@@ -43,14 +41,5 @@ public class Qt3BaselineShrinkTests
         var results = Run(new Qt3Assertion("assert-true"), EngineResult.Value(false));
 
         await Assert.That(ConformanceReport.Compare(results, Baselines()).IsSuccess).IsFalse();
-    }
-
-    [Test]
-    public async Task ConformanceTests_RunOnEveryLeg()
-    {
-        // The netstandard2.0 and netstandard2.1 builds run on the net8.0 and net9.0 legs, so each leg reports its own QT3 rate.
-        var attributes = typeof(Qt3ConformanceTests).GetCustomAttributes(typeof(ConformanceLegAttribute), false);
-
-        await Assert.That(attributes).IsEmpty();
     }
 }

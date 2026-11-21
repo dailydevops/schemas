@@ -15,7 +15,6 @@ fn-doc/fn-doc-16
 fn-doc/fn-doc-17
 fn-doc/fn-doc-18
 fn-doc/fn-doc-19
-fn-doc/fn-doc-2
 fn-doc/fn-doc-20
 fn-doc/fn-doc-21
 fn-doc/fn-doc-22

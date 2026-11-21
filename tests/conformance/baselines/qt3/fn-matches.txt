@@ -1,7 +1,5 @@
 fn-matches/K-MatchesFunc-1
-fn-matches/K-MatchesFunc-2
 fn-matches/K-MatchesFunc-3
-fn-matches/K-MatchesFunc-4
 fn-matches/K-MatchesFunc-5
 fn-matches/K-MatchesFunc-6
 fn-matches/K2-MatchesFunc-1
