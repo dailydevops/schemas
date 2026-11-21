@@ -6044,11 +6044,11 @@ internal static class Qt3TemporalSelection
     [
         (
             "op-divide-dayTimeDuration/op-divide-dayTimeDuration2args-2",
-            "The assertion is not one of the shapes of the selection."
+            "The assertion is an XPath expression over $result (abs(seconds-from-duration($result)) lt 1e-100), not one of the shapes of the selection."
         ),
         (
             "op-divide-dayTimeDuration/op-divide-dayTimeDuration2args-3",
-            "The assertion is not one of the shapes of the selection."
+            "The assertion is an XPath expression over $result (abs(seconds-from-duration($result)) lt 1e-100), not one of the shapes of the selection."
         ),
         (
             "op-duration-equal/distinct-duration-equal-1",
