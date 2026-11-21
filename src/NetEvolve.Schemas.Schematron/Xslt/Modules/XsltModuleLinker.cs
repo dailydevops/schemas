@@ -51,7 +51,7 @@ internal sealed class XsltModuleLinker
     private readonly IModuleLoader _loader;
     private readonly IProblemSink _problems;
     private readonly CancellationToken _cancellationToken;
-    private readonly Dictionary<string, Module> _byUri = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, Module?> _byUri = new(StringComparer.Ordinal);
     private readonly HashSet<string> _active = new(StringComparer.Ordinal);
     private readonly List<Placement> _placements = [];
     private bool _failed;
@@ -85,7 +85,6 @@ internal sealed class XsltModuleLinker
         var items = new List<XPathNode>();
         for (var i = 0; i < principal.Count; i++)
         {
-            Argument.ThrowIfNull(principal[i].Tree);
             Collect(principal[i], principalSystemId, items);
         }
 
@@ -201,9 +200,10 @@ internal sealed class XsltModuleLinker
     private bool TryResolve(in ModuleReference reference, out Module module)
     {
         var key = UriReference.Resolve(reference.Href, reference.BaseUri).Uri;
-        if (key is not null && _byUri.TryGetValue(key, out module!))
+        if (key is not null && _byUri.TryGetValue(key, out var cached))
         {
-            return true;
+            module = cached!;
+            return cached is not null;
         }
 
         if (!_loader.TryLoad(in reference, _cancellationToken, out var loaded, out var problem))
@@ -214,25 +214,24 @@ internal sealed class XsltModuleLinker
             return false;
         }
 
-        if (!_byUri.TryGetValue(loaded.SystemId, out module!))
+        // A module that is not a stylesheet is cached as null: its error is reported once, and a further reference neither reloads
+        // it nor counts it against MaxExternalResources again.
+        if (!_byUri.TryGetValue(loaded.SystemId, out var read))
         {
-            if (!TryRead(in loaded, in reference, out module))
-            {
-                return false;
-            }
-
-            _byUri.Add(loaded.SystemId, module);
+            _ = TryRead(in loaded, in reference, out read);
+            _byUri.Add(loaded.SystemId, read);
         }
 
         if (key is not null)
         {
-            _byUri[key] = module;
+            _byUri[key] = read;
         }
 
-        return true;
+        module = read!;
+        return read is not null;
     }
 
-    private bool TryRead(in LoadedModule loaded, in ModuleReference reference, out Module module)
+    private bool TryRead(in LoadedModule loaded, in ModuleReference reference, out Module? module)
     {
         var root = loaded.Root.Node.FirstChild;
         while (!root.IsEmpty && root.Kind != XmlNodeKind.Element)
@@ -252,7 +251,7 @@ internal sealed class XsltModuleLinker
                 reference.Location
             );
             _problems.Add(in problem);
-            module = null!;
+            module = null;
             return false;
         }
 
