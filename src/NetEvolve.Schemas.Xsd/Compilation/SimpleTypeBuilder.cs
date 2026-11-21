@@ -260,6 +260,8 @@ internal sealed class SimpleTypeBuilder : IComponentBuilder
 
     internal List<FacetDeclaration> ReadFacets(SchemaSyntaxNode restriction)
     {
+        Argument.ThrowIfNull(restriction);
+
         var step = new List<FacetDeclaration>();
         var seen = new HashSet<FacetKind>();
         for (var i = 0; i < restriction.ChildCount; i++)
