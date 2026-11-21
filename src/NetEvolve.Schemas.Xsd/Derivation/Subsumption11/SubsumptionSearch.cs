@@ -373,6 +373,8 @@ internal sealed class SubsumptionSearch
     // The point after the last of zones that are points of one line: each step adds zero or one to every counter.
     internal static CounterZone? NextPoint(IReadOnlyList<CounterZone> zones)
     {
+        Argument.ThrowIfNull(zones);
+
         long[]? previous = null;
         long[]? step = null;
         foreach (var zone in zones)

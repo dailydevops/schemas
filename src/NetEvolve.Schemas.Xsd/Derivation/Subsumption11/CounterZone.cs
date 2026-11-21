@@ -81,12 +81,22 @@ internal sealed class CounterZone
     /// <summary>Gets the smallest value of a counter in the zone.</summary>
     /// <param name="variable">The counter, from 1.</param>
     /// <returns>The smallest value.</returns>
-    internal long Minimum(int variable) => -_bounds[Index(0, variable)];
+    internal long Minimum(int variable)
+    {
+        Argument.ThrowIfLessThan(variable, 1);
+        Argument.ThrowIfGreaterThan(variable, Variables);
+        return -_bounds[Index(0, variable)];
+    }
 
     /// <summary>Gets the largest value of a counter in the zone.</summary>
     /// <param name="variable">The counter, from 1.</param>
     /// <returns>The largest value, <see cref="Infinity"/> when it is not bounded.</returns>
-    internal long Maximum(int variable) => _bounds[Index(variable, 0)];
+    internal long Maximum(int variable)
+    {
+        Argument.ThrowIfLessThan(variable, 1);
+        Argument.ThrowIfGreaterThan(variable, Variables);
+        return _bounds[Index(variable, 0)];
+    }
 
     /// <summary>Determines whether a valuation of the counters is in the zone.</summary>
     /// <param name="values">The value of each counter, counter 1 first.</param>
@@ -115,13 +125,23 @@ internal sealed class CounterZone
     /// <param name="variable">The counter, from 1.</param>
     /// <param name="value">The lower bound.</param>
     /// <returns>The zone, <see langword="null"/> when it is empty.</returns>
-    internal CounterZone? AtLeast(int variable, long value) => Tighten(0, variable, -value);
+    internal CounterZone? AtLeast(int variable, long value)
+    {
+        Argument.ThrowIfLessThan(variable, 1);
+        Argument.ThrowIfGreaterThan(variable, Variables);
+        return Tighten(0, variable, -value);
+    }
 
     /// <summary>Restricts a counter to at most a value.</summary>
     /// <param name="variable">The counter, from 1.</param>
     /// <param name="value">The upper bound.</param>
     /// <returns>The zone, <see langword="null"/> when it is empty.</returns>
-    internal CounterZone? AtMost(int variable, long value) => Tighten(variable, 0, value);
+    internal CounterZone? AtMost(int variable, long value)
+    {
+        Argument.ThrowIfLessThan(variable, 1);
+        Argument.ThrowIfGreaterThan(variable, Variables);
+        return Tighten(variable, 0, value);
+    }
 
     /// <summary>Sets a counter to a value and forgets what it was.</summary>
     /// <param name="variable">The counter, from 1.</param>
@@ -129,6 +149,9 @@ internal sealed class CounterZone
     /// <returns>The zone.</returns>
     internal CounterZone Assign(int variable, long value)
     {
+        Argument.ThrowIfLessThan(variable, 1);
+        Argument.ThrowIfGreaterThan(variable, Variables);
+
         var next = (long[])_bounds.Clone();
         for (var j = 0; j < _size; j++)
         {
@@ -148,6 +171,9 @@ internal sealed class CounterZone
     /// <returns>The zone.</returns>
     internal CounterZone Increment(int variable)
     {
+        Argument.ThrowIfLessThan(variable, 1);
+        Argument.ThrowIfGreaterThan(variable, Variables);
+
         var next = (long[])_bounds.Clone();
         for (var j = 0; j < _size; j++)
         {
