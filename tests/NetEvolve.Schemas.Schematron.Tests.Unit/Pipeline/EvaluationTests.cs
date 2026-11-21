@@ -64,7 +64,7 @@ public class EvaluationTests
               <let name="patternLevel" value="3"/>
               <rule context="a">
                 <let name="ruleLevel" value="count(b)"/>
-                <assert test="$schemaLevel + $phaseLevel + $patternLevel + $ruleLevel = 8">Sum is <value-of select="$schemaLevel + $phaseLevel + $patternLevel + $ruleLevel"/>.</assert>
+                <assert test="$schemaLevel + $phaseLevel + $patternLevel + $ruleLevel = 8">Sum is <value-of select="string($schemaLevel + $phaseLevel + $patternLevel + $ruleLevel)"/>.</assert>
               </rule>
             </pattern>
             """
@@ -160,13 +160,15 @@ public class EvaluationTests
     [Test]
     public async Task XsltBinding_HasTheFunctionsOfXslt()
     {
+        const string Xsl = "<ns prefix=\"xsl\" uri=\"http://www.w3.org/1999/XSL/Transform\"/>";
         var schema = Wrap(
-            Rule(
-                """
-                <assert test="current()/@id = 'x'">Current is <value-of select="current()/name()"/>.</assert>
-                <assert test="false()"><value-of select="format-number(1234.5, '#,##0.00')"/> <value-of select="system-property('xsl:version')"/></assert>
-                """
-            ),
+            Xsl
+                + Rule(
+                    """
+                    <assert test="current()/@id = 'x'">Current is <value-of select="current()/name()"/>.</assert>
+                    <assert test="false()"><value-of select="format-number(1234.5, '#,##0.00')"/> <value-of select="system-property('xsl:version')"/></assert>
+                    """
+                ),
             " queryBinding=\"xslt2\""
         );
 
@@ -190,9 +192,10 @@ public class EvaluationTests
         var schema = Wrap(Rule("<assert test=\"false()\"><value-of select=\"format-number(1, '0', 'nf')\"/></assert>"));
 
         var result = Validate(Build(schema), "<a/>");
+        var failed = result.Issues.Single(issue => issue.Code == SchematronDiagnosticCodes.EvaluationFailed);
 
-        await Assert.That(result.Issues.Single().Code).IsEqualTo(SchematronDiagnosticCodes.EvaluationFailed);
-        await Assert.That(result.Issues.Single().Constraint).IsNotEqualTo("XPDY0002");
+        // The slot of the decimal formats is set at the start of the run, so the name is unknown (XTDE1280), not the unset slot.
+        await Assert.That(failed.Constraint).IsEqualTo("XTDE1280");
     }
 
     [Test]
@@ -220,6 +223,57 @@ public class EvaluationTests
             .That(string.Join(" ", sink.Events))
             .IsEqualTo("begin pattern:p1 rule:r1 failed:a1 issue:True successful:rp1 issue:True finish:False");
         await Assert.That(result.Issues.Count).IsEqualTo(2);
+    }
+
+    [Test]
+    public async Task Sink_Begin_CarriesTheTitleVersionPhaseEditionNamespacesAndInstance()
+    {
+        var schema = Wrap(
+            "<title>Invoice rules</title><ns prefix=\"i\" uri=\"urn:invoice\"/>"
+                + Rule("<assert test=\"true()\">x</assert>"),
+            " schemaVersion=\"1.2\" schematronEdition=\"2025\""
+        );
+        var sink = new RecordingSink();
+
+        _ = Validate(Build(schema).WithReportSink(sink), "<a/>");
+
+        await Assert.That(sink.Info).IsEqualTo($"Invoice rules|#ALL|1.2|Iso2025|1|{InstanceSystemId}");
+    }
+
+    [Test]
+    public async Task Sink_Begin_OfAnInstanceWithoutASystemId_HasNoInstanceName()
+    {
+        var sink = new RecordingSink();
+
+        var result = ValidateAnonymous(
+            Build(Wrap(Rule("<assert test=\"false()\">x</assert>"))).WithReportSink(sink),
+            "<a/>"
+        );
+
+        await Assert.That(sink.Info).IsEqualTo("|#ALL||Iso2016|0|");
+        await Assert.That(result.Issues.Single().Location.Source).IsNull();
+    }
+
+    [Test]
+    public async Task Sink_WithoutAnActivePatternAndWithoutASystemId_ReceivesTheNoActivePatternError()
+    {
+        var sink = new RecordingSink();
+
+        var result = ValidateAnonymous(Build(Wrap(string.Empty)).WithReportSink(sink), "<a/>");
+
+        await Assert.That(result.IsValid).IsTrue();
+        await Assert.That(sink.Events).Contains("error:NES3501");
+    }
+
+    [Test]
+    public async Task MalformedInstanceWithoutASystemId_IsReportedWithoutASource()
+    {
+        var sink = new RecordingSink();
+
+        var result = ValidateAnonymous(Build(Schema).WithReportSink(sink), "<a");
+
+        await Assert.That(result.Issues.Single().Location.Source).IsNull();
+        await Assert.That(sink.Events[1]).StartsWith("error:NES");
     }
 
     [Test]
@@ -295,9 +349,13 @@ public class EvaluationTests
 
         internal Action? OnBegin { get; init; }
 
+        internal string Info { get; private set; } = string.Empty;
+
         public void Begin(in SchematronRunInfo info)
         {
             Events.Add("begin");
+            Info =
+                $"{info.Title.ToString()}|{info.Phase.ToString()}|{info.SchemaVersion.ToString()}|{info.Edition}|{info.Namespaces.Count}|{info.InstanceSystemId.ToString()}";
             OnBegin?.Invoke();
         }
 

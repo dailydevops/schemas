@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.Schematron.Bindings.Registry;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.XPath.Api;
@@ -10,7 +11,7 @@ using NetEvolve.Schemas.XPath.Syntax.Tree;
 
 /// <summary>
 /// Finds the variable slots an expression reads. The XPath package does not report the variables of a compiled expression, so the
-/// syntax tree is walked: a reference is a slot when its name is unprefixed, is not bound by an enclosing <see langword="for"/>, <c>some</c>, or
+/// syntax tree is walked: a reference is a slot when its name is not bound by an enclosing <see langword="for"/>, <c>some</c>, or
 /// <c>every</c>, and is visible in the scope, where the last entry of a name wins (an inner declaration shadows an outer one).
 /// </summary>
 internal sealed class SlotReferences
@@ -37,10 +38,14 @@ internal sealed class SlotReferences
 
         slots = [];
         names = [];
-        if (!AnyVisible(scope) || !XPathParser.TryParse(text, out var tree, out _))
+        if (!AnyVisible(scope))
         {
             return;
         }
+
+        // The expression has compiled, so it parses.
+        var parsed = XPathParser.TryParse(text, out var tree, out _);
+        Debug.Assert(parsed, "The expression compiled, so it parses.");
 
         var run = new SlotReferences(scope);
         run.Visit(tree!);
@@ -104,7 +109,8 @@ internal sealed class SlotReferences
 
     private void Reference(QualifiedName name)
     {
-        if (name.Prefix is not null || _ranges.Contains(name.LocalName))
+        // A prefixed name cannot be a variable of the scope (those have no namespace), and such a reference does not compile.
+        if (_ranges.Contains(name.LocalName))
         {
             return;
         }

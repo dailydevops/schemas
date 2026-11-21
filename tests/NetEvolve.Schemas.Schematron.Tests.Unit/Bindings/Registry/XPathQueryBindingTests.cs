@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.Schematron.Tests.Unit.Bindings.Registry;
 
 using System;
+using System.Linq;
 using System.Threading;
 using NetEvolve.Schemas.Resources;
 using NetEvolve.Schemas.Schematron.Bindings.Registry;
@@ -136,6 +137,8 @@ public class XPathQueryBindingTests
     [Arguments("$a", new[] { "x", "a", "a" }, new[] { 2 })]
     [Arguments("$a", new[] { "a", "" }, new[] { 0 })]
     [Arguments("1 = 1", new[] { "a" }, new int[0])]
+    [Arguments("1 = 1", new[] { "", "" }, new int[0])]
+    [Arguments("$a + 1", new[] { "", "a" }, new[] { 1 })]
     public async Task Compile_ReferencedSlots_AreTheSlotsOfTheVariablesTheExpressionReads(
         string text,
         string[] names,
@@ -187,6 +190,20 @@ public class XPathQueryBindingTests
     }
 
     [Test]
+    public async Task Evaluate_SlotsFarApart_GrowTheValueTable()
+    {
+        var binding = Xpath2();
+        using var run = Begin();
+        var names = Enumerable.Repeat(string.Empty, 101).ToArray();
+        names[40] = "near";
+        names[100] = "far";
+        run.BindVariable(100, "last");
+        run.BindVariable(40, "middle");
+
+        await Assert.That(Evaluate(run, Compile(binding, "$far = 'last' and $near = 'middle'", names))).IsTrue();
+    }
+
+    [Test]
     public async Task Evaluate_SlotRebound_ReadsTheNewValue()
     {
         var binding = Xpath2();
@@ -227,6 +244,10 @@ public class XPathQueryBindingTests
     [Arguments("()", "xs:integer", false)]
     [Arguments("r/a", "xs:string", false)]
     [Arguments("xs:date('2020-01-01')", "xs:string", false)]
+    [Arguments("xs:date('2020-01-01')", "xs:date", false)]
+    [Arguments("5", "xs:boolean", false)]
+    [Arguments("xs:float(1)", "xs:double", true)]
+    [Arguments("1.5", "xs:decimal", false)]
     public async Task Evaluate_DeclaredType_FollowsTheFunctionConversionRules(string text, string type, bool accepted)
     {
         using var run = Begin();
@@ -249,6 +270,21 @@ public class XPathQueryBindingTests
         await Assert.That(status).IsEqualTo(QueryStatus.Problem);
         await Assert.That(problem.Code).IsEqualTo(SchematronDiagnosticCodes.EvaluationFailed);
         await Assert.That(problem.Constraint).IsEqualTo("FORG0001");
+    }
+
+    [Test]
+    public async Task Evaluate_FailingValueOfAVariable_IsAProblemAndBindsNothing()
+    {
+        var binding = Xpath2();
+        using var run = Begin();
+        var value = Compile(binding, "xs:integer('abc')", [], null, QueryExpressionKind.Value);
+
+        var status = run.TryBindVariable(0, value, new QueryFocus(Document, 1, 1));
+        var read = run.TryEvaluateBoolean(Compile(binding, "$v = 1", ["v"]), new QueryFocus(Document, 1, 1), out _);
+
+        await Assert.That(status).IsEqualTo(QueryStatus.Problem);
+        await Assert.That(read).IsEqualTo(QueryStatus.Problem);
+        await Assert.That(run.GetProblem().Constraint).IsEqualTo("XPDY0002");
     }
 
     [Test]

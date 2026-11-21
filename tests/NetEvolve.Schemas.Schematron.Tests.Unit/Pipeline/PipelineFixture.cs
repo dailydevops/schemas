@@ -33,6 +33,22 @@ internal static class PipelineFixture
     internal const string Instance =
         "<invoice xmlns=\"urn:invoice\">\n  <total>2500</total>\n  <buyer>Müller</buyer>\n</invoice>";
 
+    /// <summary>An invoice whose total is above 500 and below the default limit of 1000.</summary>
+    internal const string MediumInvoice = "<invoice xmlns=\"urn:invoice\"><total>700</total></invoice>";
+
+    /// <summary>A schema of the 2025 edition with a parameter that has a default: the total of an invoice must not exceed the limit.</summary>
+    internal const string ParameterSchema = """
+        <schema xmlns="http://purl.oclc.org/dsdl/schematron" schematronEdition="2025">
+          <ns prefix="i" uri="urn:invoice"/>
+          <param name="limit" value="1000"/>
+          <pattern id="p1">
+            <rule context="i:invoice">
+              <assert test="number(i:total) &lt;= number($limit)">The total is above the limit.</assert>
+            </rule>
+          </pattern>
+        </schema>
+        """;
+
     /// <summary>Two defects in one stage: a syntax error and an undeclared variable.</summary>
     internal const string TwoDefects = """
         <schema xmlns="http://purl.oclc.org/dsdl/schematron">
@@ -201,6 +217,9 @@ internal static class PipelineFixture
         result.Add(("utf-16 bytes", validator.Validate(Utf16(instance).AsSpan(), InstanceSystemId)));
         return result;
     }
+
+    internal static ValidationResult ValidateAnonymous(ISchematronValidator validator, string instance) =>
+        validator.Validate(instance.AsSpan());
 
     internal static ValidationResult Validate(ISchematronValidator validator, string instance) =>
         validator.Validate(instance.AsSpan(), InstanceSystemId);

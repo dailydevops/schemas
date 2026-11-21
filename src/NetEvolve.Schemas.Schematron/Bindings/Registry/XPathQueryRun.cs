@@ -30,6 +30,9 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// </remarks>
 internal sealed class XPathQueryRun : IQueryRun
 {
+    // The public code type, not the internal table of the XPath package, which the seam rule keeps out of reach.
+    private static readonly XPathErrorCode UnsetContext = new("XPDY0002");
+
     private readonly XPathEvaluationContext _context = new();
     private readonly CancellationToken _cancellationToken;
     private XdmSequence[] _values = new XdmSequence[16];
@@ -68,7 +71,7 @@ internal sealed class XPathQueryRun : IQueryRun
     public QueryStatus TryEvaluate(QueryExpression expression, in QueryFocus focus, ISequenceSink sink)
     {
         var query = Cast(expression);
-        if (!TryRun(query, in focus, out var sequence) || !TryMaterialize(query, ref sequence))
+        if (!TryRun(query, in focus, out var sequence))
         {
             return QueryStatus.Problem;
         }
@@ -84,7 +87,7 @@ internal sealed class XPathQueryRun : IQueryRun
     public QueryStatus TryBindVariable(int slot, QueryExpression value, in QueryFocus focus)
     {
         var query = Cast(value);
-        if (!TryRun(query, in focus, out var sequence) || !TryMaterialize(query, ref sequence))
+        if (!TryRun(query, in focus, out var sequence))
         {
             return QueryStatus.Problem;
         }
@@ -183,21 +186,6 @@ internal sealed class XPathQueryRun : IQueryRun
         return false;
     }
 
-    // A lazy sequence fails while it is enumerated; materializing it first means no item reaches a sink or a slot before the failure.
-    private bool TryMaterialize(XPathQueryExpression query, ref XdmSequence sequence)
-    {
-        try
-        {
-            sequence = sequence.Materialize();
-            return true;
-        }
-        catch (XPathException failure)
-        {
-            _ = Fail(query, failure.Diagnostic);
-            return false;
-        }
-    }
-
     private void SetFocus(in QueryFocus focus)
     {
         if (focus.Item.Kind == XdmItemKind.None)
@@ -230,7 +218,7 @@ internal sealed class XPathQueryRun : IQueryRun
     private QueryStatus Fail(XPathQueryExpression query, in XPathDiagnostic diagnostic)
     {
         _problem = new SchematronProblem(
-            diagnostic.QName == XPathErrorCodes.XPDY0002
+            diagnostic.QName == UnsetContext
                 ? SchematronDiagnosticCodes.VariableUndefined
                 : SchematronDiagnosticCodes.EvaluationFailed,
             diagnostic.Message,

@@ -17,23 +17,22 @@ public class BuildTests
     [Test]
     public async Task Build_ReturnsAValidatorWhoseStateCannotBeChanged()
     {
-        var builder = Builder(Schema).WithPhase("#ALL").WithParameter("country", "DE");
+        var builder = Builder(ParameterSchema).WithPhase("#ALL").WithParameter("limit", "500");
         var validator = builder.BuildNow();
-        var before = Describe(validator);
+        var before = Describe(Validate(validator, Instance));
         var parameters = validator.Parameters;
 
-        _ = builder.WithPhase("other").WithParameter("country", "FR").WithParameter("language", "de");
+        _ = builder.WithPhase("other").WithParameter("limit", "5000").WithParameter("language", "de");
 
         await Assert.That(validator.Phase).IsEqualTo("#ALL");
         await Assert.That(validator.Parameters.Count).IsEqualTo(1);
-        await Assert.That(validator.Parameters["country"]).IsEqualTo("DE");
-        await Assert.That(Describe(validator)).IsEqualTo(before);
+        await Assert.That(validator.Parameters["limit"]).IsEqualTo("500");
+        await Assert.That(Describe(Validate(validator, Instance))).IsEqualTo(before);
+        await Assert.That(Validate(validator, Instance).Issues.Count).IsEqualTo(1);
         if (parameters is IDictionary<string, string> dictionary)
         {
-            await Assert.That(() => dictionary["country"] = "FR").Throws<NotSupportedException>();
+            await Assert.That(() => dictionary["limit"] = "5000").Throws<NotSupportedException>();
         }
-
-        await Assert.That(Describe(Validate(validator, Instance))).IsEqualTo(Describe(Validate(validator, Instance)));
     }
 
     [Test]
@@ -41,16 +40,14 @@ public class BuildTests
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var builder = Builder(Schema).WithParameter("country", "DE");
+        var builder = Builder(ParameterSchema).WithParameter("limit", "500");
         var validator = await builder.BuildAsync(cancellationToken);
 
-        _ = builder.WithParameter("country", "FR");
+        _ = builder.WithParameter("limit", "5000");
 
-        await Assert.That(validator.Parameters["country"]).IsEqualTo("DE");
-        await Assert.That(Describe(validator)).IsEqualTo(Describe(Build(Schema)));
-        await Assert
-            .That(Describe(Validate(validator, Instance)))
-            .IsEqualTo(Describe(Validate(Build(Schema), Instance)));
+        await Assert.That(validator.Parameters["limit"]).IsEqualTo("500");
+        await Assert.That(Validate(validator, MediumInvoice).Issues.Count).IsEqualTo(1);
+        await Assert.That(Validate(Build(ParameterSchema), MediumInvoice).Issues.Count).IsEqualTo(0);
     }
 
     [Test]
@@ -84,7 +81,7 @@ public class BuildTests
     [Test]
     public async Task Build_NonSeekableStream_IsNotReadAgainByASecondBuild()
     {
-        using var stream = new OneWayStream(Utf8(Schema));
+        using var stream = new ScriptedStream(Utf8(Schema), seekable: false);
         var builder = SchemaValidator.ForSchematron(stream, SchemaSystemId);
 
         var first = builder.BuildNow();
@@ -99,7 +96,7 @@ public class BuildTests
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        using var stream = new AsyncOnlyStream(Utf8(Schema));
+        using var stream = new ScriptedStream(Utf8(Schema), syncReadFails: true);
 
         var validator = await SchemaValidator.ForSchematron(stream, SchemaSystemId).BuildAsync(cancellationToken);
 
@@ -165,7 +162,7 @@ public class BuildTests
     public async Task BuildAsync_CancelledWhileTheStreamIsRead_Cancels()
     {
         using var source = new CancellationTokenSource();
-        using var stream = new CancelOnReadStream(Utf8(Schema), source);
+        using var stream = new ScriptedStream(Utf8(Schema), cancel: source);
         var builder = SchemaValidator.ForSchematron(stream, SchemaSystemId);
 
         await Assert.That(async () => await builder.BuildAsync(source.Token)).Throws<OperationCanceledException>();
@@ -197,7 +194,7 @@ public class BuildTests
         cancellationToken.ThrowIfCancellationRequested();
 
         var limits = NetEvolve.Schemas.ValidationLimits.Default.WithMaxResourceSize(64);
-        using var stream = new OneWayStream(Utf8(Schema));
+        using var stream = new ScriptedStream(Utf8(Schema), seekable: false);
         var builder = SchemaValidator.ForSchematron(stream, SchemaSystemId).WithLimits(limits);
 
         var failure = await Assert
@@ -216,66 +213,92 @@ public class BuildTests
         await Assert.That(failure.Issues[0].Location.Source).IsEqualTo(SchemaSystemId);
     }
 
-    // A stream that cannot seek and counts its reads.
-    private sealed class OneWayStream : MemoryStream
+    // A stream over bytes whose reads are scripted: it can refuse to seek, refuse the synchronous read, and cancel a token on a read.
+    // It derives from Stream, so the Memory overloads reach the array overloads that it counts.
+    private sealed class ScriptedStream : Stream
     {
-        internal OneWayStream(byte[] bytes)
-            : base(bytes) { }
+        private readonly MemoryStream _inner;
+        private readonly bool _seekable;
+        private readonly bool _syncReadFails;
+        private readonly CancellationTokenSource? _cancel;
+
+        internal ScriptedStream(
+            byte[] bytes,
+            bool seekable = true,
+            bool syncReadFails = false,
+            CancellationTokenSource? cancel = null
+        )
+        {
+            _inner = new MemoryStream(bytes);
+            _seekable = seekable;
+            _syncReadFails = syncReadFails;
+            _cancel = cancel;
+        }
 
         internal int Reads { get; private set; }
 
-        public override bool CanSeek => false;
+        internal int AsyncReads { get; private set; }
+
+        public override bool CanRead => true;
+
+        public override bool CanSeek => _seekable;
+
+        public override bool CanWrite => false;
+
+        public override long Length => _inner.Length;
+
+        public override long Position
+        {
+            get => _inner.Position;
+            set => _inner.Position = value;
+        }
 
         public override int Read(byte[] buffer, int offset, int count)
         {
             Reads++;
-            return base.Read(buffer, offset, count);
-        }
-    }
+            if (_syncReadFails)
+            {
+                throw new InvalidOperationException("The stream must be read asynchronously.");
+            }
 
-    // A stream whose synchronous read fails: only an asynchronous read succeeds.
-    private sealed class AsyncOnlyStream : MemoryStream
-    {
-        internal AsyncOnlyStream(byte[] bytes)
-            : base(bytes) { }
-
-        internal int AsyncReads { get; private set; }
-
-        public override int Read(byte[] buffer, int offset, int count) =>
-            throw new InvalidOperationException("The stream must be read asynchronously.");
-
-        public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            AsyncReads++;
-            return base.ReadAsync(buffer, offset, count, cancellationToken);
-        }
-    }
-
-    // A stream that cancels the token of the build while it is read.
-    private sealed class CancelOnReadStream : MemoryStream
-    {
-        private readonly CancellationTokenSource _source;
-
-        internal CancelOnReadStream(byte[] bytes, CancellationTokenSource source)
-            : base(bytes) => _source = source;
-
-        public override int Read(byte[] buffer, int offset, int count)
-        {
-            _source.Cancel();
-            return base.Read(buffer, offset, count);
+            _cancel?.Cancel();
+            return _inner.Read(buffer, offset, count);
         }
 
-        public override async Task<int> ReadAsync(
+        public override Task<int> ReadAsync(
             byte[] buffer,
             int offset,
             int count,
             CancellationToken cancellationToken
+        ) => ReadAsync(buffer.AsMemory(offset, count), cancellationToken).AsTask();
+
+        public override async ValueTask<int> ReadAsync(
+            Memory<byte> buffer,
+            CancellationToken cancellationToken = default
         )
         {
             cancellationToken.ThrowIfCancellationRequested();
-            await _source.CancelAsync();
-            return await base.ReadAsync(buffer.AsMemory(offset, count), CancellationToken.None);
+            AsyncReads++;
+            if (_cancel is not null)
+            {
+                await _cancel.CancelAsync();
+            }
+
+            return await _inner.ReadAsync(buffer, CancellationToken.None);
+        }
+
+        public override void Flush() { }
+
+        public override long Seek(long offset, SeekOrigin origin) => _inner.Seek(offset, origin);
+
+        public override void SetLength(long value) => throw new NotSupportedException();
+
+        public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+
+        protected override void Dispose(bool disposing)
+        {
+            _inner.Dispose();
+            base.Dispose(disposing);
         }
     }
 }

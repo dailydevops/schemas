@@ -90,10 +90,10 @@ public class InstanceInputTests
     {
         var validator = SchemaValidator
             .ForSchematron(Schema.AsSpan(), SchemaSystemId)
-            .WithLimits(ValidationLimits.Default.WithMaxDepth(3))
+            .WithLimits(ValidationLimits.Default.WithMaxDepth(6))
             .BuildNow();
 
-        var result = Validate(validator, "<a><b><c><d/></c></b></a>");
+        var result = Validate(validator, "<a><b><c><d><e><f><g/></f></e></d></c></b></a>");
 
         await Assert.That(result.Issues.Count).IsEqualTo(1);
         await Assert.That(result.Issues[0].Code).IsEqualTo(CoreDiagnosticCodes.DepthLimitExceeded);

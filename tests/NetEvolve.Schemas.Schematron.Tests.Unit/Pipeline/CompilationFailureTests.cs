@@ -108,6 +108,18 @@ public class CompilationFailureTests
     }
 
     [Test]
+    public async Task ParameterWithoutADefault_AndWithoutAValue_IsParamMissing()
+    {
+        var schema = Wrap("<param name=\"p\"/>" + Pattern, " schematronEdition=\"2025\"");
+
+        var failure = BuildFailure(schema);
+
+        await Assert.That(failure.Issues.Single().Code).IsEqualTo(SchematronDiagnosticCodes.ParamMissing);
+        await Assert.That(failure.Issues.Single().Message).Contains("'p'");
+        await Assert.That(Builder(schema).WithParameter("p", "x").BuildNow()).IsNotNull();
+    }
+
+    [Test]
     public async Task IncludeWithTheDefaultResolver_IsDenied()
     {
         var failure = BuildFailure(Wrap("<pattern id=\"p\"><include href=\"rule.sch\"/></pattern>"));
@@ -127,11 +139,11 @@ public class CompilationFailureTests
     }
 
     [Test]
-    public async Task AbstractPatternInstanceWithoutATarget_IsAbstractTargetInvalid()
+    public async Task AbstractPatternInstanceWithoutATarget_IsIdrefUnresolved()
     {
         var failure = BuildFailure(Wrap("<pattern id=\"p\" is-a=\"missing\"/>"));
 
-        await Assert.That(failure.Issues.Single().Code).IsEqualTo(SchematronDiagnosticCodes.AbstractTargetInvalid);
+        await Assert.That(failure.Issues.Single().Code).IsEqualTo(SchematronDiagnosticCodes.IdrefUnresolved);
     }
 
     [Test]
@@ -142,7 +154,45 @@ public class CompilationFailureTests
         );
 
         await Assert.That(failure.Issues.Single().Code).IsEqualTo(SchematronDiagnosticCodes.XsltUnsupported);
-        await Assert.That(failure.Issues.Single().Message).Contains("832");
+        await Assert.That(failure.Issues.Single().Message).Contains("xsl:variable");
+    }
+
+    [Test]
+    public async Task XsltDeclaration_UnderAnXpathBinding_IsADataElement()
+    {
+        var validator = Build(
+            Wrap(
+                "<xsl:variable xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" name=\"v\" select=\"1\"/>" + Pattern,
+                " queryBinding=\"xpath2\""
+            )
+        );
+
+        await Assert.That(validator.Schema.Patterns.Count).IsEqualTo(1);
+    }
+
+    [Test]
+    public async Task XIncludeThatTheResolverDenies_IsReportedByTheParse()
+    {
+        var failure = BuildFailure(
+            Wrap("<xi:include xmlns:xi=\"http://www.w3.org/2001/XInclude\" href=\"part.xml\"/>" + Pattern)
+        );
+
+        await Assert.That(failure.Issues.Single().Code).IsEqualTo(CoreDiagnosticCodes.ResourceDenied);
+    }
+
+    [Test]
+    public async Task ExtendsOfAnUnknownRule_AndAnUnknownAbstractPattern_AreBothReported()
+    {
+        var failure = BuildFailure(
+            Wrap(
+                "<pattern id=\"p\"><rule context=\"a\"><extends rule=\"missing\"/></rule></pattern><pattern id=\"q\" is-a=\"none\"/>"
+            )
+        );
+
+        await Assert.That(failure.Issues.Count).IsEqualTo(2);
+        await Assert
+            .That(failure.Issues.All(issue => issue.Code == SchematronDiagnosticCodes.IdrefUnresolved))
+            .IsTrue();
     }
 
     [Test]

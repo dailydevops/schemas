@@ -30,6 +30,9 @@ using NetEvolve.Schemas.XPath.Errors;
 /// </remarks>
 internal sealed class XPathQueryBinding : IQueryBinding
 {
+    // The public code type, not the internal table of the XPath package, which the seam rule keeps out of reach.
+    private static readonly XPathErrorCode UndeclaredVariable = new("XPST0008");
+
     private readonly bool _xpath10Compatibility;
     private readonly StaticContextExtension? _extension;
 
@@ -159,7 +162,7 @@ internal sealed class XPathQueryBinding : IQueryBinding
     {
         var (line, column) = LineAndColumn(source, diagnostic.Offset);
         return new SchematronProblem(
-            diagnostic.QName == XPathErrorCodes.XPST0008
+            diagnostic.QName == UndeclaredVariable
                 ? SchematronDiagnosticCodes.VariableUndefined
                 : SchematronDiagnosticCodes.ExpressionInvalid,
             diagnostic.Message,
