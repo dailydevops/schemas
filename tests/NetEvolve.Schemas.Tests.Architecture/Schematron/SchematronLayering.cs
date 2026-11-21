@@ -18,7 +18,7 @@ internal static class SchematronLayering
     [
         LayerRules.Only("ModelDependsOnNothingElseInThePackage", "Model"),
         LayerRules.Only("SeamsDependOnlyOnTheModelAndDiagnostics", "Seams", "Model", "Diagnostics"),
-        LayerRules.Only("ParsingDependsOnlyOnTheModelAndSeams", "Parsing", "Model", "Seams", "Diagnostics"),
+        LayerRules.Only("ParsingDependsOnlyOnTheModelAndSeams", "Parsing", "Model", "Seams", "Diagnostics", "Editions"),
         LayerRules.Only(
             "LoadingDependsOnlyOnParsingTheModelAndSeams",
             "Loading",
