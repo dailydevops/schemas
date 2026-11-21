@@ -650,7 +650,8 @@ public class ModuleLinkerTests
             cancellationToken.ThrowIfCancellationRequested();
 
             var uri = request.ResolvedUri ?? request.Reference;
-            var name = uri.AsSpan(uri.LastIndexOf('/') + 1);
+            var path = uri.AsSpan();
+            var name = path.Slice(path.LastIndexOf((char)47) + 1);
             var index = int.Parse(name.Slice(1, name.Length - 5), System.Globalization.CultureInfo.InvariantCulture);
             var body =
                 index + 1 < depth
