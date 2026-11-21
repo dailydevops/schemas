@@ -3,12 +3,9 @@
 1.0/missing001/missing001.xsd
 1.0/missing002/missing001.n1.xml
 1.0/missing002/missing001.v1.xml
-1.0/missing002/missing001.xsd
 1.0/missing003/missing003.n1.xml
 1.0/missing003/missing003.v1.xml
 1.0/missing003/missing003.xsd
-1.0/missing004/missing004.xsd
-1.0/missing005/missing005.xsd
 1.0/missing006/missing006.n1.xml
 1.0/missing006/missing006.v1.xml
 1.0/missing006/missing006.xsd

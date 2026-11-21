@@ -1,15 +1,19 @@
 namespace NetEvolve.Schemas.Xsd.Tests.Integration.Conformance;
 
 using System.Collections.Concurrent;
+using System.Runtime.CompilerServices;
 using NetEvolve.Schemas.Conformance.Baseline;
 using NetEvolve.Schemas.Conformance.Reporting;
 using NetEvolve.Schemas.Conformance.Results;
+using NetEvolve.Schemas.Xsd.Tests.Integration.SchemaTests;
 using NetEvolve.Schemas.Xsd.Tests.Integration.Xsts;
 
 [ConformanceLeg]
 public class XstsConformanceTests
 {
     private static readonly ConcurrentBag<CaseResult> ChunkResults = [];
+
+    private static readonly ConcurrentBag<string> SchemaCaseKeys = [];
 
     /// <summary>The number of cases the pinned suite selects for XSD 1.0; a new pin changes it on purpose.</summary>
     private const int SelectedCaseCount10 = 39271;
@@ -23,15 +27,23 @@ public class XstsConformanceTests
     /// <summary>The number of selected cases that one set test runs (decision P6 of the conformance spike).</summary>
     private const int SetSize = 100;
 
-    public static IEnumerable<Func<(string TestSet, int Chunk)>> Chunks()
+    /// <summary>The chunks of every test set of the selection; the baselines list failures only, so they cannot give the sizes.</summary>
+    public static async IAsyncEnumerable<Func<(string TestSet, int Chunk)>> Chunks(
+        [EnumeratorCancellation] CancellationToken cancellationToken = default
+    )
     {
-        foreach (var file in Directory.GetFiles(XstsSuite.BaselineDirectory, "*.txt").Order(StringComparer.Ordinal))
+        cancellationToken.ThrowIfCancellationRequested();
+        var selection = await XstsSuite.LoadSelectionAsync(cancellationToken);
+        foreach (
+            var group in selection
+                .Selected.GroupBy(c => c.TestSet, StringComparer.Ordinal)
+                .OrderBy(g => g.Key, StringComparer.Ordinal)
+        )
         {
-            var testSet = Path.GetFileNameWithoutExtension(file);
-            var count = BaselineFiles.Load(XstsSuite.BaselineDirectory, testSet).Count;
+            var count = group.Count();
             for (var chunk = 0; chunk * SetSize < count; chunk++)
             {
-                var captured = (testSet, chunk);
+                var captured = (group.Key, chunk);
                 yield return () => captured;
             }
         }
@@ -66,28 +78,29 @@ public class XstsConformanceTests
     }
 
     [Test]
-    public async Task Baseline_ListsEverySelectedCase_InOneFilePerTestSet(CancellationToken cancellationToken)
+    public async Task Baseline_ListsOnlySelectedCases_InOneNonEmptyFilePerTestSet(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         var selection = await XstsSuite.LoadSelectionAsync(cancellationToken);
 
-        var expected = selection
+        var selected = selection
             .Selected.GroupBy(c => c.TestSet, StringComparer.Ordinal)
             .ToDictionary(
                 g => g.Key,
-                g => g.Select(c => c.Id).Order(StringComparer.Ordinal).ToArray(),
+                g => new HashSet<string>(g.Select(c => c.Id), StringComparer.Ordinal),
                 StringComparer.Ordinal
             );
-        var files = Directory
-            .GetFiles(XstsSuite.BaselineDirectory, "*.txt")
-            .Select(f => Path.GetFileNameWithoutExtension(f))
-            .Order(StringComparer.Ordinal);
-
-        await Assert.That(files).IsEquivalentTo(expected.Keys.Order(StringComparer.Ordinal));
-        foreach (var (testSet, ids) in expected)
+        foreach (var file in Directory.GetFiles(XstsSuite.BaselineDirectory, "*.txt"))
         {
+            var testSet = Path.GetFileNameWithoutExtension(file);
             var baseline = BaselineFiles.Load(XstsSuite.BaselineDirectory, testSet);
-            await Assert.That(baseline.Ids).IsEquivalentTo(ids);
+
+            await Assert
+                .That(selected.ContainsKey(testSet))
+                .IsTrue()
+                .Because(testSet + " is not a test set of the selection.");
+            await Assert.That(baseline.Count).IsGreaterThan(0).Because(testSet + " has an empty baseline file.");
+            await Assert.That(baseline.Ids.Where(id => !selected[testSet].Contains(id))).IsEmpty();
         }
     }
 
@@ -121,9 +134,19 @@ public class XstsConformanceTests
 
         var results = await XstsRunner.RunAsync(
             new XstsSelection(cases, []),
-            UnboundXstsValidator.Instance,
+            new SchemaXstsValidator(await XstsSuite.LoadRootAsync(cancellationToken)),
             cancellationToken
         );
+        foreach (var xstsCase in cases)
+        {
+            if (
+                xstsCase.Case.Kind == XstsKind.Schema
+                && string.Equals(xstsCase.Version, XstsVersions.V10, StringComparison.Ordinal)
+            )
+            {
+                SchemaCaseKeys.Add(SchemaRateReport.KeyOf(xstsCase.TestSet, xstsCase.Id));
+            }
+        }
         foreach (var result in results)
         {
             ChunkResults.Add(result);
@@ -143,5 +166,13 @@ public class XstsConformanceTests
 
     /// <summary>Appends one aggregated rate row per test set after all chunks ran.</summary>
     [After(Class)]
-    public static void PublishConformanceRate() => XstsRateReport.Publish([.. ChunkResults]);
+    public static void PublishConformanceRate()
+    {
+        XstsRateReport.Publish([.. ChunkResults]);
+        SchemaRateReport.Publish(
+            [.. ChunkResults],
+            new HashSet<string>(SchemaCaseKeys, StringComparer.Ordinal),
+            Environment.GetEnvironmentVariable(ConformanceRateReporter.SummaryVariable)
+        );
+    }
 }
