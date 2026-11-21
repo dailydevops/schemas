@@ -124,6 +124,20 @@ public class ModuleTablesTests
     }
 
     [Test]
+    public async Task Tables_PrincipalModuleWithoutSystemId_IsNamedAsThePrincipalModuleInADuplicate()
+    {
+        var harness = new ModuleHarness();
+        _ = harness.Link(Sheet(Fn("dup", "$a"), Fn("dup", "$a + 1")), systemId: null);
+
+        var ok = harness.Compile();
+
+        await Assert.That(ok).IsFalse();
+        await Assert.That(Codes(harness.Problems)).IsEqualTo("NES3200/XTSE0770");
+        await Assert.That(harness.Problems.Problems[0].Message).Contains("the principal module");
+        await Assert.That(harness.Problems.Problems[0].Location.Source).IsNull();
+    }
+
+    [Test]
     public async Task Tables_SharedModuleInADiamond_IsCompiledOnceAndRaisesNoDuplicate()
     {
         var harness = Linked(
