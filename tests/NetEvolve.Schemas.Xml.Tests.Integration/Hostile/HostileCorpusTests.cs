@@ -136,4 +136,23 @@ public class HostileCorpusTests
 
         await Assert.That(mismatches).IsEmpty();
     }
+
+    [Test]
+    public async Task Resolver_WithEveryAccessFlagOn_RecordsTheRequestsOfAFile(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var hostile = HostileCorpus.Get("parameter-external-self-reference");
+        var resolver = new HostileResolver(hostile.Resources);
+        _ = await HostileInputs.LoadAsync(
+            HostileInputKind.ByteSpan,
+            hostile.Document(),
+            HostileInputs.OptionsOf(hostile, resolver),
+            HostileCorpus.TimeBound,
+            cancellationToken
+        );
+
+        await Assert.That(hostile.Access).IsEqualTo(HostileAccess.Allowed);
+        await Assert.That(resolver.Requests).IsNotEmpty();
+    }
 }
