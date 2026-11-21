@@ -15,12 +15,18 @@ internal enum HostileInputKind
     /// <summary>Bytes in memory.</summary>
     ByteMemory,
 
-    /// <summary>A multi-segment sequence of characters.</summary>
-    CharSequence,
+    /// <summary>A sequence of characters in one segment.</summary>
+    CharSequenceSingle,
 
-    /// <summary>A multi-segment sequence of bytes.</summary>
-    ByteSequence,
+    /// <summary>A sequence of bytes in one segment.</summary>
+    ByteSequenceSingle,
 
-    /// <summary>A stream that returns short reads.</summary>
+    /// <summary>A sequence of characters in at least two segments.</summary>
+    CharSequenceSegmented,
+
+    /// <summary>A sequence of bytes in at least two segments.</summary>
+    ByteSequenceSegmented,
+
+    /// <summary>A stream that returns at most half of the document, or a fixed number of bytes, per read.</summary>
     Stream,
 }

@@ -106,14 +106,20 @@ internal static class HostileInputs
             case HostileInputKind.ByteMemory:
                 _ = XmlDocumentLoader.LoadFromMemory(Bytes(xml).AsMemory(), options, baseUri);
                 break;
-            case HostileInputKind.CharSequence:
-                _ = XmlDocumentLoader.Load(Segments(xml.ToCharArray()), options, baseUri);
+            case HostileInputKind.CharSequenceSingle:
+                _ = XmlDocumentLoader.Load(Segments(xml.ToCharArray(), int.MaxValue), options, baseUri);
                 break;
-            case HostileInputKind.ByteSequence:
-                _ = XmlDocumentLoader.Load(Segments(Bytes(xml)), options, baseUri);
+            case HostileInputKind.ByteSequenceSingle:
+                _ = XmlDocumentLoader.Load(Segments(Bytes(xml), int.MaxValue), options, baseUri);
+                break;
+            case HostileInputKind.CharSequenceSegmented:
+                _ = XmlDocumentLoader.Load(Segments(xml.ToCharArray(), SegmentOf(xml.Length)), options, baseUri);
+                break;
+            case HostileInputKind.ByteSequenceSegmented:
+                _ = XmlDocumentLoader.Load(Segments(Bytes(xml), SegmentOf(Bytes(xml).Length)), options, baseUri);
                 break;
             default:
-                using (var stream = new ShortReadStream(Bytes(xml), SegmentSize))
+                using (var stream = new ShortReadStream(Bytes(xml), SegmentOf(Bytes(xml).Length)))
                 {
                     _ = await XmlDocumentLoader.LoadAsync(stream, options, baseUri, cancellationToken);
                 }
@@ -122,9 +128,12 @@ internal static class HostileInputs
         }
     }
 
+    // Large documents are cut at a fixed size; a small one is cut in halves at most, so no document arrives in one piece.
+    private static int SegmentOf(int length) => Math.Min(SegmentSize, Math.Max(1, length / 2));
+
     private static byte[] Bytes(string xml) => new UTF8Encoding(false).GetBytes(xml);
 
-    private static ReadOnlySequence<T> Segments<T>(T[] data)
+    private static ReadOnlySequence<T> Segments<T>(T[] data, int size)
     {
         if (data.Length == 0)
         {
@@ -133,9 +142,9 @@ internal static class HostileInputs
 
         Segment<T>? head = null;
         Segment<T>? tail = null;
-        for (var offset = 0; offset < data.Length; offset += SegmentSize)
+        for (var offset = 0; offset < data.Length; offset += size)
         {
-            var part = data.AsMemory(offset, Math.Min(SegmentSize, data.Length - offset));
+            var part = data.AsMemory(offset, Math.Min(size, data.Length - offset));
             tail = tail is null ? (head = new Segment<T>(part, 0)) : tail.Append(part);
         }
 

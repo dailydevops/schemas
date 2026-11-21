@@ -209,10 +209,11 @@ public static partial class HostileCorpus
             () => "<r><![CDATA[" + Repeat("x", 16_777_217) + "]]></r>"
         );
         yield return new HostileCase(
-            "text-node-from-character-references",
+            "text-node-from-101-character-references",
             HostileCategory.HugeText,
             XmlErrorCodes.XML1107,
-            () => "<r>" + Repeat("&#65;", 16_777_217) + "</r>"
+            () => "<r>" + Repeat("&#65;", 101) + "</r>",
+            Limits: TightText
         );
         yield return new HostileCase(
             "text-node-coalesced-from-text-and-cdata",
