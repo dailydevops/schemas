@@ -1,6 +1,8 @@
 namespace NetEvolve.Schemas.XPath.Tests.Unit.Evaluation.Temporal;
 
 using System;
+using NetEvolve.Schemas.XPath.Context;
+using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Functions.Sequences;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 using static TemporalFixture;
@@ -116,5 +118,16 @@ public class TemporalAggregateTests
         var total = Run("xs:dayTimeDuration('PT3H')").Result[0];
 
         await Assert.That(() => AggregateInput.DivideDuration(total, 3, null!)).Throws<ArgumentNullException>();
+    }
+
+    [Test]
+    public async Task DivideDuration_OfAValueThatIsNotADuration_RaisesForg0006()
+    {
+        var total = Run("3").Result[0];
+        using var context = new XPathEvaluationContext();
+
+        var error = await Assert.That(() => AggregateInput.DivideDuration(total, 3, context)).Throws<XPathException>();
+
+        await Assert.That(error!.Diagnostic.Code).IsEqualTo("FORG0006");
     }
 }
