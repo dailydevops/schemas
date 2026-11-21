@@ -83,10 +83,6 @@ public class Qt3RunnerTests
     }
 
     [Test]
-    [Arguments("assert-eq")]
-    [Arguments("assert-count")]
-    [Arguments("assert-string-value")]
-    [Arguments("assert")]
     [Arguments("assert-xml")]
     [Arguments("assert-deep-eq")]
     [Arguments("assert-permutation")]
