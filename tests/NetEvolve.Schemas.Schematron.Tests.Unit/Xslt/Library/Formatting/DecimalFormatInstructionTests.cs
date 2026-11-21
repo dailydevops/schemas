@@ -214,7 +214,8 @@ public class DecimalFormatInstructionTests
     {
         var fixture = new FormatFixture();
         var declaration = fixture.CompileOne(Format(null, 10))!;
-        var frame = new XsltFrame(new FakeQueryRun());
+        using var run = new FakeQueryRun();
+        var frame = new XsltFrame(run);
         var sink = new FakeSequenceSink();
 
         var status = declaration.TryExecute(frame, sink);
@@ -228,11 +229,11 @@ public class DecimalFormatInstructionTests
     {
         var fixture = new FormatFixture();
         var declaration = fixture.CompileOne(Format(null, 10))!;
+        using var run = new FakeQueryRun();
+        var frame = new XsltFrame(run);
 
         await Assert.That(() => declaration.TryExecute(null!, new FakeSequenceSink())).Throws<ArgumentNullException>();
-        await Assert
-            .That(() => declaration.TryExecute(new XsltFrame(new FakeQueryRun()), null!))
-            .Throws<ArgumentNullException>();
+        await Assert.That(() => declaration.TryExecute(frame, null!)).Throws<ArgumentNullException>();
     }
 
     [Test]

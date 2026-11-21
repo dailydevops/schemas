@@ -3,6 +3,7 @@ namespace NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Library.Formatting;
 using System.Threading.Tasks;
 using NetEvolve.Schemas.Schematron.Xslt.Library.Formatting;
 using NetEvolve.Schemas.XPath.Context;
+using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 using static NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Library.Core.CoreFixture;
 using static NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Library.Formatting.FormatFixture;
@@ -19,9 +20,16 @@ public class FormatNumberWiringTests
     {
         using var context = new XPathEvaluationContext();
         context.Host.DecimalFormats = table;
-        return name is null
-            ? RunIn(Scope(), context, "format-number", number, S(picture))
-            : RunIn(Scope(), context, "format-number", number, S(picture), S(name));
+        try
+        {
+            return name is null
+                ? RunIn(Scope(), context, "format-number", number, S(picture))
+                : RunIn(Scope(), context, "format-number", number, S(picture), S(name));
+        }
+        catch (XPathException failure)
+        {
+            return "error:" + failure.Diagnostic.Code;
+        }
     }
 
     [Test]

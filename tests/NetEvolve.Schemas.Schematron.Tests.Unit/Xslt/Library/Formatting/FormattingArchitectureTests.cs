@@ -63,6 +63,8 @@ public class FormattingArchitectureTests
     [Test]
     public async Task Formatting_ContainNoPictureParsing(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var sources = await SourcesAsync(cancellationToken);
         var offenders = new List<string>();
         foreach (var (file, text) in sources)
@@ -100,6 +102,8 @@ public class FormattingArchitectureTests
     [Test]
     public async Task Formatting_ContainNoLinq(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var offenders = new List<string>();
         foreach (var (file, text) in await SourcesAsync(cancellationToken))
         {

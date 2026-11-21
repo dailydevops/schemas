@@ -190,7 +190,7 @@ public class DecimalFormatTableTests
         var (ok, table) = Build(
             fixture,
             (1, F("ch", 10, "decimal-separator", ",")),
-            (1, F("ch", 20, "decimal-separator", ";")),
+            (1, F("ch", 20, "decimal-separator", "!")),
             (1, F("other", 30))
         );
 
@@ -224,7 +224,7 @@ public class DecimalFormatTableTests
         var (ok, _) = Build(
             fixture,
             (1, F("ch", 10, "decimal-separator", ",", "infinity", "a")),
-            (1, F("ch", 20, "decimal-separator", ";", "infinity", "b"))
+            (1, F("ch", 20, "decimal-separator", "!", "infinity", "b"))
         );
 
         await Assert.That(ok).IsFalse();
@@ -257,19 +257,19 @@ public class DecimalFormatTableTests
         var (okLowFirst, lowFirst) = Build(
             fixture,
             (1, F("ch", 10, "decimal-separator", ",")),
-            (2, F("ch", 20, "decimal-separator", ";"))
+            (2, F("ch", 20, "decimal-separator", "!"))
         );
         var (okHighFirst, highFirst) = Build(
             fixture,
-            (2, F("ch", 30, "decimal-separator", ";")),
+            (2, F("ch", 30, "decimal-separator", "!")),
             (1, F("ch", 40, "decimal-separator", ","))
         );
 
         await Assert.That(okLowFirst).IsTrue();
         await Assert.That(okHighFirst).IsTrue();
         await Assert.That(fixture.Problems.Problems).IsEmpty();
-        await Assert.That(Get(lowFirst, Name("ch")).DecimalSeparator).IsEqualTo(';');
-        await Assert.That(Get(highFirst, Name("ch")).DecimalSeparator).IsEqualTo(';');
+        await Assert.That(Get(lowFirst, Name("ch")).DecimalSeparator).IsEqualTo('!');
+        await Assert.That(Get(highFirst, Name("ch")).DecimalSeparator).IsEqualTo('!');
     }
 
     // A lower precedence still gives the attributes that the higher one does not set.
@@ -281,12 +281,12 @@ public class DecimalFormatTableTests
         var (ok, table) = Build(
             fixture,
             (1, F("ch", 10, "decimal-separator", ",", "grouping-separator", ".")),
-            (2, F("ch", 20, "decimal-separator", ";"))
+            (2, F("ch", 20, "decimal-separator", "!"))
         );
 
         var format = Get(table, Name("ch"));
         await Assert.That(ok).IsTrue();
-        await Assert.That(format.DecimalSeparator).IsEqualTo(';');
+        await Assert.That(format.DecimalSeparator).IsEqualTo('!');
         await Assert.That(format.GroupingSeparator).IsEqualTo('.');
     }
 
@@ -299,13 +299,13 @@ public class DecimalFormatTableTests
         var (ok, table) = Build(
             fixture,
             (1, F("ch", 10, "decimal-separator", ",")),
-            (1, F("ch", 20, "decimal-separator", ";")),
-            (2, F("ch", 30, "decimal-separator", "!"))
+            (1, F("ch", 20, "decimal-separator", "!")),
+            (2, F("ch", 30, "decimal-separator", "?"))
         );
 
         await Assert.That(ok).IsTrue();
         await Assert.That(fixture.Problems.Problems).IsEmpty();
-        await Assert.That(Get(table, Name("ch")).DecimalSeparator).IsEqualTo('!');
+        await Assert.That(Get(table, Name("ch")).DecimalSeparator).IsEqualTo('?');
     }
 
     // The conflict of the top precedence stays a conflict, also when a lower precedence has a third value.
@@ -318,7 +318,7 @@ public class DecimalFormatTableTests
             fixture,
             (1, F("ch", 10, "decimal-separator", "!")),
             (2, F("ch", 20, "decimal-separator", ",")),
-            (2, F("ch", 30, "decimal-separator", ";"))
+            (2, F("ch", 30, "decimal-separator", "!"))
         );
 
         await Assert.That(ok).IsFalse();
