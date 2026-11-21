@@ -25,6 +25,17 @@ public sealed class XPathExpression
     public static XPathCompileResult TryCompile(ReadOnlySpan<char> expression, XPathStaticContext? context = null) =>
         throw Stub.For("XP-19");
 
+    /// <summary>Compiles an expression under the host flags of a host; the flags make the functions that need them visible.</summary>
+    /// <param name="expression">The expression text.</param>
+    /// <param name="context">The static context.</param>
+    /// <param name="activeHost">The host slots and flags the host provides.</param>
+    /// <returns>The result.</returns>
+    internal static XPathCompileResult TryCompile(
+        ReadOnlySpan<char> expression,
+        XPathStaticContext context,
+        XPathHostRequirements activeHost
+    ) => throw Stub.For("XP-19");
+
     /// <summary>Compiles an expression; never throws for syntax errors.</summary>
     /// <param name="expression">The expression text.</param>
     /// <param name="context">The static context, <see langword="null"/> for <see cref="XPathStaticContext.Default"/>.</param>
