@@ -3,6 +3,7 @@ namespace NetEvolve.Schemas.XPath.Tests.Unit.Api;
 using System.Threading.Tasks;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Context;
+using NetEvolve.Schemas.XPath.Xdm.Values;
 
 public class HostFunctionLayeringTests
 {
@@ -118,6 +119,24 @@ public class HostFunctionLayeringTests
         );
 
         await Assert.That(ApiFixture.Run("count((1, 2, 3))", null, statics)).IsEqualTo("3");
+    }
+
+    [Test]
+    public async Task HostFunction_EvaluatingOnTheSameContext_KeepsTheOuterValueAndTheVariables()
+    {
+        var x = new XPathQName(string.Empty, "x");
+        var inner = XPathExpression.Compile("$x * 10", ApiFixture.Builder().WithVariable(x).Build());
+        var statics = ApiFixture
+            .Builder()
+            .WithVariable(x)
+            .WithNamespace("my", "urn:my")
+            .WithFunction(new CallbackFunction(new XPathQName("urn:my", "inner"), inner))
+            .Build();
+        var outer = XPathExpression.Compile("($x, my:inner(), $x + 1)", statics);
+        using var context = new XPathEvaluationContext();
+        context.Variables.Set(x, XdmItem.FromInteger(4));
+
+        await Assert.That(ApiFixture.Render(outer.Evaluate(context))).IsEqualTo("4|40|5");
     }
 
     [Test]
