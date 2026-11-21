@@ -126,30 +126,27 @@ public class SystemXmlSchemaEngineTests
         listener.Prefixes.Add(prefix);
         listener.Start();
         var requests = 0;
-        var serving = Task.Run(
-            async () =>
+        // Called directly (not via Task.Run), so the first GetContextAsync is registered before the engine runs:
+        // a pool thread that starts late can no longer reach a listener that was already stopped.
+        var serving = ServeAsync();
+        async Task ServeAsync()
+        {
+            try
             {
-                try
+                while (true)
                 {
-                    while (true)
-                    {
-                        var context = await listener.GetContextAsync();
-                        _ = Interlocked.Increment(ref requests);
-                        context.Response.StatusCode = 404;
-                        context.Response.Close();
-                    }
+                    var context = await listener.GetContextAsync();
+                    _ = Interlocked.Increment(ref requests);
+                    context.Response.StatusCode = 404;
+                    context.Response.Close();
                 }
-                catch (HttpListenerException)
-                {
-                    // The listener was stopped.
-                }
-                catch (ObjectDisposedException)
-                {
-                    // The listener was disposed.
-                }
-            },
-            cancellationToken
-        );
+            }
+            catch (Exception ex)
+                when (ex is HttpListenerException or ObjectDisposedException or InvalidOperationException)
+            {
+                // The listener was stopped.
+            }
+        }
         var importing =
             $"<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n  <xs:import namespace=\"http://www.w3.org/XML/1998/namespace\" schemaLocation=\"{prefix}xml.xsd\"/>\n  <xs:element name=\"a\" type=\"xs:int\"/>\n</xs:schema>";
 
