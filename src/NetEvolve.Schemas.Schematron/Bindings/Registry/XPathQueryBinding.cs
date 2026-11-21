@@ -6,12 +6,11 @@ using NetEvolve.Schemas.Schematron.Diagnostics;
 using NetEvolve.Schemas.Schematron.Seams;
 
 /// <summary>
-/// The binding for the XPath 2.0 contract, shared by the <c>xpath</c> and <c>xslt</c> names (design #137 AP-25).
+/// The binding for the XPath 2.0 contract, shared by the names <c>xpath2</c>, <c>xslt2</c>, and <c>xslt3</c> (design #137 AP-25).
 /// </summary>
 /// <remarks>
-/// Limitation: compilation and evaluation are stubbed until the XPath evaluator lands (XP-19). Until SCH-16 (#298) the
-/// names <c>xslt</c>, <c>xslt1</c>, and <c>xpath</c> also use the XPath 2.0 grammar; the 1.0 compatibility differences are
-/// not applied.
+/// Limitation: compilation and evaluation are stubbed until the XPath evaluator lands (XP-19). The names <c>xslt</c>,
+/// <c>xslt1</c>, and <c>xpath</c> use the binding of <c>Bindings/Xslt1</c> (SCH-16), which turns XPath 1.0 compatibility mode on.
 /// </remarks>
 internal sealed class XPathQueryBinding : IQueryBinding
 {
