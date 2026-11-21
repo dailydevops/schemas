@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.Xsd.Validation.Assembly;
 
-using System;
 using System.Threading;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Formats;
@@ -8,7 +7,11 @@ using NetEvolve.Schemas.Resources;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using ValidationResult = NetEvolve.Schemas.ValidationResult;
 
-/// <summary>The immutable XSD validator.</summary>
+/// <summary>The immutable, thread-safe XSD validator: every input kind of the base class ends in the one core.</summary>
+/// <remarks>
+/// Limitation: tree validation and annotated results are added by later work packages (XSD-79). A <see cref="System.IO.Stream"/> is
+/// buffered completely before the core runs (see <see cref="SchemaValidatorBase"/>).
+/// </remarks>
 internal sealed class XsdValidator : SchemaValidatorBase, IXsdValidator
 {
     private readonly IValidationCore _core;
@@ -27,5 +30,5 @@ internal sealed class XsdValidator : SchemaValidatorBase, IXsdValidator
 
     /// <inheritdoc />
     protected override ValidationResult ValidateCore(in DocumentSource source, CancellationToken cancellationToken) =>
-        throw new NotSupportedException("The XSD validator is not available yet.");
+        _core.Validate(in source, cancellationToken);
 }

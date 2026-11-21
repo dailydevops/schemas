@@ -113,6 +113,9 @@ internal sealed class BuildContext
     /// <summary>Gets every element declaration that was found: global, local, and nested in an anonymous type.</summary>
     public List<ElementDeclaration> FoundElements { get; } = [];
 
+    /// <summary>Gets the unit that holds the syntax of each found element declaration.</summary>
+    public Dictionary<ElementDeclaration, UnitScope> ElementUnits { get; } = [];
+
     /// <summary>Indexes the top-level definitions of the units.</summary>
     /// <param name="units">The units.</param>
     internal void Index(IReadOnlyList<UnitScope> units)

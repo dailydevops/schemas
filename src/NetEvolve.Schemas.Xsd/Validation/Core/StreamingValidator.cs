@@ -104,13 +104,12 @@ internal sealed partial class StreamingValidator : IXmlSink
         Argument.ThrowIfNull(limits);
         Argument.ThrowIfNull(listeners);
 
-        _ = readerLimits;
         _model = model;
         _assessor = assessor;
         _reporter = reporter;
         _limits = limits;
         _documentUri = documentUri;
-        Names = new SpanInterningNameTable(XmlReaderLimits.Default.MaxDistinctNames);
+        Names = new SpanInterningNameTable((readerLimits ?? XmlReaderLimits.Default).MaxDistinctNames);
         _binding = new NameBinding(model, Names);
         _scope = new XsiNamespaceScope(Names);
         _xsi = new XsiTypeResolver(model.Schema, _scope, derivation);
