@@ -12,6 +12,6 @@ internal enum SchematronOutcome
     /// <summary>The schema or its processing is in error.</summary>
     Error,
 
-    /// <summary>No validator is bound, so nothing was observed; never an expected outcome.</summary>
+    /// <summary>Nothing was observed, because no validator is bound or the run did not end in an outcome; never an expected outcome.</summary>
     NotImplemented,
 }

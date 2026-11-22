@@ -5,9 +5,9 @@ internal sealed class UnboundSchematronValidator : ISchematronValidator
 {
     public static UnboundSchematronValidator Instance { get; } = new();
 
-    public Task<SchematronOutcome> ValidateAsync(SchematronCase schematronCase, CancellationToken cancellationToken)
+    public Task<SchematronObservation> ValidateAsync(SchematronCase schematronCase, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        return Task.FromResult(SchematronOutcome.NotImplemented);
+        return Task.FromResult(new SchematronObservation(SchematronOutcome.NotImplemented));
     }
 }

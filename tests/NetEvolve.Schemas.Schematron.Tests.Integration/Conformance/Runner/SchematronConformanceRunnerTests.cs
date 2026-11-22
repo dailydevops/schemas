@@ -44,6 +44,35 @@ public class SchematronConformanceRunnerTests
     }
 
     [Test]
+    public async Task Run_OutcomeMatchesButObservationHasReason_IsFailWithThatReason(
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        using var fixture = new FixtureDirectory();
+        var validator = new ReasonValidator(c => new SchematronObservation(c.Expect, "assertion 'x' does not hold."));
+
+        var results = await SchematronConformanceRunner.RunAsync(Selection(fixture), validator, cancellationToken);
+
+        var failed = results.Single(r => string.Equals(r.CaseId, "set-a/one.xml", StringComparison.Ordinal));
+        await Assert.That(failed.Outcome).IsEqualTo(CaseOutcome.Fail);
+        await Assert.That(failed.Reason).IsEqualTo("assertion 'x' does not hold.");
+    }
+
+    [Test]
+    public async Task Run_OutcomeDiffersAndObservationHasReason_IsFailWithBoth(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        using var fixture = new FixtureDirectory();
+        var validator = new ReasonValidator(_ => new SchematronObservation(SchematronOutcome.Valid, "no schema."));
+
+        var results = await SchematronConformanceRunner.RunAsync(Selection(fixture), validator, cancellationToken);
+
+        var failed = results.Single(r => string.Equals(r.CaseId, "set-a/one.xml", StringComparison.Ordinal));
+        await Assert.That(failed.Reason).IsEqualTo("Expected Invalid but observed Valid. no schema.");
+    }
+
+    [Test]
     public async Task Run_ExcludedCases_AreSkippedWithTheirReasonAndNeverValidated(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -111,5 +140,13 @@ public class SchematronConformanceRunnerTests
 
         await Assert.That(report.IsSuccess).IsFalse();
         await Assert.That(report.TestSets.SelectMany(t => t.UnexpectedPasses)).IsEquivalentTo(["set-a/one.xml"]);
+    }
+
+    private sealed class ReasonValidator(Func<SchematronCase, SchematronObservation> observe) : ISchematronValidator
+    {
+        public Task<SchematronObservation> ValidateAsync(
+            SchematronCase schematronCase,
+            CancellationToken cancellationToken
+        ) => Task.FromResult(observe(schematronCase));
     }
 }

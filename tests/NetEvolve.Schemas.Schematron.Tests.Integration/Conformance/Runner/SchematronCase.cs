@@ -9,8 +9,8 @@
 /// <param name="Expect">The expected outcome.</param>
 /// <param name="Phase">The phase to validate with, if any.</param>
 /// <param name="Assertions">
-/// The XPath assertions on the SVRL output. Limitation: this runner compares the outcome only; the assertions are
-/// evaluated once a real validator is bound (SCH-56).
+/// The XPath assertions on the SVRL output. The runner compares the outcome and the observation of the validator;
+/// the validator of the Engine folder evaluates the assertions on the SVRL it produced.
 /// </param>
 /// <param name="Bindings">The ids of the query bindings whose suites list the case.</param>
 internal sealed record SchematronCase(
