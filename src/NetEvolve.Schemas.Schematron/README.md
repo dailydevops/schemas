@@ -1,0 +1,378 @@
+# NetEvolve.Schemas.Schematron
+
+Validates XML documents against ISO Schematron schemas. A schema is compiled once into an immutable, thread-safe validator; a validation reports every failed `assert` and every successful `report` as an issue, and can also write the run as SVRL (Schematron Validation Report Language).
+
+The implemented edition is ISO/IEC 19757-3:2025. A schema without `schematronEdition` keeps the semantics of the earlier edition, see [Edition detection](#edition-detection). The package builds on `NetEvolve.Schemas.XPath`, `NetEvolve.Schemas.Xml`, and `NetEvolve.Schemas`, and targets `netstandard2.0`, `netstandard2.1`, `net10.0`, and `net11.0`.
+
+This readme describes the state of the main branch at the time of writing; the sections [Conformance](#conformance) and [Limitations](#limitations) say what is missing.
+
+## Usage
+
+`SchemaValidator.ForSchematron` is a C# 14 extension member of the `SchemaValidator` anchor of the core package. It takes the schema as a `Stream`, `ReadOnlySpan<byte>`, `ReadOnlySpan<char>` (a `string` binds to it), `ReadOnlySequence<byte>`, or `ReadOnlySequence<char>`, and an optional `systemId`, the base URI of the schema that `include` resolves against. Nothing is read or compiled by the call: a stream is read from its current position at `Build` and never disposed, and spans and sequences are copied once. Every problem of the schema surfaces at `Build` or `BuildAsync` as one `SchemaCompilationException` that carries the issues. The builder is not thread-safe; the validator it builds is.
+
+The builder sets the phase with `WithPhase`, the parameters with `WithParameter`, the limits of the core package with `WithLimits`, and the resolver for external resources with `WithResolver`. The validator is an `ISchematronValidator`, an `ISchemaValidator` of the core package that also exposes the effective model (`Schema`), the `Edition`, the `Phase`, the `EffectivePhase`, and the `Parameters`.
+
+The samples in this readme run in an async method that has a `CancellationToken cancellationToken`. They need these namespaces:
+
+```
+using System.Buffers;
+using System.Text;
+using NetEvolve.Schemas;
+using NetEvolve.Schemas.Resources.FileSystem;
+using NetEvolve.Schemas.Schematron.Svrl;
+```
+
+### Validate a document
+
+A failed `assert` is an issue with severity `Error` and the code `NES3400`; a successful `report` is an issue with severity `Warning` and the code `NES3401`, so a document that only fires reports is still valid. The message is the rendered text of the assertion, the constraint is the `id` of the assertion, and the location is the position of the reported node, with the `systemId` of the document as its source.
+
+```csharp
+const string schema = """
+    <sch:schema xmlns:sch="http://purl.oclc.org/dsdl/schematron" queryBinding="xslt2">
+      <sch:pattern id="totals">
+        <sch:rule id="order" context="order">
+          <sch:assert id="total-limit" test="number(@total) le 100">The total <sch:value-of select="@total"/> exceeds 100.</sch:assert>
+          <sch:report test="number(@total) = 0">The total is zero.</sch:report>
+        </sch:rule>
+      </sch:pattern>
+    </sch:schema>
+    """;
+
+var validator = await SchemaValidator.ForSchematron(schema).BuildAsync(cancellationToken);
+var result = await validator.ValidateAsync(
+    """<order total="150"/>""".AsMemory(),
+    "file:///orders/1.xml",
+    cancellationToken
+);
+```
+
+Here `result.IsValid` is `false`, and `result.Issues` holds one issue: `NES3400`, severity `Error`, the message `The total 150 exceeds 100.`, the constraint `total-limit`, and the location `file:///orders/1.xml` at line 1, column 1.
+
+### Phases and parameters
+
+`WithPhase` takes a phase `id`, `#ALL`, or `#DEFAULT` (the default: the `defaultPhase` of the schema, or `#ALL`). An unknown phase fails at `Build` with `NES3013`. `WithParameter` sets the value of a `param` of the schema; the last call per name wins, and an undeclared name fails at `Build` with `NES3112`. A parameter value is a literal string, never an expression, so an expression that compares it with a number converts it first. The element `param` belongs to the 2025 edition and needs `schematronEdition="2025"`.
+
+```csharp
+const string schema = """
+    <sch:schema xmlns:sch="http://purl.oclc.org/dsdl/schematron" schematronEdition="2025" defaultPhase="basic">
+      <sch:param name="limit" value="100"/>
+      <sch:phase id="basic"><sch:active pattern="totals"/></sch:phase>
+      <sch:phase id="strict"><sch:active pattern="totals"/><sch:active pattern="notes"/></sch:phase>
+      <sch:pattern id="totals">
+        <sch:rule context="order"><sch:assert test="number(@total) le number($limit)">Over <sch:value-of select="$limit"/>.</sch:assert></sch:rule>
+      </sch:pattern>
+      <sch:pattern id="notes">
+        <sch:rule context="order"><sch:assert test="note">An order needs a note.</sch:assert></sch:rule>
+      </sch:pattern>
+    </sch:schema>
+    """;
+
+var validator = await SchemaValidator
+    .ForSchematron(schema)
+    .WithPhase("strict")
+    .WithParameter("limit", "200")
+    .BuildAsync(cancellationToken);
+var result = await validator.ValidateAsync(
+    """<order total="150"/>""".AsMemory(),
+    cancellationToken: cancellationToken
+);
+```
+
+Here the phase `strict` is active and the parameter `limit` is `200`, so the first pattern passes, and the only issue is the failed assertion of the second pattern.
+
+### SVRL
+
+`SvrlReportSink` is an `ISchematronReportSink` that writes the events of a run as SVRL: 2016-compatible output plus the attributes and elements of the public 2025 grammar. It writes to an `IBufferWriter<byte>` (complete when the run finishes) or to a `Stream` (complete after `CompleteAsync`). `WithReportSink` returns a lightweight view of the validator that delivers the events of each validation to the sink; the view serves one validation at a time, and the validator it came from stays thread-safe. `SvrlWriterOptions` sets the encoding, the indentation, the namespace declarations, and the cap of the buffer of one active pattern (16 MiB by default; on overflow an `error` with `NES3500` replaces the fired rules and findings of that pattern, and the validation result is not affected).
+
+```csharp
+var output = new ArrayBufferWriter<byte>();
+using var sink = new SvrlReportSink(output);
+var schematron = await SchemaValidator.ForSchematron(schema).BuildAsync(cancellationToken);
+var validator = schematron.WithReportSink(sink);
+
+var result = await validator.ValidateAsync(
+    """<order total="150"/>""".AsMemory(),
+    cancellationToken: cancellationToken
+);
+var svrl = Encoding.UTF8.GetString(output.WrittenSpan);
+```
+
+Here `schema` is the schema of the first sample, and `svrl` holds a `svrl:schematron-output` document with the active pattern `totals`, the fired rule `order`, and the `svrl:failed-assert` `total-limit`.
+
+## Query bindings
+
+The `queryBinding` of the schema selects the language of the expressions. Names compare without regard to case, and a schema without `queryBinding` is bound as `xslt`. Any other name fails at `Build` with `NES3010`, which lists the supported names. The table lists every reserved name: supported, planned with its work package, or deferred with its DEF ID.
+
+| Binding | Status | Notes |
+| --- | --- | --- |
+| `xslt` | supported | The default binding. XPath 1.0 compatibility mode on the XPath 2.0 engine; XSLT elements and the functions of XSLT are available. |
+| `xslt1` | supported | As `xslt`. It is XPath 1.0 compatibility mode, not XSLT 1.0: the differences of XSLT 1.0 to XSLT 2.0 are not applied. |
+| `xpath` | supported | XPath 1.0 compatibility mode. XSLT elements in the schema are ignored, and the functions of XSLT are not available. |
+| `xslt2` | supported | XPath 2.0. XSLT elements and the functions of XSLT are available. |
+| `xpath2` | supported | XPath 2.0. XSLT elements in the schema are ignored, and the functions of XSLT are not available. |
+| `xslt3` | supported, with the XPath 2.0 contract of `xslt2` | XPath 3.x semantics are planned: SCH-21 (#378). The cases of the suite for this binding are excluded from the conformance rate. |
+| `xpath3` | planned: SCH-21 (#378) | Rejected with `NES3010` until the binding is enabled. |
+| `xpath31` | planned: SCH-21 (#378) | Rejected with `NES3010` until the binding is enabled. |
+| `xpath4` | deferred: DEF-38 (#50) | |
+| `xquery` | deferred: DEF-34 (#46) | |
+| `xquery3` | deferred: DEF-35 (#47) | |
+| `xquery31` | deferred: DEF-36 (#48) | |
+| `xquery4` | deferred: DEF-37 (#49) | |
+| `xslt1.1` | deferred: DEF-59 (#71) | |
+| `xslt4` | deferred: DEF-39 (#51) | |
+| `exslt` | deferred: DEF-56 (#68) | |
+| `stx` | deferred: DEF-57 (#69) | |
+
+The expressions run on the XPath engine of `NetEvolve.Schemas.XPath`, so its function library bounds what an expression can call. A rule context keeps XPath 2.0 semantics under every binding (#838).
+
+## XSLT constructs
+
+Schematron lets a schema embed XSLT: stylesheet functions, keys, variables, and the instructions of their bodies. The package ships a subset of XSLT 2.0, delivered in five stages that the rule sets of real schemas need:
+
+1. Stylesheet functions with the flow instructions of their bodies, decimal formats, and `format-number`.
+2. Keys.
+3. Stylesheet modules (`xsl:include`, `xsl:import`) and access to further documents.
+4. Global variables and parameters, temporary trees, and `let` with element content.
+5. Grouping and analysis of strings with regular expressions.
+
+### What a schema reaches today
+
+The instruction engine (instruction registry, sequence sink, function table, key index, global table, module linker) is part of the package and covered by its unit tests, but the build of a schema does not hand any XSLT to it yet. A schema that declares `xsl:function`, `xsl:key`, `xsl:variable`, `xsl:param`, `xsl:decimal-format`, `xsl:include`, or any other `xsl:` element under the bindings `xslt`, `xslt1`, `xslt2`, or `xslt3` fails at `Build` with `NES3204`, the unsupported XSLT construct error, until the modules of a schema are linked and compiled (#832). A `let` with element content and a property with `xsl:copy-of` build, and the run reports `NES3204` where it needs them, because no embedded content is wired into the pipeline (#914); a `let` with element content binds a document node (maintainer decision of #856), which the suite case for it does not expect (#877).
+
+What does work are the XSLT functions in the expressions of a schema (`test`, `select`, `value`, `context`) under the bindings `xslt`, `xslt1`, `xslt2`, and `xslt3`: `current`, `system-property`, `function-available`, `format-number`, and `generate-id`. These functions do not exist under `xpath` and `xpath2`. A named decimal format is unknown, because no `xsl:decimal-format` is handed to the run (#882).
+
+These functions are not available yet: `key` (#776, #780), `document`, `doc`, and `unparsed-text` (#312, #302), `current-group` and `current-grouping-key` (#803), `regex-group` (#287), calls of stylesheet functions (#628), `element-available` (DEF-30, #42), `type-available` (DEF-31, #43), `unparsed-entity-uri` and `unparsed-entity-public-id` (DEF-32, #44), and `snapshot` (DEF-33, #45).
+
+### Matrix of the registered constructs
+
+Every entry of the instruction registry, with the stage that delivered it. The position is where the registry accepts the element: an instruction (in a sequence constructor), a declaration (top level), or a child of a parent instruction.
+
+| Construct | Position | Stage | Notes |
+| --- | --- | --- | --- |
+| `xsl:function` | declaration | 1 | Overloads by arity. The `as` conversion of arguments and results does not cover derived atomic types and kind tests (#635). |
+| `xsl:param` | child of `xsl:function`, or declaration | 1, 4 | Stage 1: parameter of a function. Stage 4: global parameter, valued by `WithParameter`; `static` is not supported (DEF-28, #40). |
+| `xsl:variable` | instruction, or declaration | 1, 4 | Stage 1: local variable. Stage 4: global variable with lazy evaluation and circularity detection. The value is the `select` attribute (#629, #794); `as` is limited to `xs:string`, `xs:boolean`, `xs:double`, and `xs:integer` (`NES3007`, #392); `static` is not supported (DEF-28, #40). |
+| `xsl:sequence` | instruction | 1 | |
+| `xsl:value-of` | instruction | 1 | |
+| `xsl:text` | instruction | 1 | |
+| `xsl:if` | instruction | 1 | |
+| `xsl:choose` | instruction | 1 | |
+| `xsl:when` | child of `xsl:choose` | 1 | |
+| `xsl:otherwise` | child of `xsl:choose` | 1 | |
+| `xsl:for-each` | instruction | 1 | |
+| `xsl:sort` | child of `xsl:for-each` and `xsl:for-each-group` | 1 | `data-type` is limited to text and the key is the `select` attribute (#682); the collation is limited to the codepoint collation (DEF-43, #55). |
+| `xsl:message` | instruction | 1 | The output does not reach the validation result (#683). |
+| `xsl:decimal-format` | declaration | 1 | `exponent-separator` is not supported (#836). |
+| `xsl:key` | declaration | 2 | `match` and `use` as attribute or as content. `composite` is not supported (#779); the collation is limited to the codepoint collation (DEF-43, #55). |
+| `xsl:element` | instruction | 4 | |
+| `xsl:attribute` | instruction | 4 | |
+| `xsl:copy` | instruction | 4 | |
+| `xsl:copy-of` | instruction | 4 | |
+| `xsl:comment` | instruction | 4 | |
+| `xsl:processing-instruction` | instruction | 4 | |
+| `xsl:namespace` | instruction | 4 | |
+| `xsl:document` | instruction | 4 | |
+| literal result element | instruction | 4 | Has no XSLT name; the registry holds one entry for it. |
+| text node | instruction | 4 | Character data of a sequence constructor; the registry holds one entry for it. |
+| `xsl:for-each-group` | instruction | 5 | `group-by`, `group-adjacent`, `group-starting-with`, and `group-ending-with`. `composite` is not supported (DEF-54, #66); the collation is limited to the codepoint collation (DEF-43, #55). |
+
+The module linker (stage 3) is not an entry of the registry: it handles `xsl:include`, `xsl:import`, and the root elements `xsl:stylesheet` and `xsl:transform` of a module, with import precedence and cycle detection, and loads modules through the resolver of the builder. It is not wired into the build (#832).
+
+### The unsupported XSLT construct error
+
+Every other element of the XSLT namespace is not registered. Compiling one raises `NES3204`, `The XSLT element 'xsl:name' is not supported.`, with the location of the element. The elements that are left out on purpose are deferred, each with its DEF ID:
+
+| Element | Deferral |
+| --- | --- |
+| `xsl:template` | DEF-01 (#13) |
+| `xsl:apply-templates` | DEF-02 (#14) |
+| `xsl:call-template`, `xsl:with-param` | DEF-03 (#15) |
+| `xsl:mode` | DEF-04 (#16) |
+| `xsl:apply-imports` | DEF-05 (#17) |
+| `xsl:next-match` | DEF-06 (#18) |
+| `xsl:number` | DEF-07 (#19) |
+| `xsl:iterate`, `xsl:break`, `xsl:next-iteration`, `xsl:on-completion` | DEF-08 (#20) |
+| `xsl:try`, `xsl:catch` | DEF-09 (#21) |
+| `xsl:evaluate` | DEF-10 (#22) |
+| `xsl:import-schema` | DEF-11 (#23) |
+| `xsl:accumulator`, `xsl:accumulator-rule` | DEF-12 (#24) |
+| `xsl:package`, `xsl:use-package`, `xsl:accept`, `xsl:expose`, `xsl:override` | DEF-13 (#25) |
+| `xsl:assert` | DEF-15 (#27) |
+| `xsl:perform-sort` | DEF-16 (#28) |
+| `xsl:merge`, `xsl:merge-source`, `xsl:merge-key`, `xsl:merge-action` | DEF-17 (#29) |
+| `xsl:fork` | DEF-18 (#30) |
+| `xsl:source-document` | DEF-19 (#31) |
+| `xsl:result-document` | DEF-20 (#32) |
+| `xsl:output`, `xsl:character-map`, `xsl:output-character` | DEF-21 (#33) |
+| `xsl:attribute-set` | DEF-22 (#34) |
+| `xsl:namespace-alias` | DEF-23 (#35) |
+| `xsl:strip-space`, `xsl:preserve-space` | DEF-24 (#36) |
+| `xsl:where-populated`, `xsl:on-empty`, `xsl:on-non-empty` | DEF-25 (#37) |
+| `xsl:map`, `xsl:map-entry` | DEF-26 (#38) |
+| `xsl:fallback` | DEF-27 (#39) |
+| `xsl:context-item`, `xsl:global-context-item` | DEF-29 (#41) |
+| `xsl:analyze-string`, `xsl:matching-substring`, `xsl:non-matching-substring` | planned, stage 5: #287 |
+
+The module elements of stage 3 (`xsl:include`, `xsl:import`, `xsl:stylesheet`, `xsl:transform`) are not registry entries either, see above; in a schema they raise `NES3204` as declarations (#832). Further, a registered construct raises `NES3204` for an attribute or form that is left out:
+
+| Attribute or form | Tracking |
+| --- | --- |
+| `type` and `validation` on the construction instructions and on literal result elements | DEF-11 (#23) |
+| `use-attribute-sets` on `xsl:element`, `xsl:copy`, and literal result elements | DEF-22 (#34) |
+| `inherit-namespaces`, and `copy-namespaces="no"` | #813 |
+| The standard attributes `xsl:extension-element-prefixes`, `xsl:default-collation`, and `xsl:xpath-default-namespace` on a literal result element | #815 |
+| An attribute value template with an expression in the attributes of the flow instructions | #681 |
+| `data-type` other than text, and content as the key of `xsl:sort` | #682 |
+| A collation other than the codepoint collation on `xsl:sort`, `xsl:for-each-group`, and `xsl:key` | DEF-43 (#55) |
+| `composite` on `xsl:for-each-group` | DEF-54 (#66) |
+| `composite` on `xsl:key` | #779 |
+| `static` on `xsl:variable` and `xsl:param` | DEF-28 (#40) |
+| `exponent-separator` on `xsl:decimal-format` | #836 |
+
+The attributes `use-when` (DEF-28, #40) and `expand-text` (DEF-14, #26) are not supported either. The pattern matcher for rule contexts and `xsl:key` covers a subset of the XSLT 2.0 patterns: patterns that start with `id()` (DEF-55, #67), patterns that start with `key()` (#780), and the pattern forms of XSLT 3.0 (DEF-60, #72) are not supported.
+
+## Conformance
+
+The conformance run executes the official Schematron conformance suite, release 2.0, pinned by checksum in `tests/conformance/suites/schematron-conformance.json`; no part of the suite is committed. It selects the cases of the suite bindings `xslt-1` and `xslt-2` and runs each through `SchemaValidator.ForSchematron` and the SVRL report sink. The rate is passed / (passed + failed), truncated to one decimal, as the Conformance workflow publishes it in its job summary.
+
+**43 of 84 applicable cases pass, a rate of 51.1%.** The other cases are the 41 known failures below, and 3 excluded cases do not count. Every known failure is a case of the committed baseline in `tests/conformance/baselines/schematron-conformance/`, linked to an issue; a regression and an unexpected pass fail the run.
+
+| Test set | Applicable | Passed | Rate |
+| --- | --- | --- | --- |
+| `iso-instance-document-selection` | 2 | 0 | 0.0% |
+| `iso-pattern-templating` | 12 | 4 | 33.3% |
+| `iso-reporting` | 45 | 24 | 53.3% |
+| `iso-rule-based-validation` | 14 | 10 | 71.4% |
+| `iso-schema-composition` | 11 | 5 | 45.4% |
+
+The acceptance of XSLT stage 4 (own test schemas and four cases of the suite, which are also among the 84) publishes its own row in the job summary, `NetEvolve.Schemas.Schematron (stage 4 goldens)`: 3 of 17 cases pass, a rate of 17.6%. The other 14 wait for #832 and #914.
+
+### Excluded cases
+
+The suite file of the binding `xslt-3-2025` lists three cases that no selected binding lists. The bindings `xslt-3` and `xslt-3-2025` are not selected, because the `xslt3` binding is owned by SCH-21 (#378), so these cases are skipped and do not count:
+
+- `iso-schema-composition/schema-phase-from.xml`
+- `iso-pattern-templating/pattern-abstract-default-values.xml`
+- `iso-rule-based-validation/rule-visit-each.xml`
+
+### Known failures
+
+**#575** (4 cases): A fragment identifier in the href of include and extends is not supported (NES3007).
+
+- `iso-schema-composition/extends-href-fragment-xml-id-preserve-ns.xml`
+- `iso-schema-composition/extends-href-fragment-xml-id.xml`
+- `iso-schema-composition/include-href-fragment-xml-id-preserve-ns.xml`
+- `iso-schema-composition/include-href-fragment-xml-id.xml`
+
+**#575** (1 case): An extends with href needs a library that holds exactly one abstract rule; a rule document with a recursive extends is not accepted (NES3101).
+
+- `iso-schema-composition/extends-recursive.xml`
+
+**#832** (3 cases): XSLT declarations of a schema are reported NES3204 until the modules are linked and compiled (#832).
+
+- `iso-rule-based-validation/xsl-function.xml`
+- `iso-rule-based-validation/xsl-key-element-content.xml`
+- `iso-rule-based-validation/xsl-key.xml`
+
+**#877** (1 case): A let with element content binds a document node (maintainer decision of #856), and the run reports NES3204 until the embedded content is wired (#914).
+
+- `iso-rule-based-validation/let-value-element-content.xml`
+
+**#913** (7 cases): The documents attribute is ignored: no subordinate document is validated and the SVRL does not name it.
+
+- `iso-instance-document-selection/pattern-subordinate-document-variable.xml`
+- `iso-instance-document-selection/pattern-subordinate-document.xml`
+- `iso-pattern-templating/pattern-abstract-pattern-documents.xml`
+- `iso-reporting/svrl-active-pattern-documents-primary.xml`
+- `iso-reporting/svrl-active-pattern-documents.xml`
+- `iso-reporting/svrl-fired-rule-document-primary.xml`
+- `iso-reporting/svrl-fired-rule-document.xml`
+
+**#914** (2 cases): A property with xsl:copy-of is reported NES3204 because no embedded content is wired into the pipeline.
+
+- `iso-reporting/svrl-property-copy-of.xml`
+- `iso-reporting/svrl-property-variable-copy-of-rule.xml`
+
+**#915** (4 cases): Abstract pattern parameters are not substituted in name paths and in diagnostic and property content (NES3300).
+
+- `iso-pattern-templating/pattern-abstract-diagnostic-value-of.xml`
+- `iso-pattern-templating/pattern-abstract-name-path.xml`
+- `iso-pattern-templating/pattern-abstract-property-copy-of.xml`
+- `iso-pattern-templating/pattern-abstract-property-value-of.xml`
+
+**#916** (6 cases): The SVRL text of a diagnostic or property reference lacks fpi, icon, and see.
+
+- `iso-reporting/svrl-diagnostic-fpi.xml`
+- `iso-reporting/svrl-diagnostic-icon.xml`
+- `iso-reporting/svrl-diagnostic-see.xml`
+- `iso-reporting/svrl-property-fpi.xml`
+- `iso-reporting/svrl-property-icon.xml`
+- `iso-reporting/svrl-property-see.xml`
+
+**#917** (6 cases): The SVRL output carries no xml:lang.
+
+- `iso-reporting/svrl-diagnostic-language.xml`
+- `iso-reporting/svrl-failed-assert-lang.xml`
+- `iso-reporting/svrl-pattern-abstract-lang.xml`
+- `iso-reporting/svrl-property-lang.xml`
+- `iso-reporting/svrl-rule-abstract-lang.xml`
+- `iso-reporting/svrl-successful-report-lang.xml`
+
+**#918** (2 cases): The SVRL property-reference lacks role and scheme.
+
+- `iso-reporting/svrl-property-role.xml`
+- `iso-reporting/svrl-property-scheme.xml`
+
+**#919** (1 case): The message of sch:name with a path holds the node name, the case expects the value.
+
+- `iso-reporting/svrl-name-path.xml`
+
+**#920** (3 cases): White space only text around value-of is kept in the message, the case expects it stripped.
+
+- `iso-pattern-templating/pattern-abstract-pattern-let-value.xml`
+- `iso-pattern-templating/pattern-abstract-rule-let-value.xml`
+- `iso-pattern-templating/pattern-abstract-value-of.xml`
+
+**#921** (1 case): An extends of an abstract rule of another pattern builds, the case expects an error.
+
+- `iso-schema-composition/rule-abstract-scope-error.xml`
+
+## Resolvers and security defaults
+
+External resources are deny by default. Unless a resolver is set, the builder uses `DenyAllResourceResolver`, which never opens anything, and a schema that reaches a resource fails at `Build`: an `include`, an `extends` with `href`, or an `xi:include` is refused with `NES0100` at the reference. A relative reference needs an absolute base URI, so pass the `systemId` of the schema to `ForSchematron`; without one the reference fails with `NES0101`.
+
+To opt in, pass an `IResourceResolver` to `WithResolver`. The core package ships `SandboxedFileSystemResourceResolver`, which serves `file` URIs below one root directory and refuses everything else; any other resolver implements `IResourceResolver`. The limits `MaxExternalResources` and `MaxResourceSize` of `ValidationLimits` bound the resources of one build and the size of each.
+
+In the sample, `schema` holds a schema with `<sch:include href="rules.sch"/>`, `systemId` is the file URI of the schema, and `schemaDirectory` is the folder that holds both files.
+
+```csharp
+var validator = await SchemaValidator
+    .ForSchematron(schema, systemId)
+    .WithResolver(new SandboxedFileSystemResourceResolver(schemaDirectory))
+    .BuildAsync(cancellationToken);
+```
+
+No other path reaches a resource. A document type declaration in the schema or in a document is rejected, so no external entity or subset is read, and the expressions of a schema cannot open a resource, because `document`, `doc`, and `unparsed-text` are not available yet. The documents and the schema are read under `ValidationLimits` (size, depth, attributes, and entity expansion), and a schema is bounded by `MaxResourceSize`.
+
+## Edition detection
+
+The edition is read from the `schematronEdition` attribute of the `schema` element: an absent attribute and the value `2016` select the semantics of the earlier edition, the value `2025` selects the semantics of the 2025 edition, and any other value, compared exactly, fails at `Build` with `NES3009`. An element or an attribute that exists only in the 2025 edition, such as `param`, fails with `NES3008` unless the schema declares `schematronEdition="2025"`. The edition of the validator is `ISchematronValidator.Edition`, and the SVRL output carries `schematronEdition` for the 2025 edition only.
+
+## Limitations
+
+- **Compilers older than C# 14.** `SchemaValidator.ForSchematron(...)` is a C# 14 extension member. A compiler without extension member syntax calls the public static extension class directly, named `SchematronSchemaValidatorExtensions` and declared in the namespace `NetEvolve.Schemas`. It has the same overloads and returns the same builder:
+
+  ```csharp
+  var builder = SchematronSchemaValidatorExtensions.ForSchematron(schema);
+  ```
+
+- **No `ReadOnlyMemory<T>` overload.** With one, a `byte[]` or `char[]` argument is ambiguous for compilers older than C# 14; pass `memory.Span` instead.
+- **XSLT in a schema.** Declarations of XSLT fail the build (#832), and `let` with element content and `xsl:copy-of` in a property are reported at run time (#914); see [XSLT constructs](#xslt-constructs).
+- **Attributes that are accepted and ignored.** The `documents` attribute of a pattern (#913, feature #388) and the `visit-each` attribute of a rule (#934, feature #387) neither fail the build nor take effect.
+- **Phase attributes.** A selected phase with `from` (#385) or `when` (#386) fails the build with `NES3007`.
+- **Include and extends.** An `href` with a fragment identifier is not supported (#575), and an `extends` of an abstract rule of another pattern builds without an error (#921).
+- **SVRL.** The output lacks `xml:lang` (#917), the attributes `fpi`, `icon`, and `see` of a diagnostic or property reference (#916), and the attributes `role` and `scheme` of a property reference (#918). An SVRL `id` is written only for an author id, and a `svrl:error` in the output is not a failure of the run.
+- **Messages.** White space only text around `value-of` is kept in a message (#920), `sch:name` with a path outputs the node name (#919), and abstract pattern parameters are not substituted in name paths and in diagnostic and property content (#915).
+- **Locations.** A problem of an expression is located by the base URI of the schema and by the line and column within the text of the expression, and a dynamic problem has no line and column (#881). `last()` in a predicate without a known size equals `position()` (#883).
+- **Thread safety.** A validator is immutable and thread-safe; a `WithReportSink` view and a builder are not.
+- **Compile cost.** Every `Build` compiles the schema; there is no compile-once cache (#340).
