@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using NetEvolve.Schemas.Resources;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Dtd.Contracts;
+using NetEvolve.Schemas.Xml.Dtd.Entry;
 using NetEvolve.Schemas.Xml.Tests.Unit.Dtd.External.General;
 using NetEvolve.Schemas.Xml.Tests.Unit.Dtd.External.Loader;
 using NetEvolve.Schemas.Xml.Tests.Unit.Dtd.External.Subset;
@@ -199,7 +200,7 @@ public class DtdValidatorBuilderTests
     {
         var result = Run("<!DOCTYPE r [<!ELEMENT r ANY>]><r></x>");
 
-        await Assert.That(result.Issues[result.Issues.Count - 1].Code).IsEqualTo(XmlErrorCodes.XML0007.Code);
+        await Assert.That(result.Issues[result.Issues.Count - 1].Code).IsEqualTo(XmlErrorCodes.XML0005.Code);
     }
 
     [Test]
@@ -267,4 +268,8 @@ public class DtdValidatorBuilderTests
             await Assert.That(result.Issues[0].Code).IsEqualTo(DtdValidityCodes.XML5911.Code);
         }
     }
+
+    [Test]
+    public async Task Constructor_RejectsNullOptions() =>
+        await Assert.That(() => new DtdValidator(null!)).Throws<ArgumentNullException>();
 }
