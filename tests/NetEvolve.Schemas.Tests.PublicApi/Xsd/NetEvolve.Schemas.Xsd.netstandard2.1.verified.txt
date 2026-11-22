@@ -151,6 +151,7 @@ namespace NetEvolve.Schemas.Xsd
         public static readonly NetEvolve.Schemas.DiagnosticCode NotYetSupportedDefaultAttributes;
         public static readonly NetEvolve.Schemas.DiagnosticCode NotYetSupportedDefaultAttributesApply;
         public static readonly NetEvolve.Schemas.DiagnosticCode NotYetSupportedDefaultOpenContent;
+        public static readonly NetEvolve.Schemas.DiagnosticCode NotYetSupportedError;
         public static readonly NetEvolve.Schemas.DiagnosticCode NotYetSupportedExplicitTimezone;
         public static readonly NetEvolve.Schemas.DiagnosticCode NotYetSupportedIdentityConstraintRef;
         public static readonly NetEvolve.Schemas.DiagnosticCode NotYetSupportedInheritable;
