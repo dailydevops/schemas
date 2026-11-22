@@ -1,17 +1,3 @@
-1.0/annotation00101m1/Positive
-1.0/annotation00101m4/Positive
-1.0/modelgroup00101m1/Negative
-1.0/modelgroup00101m1/Positive
-1.0/modelgroup00101m2/Negative
-1.0/modelgroup00101m2/Positive
-1.0/modelgroup00101m3/Negative
-1.0/modelgroup00101m3/Positive
-1.0/name00101m1/Negative
-1.0/name00101m1/Positive
-1.0/targetns00101m1/Negative
-1.0/targetns00101m1/Positive
-1.0/targetns00101m2/Negative
-1.0/targetns00101m2/Positive
 1.1/annotation00101m1/Positive
 1.1/annotation00101m1/annotation00101m1
 1.1/annotation00101m2/annotation00101m2

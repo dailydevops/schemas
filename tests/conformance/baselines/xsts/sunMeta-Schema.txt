@@ -1,9 +1,3 @@
-1.0/annotations00101m1/Positive
-1.0/annotations00101m2/Positive
-1.0/annotations00101m3/Positive
-1.0/annotations00101m4/Positive
-1.0/annotations00101m5/Positive
-1.0/annotations00101m6/Positive
 1.1/annotations00101m1/Positive
 1.1/annotations00101m1/annotations00101m1
 1.1/annotations00101m2/Positive

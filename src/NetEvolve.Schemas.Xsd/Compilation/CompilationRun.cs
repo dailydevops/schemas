@@ -18,6 +18,7 @@ using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.Elements;
 using NetEvolve.Schemas.Xsd.IdentityConstraints.Definitions;
 using NetEvolve.Schemas.Xsd.SchemaDocuments;
+using NetEvolve.Schemas.Xsd.Validation.Assembly;
 using NetEvolve.Schemas.Xsd.Validation.Core;
 using NetEvolve.Schemas.Xsd.Versioning.Constructs;
 
@@ -34,7 +35,8 @@ using NetEvolve.Schemas.Xsd.Versioning.Constructs;
 /// Everything that is named is registered; the resolver binds the by-name references once all of it exists.
 /// </para>
 /// <para>
-/// Limitations: the strict XSD 1.0 gate stops the run before any component is built (design #146 DP-16); conditional inclusion
+/// Limitations: the strict XSD 1.0 gate and the not-yet-supported gate of XSD 1.1 stop the run before any component is built
+/// (design #146 DP-16); conditional inclusion
 /// (<c>vc:</c> attributes) is not applied in this run, because it is part of the XSD 1.1 pipeline (XSD-78, #360); substitution group
 /// affiliation (<c>substitutionGroup</c>, XSD-12), notation declarations, <c>openContent</c>, assertions, type alternatives, and the
 /// subsumption check of XSD 1.1 are not built or checked; the limit of external resources applies to each root document alone.
@@ -56,7 +58,9 @@ internal sealed class CompilationRun
     private readonly DeterminismChecker _determinism;
     private readonly ParticleRestriction? _particleRestriction;
     private readonly List<ModelGroupDefinition> _definitions = [];
+    private ListenerKinds _listeners;
     private readonly List<IdentityConstraintDefinition> _constraints = [];
+    private readonly List<ConstraintOwner> _owners = [];
 
     internal CompilationRun(XsdVersion version, IResourceResolver resolver, ValidationLimits limits)
     {
@@ -144,6 +148,7 @@ internal sealed class CompilationRun
         if (!HasGateErrors(units))
         {
             Build(units, cancellationToken);
+            _listeners = ScanListeners(units);
             cancellationToken.ThrowIfCancellationRequested();
             Resolve();
             CompileChecks.Run(_context, _derivation, _particleRestriction, _definitions, _version, _reporter);
@@ -225,7 +230,8 @@ internal sealed class CompilationRun
         }
     }
 
-    // Strict 1.0 mode rejects every 1.1 construct of every document; nothing is built after that (design #146 DP-16).
+    // Strict 1.0 mode rejects every 1.1 construct of every document, and the default version every one that is not supported yet;
+    // nothing is built after that (design #146 DP-16).
     private bool HasGateErrors(List<UnitScope> units)
     {
         var gate = new ValidationIssueCollector(_limits);
@@ -236,6 +242,7 @@ internal sealed class CompilationRun
             if (checkedDocuments.Add(unit.Unit.Document))
             {
                 Strict10Constructs.Check(unit.Unit.Document.Root!, _version, reporter);
+                Xsd11ConstructGate.Check(unit.Unit.Document.Root!, _version, reporter);
             }
         }
 
@@ -246,6 +253,22 @@ internal sealed class CompilationRun
         }
 
         return issues.Count > 0;
+    }
+
+    // The listeners that the schema documents demand (design #146 DP-12); a document that several units share is scanned once.
+    private static ListenerKinds ScanListeners(List<UnitScope> units)
+    {
+        var kinds = ListenerKinds.None;
+        var scanned = new HashSet<SchemaDocument>();
+        foreach (var unit in units)
+        {
+            if (scanned.Add(unit.Unit.Document))
+            {
+                kinds |= ListenerDemand.Scan(unit.Unit.Document.Root!);
+            }
+        }
+
+        return kinds;
     }
 
     private void Build(List<UnitScope> units, CancellationToken cancellationToken)
@@ -356,6 +379,7 @@ internal sealed class CompilationRun
                 if (constraint is not null)
                 {
                     _constraints.Add(constraint);
+                    _owners.Add(new ConstraintOwner(node.Location, unit, constraint));
                 }
             }
             else
@@ -408,6 +432,57 @@ internal sealed class CompilationRun
         }
 
         var result = _collector.ToResult();
-        return result.IsValid ? new SchemaCompilation(set, model, result) : new SchemaCompilation(null, null, result);
+        return result.IsValid
+            ? new SchemaCompilation(set, model, result, ConstraintsOfElements(), _listeners)
+            : new SchemaCompilation(null, null, result);
+    }
+
+    // An element declaration owns the constraints that are children of the element syntax it was read from: same document position
+    // and same unit, which keeps the two copies of a chameleon included document apart.
+    private Dictionary<ElementDeclaration, IReadOnlyList<IdentityConstraintDefinition>> ConstraintsOfElements()
+    {
+        var owned = new Dictionary<ElementDeclaration, IReadOnlyList<IdentityConstraintDefinition>>();
+        foreach (var element in _context.FoundElements)
+        {
+            if (!_context.ElementUnits.TryGetValue(element, out var unit))
+            {
+                continue;
+            }
+
+            List<IdentityConstraintDefinition>? constraints = null;
+            foreach (var owner in _owners)
+            {
+                if (owner.Unit == unit && owner.Location == element.Location)
+                {
+                    (constraints ??= []).Add(owner.Constraint);
+                }
+            }
+
+            if (constraints is not null)
+            {
+                owned[element] = constraints;
+            }
+        }
+
+        return owned;
+    }
+
+    private readonly struct ConstraintOwner
+    {
+        internal ConstraintOwner(DocumentLocation location, UnitScope unit, IdentityConstraintDefinition constraint)
+        {
+            Argument.ThrowIfNull(unit);
+            Argument.ThrowIfNull(constraint);
+
+            Location = location;
+            Unit = unit;
+            Constraint = constraint;
+        }
+
+        internal DocumentLocation Location { get; }
+
+        internal UnitScope Unit { get; }
+
+        internal IdentityConstraintDefinition Constraint { get; }
     }
 }
