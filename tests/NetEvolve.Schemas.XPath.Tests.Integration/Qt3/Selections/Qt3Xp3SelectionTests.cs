@@ -422,9 +422,11 @@ public class Qt3Xp3SelectionTests
 
         var actual = Qt3Xp3Selections.FormatCounts(selection);
 
+        var recorded = await File.ReadAllTextAsync(Qt3Xp3Selections.CountsFileOf(level), cancellationToken);
+
         await Assert
             .That(actual)
-            .IsEqualTo(await File.ReadAllTextAsync(Qt3Xp3Selections.CountsFileOf(level), cancellationToken))
+            .IsEqualTo(recorded.ReplaceLineEndings("\n"))
             .Because("the recorded per test set counts of " + level);
     }
 
