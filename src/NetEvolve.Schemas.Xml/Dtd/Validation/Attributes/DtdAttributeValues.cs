@@ -86,6 +86,8 @@ internal static class DtdAttributeValues
     /// <returns><see langword="true"/> when the value is declared.</returns>
     internal static bool Contains(IReadOnlyList<string> values, ReadOnlySpan<char> value)
     {
+        Argument.ThrowIfNull(values);
+
         for (var i = 0; i < values.Count; i++)
         {
             if (value.SequenceEqual(values[i].AsSpan()))
