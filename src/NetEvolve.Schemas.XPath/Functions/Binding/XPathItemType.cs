@@ -2,9 +2,9 @@ namespace NetEvolve.Schemas.XPath.Functions.Binding;
 
 /// <summary>The expected item type of a function parameter.</summary>
 /// <remarks>
-/// Limitation: only the item types a function signature of the XPath 2.0 library needs are named. The kind tests other than
-/// <c>node()</c> belong to the sequence type matcher of XP-21 (#227); <c>xs:QName</c>, <c>xs:NOTATION</c>, the binary types, and the
-/// Gregorian types await their value types (#545, #301).
+/// Only the item types a function signature of the XPath 2.0 library needs are named. Every other item type of a sequence type, an
+/// atomic type that is not named here or a kind test other than <c>node()</c>, is <see cref="Other"/>: see
+/// <see cref="XPathParameterType.FromSequenceType"/>.
 /// </remarks>
 internal enum XPathItemType
 {
@@ -61,4 +61,10 @@ internal enum XPathItemType
 
     /// <summary><c>xs:dayTimeDuration</c>.</summary>
     DayTimeDuration = 17,
+
+    /// <summary>
+    /// An item type of a sequence type that no other member names: an atomic type by its handle, a kind test, or
+    /// <c>empty-sequence()</c>. Only <see cref="XPathParameterType.FromSequenceType"/> gives it.
+    /// </summary>
+    Other = 18,
 }

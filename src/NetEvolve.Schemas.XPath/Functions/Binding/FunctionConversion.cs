@@ -12,12 +12,14 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// <summary>
 /// The function conversion rules (XPath 2.0, 3.1.5, with the type promotion of B.1): the argument is atomized, each
 /// <c>xs:untypedAtomic</c> item is cast to the expected atomic type through the casting table (<see cref="UntypedAtomicCast"/>), each numeric item is promoted, each <c>xs:anyURI</c> item is
-/// promoted to <c>xs:string</c>, and the result must match the expected type, or XPTY0004 is raised.
+/// promoted to <c>xs:string</c>, and the result must match the expected type, or XPTY0004 is raised. A kind test or <c>empty-sequence()</c>
+/// is matched by the shared sequence type matcher (<see cref="SequenceTypeMatcher"/>) without atomization.
 /// </summary>
 /// <remarks>
 /// Limitations: nodes atomize with the untyped default, so annotated nodes await schema-aware processing (DEF-40, #52); the
 /// derivation check is the one of the built-in type table (<see cref="XdmTypes.IsDerivedFrom"/>), so an item of a derived type keeps its
-/// type for every base type; XPath 1.0 compatibility mode is not
+/// type for every base type, and an atomic type outside the item types of <see cref="XPathItemType"/> is not promoted to; XPath 1.0
+/// compatibility mode is not
 /// applied here: <see cref="Compatibility.CompatibilityFunctionConversion"/> runs in front of these rules. A singleton argument allocates nothing in the binding layer unless an <c>xs:untypedAtomic</c> value is cast to a decimal, date and time, or
 /// duration value, which is boxed (#661).
 /// </remarks>
@@ -34,6 +36,12 @@ internal static class FunctionConversion
         if (type is { ItemType: XPathItemType.Item, Occurrence: Occurrence.ZeroOrMore })
         {
             return argument;
+        }
+
+        // A kind test or empty-sequence(): the matcher decides, nothing is atomized.
+        if (type.Matcher is { } matcher)
+        {
+            return matcher.Matches(argument) ? argument : throw XPathErrors.Exception(XPathErrorCodes.XPTY0004);
         }
 
         var count = argument.Count;
@@ -144,7 +152,7 @@ internal static class FunctionConversion
             _ = item.TryGetUntypedAtomic(out var lexical);
             return itemType == XPathItemType.Numeric
                 ? UntypedAtomicCast.Cast(lexical!, XPathItemType.Double)
-                : UntypedAtomicCast.Cast(lexical!, target.AtomicType);
+                : UntypedAtomicCast.Cast(lexical!, target.AtomicTypeId);
         }
 
         if (Matches(target, item))
@@ -152,7 +160,7 @@ internal static class FunctionConversion
             return item;
         }
 
-        return TryPromote(item, target.AtomicType, out var promoted)
+        return TryPromote(item, target.AtomicTypeId, out var promoted)
             ? promoted
             : throw XPathErrors.Exception(XPathErrorCodes.XPTY0004);
     }
@@ -164,7 +172,7 @@ internal static class FunctionConversion
             ? XdmTypes.IsDerivedFrom(item.TypeId, XdmTypeId.XsDecimal)
                 || XdmTypes.IsDerivedFrom(item.TypeId, XdmTypeId.XsFloat)
                 || XdmTypes.IsDerivedFrom(item.TypeId, XdmTypeId.XsDouble)
-            : XdmTypes.IsDerivedFrom(item.TypeId, target.AtomicType);
+            : XdmTypes.IsDerivedFrom(item.TypeId, target.AtomicTypeId);
 
     // Numeric promotion (B.1): float to double, decimal to float or double, with the integers as decimals; URI promotion: anyURI to string.
     private static bool TryPromote(in XdmItem item, XdmTypeId target, out XdmItem promoted)
