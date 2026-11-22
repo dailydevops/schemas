@@ -11,9 +11,10 @@ using NetEvolve.Schemas.Schematron.Tests.Integration.Conformance.Runner;
 /// test set fails on a regression, on an unexpected pass, and on a baseline entry without a linked bug issue.
 /// </summary>
 /// <remarks>
-/// The class is deliberately not restricted to the designated leg: the cases are small, and the rate of the Schematron suite must show
-/// for every library target framework in the job summary of the conformance workflow.
+/// Like the other conformance suites, the class runs on the designated leg only (<see cref="ConformanceLegAttribute"/>), so the rate of the
+/// Schematron suite shows once in the job summary of the conformance workflow.
 /// </remarks>
+[ConformanceLeg]
 public class SchematronEngineConformanceTests
 {
     private static readonly string LinksPath = Path.Combine(
