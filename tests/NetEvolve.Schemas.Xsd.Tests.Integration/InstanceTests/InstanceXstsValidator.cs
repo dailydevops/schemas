@@ -85,6 +85,7 @@ internal sealed class InstanceXstsValidator : IXstsValidator
                 .ForXsd()
                 .WithVersion(XsdVersion.V10)
                 .WithDtdProcessing(true)
+                .WithSchemaLocationHints(true)
                 .WithResolver(new SandboxedFileSystemResourceResolver(_suiteRoot));
             foreach (var relative in documents)
             {

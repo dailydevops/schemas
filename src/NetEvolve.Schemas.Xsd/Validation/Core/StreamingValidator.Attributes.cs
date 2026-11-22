@@ -41,6 +41,11 @@ internal sealed partial class StreamingValidator
         }
 
         var frame = _frames[_depth - 1];
+        if (_hints is not null)
+        {
+            ApplyHints(frame, _hints);
+        }
+
         BeginContent(frame);
         if (_onStart.Length > 0)
         {

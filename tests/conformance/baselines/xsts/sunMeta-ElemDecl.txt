@@ -14,7 +14,6 @@
 1.0/substgrpexcl00202m1/Positive
 1.0/substgrpexcl00202m2/substGrpExcl00202m2
 1.0/substgrpexcl00303m2/substGrpExcl00303m2
-1.0/targetns00101m/targetNS00101m1_p
 1.0/typedef00201m/typeDef00201m1_n
 1.0/typedef00204m/typeDef00204m1_n
 1.0/typedef00205m/typeDef00205m1_p

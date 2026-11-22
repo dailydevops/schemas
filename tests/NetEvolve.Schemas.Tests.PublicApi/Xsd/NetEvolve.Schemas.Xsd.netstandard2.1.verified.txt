@@ -25,6 +25,7 @@
         protected override NetEvolve.Schemas.IXsdValidator CreateValidator(NetEvolve.Schemas.ValidationLimits limits, NetEvolve.Schemas.Resources.IResourceResolver resolver) { }
         protected override System.Threading.Tasks.ValueTask<NetEvolve.Schemas.IXsdValidator> CreateValidatorAsync(NetEvolve.Schemas.ValidationLimits limits, NetEvolve.Schemas.Resources.IResourceResolver resolver, System.Threading.CancellationToken cancellationToken) { }
         public NetEvolve.Schemas.XsdValidatorBuilder WithDtdProcessing(bool enabled) { }
+        public NetEvolve.Schemas.XsdValidatorBuilder WithSchemaLocationHints(bool enabled) { }
         public NetEvolve.Schemas.XsdValidatorBuilder WithVersion(NetEvolve.Schemas.Xml.Datatypes.Contracts.XsdVersion version) { }
     }
 }

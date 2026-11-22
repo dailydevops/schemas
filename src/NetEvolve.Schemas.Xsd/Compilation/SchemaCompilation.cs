@@ -3,6 +3,7 @@ namespace NetEvolve.Schemas.Xsd.Compilation;
 using System.Collections.Generic;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xsd.Components;
+using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Elements;
 using NetEvolve.Schemas.Xsd.IdentityConstraints.Definitions;
 using NetEvolve.Schemas.Xsd.Validation.Assembly;
@@ -20,7 +21,8 @@ internal sealed class SchemaCompilation
         ValidationResult result,
         IReadOnlyDictionary<ElementDeclaration, IReadOnlyList<IdentityConstraintDefinition>>? identityConstraints =
             null,
-        ListenerKinds listeners = ListenerKinds.None
+        ListenerKinds listeners = ListenerKinds.None,
+        IReadOnlyList<IXsdComponent>? components = null
     )
     {
         ArgumentNullException.ThrowIfNull(result);
@@ -30,6 +32,7 @@ internal sealed class SchemaCompilation
         Result = result;
         IdentityConstraints = identityConstraints ?? NoConstraints;
         _listeners = listeners;
+        Components = components ?? [];
     }
 
     private static IReadOnlyDictionary<
@@ -42,6 +45,9 @@ internal sealed class SchemaCompilation
 
     /// <summary>Gets the content models compiled for the complex types of the set, <see langword="null"/> when the schema has an error.</summary>
     public ValidationModel? Model { get; }
+
+    /// <summary>Gets the registered components of the set, the built-in types included; empty when the schema has an error.</summary>
+    public IReadOnlyList<IXsdComponent> Components { get; }
 
     /// <summary>Gets every issue that the phases collected, in the order they were found.</summary>
     public ValidationResult Result { get; }

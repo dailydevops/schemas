@@ -8,62 +8,61 @@ ibmMeta-anyAttribute	1.0/s3_10_6ii04/s3_10_6v04i	-	The test group has no version
 ibmMeta-wildcard	1.0/s3_10_1ii08/s3_10_1ii08i	-	The test group has no version attribute but its schema uses an XSD 1.1 construct, which strict 1.0 mode rejects (design 146, DP-16).
 ibmMeta-wildcard	1.0/s3_10_1ii09/s3_10_1ii09i	-	The test group has no version attribute but its schema uses an XSD 1.1 construct, which strict 1.0 mode rejects (design 146, DP-16).
 msMeta-Additional_w3c	1.0/addA005/addA005.v	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
-msMeta-Additional_w3c	1.0/addA006/addA006.v	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
-msMeta-Additional_w3c	1.0/addA008/addA008.v	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
+msMeta-Additional_w3c	1.0/addA006/addA006.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
+msMeta-Additional_w3c	1.0/addA008/addA008.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-Additional_w3c	1.0/addB002/addB002.i	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
 msMeta-Additional_w3c	1.0/addB011/addB011.i	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
 msMeta-Additional_w3c	1.0/addB057/addB057.i	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
-msMeta-Additional_w3c	1.0/addB063/addB063.i	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
+msMeta-Additional_w3c	1.0/addB063/addB063.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-Additional_w3c	1.0/addB069/addB069.i	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
 msMeta-Additional_w3c	1.0/addB104/addB104.v	#896	Fixed values are compared lexically, not in the value space, so a fixed value that differs from the instance value only in white space or lexical form rejects a valid instance.
 msMeta-Additional_w3c	1.0/addB114/addB114.i	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
 msMeta-Additional_w3c	1.0/addB116/addB116.v	#903	A strict wildcard rejects an element that has no declaration but a valid xsi:type, which the specification assesses against that type.
-msMeta-Additional_w3c	1.0/addB120/addB120.i	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
-msMeta-Additional_w3c	1.0/addB124/addB124.i	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
+msMeta-Additional_w3c	1.0/addB120/addB120.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
+msMeta-Additional_w3c	1.0/addB124/addB124.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-Additional_w3c	1.0/addB132/addB132.v	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
-msMeta-Additional_w3c	1.0/addB134/addB134.v	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
-msMeta-Additional_w3c	1.0/addB138/addB138.i	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
-msMeta-Additional_w3c	1.0/addB139/addB139.i	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
-msMeta-Additional_w3c	1.0/addB142/addB142.i	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
-msMeta-Additional_w3c	1.0/addB155/addB155.v	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
-msMeta-Additional_w3c	1.0/addB156/addB156.i	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
-msMeta-Additional_w3c	1.0/addB157/addB157.v	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
-msMeta-Additional_w3c	1.0/addB158/addB158.i	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
-msMeta-Additional_w3c	1.0/addB160/addB160.v	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
-msMeta-Additional_w3c	1.0/addB163/addB163.v	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
-msMeta-Additional_w3c	1.0/addB165/addB165.v	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
-msMeta-Additional_w3c	1.0/addB167/addB167.i	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
-msMeta-Additional_w3c	1.0/addB168/addB168.v	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
-msMeta-Additional_w3c	1.0/addB169/addB169.v	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
-msMeta-Additional_w3c	1.0/addB181/addB181.i	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
-msMeta-Additional_w3c	1.0/addB191/addB191.v	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
+msMeta-Additional_w3c	1.0/addB134/addB134.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
+msMeta-Additional_w3c	1.0/addB138/addB138.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
+msMeta-Additional_w3c	1.0/addB139/addB139.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
+msMeta-Additional_w3c	1.0/addB142/addB142.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
+msMeta-Additional_w3c	1.0/addB155/addB155.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
+msMeta-Additional_w3c	1.0/addB156/addB156.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
+msMeta-Additional_w3c	1.0/addB157/addB157.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
+msMeta-Additional_w3c	1.0/addB158/addB158.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
+msMeta-Additional_w3c	1.0/addB160/addB160.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
+msMeta-Additional_w3c	1.0/addB163/addB163.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
+msMeta-Additional_w3c	1.0/addB165/addB165.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
+msMeta-Additional_w3c	1.0/addB167/addB167.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
+msMeta-Additional_w3c	1.0/addB168/addB168.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
+msMeta-Additional_w3c	1.0/addB169/addB169.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
+msMeta-Additional_w3c	1.0/addB181/addB181.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
+msMeta-Additional_w3c	1.0/addB191/addB191.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-Additional_w3c	1.0/addB197b/addB197b.i	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
 msMeta-Additional_w3c	1.0/addB197d/addB197d.i	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
 msMeta-Additional_w3c	1.0/addB197e/addB197e.i	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
 msMeta-Additional_w3c	1.0/addB197f/addB197f.i	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
 msMeta-Additional_w3c	1.0/addB198a/addB198a.i	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
 msMeta-Additional_w3c	1.0/addB198b/addB198b.i	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
-msMeta-Additional_w3c	1.0/addB199/addB199.i	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
-msMeta-Additional_w3c	1.0/addB202a/addB202a.i	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
-msMeta-Additional_w3c	1.0/addB202b/addB202b.i	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
+msMeta-Additional_w3c	1.0/addB199/addB199.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
+msMeta-Additional_w3c	1.0/addB202a/addB202a.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
+msMeta-Additional_w3c	1.0/addB202b/addB202b.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-Additional_w3c	1.0/addC001/addC001.v	-	The schema is incomplete (a missing component or document); the suite accepts it, the validator reports src-resolve.
-msMeta-Additional_w3c	1.0/adda007/adda007.v	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
+msMeta-Additional_w3c	1.0/adda007/adda007.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-Additional_w3c	1.0/isDefault070/isDefault070.i	#602	The fixed value of an element with mixed content is not enforced; the element value constraint covers simple content only.
 msMeta-Additional_w3c	1.0/isDefault077/isDefault077.i	#602	The fixed value of an element with mixed content is not enforced; the element value constraint covers simple content only.
 msMeta-Additional_w3c	1.0/isDefault078/isDefault078.v	-	The schema is incomplete (a missing component or document); the suite accepts it, the validator reports src-resolve.
 msMeta-AttributeGroup_w3c	1.0/attgD003/attgD003.v	-	The instance has more attributes on one element than the default MaxAttributesPerElement allows.
-msMeta-AttributeGroup_w3c	1.0/attgD034/attgD034.v	#359	The instance names the schema documents of other namespaces with xsi:schemaLocation, which the validator does not load (hints are XSD-77).
-msMeta-Attribute_w3c	1.0/attMd001/attMd001.i	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
-msMeta-Attribute_w3c	1.0/attMd002/attMd002.i	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
-msMeta-Attribute_w3c	1.0/attMd003/attMd003.i	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
-msMeta-Attribute_w3c	1.0/attMd004/attMd004.i	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
-msMeta-Attribute_w3c	1.0/attMd005/attMd005.i	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
-msMeta-Attribute_w3c	1.0/attMd006/attMd006.i	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
-msMeta-Attribute_w3c	1.0/attMd007/attMd007.i	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
-msMeta-Attribute_w3c	1.0/attMd008/attMd008.i	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
-msMeta-Attribute_w3c	1.0/attMd009/attMd009.i	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
-msMeta-Attribute_w3c	1.0/attMd010/attMd010.i	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
-msMeta-Attribute_w3c	1.0/attMd011/attMd011.i	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
+msMeta-Attribute_w3c	1.0/attMd001/attMd001.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
+msMeta-Attribute_w3c	1.0/attMd002/attMd002.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
+msMeta-Attribute_w3c	1.0/attMd003/attMd003.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
+msMeta-Attribute_w3c	1.0/attMd004/attMd004.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
+msMeta-Attribute_w3c	1.0/attMd005/attMd005.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
+msMeta-Attribute_w3c	1.0/attMd006/attMd006.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
+msMeta-Attribute_w3c	1.0/attMd007/attMd007.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
+msMeta-Attribute_w3c	1.0/attMd008/attMd008.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
+msMeta-Attribute_w3c	1.0/attMd009/attMd009.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
+msMeta-Attribute_w3c	1.0/attMd010/attMd010.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
+msMeta-Attribute_w3c	1.0/attMd011/attMd011.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-Attribute_w3c	1.0/attO006/attO006.v	#896	Fixed values are compared lexically, not in the value space, so a fixed value that differs from the instance value only in white space or lexical form rejects a valid instance.
 msMeta-Attribute_w3c	1.0/attO009/attO009.v	#896	Fixed values are compared lexically, not in the value space, so a fixed value that differs from the instance value only in white space or lexical form rejects a valid instance.
 msMeta-Attribute_w3c	1.0/attO011/attO011.v	#896	Fixed values are compared lexically, not in the value space, so a fixed value that differs from the instance value only in white space or lexical form rejects a valid instance.
@@ -71,10 +70,9 @@ msMeta-Attribute_w3c	1.0/attP031/attP031.i	#905	A prohibited attribute use is ap
 msMeta-Attribute_w3c	1.0/attZ014a/attZ014a.i	#904	An element with two ID-typed attributes that a wildcard matches is accepted; an element has at most one ID attribute.
 msMeta-Attribute_w3c	1.0/attZ014b/attZ014b.i	#904	An element with two ID-typed attributes that a wildcard matches is accepted; an element has at most one ID attribute.
 msMeta-Attribute_w3c	1.0/attZ015/attZ015.v	#905	A prohibited attribute use is applied with the XSD 1.1 meaning, but the suite expects the XSD 1.0 result.
-msMeta-ComplexType_w3c	1.0/ctL021/ctL021.v	#359	The instance names the schema documents of other namespaces with xsi:schemaLocation, which the validator does not load (hints are XSD-77).
 msMeta-ComplexType_w3c	1.0/ctZ001/ctZ001.v	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
 msMeta-ComplexType_w3c	1.0/ctZ007/ctZ007.v	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
-msMeta-ComplexType_w3c	1.0/ctZ011_a/ctZ011_a.v	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
+msMeta-ComplexType_w3c	1.0/ctZ011_a/ctZ011_a.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-ComplexType_w3c	1.0/ctZ013c/ctZ013c.i	#602	The fixed value of an element with mixed content is not enforced; the element value constraint covers simple content only.
 msMeta-ComplexType_w3c	1.0/ctZ013d/ctZ013d.i	#602	The fixed value of an element with mixed content is not enforced; the element value constraint covers simple content only.
 msMeta-ComplexType_w3c	1.0/ctZ013e/ctZ013e.i	#602	The fixed value of an element with mixed content is not enforced; the element value constraint covers simple content only.
@@ -329,12 +327,12 @@ msMeta-Element_w3c	1.0/elemT066/elemT066.v	#868	Substitution groups are not appl
 msMeta-Element_w3c	1.0/elemT067/elemT067.v	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
 msMeta-Element_w3c	1.0/elemU025/elemU025.i	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
 msMeta-Element_w3c	1.0/elemZ003/elemZ003.v	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
-msMeta-Element_w3c	1.0/elemZ017/elemZ017.v	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
+msMeta-Element_w3c	1.0/elemZ017/elemZ017.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-Element_w3c	1.0/elemZ020/elemZ020.v	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
 msMeta-Element_w3c	1.0/elemZ021d/elemZ021d.v	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
 msMeta-Element_w3c	1.0/elemZ021g/elemZ021g.i	#859	The schema does not build: the import check of the namespace attribute is inverted.
 msMeta-Element_w3c	1.0/elemZ022b/elemZ022b.v	#859	The schema does not build: the import check of the namespace attribute is inverted.
-msMeta-Element_w3c	1.0/elemZ033b/elemZ033b.v	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
+msMeta-Element_w3c	1.0/elemZ033b/elemZ033b.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-Errata10_w3c	1.0/errF001/errF001.i	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
 msMeta-IdentityConstraint_w3c	1.0/idF026/idF026.v	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
 msMeta-IdentityConstraint_w3c	1.0/idF031/idF031.v	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
@@ -343,7 +341,6 @@ msMeta-IdentityConstraint_w3c	1.0/idH029/idH029.v	#868	Substitution groups are n
 msMeta-IdentityConstraint_w3c	1.0/idL100/idL100.v	#906	A key field of @* on an element with xsi:nil is accepted; the field selects more than one attribute, so the key is not satisfied.
 msMeta-IdentityConstraint_w3c	1.0/idZ015/idZ015.i	#907	A key field that selects an attribute matched by a skipped wildcard (no type definition) is accepted.
 msMeta-ModelGroups_w3c	1.0/mgH014/mgH014.v	#863	The schema does not build: the particle restriction check rejects a restriction that the suite accepts.
-msMeta-Particles_w3c	1.0/particlesB013/particlesB013.v	#359	The instance names the schema documents of other namespaces with xsi:schemaLocation, which the validator does not load (hints are XSD-77).
 msMeta-Particles_w3c	1.0/particlesDc001/particlesDc001.v	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
 msMeta-Particles_w3c	1.0/particlesDc002/particlesDc002.v	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
 msMeta-Particles_w3c	1.0/particlesDc003/particlesDc003.v	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
@@ -359,7 +356,7 @@ msMeta-Particles_w3c	1.0/particlesR022/particlesR022.v	#859	The schema does not 
 msMeta-Particles_w3c	1.0/particlesZ001/particlesZ001.i	#863	The schema does not build: the particle restriction check rejects a restriction that the suite accepts.
 msMeta-Particles_w3c	1.0/particlesZ008/particlesZ008.v	#863	The schema does not build: the particle restriction check rejects a restriction that the suite accepts.
 msMeta-Particles_w3c	1.0/particlesZ012/particlesZ012.v	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
-msMeta-Particles_w3c	1.0/particlesZ025/particlesZ025.v	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
+msMeta-Particles_w3c	1.0/particlesZ025/particlesZ025.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-Particles_w3c	1.0/particlesZ034_a1/particlesZ034_a1.v	#894	The validator model cannot be built: the content model transition ceiling is exceeded.
 msMeta-Particles_w3c	1.0/particlesZ036_b1/particlesZ036_b1.i	#894	The validator model cannot be built: the content model transition ceiling is exceeded.
 msMeta-Particles_w3c	1.0/particlesZ036_b2/particlesZ036_b2.i	#894	The validator model cannot be built: the content model transition ceiling is exceeded.
@@ -1159,9 +1156,8 @@ msMeta-Regex_w3c	1.0/reZ001/reZ001.v	#858	The schema does not build: the regular
 msMeta-Regex_w3c	1.0/reZ002/reZ002.i	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
 msMeta-Regex_w3c	1.0/reZ004i/reZ004i.i	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
 msMeta-Regex_w3c	1.0/reZ005i/reZ005i.i	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
-msMeta-Schema_w3c	1.0/schA1/schA1.v	#359	The instance names the schema documents of other namespaces with xsi:schemaLocation, which the validator does not load (hints are XSD-77).
-msMeta-Schema_w3c	1.0/schA4/schA4.v	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
-msMeta-Schema_w3c	1.0/schA8/schA8.i	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
+msMeta-Schema_w3c	1.0/schA4/schA4.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
+msMeta-Schema_w3c	1.0/schA8/schA8.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-Schema_w3c	1.0/schD7/schD7.v	-	The schema is incomplete (a missing component or document); the suite accepts it, the validator reports src-resolve.
 msMeta-Schema_w3c	1.0/schF1/schF1.v	#859	The schema does not build: the import check of the namespace attribute is inverted.
 msMeta-Schema_w3c	1.0/schG2/schG2.v	#859	The schema does not build: the import check of the namespace attribute is inverted.
@@ -1194,14 +1190,14 @@ msMeta-SimpleType_w3c	1.0/stZ045/stZ045.v	#868	Substitution groups are not appli
 msMeta-SimpleType_w3c	1.0/stZ046/stZ046.v	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
 msMeta-SimpleType_w3c	1.0/stZ047/stZ047.v	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
 msMeta-SimpleType_w3c	1.0/stZ050/stZ050.v	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
-msMeta-SimpleType_w3c	1.0/stZ058/stZ058.v	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
-msMeta-SimpleType_w3c	1.0/stZ059/stZ059.i	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
-msMeta-SimpleType_w3c	1.0/stZ060/stZ060.i	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
-msMeta-SimpleType_w3c	1.0/stZ061/stZ061.i	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
-msMeta-SimpleType_w3c	1.0/stZ062/stZ062.v	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
-msMeta-SimpleType_w3c	1.0/stZ063/stZ063.v	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
-msMeta-SimpleType_w3c	1.0/stZ064/stZ064.i	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
-msMeta-SimpleType_w3c	1.0/stZ066/stZ066.i	#359	The group has no schema document; the instance names its schema with xsi:schemaLocation (hints are XSD-77).
+msMeta-SimpleType_w3c	1.0/stZ058/stZ058.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
+msMeta-SimpleType_w3c	1.0/stZ059/stZ059.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
+msMeta-SimpleType_w3c	1.0/stZ060/stZ060.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
+msMeta-SimpleType_w3c	1.0/stZ061/stZ061.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
+msMeta-SimpleType_w3c	1.0/stZ062/stZ062.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
+msMeta-SimpleType_w3c	1.0/stZ063/stZ063.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
+msMeta-SimpleType_w3c	1.0/stZ064/stZ064.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
+msMeta-SimpleType_w3c	1.0/stZ066/stZ066.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-SimpleType_w3c	1.0/stZ075/stZ075.v	#870	Notation declarations are not components yet, so a NOTATION value cannot be checked.
 msMeta-SimpleType_w3c	1.0/ste110/ste110.i	#874	The schema does not build because of a schema constraint that is not analyzed yet.
 msMeta-Wildcards_w3c	1.0/wildG006/wildG006.v	#859	The schema does not build: the import check of the namespace attribute is inverted.
@@ -9810,7 +9806,6 @@ sunMeta-ElemDecl	1.0/idconstrdefs00403m/idConstrDefs00403m1_n	#908	The IDREFS it
 sunMeta-ElemDecl	1.0/substgrpaffil00101m/substGrpAffil00101m1_p	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
 sunMeta-ElemDecl	1.0/substgrpaffil00201m/substGrpAffil00201m1_p	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
 sunMeta-ElemDecl	1.0/substgrpexcl00202m1/Positive	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
-sunMeta-ElemDecl	1.0/targetns00101m/targetNS00101m1_p	#359	The instance names the schema documents of other namespaces with xsi:schemaLocation, which the validator does not load (hints are XSD-77).
 sunMeta-ElemDecl	1.0/typedef00201m/typeDef00201m1_n	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
 sunMeta-ElemDecl	1.0/typedef00204m/typeDef00204m1_n	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
 sunMeta-ElemDecl	1.0/typedef00205m/typeDef00205m1_p	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
@@ -9882,7 +9877,7 @@ sunMeta-SType	1.0/st_final00102m6/Negative	#600	The own facets of a restriction 
 sunMeta-SType	1.0/st_final00103m2/Negative	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
 sunMeta-SType	1.0/st_final00103m3/Negative	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
 sunMeta-SType	1.0/st_targetns00101m/ST_targetNS00101m1_n	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
-sunMeta-SType	1.0/st_targetns00101m/ST_targetNS00101m2_p	#359	The instance names the schema documents of other namespaces with xsi:schemaLocation, which the validator does not load (hints are XSD-77).
+sunMeta-SType	1.0/st_targetns00101m/ST_targetNS00101m2_n	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
 sunMeta-SType	1.0/st_variety00101m1/Negative	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
 sunMeta-SType	1.0/st_variety00101m2/Negative	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
 sunMeta-suntest	1.0/identitytestsuitetest002/test.2.v	#604	QName values are resolved without the namespace context, so an unbound prefix is accepted and two prefixes of one namespace give different key values.

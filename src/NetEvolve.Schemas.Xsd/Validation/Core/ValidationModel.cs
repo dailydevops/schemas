@@ -74,6 +74,37 @@ internal sealed class ValidationModel
         return new ValidationModel(schema, builder.Ids, builder.Names.ToArray(), builder.Programs);
     }
 
+    /// <summary>
+    /// Builds the model of an overlay: this model plus the components of a schema that was compiled on its own. The ids and the programs
+    /// of this model are kept, the new names and programs follow them, so a run that continues on the result still matches the content
+    /// models that it already started; this model is not changed (design #146 DP-22).
+    /// </summary>
+    /// <param name="overlay">The schema set of the overlay, chained to the set of this model.</param>
+    /// <param name="components">The registered components of the overlay.</param>
+    /// <param name="reporter">The reporter for content models that exceed an internal ceiling.</param>
+    /// <returns>The model.</returns>
+    internal ValidationModel Extend(
+        XsdSchemaSet overlay,
+        IReadOnlyList<IXsdComponent> components,
+        XsdIssueReporter reporter
+    )
+    {
+        Argument.ThrowIfNull(overlay);
+        Argument.ThrowIfNull(components);
+        Argument.ThrowIfNull(reporter);
+
+        var builder = new Builder(reporter, _ids, _names, _programs);
+        for (var i = 0; i < components.Count; i++)
+        {
+            Argument.ThrowIfNull(components[i]);
+
+            builder.Push(components[i]);
+        }
+
+        builder.Run();
+        return new ValidationModel(overlay, builder.Ids, builder.Names.ToArray(), builder.Programs);
+    }
+
     /// <summary>Gets the program of a complex type.</summary>
     /// <param name="type">The type.</param>
     /// <returns>The program, or <see langword="null"/> when the type has no element-only or mixed content.</returns>
@@ -113,13 +144,35 @@ internal sealed class ValidationModel
             ArgumentNullException.ThrowIfNull(reporter);
 
             _reporter = reporter;
+            Ids = [];
+            Names = [];
+            Programs = [];
         }
 
-        internal Dictionary<XPathQName, int> Ids { get; } = [];
+        // Starts from the ids and programs of a model, which keeps them: the new ones are numbered after them.
+        internal Builder(
+            XsdIssueReporter reporter,
+            Dictionary<XPathQName, int> ids,
+            XPathQName[] names,
+            Dictionary<ComplexTypeDefinition, ContentProgram> programs
+        )
+        {
+            Argument.ThrowIfNull(reporter);
+            Argument.ThrowIfNull(ids);
+            Argument.ThrowIfNull(names);
+            Argument.ThrowIfNull(programs);
 
-        internal List<XPathQName> Names { get; } = [];
+            _reporter = reporter;
+            Ids = new Dictionary<XPathQName, int>(ids);
+            Names = new List<XPathQName>(names);
+            Programs = new Dictionary<ComplexTypeDefinition, ContentProgram>(programs);
+        }
 
-        internal Dictionary<ComplexTypeDefinition, ContentProgram> Programs { get; } = [];
+        internal Dictionary<XPathQName, int> Ids { get; }
+
+        internal List<XPathQName> Names { get; }
+
+        internal Dictionary<ComplexTypeDefinition, ContentProgram> Programs { get; }
 
         internal void Push(IXsdComponent? component)
         {
@@ -153,6 +206,11 @@ internal sealed class ValidationModel
         private void Compile(ComplexTypeDefinition type)
         {
             var content = type.ContentParticle;
+            if (Programs.ContainsKey(type))
+            {
+                return;
+            }
+
             if (content is null || type.ContentKind is not (ComplexContentKind.ElementOnly or ComplexContentKind.Mixed))
             {
                 return;

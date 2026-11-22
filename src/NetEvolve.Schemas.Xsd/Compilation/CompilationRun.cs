@@ -433,7 +433,7 @@ internal sealed class CompilationRun
 
         var result = _collector.ToResult();
         return result.IsValid
-            ? new SchemaCompilation(set, model, result, ConstraintsOfElements(), _listeners)
+            ? new SchemaCompilation(set, model, result, ConstraintsOfElements(), _listeners, _registry.Components)
             : new SchemaCompilation(null, null, result);
     }
 
