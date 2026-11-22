@@ -202,12 +202,13 @@ internal sealed partial class XmlParser
         return true;
     }
 
-    // Section 3.3.3 for the replacement text of an entity in an attribute value: references expand recursively, a literal
+    // Section 3.3.3 for the replacement text of an entity in an attribute value, and for the literal of a default value
+    // (isLiteral, XML-16): references expand recursively, a literal
     // '<' is rejected (WFC No < in Attribute Values), TAB, CR, and LF become one space each (CR LF written as
     // two character references is two spaces, #645), character references stay unnormalized, and quotes are ordinary
     // characters. The frames live on the same stack as the content frames and are all closed again
     // when the walk returns.
-    private bool ExpandInAttributeValue(string replacement, XmlPosition position)
+    private bool ExpandInAttributeValue(string replacement, XmlPosition position, bool isLiteral = false)
     {
         var floor = _frameCount;
         PushFrame(replacement);
@@ -219,7 +220,13 @@ internal sealed partial class XmlParser
             {
                 frame.Text = null;
                 _frameCount--;
-                _entityStack!.Leave();
+
+                // The literal of a default is no entity: its frame was never entered, so it is not left.
+                if (!isLiteral || _frameCount > floor)
+                {
+                    _entityStack!.Leave();
+                }
+
                 continue;
             }
 

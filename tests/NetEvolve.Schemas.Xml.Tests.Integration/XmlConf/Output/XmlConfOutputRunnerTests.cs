@@ -40,20 +40,32 @@ public class XmlConfOutputRunnerTests
     }
 
     [Test]
-    public async Task Run_DocumentTypeDeclaration_IsNotComparedAndStaysInTheBaselineWithTheReason(
+    public async Task Run_DocumentTypeDeclaration_IsReadWithDtdProcessingAndCompared(
         CancellationToken cancellationToken
     )
     {
         cancellationToken.ThrowIfCancellationRequested();
         var results = await RunAsync(cancellationToken);
-        var result = Of(results, "a/doctype");
+
+        await Assert.That(Of(results, "a/doctype").Outcome).IsEqualTo(CaseOutcome.Pass);
+        await Assert.That(Of(results, "a/defaults").Outcome).IsEqualTo(CaseOutcome.Pass);
+    }
+
+    [Test]
+    public async Task Run_CaseThatNeedsExternalEntities_IsNotComparedAndStaysInTheBaselineWithTheReason(
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var results = await RunAsync(cancellationToken);
+        var result = Of(results, "a/external");
 
         await Assert.That(result.Outcome).IsEqualTo(CaseOutcome.Fail);
-        await Assert.That(result.Reason).IsEqualTo("needs DTD processing");
+        await Assert.That(result.Reason).IsEqualTo("needs external entities");
 
         var baselines = new Dictionary<string, KnownFailureBaseline>(StringComparer.Ordinal)
         {
-            ["a"] = KnownFailureBaseline.Parse("a/differs\na/doctype\n"),
+            ["a"] = KnownFailureBaseline.Parse("a/differs\na/external\n"),
         };
         await Assert.That(ConformanceReport.Compare(results, baselines).IsSuccess).IsTrue();
     }
@@ -64,7 +76,9 @@ public class XmlConfOutputRunnerTests
         cancellationToken.ThrowIfCancellationRequested();
         var results = await RunAsync(cancellationToken);
 
-        await Assert.That(results.Select(r => r.CaseId)).IsEquivalentTo(["a/equal", "a/differs", "a/doctype"]);
+        await Assert
+            .That(results.Select(r => r.CaseId))
+            .IsEquivalentTo(["a/equal", "a/differs", "a/doctype", "a/external", "a/defaults"]);
     }
 
     [Test]
@@ -73,9 +87,10 @@ public class XmlConfOutputRunnerTests
         using var fixture = new TemporaryDirectory();
         var outputs = XmlConfOutputReference.Read(OutputFixtureSuite.Create(fixture.Path));
 
-        await Assert.That(outputs.Count).IsEqualTo(3);
+        await Assert.That(outputs.Count).IsEqualTo(5);
         await Assert.That(outputs["a/equal"]).IsEqualTo("a/out/equal.xml");
         await Assert.That(outputs["a/differs"]).IsEqualTo("a/out/differs.xml");
         await Assert.That(outputs["a/doctype"]).IsEqualTo("a/out/doctype.xml");
+        await Assert.That(outputs["a/defaults"]).IsEqualTo("a/out/defaults.xml");
     }
 }

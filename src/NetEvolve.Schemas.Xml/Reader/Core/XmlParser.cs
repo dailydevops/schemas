@@ -30,7 +30,10 @@ using NetEvolve.Schemas.Xml.Namespaces;
 /// code, and the position of the diagnostic do not depend on the chunking (#598, and #655 for the resource limits: the error is at the
 /// character that crosses the limit, after the characters before it), but <see cref="Position"/> after an error
 /// ends at the last consumed token and follows its boundaries. An exception thrown by a sink propagates and leaves the
-/// parser unusable. Not thread-safe.
+/// parser unusable. A doctype handler that also implements <see cref="IXmlAttributeDeclarations"/> makes the parser apply the
+/// attribute definitions of the document type declaration when a start tag is complete (XML-16): it normalizes the values by
+/// their declared types, adds the defaulted attributes before the namespace layer runs, and offers the declaration facts of
+/// every attribute to a sink of a reference type that implements <see cref="IXmlAttributeInfoSink"/>. Not thread-safe.
 /// </remarks>
 internal sealed partial class XmlParser : IXmlReader, IDisposable
 {
@@ -45,6 +48,7 @@ internal sealed partial class XmlParser : IXmlReader, IDisposable
 
     private readonly XmlReaderLimits _limits;
     private readonly IXmlDoctypeHandler? _doctypeHandler;
+    private readonly IXmlAttributeDeclarations? _attributeDeclarations;
     private readonly IXmlEntityInputStack? _entityStack;
     private readonly char[] _inline = new char[2];
     private XmlTokenizer _tokenizer;
@@ -74,6 +78,7 @@ internal sealed partial class XmlParser : IXmlReader, IDisposable
     {
         _limits = limits;
         _doctypeHandler = doctypeHandler;
+        _attributeDeclarations = doctypeHandler as IXmlAttributeDeclarations;
         _entityStack = entityStack;
         _tokenizer = new XmlTokenizer(limits, doctypeHandler is not null, entityStack is not null);
         _replacementTokenizer = XmlTokenizer.ForReplacementText(limits);

@@ -3,6 +3,7 @@ namespace NetEvolve.Schemas.Xml.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using NetEvolve.Schemas.Xml.Dtd.Model;
 
 /// <summary>
 /// An immutable tree of nodes addressed by index; <see cref="XmlNode"/> is the allocation-free handle over it. The immutable
@@ -82,6 +83,16 @@ public abstract class XmlTree
     /// <param name="index">The node index.</param>
     /// <returns>The namespace node index, <see cref="NoNode"/> for none.</returns>
     protected internal abstract int GetNextNamespace(int index);
+
+    /// <summary>Gets the declared type of an attribute node: the type of its attribute definition in the document type declaration.</summary>
+    /// <param name="index">The node index.</param>
+    /// <returns>The type, or <see langword="null"/> for a node that is not an attribute, an attribute that no definition covers, and a tree without declarations.</returns>
+    protected internal virtual DtdAttributeType? GetAttributeType(int index) => null;
+
+    /// <summary>Gets whether the document specified a node; <see langword="false"/> only for an attribute that was added from the default of its definition.</summary>
+    /// <param name="index">The node index.</param>
+    /// <returns><see langword="true"/> when the document specified the node.</returns>
+    protected internal virtual bool GetIsSpecified(int index) => true;
 
     /// <summary>Gets the string value of a node as defined by the data model.</summary>
     /// <param name="index">The node index.</param>

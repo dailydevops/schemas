@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using NetEvolve.Schemas.Xml.Contracts;
+using NetEvolve.Schemas.Xml.Dtd.Model;
 
 /// <summary>
 /// A list-backed tree for tests: rows are added through the <c>Add*</c> methods, document order is computed on demand,
@@ -125,6 +126,18 @@ internal sealed class FakeXmlTree : XmlTree
         var builder = new StringBuilder();
         AppendText(builder, index);
         return builder.ToString();
+    }
+
+    protected internal override DtdAttributeType? GetAttributeType(int index)
+    {
+        _ = Record(nameof(GetAttributeType), index);
+        return null;
+    }
+
+    protected internal override bool GetIsSpecified(int index)
+    {
+        _ = Record(nameof(GetIsSpecified), index);
+        return true;
     }
 
     protected internal override Uri? GetBaseUri(int index)

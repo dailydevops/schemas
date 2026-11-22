@@ -1,6 +1,3 @@
-sun/dtd00
-sun/dtd01
-sun/element
 sun/ext01
 sun/ext02
 sun/not-sa01
@@ -9,19 +6,8 @@ sun/not-sa03
 sun/not-sa04
 sun/notation01
 sun/optional
-sun/required00
-sun/sa01
-sun/sa02
 sun/sa03
 sun/sa04
 sun/sa05
-sun/v-lang01
-sun/v-lang02
-sun/v-lang03
-sun/v-lang04
-sun/v-lang05
-sun/v-lang06
 sun/v-pe00
 sun/v-pe02
-sun/v-pe03
-sun/v-sgml01
