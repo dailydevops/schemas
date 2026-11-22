@@ -10,11 +10,7 @@ fn-collection/collection-006
 fn-collection/collection-007
 fn-collection/collection-008
 fn-collection/collection-010
-fn-collection/collection-900
-fn-collection/collection-901
 fn-collection/collection-902
-fn-collection/collection-903
-fn-collection/fn-collection-2
 fn-collection/fn-collection-3
 fn-collection/fn-collection-4
 fn-collection/fn-collection-4d
