@@ -37,7 +37,7 @@ using NetEvolve.Schemas.Xsd.Validation.Core;
 /// <c>cvc-assertion</c> (design #146 DP-14: an error makes the element invalid like a false result does; the message names the XPath code), at the start tag of the
 /// element, one issue per assertion, so a failing assertion never hides the next. The variable <c>$value</c> holds the typed value of the
 /// element when its content is simple and the element is valid so far, and the empty sequence otherwise (Structures 3.13.4.1, clause 2.3).
-/// The size of a subtree is bounded by <c>MaxInputSize</c> in characters of attribute values and text; a larger subtree is dropped, reported
+/// The size of a subtree is bounded by <c>MaxInputSize</c> in characters of attribute values and text, and one character for every start tag of a descendant; a larger subtree is dropped, reported
 /// once with the core code NES0001, and not evaluated.
 /// </para>
 /// <para>
@@ -105,9 +105,14 @@ internal sealed class AssertionListener : ValidationListener
             return;
         }
 
+        // Every start tag costs one character against the limit, so a subtree of empty elements is bounded as well.
         for (var i = 0; i < _count; i++)
         {
-            _open[i].Builder?.StartElement(info.Name, default);
+            var subtree = _open[i];
+            if (subtree.Builder is not null && Charge(subtree, 1))
+            {
+                subtree.Builder.StartElement(info.Name, default);
+            }
         }
 
         var assertions = _assertions.Of(info.Type);
@@ -331,6 +336,9 @@ internal sealed class AssertionListener : ValidationListener
             IReadOnlyList<ComplexTypeAssertion> assertions
         )
         {
+            Argument.ThrowIfNull(builder);
+            Argument.ThrowIfNull(assertions);
+
             Builder = builder;
             Ordinal = info.Ordinal;
             Location = info.Location;

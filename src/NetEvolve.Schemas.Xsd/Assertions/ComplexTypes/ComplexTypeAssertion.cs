@@ -6,6 +6,7 @@ using System.Globalization;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.XPath.Api;
+using NetEvolve.Schemas.Xsd.Compilation;
 using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.IdentityConstraints.DefaultNamespace;
@@ -62,7 +63,10 @@ internal sealed class ComplexTypeAssertion
         for (var i = 0; i < type.ChildCount; i++)
         {
             var content = type.GetChildNode(i);
-            if (!IsSchemaElement(content, "complexContent") && !IsSchemaElement(content, "simpleContent"))
+            if (
+                !SyntaxValues.IsSchemaElement(content, "complexContent")
+                && !SyntaxValues.IsSchemaElement(content, "simpleContent")
+            )
             {
                 continue;
             }
@@ -70,7 +74,10 @@ internal sealed class ComplexTypeAssertion
             for (var j = 0; j < content.ChildCount; j++)
             {
                 var derivation = content.GetChildNode(j);
-                if (IsSchemaElement(derivation, "extension") || IsSchemaElement(derivation, "restriction"))
+                if (
+                    SyntaxValues.IsSchemaElement(derivation, "extension")
+                    || SyntaxValues.IsSchemaElement(derivation, "restriction")
+                )
                 {
                     Add(derivation, scope, version, reporter, found);
                 }
@@ -91,16 +98,15 @@ internal sealed class ComplexTypeAssertion
         for (var i = 0; i < owner.ChildCount; i++)
         {
             var child = owner.GetChildNode(i);
-            if (IsSchemaElement(child, "assert") && TryCreate(child, scope, version, reporter) is { } assertion)
+            if (
+                SyntaxValues.IsSchemaElement(child, "assert")
+                && TryCreate(child, scope, version, reporter) is { } assertion
+            )
             {
                 found.Add(assertion);
             }
         }
     }
-
-    private static bool IsSchemaElement(SchemaSyntaxNode node, string localName) =>
-        string.Equals(node.Name.LocalName, localName, StringComparison.Ordinal)
-        && string.Equals(node.Name.NamespaceName, SchemaGrammar.Namespace, StringComparison.Ordinal);
 
     /// <summary>Compiles the <c>test</c> of an <c>assert</c> element.</summary>
     /// <param name="node">The <c>assert</c> element.</param>
