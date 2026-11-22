@@ -47,6 +47,17 @@ public class RegexOperationsCreationTests
     }
 
     [Test]
+    public async Task TryCreate_CountsGroupsThatAreNeverEmittedTowardsTheCaptureStateLimit()
+    {
+        var tree = XPathRegex.Tree("(?:" + RegexOps.Repeat("()", 1_000) + "){0}(?:a{1000}){90}");
+
+        var error = RegexOperations.TryCreate(tree, out var operations);
+
+        await Assert.That(error).IsEqualTo(RegexError.LimitExceeded);
+        await Assert.That(operations).IsNull();
+    }
+
+    [Test]
     public async Task TryCreate_OfAPatternWithManyGroups_Works()
     {
         var operations = RegexOps.Create(RegexOps.Repeat("(a)", 500));
