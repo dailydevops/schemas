@@ -195,6 +195,12 @@ public class SequenceTypedParameterTests
     // Guards
 
     [Test]
+    public async Task Constructor_OtherItemType_IsNotASignatureType() =>
+        await Assert
+            .That(() => new XPathParameterType(XPathItemType.Other, Occurrence.ExactlyOne))
+            .Throws<ArgumentOutOfRangeException>();
+
+    [Test]
     public async Task FromSequenceType_WithoutASyntaxOrAContext_Throws()
     {
         await Assert
