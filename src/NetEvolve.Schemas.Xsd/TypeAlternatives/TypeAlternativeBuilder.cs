@@ -37,21 +37,162 @@ using NetEvolve.Schemas.Xsd.SchemaDocuments;
 /// </remarks>
 internal sealed class TypeAlternativeBuilder : IComponentBuilder
 {
+    private const string XmlSchemaInstance = "http://www.w3.org/2001/XMLSchema-instance";
+    private const string FunctionNamespace = "http://www.w3.org/2005/xpath-functions";
+
+    private readonly SchemaNamespaceScope _scope;
+
     /// <summary>Initializes a new instance of the <see cref="TypeAlternativeBuilder"/> class.</summary>
     /// <param name="scope">The namespace the schema document contributes to.</param>
-    internal TypeAlternativeBuilder(SchemaNamespaceScope scope) => throw new NotSupportedException();
+    internal TypeAlternativeBuilder(SchemaNamespaceScope scope) => _scope = scope;
 
     /// <inheritdoc />
     public XsdComponentKind Kind => XsdComponentKind.TypeAlternative;
 
     /// <inheritdoc />
-    public IXsdComponent Build(ISchemaSyntaxElement element, IComponentRegistry registry, XsdIssueReporter reporter) =>
-        throw new NotSupportedException();
+    /// <remarks>An alternative is local to its element, so it is not added to the registry.</remarks>
+    /// <exception cref="NotSupportedException"><paramref name="element"/> is not a <see cref="SchemaSyntaxNode"/>, the only syntax with parent and namespace scope.</exception>
+    public IXsdComponent Build(ISchemaSyntaxElement element, IComponentRegistry registry, XsdIssueReporter reporter)
+    {
+        Argument.ThrowIfNull(element);
+        Argument.ThrowIfNull(registry);
+        Argument.ThrowIfNull(reporter);
+
+        var node =
+            element as SchemaSyntaxNode
+            ?? throw new NotSupportedException("Only a SchemaSyntaxNode can be built into a component.");
+        return BuildAlternative(node, reporter);
+    }
 
     /// <summary>Builds an alternative from an <c>alternative</c> syntax node.</summary>
     /// <param name="node">The syntax.</param>
     /// <param name="reporter">The reporter.</param>
     /// <returns>The alternative.</returns>
-    internal TypeAlternative BuildAlternative(SchemaSyntaxNode node, XsdIssueReporter reporter) =>
-        throw new NotSupportedException();
+    internal TypeAlternative BuildAlternative(SchemaSyntaxNode node, XsdIssueReporter reporter)
+    {
+        Argument.ThrowIfNull(node);
+        Argument.ThrowIfNull(reporter);
+
+        var test = CompileTest(node, reporter);
+        var (typeName, inline) = ReadType(node, reporter);
+        return TypeAlternative.Create(node.Location, test, node.FindAttribute("test") is null, typeName, inline);
+    }
+
+    private XPathExpression? CompileTest(SchemaSyntaxNode node, XsdIssueReporter reporter)
+    {
+        var text = node.FindAttribute("test");
+        if (text is null)
+        {
+            return null;
+        }
+
+        var result = XPathExpression.TryCompile(text, CreateStaticContext(node, text));
+        if (result.Success)
+        {
+            return result.Expression;
+        }
+
+        reporter.Report(
+            XsdRuleCodes.XpathValid,
+            node.Location,
+            "The test '" + text + "' is not a valid XPath expression: " + result.Diagnostic.Message
+        );
+        return null;
+    }
+
+    private XPathStaticContext CreateStaticContext(SchemaSyntaxNode node, string text)
+    {
+        var statics = XPathStaticContext
+            .Default.ToBuilder()
+            .WithNamespace("xs", SchemaGrammar.Namespace)
+            .WithNamespace("xsi", XmlSchemaInstance)
+            .WithNamespace("fn", FunctionNamespace);
+        if (XPathParser.TryParse(text.AsSpan(), out var tree, out _))
+        {
+            var prefixes = new HashSet<string>(StringComparer.Ordinal);
+            CollectPrefixes(tree!, prefixes);
+            foreach (var prefix in prefixes)
+            {
+                if (node.TryResolvePrefix(prefix, out var namespaceName))
+                {
+                    _ = statics.WithNamespace(prefix, namespaceName);
+                }
+            }
+        }
+
+        var defaultNamespace = XPathDefaultNamespace.Resolve(node, _scope, XsdVersion.V11);
+        return (defaultNamespace.Length == 0 ? statics : statics.WithDefaultElementNamespace(defaultNamespace)).Build();
+    }
+
+    private static void CollectPrefixes(SyntaxNode node, HashSet<string> prefixes)
+    {
+        var prefix = node switch
+        {
+            QualifiedName name => name.Prefix,
+            NameTest test => test.Prefix,
+            _ => null,
+        };
+        if (!string.IsNullOrEmpty(prefix))
+        {
+            _ = prefixes.Add(prefix!);
+        }
+
+        var children = node.Children;
+        for (var i = 0; i < children.Count; i++)
+        {
+            CollectPrefixes(children[i], prefixes);
+        }
+    }
+
+    private (XPathQName TypeName, ISchemaSyntaxElement? Inline) ReadType(
+        SchemaSyntaxNode node,
+        XsdIssueReporter reporter
+    )
+    {
+        ISchemaSyntaxElement? inline = null;
+        for (var i = 0; i < node.ChildCount && inline is null; i++)
+        {
+            var child = node.GetChildNode(i);
+            if (child.Name.LocalName is "simpleType" or "complexType")
+            {
+                inline = child;
+            }
+        }
+
+        var type = node.FindAttribute("type");
+        if (type is null)
+        {
+            if (inline is null)
+            {
+                reporter.Report(
+                    XsdRuleCodes.SrcTa,
+                    node.Location,
+                    "A type alternative must have a type attribute or an anonymous type."
+                );
+            }
+
+            return (default, inline);
+        }
+
+        if (inline is not null)
+        {
+            reporter.Report(
+                XsdRuleCodes.SrcTa,
+                node.Location,
+                "A type alternative must not have both a type attribute and an anonymous type."
+            );
+        }
+
+        if (_scope.TryResolve(node, type, out var typeName))
+        {
+            return (typeName, null);
+        }
+
+        reporter.Report(
+            XsdRuleLookup.SrcResolve,
+            node.Location,
+            $"The type '{type}' is not a QName with a declared prefix."
+        );
+        return (default, null);
+    }
 }

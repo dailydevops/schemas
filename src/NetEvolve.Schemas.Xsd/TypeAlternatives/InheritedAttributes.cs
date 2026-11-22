@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.Xsd.TypeAlternatives;
 
 using System;
+using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Api;
 
 /// <summary>
@@ -28,18 +29,101 @@ using NetEvolve.Schemas.XPath.Api;
 /// </remarks>
 internal sealed class InheritedAttributes
 {
+    private InheritedAttribute[] _entries = new InheritedAttribute[8];
+    private int _count;
+    private int[] _frameStarts = new int[8];
+    private int[] _frameInherited = new int[8];
+    private int _depth;
+
     /// <summary>Gets the number of open frames.</summary>
-    internal int Depth => throw new NotSupportedException();
+    internal int Depth => _depth;
 
     /// <summary>Gets the attributes that the innermost open element inherited, empty without an open frame.</summary>
-    internal ReadOnlySpan<InheritedAttribute> Inherited => throw new NotSupportedException();
+    internal ReadOnlySpan<InheritedAttribute> Inherited =>
+        _depth == 0
+            ? default
+            : new ReadOnlySpan<InheritedAttribute>(_entries, _frameStarts[_depth - 1], _frameInherited[_depth - 1]);
 
     /// <summary>Opens the frame of an element.</summary>
     /// <param name="attributes">The specified attributes of the element.</param>
     /// <param name="values">The buffer that holds the values of <paramref name="attributes"/>.</param>
-    internal void Enter(ReadOnlySpan<TypeAlternativeAttribute> attributes, ReadOnlySpan<char> values) =>
-        throw new NotSupportedException();
+    internal void Enter(ReadOnlySpan<TypeAlternativeAttribute> attributes, ReadOnlySpan<char> values)
+    {
+        var start = _count;
+        if (_depth > 0)
+        {
+            for (var i = _frameStarts[_depth - 1]; i < start; i++)
+            {
+                var entry = _entries[i];
+                if (!IsShadowed(entry.Name, attributes))
+                {
+                    Append(entry);
+                }
+            }
+        }
+
+        var inherited = _count - start;
+        for (var i = 0; i < attributes.Length; i++)
+        {
+            var attribute = attributes[i];
+            if (!attribute.IsInheritable)
+            {
+                continue;
+            }
+
+            Argument.ThrowIfLessThan(attribute.Start, 0);
+            Argument.ThrowIfLessThan(attribute.Length, 0);
+            Argument.ThrowIfGreaterThan(attribute.Start + attribute.Length, values.Length);
+
+            Append(new InheritedAttribute(attribute.Name, values.Slice(attribute.Start, attribute.Length).ToString()));
+        }
+
+        if (_depth == _frameStarts.Length)
+        {
+            Array.Resize(ref _frameStarts, _depth * 2);
+            Array.Resize(ref _frameInherited, _depth * 2);
+        }
+
+        _frameStarts[_depth] = start;
+        _frameInherited[_depth] = inherited;
+        _depth++;
+    }
 
     /// <summary>Closes the frame of the innermost open element.</summary>
-    internal void Leave() => throw new NotSupportedException();
+    /// <exception cref="InvalidOperationException">No frame is open.</exception>
+    internal void Leave()
+    {
+        if (_depth == 0)
+        {
+            throw new InvalidOperationException("Leave requires an open frame.");
+        }
+
+        _depth--;
+        var start = _frameStarts[_depth];
+        Array.Clear(_entries, start, _count - start);
+        _count = start;
+    }
+
+    private void Append(in InheritedAttribute entry)
+    {
+        if (_count == _entries.Length)
+        {
+            Array.Resize(ref _entries, _count * 2);
+        }
+
+        _entries[_count++] = entry;
+    }
+
+    private static bool IsShadowed(XPathQName name, ReadOnlySpan<TypeAlternativeAttribute> attributes)
+    {
+        for (var i = 0; i < attributes.Length; i++)
+        {
+            if (attributes[i].Name == name)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

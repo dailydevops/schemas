@@ -1,5 +1,6 @@
 namespace NetEvolve.Schemas.Xsd.Tests.Unit.TypeAlternatives;
 
+using System;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.Xsd.TypeAlternatives;
 
@@ -181,5 +182,24 @@ public class AlternativeSelectionTests
 
         await Assert.That(AlternativeFixture.Name(matching)).IsEqualTo("a");
         await Assert.That(other.Type).IsSameReferenceAs(f.Declared);
+    }
+
+    [Test]
+    public async Task Select_WithANullArgument_Throws()
+    {
+        var f = new AlternativeFixture();
+        var table = f.Table("<xs:alternative test=\"@k\" type=\"t:a\"/>")!;
+        using var evaluator = new TypeAlternativeEvaluator();
+        var name = new XPathQName("urn:test", "e");
+
+        await Assert
+            .That(() => evaluator.Select(null!, f.Declared, name, [], default, new InheritedAttributes()))
+            .Throws<ArgumentNullException>();
+        await Assert
+            .That(() => evaluator.Select(table, null!, name, [], default, new InheritedAttributes()))
+            .Throws<ArgumentNullException>();
+        await Assert
+            .That(() => evaluator.Select(table, f.Declared, name, [], default, null!))
+            .Throws<ArgumentNullException>();
     }
 }

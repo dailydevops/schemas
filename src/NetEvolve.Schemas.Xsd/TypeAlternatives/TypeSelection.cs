@@ -14,6 +14,8 @@ internal readonly struct TypeSelection
 {
     internal TypeSelection(IXsdComponent type, TypeAlternative? alternative)
     {
+        Argument.ThrowIfNull(type);
+
         Type = type;
         Alternative = alternative;
     }
@@ -30,7 +32,14 @@ internal readonly struct TypeSelection
     /// <summary>Determines whether a type is the built-in type <c>xs:error</c>.</summary>
     /// <param name="type">The type.</param>
     /// <returns><see langword="true"/> for <c>xs:error</c>.</returns>
-    internal static bool IsErrorType(IXsdComponent type) => throw new NotSupportedException();
+    internal static bool IsErrorType(IXsdComponent type)
+    {
+        Argument.ThrowIfNull(type);
+
+        return type.Kind == XsdComponentKind.SimpleType
+            && string.Equals(type.Name.NamespaceName, SchemaGrammar.Namespace, StringComparison.Ordinal)
+            && string.Equals(type.Name.LocalName, "error", StringComparison.Ordinal);
+    }
 
     /// <summary>Makes the element invalid when the selected type is <c>xs:error</c>.</summary>
     /// <param name="element">The name of the element.</param>
@@ -38,6 +47,20 @@ internal readonly struct TypeSelection
     /// <param name="reporter">The reporter.</param>
     /// <returns><see langword="false"/> when an issue was reported because the type is <c>xs:error</c>.</returns>
     /// <remarks>The rule is Element Locally Valid (Type); the clause is the rule id, because <c>xs:error</c> has no clause of its own.</remarks>
-    internal bool Validate(XPathQName element, DocumentLocation location, XsdIssueReporter reporter) =>
-        throw new NotSupportedException();
+    internal bool Validate(XPathQName element, DocumentLocation location, XsdIssueReporter reporter)
+    {
+        Argument.ThrowIfNull(reporter);
+
+        if (!IsError)
+        {
+            return true;
+        }
+
+        reporter.Report(
+            XsdRuleCodes.CvcType,
+            location,
+            "The type table of element '" + element.LocalName + "' selected xs:error, which has no valid instance."
+        );
+        return false;
+    }
 }

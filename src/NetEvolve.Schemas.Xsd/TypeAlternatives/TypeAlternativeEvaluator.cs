@@ -1,7 +1,15 @@
 namespace NetEvolve.Schemas.Xsd.TypeAlternatives;
 
 using System;
+using NetEvolve.Arguments;
+using NetEvolve.Schemas.Xml.Contracts;
+using NetEvolve.Schemas.Xml.Model;
 using NetEvolve.Schemas.XPath.Api;
+using NetEvolve.Schemas.XPath.Context;
+using NetEvolve.Schemas.XPath.Errors;
+using NetEvolve.Schemas.XPath.Evaluation.Atomization;
+using NetEvolve.Schemas.XPath.Xdm.Nodes;
+using NetEvolve.Schemas.XPath.Xdm.Values;
 using NetEvolve.Schemas.Xsd.Contracts;
 
 /// <summary>
@@ -27,6 +35,9 @@ using NetEvolve.Schemas.Xsd.Contracts;
 /// </remarks>
 internal sealed class TypeAlternativeEvaluator : IDisposable
 {
+    private readonly XmlTreeBuilder _builder = new(trackPositions: false);
+    private readonly XPathEvaluationContext _context = new();
+
     /// <summary>Selects the type of an element.</summary>
     /// <param name="table">The type table of the element declaration.</param>
     /// <param name="declaredType">The type of the element declaration, which applies when no alternative matches.</param>
@@ -42,8 +53,100 @@ internal sealed class TypeAlternativeEvaluator : IDisposable
         ReadOnlySpan<TypeAlternativeAttribute> attributes,
         ReadOnlySpan<char> values,
         InheritedAttributes inherited
-    ) => throw new NotSupportedException();
+    )
+    {
+        Argument.ThrowIfNull(table);
+        Argument.ThrowIfNull(declaredType);
+        Argument.ThrowIfNull(inherited);
+
+        if (table.Count > 0)
+        {
+            var root = BuildTree(element, attributes, values, inherited.Inherited);
+            _context.Reset();
+            _context.SetContextItem(XdmItem.FromNode(new XPathNode(root)));
+            for (var i = 0; i < table.Count; i++)
+            {
+                if (IsTrue(table[i].Test))
+                {
+                    return Choose(table[i]);
+                }
+            }
+        }
+
+        return table.Default is { } fallback ? Choose(fallback) : new TypeSelection(declaredType, null);
+    }
 
     /// <inheritdoc />
-    public void Dispose() { }
+    public void Dispose()
+    {
+        _builder.Dispose();
+        _context.Dispose();
+    }
+
+    private static TypeSelection Choose(TypeAlternative alternative)
+    {
+        Argument.ThrowIfNull(alternative.TypeDefinition);
+
+        return new TypeSelection(alternative.TypeDefinition!, alternative);
+    }
+
+    private XmlNode BuildTree(
+        XPathQName element,
+        ReadOnlySpan<TypeAlternativeAttribute> attributes,
+        ReadOnlySpan<char> values,
+        ReadOnlySpan<InheritedAttribute> inherited
+    )
+    {
+        var names = _builder.Names;
+        var name = Intern(names, element);
+        _builder.StartElement(name, default);
+        for (var i = 0; i < attributes.Length; i++)
+        {
+            var attribute = attributes[i];
+            Argument.ThrowIfLessThan(attribute.Start, 0);
+            Argument.ThrowIfLessThan(attribute.Length, 0);
+            Argument.ThrowIfGreaterThan(attribute.Start + attribute.Length, values.Length);
+
+            _builder.Attribute(Intern(names, attribute.Name), values.Slice(attribute.Start, attribute.Length));
+        }
+
+        for (var i = 0; i < inherited.Length; i++)
+        {
+            _builder.Attribute(Intern(names, inherited[i].Name), inherited[i].Value.AsSpan());
+        }
+
+        _builder.EndAttributes();
+        _builder.EndElement(name);
+        var tree = _builder.Complete();
+
+        // Without a document node the first node of the fragment is the element.
+        return new XmlNode(tree, 0);
+    }
+
+    private static XmlName Intern(XmlNameTable names, XPathQName name) =>
+        names.Intern(default, name.LocalName.AsSpan(), name.NamespaceName.AsSpan());
+
+    private bool IsTrue(XPathExpression? test)
+    {
+        if (test is null)
+        {
+            return false;
+        }
+
+        var result = test.TryEvaluate(_context);
+        if (result.Status != XPathEvaluationStatus.Ok)
+        {
+            return false;
+        }
+
+        var value = result.Value;
+        try
+        {
+            return XPathAtomization.EffectiveBooleanValue(in value);
+        }
+        catch (XPathException)
+        {
+            return false;
+        }
+    }
 }
