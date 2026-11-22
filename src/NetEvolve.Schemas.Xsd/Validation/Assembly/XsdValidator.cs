@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.Xsd.Validation.Assembly;
 
-using System;
 using System.Threading;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Formats;
@@ -34,15 +33,29 @@ internal sealed class XsdValidator : SchemaValidatorBase, IXsdValidator
     public XsdVersion Version { get; }
 
     /// <inheritdoc />
-    public XsdAnnotatedResult ValidateTree(XmlTree document, CancellationToken cancellationToken = default) =>
-        throw new NotSupportedException("XSD-79 (#361)");
+    public XsdAnnotatedResult ValidateTree(XmlTree document, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        Argument.ThrowIfNull(document);
+
+        return _tree.Validate(document.Document, cancellationToken);
+    }
 
     /// <inheritdoc />
     public XsdAnnotatedResult ValidateTree(
         XmlTree document,
         XmlNode element,
         CancellationToken cancellationToken = default
-    ) => throw new NotSupportedException("XSD-79 (#361)");
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        Argument.ThrowIfNull(document);
+        Argument.ThrowIfNull(element.Tree, nameof(element));
+        Argument.ThrowIfNotEqual(element.Tree.TreeId, document.TreeId, nameof(element));
+        Argument.ThrowIfNotEqual((int)element.Kind, (int)XmlNodeKind.Element, nameof(element));
+
+        return _tree.Validate(element, cancellationToken);
+    }
 
     /// <inheritdoc />
     protected override ValidationResult ValidateCore(in DocumentSource source, CancellationToken cancellationToken) =>

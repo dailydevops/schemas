@@ -43,6 +43,7 @@ internal sealed class AnnotationSource : IXdmTypeAnnotationSource
     private readonly AnnotationTable _table;
     private readonly XmlTree _tree;
     private readonly Dictionary<int, int> _ordinals = [];
+    private readonly List<int> _elements = [];
 
     /// <summary>Initializes a new instance of the <see cref="AnnotationSource"/> class.</summary>
     /// <param name="table">The table that the run filled.</param>
@@ -100,6 +101,22 @@ internal sealed class AnnotationSource : IXdmTypeAnnotationSource
         return true;
     }
 
+    /// <summary>Gets the element of an ordinal: the reverse of the numbering, which maps an element start event of the run to its node (XSD-79, #361).</summary>
+    /// <param name="ordinal">The ordinal of the element start event, counted from one.</param>
+    /// <param name="element">The element.</param>
+    /// <returns><see langword="true"/> when the tree has an element with that ordinal.</returns>
+    internal bool TryGetElement(int ordinal, out XmlNode element)
+    {
+        if (ordinal < 1 || ordinal > _elements.Count)
+        {
+            element = default;
+            return false;
+        }
+
+        element = new XmlNode(_tree, _elements[ordinal - 1]);
+        return true;
+    }
+
     /// <inheritdoc />
     public XdmTypeId GetTypeAnnotation(in XPathNode node) =>
         TryGetAnnotation(node.Node, out var annotation) ? annotation.DataModelType : node.TypeAnnotation;
@@ -131,6 +148,7 @@ internal sealed class AnnotationSource : IXdmTypeAnnotationSource
             if (node.Kind == XmlNodeKind.Element)
             {
                 _ordinals.Add(node.Index, ++ordinal);
+                _elements.Add(node.Index);
             }
 
             var child = node.FirstChild;
