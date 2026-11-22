@@ -44,7 +44,9 @@ public sealed partial class RegexProgram
 
         var instructions = emitter.ToArray();
         var captureSlots = 2 * (emitter.MaxGroup + 1);
-        if ((long)instructions.Length * captureSlots > MaxCaptureStateSize)
+
+        // A group that is never emitted, such as one under a repeat of zero, still takes a slot pair in every match.
+        if ((long)instructions.Length * (2 * (CountGroups(nodes) + 1)) > MaxCaptureStateSize)
         {
             return RegexError.LimitExceeded;
         }

@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.Xml.Regex.Operations;
 
 using System;
+using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Buffers;
 
 // The replacement string of fn:replace: $N group references, \$ and \\ escapes.
@@ -36,6 +37,8 @@ internal static class ReplacementSyntax
     // number, a further digit only while the number stays at most the number of groups of the pattern.
     internal static void Append(PooledBuffer<char> destination, ReadOnlySpan<char> replacement, in RegexMatch match)
     {
+        Argument.ThrowIfNull(destination);
+
         var run = 0;
         var i = 0;
         while (i < replacement.Length)
