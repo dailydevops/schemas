@@ -27,8 +27,8 @@ public class PatternCacheTests
     [Test]
     [Arguments("matches('xabcx', 'b+c')", "true")]
     [Arguments("matches('xabcx', 'B+C', 'i')", "true")]
-    [Arguments("replace('xabcx', 'b+c', '-')", "x-x")]
-    [Arguments("tokenize('xabcx', 'b+c')", "x|x")]
+    [Arguments("replace('xabcx', 'b+c', '-')", "xa-x")]
+    [Arguments("tokenize('xabcx', 'b+c')", "xa|x")]
     public async Task ALiteralPattern_IsCompiledOnceAcrossTheEvaluationsOfOneCompiledExpression(
         string expression,
         string expected

@@ -48,7 +48,7 @@ public class ReplaceTests
 
     [Test]
     [Arguments("replace('AbC', 'b', 'x', 'i')", "AxC")]
-    [Arguments("replace('AbC', 'b', 'x')", "AbC")]
+    [Arguments("replace('AbC', 'B', 'x')", "AbC")]
     [Arguments("replace('ab', 'a b', 'X', 'x')", "X")]
     [Arguments("replace('a\nb', 'a.b', 'X', 's')", "X")]
     [Arguments("replace('a\nb', '^b$', 'X', 'm')", "a\nX")]
@@ -72,7 +72,9 @@ public class ReplaceTests
         var raised = Raised(() => replace.Call(context, [Str("aaaaaaaa"), Str("a"), Str("bbb")]));
 
         await Assert.That(raised).IsEqualTo(XPathLimitErrors.StringLengthExceeded.ToString());
-        await Assert.That(replace.Call(context, [Str("aaa"), Str("a"), Str("bbb")])[0].TryGetString(out var fits)).IsTrue();
+        await Assert
+            .That(replace.Call(context, [Str("aaa"), Str("a"), Str("bbb")])[0].TryGetString(out var fits))
+            .IsTrue();
         await Assert.That(fits).IsEqualTo("bbbbbbbbb");
     }
 

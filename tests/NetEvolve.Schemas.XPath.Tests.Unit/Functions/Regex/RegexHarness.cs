@@ -20,9 +20,7 @@ internal static class RegexHarness
         );
         RegexOperations? operations = null;
         var error = parsed.Succeeded ? RegexOperations.TryCreate(parsed.Tree!, out operations) : parsed.Error;
-        return error == RegexError.None
-            ? operations!
-            : throw new InvalidOperationException($"{pattern}: {error}");
+        return error == RegexError.None ? operations! : throw new InvalidOperationException($"{pattern}: {error}");
     }
 
     /// <summary>
