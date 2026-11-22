@@ -23,6 +23,11 @@ using LibraryValidator = NetEvolve.Schemas.ISchematronValidator;
 /// <see cref="SchematronOutcome.Valid"/> otherwise. A condition that is no outcome of the specification, an unexpected exception or a
 /// truncated run, is reported as <see cref="SchematronOutcome.NotImplemented"/> with its reason, which fails every case.
 /// </para>
+/// <para>
+/// Limitation: every build failure is an <see cref="SchematronOutcome.Error"/>, also a not-supported diagnostic, so a case that expects an
+/// error could pass on a limit of the library. Two selected cases expect an error: <c>rule-extends-no-abstract</c> passes with the code of
+/// a real semantic error, and <c>rule-abstract-scope-error</c> fails (#921).
+/// </para>
 /// </remarks>
 internal sealed class SchematronEngine : ISchematronValidator
 {
