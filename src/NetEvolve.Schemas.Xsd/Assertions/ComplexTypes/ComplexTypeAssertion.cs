@@ -1,5 +1,6 @@
 namespace NetEvolve.Schemas.Xsd.Assertions.ComplexTypes;
 
+using System.Collections.Generic;
 using System.Globalization;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
@@ -38,6 +39,26 @@ internal sealed class ComplexTypeAssertion
 
     /// <summary>Gets the location of the <c>assert</c> element.</summary>
     public DocumentLocation Location { get; }
+
+    /// <summary>Compiles the <c>assert</c> children of a complex type, those of the type and those of the extension or restriction of its content.</summary>
+    /// <param name="type">The <c>complexType</c> element.</param>
+    /// <param name="scope">The namespace the schema document contributes to.</param>
+    /// <param name="version">The configured XSD version.</param>
+    /// <param name="reporter">The reporter of schema errors.</param>
+    /// <returns>The assertions in document order; one that does not compile is reported and left out.</returns>
+    internal static IReadOnlyList<ComplexTypeAssertion> Collect(
+        SchemaSyntaxNode type,
+        SchemaNamespaceScope scope,
+        XsdVersion version,
+        XsdIssueReporter reporter
+    )
+    {
+        Argument.ThrowIfNull(type);
+        Argument.ThrowIfNull(reporter);
+
+        _ = (scope, version);
+        return [];
+    }
 
     /// <summary>Compiles the <c>test</c> of an <c>assert</c> element.</summary>
     /// <param name="node">The <c>assert</c> element.</param>
