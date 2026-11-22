@@ -53,20 +53,20 @@ internal static class TreeFixture
         "<other/>",
     ];
 
-    public static IXsdValidator Streaming() =>
-        SchemaValidator.ForXsd().WithVersion(XsdVersion.V11).AddSchema(Schema.AsMemory(), "file:///s.xsd").Build();
+    public static IXsdValidator Streaming(string schema = Schema) =>
+        SchemaValidator.ForXsd().WithVersion(XsdVersion.V11).AddSchema(schema.AsMemory(), "file:///s.xsd").Build();
 
-    public static ValidationCore Core() =>
+    public static ValidationCore Core(string schema = Schema) =>
         new(
             new SchemaCompiler(XsdVersion.V11, DenyAllResourceResolver.Instance, ValidationLimits.Default).Compile([
-                SchemaInput.FromChars(Schema.AsMemory(), "file:///s.xsd"),
+                SchemaInput.FromChars(schema.AsMemory(), "file:///s.xsd"),
             ]),
             XsdVersion.V11,
             false,
             ValidationLimits.Default
         );
 
-    public static TreeValidator Validator() => new(Core());
+    public static TreeValidator Validator(string schema = Schema) => new(Core(schema));
 
     public static XmlDocumentTree Load(string xml) => XmlDocumentLoader.Load(xml.AsSpan(), null, new Uri(InstanceId));
 

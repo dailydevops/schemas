@@ -169,7 +169,7 @@ public class TreeAnnotationTests
     }
 
     [Test]
-    public async Task Validate_DefaultedAttribute_IsNotANodeOfTheAnnotatedTree(CancellationToken cancellationToken)
+    public async Task Validate_DefaultedAttribute_IsANodeOfTheAnnotatedTree(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -177,7 +177,10 @@ public class TreeAnnotationTests
             .Validator()
             .Validate(TreeFixture.Load("<root><item>1</item></root>").Document, cancellationToken);
 
-        await Assert.That(TreeFixture.Element(result.Document, "root").FirstAttribute.IsEmpty).IsTrue();
+        var attribute = TreeFixture.Element(result.Document, "root").FirstAttribute;
+        await Assert.That(attribute.IsEmpty).IsFalse();
+        await Assert.That(attribute.StringValue).IsEqualTo("7");
+        await Assert.That(result.TryGetAnnotation(attribute, out _)).IsTrue();
     }
 
     [Test]
