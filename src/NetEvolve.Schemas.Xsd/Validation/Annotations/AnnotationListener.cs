@@ -6,7 +6,8 @@ using NetEvolve.Schemas.Xsd.Contracts;
 /// The listener that hands the type, validity, and nilled state of every assessed element and attribute to an annotation sink
 /// (XSD-16, #305; design #146 DP-18). Without a sink it asks for no hook, so a run that nobody reads annotations from does no
 /// annotation work and allocates nothing for it. An empty element that takes the default or fixed value of its declaration gets that value in
-/// its record, from the simple value hook that comes right before its end tag (design #146 DP-19).
+/// its record, from the simple value hook that comes right before its end tag, and a defaulted attribute gets its value and name in its
+/// record, so that a consumer can add them to a tree (design #146 DP-19).
 /// </summary>
 /// <remarks>
 /// <para>
@@ -77,7 +78,9 @@ internal sealed class AnnotationListener : ValidationListener
                     index,
                     info.Type,
                     info.IsValid ? XsdValidity.Valid : XsdValidity.Invalid,
-                    false
+                    false,
+                    info.IsDefaulted ? info.Value.ToString() : null,
+                    info.IsDefaulted ? info.Name : default
                 )
             );
         }

@@ -6,6 +6,7 @@ using System.Threading;
 using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Model;
+using NetEvolve.Schemas.Xsd.Validation.Annotations;
 using NetEvolve.Schemas.Xsd.Validation.Tree;
 
 /// <summary>The forwarders of the tree sink for comments, processing instructions, and the document type, and the growth of its stack of open elements.</summary>
@@ -114,7 +115,8 @@ public class TreeForwardingTests
             inner,
             copy,
             new ValidationIssueCollector(ValidationLimits.Default),
-            new TreeIssueLog()
+            new TreeIssueLog(),
+            new TreeDefaults(new AnnotationTable())
         );
 
         sink.StartDocument(default);

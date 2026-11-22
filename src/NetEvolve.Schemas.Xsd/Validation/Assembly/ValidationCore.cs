@@ -47,7 +47,7 @@ using ValidationResult = NetEvolve.Schemas.ValidationResult;
 /// (DP-23); a violation that a listener finds does not mark the element invalid yet (#605); the ID and the entity listener exist
 /// only when the schema names a type of their check (<see cref="ListenerDemand"/>), so an <c>xsi:type</c> that names such a built-in
 /// type for a schema that never names it is not checked. A tree run does not see the document type declaration, which the model does not
-/// keep (#731), and the defaulted attributes and elements are not nodes of the annotated tree (design #146 DP-19, accepted in #305).
+/// keep (#731).
 /// </para>
 /// </remarks>
 internal sealed class ValidationCore : IValidationCore
@@ -115,8 +115,9 @@ internal sealed class ValidationCore : IValidationCore
         Argument.ThrowIfNull(issues);
 
         var collector = new ValidationIssueCollector(_limits);
-        var run = new Run(this, collector, node.DocumentUri?.OriginalString, cancellationToken, annotations);
-        copy = run.PumpTree(node, issues);
+        var defaults = new TreeDefaults(annotations);
+        var run = new Run(this, collector, node.DocumentUri?.OriginalString, cancellationToken, defaults);
+        copy = run.PumpTree(node, issues, defaults);
 
         return collector.ToResult();
     }
@@ -196,13 +197,13 @@ internal sealed class ValidationCore : IValidationCore
 
         // The model-to-sink pump drives the same sink as a reader does, so a tree run has no validator of its own (design #146 DP-11).
         // The pump emits no document events for an element, so a subtree run adds them: the listeners need the begin of the run.
-        internal XmlDocumentTree PumpTree(XmlNode node, TreeIssueLog issues)
+        internal XmlDocumentTree PumpTree(XmlNode node, TreeIssueLog issues, TreeDefaults defaults)
         {
             var inner = CreateSink();
             var builder = new XmlTreeBuilder(inner.Names, node.DocumentUri);
             try
             {
-                var sink = new TreeRunSink(inner, builder, _collector, issues);
+                var sink = new TreeRunSink(inner, builder, _collector, issues, defaults);
                 var isElement = node.Kind == XmlNodeKind.Element;
                 if (isElement)
                 {

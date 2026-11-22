@@ -9,7 +9,8 @@ using NetEvolve.Schemas.Xml.Model;
 /// <summary>
 /// The sink of a tree run (XSD-79, #361): it forwards every event of the model-to-sink pump to the sink of the validator run and to a builder
 /// that copies the pumped content into the annotated tree, and it logs the element at which each new issue was reported, so that an issue can
-/// be mapped to its node afterwards.
+/// be mapped to its node afterwards. The copy also holds what the validator adds from the schema: the defaulted attributes after the specified
+/// ones of their element, and the default or fixed value of an empty element as its text (design #146 DP-19, option A).
 /// </summary>
 /// <remarks>
 /// <para>
@@ -18,9 +19,8 @@ using NetEvolve.Schemas.Xml.Model;
 /// which for an end tag is the element that ends, so incomplete content belongs to the element that is incomplete.
 /// </para>
 /// <para>
-/// Limitations: the pump emits neither a document type declaration nor the defaulted attributes and elements of a schema, so the copy has
-/// neither of them (design #146 DP-19, accepted in #305). An issue of an attribute belongs to the element that owns the attribute. Not
-/// thread-safe; one instance serves one run.
+/// Limitations: the pump emits no document type declaration, so the copy has none. An issue of an attribute belongs to the element that owns
+/// the attribute. Not thread-safe; one instance serves one run.
 /// </para>
 /// </remarks>
 internal sealed class TreeRunSink : IXmlSink
@@ -29,6 +29,7 @@ internal sealed class TreeRunSink : IXmlSink
     private readonly XmlTreeBuilder _copy;
     private readonly ValidationIssueCollector _collector;
     private readonly TreeIssueLog _log;
+    private readonly TreeDefaults _defaults;
     private int[] _open = new int[16];
     private int _depth;
     private int _ordinal;
@@ -39,17 +40,26 @@ internal sealed class TreeRunSink : IXmlSink
     /// <param name="copy">The builder of the annotated tree; it must share the name table of <paramref name="inner"/>.</param>
     /// <param name="collector">The collector that the validator run reports to.</param>
     /// <param name="log">The log that receives the element ordinal of every issue.</param>
-    internal TreeRunSink(IXmlSink inner, XmlTreeBuilder copy, ValidationIssueCollector collector, TreeIssueLog log)
+    /// <param name="defaults">The sink that the annotation listener of the validator run reports to, which keeps the defaults for the copy.</param>
+    internal TreeRunSink(
+        IXmlSink inner,
+        XmlTreeBuilder copy,
+        ValidationIssueCollector collector,
+        TreeIssueLog log,
+        TreeDefaults defaults
+    )
     {
         Argument.ThrowIfNull(inner);
         Argument.ThrowIfNull(copy);
         Argument.ThrowIfNull(collector);
         Argument.ThrowIfNull(log);
+        Argument.ThrowIfNull(defaults);
 
         _inner = inner;
         _copy = copy;
         _collector = collector;
         _log = log;
+        _defaults = defaults;
     }
 
     /// <inheritdoc />
@@ -105,6 +115,9 @@ internal sealed class TreeRunSink : IXmlSink
     public void EndAttributes()
     {
         _inner.EndAttributes();
+
+        // The validator adds the defaulted attributes while it ends the start tag; they follow the specified ones.
+        _defaults.CopyAttributes(_copy);
         _copy.EndAttributes();
         Observe();
     }
@@ -113,6 +126,14 @@ internal sealed class TreeRunSink : IXmlSink
     public void EndElement(XmlName name)
     {
         _inner.EndElement(name);
+
+        // An empty element takes the default or fixed value of its declaration while it ends; it becomes the content of the copy.
+        var value = _defaults.TakeValue();
+        if (value is not null)
+        {
+            _copy.Text(value.AsSpan(), XmlTextKind.Text);
+        }
+
         _copy.EndElement(name);
 
         // The issues of an end tag belong to the element that ends; it is popped afterwards.

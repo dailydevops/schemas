@@ -20,7 +20,7 @@ using NetEvolve.Schemas.Xsd.Validation.Core;
 /// <para>
 /// The tree must be built from the same input as the run, so that the n-th element of the tree is the n-th element start event of the
 /// validator; the attribute index counts the attributes of the element in source order without the attributes of the schema instance
-/// namespace that control assessment, which the validator hands to no listener (XSD-55, #308). Defaulted attributes have records but no node.
+/// namespace that control assessment, which the validator hands to no listener (XSD-55, #308). A tree that was not built from the validator run, such as the input of the run, has no node for a defaulted attribute; the copy of a tree run does (XSD-79, #361).
 /// </para>
 /// <para>
 /// Limitations: a node that the validator did not annotate (an unassessed element, a node of another tree) is not annotated and reads as

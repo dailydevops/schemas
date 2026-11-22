@@ -26,8 +26,12 @@ public interface IXsdValidator : ISchemaValidator
     /// original string of the document URI of the tree.
     /// </para>
     /// <para>
-    /// Limitations: the annotated tree is a copy of the validated content, so defaulted attributes and defaulted elements are not
-    /// nodes of it (design #146 DP-19, accepted in #305). The model holds no unparsed entities and no document type declaration (#731), so
+    /// The annotated tree is a copy of the validated content that also holds what the schema adds (design #146 DP-19): the defaulted
+    /// attributes are attribute nodes after the specified ones, and the default or fixed value of an empty element is its text. A
+    /// defaulted attribute reports <see cref="XmlNode.IsSpecified"/> as <see langword="false"/>.
+    /// </para>
+    /// <para>
+    /// Limitations: the model holds no unparsed entities and no document type declaration (#731), so
     /// a case that depends on them can differ from the streaming path. The XPath evaluator takes no annotation source yet, so typed values
     /// of the annotated tree are read through the annotations, not through <c>fn:data</c> inside an expression (#791). An issue of an
     /// attribute belongs to the element that owns it.

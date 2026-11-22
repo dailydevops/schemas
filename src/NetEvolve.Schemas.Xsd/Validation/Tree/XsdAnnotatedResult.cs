@@ -16,9 +16,16 @@ using ValidationResult = NetEvolve.Schemas.ValidationResult;
 /// <para>
 /// The annotated tree is a copy of the validated document or subtree, built while the pump feeds the validator; the input tree is not modified
 /// and has no annotations. A subtree result is a document whose only child is the element. Positions of elements are those of the input.
+/// The copy holds what the schema adds (design #146 DP-19, option A): a defaulted attribute is an attribute node after the specified ones, for
+/// which <see cref="XmlNode.IsSpecified"/> is <see langword="false"/>, and the default or fixed value of an empty element is its text.
 /// </para>
 /// <para>
-/// Limitations: defaulted attributes and defaulted elements are not nodes of the copy (design #146 DP-19, accepted in #305); the model holds no
+/// The <see cref="Document"/> shares the name table of the validator run, which is mutable and not thread-safe; read the result from one
+/// thread at a time. <see cref="TryGetIssueNode"/> is a linear scan over the issues, which suits the few issues of a document; it is not
+/// meant for a loop over thousands of issues.
+/// </para>
+/// <para>
+/// Limitations: the model holds no
 /// document type declaration and no unparsed entities, so a case that depends on them can differ from the streaming path (#731); an XPath
 /// expression reads the typed values of the annotated tree only through the annotations, because the evaluator takes no annotation source yet
 /// (#791); an issue of an attribute maps to the element that owns it. The type of an annotation is the declared or <c>xsi:type</c> type, and
