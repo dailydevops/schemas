@@ -12,12 +12,14 @@ using NetEvolve.Schemas.Xml.Model;
 using NetEvolve.Schemas.Xml.Model.Loading;
 using NetEvolve.Schemas.XPath.Abstractions;
 using NetEvolve.Schemas.XPath.Context;
+using NetEvolve.Schemas.XPath.Errors;
 
 /// <summary>
 /// The document pool of one evaluation context (XPath 2.0, 2.1.2, available documents; Functions and Operators 1.0, 15.5.4): the same
 /// absolute URI yields the identical document node, so <c>fn:doc</c> is stable and the resolver is asked once per URI. A load that fails
-/// is remembered too, so <c>fn:doc-available</c> and <c>fn:doc</c> agree. The pool also counts every resolver request of the context
-/// (documents and texts) against <see cref="ValidationLimits.MaxExternalResources"/>.
+/// is remembered too, so <c>fn:doc-available</c> and <c>fn:doc</c> agree. The decoded texts of the text functions are pooled the same
+/// way, by URI and encoding, so <c>fn:unparsed-text-available</c> and <c>fn:unparsed-text</c> agree. The pool also counts every resolver
+/// request of the context (documents and texts) against <see cref="ValidationLimits.MaxExternalResources"/>.
 /// </summary>
 /// <remarks>
 /// Limitations: the pool is kept beside the context, not in it, because the context is outside the work package; it lives exactly as
@@ -30,6 +32,7 @@ internal sealed class DocumentPool
     private static readonly ConditionalWeakTable<XPathEvaluationContext, DocumentPool> Pools = new();
 
     private readonly Dictionary<string, XmlDocumentTree?> _documents = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, (string? Text, XPathErrorCode Error)> _texts = new(StringComparer.Ordinal);
     private int _requests;
 
     private DocumentPool() { }
@@ -92,6 +95,65 @@ internal sealed class DocumentPool
         var loaded = Load(resolver, reference, baseUri, absolute, options);
         _documents[absolute] = loaded;
         return loaded;
+    }
+
+    /// <summary>Gets the text of an absolute URI under an encoding, loading and decoding it through the resolver on first use.</summary>
+    /// <param name="resolver">The resolver of the context.</param>
+    /// <param name="reference">The reference as written.</param>
+    /// <param name="baseUri">The base URI that the reference was resolved against, <see langword="null"/> for none.</param>
+    /// <param name="absolute">The absolute URI.</param>
+    /// <param name="encoding">The name of the encoding, <see langword="null"/> to infer it.</param>
+    /// <param name="text">The text when the result is <see langword="true"/>.</param>
+    /// <param name="error">The error code of the text functions when the result is <see langword="false"/>.</param>
+    /// <returns><see langword="true"/> when the resource is retrieved and decodes into XML characters.</returns>
+    /// <exception cref="ArgumentNullException">An argument that is not optional is <see langword="null"/>.</exception>
+    internal bool TryGetText(
+        IXPathResourceResolver resolver,
+        string reference,
+        string? baseUri,
+        string absolute,
+        string? encoding,
+        out string text,
+        out XPathErrorCode error
+    )
+    {
+        Argument.ThrowIfNull(resolver);
+        Argument.ThrowIfNull(reference);
+        Argument.ThrowIfNull(absolute);
+
+        var key = encoding is null ? absolute : absolute + "\0" + encoding;
+        if (!_texts.TryGetValue(key, out var entry))
+        {
+            entry = TryReserveRequest()
+                ? LoadText(resolver, reference, baseUri, absolute, encoding)
+                : (null, DocumentErrors.FOUT1170);
+            _texts[key] = entry;
+        }
+
+        text = entry.Text ?? string.Empty;
+        error = entry.Error;
+        return entry.Text is not null;
+    }
+
+    private static (string? Text, XPathErrorCode Error) LoadText(
+        IXPathResourceResolver resolver,
+        string reference,
+        string? baseUri,
+        string absolute,
+        string? encoding
+    )
+    {
+        var request = new ResourceRequest(ResourceKind.XPathText, reference, baseUri, absolute);
+        using var result = resolver.Resolve(in request, CancellationToken.None);
+        if (
+            result.Status != ResourceStatus.Found
+            || !ResourceContent.TryRead(in result, ValidationLimits.Default.MaxResourceSize, out var content)
+        )
+        {
+            return (null, DocumentErrors.FOUT1170);
+        }
+
+        return TextDecoding.TryDecode(content, encoding, out var text, out var error) ? (text, default) : (null, error);
     }
 
     private static XmlDocumentTree? Load(
