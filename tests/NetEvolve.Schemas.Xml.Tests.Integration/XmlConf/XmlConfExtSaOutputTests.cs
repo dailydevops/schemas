@@ -11,11 +11,6 @@ public class XmlConfExtSaOutputTests
 {
     private const string ValidExtSaPrefix = "xmltest/valid-ext-sa-";
 
-    /// <summary>Case 013 needs the attribute defaults of the attribute-list declarations, which the reader does not apply yet (XML-16, #256); its output file lists them, so the comparison drops them from the expected output.</summary>
-    private const string AttributeDefaultsCase = "xmltest/valid-ext-sa-013";
-
-    private const string AttributeDefaults = " a1=\"a1 default\" a2=\"a2 default\"";
-
     [Test]
     public async Task ValidExtSa_CasesParseAndMatchTheProvidedOutputFiles(CancellationToken cancellationToken)
     {
@@ -39,11 +34,6 @@ public class XmlConfExtSaOutputTests
                     cancellationToken
                 )
             );
-            if (string.Equals(c.Id, AttributeDefaultsCase, StringComparison.Ordinal))
-            {
-                expected = expected.Replace(AttributeDefaults, string.Empty, StringComparison.Ordinal);
-            }
-
             var actual = Observe(await File.ReadAllBytesAsync(path, cancellationToken), path, access);
             if (!string.Equals(actual, expected, StringComparison.Ordinal))
             {

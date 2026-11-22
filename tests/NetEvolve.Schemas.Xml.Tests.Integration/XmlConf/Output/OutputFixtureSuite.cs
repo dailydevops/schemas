@@ -1,6 +1,6 @@
 namespace NetEvolve.Schemas.Xml.Tests.Integration.XmlConf.Output;
 
-/// <summary>Writes a small suite with canonical output files: one equal, one with a one-byte difference, one with a document type declaration, and one without an output file.</summary>
+/// <summary>Writes a small suite with canonical output files: one equal, one with a one-byte difference, one with a document type declaration, one that needs an external entity, and one without an output file.</summary>
 internal static class OutputFixtureSuite
 {
     public static string Create(string directory)
@@ -27,6 +27,8 @@ internal static class OutputFixtureSuite
             <TEST ID="equal" TYPE="valid" URI="equal.xml" OUTPUT="out/equal.xml" SECTIONS="2.1">Output equals.</TEST>
             <TEST ID="differs" TYPE="valid" URI="differs.xml" OUTPUT="out/differs.xml" SECTIONS="2.1">Output differs by one byte.</TEST>
             <TEST ID="doctype" TYPE="valid" URI="doctype.xml" OUTPUT="out/doctype.xml" SECTIONS="2.8">Has a document type declaration.</TEST>
+            <TEST ID="external" TYPE="valid" ENTITIES="general" URI="doctype.xml" OUTPUT="out/doctype.xml" SECTIONS="4.2.2">Needs an external general entity.</TEST>
+            <TEST ID="defaults" TYPE="valid" URI="defaults.xml" OUTPUT="out/defaults.xml" SECTIONS="3.3.2">Applies attribute defaults.</TEST>
             <TEST ID="no-output" TYPE="valid" URI="equal.xml" SECTIONS="2.1">Has no output file.</TEST>
             <TEST ID="not-wf" TYPE="not-wf" URI="notwf.xml" SECTIONS="2.1">Has no output file.</TEST>
             """
@@ -37,6 +39,12 @@ internal static class OutputFixtureSuite
         FixtureSuite.Write(directory, "a/out/differs.xml", "<doc a=\"1\" b=\"3\">t&amp;<e></e></doc>");
         FixtureSuite.Write(directory, "a/doctype.xml", "<!DOCTYPE doc [<!ATTLIST doc a CDATA \"x\">]><doc/>");
         FixtureSuite.Write(directory, "a/out/doctype.xml", "<doc a=\"x\"></doc>");
+        FixtureSuite.Write(
+            directory,
+            "a/defaults.xml",
+            "<!DOCTYPE doc [<!ATTLIST doc n NMTOKENS #IMPLIED d CDATA \"v\">]><doc n=' 1  2 '/>"
+        );
+        FixtureSuite.Write(directory, "a/out/defaults.xml", "<doc d=\"v\" n=\"1 2\"></doc>");
         FixtureSuite.Write(directory, "a/notwf.xml", "<doc>");
         return directory;
     }

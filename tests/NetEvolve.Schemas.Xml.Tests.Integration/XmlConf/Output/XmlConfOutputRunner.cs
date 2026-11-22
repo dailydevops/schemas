@@ -1,26 +1,43 @@
 namespace NetEvolve.Schemas.Xml.Tests.Integration.XmlConf.Output;
 
-using System.Buffers;
 using System.Text;
 using NetEvolve.Schemas.Conformance.Results;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Reader.Pipeline;
-using NetEvolve.Schemas.Xml.Text.NameTable;
-using NetEvolve.Schemas.Xml.Writer;
 
 /// <summary>
-/// Reads the input of every selected case that has an output file, writes it in canonical form, and compares the bytes
-/// with the output file.
+/// Reads the input of every selected case that has an output file, writes it in the canonical form of the suite, and
+/// compares the bytes with the output file.
 /// </summary>
 /// <remarks>
-/// Limitation: a case with a document type declaration is not compared. Its output depends on attribute defaults,
-/// entity expansion, or attribute normalization from the declaration, which belong to XML-16, so it is recorded as
-/// failed with the reason <see cref="NeedsDtdProcessing"/> and stays in the baseline.
+/// <para>
+/// A document with a document type declaration is read with DTD processing on, so the attribute defaults, the entity
+/// expansion, and the normalization by the declared types show in the output (XML-16). The output is the canonical form of
+/// <c>xmltest/canonxml.html</c>, written by <see cref="CanonicalXmlConfSink"/>, and, for a document that declares notations,
+/// the second form of the output files: a document type declaration that lists the notations by name.
+/// </para>
+/// <para>
+/// The comparand is not the canonical mode of <see cref="NetEvolve.Schemas.Xml.Writer.XmlWriter"/>, which is a documented
+/// subset (it keeps comments, writes a processing instruction without the space after its target, and escapes fewer
+/// characters in text, DEF-65), so the output files of the suite cannot all match it byte for byte.
+/// Limitations: a case that needs an external entity (the <c>ENTITIES</c> tag of the catalog is not <c>none</c>), a case that
+/// needs namespace processing switched off, and a case whose output lists a processing instruction of the internal subset
+/// are not compared; each is recorded as failed with its own reason (<see cref="NeedsExternalEntities"/>,
+/// <see cref="NeedsNamespacesOff"/>, <see cref="NeedsSubsetProcessingInstruction"/>) and stays in the baseline.
+/// </para>
 /// </remarks>
 internal static class XmlConfOutputRunner
 {
-    /// <summary>The reason of a case that is not compared because it has a document type declaration.</summary>
-    public const string NeedsDtdProcessing = "needs DTD processing";
+    /// <summary>The reason of a case that is not compared because it needs an external entity.</summary>
+    public const string NeedsExternalEntities = "needs external entities";
+
+    /// <summary>The reason of a case that is not compared because it needs namespace processing switched off, which the reader has no option for.</summary>
+    public const string NeedsNamespacesOff = "needs namespace processing off";
+
+    /// <summary>The reason of a case that is not compared because its output lists a processing instruction of the internal subset, which the reader does not report as an event.</summary>
+    public const string NeedsSubsetProcessingInstruction = "needs a processing instruction of the internal subset";
+
+    private const string SubsetProcessingInstructionCase = "ibm/ibm-valid-P29-ibm29v01.xml";
 
     /// <summary>Runs the comparison.</summary>
     /// <param name="selection">The selection; excluded cases are not part of the run.</param>
@@ -48,6 +65,7 @@ internal static class XmlConfOutputRunner
             }
 
             var failure = await JudgeAsync(
+                xmlConfCase,
                 Path.Combine(suiteRoot, xmlConfCase.Uri),
                 Path.Combine(suiteRoot, output),
                 cancellationToken
@@ -63,6 +81,7 @@ internal static class XmlConfOutputRunner
     }
 
     private static async Task<string?> JudgeAsync(
+        XmlConfCase xmlConfCase,
         string inputPath,
         string outputPath,
         CancellationToken cancellationToken
@@ -80,37 +99,66 @@ internal static class XmlConfOutputRunner
         }
 
         var input = await File.ReadAllBytesAsync(inputPath, cancellationToken);
-        if (HasDoctype(input))
+        var hasDoctype = HasDoctype(input);
+        if (hasDoctype && xmlConfCase.Entities != XmlConfEntities.None)
         {
-            return NeedsDtdProcessing;
+            return NeedsExternalEntities;
         }
 
-        var (actual, failure) = Render(input);
+        if (!xmlConfCase.Namespaces)
+        {
+            return NeedsNamespacesOff;
+        }
+
+        if (string.Equals(xmlConfCase.Id, SubsetProcessingInstructionCase, StringComparison.Ordinal))
+        {
+            return NeedsSubsetProcessingInstruction;
+        }
+
+        var (actual, failure) = Render(input, hasDoctype);
         return failure
             ?? XmlConfOutputComparer.Compare(await File.ReadAllBytesAsync(outputPath, cancellationToken), actual);
     }
 
-    private static (byte[] Bytes, string? Failure) Render(byte[] input)
+    private static (byte[] Bytes, string? Failure) Render(byte[] input, bool hasDoctype)
     {
-        var output = new ArrayBufferWriter<byte>();
-        using var reader = XmlPipelineReader.Create(input.AsSpan());
-        using var writer = new XmlWriter(
-            output,
-            new SpanInterningNameTable(XmlReaderLimits.Default.MaxDistinctNames),
-            new XmlWriterOptions(canonical: true)
+        using var reader = XmlPipelineReader.Create(
+            input.AsSpan(),
+            hasDoctype ? XmlReaderOptions.Default.WithDtdProcessing(true) : null
         );
-        try
-        {
-            var sink = writer;
-            return reader.Pump(ref sink) == XmlReadStatus.Completed
-                ? (output.WrittenSpan.ToArray(), null)
-                : ([], $"The reader reported a fatal error {reader.Diagnostic?.Code.Alias}.");
-        }
-        catch (XmlWriteException exception)
-        {
-            return ([], $"The writer rejected the events: {exception.Message}");
-        }
+        var sink = new CanonicalXmlConfSink();
+
+        return reader.Pump(ref sink) == XmlReadStatus.Completed
+            ? (Encoding.UTF8.GetBytes(NotationDeclarations(reader) + sink.Output), null)
+            : ([], $"The reader reported a fatal error {reader.Diagnostic?.Code.Alias}.");
     }
+
+    // The second canonical form: the notations by name in ascending order, each on its own line, inside a document type declaration.
+    private static string NotationDeclarations(XmlPipelineReader reader)
+    {
+        if (reader.Declarations is not { Notations.Count: > 0 } declarations)
+        {
+            return string.Empty;
+        }
+
+        var builder = new StringBuilder("<!DOCTYPE ").Append(declarations.Name).Append(" [\n");
+        foreach (var notation in declarations.Notations.Values.OrderBy(n => n.Name, StringComparer.Ordinal))
+        {
+            _ = builder.Append("<!NOTATION ").Append(notation.Name);
+            _ = builder.Append(Identifiers(notation));
+            _ = builder.Append(">\n");
+        }
+
+        return builder.Append("]>\n").ToString();
+    }
+
+    private static string Identifiers(XmlNotation notation) =>
+        (notation.PublicId, notation.SystemId) switch
+        {
+            (not null, not null) => " PUBLIC '" + notation.PublicId + "' '" + notation.SystemId + "'",
+            (not null, null) => " PUBLIC '" + notation.PublicId + "'",
+            _ => " SYSTEM '" + notation.SystemId + "'",
+        };
 
     // The same detection as the cases of the pipeline reader: UTF-16 by its byte order mark, otherwise one byte per character.
     private static bool HasDoctype(byte[] bytes) =>

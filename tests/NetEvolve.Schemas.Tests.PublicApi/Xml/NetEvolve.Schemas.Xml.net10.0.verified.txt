@@ -31,6 +31,10 @@
 }
 namespace NetEvolve.Schemas.Xml.Contracts
 {
+    public interface IXmlAttributeInfoSink : NetEvolve.Schemas.Xml.Contracts.IXmlSink
+    {
+        void AttributeInfo(in NetEvolve.Schemas.Xml.Dtd.Contracts.ValidationAttributeInfo attribute);
+    }
     public interface IXmlReader
     {
         NetEvolve.Schemas.Xml.Contracts.XmlDiagnostic? Diagnostic { get; }
@@ -185,6 +189,7 @@ namespace NetEvolve.Schemas.Xml.Contracts
     public readonly struct XmlNode : System.IEquatable<NetEvolve.Schemas.Xml.Contracts.XmlNode>
     {
         public XmlNode(NetEvolve.Schemas.Xml.Contracts.XmlTree tree, int index) { }
+        public NetEvolve.Schemas.Xml.Dtd.Model.DtdAttributeType? AttributeType { get; }
         public System.Uri? BaseUri { get; }
         public System.Uri? DocumentUri { get; }
         public NetEvolve.Schemas.Xml.Contracts.XmlNode FirstAttribute { get; }
@@ -192,6 +197,7 @@ namespace NetEvolve.Schemas.Xml.Contracts
         public NetEvolve.Schemas.Xml.Contracts.XmlNode FirstNamespace { get; }
         public int Index { get; }
         public bool IsEmpty { get; }
+        public bool IsSpecified { get; }
         public NetEvolve.Schemas.Xml.Contracts.XmlNodeKind Kind { get; }
         public NetEvolve.Schemas.Xml.Contracts.XmlName Name { get; }
         public NetEvolve.Schemas.Xml.Contracts.XmlNode NextAttribute { get; }
@@ -322,11 +328,13 @@ namespace NetEvolve.Schemas.Xml.Contracts
         public long TreeId { get; }
         public abstract System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Xml.Contracts.XmlUnparsedEntity> UnparsedEntities { get; }
         protected abstract int CompareDocumentOrder(int first, int second);
+        protected virtual NetEvolve.Schemas.Xml.Dtd.Model.DtdAttributeType? GetAttributeType(int index) { }
         protected abstract System.Uri? GetBaseUri(int index);
         protected abstract System.Uri? GetDocumentUri(int index);
         protected abstract int GetFirstAttribute(int index);
         protected abstract int GetFirstChild(int index);
         protected abstract int GetFirstNamespace(int index);
+        protected virtual bool GetIsSpecified(int index) { }
         protected abstract NetEvolve.Schemas.Xml.Contracts.XmlNodeKind GetKind(int index);
         protected abstract NetEvolve.Schemas.Xml.Contracts.XmlName GetName(int index);
         protected abstract int GetNextAttribute(int index);
@@ -1355,11 +1363,13 @@ namespace NetEvolve.Schemas.Xml.Model
         public override System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Xml.Contracts.XmlNotation> Notations { get; }
         public override System.Collections.Generic.IReadOnlyList<NetEvolve.Schemas.Xml.Contracts.XmlUnparsedEntity> UnparsedEntities { get; }
         protected override int CompareDocumentOrder(int first, int second) { }
+        protected override NetEvolve.Schemas.Xml.Dtd.Model.DtdAttributeType? GetAttributeType(int index) { }
         protected override System.Uri? GetBaseUri(int index) { }
         protected override System.Uri? GetDocumentUri(int index) { }
         protected override int GetFirstAttribute(int index) { }
         protected override int GetFirstChild(int index) { }
         protected override int GetFirstNamespace(int index) { }
+        protected override bool GetIsSpecified(int index) { }
         protected override NetEvolve.Schemas.Xml.Contracts.XmlNodeKind GetKind(int index) { }
         protected override NetEvolve.Schemas.Xml.Contracts.XmlName GetName(int index) { }
         protected override int GetNextAttribute(int index) { }
@@ -1370,13 +1380,14 @@ namespace NetEvolve.Schemas.Xml.Model
         protected override string GetStringValue(int index) { }
         public bool TryGetElementById(string id, out NetEvolve.Schemas.Xml.Contracts.XmlNode element) { }
     }
-    public sealed class XmlTreeBuilder : NetEvolve.Schemas.Xml.Contracts.IXmlSink, System.IDisposable
+    public sealed class XmlTreeBuilder : NetEvolve.Schemas.Xml.Contracts.IXmlAttributeInfoSink, NetEvolve.Schemas.Xml.Contracts.IXmlSink, System.IDisposable
     {
         public XmlTreeBuilder(NetEvolve.Schemas.Xml.Contracts.XmlNameTable? names = null, System.Uri? documentUri = null, bool trackPositions = true) { }
         public NetEvolve.Schemas.Xml.Contracts.XmlNameTable Names { get; }
         public void AddNotation(NetEvolve.Schemas.Xml.Contracts.XmlNotation notation) { }
         public void AddUnparsedEntity(NetEvolve.Schemas.Xml.Contracts.XmlUnparsedEntity entity) { }
         public void Attribute(NetEvolve.Schemas.Xml.Contracts.XmlName name, System.ReadOnlySpan<char> value) { }
+        public void AttributeInfo(in NetEvolve.Schemas.Xml.Dtd.Contracts.ValidationAttributeInfo attribute) { }
         public void Comment(System.ReadOnlySpan<char> text) { }
         public NetEvolve.Schemas.Xml.Model.XmlDocumentTree Complete() { }
         public void Dispose() { }

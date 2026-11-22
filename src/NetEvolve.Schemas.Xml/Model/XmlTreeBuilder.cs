@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Buffers;
 using NetEvolve.Schemas.Xml.Contracts;
+using NetEvolve.Schemas.Xml.Dtd.Contracts;
 using NetEvolve.Schemas.Xml.Text.NameTable;
 
 /// <summary>
@@ -28,7 +29,7 @@ using NetEvolve.Schemas.Xml.Text.NameTable;
 /// (node count, text length) is out of scope here and belongs to XML-08.
 /// </para>
 /// </remarks>
-public sealed class XmlTreeBuilder : IXmlSink, IDisposable
+public sealed class XmlTreeBuilder : IXmlAttributeInfoSink, IDisposable
 {
     private readonly bool _ownsNames;
     private readonly bool _trackPositions;
@@ -41,6 +42,8 @@ public sealed class XmlTreeBuilder : IXmlSink, IDisposable
     private readonly PooledBuffer<XmlPosition> _positions = new();
     private readonly PooledBuffer<char> _text = new();
     private readonly PooledBuffer<char> _other = new();
+    private readonly PooledBuffer<int> _factRows = new();
+    private readonly PooledBuffer<byte> _factValues = new();
     private readonly PooledBuffer<NamespaceBinding> _declared = new();
     private readonly PooledBuffer<NamespaceBinding> _scope = new();
     private readonly List<XmlUnparsedEntity> _unparsedEntities = [];
@@ -50,6 +53,7 @@ public sealed class XmlTreeBuilder : IXmlSink, IDisposable
     private XmlNameTable _nameTable;
     private Dictionary<string, int>? _ids;
     private int _openText = XmlTree.NoNode;
+    private int _lastAttribute = XmlTree.NoNode;
     private bool _inTag;
 
     /// <summary>Initializes a new instance of the <see cref="XmlTreeBuilder"/> class.</summary>
@@ -134,6 +138,7 @@ public sealed class XmlTreeBuilder : IXmlSink, IDisposable
     {
         FlushTag();
         var row = AddRow(XmlNodeKind.Element, Parent(), name, position);
+        _lastAttribute = XmlTree.NoNode;
         Push(row);
         _declared.Clear();
         _inTag = true;
@@ -148,6 +153,7 @@ public sealed class XmlTreeBuilder : IXmlSink, IDisposable
         }
 
         _declared.Append(new NamespaceBinding(prefix, uri));
+        _lastAttribute = XmlTree.NoNode;
     }
 
     /// <inheritdoc />
@@ -159,8 +165,25 @@ public sealed class XmlTreeBuilder : IXmlSink, IDisposable
             throw new InvalidOperationException("Attributes belong to an open element.");
         }
 
-        _ = AddRow(XmlNodeKind.Attribute, Parent(), name, default);
+        _lastAttribute = AddRow(XmlNodeKind.Attribute, Parent(), name, default);
         _other.Append(value);
+    }
+
+    /// <inheritdoc />
+    /// <remarks>
+    /// The declared type and the specified flag of the attribute that was reported last are kept for the tree; the facts of a
+    /// namespace declaration are ignored, because a namespace declaration is no attribute node. An attribute that no
+    /// definition covers and that the document specified has no facts to keep.
+    /// </remarks>
+    public void AttributeInfo(in ValidationAttributeInfo attribute)
+    {
+        if (_lastAttribute == XmlTree.NoNode || (attribute.DeclaredType is null && attribute.IsSpecified))
+        {
+            return;
+        }
+
+        _factRows.Append(_lastAttribute);
+        _factValues.Append(XmlDocumentTree.EncodeFacts(attribute.DeclaredType, attribute.IsSpecified));
     }
 
     /// <inheritdoc />
@@ -255,6 +278,7 @@ public sealed class XmlTreeBuilder : IXmlSink, IDisposable
             _trackPositions ? _positions.WrittenSpan.ToArray() : null,
             _documentUri,
             _ids,
+            Facts(count),
             [.. _unparsedEntities],
             [.. _notations]
         );
@@ -280,6 +304,8 @@ public sealed class XmlTreeBuilder : IXmlSink, IDisposable
         _positions.Dispose();
         _text.Dispose();
         _other.Dispose();
+        _factRows.Dispose();
+        _factValues.Dispose();
         _declared.Dispose();
         _scope.Dispose();
     }
@@ -339,6 +365,25 @@ public sealed class XmlTreeBuilder : IXmlSink, IDisposable
         }
 
         return (ends, firstChildren, firstAttributes);
+    }
+
+    // One byte per row, written for the attribute rows that carry facts; null when no row does.
+    private byte[]? Facts(int count)
+    {
+        if (_factRows.Length == 0)
+        {
+            return null;
+        }
+
+        var facts = new byte[count];
+        var rows = _factRows.WrittenSpan;
+        var values = _factValues.WrittenSpan;
+        for (var i = 0; i < rows.Length; i++)
+        {
+            facts[rows[i]] = values[i];
+        }
+
+        return facts;
     }
 
     private static SpanInterningNameTable CreateOwnedTable() =>
@@ -458,6 +503,9 @@ public sealed class XmlTreeBuilder : IXmlSink, IDisposable
         _positions.Clear();
         _text.Clear();
         _other.Clear();
+        _factRows.Clear();
+        _factValues.Clear();
+        _lastAttribute = XmlTree.NoNode;
         _depth = 0;
         _declared.Clear();
         _scope.Clear();
