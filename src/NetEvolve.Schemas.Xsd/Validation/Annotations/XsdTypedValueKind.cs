@@ -1,7 +1,9 @@
-namespace NetEvolve.Schemas.Xsd.Validation.Annotations;
+#pragma warning disable NE0002 // Approved public namespace NetEvolve.Schemas.Xsd for the annotated result and its annotations (design #146 DP-1, DP-18)
+
+namespace NetEvolve.Schemas.Xsd;
 
 /// <summary>What the typed value of an annotated node is (XDM, typed-value accessor); the count of items alone is ambiguous for zero.</summary>
-internal enum XsdTypedValueKind
+public enum XsdTypedValueKind
 {
     /// <summary>The node has no typed value: its type has element-only content (an XDM error when atomized).</summary>
     None = 0,

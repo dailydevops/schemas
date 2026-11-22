@@ -1,4 +1,6 @@
-namespace NetEvolve.Schemas.Xsd.Validation.Annotations;
+#pragma warning disable NE0002 // Approved public namespace NetEvolve.Schemas.Xsd for the annotated result and its annotations (design #146 DP-1, DP-18)
+
+namespace NetEvolve.Schemas.Xsd;
 
 using System;
 using NetEvolve.Arguments;
@@ -10,7 +12,7 @@ using NetEvolve.Arguments;
 /// names are empty until the component model supplies them (#792). The typed value and the data model type of such a node are not affected,
 /// because they follow the nearest built-in ancestor.
 /// </remarks>
-internal readonly struct XsdTypeName : IEquatable<XsdTypeName>
+public readonly struct XsdTypeName : IEquatable<XsdTypeName>
 {
     /// <summary>The name of an anonymous type.</summary>
     internal static readonly XsdTypeName Anonymous = new(string.Empty, string.Empty, true);
