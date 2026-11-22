@@ -115,7 +115,7 @@ public class ConstraintMatrixTests
 
     [Test]
     [MethodDataSource(nameof(EntryKeys))]
-    public async Task Entry_HasAPositiveAndANegativeTestOrIsARecordedGap(string key) =>
+    public async Task Entry_HasAPositiveAndANegativeTest_AndAGapNamesItsIssuesAndProbes(string key) =>
         await AssertNone(
             key,
             ConstraintViolationKind.MissingPositive,

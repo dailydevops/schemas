@@ -12,7 +12,8 @@ using System.Collections.Generic;
 /// A constraint that is enforced has at least one positive test (a conforming document is accepted) and one negative test (a
 /// violating document is rejected with the code); the tests read the document through the validating reader mode, so a
 /// constraint that is not enforced turns its negative test red. A constraint that is not enforced yet is a recorded gap: it
-/// names the issue that tracks it and a probe test that fails the day the constraint is enforced.
+/// names the issues that track it and the probe tests that fail the day the constraint is enforced, and it still lists the
+/// positive and the negative test of the part that works (the validation step with a hand-built model).
 /// </para>
 /// <para>
 /// Limitations: XML 1.1 and its constraints are out of scope (DEF-50, DEF-51). The conformance suite is not mapped: the unit
@@ -357,14 +358,19 @@ internal static class ConstraintMatrix
             "Entity Declared",
             "4.1",
             "XML5024",
-            ["#647"],
-            [Gp + "Gap_EntityDeclaredValidityForm_IsNotReported_Issue647"],
+            ["#647", "#935"],
+            [
+                Gp + "Gap_EntityDeclaredValidityForm_IsNotReported_Issue647",
+                Gp + "Gap_EntityDeclaredForParameterEntityReference_InTheExternalSubset_IsNotReported_Issue935",
+                Gp + "Gap_EntityDeclaredForParameterEntityReference_InAnEntityValue_IsNotReported_Issue935",
+                Gp + "Gap_EntityDeclaredForParameterEntityReference_InTheInternalSubset_IsNotReported_Issue935",
+            ],
             [DocumentStep + "DocumentReportTests.EntityDeclared_ReferenceToADeclaredEntity_ReportsNothing"],
             [
                 DocumentStep
                     + "DocumentReportTests.EntityDeclared_ReferenceToAnUndeclaredEntity_ReportsXml5024AtTheReference_AndContinues",
             ],
-            "The well-formedness form of the constraint is enforced (XML0008); the validity form needs the entity reference event of #647."
+            "The well-formedness form of the constraint is enforced (XML0008). The validity form for a general entity needs the entity reference event of #647; for a parameter entity (production 69) it needs a parse-time fact (#935)."
         ),
         Valid(
             "Notation Declared",

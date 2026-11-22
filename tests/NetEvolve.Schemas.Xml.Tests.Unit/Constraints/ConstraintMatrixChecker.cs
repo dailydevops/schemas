@@ -119,7 +119,6 @@ internal static class ConstraintMatrixChecker
         if (entry.Gap is { } gap)
         {
             CheckGap(entry, gap, testExists, violations);
-            return;
         }
 
         if (positive == 0)

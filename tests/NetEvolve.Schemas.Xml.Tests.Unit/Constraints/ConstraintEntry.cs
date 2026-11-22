@@ -6,7 +6,7 @@ using System.Collections.Generic;
 /// <remarks>
 /// A reference is the full name of a unit test without the root namespace of this assembly, <c>Type.Method</c>, or
 /// <c>xmlconf:</c> and the identifier of a case of the W3C XML Conformance Test Suite (<c>testset/ID</c>). An entry with a
-/// <see cref="Gap"/> is a constraint that is not enforced yet; it may still list the tests of the part that works.
+/// <see cref="Gap"/> is a constraint that is not enforced yet; it lists the tests of the part that works (the step level) as well.
 /// </remarks>
 /// <param name="Kind">The family of the constraint.</param>
 /// <param name="Name">The official name, as the specification labels the constraint.</param>
