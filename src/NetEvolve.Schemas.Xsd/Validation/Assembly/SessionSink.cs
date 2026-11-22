@@ -9,18 +9,17 @@ using NetEvolve.Schemas.Xsd.Validation.Entities;
 
 /// <summary>
 /// The sink of one run: forwards every reader event to the streaming validator, hands the document type declaration to the entity
-/// listener as well, and observes the cancellation token at every element boundary (design #146 DP-11).
+/// listener as well when the schema has one, and observes the cancellation token at every element boundary (design #146 DP-11).
 /// </summary>
 internal sealed class SessionSink : IXmlSink
 {
     private readonly StreamingValidator _validator;
-    private readonly EntityListener _entities;
+    private readonly EntityListener? _entities;
     private readonly CancellationToken _cancellationToken;
 
-    internal SessionSink(StreamingValidator validator, EntityListener entities, CancellationToken cancellationToken)
+    internal SessionSink(StreamingValidator validator, EntityListener? entities, CancellationToken cancellationToken)
     {
         Argument.ThrowIfNull(validator);
-        Argument.ThrowIfNull(entities);
 
         _validator = validator;
         _entities = entities;
@@ -70,6 +69,6 @@ internal sealed class SessionSink : IXmlSink
     public void Doctype(in XmlDoctypeInfo doctype)
     {
         _validator.Doctype(in doctype);
-        _entities.ReceiveDoctype(in doctype);
+        _entities?.ReceiveDoctype(in doctype);
     }
 }

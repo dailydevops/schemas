@@ -33,8 +33,9 @@ using ValidationResult = NetEvolve.Schemas.ValidationResult;
 /// </para>
 /// <para>
 /// Limitations: DTD processing reads the internal subset only (design #146 DP-21); the assessment is strict and declaration driven
-/// (DP-23); a violation that a listener finds does not mark the element invalid yet (#605); the listeners of the ID and the entity
-/// checks are created for every run, not only when the schema has an ID or an ENTITY typed component.
+/// (DP-23); a violation that a listener finds does not mark the element invalid yet (#605); the ID and the entity listener exist
+/// only when the schema names a type of their check (<see cref="ListenerDemand"/>), so an <c>xsi:type</c> that names such a built-in
+/// type for a schema that never names it is not checked.
 /// </para>
 /// </remarks>
 internal sealed class ValidationCore : IValidationCore
@@ -43,6 +44,8 @@ internal sealed class ValidationCore : IValidationCore
     private readonly DescriptorValueAssessor _assessor;
     private readonly IReadOnlyDictionary<ElementDeclaration, IReadOnlyList<IdentityConstraintDefinition>> _constraints;
     private readonly XsdVersion _version;
+    private readonly bool _needsIds;
+    private readonly bool _needsEntities;
     private readonly ValidationLimits _limits;
     private readonly XmlReaderOptions _options;
 
@@ -64,6 +67,8 @@ internal sealed class ValidationCore : IValidationCore
         _constraints = compilation.IdentityConstraints;
         _assessor = new DescriptorValueAssessor(version);
         _version = version;
+        _needsIds = compilation.NeedsIdListener;
+        _needsEntities = compilation.NeedsEntityListener;
         _limits = limits;
         _options = XmlReaderOptions
             .Default.WithDtdProcessing(dtdProcessing)
@@ -139,7 +144,7 @@ internal sealed class ValidationCore : IValidationCore
         {
             Argument.ThrowIfNull(reader);
 
-            var entities = new EntityListener(_core._assessor, _core._options.Limits);
+            var entities = _core._needsEntities ? new EntityListener(_core._assessor, _core._options.Limits) : null;
             var validator = new StreamingValidator(
                 _core._model,
                 _core._assessor,
@@ -157,14 +162,20 @@ internal sealed class ValidationCore : IValidationCore
             }
         }
 
-        // The fixed order of the listeners: ID, entity, identity constraint (design #146 DP-12).
-        private List<ValidationListener> Listeners(EntityListener entities)
+        // The fixed order of the listeners: ID, entity, identity constraint; each exists only when the schema needs it (design #146 DP-12).
+        private List<ValidationListener> Listeners(EntityListener? entities)
         {
-            var listeners = new List<ValidationListener>(3)
+            var listeners = new List<ValidationListener>(3);
+            if (_core._needsIds)
             {
-                new IdListener(_core._assessor, _core._model.Schema),
-                entities,
-            };
+                listeners.Add(new IdListener(_core._assessor, _core._model.Schema));
+            }
+
+            if (entities is not null)
+            {
+                listeners.Add(entities);
+            }
+
             if (_core._constraints.Count > 0)
             {
                 listeners.Add(

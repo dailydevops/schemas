@@ -5,17 +5,22 @@ using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Elements;
 using NetEvolve.Schemas.Xsd.IdentityConstraints.Definitions;
+using NetEvolve.Schemas.Xsd.Validation.Assembly;
 using NetEvolve.Schemas.Xsd.Validation.Core;
 
 /// <summary>The outcome of a schema compilation: the checked schema set and its compiled content models, or the issues.</summary>
 /// <remarks>The set and the model are <see langword="null"/> when the result has an error, because a schema that has an error is not a valid schema (Structures 5.1).</remarks>
 internal sealed class SchemaCompilation
 {
+    private readonly ListenerKinds _listeners;
+
     internal SchemaCompilation(
         XsdSchemaSet? set,
         ValidationModel? model,
         ValidationResult result,
-        IReadOnlyDictionary<ElementDeclaration, IReadOnlyList<IdentityConstraintDefinition>>? identityConstraints = null
+        IReadOnlyDictionary<ElementDeclaration, IReadOnlyList<IdentityConstraintDefinition>>? identityConstraints =
+            null,
+        ListenerKinds listeners = ListenerKinds.None
     )
     {
         Argument.ThrowIfNull(result);
@@ -24,6 +29,7 @@ internal sealed class SchemaCompilation
         Model = model;
         Result = result;
         IdentityConstraints = identityConstraints ?? NoConstraints;
+        _listeners = listeners;
     }
 
     private static IReadOnlyDictionary<
@@ -47,10 +53,10 @@ internal sealed class SchemaCompilation
     > IdentityConstraints { get; }
 
     /// <summary>Gets a value indicating whether the schema names an ID, IDREF, IDREFS, or NOTATION type, so the ID listener has work.</summary>
-    public bool NeedsIdListener { get; } = true;
+    public bool NeedsIdListener => _listeners.HasFlag(ListenerKinds.Ids);
 
     /// <summary>Gets a value indicating whether the schema names an ENTITY or ENTITIES type, so the entity listener has work.</summary>
-    public bool NeedsEntityListener { get; } = true;
+    public bool NeedsEntityListener => _listeners.HasFlag(ListenerKinds.Entities);
 
     /// <summary>Gets a value indicating whether the schema is valid and the set is available.</summary>
     public bool IsValid => Set is not null;

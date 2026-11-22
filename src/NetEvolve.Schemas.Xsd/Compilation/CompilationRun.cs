@@ -58,6 +58,7 @@ internal sealed class CompilationRun
     private readonly DeterminismChecker _determinism;
     private readonly ParticleRestriction? _particleRestriction;
     private readonly List<ModelGroupDefinition> _definitions = [];
+    private ListenerKinds _listeners;
     private readonly List<IdentityConstraintDefinition> _constraints = [];
     private readonly List<ConstraintOwner> _owners = [];
 
@@ -147,6 +148,7 @@ internal sealed class CompilationRun
         if (!HasGateErrors(units))
         {
             Build(units, cancellationToken);
+            _listeners = ScanListeners(units);
             cancellationToken.ThrowIfCancellationRequested();
             Resolve();
             CompileChecks.Run(_context, _derivation, _particleRestriction, _definitions, _version, _reporter);
@@ -251,6 +253,22 @@ internal sealed class CompilationRun
         }
 
         return issues.Count > 0;
+    }
+
+    // The listeners that the schema documents demand (design #146 DP-12); a document that several units share is scanned once.
+    private static ListenerKinds ScanListeners(List<UnitScope> units)
+    {
+        var kinds = ListenerKinds.None;
+        var scanned = new HashSet<SchemaDocument>();
+        foreach (var unit in units)
+        {
+            if (scanned.Add(unit.Unit.Document))
+            {
+                kinds |= ListenerDemand.Scan(unit.Unit.Document.Root!);
+            }
+        }
+
+        return kinds;
     }
 
     private void Build(List<UnitScope> units, CancellationToken cancellationToken)
@@ -415,7 +433,7 @@ internal sealed class CompilationRun
 
         var result = _collector.ToResult();
         return result.IsValid
-            ? new SchemaCompilation(set, model, result, ConstraintsOfElements())
+            ? new SchemaCompilation(set, model, result, ConstraintsOfElements(), _listeners)
             : new SchemaCompilation(null, null, result);
     }
 
