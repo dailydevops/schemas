@@ -15,7 +15,7 @@ internal static class DeclaredNames
     /// <returns>The set.</returns>
     internal static IDeclaredNames Of(IReadOnlyList<XPathQName> names)
     {
-        Argument.ThrowIfNull(names);
+        ArgumentNullException.ThrowIfNull(names);
 
         return new NameSet(names);
     }
@@ -29,7 +29,7 @@ internal static class DeclaredNames
     /// <returns>The set.</returns>
     internal static IDeclaredNames Of(IComponentRegistry registry, XsdComponentKind kind)
     {
-        Argument.ThrowIfNull(registry);
+        ArgumentNullException.ThrowIfNull(registry);
 
         return new RegistryNames(registry, kind);
     }

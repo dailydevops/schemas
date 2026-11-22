@@ -34,9 +34,9 @@ public sealed class BoundFacet<TValue> : IValueFacet<TValue>
     /// <exception cref="System.ArgumentOutOfRangeException"><paramref name="kind"/> is not one of the four bounds facets.</exception>
     public BoundFacet(FacetKind kind, IDatatypeDescriptor<TValue> type, TValue bound)
     {
-        Argument.ThrowIfNull(type);
-        Argument.ThrowIfLessThan((int)kind, (int)FacetKind.MaxInclusive);
-        Argument.ThrowIfGreaterThan((int)kind, (int)FacetKind.MinInclusive);
+        ArgumentNullException.ThrowIfNull(type);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)kind, (int)FacetKind.MaxInclusive);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)kind, (int)FacetKind.MinInclusive);
         Kind = kind;
         _type = type;
         _bound = bound;

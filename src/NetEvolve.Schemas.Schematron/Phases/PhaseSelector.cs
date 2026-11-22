@@ -26,9 +26,9 @@ internal static class PhaseSelector
         out PhaseSelection selection
     )
     {
-        Argument.ThrowIfNull(schema);
-        Argument.ThrowIfNull(requested);
-        Argument.ThrowIfNull(problems);
+        ArgumentNullException.ThrowIfNull(schema);
+        ArgumentNullException.ThrowIfNull(requested);
+        ArgumentNullException.ThrowIfNull(problems);
 
         selection = new PhaseSelection(All, [], []);
         var ok = true;

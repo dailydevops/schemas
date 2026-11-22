@@ -16,7 +16,7 @@ internal readonly struct NumberDigits
     /// <exception cref="ArgumentNullException"><paramref name="digits"/> is <see langword="null"/>.</exception>
     public NumberDigits(string digits, int point)
     {
-        Argument.ThrowIfNull(digits);
+        ArgumentNullException.ThrowIfNull(digits);
 
         Digits = digits;
         Point = digits.Length == 0 ? 0 : point;
@@ -34,7 +34,7 @@ internal readonly struct NumberDigits
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="maximumFraction"/> is negative.</exception>
     public NumberDigits Round(int maximumFraction)
     {
-        Argument.ThrowIfLessThan(maximumFraction, 0);
+        ArgumentOutOfRangeException.ThrowIfLessThan(maximumFraction, 0);
 
         var keep = (long)Point + maximumFraction;
         if (keep >= Digits.Length)

@@ -58,7 +58,7 @@ public static class XmlInterop
     /// <exception cref="ArgumentNullException"><paramref name="node"/> is <see langword="default"/>.</exception>
     public static XDocument ToXDocument(XmlNode node)
     {
-        Argument.ThrowIfNull(node.Tree, nameof(node));
+        ArgumentNullException.ThrowIfNull(node.Tree, nameof(node));
 
         var sink = new XDocumentSink(node.Tree.Names);
         XmlTreePump.Pump(node, sink);
@@ -80,7 +80,7 @@ public static class XmlInterop
     /// <exception cref="ArgumentNullException"><paramref name="node"/> is <see langword="default"/>.</exception>
     public static XmlDocument ToXmlDocument(XmlNode node)
     {
-        Argument.ThrowIfNull(node.Tree, nameof(node));
+        ArgumentNullException.ThrowIfNull(node.Tree, nameof(node));
 
         var sink = new XmlDocumentSink(node.Tree.Names);
         XmlTreePump.Pump(node, sink);

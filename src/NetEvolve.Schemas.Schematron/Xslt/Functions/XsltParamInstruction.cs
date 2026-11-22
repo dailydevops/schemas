@@ -34,7 +34,7 @@ internal sealed class XsltParamInstruction : IXsltInstruction
     /// <inheritdoc />
     public bool TryCompile(XsltCompileContext context, out XsltExecutable executable, out SchematronProblem problem)
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         problem = default;
         if (XsltGlobalCompile.IsTopLevel(context.Element))
@@ -65,8 +65,8 @@ internal sealed class XsltParamInstruction : IXsltInstruction
         out XsltFunctionParameter parameter
     )
     {
-        Argument.ThrowIfNull(context);
-        Argument.ThrowIfNull(element.Tree);
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(element.Tree);
 
         parameter = null!;
         var ok = XsltElementReader.TryReadVariableName(context.Problems, element, "xsl:param", out var name);

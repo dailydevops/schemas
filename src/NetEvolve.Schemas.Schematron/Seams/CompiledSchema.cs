@@ -11,8 +11,8 @@ internal class CompiledSchema
 {
     internal CompiledSchema(SchematronSchema schema, string effectivePhase)
     {
-        Argument.ThrowIfNull(schema);
-        Argument.ThrowIfNull(effectivePhase);
+        ArgumentNullException.ThrowIfNull(schema);
+        ArgumentNullException.ThrowIfNull(effectivePhase);
 
         Schema = schema;
         EffectivePhase = effectivePhase;

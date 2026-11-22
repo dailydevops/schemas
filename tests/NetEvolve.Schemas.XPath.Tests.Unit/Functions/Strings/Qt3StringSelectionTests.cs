@@ -116,7 +116,7 @@ public class Qt3StringSelectionTests
     // An expectation is a tab-separated list of alternatives; an alternative is a list of assertions that all hold (all-of), separated by the unit separator (U+001F).
     private static bool Satisfies(string expectation, XdmSequence result, string code)
     {
-        Argument.ThrowIfNull(expectation);
+        ArgumentNullException.ThrowIfNull(expectation);
 
         foreach (var alternative in expectation.Split('	'))
         {

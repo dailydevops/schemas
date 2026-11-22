@@ -80,9 +80,9 @@ internal sealed class FacetBase
     /// <returns>The description, <see langword="null"/> when the base is not a simple type that the check can see through.</returns>
     internal static FacetBase? Resolve(IXsdComponent baseType, XsdVersion version)
     {
-        Argument.ThrowIfNull(baseType);
-        Argument.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
-        Argument.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
+        ArgumentNullException.ThrowIfNull(baseType);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
 
         return baseType switch
         {

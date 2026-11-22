@@ -28,7 +28,7 @@ internal static class InScopeNamespaces
     /// <exception cref="ArgumentNullException"><paramref name="element"/> is <see langword="default"/>.</exception>
     internal static bool TryResolve(in XPathNode element, ReadOnlySpan<char> prefix, out string namespaceName)
     {
-        Argument.ThrowIfNull(element.Tree);
+        ArgumentNullException.ThrowIfNull(element.Tree);
 
         var names = element.Tree.Names;
         for (var node = element.Node.FirstNamespace; !node.IsEmpty; node = node.NextNamespace)
@@ -52,7 +52,7 @@ internal static class InScopeNamespaces
     /// <exception cref="ArgumentNullException"><paramref name="element"/> is <see langword="default"/>.</exception>
     internal static XdmSequence Prefixes(in XPathNode element)
     {
-        Argument.ThrowIfNull(element.Tree);
+        ArgumentNullException.ThrowIfNull(element.Tree);
 
         var names = element.Tree.Names;
         var count = 1;

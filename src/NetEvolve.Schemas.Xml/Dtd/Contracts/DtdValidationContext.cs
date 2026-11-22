@@ -35,9 +35,9 @@ public sealed class DtdValidationContext
         DocumentLocation documentTypeLocation
     )
     {
-        Argument.ThrowIfNull(declarations);
-        Argument.ThrowIfNull(options);
-        Argument.ThrowIfNull(issues);
+        ArgumentNullException.ThrowIfNull(declarations);
+        ArgumentNullException.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(issues);
 
         Declarations = declarations;
         Options = options;
@@ -77,8 +77,8 @@ public sealed class DtdValidationContext
     /// <param name="argument">The offending item, for example a token or a name, or <see langword="null"/>.</param>
     public void Report(DtdValidityCode code, IssueSeverity severity, DocumentLocation location, string? argument = null)
     {
-        Argument.ThrowIfNull(code);
-        Argument.ThrowIfGreaterThan((int)severity, (int)IssueSeverity.Error);
+        ArgumentNullException.ThrowIfNull(code);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)severity, (int)IssueSeverity.Error);
 
         var message = argument is null ? code.Message : code.Message + " (" + argument + ")";
         _issues.Add(new ValidationIssue(code.Code, severity, message, OrDocumentType(location), code.Name));
@@ -90,8 +90,8 @@ public sealed class DtdValidationContext
     /// <param name="argument">The offending item, or <see langword="null"/>.</param>
     public void ReportStandalone(XmlStandaloneClause clause, DocumentLocation location, string? argument = null)
     {
-        Argument.ThrowIfGreaterThan((int)clause, (int)XmlStandaloneClause.WhiteSpace);
-        Argument.ThrowIfLessThan((int)clause, (int)XmlStandaloneClause.Defaults);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)clause, (int)XmlStandaloneClause.WhiteSpace);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)clause, (int)XmlStandaloneClause.Defaults);
 
         var detail = argument is null ? "clause: " + clause : "clause: " + clause + ", " + argument;
         Report(DtdValidityCodes.XML5003, IssueSeverity.Error, location, detail);
@@ -105,7 +105,7 @@ public sealed class DtdValidationContext
     /// <param name="location">The location where the status was found.</param>
     public void Stop(XmlErrorCode code, DocumentLocation location)
     {
-        Argument.ThrowIfNull(code);
+        ArgumentNullException.ThrowIfNull(code);
 
         _issues.Stop(
             new ValidationIssue(code.Code, IssueSeverity.Error, code.Message, OrDocumentType(location), code.Constraint)

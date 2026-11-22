@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Xml.Datatypes.Decimals;
+﻿namespace NetEvolve.Schemas.Xml.Datatypes.Decimals;
 
 using System;
 using System.Globalization;
@@ -274,20 +274,23 @@ public readonly struct XsdDecimal : IEquatable<XsdDecimal>, IComparable<XsdDecim
         var builder = new StringBuilder(digits.Length + Math.Abs(Scale) + 3);
         if (_sign < 0)
         {
-            builder.Append('-');
+            _ = builder.Append('-');
         }
 
         if (Scale <= 0)
         {
-            builder.Append(digits).Append('0', -Scale);
+            _ = builder.Append(digits).Append('0', -Scale);
         }
         else if (Scale < digits.Length)
         {
-            builder.Append(digits, 0, digits.Length - Scale).Append('.').Append(digits, digits.Length - Scale, Scale);
+            _ = builder
+                .Append(digits, 0, digits.Length - Scale)
+                .Append('.')
+                .Append(digits, digits.Length - Scale, Scale);
         }
         else
         {
-            builder.Append("0.").Append('0', Scale - digits.Length).Append(digits);
+            _ = builder.Append("0.").Append('0', Scale - digits.Length).Append(digits);
         }
 
         return builder.ToString();

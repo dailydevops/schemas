@@ -31,7 +31,7 @@ internal static class InstanceReader
         out ValidationIssue issue
     )
     {
-        Argument.ThrowIfNull(limits);
+        ArgumentNullException.ThrowIfNull(limits);
 
         var options = XmlIssues.Options(limits);
         var baseUri = Uri.TryCreate(source.SystemId, UriKind.Absolute, out var absolute) ? absolute : null;

@@ -11,7 +11,7 @@ internal sealed class UnitScope
 {
     internal UnitScope(SchemaUnit unit)
     {
-        Argument.ThrowIfNull(unit);
+        ArgumentNullException.ThrowIfNull(unit);
 
         Unit = unit;
         Scope = new SchemaNamespaceScope(

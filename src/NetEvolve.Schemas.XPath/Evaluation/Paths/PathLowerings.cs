@@ -27,7 +27,7 @@ internal static class PathLowerings
     /// <exception cref="System.InvalidOperationException">A node kind already has a lowering.</exception>
     public static void Register(LoweringRegistry registry)
     {
-        Argument.ThrowIfNull(registry);
+        ArgumentNullException.ThrowIfNull(registry);
 
         registry.Register<PathExpression>(static (node, context) => LowerPath(node, context));
         registry.Register<AxisStep>(

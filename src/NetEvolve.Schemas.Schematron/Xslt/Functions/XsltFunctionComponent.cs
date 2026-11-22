@@ -28,12 +28,12 @@ internal sealed class XsltFunctionComponent
         DocumentLocation location
     )
     {
-        Argument.ThrowIfNull(displayName);
-        Argument.ThrowIfNull(parameters);
-        Argument.ThrowIfNull(body);
-        Argument.ThrowIfLessThan(slotBase, 0);
-        Argument.ThrowIfLessThan(slotCount, parameters.Count);
-        Argument.ThrowIfNull(referencedSlots);
+        ArgumentNullException.ThrowIfNull(displayName);
+        ArgumentNullException.ThrowIfNull(parameters);
+        ArgumentNullException.ThrowIfNull(body);
+        ArgumentOutOfRangeException.ThrowIfLessThan(slotBase, 0);
+        ArgumentOutOfRangeException.ThrowIfLessThan(slotCount, parameters.Count);
+        ArgumentNullException.ThrowIfNull(referencedSlots);
 
         Name = name;
         DisplayName = displayName;

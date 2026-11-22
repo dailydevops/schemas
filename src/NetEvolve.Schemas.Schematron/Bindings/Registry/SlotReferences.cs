@@ -34,7 +34,7 @@ internal sealed class SlotReferences
         out XPathQName[] names
     )
     {
-        Argument.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(scope);
 
         slots = [];
         names = [];

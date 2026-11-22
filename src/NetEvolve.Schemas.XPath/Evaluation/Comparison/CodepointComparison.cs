@@ -20,8 +20,8 @@ internal static class CodepointComparison
     /// <exception cref="System.ArgumentNullException">An argument is <see langword="null"/>.</exception>
     public static int Compare(string first, string second)
     {
-        Argument.ThrowIfNull(first);
-        Argument.ThrowIfNull(second);
+        ArgumentNullException.ThrowIfNull(first);
+        ArgumentNullException.ThrowIfNull(second);
 
         var length = first.Length < second.Length ? first.Length : second.Length;
         for (var i = 0; i < length; i++)

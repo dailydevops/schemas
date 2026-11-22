@@ -15,8 +15,8 @@ public readonly struct TextRange : IEquatable<TextRange>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> or <paramref name="length"/> is negative.</exception>
     public TextRange(int offset, int length)
     {
-        Argument.ThrowIfLessThan(offset, 0);
-        Argument.ThrowIfLessThan(length, 0);
+        ArgumentOutOfRangeException.ThrowIfLessThan(offset, 0);
+        ArgumentOutOfRangeException.ThrowIfLessThan(length, 0);
         Offset = offset;
         Length = length;
     }

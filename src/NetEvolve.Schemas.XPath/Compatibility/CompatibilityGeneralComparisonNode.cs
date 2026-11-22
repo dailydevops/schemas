@@ -43,15 +43,19 @@ internal sealed class CompatibilityGeneralComparisonNode : ExecutableNode
         ComparisonOperatorTable table
     )
     {
-        Argument.ThrowIfLessThan((int)@operator, (int)ComparisonOperator.GeneralEqual, nameof(@operator));
-        Argument.ThrowIfGreaterThan(
+        ArgumentOutOfRangeException.ThrowIfLessThan(
+            (int)@operator,
+            (int)ComparisonOperator.GeneralEqual,
+            nameof(@operator)
+        );
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(
             (int)@operator,
             (int)ComparisonOperator.GeneralGreaterThanOrEqual,
             nameof(@operator)
         );
-        Argument.ThrowIfNull(left);
-        Argument.ThrowIfNull(right);
-        Argument.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(left);
+        ArgumentNullException.ThrowIfNull(right);
+        ArgumentNullException.ThrowIfNull(table);
 
         _relation = ComparisonRelations.Of(@operator);
         _left = left;
@@ -63,7 +67,7 @@ internal sealed class CompatibilityGeneralComparisonNode : ExecutableNode
     /// <exception cref="XPathException">The other operand of a boolean has no effective boolean value (FORG0006), an untyped value is not a value of the type it is cast to (FORG0001), or the types of a pair have no operator (XPTY0004).</exception>
     public override XdmSequence Evaluate(XPathEvaluationContext context)
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         var leftValue = _left.Evaluate(context);
         var rightValue = _right.Evaluate(context);

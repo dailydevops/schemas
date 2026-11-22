@@ -14,7 +14,7 @@ internal sealed class XsltModuleProblemSink : IProblemSink
 
     internal XsltModuleProblemSink(IProblemSink inner, string? systemId)
     {
-        Argument.ThrowIfNull(inner);
+        ArgumentNullException.ThrowIfNull(inner);
 
         _inner = inner;
         _systemId = systemId;

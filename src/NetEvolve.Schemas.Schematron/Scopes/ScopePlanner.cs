@@ -65,11 +65,11 @@ internal static class ScopePlanner
         out ScopePlan plan
     )
     {
-        Argument.ThrowIfNull(schema);
-        Argument.ThrowIfNull(selection);
-        Argument.ThrowIfNull(globals);
-        Argument.ThrowIfNull(binding);
-        Argument.ThrowIfNull(problems);
+        ArgumentNullException.ThrowIfNull(schema);
+        ArgumentNullException.ThrowIfNull(selection);
+        ArgumentNullException.ThrowIfNull(globals);
+        ArgumentNullException.ThrowIfNull(binding);
+        ArgumentNullException.ThrowIfNull(problems);
 
         return new PlanRun(schema, binding, problems, globals).Execute(selection, out plan);
     }

@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 public class DependencyVersionFloorTests
 {
-    // Version floor per target framework (issue #418): net8.0 to net10.0 use the 10.x line, net11.0 uses 11.x.
+    // Version floor per target framework (issue #418): net5.0 to net10.0 use the 10.x line, net11.0 uses 11.x.
     [Test]
     public async Task Abstractions_Major_Matches_TargetFramework()
     {

@@ -32,8 +32,8 @@ internal static class SchematronCoreParser
     /// <returns><see langword="true"/> when no problem was reported.</returns>
     internal static bool TryParse(XmlNode node, string? systemId, IProblemSink problems, out SchematronSchema? schema)
     {
-        Argument.ThrowIfNull(node.Tree);
-        Argument.ThrowIfNull(problems);
+        ArgumentNullException.ThrowIfNull(node.Tree);
+        ArgumentNullException.ThrowIfNull(problems);
 
         schema = new CoreParseRun(node.Tree, systemId, problems).Run(node);
         return schema is not null;
@@ -56,8 +56,8 @@ internal static class SchematronCoreParser
         out SchematronLibrary? library
     )
     {
-        Argument.ThrowIfNull(node.Tree);
-        Argument.ThrowIfNull(problems);
+        ArgumentNullException.ThrowIfNull(node.Tree);
+        ArgumentNullException.ThrowIfNull(problems);
 
         library = new CoreParseRun(node.Tree, systemId, problems).RunLibrary(node, edition, xsltBinding);
         return library is not null;
@@ -84,8 +84,8 @@ internal static class SchematronCoreParser
         out string rootName
     )
     {
-        Argument.ThrowIfNull(node.Tree);
-        Argument.ThrowIfNull(problems);
+        ArgumentNullException.ThrowIfNull(node.Tree);
+        ArgumentNullException.ThrowIfNull(problems);
 
         return new CoreParseRun(node.Tree, systemId, problems).RunFragment(
             node,

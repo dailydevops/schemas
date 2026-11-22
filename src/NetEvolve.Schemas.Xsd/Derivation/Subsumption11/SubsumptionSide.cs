@@ -66,9 +66,9 @@ internal sealed class SubsumptionSide
     /// <returns>The side; its <see cref="Status"/> tells whether it can be compared.</returns>
     internal static SubsumptionSide Build(Particle root, Dictionary<XPathQName, int> ids, List<XPathQName> names)
     {
-        Argument.ThrowIfNull(root);
-        Argument.ThrowIfNull(ids);
-        Argument.ThrowIfNull(names);
+        ArgumentNullException.ThrowIfNull(root);
+        ArgumentNullException.ThrowIfNull(ids);
+        ArgumentNullException.ThrowIfNull(names);
 
         var side = new SubsumptionSide(root, ids, names);
         side.Construct();

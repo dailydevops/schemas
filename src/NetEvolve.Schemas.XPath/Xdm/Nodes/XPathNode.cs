@@ -16,7 +16,7 @@ public readonly struct XPathNode : IEquatable<XPathNode>
     /// <exception cref="System.ArgumentNullException"><paramref name="node"/> is <see langword="default"/>.</exception>
     public XPathNode(XmlNode node)
     {
-        Argument.ThrowIfNull(node.Tree);
+        ArgumentNullException.ThrowIfNull(node.Tree);
 
         Node = node;
     }

@@ -54,11 +54,11 @@ internal sealed class XsltKeyProvider : IXPathKeyProvider
         CancellationToken cancellationToken = default
     )
     {
-        Argument.ThrowIfNull(table);
-        Argument.ThrowIfNull(matcher);
-        Argument.ThrowIfNull(run);
-        Argument.ThrowIfNull(binder);
-        Argument.ThrowIfNull(names);
+        ArgumentNullException.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(matcher);
+        ArgumentNullException.ThrowIfNull(run);
+        ArgumentNullException.ThrowIfNull(binder);
+        ArgumentNullException.ThrowIfNull(names);
 
         _table = table;
         _matcher = matcher;
@@ -112,7 +112,7 @@ internal sealed class XsltKeyProvider : IXPathKeyProvider
         out XdmSequence nodes
     )
     {
-        Argument.ThrowIfNull(node.Tree);
+        ArgumentNullException.ThrowIfNull(node.Tree);
 
         nodes = XdmSequence.Empty;
         if (!_table.TryGet(in name, out var declarations))

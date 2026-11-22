@@ -25,7 +25,7 @@ public class EvaluationContractTests
     [Arguments("fake:string-length(@a)", 1L)]
     public async Task Expression_OverFakeNodeSource_CallsFakeFunction(string expression, long expected)
     {
-        Argument.ThrowIfNull(expression);
+        ArgumentNullException.ThrowIfNull(expression);
         var source = new FakeNodeSource();
         using var context = new XPathEvaluationContext();
         context.SetContextItem(XdmItem.FromNode(new XPathNode(source.Element)));

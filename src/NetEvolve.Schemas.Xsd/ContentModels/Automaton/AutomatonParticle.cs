@@ -30,8 +30,8 @@ internal sealed class AutomatonParticle
         AutomatonParticle[] children
     )
     {
-        Argument.ThrowIfLessThan(minOccurs, 0L);
-        Argument.ThrowIfGreaterThan(minOccurs, maxOccurs);
+        ArgumentOutOfRangeException.ThrowIfLessThan(minOccurs, 0L);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(minOccurs, maxOccurs);
 
         Kind = kind;
         MinOccurs = minOccurs;
@@ -66,13 +66,13 @@ internal sealed class AutomatonParticle
     /// <returns>The particle.</returns>
     public static AutomatonParticle Element(long minOccurs, long maxOccurs, params int[] nameIds)
     {
-        Argument.ThrowIfNull(nameIds);
-        Argument.ThrowIfLessThan(nameIds.Length, 1);
+        ArgumentNullException.ThrowIfNull(nameIds);
+        ArgumentOutOfRangeException.ThrowIfLessThan(nameIds.Length, 1);
 
         var sorted = (int[])nameIds.Clone();
         foreach (var id in sorted)
         {
-            Argument.ThrowIfLessThan(id, 0);
+            ArgumentOutOfRangeException.ThrowIfLessThan(id, 0);
         }
 
         System.Array.Sort(sorted);
@@ -87,7 +87,7 @@ internal sealed class AutomatonParticle
     /// <returns>The particle.</returns>
     public static AutomatonParticle Wildcard(long minOccurs, long maxOccurs, IWildcard wildcard)
     {
-        Argument.ThrowIfNull(wildcard);
+        ArgumentNullException.ThrowIfNull(wildcard);
 
         return new AutomatonParticle(AutomatonParticleKind.Wildcard, minOccurs, maxOccurs, null, wildcard, NoChildren);
     }
@@ -118,10 +118,10 @@ internal sealed class AutomatonParticle
 
     private static void ThrowIfAnyNull(AutomatonParticle[] children)
     {
-        Argument.ThrowIfNull(children);
+        ArgumentNullException.ThrowIfNull(children);
         foreach (var child in children)
         {
-            Argument.ThrowIfNull(child);
+            ArgumentNullException.ThrowIfNull(child);
         }
     }
 }

@@ -10,8 +10,8 @@ internal sealed record Stage4Schema
     /// <param name="documents">The test documents.</param>
     public Stage4Schema(string path, IReadOnlyList<Stage4Document> documents)
     {
-        Argument.ThrowIfNullOrWhiteSpace(path);
-        Argument.ThrowIfNull(documents);
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(path);
+        ArgumentNullException.ThrowIfNull(documents);
         Path = path;
         Documents = documents;
     }

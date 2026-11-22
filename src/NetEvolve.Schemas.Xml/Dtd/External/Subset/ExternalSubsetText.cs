@@ -20,7 +20,7 @@ internal sealed class ExternalSubsetText : IDisposable
     /// <param name="frame">The open frame the text is read from; this instance closes it.</param>
     internal ExternalSubsetText(ExternalEntityFrame frame)
     {
-        Argument.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(frame);
 
         _frame = frame;
     }
@@ -39,7 +39,7 @@ internal sealed class ExternalSubsetText : IDisposable
     /// <returns><see langword="false"/> at the end of the entity or after an error; look at <see cref="Error"/>.</returns>
     internal bool TryAppend(StringBuilder builder)
     {
-        Argument.ThrowIfNull(builder);
+        ArgumentNullException.ThrowIfNull(builder);
 
         if (IsEnd)
         {
@@ -76,7 +76,7 @@ internal sealed class ExternalSubsetText : IDisposable
     /// <returns><see langword="true"/> when the entity was read completely.</returns>
     internal bool TryReadAll(int maxLength, out string? text, out XmlErrorCode? error)
     {
-        Argument.ThrowIfLessThan(maxLength, 0);
+        ArgumentOutOfRangeException.ThrowIfLessThan(maxLength, 0);
 
         text = null;
         var builder = new StringBuilder();

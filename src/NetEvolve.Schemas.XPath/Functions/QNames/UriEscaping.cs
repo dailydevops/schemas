@@ -38,7 +38,7 @@ internal static class UriEscaping
 
     private static string Escape(string text, bool unreservedOnly)
     {
-        Argument.ThrowIfNull(text);
+        ArgumentNullException.ThrowIfNull(text);
 
         var length = Measure(text, unreservedOnly);
         if (length == text.Length)

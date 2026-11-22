@@ -24,9 +24,9 @@ internal sealed class IfNode : ExecutableNode
     /// <exception cref="System.ArgumentNullException">An argument is <see langword="null"/>.</exception>
     public IfNode(ExecutableNode condition, ExecutableNode then, ExecutableNode @else)
     {
-        Argument.ThrowIfNull(condition);
-        Argument.ThrowIfNull(then);
-        Argument.ThrowIfNull(@else);
+        ArgumentNullException.ThrowIfNull(condition);
+        ArgumentNullException.ThrowIfNull(then);
+        ArgumentNullException.ThrowIfNull(@else);
 
         _condition = condition;
         _then = then;
@@ -37,7 +37,7 @@ internal sealed class IfNode : ExecutableNode
     /// <exception cref="XPathException">The condition has no effective boolean value (FORG0006), or an evaluated operand raises an error.</exception>
     public override XdmSequence Evaluate(XPathEvaluationContext context)
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         return XPathAtomization.EffectiveBooleanValue(_condition.Evaluate(context))
             ? _then.Evaluate(context)

@@ -59,7 +59,7 @@ internal static class XmlReferenceResolver
             return null;
         }
 
-        Argument.ThrowIfLessThan(buffer.Length, text.Length);
+        ArgumentOutOfRangeException.ThrowIfLessThan(buffer.Length, text.Length);
 
         text.Slice(0, position).CopyTo(buffer);
         var written = position;

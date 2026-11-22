@@ -76,9 +76,9 @@ internal sealed class SchemaDocumentLoader
         ValidationIssueCollector collector
     )
     {
-        Argument.ThrowIfNull(resolver);
-        Argument.ThrowIfNull(limits);
-        Argument.ThrowIfNull(collector);
+        ArgumentNullException.ThrowIfNull(resolver);
+        ArgumentNullException.ThrowIfNull(limits);
+        ArgumentNullException.ThrowIfNull(collector);
 
         _resolver = resolver;
         _limits = limits;
@@ -93,7 +93,7 @@ internal sealed class SchemaDocumentLoader
     internal SchemaDocumentSet Load(SchemaDocument root, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        Argument.ThrowIfNull(root);
+        ArgumentNullException.ThrowIfNull(root);
 
         _cancellationToken = cancellationToken;
         _byKey.Clear();

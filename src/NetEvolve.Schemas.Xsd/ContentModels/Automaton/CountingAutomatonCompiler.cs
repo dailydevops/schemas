@@ -44,8 +44,8 @@ internal static class CountingAutomatonCompiler
         DocumentLocation location
     )
     {
-        Argument.ThrowIfNull(root);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(root);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         var builder = new Builder();
         return builder.Build(root, reporter, location);

@@ -21,7 +21,7 @@ public sealed class TotalDigitsFacet : IValueFacet<XsdDecimal>, IValueFacet<XsdI
     /// <exception cref="System.ArgumentOutOfRangeException"><paramref name="value"/> is less than one.</exception>
     public TotalDigitsFacet(int value)
     {
-        Argument.ThrowIfLessThan(value, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(value, 1);
         Value = value;
     }
 

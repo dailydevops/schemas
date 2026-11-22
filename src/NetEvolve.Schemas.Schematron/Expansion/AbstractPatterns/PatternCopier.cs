@@ -16,7 +16,7 @@ internal sealed class PatternCopier
 
     internal PatternCopier(SubstitutionTable table, DocumentLocation site)
     {
-        Argument.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(table);
 
         _table = table;
         _site = site;
@@ -24,7 +24,7 @@ internal sealed class PatternCopier
 
     internal IReadOnlyList<SchematronLet> Lets(IReadOnlyList<SchematronLet> lets)
     {
-        Argument.ThrowIfNull(lets);
+        ArgumentNullException.ThrowIfNull(lets);
 
         var result = new SchematronLet[lets.Count];
         for (var i = 0; i < result.Length; i++)
@@ -41,7 +41,7 @@ internal sealed class PatternCopier
 
     internal IReadOnlyList<SchematronRule> Rules(IReadOnlyList<SchematronRule> rules)
     {
-        Argument.ThrowIfNull(rules);
+        ArgumentNullException.ThrowIfNull(rules);
 
         var result = new SchematronRule[rules.Count];
         for (var i = 0; i < result.Length; i++)

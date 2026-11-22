@@ -21,7 +21,7 @@ internal static class PolyfillProbe
 
     internal static int RequirePositive(int value)
     {
-        Argument.ThrowIfLessThan(value, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(value, 1);
         return value;
     }
 

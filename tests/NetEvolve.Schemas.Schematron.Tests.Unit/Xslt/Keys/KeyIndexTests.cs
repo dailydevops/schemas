@@ -230,7 +230,7 @@ public class KeyIndexTests
         string expected
     )
     {
-        Argument.ThrowIfNull(values);
+        ArgumentNullException.ThrowIfNull(values);
 
         var fixture = new KeyFixture();
         var document = new KeyDocument();
@@ -335,7 +335,7 @@ public class KeyIndexTests
     [Arguments("int:1", "dbl:NaN", false)]
     public async Task Lookup_ComparesValuesByTheirTypeFamily(string use, string value, bool expectedMatch)
     {
-        Argument.ThrowIfNull(value);
+        ArgumentNullException.ThrowIfNull(value);
 
         var fixture = new KeyFixture();
         var document = new KeyDocument();

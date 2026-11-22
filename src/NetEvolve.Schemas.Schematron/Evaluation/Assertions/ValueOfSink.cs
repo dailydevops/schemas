@@ -22,7 +22,7 @@ internal sealed class ValueOfSink : ISequenceSink
     /// <param name="into">The text sink of the message.</param>
     internal void Begin(TextSink into)
     {
-        Argument.ThrowIfNull(into);
+        ArgumentNullException.ThrowIfNull(into);
 
         _into = into;
         _items = 0;

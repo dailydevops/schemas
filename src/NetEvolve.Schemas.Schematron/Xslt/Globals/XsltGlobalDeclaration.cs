@@ -14,7 +14,7 @@ internal sealed class XsltGlobalDeclaration : XsltExecutable
 {
     internal XsltGlobalDeclaration(XPathQName name, GlobalDeclaration declaration)
     {
-        Argument.ThrowIfNull(declaration);
+        ArgumentNullException.ThrowIfNull(declaration);
 
         Name = name;
         Declaration = declaration;
@@ -29,8 +29,8 @@ internal sealed class XsltGlobalDeclaration : XsltExecutable
     /// <inheritdoc />
     internal override QueryStatus TryExecute(XsltFrame frame, ISequenceSink sink)
     {
-        Argument.ThrowIfNull(frame);
-        Argument.ThrowIfNull(sink);
+        ArgumentNullException.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(sink);
 
         return QueryStatus.Ok;
     }

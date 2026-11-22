@@ -16,7 +16,7 @@ internal sealed class XsltBodyExecutable : XsltExecutable, IXsltSlotReader
 
     internal XsltBodyExecutable(XsltExecutable[] instructions)
     {
-        Argument.ThrowIfNull(instructions);
+        ArgumentNullException.ThrowIfNull(instructions);
 
         _instructions = instructions;
         var slots = new List<int>();
@@ -44,8 +44,8 @@ internal sealed class XsltBodyExecutable : XsltExecutable, IXsltSlotReader
     /// <inheritdoc />
     internal override QueryStatus TryExecute(XsltFrame frame, ISequenceSink sink)
     {
-        Argument.ThrowIfNull(frame);
-        Argument.ThrowIfNull(sink);
+        ArgumentNullException.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(sink);
 
         for (var i = 0; i < _instructions.Length; i++)
         {

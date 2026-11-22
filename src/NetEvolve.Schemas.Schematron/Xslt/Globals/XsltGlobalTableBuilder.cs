@@ -24,7 +24,7 @@ internal sealed class XsltGlobalTableBuilder
     /// <exception cref="System.ArgumentNullException"><paramref name="global"/> is <see langword="null"/>.</exception>
     internal bool TryAdd(XsltGlobalDeclaration global, int precedence, out SchematronProblem problem)
     {
-        Argument.ThrowIfNull(global);
+        ArgumentNullException.ThrowIfNull(global);
 
         problem = default;
         if (!_indexByName.TryGetValue(global.Name, out var index))

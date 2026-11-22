@@ -33,7 +33,7 @@ internal sealed class GroupBinding : IQueryBinding
 {
     internal GroupBinding(string name = "xslt2")
     {
-        Argument.ThrowIfNull(name);
+        ArgumentNullException.ThrowIfNull(name);
 
         Name = name;
         Functions = XsltGroupingFunctions.Create(this);

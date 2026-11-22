@@ -75,9 +75,9 @@ internal sealed class AttributeValueTemplate
         out AttributeValueTemplate template
     )
     {
-        Argument.ThrowIfNull(context);
-        Argument.ThrowIfNull(attributeName);
-        Argument.ThrowIfNull(text);
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(attributeName);
+        ArgumentNullException.ThrowIfNull(text);
 
         template = null!;
         var parts = new List<Part>();
@@ -126,7 +126,7 @@ internal sealed class AttributeValueTemplate
     /// <returns>The status; the problem is read with <see cref="XsltFrame.TakeProblem"/>.</returns>
     internal QueryStatus TryEvaluate(XsltFrame frame, in DocumentLocation location, out string value)
     {
-        Argument.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(frame);
 
         value = string.Empty;
         if (_constant is not null)

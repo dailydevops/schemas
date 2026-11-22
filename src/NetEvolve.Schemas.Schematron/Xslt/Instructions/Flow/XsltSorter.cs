@@ -39,9 +39,9 @@ internal static class XsltSorter
         Action<int>? beforeItem = null
     )
     {
-        Argument.ThrowIfNull(frame);
-        Argument.ThrowIfNull(keys);
-        Argument.ThrowIfNull(items);
+        ArgumentNullException.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(keys);
+        ArgumentNullException.ThrowIfNull(items);
 
         var count = items.Count;
         var width = keys.Length;

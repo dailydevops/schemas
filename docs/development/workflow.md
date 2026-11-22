@@ -10,10 +10,10 @@ A failing test exists before the implementation.
 2. Run it and confirm that it fails for the expected reason. Commit it on its own (`test(<scope>): ...`).
 3. Implement until the test is green. Commit the implementation separately (`feat(<scope>): ...`).
 
-No implementation is merged without a confirming test. Where no test is possible, the issue names the evidence to deliver instead. A test must run green on every leg: `net8.0` (runs the `netstandard2.0` build), `net9.0` (runs the `netstandard2.1` build), `net10.0`, and `net11.0`.
+No implementation is merged without a confirming test. Where no test is possible, the issue names the evidence to deliver instead. A test must run green on every leg: `net5.0` (runs the `netstandard2.0` build), `net6.0` (runs the `netstandard2.1` build), `net10.0`, and `net11.0`.
 
 ```shell
-dotnet test --solution Schemas.slnx -c Release -f net8.0
+dotnet test --solution Schemas.slnx -c Release -f net5.0
 ```
 
 ## Bug handling
@@ -65,6 +65,6 @@ Do not add ADR files, a `docs/adr` directory, or a `decisions` directory. A devi
 
 A conformance result does not depend on the target framework, so each suite runs on one leg, `net10.0`, and not on every leg of the test projects. The shared pipeline runs every test of `Schemas.slnx` on every leg and takes no test filter, so the suite classes select the leg themselves: they carry `ConformanceLegAttribute` (in `tests/NetEvolve.Schemas.Conformance`), and on every other leg their tests report as skipped, not as failed. A skipped leg adds nothing to the job summary, so the rate table appears once per package.
 
-- The environment variable `SCHEMAS_CONFORMANCE_LEGS` replaces the designated leg with a comma separated list of target framework monikers, for example `net8.0` or `net8.0,net10.0`. Use it to compare a leg locally.
+- The environment variable `SCHEMAS_CONFORMANCE_LEGS` replaces the designated leg with a comma separated list of target framework monikers, for example `net5.0` or `net5.0,net10.0`. Use it to compare a leg locally.
 - A new suite class that runs a pinned suite against a baseline carries `[ConformanceLeg]`.
-- `net8.0` runs the `netstandard2.0` build of the libraries. A run with `SCHEMAS_CONFORMANCE_LEGS=net8.0` passes every baseline gate of QT3, XSTS, XML Conformance and Schematron, so the failure sets equal those of `net10.0`. A second leg is added only when a conformance result is shown to differ between builds.
+- `net5.0` runs the `netstandard2.0` build of the libraries. A run with `SCHEMAS_CONFORMANCE_LEGS=net5.0` passes every baseline gate of QT3, XSTS, XML Conformance and Schematron, so the failure sets equal those of `net10.0`. A second leg is added only when a conformance result is shown to differ between builds.

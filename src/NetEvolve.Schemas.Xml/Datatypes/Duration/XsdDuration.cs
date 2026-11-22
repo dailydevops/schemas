@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Xml.Datatypes.Duration;
+﻿namespace NetEvolve.Schemas.Xml.Datatypes.Duration;
 
 using System;
 using System.Globalization;
@@ -79,10 +79,10 @@ public readonly struct XsdDuration : IEquatable<XsdDuration>
         var builder = new StringBuilder();
         if (Months < 0 || Seconds.Sign < 0)
         {
-            builder.Append('-');
+            _ = builder.Append('-');
         }
 
-        builder.Append('P');
+        _ = builder.Append('P');
         var months = Math.Abs(Months);
         Append(builder, months / 12, 'Y');
         Append(builder, months % 12, 'M');
@@ -106,25 +106,25 @@ public readonly struct XsdDuration : IEquatable<XsdDuration>
         var daySeconds = (int)rest;
         if (daySeconds > 0 || fraction.Length > 0)
         {
-            builder.Append('T');
+            _ = builder.Append('T');
             Append(builder, daySeconds / SecondsPerHour, 'H');
             Append(builder, daySeconds % SecondsPerHour / SecondsPerMinute, 'M');
             var seconds = daySeconds % SecondsPerMinute;
             if (seconds > 0 || fraction.Length > 0)
             {
-                builder.Append(seconds.ToString(CultureInfo.InvariantCulture));
+                _ = builder.Append(seconds.ToString(CultureInfo.InvariantCulture));
                 if (fraction.Length > 0)
                 {
-                    builder.Append('.').Append(fraction);
+                    _ = builder.Append('.').Append(fraction);
                 }
 
-                builder.Append('S');
+                _ = builder.Append('S');
             }
         }
 
         if (builder[builder.Length - 1] == 'P')
         {
-            builder.Append(kind == DurationKind.YearMonth ? "0M" : "T0S");
+            _ = builder.Append(kind == DurationKind.YearMonth ? "0M" : "T0S");
         }
 
         return builder.ToString();
@@ -155,7 +155,7 @@ public readonly struct XsdDuration : IEquatable<XsdDuration>
     {
         if (!value.IsZero)
         {
-            builder.Append(value.ToString(CultureInfo.InvariantCulture)).Append(designator);
+            _ = builder.Append(value.ToString(CultureInfo.InvariantCulture)).Append(designator);
         }
     }
 

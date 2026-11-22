@@ -28,10 +28,10 @@ internal sealed class SetOperationNode : ExecutableNode, IOrderedNodeSequence
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="operator"/> is not a defined operator.</exception>
     public SetOperationNode(SetOperator @operator, ExecutableNode left, ExecutableNode right)
     {
-        Argument.ThrowIfLessThan((int)@operator, (int)SetOperator.Union, nameof(@operator));
-        Argument.ThrowIfGreaterThan((int)@operator, (int)SetOperator.Except, nameof(@operator));
-        Argument.ThrowIfNull(left);
-        Argument.ThrowIfNull(right);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)@operator, (int)SetOperator.Union, nameof(@operator));
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)@operator, (int)SetOperator.Except, nameof(@operator));
+        ArgumentNullException.ThrowIfNull(left);
+        ArgumentNullException.ThrowIfNull(right);
 
         _operator = @operator;
         _left = left;
@@ -53,7 +53,7 @@ internal sealed class SetOperationNode : ExecutableNode, IOrderedNodeSequence
     /// <exception cref="XPathException">An operand has an item that is not a node (XPTY0004).</exception>
     public override XdmSequence Evaluate(XPathEvaluationContext context)
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         var leftSource = new XdmSequenceNodeSource(_left.Evaluate(context));
         var left = XPathDocumentOrder.Normalize(ref leftSource, LeftRequirement, null);

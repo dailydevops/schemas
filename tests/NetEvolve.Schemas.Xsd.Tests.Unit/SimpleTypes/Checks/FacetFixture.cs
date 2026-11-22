@@ -75,7 +75,7 @@ internal sealed class FacetFixture
 
     internal IDatatypeDescriptor Descriptor(string name)
     {
-        Argument.ThrowIfNull(name);
+        ArgumentNullException.ThrowIfNull(name);
 
         return BuiltInDatatypes.For(Version).Get(name);
     }
@@ -83,7 +83,7 @@ internal sealed class FacetFixture
     /// <summary>The built-in type as the registry of components holds it.</summary>
     internal IXsdComponent BuiltIn(string name)
     {
-        Argument.ThrowIfNull(name);
+        ArgumentNullException.ThrowIfNull(name);
 
         var types = XsdBuiltInTypes.For(Version);
         for (var i = 0; i < types.Count; i++)
@@ -107,7 +107,7 @@ internal sealed class FacetFixture
     /// </summary>
     internal SimpleTypeDefinition Base(string type, params IFacet[] facets)
     {
-        Argument.ThrowIfNull(type);
+        ArgumentNullException.ThrowIfNull(type);
 
         if (type.StartsWith("list:", StringComparison.Ordinal))
         {
@@ -150,8 +150,8 @@ internal sealed class FacetFixture
     /// <summary>A facet of the Xml package that a base type carries.</summary>
     internal IFacet Facet(string type, FacetKind kind, string lexical)
     {
-        Argument.ThrowIfNull(type);
-        Argument.ThrowIfNull(lexical);
+        ArgumentNullException.ThrowIfNull(type);
+        ArgumentNullException.ThrowIfNull(lexical);
 
         switch (kind)
         {

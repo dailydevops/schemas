@@ -16,7 +16,7 @@ internal static class SequenceTypeLowerings
     /// <exception cref="System.InvalidOperationException">A node kind already has a lowering.</exception>
     public static void Register(LoweringRegistry registry)
     {
-        Argument.ThrowIfNull(registry);
+        ArgumentNullException.ThrowIfNull(registry);
 
         registry.Register<InstanceOfExpression>(
             static (node, context) =>

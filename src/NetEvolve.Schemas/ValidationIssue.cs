@@ -20,8 +20,8 @@ public sealed class ValidationIssue
         string? constraint = null
     )
     {
-        Argument.ThrowIfNull(message);
-        Argument.ThrowIfGreaterThan((int)severity, (int)IssueSeverity.Error);
+        ArgumentNullException.ThrowIfNull(message);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)severity, (int)IssueSeverity.Error);
 
         Code = code;
         Severity = severity;

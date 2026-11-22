@@ -19,7 +19,7 @@ internal sealed class IssueMapper : IEvaluationEvents
 
     internal IssueMapper(ValidationIssueCollector collector, ISchematronReportSink? sink)
     {
-        Argument.ThrowIfNull(collector);
+        ArgumentNullException.ThrowIfNull(collector);
 
         _collector = collector;
         _sink = sink;
@@ -39,8 +39,8 @@ internal sealed class IssueMapper : IEvaluationEvents
     /// <returns>The issue, or <see langword="null"/> when the collector dropped it.</returns>
     internal ValidationIssue? Map(bool isReport, string constraint, string message, DocumentLocation location)
     {
-        Argument.ThrowIfNull(constraint);
-        Argument.ThrowIfNull(message);
+        ArgumentNullException.ThrowIfNull(constraint);
+        ArgumentNullException.ThrowIfNull(message);
 
         var issue = new ValidationIssue(
             isReport ? SchematronDiagnosticCodes.ReportFired : SchematronDiagnosticCodes.AssertionFailed,

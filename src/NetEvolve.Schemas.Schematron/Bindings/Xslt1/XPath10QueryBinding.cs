@@ -32,7 +32,7 @@ internal sealed class XPath10QueryBinding : IQueryBinding
         XPathQueryBinding.StaticContextExtension? extension = null
     )
     {
-        Argument.ThrowIfNull(name);
+        ArgumentNullException.ThrowIfNull(name);
 
         _inner = new XPathQueryBinding(name, allowsXsltInstructions, xpath10Compatibility: true, extension);
     }

@@ -38,7 +38,7 @@ internal static class ComparisonOperators
     /// <exception cref="System.InvalidOperationException">An entry is already registered.</exception>
     public static void Register(ComparisonOperatorTable table)
     {
-        Argument.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(table);
 
         for (var relation = ComparisonRelation.Equal; relation <= ComparisonRelation.GreaterThanOrEqual; relation++)
         {

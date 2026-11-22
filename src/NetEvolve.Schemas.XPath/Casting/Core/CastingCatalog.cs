@@ -57,7 +57,7 @@ internal sealed class CastingCatalog
     /// <exception cref="InvalidOperationException">The table is frozen.</exception>
     public void Stage(Action<CastingTableBuilder> registration)
     {
-        Argument.ThrowIfNull(registration);
+        ArgumentNullException.ThrowIfNull(registration);
 
         while (true)
         {

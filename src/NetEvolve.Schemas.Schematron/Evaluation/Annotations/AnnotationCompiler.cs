@@ -41,9 +41,9 @@ internal static class AnnotationCompiler
         out CompiledAnnotations compiled
     )
     {
-        Argument.ThrowIfNull(scope);
-        Argument.ThrowIfNull(binding);
-        Argument.ThrowIfNull(problems);
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(binding);
+        ArgumentNullException.ThrowIfNull(problems);
 
         var ok = TryCompile(AnnotationKind.Role, role, location, scope, binding, problems, out var compiledRole);
         var flagText = flags is { Count: > 0 } ? (flags.Count == 1 ? flags[0] : string.Join(" ", flags)) : null;

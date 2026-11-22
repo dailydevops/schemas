@@ -47,7 +47,7 @@ internal static class TypedValues
     /// <returns>The simple type.</returns>
     internal static IXsdComponent SimpleTypeOf(IXsdComponent type)
     {
-        Argument.ThrowIfNull(type);
+        ArgumentNullException.ThrowIfNull(type);
 
         return type is ComplexTypeDefinition complex ? complex.SimpleContentType! : type;
     }
@@ -57,7 +57,7 @@ internal static class TypedValues
     /// <returns>The handle: a built-in simple type, <c>xs:anySimpleType</c> for a list, a union, or a type without a built-in ancestor, and <c>xs:anyType</c> for a complex type without simple content.</returns>
     internal static XdmTypeId DataModelType(IXsdComponent type)
     {
-        Argument.ThrowIfNull(type);
+        ArgumentNullException.ThrowIfNull(type);
 
         while (true)
         {
@@ -98,10 +98,10 @@ internal static class TypedValues
     /// <param name="items">The list that receives the items.</param>
     internal static void Append(IXsdComponent type, string text, ISimpleValueAssessor assessor, List<XdmItem> items)
     {
-        Argument.ThrowIfNull(type);
-        Argument.ThrowIfNull(text);
-        Argument.ThrowIfNull(assessor);
-        Argument.ThrowIfNull(items);
+        ArgumentNullException.ThrowIfNull(type);
+        ArgumentNullException.ThrowIfNull(text);
+        ArgumentNullException.ThrowIfNull(assessor);
+        ArgumentNullException.ThrowIfNull(items);
 
         switch (type)
         {

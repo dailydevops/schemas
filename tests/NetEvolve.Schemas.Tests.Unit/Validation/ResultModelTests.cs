@@ -27,7 +27,7 @@ public class ResultModelTests
         bool expected
     )
     {
-        Argument.ThrowIfNull(severities);
+        ArgumentNullException.ThrowIfNull(severities);
 
         var issues = new List<ValidationIssue>();
         foreach (var severity in severities)

@@ -47,7 +47,7 @@ internal sealed class CompiledAnnotation
     /// <returns>The attribute.</returns>
     internal static CompiledAnnotation CreateStatic(AnnotationKind kind, string text, DocumentLocation location)
     {
-        Argument.ThrowIfNull(text);
+        ArgumentNullException.ThrowIfNull(text);
 
         return new CompiledAnnotation(kind, text, null, null, location);
     }
@@ -65,8 +65,8 @@ internal sealed class CompiledAnnotation
         DocumentLocation location
     )
     {
-        Argument.ThrowIfNull(source);
-        Argument.ThrowIfNull(expression);
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(expression);
 
         return new CompiledAnnotation(kind, null, source, expression, location);
     }

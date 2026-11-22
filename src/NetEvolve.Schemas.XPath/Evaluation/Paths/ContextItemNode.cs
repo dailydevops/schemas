@@ -17,7 +17,7 @@ internal sealed class ContextItemNode : ExecutableNode, IOrderedNodeSequence
     /// <exception cref="XPathException">The context item is absent (XPDY0002).</exception>
     public override XdmSequence Evaluate(XPathEvaluationContext context)
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         return context.ContextItem is { } item
             ? XdmSequence.Create(item)

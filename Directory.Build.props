@@ -8,6 +8,8 @@
     <PackageTags>schemas;xml;xsd;schematron;xpath;validation</PackageTags>
     <CopyrightYearStart>2026</CopyrightYearStart>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+
+    <DisableRecommendedPackage>Meziantou.Analyzer</DisableRecommendedPackage>
   </PropertyGroup>
   <!-- Only the core library is packable; every other project stays unpackaged until its package lands. -->
   <PropertyGroup Condition="'$(MSBuildProjectName)' != 'NetEvolve.Schemas'">
@@ -16,7 +18,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <!-- Workaround, until https://github.com/GitTools/GitVersion/pull/4206 is released -->
-    <GitVersionTargetFramework>net8.0</GitVersionTargetFramework>
+    <GitVersionTargetFramework>net10.0</GitVersionTargetFramework>
   </PropertyGroup>
   <!-- NetEvolve.Defaults re-enables IsPackable after props evaluation; force it off again before any pack step. -->
   <Target Name="DisablePack" BeforeTargets="_IntermediatePack;GenerateNuspec" Condition="'$(MSBuildProjectName)' != 'NetEvolve.Schemas'">

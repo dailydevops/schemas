@@ -61,10 +61,10 @@ internal static class SimpleTypeFacetCheck
         XsdIssueReporter reporter
     )
     {
-        Argument.ThrowIfNull(baseType);
-        Argument.ThrowIfNull(step);
-        Argument.ThrowIfNull(assessor);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(baseType);
+        ArgumentNullException.ThrowIfNull(step);
+        ArgumentNullException.ThrowIfNull(assessor);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         var facts = FacetBase.Resolve(baseType, version);
         if (facts is null)

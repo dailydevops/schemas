@@ -39,7 +39,7 @@ internal sealed class IdIndex
     /// <exception cref="ArgumentNullException"><paramref name="tree"/> is <see langword="null"/>.</exception>
     internal static IdIndex For(XmlTree tree)
     {
-        Argument.ThrowIfNull(tree);
+        ArgumentNullException.ThrowIfNull(tree);
 
         return Indexes.GetValue(tree, static source => Build(source));
     }
@@ -52,7 +52,7 @@ internal sealed class IdIndex
     /// <exception cref="ArgumentNullException"><paramref name="text"/> is <see langword="null"/>.</exception>
     internal static bool TryReadToken(string text, ref int position, out string token)
     {
-        Argument.ThrowIfNull(text);
+        ArgumentNullException.ThrowIfNull(text);
 
         var index = position;
         while (index < text.Length && IsSpace(text[index]))
@@ -77,7 +77,7 @@ internal sealed class IdIndex
     /// <returns><see langword="true"/> when an element has the ID.</returns>
     internal bool TryGetElement(string id, out XmlNode element)
     {
-        Argument.ThrowIfNull(id);
+        ArgumentNullException.ThrowIfNull(id);
 
         return _elements.TryGetValue(id, out element);
     }
@@ -88,7 +88,7 @@ internal sealed class IdIndex
     /// <returns><see langword="true"/> when an attribute names the ID.</returns>
     internal bool TryGetReferences(string id, out List<XmlNode>? attributes)
     {
-        Argument.ThrowIfNull(id);
+        ArgumentNullException.ThrowIfNull(id);
 
         return _references.TryGetValue(id, out attributes);
     }

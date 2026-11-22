@@ -13,8 +13,8 @@ internal sealed record GoldenDocumentSource
     /// </param>
     public GoldenDocumentSource(string suiteKey, string path)
     {
-        Argument.ThrowIfNullOrWhiteSpace(suiteKey);
-        Argument.ThrowIfNull(path);
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(suiteKey);
+        ArgumentNullException.ThrowIfNull(path);
         SuiteKey = suiteKey;
         Path = path;
     }

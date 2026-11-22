@@ -14,11 +14,11 @@ public sealed class LexicalEnumerationFacet : ILexicalFacet
     /// <param name="values">The listed values.</param>
     public LexicalEnumerationFacet(IReadOnlyList<string> values)
     {
-        Argument.ThrowIfNull(values);
+        ArgumentNullException.ThrowIfNull(values);
         _values = new string[values.Count];
         for (var i = 0; i < _values.Length; i++)
         {
-            Argument.ThrowIfNull(values[i]);
+            ArgumentNullException.ThrowIfNull(values[i]);
             _values[i] = values[i];
         }
     }

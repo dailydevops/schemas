@@ -23,8 +23,8 @@ internal static class DecimalFormatName
     /// <exception cref="ArgumentNullException"><paramref name="text"/> or <paramref name="namespaces"/> is <see langword="null"/>.</exception>
     public static bool TryParse(string text, bool xslt20, INamespaceContext namespaces, out XPathQName name)
     {
-        Argument.ThrowIfNull(text);
-        Argument.ThrowIfNull(namespaces);
+        ArgumentNullException.ThrowIfNull(text);
+        ArgumentNullException.ThrowIfNull(namespaces);
 
         name = default;
         var trimmed = xslt20 ? text : text.Trim(' ', '\t', '\r', '\n');

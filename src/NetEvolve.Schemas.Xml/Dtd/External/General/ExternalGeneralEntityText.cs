@@ -15,7 +15,7 @@ internal sealed class ExternalGeneralEntityText : IXmlEntityText
     /// <param name="frame">The open frame; this instance closes it.</param>
     internal ExternalGeneralEntityText(ExternalEntityFrame frame)
     {
-        Argument.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(frame);
 
         _frame = frame;
     }

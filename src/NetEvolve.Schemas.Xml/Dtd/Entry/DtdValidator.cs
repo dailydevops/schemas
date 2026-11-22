@@ -58,7 +58,7 @@ internal sealed class DtdValidator : SchemaValidatorBase, IDtdValidator
 
     private static DtdValidationOptions Required(DtdValidationOptions options)
     {
-        Argument.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(options);
 
         return options;
     }

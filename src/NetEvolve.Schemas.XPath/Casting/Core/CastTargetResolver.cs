@@ -24,9 +24,9 @@ internal static class CastTargetResolver
     /// <exception cref="XPathException">A prefix is not bound (XPST0081), the name is not an atomic built-in type or has no row yet (XPST0051), or it is <c>xs:anyAtomicType</c> or <c>xs:NOTATION</c> (XPST0080).</exception>
     public static XdmTypeId Resolve(SingleType type, XPathStaticContext context, CastingTable table)
     {
-        Argument.ThrowIfNull(type);
-        Argument.ThrowIfNull(context);
-        Argument.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(type);
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(table);
 
         var name = type.Name;
 

@@ -8,7 +8,7 @@ internal sealed class FakeGoldenValidator : IGoldenValidator
 
     public FakeGoldenValidator(Func<GoldenDocument, GoldenObservation> verdict)
     {
-        Argument.ThrowIfNull(verdict);
+        ArgumentNullException.ThrowIfNull(verdict);
         _verdict = verdict;
     }
 
@@ -17,7 +17,7 @@ internal sealed class FakeGoldenValidator : IGoldenValidator
     public Task<GoldenObservation> ValidateAsync(GoldenDocument document, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        Argument.ThrowIfNull(document);
+        ArgumentNullException.ThrowIfNull(document);
         Calls.Add(document.Id);
         return Task.FromResult(_verdict(document));
     }

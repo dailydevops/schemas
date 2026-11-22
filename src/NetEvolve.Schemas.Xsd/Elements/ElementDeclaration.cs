@@ -89,7 +89,7 @@ internal sealed class ElementDeclaration : IReferencingComponent
     /// <inheritdoc />
     public void Bind(int index, IXsdComponent target)
     {
-        Argument.ThrowIfNull(target);
+        ArgumentNullException.ThrowIfNull(target);
 
         TypeDefinition = target;
     }
@@ -98,7 +98,7 @@ internal sealed class ElementDeclaration : IReferencingComponent
     /// <param name="type">The anonymous type.</param>
     internal void BindInlineType(IXsdComponent type)
     {
-        Argument.ThrowIfNull(type);
+        ArgumentNullException.ThrowIfNull(type);
 
         TypeDefinition = type;
     }

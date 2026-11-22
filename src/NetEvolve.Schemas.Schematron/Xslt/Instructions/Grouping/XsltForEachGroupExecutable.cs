@@ -33,10 +33,10 @@ internal sealed class XsltForEachGroupExecutable : XsltExecutable, IXsltSlotRead
         DocumentLocation location
     )
     {
-        Argument.ThrowIfNull(select);
-        Argument.ThrowIfNull(grouping);
-        Argument.ThrowIfNull(keys);
-        Argument.ThrowIfNull(body);
+        ArgumentNullException.ThrowIfNull(select);
+        ArgumentNullException.ThrowIfNull(grouping);
+        ArgumentNullException.ThrowIfNull(keys);
+        ArgumentNullException.ThrowIfNull(body);
 
         _select = select;
         _grouping = grouping;
@@ -62,8 +62,8 @@ internal sealed class XsltForEachGroupExecutable : XsltExecutable, IXsltSlotRead
     /// <inheritdoc />
     internal override QueryStatus TryExecute(XsltFrame frame, ISequenceSink sink)
     {
-        Argument.ThrowIfNull(frame);
-        Argument.ThrowIfNull(sink);
+        ArgumentNullException.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(sink);
 
         if (frame.Run is not IXsltGroupRun run)
         {

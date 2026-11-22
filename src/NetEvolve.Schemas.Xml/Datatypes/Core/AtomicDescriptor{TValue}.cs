@@ -24,8 +24,8 @@ public sealed class AtomicDescriptor<TValue> : IDatatypeDescriptor<TValue>
     /// <param name="mapping">The lexical mapping.</param>
     public AtomicDescriptor(string name, XsdVersion lexicalMode, ILexicalMapping<TValue> mapping)
     {
-        Argument.ThrowIfNull(name);
-        Argument.ThrowIfNull(mapping);
+        ArgumentNullException.ThrowIfNull(name);
+        ArgumentNullException.ThrowIfNull(mapping);
         Name = name;
         LexicalMode = lexicalMode;
         _mapping = mapping;
@@ -45,9 +45,9 @@ public sealed class AtomicDescriptor<TValue> : IDatatypeDescriptor<TValue>
         IReadOnlyList<IFacet> facets
     )
     {
-        Argument.ThrowIfNull(name);
-        Argument.ThrowIfNull(baseType);
-        Argument.ThrowIfNull(facets);
+        ArgumentNullException.ThrowIfNull(name);
+        ArgumentNullException.ThrowIfNull(baseType);
+        ArgumentNullException.ThrowIfNull(facets);
         Name = name;
         BaseType = baseType;
         LexicalMode = baseType.LexicalMode;
@@ -71,10 +71,10 @@ public sealed class AtomicDescriptor<TValue> : IDatatypeDescriptor<TValue>
         IReadOnlyList<IFacet> facets
     )
     {
-        Argument.ThrowIfNull(name);
-        Argument.ThrowIfNull(baseType);
-        Argument.ThrowIfNull(mapping);
-        Argument.ThrowIfNull(facets);
+        ArgumentNullException.ThrowIfNull(name);
+        ArgumentNullException.ThrowIfNull(baseType);
+        ArgumentNullException.ThrowIfNull(mapping);
+        ArgumentNullException.ThrowIfNull(facets);
         Name = name;
         BaseType = baseType;
         LexicalMode = baseType.LexicalMode;

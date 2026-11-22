@@ -36,11 +36,11 @@ internal abstract class XPathFunction : XPathHostFunction
     protected XPathFunction(XPathQName name, int minArity, int maxArity, IReadOnlyList<XPathParameterType> parameters)
         : base(name, minArity, maxArity)
     {
-        Argument.ThrowIfNull(parameters);
+        ArgumentNullException.ThrowIfNull(parameters);
         if (parameters.Count > 0)
         {
-            Argument.ThrowIfLessThan(parameters.Count, minArity);
-            Argument.ThrowIfGreaterThan(parameters.Count, maxArity);
+            ArgumentOutOfRangeException.ThrowIfLessThan(parameters.Count, minArity);
+            ArgumentOutOfRangeException.ThrowIfGreaterThan(parameters.Count, maxArity);
         }
 
         _parameters = new XPathParameterType[parameters.Count];
@@ -55,7 +55,7 @@ internal abstract class XPathFunction : XPathHostFunction
     /// <returns>The declared type; the last declared type for a position beyond the declared parameters.</returns>
     public XPathParameterType ParameterTypeAt(int index)
     {
-        Argument.ThrowIfLessThan(index, 0);
+        ArgumentOutOfRangeException.ThrowIfLessThan(index, 0);
 
         return _parameters.Length == 0 ? AnyItems : _parameters[Math.Min(index, _parameters.Length - 1)];
     }
@@ -69,9 +69,9 @@ internal abstract class XPathFunction : XPathHostFunction
     /// <exception cref="XPathException">An argument does not match its type (XPTY0004) or cannot be cast (FORG0001), or the function reports an error.</exception>
     public XdmSequence Call(XPathEvaluationContext context, ReadOnlySpan<XdmSequence> arguments)
     {
-        Argument.ThrowIfNull(context);
-        Argument.ThrowIfLessThan(arguments.Length, MinArity);
-        Argument.ThrowIfGreaterThan(arguments.Length, MaxArity);
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentOutOfRangeException.ThrowIfLessThan(arguments.Length, MinArity);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(arguments.Length, MaxArity);
 
         var count = arguments.Length;
         if (count == 0)

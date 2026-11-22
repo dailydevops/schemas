@@ -39,11 +39,11 @@ internal static class AssertionCompiler
         out CompiledAssertion compiled
     )
     {
-        Argument.ThrowIfNull(assertion);
-        Argument.ThrowIfNull(rule);
-        Argument.ThrowIfNull(schema);
-        Argument.ThrowIfNull(binding);
-        Argument.ThrowIfNull(problems);
+        ArgumentNullException.ThrowIfNull(assertion);
+        ArgumentNullException.ThrowIfNull(rule);
+        ArgumentNullException.ThrowIfNull(schema);
+        ArgumentNullException.ThrowIfNull(binding);
+        ArgumentNullException.ThrowIfNull(problems);
 
         var scope = rule.Scope;
         var ok = Compile(binding, assertion.Test, QueryExpressionKind.Boolean, scope, problems, out var test);

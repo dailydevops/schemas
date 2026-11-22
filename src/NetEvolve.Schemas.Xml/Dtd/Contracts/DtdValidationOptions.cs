@@ -56,7 +56,7 @@ public sealed class DtdValidationOptions
     /// <returns>The new options.</returns>
     public DtdValidationOptions WithResolver(IResourceResolver value)
     {
-        Argument.ThrowIfNull(value);
+        ArgumentNullException.ThrowIfNull(value);
 
         var copy = (DtdValidationOptions)MemberwiseClone();
         copy._resolver = value;
@@ -69,7 +69,7 @@ public sealed class DtdValidationOptions
     /// <returns>The new options.</returns>
     public DtdValidationOptions WithLimits(ValidationLimits value)
     {
-        Argument.ThrowIfNull(value);
+        ArgumentNullException.ThrowIfNull(value);
 
         var copy = (DtdValidationOptions)MemberwiseClone();
         copy._limits = value;
@@ -82,7 +82,7 @@ public sealed class DtdValidationOptions
     /// <returns>The new options.</returns>
     public DtdValidationOptions WithDtdLimits(DtdValidationLimits value)
     {
-        Argument.ThrowIfNull(value);
+        ArgumentNullException.ThrowIfNull(value);
 
         var copy = (DtdValidationOptions)MemberwiseClone();
         copy._dtdLimits = value;
@@ -128,8 +128,8 @@ public sealed class DtdValidationOptions
     /// <returns>The new options.</returns>
     public DtdValidationOptions WithNonDeterministicContentModels(DtdNonDeterminism value)
     {
-        Argument.ThrowIfGreaterThan((int)value, (int)DtdNonDeterminism.Reject);
-        Argument.ThrowIfLessThan((int)value, (int)DtdNonDeterminism.Accept);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)value, (int)DtdNonDeterminism.Reject);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)value, (int)DtdNonDeterminism.Accept);
 
         var copy = (DtdValidationOptions)MemberwiseClone();
         copy._nonDeterministicContentModels = value;
@@ -148,7 +148,7 @@ public sealed class DtdValidationOptions
     public ResourceResult Resolve(in ResourceRequest request, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        Argument.ThrowIfGreaterThan((int)request.Kind, (int)ResourceKind.ExternalParameterEntity);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)request.Kind, (int)ResourceKind.ExternalParameterEntity);
 
         if (!IsAllowed(request.Kind))
         {

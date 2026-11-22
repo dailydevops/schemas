@@ -30,9 +30,9 @@ internal sealed class MessageBuilder
     /// <param name="embedded">Builds the structured content of a property with <c>xsl:copy-of</c>, or <see langword="null"/> when there is none.</param>
     internal MessageBuilder(IQueryRun run, ISlotBinder binder, IProblemSink problems, IEmbeddedContent? embedded = null)
     {
-        Argument.ThrowIfNull(run);
-        Argument.ThrowIfNull(binder);
-        Argument.ThrowIfNull(problems);
+        ArgumentNullException.ThrowIfNull(run);
+        ArgumentNullException.ThrowIfNull(binder);
+        ArgumentNullException.ThrowIfNull(problems);
 
         _run = run;
         _binder = binder;
@@ -47,8 +47,8 @@ internal sealed class MessageBuilder
     /// <returns><see cref="QueryStatus.Problem"/> when a part failed or the text was cut at the maximum length.</returns>
     internal QueryStatus Build(CompiledMessage message, in QueryFocus focus, TextSink into)
     {
-        Argument.ThrowIfNull(message);
-        Argument.ThrowIfNull(into);
+        ArgumentNullException.ThrowIfNull(message);
+        ArgumentNullException.ThrowIfNull(into);
 
         return Append(message.Parts, in focus, into);
     }
@@ -69,8 +69,8 @@ internal sealed class MessageBuilder
         out IFindingContent? content
     )
     {
-        Argument.ThrowIfNull(message);
-        Argument.ThrowIfNull(into);
+        ArgumentNullException.ThrowIfNull(message);
+        ArgumentNullException.ThrowIfNull(into);
 
         content = null;
         if (!message.HasCopyOf)

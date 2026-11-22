@@ -36,7 +36,7 @@ internal sealed class ForNode : BindingNode
     /// <exception cref="XPathException">The result has more items than the sequence size limit, or an expression raises an error.</exception>
     public override XdmSequence Evaluate(XPathEvaluationContext context)
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         var state = new BindingState(new XdmItemList(context.Limits.MaxSequenceSize, _location), false);
         try

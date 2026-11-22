@@ -22,14 +22,14 @@ public sealed class DtdValidityCode
         string message
     )
     {
-        Argument.ThrowIfNullOrEmpty(alias);
-        Argument.ThrowIfNullOrEmpty(name);
-        Argument.ThrowIfNull(section);
-        Argument.ThrowIfNullOrEmpty(owner);
-        Argument.ThrowIfNullOrEmpty(message);
-        Argument.ThrowIfGreaterThan((int)kind, (int)DtdValidityCodeKind.Report);
-        Argument.ThrowIfLessThan((int)kind, (int)DtdValidityCodeKind.ValidityConstraint);
-        Argument.ThrowIfGreaterThan((int)defaultSeverity, (int)IssueSeverity.Error);
+        ArgumentNullException.ThrowIfNullOrEmpty(alias);
+        ArgumentNullException.ThrowIfNullOrEmpty(name);
+        ArgumentNullException.ThrowIfNull(section);
+        ArgumentNullException.ThrowIfNullOrEmpty(owner);
+        ArgumentNullException.ThrowIfNullOrEmpty(message);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)kind, (int)DtdValidityCodeKind.Report);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)kind, (int)DtdValidityCodeKind.ValidityConstraint);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)defaultSeverity, (int)IssueSeverity.Error);
 
         Alias = alias;
         Code = new DiagnosticCode(number);

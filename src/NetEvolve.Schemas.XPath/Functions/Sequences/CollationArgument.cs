@@ -19,7 +19,7 @@ internal static class CollationArgument
     /// <exception cref="XPathException">The collation is not the codepoint collation (FOCH0002).</exception>
     public static void Check(ReadOnlySpan<XdmSequence> arguments, int index)
     {
-        Argument.ThrowIfLessThan(index, 0);
+        ArgumentOutOfRangeException.ThrowIfLessThan(index, 0);
 
         if (index >= arguments.Length)
         {

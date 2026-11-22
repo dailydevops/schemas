@@ -90,8 +90,8 @@ public readonly struct XdmSequence : IEquatable<XdmSequence>
     {
         get
         {
-            Argument.ThrowIfLessThan(index, 0);
-            Argument.ThrowIfGreaterThanOrEqual(index, Count);
+            ArgumentOutOfRangeException.ThrowIfLessThan(index, 0);
+            ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, Count);
 
             return _many switch
             {
@@ -124,7 +124,7 @@ public readonly struct XdmSequence : IEquatable<XdmSequence>
     /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
     internal static XdmSequence FromLazy(IEnumerable<XdmItem> source)
     {
-        Argument.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(source);
 
         return new(new XdmLazyItems(source));
     }

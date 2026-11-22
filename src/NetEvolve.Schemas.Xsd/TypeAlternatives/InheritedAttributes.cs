@@ -71,9 +71,9 @@ internal sealed class InheritedAttributes
                 continue;
             }
 
-            Argument.ThrowIfLessThan(attribute.Start, 0);
-            Argument.ThrowIfLessThan(attribute.Length, 0);
-            Argument.ThrowIfGreaterThan(attribute.Start + attribute.Length, values.Length);
+            ArgumentOutOfRangeException.ThrowIfLessThan(attribute.Start, 0);
+            ArgumentOutOfRangeException.ThrowIfLessThan(attribute.Length, 0);
+            ArgumentOutOfRangeException.ThrowIfGreaterThan(attribute.Start + attribute.Length, values.Length);
 
             Append(new InheritedAttribute(attribute.Name, values.Slice(attribute.Start, attribute.Length).ToString()));
         }

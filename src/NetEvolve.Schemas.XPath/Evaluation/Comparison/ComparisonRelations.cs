@@ -12,8 +12,16 @@ internal static class ComparisonRelations
     /// <exception cref="System.ArgumentOutOfRangeException"><paramref name="operator"/> is not a general or value comparison operator.</exception>
     public static ComparisonRelation Of(ComparisonOperator @operator)
     {
-        Argument.ThrowIfLessThan((int)@operator, (int)ComparisonOperator.GeneralEqual, nameof(@operator));
-        Argument.ThrowIfGreaterThan((int)@operator, (int)ComparisonOperator.ValueGreaterThanOrEqual, nameof(@operator));
+        ArgumentOutOfRangeException.ThrowIfLessThan(
+            (int)@operator,
+            (int)ComparisonOperator.GeneralEqual,
+            nameof(@operator)
+        );
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(
+            (int)@operator,
+            (int)ComparisonOperator.ValueGreaterThanOrEqual,
+            nameof(@operator)
+        );
 
         // The six general operators and the six value operators name the relations in the same order.
         return (ComparisonRelation)((int)@operator % 6);
@@ -24,8 +32,12 @@ internal static class ComparisonRelations
     /// <exception cref="System.ArgumentOutOfRangeException"><paramref name="relation"/> is not a defined relation.</exception>
     public static void Check(ComparisonRelation relation)
     {
-        Argument.ThrowIfLessThan((int)relation, (int)ComparisonRelation.Equal, nameof(relation));
-        Argument.ThrowIfGreaterThan((int)relation, (int)ComparisonRelation.GreaterThanOrEqual, nameof(relation));
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)relation, (int)ComparisonRelation.Equal, nameof(relation));
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(
+            (int)relation,
+            (int)ComparisonRelation.GreaterThanOrEqual,
+            nameof(relation)
+        );
     }
 
     /// <summary>Tests a relation against the order of two values.</summary>

@@ -23,7 +23,7 @@ public ref struct RegexTokenEnumerator
 
     internal RegexTokenEnumerator(RegexMatchEnumerator matches, int inputLength)
     {
-        Argument.ThrowIfLessThan(inputLength, 0);
+        ArgumentOutOfRangeException.ThrowIfLessThan(inputLength, 0);
 
         _matches = matches;
         _inputLength = inputLength;

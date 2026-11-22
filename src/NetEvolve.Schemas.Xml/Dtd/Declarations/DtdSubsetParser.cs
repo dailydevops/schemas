@@ -78,7 +78,7 @@ internal sealed partial class DtdSubsetParser
         out DtdDeclarations? declarations
     )
     {
-        Argument.ThrowIfNull(limits);
+        ArgumentNullException.ThrowIfNull(limits);
 
         var name = doctype.Name.ToString();
         var publicId = NullIfEmpty(doctype.PublicId);

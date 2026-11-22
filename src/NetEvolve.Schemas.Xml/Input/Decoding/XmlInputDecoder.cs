@@ -98,7 +98,7 @@ internal sealed class XmlInputDecoder
         out XmlDecodingError error
     )
     {
-        Argument.ThrowIfNull(output);
+        ArgumentNullException.ThrowIfNull(output);
 
         error = default;
         var baseOffset = _fed;

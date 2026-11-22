@@ -25,8 +25,8 @@ public abstract class SchemaValidatorBase : ISchemaValidator
     /// <param name="resolver">The resolver.</param>
     protected SchemaValidatorBase(ValidationLimits limits, IResourceResolver resolver)
     {
-        Argument.ThrowIfNull(limits);
-        Argument.ThrowIfNull(resolver);
+        ArgumentNullException.ThrowIfNull(limits);
+        ArgumentNullException.ThrowIfNull(resolver);
 
         _limits = limits;
         _resolver = resolver;
@@ -116,7 +116,7 @@ public abstract class SchemaValidatorBase : ISchemaValidator
 
     private static Stream NotNull(Stream stream)
     {
-        Argument.ThrowIfNull(stream);
+        ArgumentNullException.ThrowIfNull(stream);
 
         return stream;
     }

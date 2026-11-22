@@ -26,16 +26,16 @@ internal sealed class CallNode : ExecutableNode
     /// <exception cref="ArgumentOutOfRangeException">The number of arguments lies outside the arity range of the function.</exception>
     public CallNode(XPathFunction function, ExecutableNode[] arguments)
     {
-        Argument.ThrowIfNull(function);
-        Argument.ThrowIfNull(arguments);
-        Argument.ThrowIfLessThan(arguments.Length, function.MinArity);
-        Argument.ThrowIfGreaterThan(arguments.Length, function.MaxArity);
+        ArgumentNullException.ThrowIfNull(function);
+        ArgumentNullException.ThrowIfNull(arguments);
+        ArgumentOutOfRangeException.ThrowIfLessThan(arguments.Length, function.MinArity);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(arguments.Length, function.MaxArity);
 
         _function = function;
         _arguments = new ExecutableNode[arguments.Length];
         for (var i = 0; i < arguments.Length; i++)
         {
-            Argument.ThrowIfNull(arguments[i]);
+            ArgumentNullException.ThrowIfNull(arguments[i]);
 
             _arguments[i] = arguments[i];
         }
@@ -45,7 +45,7 @@ internal sealed class CallNode : ExecutableNode
     /// <exception cref="XPathException">An argument does not match its type (XPTY0004) or cannot be cast (FORG0001), or the function reports an error.</exception>
     public override XdmSequence Evaluate(XPathEvaluationContext context)
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         var count = _arguments.Length;
         if (count == 0)

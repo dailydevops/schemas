@@ -25,14 +25,14 @@ internal sealed class CompiledAssertion
         CompiledAnnotations? annotations = null
     )
     {
-        Argument.ThrowIfNull(id);
-        Argument.ThrowIfNull(ruleId);
-        Argument.ThrowIfNull(constraint);
-        Argument.ThrowIfNull(test);
-        Argument.ThrowIfNull(testExpression);
-        Argument.ThrowIfNull(message);
-        Argument.ThrowIfNull(diagnostics);
-        Argument.ThrowIfNull(properties);
+        ArgumentNullException.ThrowIfNull(id);
+        ArgumentNullException.ThrowIfNull(ruleId);
+        ArgumentNullException.ThrowIfNull(constraint);
+        ArgumentNullException.ThrowIfNull(test);
+        ArgumentNullException.ThrowIfNull(testExpression);
+        ArgumentNullException.ThrowIfNull(message);
+        ArgumentNullException.ThrowIfNull(diagnostics);
+        ArgumentNullException.ThrowIfNull(properties);
 
         IsReport = isReport;
         Id = id;

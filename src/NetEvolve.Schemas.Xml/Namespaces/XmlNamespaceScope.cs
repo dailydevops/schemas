@@ -43,7 +43,7 @@ internal sealed class XmlNamespaceScope
     /// <exception cref="InvalidOperationException">The table is frozen without, or too full for, the <c>xml</c> names.</exception>
     internal XmlNamespaceScope(XmlNameTable names)
     {
-        Argument.ThrowIfNull(names);
+        ArgumentNullException.ThrowIfNull(names);
         _names = names;
         _xmlPrefix = names.Intern(XmlPrefix.AsSpan());
         _bindings[_count++] = new XmlNamespaceBinding(_xmlPrefix, names.Intern(XmlNamespace.AsSpan()));
@@ -194,7 +194,7 @@ internal sealed class XmlNamespaceScope
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="destination"/> is shorter than <see cref="InScopeCount"/>.</exception>
     internal int CopyInScope(Span<XmlNamespaceBinding> destination)
     {
-        Argument.ThrowIfLessThan(destination.Length, InScopeCount);
+        ArgumentOutOfRangeException.ThrowIfLessThan(destination.Length, InScopeCount);
         return CopyInScope(destination, countOnly: false);
     }
 

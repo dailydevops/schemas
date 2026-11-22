@@ -31,8 +31,8 @@ internal sealed class SchematronPipeline : ISchematronPipeline
     public CompiledSchema Load(SchemaSource source, BuildSettings settings, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        Argument.ThrowIfNull(source);
-        Argument.ThrowIfNull(settings);
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(settings);
 
         var problems = new BuildProblems(settings.Limits);
         var parser = new SchematronModelParser(settings, cancellationToken);

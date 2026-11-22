@@ -53,13 +53,13 @@ internal sealed class IdentityConstraintReference
         XsdIssueReporter reporter
     )
     {
-        Argument.ThrowIfNull(element);
-        Argument.ThrowIfNull(reporter);
-        Argument.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
-        Argument.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
+        ArgumentNullException.ThrowIfNull(element);
+        ArgumentNullException.ThrowIfNull(reporter);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
 
         var text = element.FindAttribute("ref");
-        Argument.ThrowIfNull(text);
+        ArgumentNullException.ThrowIfNull(text);
 
         if (version == XsdVersion.V10)
         {
@@ -117,8 +117,8 @@ internal sealed class IdentityConstraintReference
     /// <returns><see langword="true"/> when <see cref="Target"/> is set.</returns>
     internal bool Resolve(IComponentRegistry registry, XsdIssueReporter reporter)
     {
-        Argument.ThrowIfNull(registry);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(registry);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         if (
             !registry.TryGet(XsdComponentKind.IdentityConstraint, Name, out var found)

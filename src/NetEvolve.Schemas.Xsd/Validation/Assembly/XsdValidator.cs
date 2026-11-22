@@ -19,7 +19,7 @@ internal sealed class XsdValidator : SchemaValidatorBase, IXsdValidator
     internal XsdValidator(IValidationCore core, XsdVersion version, ValidationLimits limits, IResourceResolver resolver)
         : base(limits, resolver)
     {
-        Argument.ThrowIfNull(core);
+        ArgumentNullException.ThrowIfNull(core);
 
         _core = core;
         Version = version;

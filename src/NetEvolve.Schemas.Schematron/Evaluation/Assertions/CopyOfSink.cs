@@ -28,8 +28,8 @@ internal sealed class CopyOfSink : ISequenceSink
     /// <param name="content">The content of the property.</param>
     internal void Begin(TextSink text, IFindingContentBuilder content)
     {
-        Argument.ThrowIfNull(text);
-        Argument.ThrowIfNull(content);
+        ArgumentNullException.ThrowIfNull(text);
+        ArgumentNullException.ThrowIfNull(content);
 
         _text = text;
         _content = content;

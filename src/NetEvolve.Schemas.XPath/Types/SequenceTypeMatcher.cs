@@ -35,8 +35,8 @@ internal sealed class SequenceTypeMatcher
     /// <exception cref="XPathException">A prefix is not bound (XPST0081), a type name is not a built-in type (XPST0051), or a schema declaration is named (XPST0008).</exception>
     public static SequenceTypeMatcher Create(SequenceType syntax, XPathStaticContext context)
     {
-        Argument.ThrowIfNull(syntax);
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(syntax);
+        ArgumentNullException.ThrowIfNull(context);
 
         return syntax.ItemType is null
             ? new(default, Occurrence.ExactlyOne, emptySequence: true)
@@ -54,7 +54,7 @@ internal sealed class SequenceTypeMatcher
     /// <returns><see langword="true"/> when the value matches the sequence type.</returns>
     public bool Matches(in XdmSequence value, IXdmTypeAnnotationSource annotations)
     {
-        Argument.ThrowIfNull(annotations);
+        ArgumentNullException.ThrowIfNull(annotations);
 
         var count = value.Count;
         if (_emptySequence)

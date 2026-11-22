@@ -69,7 +69,7 @@ internal static class StringsHarness
     /// <summary>The code points of a string, shown as hexadecimal numbers separated by a space.</summary>
     internal static string Hex(string text)
     {
-        Argument.ThrowIfNull(text);
+        ArgumentNullException.ThrowIfNull(text);
 
         var parts = new System.Collections.Generic.List<string>();
         for (var i = 0; i < text.Length; i++)

@@ -30,11 +30,11 @@ internal static class ElementConstruction
         XsltExecutable body
     )
     {
-        Argument.ThrowIfNull(frame);
-        Argument.ThrowIfNull(sink);
-        Argument.ThrowIfNull(body);
-        Argument.ThrowIfNull(namespaces);
-        Argument.ThrowIfNull(attributes);
+        ArgumentNullException.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(sink);
+        ArgumentNullException.ThrowIfNull(body);
+        ArgumentNullException.ThrowIfNull(namespaces);
+        ArgumentNullException.ThrowIfNull(attributes);
 
         if (!ConstructionOutput.TryOpen(frame, sink, location, out var target, out var scope, out var owned))
         {
@@ -78,9 +78,9 @@ internal static class ElementConstruction
         XsltExecutable body
     )
     {
-        Argument.ThrowIfNull(frame);
-        Argument.ThrowIfNull(sink);
-        Argument.ThrowIfNull(body);
+        ArgumentNullException.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(sink);
+        ArgumentNullException.ThrowIfNull(body);
 
         if (!ConstructionOutput.TryBeginTree(frame, sink, location, out var tree))
         {

@@ -16,7 +16,7 @@ internal sealed class XsdBuiltInType : IXsdComponent
         XsdBuiltInType? baseType
     )
     {
-        Argument.ThrowIfNullOrEmpty(localName);
+        ArgumentNullException.ThrowIfNullOrEmpty(localName);
 
         Kind = kind;
         Name = new XPathQName(SchemaGrammar.Namespace, localName);

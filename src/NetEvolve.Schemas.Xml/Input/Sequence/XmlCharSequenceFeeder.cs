@@ -17,7 +17,7 @@ internal sealed class XmlCharSequenceFeeder : XmlSequenceFeeder
 
     internal override bool Fill(int wanted)
     {
-        Argument.ThrowIfLessThan(wanted, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(wanted, 1);
 
         var characters = Characters;
         while (!_exhausted && characters.Length < wanted)

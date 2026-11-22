@@ -32,7 +32,7 @@ internal struct XdmItemList : IDisposable
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="limit"/> is below one.</exception>
     public XdmItemList(int limit, in SourceSpan location)
     {
-        Argument.ThrowIfLessThan(limit, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(limit, 1);
 
         _array = null;
         _capacity = 0;
@@ -100,8 +100,8 @@ internal struct XdmItemList : IDisposable
     /// <exception cref="System.ArgumentOutOfRangeException"><paramref name="count"/> is negative or above <see cref="Count"/>.</exception>
     public void Truncate(int count)
     {
-        Argument.ThrowIfLessThan(count, 0);
-        Argument.ThrowIfGreaterThan(count, Count);
+        ArgumentOutOfRangeException.ThrowIfLessThan(count, 0);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(count, Count);
 
         Count = count;
     }

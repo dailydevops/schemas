@@ -128,8 +128,8 @@ internal static class XdmTypes
     /// <returns><see langword="true"/> when the name is a built-in type of the XML Schema namespace.</returns>
     internal static bool TryGet(string namespaceUri, string localName, out XdmTypeId id)
     {
-        Argument.ThrowIfNull(namespaceUri);
-        Argument.ThrowIfNull(localName);
+        ArgumentNullException.ThrowIfNull(namespaceUri);
+        ArgumentNullException.ThrowIfNull(localName);
 
         if (string.Equals(namespaceUri, SchemaNamespace, StringComparison.Ordinal))
         {
@@ -142,7 +142,7 @@ internal static class XdmTypes
 
     internal static XdmTypeId Get(string localName)
     {
-        Argument.ThrowIfNull(localName);
+        ArgumentNullException.ThrowIfNull(localName);
 
         return ByName.TryGetValue(localName, out var id)
             ? id

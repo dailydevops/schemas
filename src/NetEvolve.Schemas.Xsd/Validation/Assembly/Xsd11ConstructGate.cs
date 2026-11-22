@@ -26,8 +26,8 @@ internal static class Xsd11ConstructGate
     /// <param name="reporter">Receives the errors.</param>
     internal static void Check(SchemaSyntaxNode root, XsdVersion version, XsdIssueReporter reporter)
     {
-        Argument.ThrowIfNull(root);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(root);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         if (version != XsdVersion.V11)
         {

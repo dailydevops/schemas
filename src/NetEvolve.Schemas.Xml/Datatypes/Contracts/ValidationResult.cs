@@ -39,7 +39,7 @@ public readonly record struct ValidationResult
     /// <exception cref="System.ArgumentOutOfRangeException"><paramref name="offset"/> is negative.</exception>
     public static ValidationResult Invalid(DatatypeError error, FacetKind failedFacet, int offset)
     {
-        Argument.ThrowIfLessThan(offset, 0);
+        ArgumentOutOfRangeException.ThrowIfLessThan(offset, 0);
 
         return new(false, error, failedFacet, offset);
     }

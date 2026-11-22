@@ -11,7 +11,7 @@ internal static class XmlDocumentImporter
 {
     internal static XmlTree Import(XmlDocument document, XmlInteropOptions? options)
     {
-        Argument.ThrowIfNull(document);
+        ArgumentNullException.ThrowIfNull(document);
 
         using var emitter = new TreeEmitter(options);
         var declaration = document.FirstChild as System.Xml.XmlDeclaration;

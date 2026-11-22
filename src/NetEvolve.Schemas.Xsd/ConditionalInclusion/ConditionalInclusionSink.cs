@@ -51,10 +51,10 @@ internal sealed class ConditionalInclusionSink : IXmlSink, INamespaceContext
 
     internal ConditionalInclusionSink(IXmlSink inner, XsdVersion version, string? baseUri, XsdIssueReporter reporter)
     {
-        Argument.ThrowIfNull(inner);
-        Argument.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
-        Argument.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(inner);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         _inner = inner;
         _passThrough = version == XsdVersion.V10;

@@ -39,9 +39,9 @@ internal sealed class AxisPathStep : PathStep
     /// <exception cref="XPathException"><paramref name="axis"/> is the namespace axis (XPST0010).</exception>
     public AxisPathStep(Axis axis, XPathNodeTest test, ItemTypeMatcher? typed, ExecutableNode[] predicates)
     {
-        Argument.ThrowIfLessThan((int)axis, (int)Axis.Child, nameof(axis));
-        Argument.ThrowIfGreaterThan((int)axis, (int)Axis.AncestorOrSelf, nameof(axis));
-        Argument.ThrowIfNull(predicates);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)axis, (int)Axis.Child, nameof(axis));
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)axis, (int)Axis.AncestorOrSelf, nameof(axis));
+        ArgumentNullException.ThrowIfNull(predicates);
 
         // Fails for the namespace axis before anything else is built.
         _ = XPathAxes.GetProperties(axis);
@@ -56,7 +56,7 @@ internal sealed class AxisPathStep : PathStep
     /// <inheritdoc />
     public override void EvaluateFromContext(XPathEvaluationContext context, ref XdmItemList results)
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         var item = context.ContextItem ?? throw XPathErrors.Exception(XPathErrorCodes.XPDY0002);
         var state = new BindingState();
@@ -78,7 +78,7 @@ internal sealed class AxisPathStep : PathStep
         ref XdmItemList results
     )
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         var state = new BindingState();
         var delivered = default(XdmItemList);

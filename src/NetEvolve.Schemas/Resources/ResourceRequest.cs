@@ -26,8 +26,8 @@ public readonly struct ResourceRequest
         string? namespaceUri = null
     )
     {
-        Argument.ThrowIfNull(reference);
-        Argument.ThrowIfGreaterThan((byte)kind, (byte)ResourceKind.XPathText);
+        ArgumentNullException.ThrowIfNull(reference);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((byte)kind, (byte)ResourceKind.XPathText);
 
         Kind = kind;
         _reference = reference;

@@ -23,7 +23,7 @@ internal readonly struct DerivationResult
     /// <returns>The result.</returns>
     public static DerivationResult Invalid(XsdRule rule)
     {
-        Argument.ThrowIfNull(rule);
+        ArgumentNullException.ThrowIfNull(rule);
 
         return new(rule);
     }

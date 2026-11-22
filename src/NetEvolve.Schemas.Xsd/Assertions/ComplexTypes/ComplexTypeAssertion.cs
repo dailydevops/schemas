@@ -25,8 +25,8 @@ internal sealed class ComplexTypeAssertion
 {
     internal ComplexTypeAssertion(string test, XPathExpression expression, DocumentLocation location)
     {
-        Argument.ThrowIfNull(test);
-        Argument.ThrowIfNull(expression);
+        ArgumentNullException.ThrowIfNull(test);
+        ArgumentNullException.ThrowIfNull(expression);
 
         Test = test;
         Expression = expression;
@@ -55,8 +55,8 @@ internal sealed class ComplexTypeAssertion
         XsdIssueReporter reporter
     )
     {
-        Argument.ThrowIfNull(type);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(type);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         var found = new List<ComplexTypeAssertion>();
         Add(type, scope, version, reporter, found);
@@ -121,10 +121,10 @@ internal sealed class ComplexTypeAssertion
         XsdIssueReporter reporter
     )
     {
-        Argument.ThrowIfNull(node);
-        Argument.ThrowIfNull(reporter);
-        Argument.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
-        Argument.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
+        ArgumentNullException.ThrowIfNull(node);
+        ArgumentNullException.ThrowIfNull(reporter);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
 
         // The grammar of the schema document requires the test attribute.
         var test = node.FindAttribute("test") ?? string.Empty;

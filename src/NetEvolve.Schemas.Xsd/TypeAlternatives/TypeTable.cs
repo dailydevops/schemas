@@ -47,8 +47,8 @@ internal sealed class TypeTable
     /// <returns>The table, <see langword="null"/> when there is no alternative.</returns>
     internal static TypeTable? Create(IReadOnlyList<TypeAlternative> alternatives, XsdIssueReporter reporter)
     {
-        Argument.ThrowIfNull(alternatives);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(alternatives);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         if (alternatives.Count == 0)
         {
@@ -60,7 +60,7 @@ internal sealed class TypeTable
         for (var i = 0; i < alternatives.Count; i++)
         {
             var alternative = alternatives[i];
-            Argument.ThrowIfNull(alternative);
+            ArgumentNullException.ThrowIfNull(alternative);
 
             if (!alternative.IsDefault)
             {
@@ -94,9 +94,9 @@ internal sealed class TypeTable
         XsdIssueReporter reporter
     )
     {
-        Argument.ThrowIfNull(element);
-        Argument.ThrowIfNull(builder);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(element);
+        ArgumentNullException.ThrowIfNull(builder);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         var alternatives = new List<TypeAlternative>();
         for (var i = 0; i < element.ChildCount; i++)
@@ -123,9 +123,9 @@ internal sealed class TypeTable
     /// </remarks>
     internal void Check(IXsdComponent declaredType, IDerivationCheck derivation, XsdIssueReporter reporter)
     {
-        Argument.ThrowIfNull(declaredType);
-        Argument.ThrowIfNull(derivation);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(declaredType);
+        ArgumentNullException.ThrowIfNull(derivation);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         for (var i = 0; i < _alternatives.Length; i++)
         {

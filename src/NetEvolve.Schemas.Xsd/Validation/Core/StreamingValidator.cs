@@ -98,11 +98,11 @@ internal sealed partial class StreamingValidator : IXmlSink
         XmlReaderLimits? readerLimits = null
     )
     {
-        Argument.ThrowIfNull(model);
-        Argument.ThrowIfNull(assessor);
-        Argument.ThrowIfNull(reporter);
-        Argument.ThrowIfNull(limits);
-        Argument.ThrowIfNull(listeners);
+        ArgumentNullException.ThrowIfNull(model);
+        ArgumentNullException.ThrowIfNull(assessor);
+        ArgumentNullException.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(limits);
+        ArgumentNullException.ThrowIfNull(listeners);
 
         _model = model;
         _assessor = assessor;
@@ -120,7 +120,7 @@ internal sealed partial class StreamingValidator : IXmlSink
         var all = new List<ValidationListener>(listeners.Count);
         for (var i = 0; i < listeners.Count; i++)
         {
-            Argument.ThrowIfNull(listeners[i]);
+            ArgumentNullException.ThrowIfNull(listeners[i]);
 
             all.Add(listeners[i]);
         }

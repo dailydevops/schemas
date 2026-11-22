@@ -61,7 +61,7 @@ internal static class CastingRegistration
     /// <exception cref="System.ArgumentNullException"><paramref name="builder"/> is <see langword="null"/>.</exception>
     public static void RegisterRows(CastingTableBuilder builder)
     {
-        Argument.ThrowIfNull(builder);
+        ArgumentNullException.ThrowIfNull(builder);
 
         for (var source = 0; source < Types.Length; source++)
         {

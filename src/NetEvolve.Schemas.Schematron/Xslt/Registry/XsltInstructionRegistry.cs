@@ -27,8 +27,8 @@ internal sealed class XsltInstructionRegistry : IXsltInstructionRegistry
 
     internal XsltInstructionRegistry(Dictionary<XPathQName, IXsltInstruction> named, IXsltInstruction?[] synthetic)
     {
-        Argument.ThrowIfNull(named);
-        Argument.ThrowIfNull(synthetic);
+        ArgumentNullException.ThrowIfNull(named);
+        ArgumentNullException.ThrowIfNull(synthetic);
 
         _named = named;
         _synthetic = synthetic;
@@ -60,8 +60,8 @@ internal sealed class XsltInstructionRegistry : IXsltInstructionRegistry
     /// <inheritdoc />
     public bool TryGetSynthetic(XsltSyntheticElement kind, out IXsltInstruction instruction)
     {
-        Argument.ThrowIfLessThan((int)kind, 0);
-        Argument.ThrowIfGreaterThanOrEqual((int)kind, SyntheticKinds);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)kind, 0);
+        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual((int)kind, SyntheticKinds);
 
         instruction = _synthetic[(int)kind]!;
         return instruction is not null;

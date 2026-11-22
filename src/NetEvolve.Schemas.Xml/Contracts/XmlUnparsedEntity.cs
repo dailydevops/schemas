@@ -15,9 +15,9 @@ public sealed class XmlUnparsedEntity
     /// <exception cref="ArgumentException"><paramref name="name"/> is empty.</exception>
     public XmlUnparsedEntity(string name, string systemId, string? publicId, string notationName)
     {
-        Argument.ThrowIfNullOrEmpty(name);
-        Argument.ThrowIfNull(systemId);
-        Argument.ThrowIfNull(notationName);
+        ArgumentNullException.ThrowIfNullOrEmpty(name);
+        ArgumentNullException.ThrowIfNull(systemId);
+        ArgumentNullException.ThrowIfNull(notationName);
         Name = name;
         SystemId = systemId;
         PublicId = publicId;

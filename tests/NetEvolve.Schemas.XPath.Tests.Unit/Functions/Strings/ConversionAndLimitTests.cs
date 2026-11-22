@@ -92,7 +92,7 @@ public class ConversionAndLimitTests
     [Arguments("string-length", "")]
     public async Task StringLength_AllocatesNothing(string local, string text)
     {
-        Argument.ThrowIfNull(text);
+        ArgumentNullException.ThrowIfNull(text);
 
         XdmSequence[] arguments = [Str(text)];
         var function = SequencesHarness.Resolve(local, 1);

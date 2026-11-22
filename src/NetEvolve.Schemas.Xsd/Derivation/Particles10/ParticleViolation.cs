@@ -12,8 +12,8 @@ internal readonly struct ParticleViolation
 {
     internal ParticleViolation(DiagnosticCode code, string clause, string message, DocumentLocation location)
     {
-        Argument.ThrowIfNull(clause);
-        Argument.ThrowIfNull(message);
+        ArgumentNullException.ThrowIfNull(clause);
+        ArgumentNullException.ThrowIfNull(message);
 
         Code = code;
         Clause = clause;

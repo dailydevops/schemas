@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Xsd.Wildcards.Core;
+﻿namespace NetEvolve.Schemas.Xsd.Wildcards.Core;
 
 using System;
 using System.Text;
@@ -37,7 +37,7 @@ internal sealed class NamespaceConstraint : IEquatable<NamespaceConstraint>
     /// <returns>The constraint.</returns>
     public static NamespaceConstraint Not(string namespaceName)
     {
-        Argument.ThrowIfNull(namespaceName);
+        ArgumentNullException.ThrowIfNull(namespaceName);
 
         return new(NamespaceConstraintVariety.Not, [namespaceName]);
     }
@@ -47,14 +47,14 @@ internal sealed class NamespaceConstraint : IEquatable<NamespaceConstraint>
     /// <returns>The constraint.</returns>
     public static NamespaceConstraint Set(string[] namespaceNames)
     {
-        Argument.ThrowIfNull(namespaceNames);
+        ArgumentNullException.ThrowIfNull(namespaceNames);
 
         var copy = (string[])namespaceNames.Clone();
         Array.Sort(copy, StringComparer.Ordinal);
         var count = 0;
         for (var i = 0; i < copy.Length; i++)
         {
-            Argument.ThrowIfNull(copy[i]);
+            ArgumentNullException.ThrowIfNull(copy[i]);
             if (count == 0 || !string.Equals(copy[count - 1], copy[i], StringComparison.Ordinal))
             {
                 copy[count++] = copy[i];
@@ -72,7 +72,7 @@ internal sealed class NamespaceConstraint : IEquatable<NamespaceConstraint>
     /// <returns><see langword="true"/> when the value is valid.</returns>
     public static bool TryParse(string? value, string targetNamespace, out NamespaceConstraint? constraint)
     {
-        Argument.ThrowIfNull(targetNamespace);
+        ArgumentNullException.ThrowIfNull(targetNamespace);
 
         constraint = null;
         if (value is null)
@@ -125,7 +125,7 @@ internal sealed class NamespaceConstraint : IEquatable<NamespaceConstraint>
     /// <returns><see langword="true"/> when allowed.</returns>
     public bool Allows(string namespaceName)
     {
-        Argument.ThrowIfNull(namespaceName);
+        ArgumentNullException.ThrowIfNull(namespaceName);
 
         return Variety switch
         {
@@ -141,7 +141,7 @@ internal sealed class NamespaceConstraint : IEquatable<NamespaceConstraint>
     /// <returns><see langword="true"/> when this is a subset.</returns>
     public bool IsSubsetOf(NamespaceConstraint super)
     {
-        Argument.ThrowIfNull(super);
+        ArgumentNullException.ThrowIfNull(super);
 
         if (super.Variety == NamespaceConstraintVariety.Any)
         {
@@ -179,7 +179,7 @@ internal sealed class NamespaceConstraint : IEquatable<NamespaceConstraint>
     /// <returns>The union, or <see langword="null"/> when it is not expressible.</returns>
     public NamespaceConstraint? Union(NamespaceConstraint other)
     {
-        Argument.ThrowIfNull(other);
+        ArgumentNullException.ThrowIfNull(other);
 
         if (Equals(other))
         {
@@ -227,7 +227,7 @@ internal sealed class NamespaceConstraint : IEquatable<NamespaceConstraint>
     /// <returns>The intersection, or <see langword="null"/> when it is not expressible.</returns>
     public NamespaceConstraint? Intersect(NamespaceConstraint other)
     {
-        Argument.ThrowIfNull(other);
+        ArgumentNullException.ThrowIfNull(other);
 
         if (Equals(other))
         {
@@ -320,10 +320,10 @@ internal sealed class NamespaceConstraint : IEquatable<NamespaceConstraint>
         {
             if (i > 0)
             {
-                builder.Append(',');
+                _ = builder.Append(',');
             }
 
-            builder.Append(Values[i].Length == 0 ? "##local" : Values[i]);
+            _ = builder.Append(Values[i].Length == 0 ? "##local" : Values[i]);
         }
 
         return builder.Append(isNot ? ')' : '}').ToString();

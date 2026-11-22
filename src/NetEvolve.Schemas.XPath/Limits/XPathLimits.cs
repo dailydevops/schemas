@@ -62,7 +62,7 @@ internal sealed class XPathLimits
     /// <exception cref="ArgumentNullException"><paramref name="limits"/> is <see langword="null"/>.</exception>
     public static XPathLimits From(ValidationLimits limits)
     {
-        Argument.ThrowIfNull(limits);
+        ArgumentNullException.ThrowIfNull(limits);
 
         var expansion = limits.MaxEntityExpansion;
         return new(limits.MaxDepth, (int)Math.Min(expansion, MaxSequenceSizeCeiling), expansion, expansion);
@@ -74,8 +74,8 @@ internal sealed class XPathLimits
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> is below one or above the ceiling.</exception>
     public XPathLimits WithMaxRecursionDepth(int value)
     {
-        Argument.ThrowIfLessThan(value, 1);
-        Argument.ThrowIfGreaterThan(value, MaxRecursionDepthCeiling);
+        ArgumentOutOfRangeException.ThrowIfLessThan(value, 1);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(value, MaxRecursionDepthCeiling);
 
         return new(value, MaxSequenceSize, MaxRangeSize, MaxStringLength);
     }
@@ -86,8 +86,8 @@ internal sealed class XPathLimits
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> is below one or above the ceiling.</exception>
     public XPathLimits WithMaxSequenceSize(int value)
     {
-        Argument.ThrowIfLessThan(value, 1);
-        Argument.ThrowIfGreaterThan(value, MaxSequenceSizeCeiling);
+        ArgumentOutOfRangeException.ThrowIfLessThan(value, 1);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(value, MaxSequenceSizeCeiling);
 
         return new(MaxRecursionDepth, value, MaxRangeSize, MaxStringLength);
     }
@@ -98,7 +98,7 @@ internal sealed class XPathLimits
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> is below one.</exception>
     public XPathLimits WithMaxRangeSize(long value)
     {
-        Argument.ThrowIfLessThan(value, 1L);
+        ArgumentOutOfRangeException.ThrowIfLessThan(value, 1L);
 
         return new(MaxRecursionDepth, MaxSequenceSize, value, MaxStringLength);
     }
@@ -109,7 +109,7 @@ internal sealed class XPathLimits
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> is below one.</exception>
     public XPathLimits WithMaxStringLength(long value)
     {
-        Argument.ThrowIfLessThan(value, 1L);
+        ArgumentOutOfRangeException.ThrowIfLessThan(value, 1L);
 
         return new(MaxRecursionDepth, MaxSequenceSize, MaxRangeSize, value);
     }

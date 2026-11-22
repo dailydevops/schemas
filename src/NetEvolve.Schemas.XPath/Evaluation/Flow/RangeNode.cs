@@ -43,8 +43,8 @@ internal sealed class RangeNode : ExecutableNode
     /// <exception cref="System.ArgumentNullException">An operand is <see langword="null"/>.</exception>
     public RangeNode(ExecutableNode from, ExecutableNode to, SourceSpan location)
     {
-        Argument.ThrowIfNull(from);
-        Argument.ThrowIfNull(to);
+        ArgumentNullException.ThrowIfNull(from);
+        ArgumentNullException.ThrowIfNull(to);
 
         _from = from;
         _to = to;
@@ -55,7 +55,7 @@ internal sealed class RangeNode : ExecutableNode
     /// <exception cref="XPathException">An operand is not an integer (XPTY0004, FORG0001), or the range is larger than the range size limit.</exception>
     public override XdmSequence Evaluate(XPathEvaluationContext context)
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         if (!TryGetBounds(context, out var first, out var last, out var value))
         {
@@ -76,7 +76,7 @@ internal sealed class RangeNode : ExecutableNode
     /// <exception cref="XPathException">An operand is not an integer (XPTY0004, FORG0001), or the range is larger than the range size limit.</exception>
     public bool TryGetBounds(XPathEvaluationContext context, out long first, out long last, out XdmSequence value)
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         // Both operands are evaluated, so a type error in the second one is raised even when the first one is empty.
         var hasFirst = TryGetOperand(_from, context, out var from);

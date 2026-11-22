@@ -23,7 +23,7 @@ internal sealed class DtdDoctypeHandler : IXmlDoctypeHandler, IXmlAttributeDecla
 
     internal DtdDoctypeHandler(XmlReaderLimits limits)
     {
-        Argument.ThrowIfNull(limits);
+        ArgumentNullException.ThrowIfNull(limits);
 
         _limits = limits;
     }

@@ -29,7 +29,7 @@ internal sealed class HostFunctionAdapter : XPathFunction
 
     private static XPathHostFunction Check(XPathHostFunction host)
     {
-        Argument.ThrowIfNull(host);
+        ArgumentNullException.ThrowIfNull(host);
 
         return host;
     }

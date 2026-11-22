@@ -41,7 +41,7 @@ internal abstract class RegexFunction : TextFunction
     )
         : base(localName, minArity, maxArity, parameters)
     {
-        Argument.ThrowIfNull(cache);
+        ArgumentNullException.ThrowIfNull(cache);
 
         _cache = cache;
     }

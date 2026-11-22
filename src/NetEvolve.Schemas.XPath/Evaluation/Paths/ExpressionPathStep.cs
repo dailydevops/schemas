@@ -22,7 +22,7 @@ internal sealed class ExpressionPathStep : PathStep
     /// <param name="isContextItem">Whether the expression is <c>.</c>, which hands every item on and keeps what is known about the sequence.</param>
     public ExpressionPathStep(ExecutableNode expression, bool isContextItem)
     {
-        Argument.ThrowIfNull(expression);
+        ArgumentNullException.ThrowIfNull(expression);
 
         _expression = expression;
         _isContextItem = isContextItem;
@@ -32,7 +32,7 @@ internal sealed class ExpressionPathStep : PathStep
     /// <inheritdoc />
     public override void EvaluateFromContext(XPathEvaluationContext context, ref XdmItemList results)
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         // The first step runs in the focus of the whole path, unchanged.
         results.AddRange(_expression.Evaluate(context));
@@ -45,7 +45,7 @@ internal sealed class ExpressionPathStep : PathStep
         ref XdmItemList results
     )
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         if (_isContextItem)
         {

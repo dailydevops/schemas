@@ -73,7 +73,7 @@ internal static class TemporalArithmetic
     /// <exception cref="XPathException">The difference is beyond the range (FODT0001, as the QT3 sets expect for an operation on dates and times), or an operand is no date or time value (XPTY0004).</exception>
     public static XdmItem SubtractMoments(in XdmItem left, in XdmItem right, XPathEvaluationContext context)
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         if (!left.TryGetTemporal(out var a) || !right.TryGetTemporal(out var b))
         {

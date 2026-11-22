@@ -25,7 +25,7 @@ internal sealed class XsltFrame
 
     internal XsltFrame(IQueryRun run, CancellationToken cancellationToken = default)
     {
-        Argument.ThrowIfNull(run);
+        ArgumentNullException.ThrowIfNull(run);
 
         Run = run;
         CancellationToken = cancellationToken;
@@ -48,8 +48,8 @@ internal sealed class XsltFrame
         get => _maxSequenceLength;
         set
         {
-            Argument.ThrowIfLessThan(value, 1);
-            Argument.ThrowIfGreaterThan(value, MaxSequenceLengthCeiling);
+            ArgumentOutOfRangeException.ThrowIfLessThan(value, 1);
+            ArgumentOutOfRangeException.ThrowIfGreaterThan(value, MaxSequenceLengthCeiling);
 
             _maxSequenceLength = value;
         }
@@ -61,7 +61,7 @@ internal sealed class XsltFrame
         get => _maxMessageLength;
         set
         {
-            Argument.ThrowIfLessThan(value, 0);
+            ArgumentOutOfRangeException.ThrowIfLessThan(value, 0);
 
             _maxMessageLength = value;
         }

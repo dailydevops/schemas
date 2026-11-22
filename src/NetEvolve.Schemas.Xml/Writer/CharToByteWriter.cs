@@ -20,7 +20,7 @@ internal sealed class CharToByteWriter : IBufferWriter<char>
 
     internal CharToByteWriter(IBufferWriter<byte> bytes, bool utf16)
     {
-        Argument.ThrowIfNull(bytes);
+        ArgumentNullException.ThrowIfNull(bytes);
         _bytes = bytes;
         _utf16 = utf16;
     }

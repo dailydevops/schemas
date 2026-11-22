@@ -136,7 +136,7 @@ internal sealed class ComplexTypeDefinition : IReferencingComponent, IBlockedTyp
     /// <inheritdoc />
     public void Bind(int index, IXsdComponent target)
     {
-        Argument.ThrowIfNull(target);
+        ArgumentNullException.ThrowIfNull(target);
 
         _sites[index].Owner.Bind(_sites[index].Index, target);
     }
@@ -168,8 +168,8 @@ internal sealed class ComplexTypeDefinition : IReferencingComponent, IBlockedTyp
         OpenContentElement? defaultOpenContent = null
     )
     {
-        Argument.ThrowIfNull(attributeUses);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(attributeUses);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         // Without a base that has open content the resolution cannot fail, so its result is not needed.
         _ = TryOpen(
@@ -338,11 +338,11 @@ internal sealed class ComplexTypeDefinition : IReferencingComponent, IBlockedTyp
         XsdIssueReporter reporter
     )
     {
-        Argument.ThrowIfLessThan((int)method, (int)XsdDerivationMethod.Extension);
-        Argument.ThrowIfGreaterThan((int)method, (int)XsdDerivationMethod.Restriction);
-        Argument.ThrowIfNull(baseType);
-        Argument.ThrowIfNull(attributeUses);
-        Argument.ThrowIfNull(reporter);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)method, (int)XsdDerivationMethod.Extension);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)method, (int)XsdDerivationMethod.Restriction);
+        ArgumentNullException.ThrowIfNull(baseType);
+        ArgumentNullException.ThrowIfNull(attributeUses);
+        ArgumentNullException.ThrowIfNull(reporter);
     }
 
     private static ComplexTypeDefinition Create(

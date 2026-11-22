@@ -35,7 +35,7 @@ internal abstract class XmlSequenceFeeder : IDisposable
 
     private protected XmlSequenceFeeder(XmlReaderOptions options, ArrayPool<char>? charPool)
     {
-        Argument.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(options);
 
         Limits = options.Limits;
         Characters = new PooledBuffer<char>(MinimumChunk, charPool);

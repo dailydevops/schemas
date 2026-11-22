@@ -19,8 +19,8 @@ internal sealed class CopySink : ISequenceSink
 
     internal CopySink(XsltFrame frame, ISequenceSink inner, DocumentLocation location)
     {
-        Argument.ThrowIfNull(frame);
-        Argument.ThrowIfNull(inner);
+        ArgumentNullException.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(inner);
 
         _frame = frame;
         _inner = inner;

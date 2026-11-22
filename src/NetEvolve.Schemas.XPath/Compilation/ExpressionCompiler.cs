@@ -31,10 +31,10 @@ internal static class ExpressionCompiler
         XPathLimits? limits = null
     )
     {
-        Argument.ThrowIfNull(syntax);
-        Argument.ThrowIfNull(source);
-        Argument.ThrowIfNull(context);
-        Argument.ThrowIfNull(registry);
+        ArgumentNullException.ThrowIfNull(syntax);
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(registry);
 
         try
         {

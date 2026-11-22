@@ -27,10 +27,10 @@ internal sealed class UnaryArithmeticNode : ExecutableNode
     /// <exception cref="System.ArgumentOutOfRangeException"><paramref name="operator"/> is not a defined operator.</exception>
     public UnaryArithmeticNode(UnaryOperator @operator, ExecutableNode operand, ArithmeticOperatorTable table)
     {
-        Argument.ThrowIfLessThan((int)@operator, (int)UnaryOperator.Plus, nameof(@operator));
-        Argument.ThrowIfGreaterThan((int)@operator, (int)UnaryOperator.Minus, nameof(@operator));
-        Argument.ThrowIfNull(operand);
-        Argument.ThrowIfNull(table);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)@operator, (int)UnaryOperator.Plus, nameof(@operator));
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)@operator, (int)UnaryOperator.Minus, nameof(@operator));
+        ArgumentNullException.ThrowIfNull(operand);
+        ArgumentNullException.ThrowIfNull(table);
 
         _operator = @operator;
         _operand = operand;
@@ -41,7 +41,7 @@ internal sealed class UnaryArithmeticNode : ExecutableNode
     /// <exception cref="XPathException">The operand is not a single number (XPTY0004), or an <c>xs:untypedAtomic</c> operand is not a double (FORG0001).</exception>
     public override XdmSequence Evaluate(XPathEvaluationContext context)
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         var operand = XPathAtomization.Atomize(_operand.Evaluate(context));
         if (operand.IsEmpty)

@@ -20,7 +20,7 @@ internal sealed class XsltWhenInstruction : IXsltInstruction
     /// <inheritdoc />
     public bool TryCompile(XsltCompileContext context, out XsltExecutable executable, out SchematronProblem problem)
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         problem = default;
         var ok = FlowCompile.TryReadBranch(context, context.Element, "xsl:when", out var branch);

@@ -27,23 +27,25 @@
     <File Path="testEnvironments.json" />
   </Folder>
   <Folder Name="/src/">
-    <Project Path="src/NetEvolve.Schemas/NetEvolve.Schemas.csproj" />
+    <File Path="src/Directory.Build.props" />
     <Project Path="src/NetEvolve.Schemas.DependencyInjection/NetEvolve.Schemas.DependencyInjection.csproj" />
     <Project Path="src/NetEvolve.Schemas.Schematron/NetEvolve.Schemas.Schematron.csproj" />
     <Project Path="src/NetEvolve.Schemas.Xml/NetEvolve.Schemas.Xml.csproj" />
     <Project Path="src/NetEvolve.Schemas.XPath/NetEvolve.Schemas.XPath.csproj" />
     <Project Path="src/NetEvolve.Schemas.Xsd/NetEvolve.Schemas.Xsd.csproj" />
+    <Project Path="src/NetEvolve.Schemas/NetEvolve.Schemas.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <File Path="tests/Directory.Build.props" />
+    <Project Path="tests/NetEvolve.Schemas.Architecture.Fixtures/NetEvolve.Schemas.Architecture.Fixtures.csproj" />
     <Project Path="tests/NetEvolve.Schemas.Benchmarks.Tests.Unit/NetEvolve.Schemas.Benchmarks.Tests.Unit.csproj" />
-    <Project Path="tests/NetEvolve.Schemas.Conformance/NetEvolve.Schemas.Conformance.csproj" />
     <Project Path="tests/NetEvolve.Schemas.Conformance.Tests.Unit/NetEvolve.Schemas.Conformance.Tests.Unit.csproj" />
+    <Project Path="tests/NetEvolve.Schemas.Conformance/NetEvolve.Schemas.Conformance.csproj" />
     <Project Path="tests/NetEvolve.Schemas.DependencyInjection.Tests.Unit/NetEvolve.Schemas.DependencyInjection.Tests.Unit.csproj" />
     <Project Path="tests/NetEvolve.Schemas.Schematron.Tests.Integration/NetEvolve.Schemas.Schematron.Tests.Integration.csproj" />
     <Project Path="tests/NetEvolve.Schemas.Schematron.Tests.Unit/NetEvolve.Schemas.Schematron.Tests.Unit.csproj" />
     <Project Path="tests/NetEvolve.Schemas.Testing/NetEvolve.Schemas.Testing.csproj" />
     <Project Path="tests/NetEvolve.Schemas.Tests.Architecture/NetEvolve.Schemas.Tests.Architecture.csproj" />
-    <Project Path="tests/NetEvolve.Schemas.Architecture.Fixtures/NetEvolve.Schemas.Architecture.Fixtures.csproj" />
     <Project Path="tests/NetEvolve.Schemas.Tests.LegacyCompiler/NetEvolve.Schemas.Tests.LegacyCompiler.csproj" />
     <Project Path="tests/NetEvolve.Schemas.Tests.Packaging/NetEvolve.Schemas.Tests.Packaging.csproj" />
     <Project Path="tests/NetEvolve.Schemas.Tests.PublicApi/NetEvolve.Schemas.Tests.PublicApi.csproj" />

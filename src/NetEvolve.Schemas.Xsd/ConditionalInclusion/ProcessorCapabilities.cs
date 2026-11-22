@@ -45,8 +45,8 @@ internal static class ProcessorCapabilities
     /// <returns><see langword="true"/> when the processor knows the type.</returns>
     internal static bool IsTypeAvailable(string namespaceName, string localName)
     {
-        Argument.ThrowIfNull(namespaceName);
-        Argument.ThrowIfNull(localName);
+        ArgumentNullException.ThrowIfNull(namespaceName);
+        ArgumentNullException.ThrowIfNull(localName);
 
         return string.Equals(namespaceName, SchemaGrammar.Namespace, StringComparison.Ordinal)
             && Types.Value.Contains(localName);
@@ -58,8 +58,8 @@ internal static class ProcessorCapabilities
     /// <returns><see langword="true"/> when the processor supports the facet.</returns>
     internal static bool IsFacetAvailable(string namespaceName, string localName)
     {
-        Argument.ThrowIfNull(namespaceName);
-        Argument.ThrowIfNull(localName);
+        ArgumentNullException.ThrowIfNull(namespaceName);
+        ArgumentNullException.ThrowIfNull(localName);
 
         return string.Equals(namespaceName, SchemaGrammar.Namespace, StringComparison.Ordinal)
             && Array.IndexOf(Facets, localName) >= 0;

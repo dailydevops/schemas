@@ -53,11 +53,11 @@ internal sealed class XsltFunctionCaller
         IXsltMessageSink? messages = null
     )
     {
-        Argument.ThrowIfNull(run);
-        Argument.ThrowIfNull(binder);
-        Argument.ThrowIfNull(names);
-        Argument.ThrowIfLessThan(maxDepth, 1);
-        Argument.ThrowIfGreaterThan(maxDepth, MaxDepthCeiling);
+        ArgumentNullException.ThrowIfNull(run);
+        ArgumentNullException.ThrowIfNull(binder);
+        ArgumentNullException.ThrowIfNull(names);
+        ArgumentOutOfRangeException.ThrowIfLessThan(maxDepth, 1);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(maxDepth, MaxDepthCeiling);
 
         _run = run;
         _binder = binder;
@@ -82,8 +82,8 @@ internal sealed class XsltFunctionCaller
         out XdmSequence result
     )
     {
-        Argument.ThrowIfNull(function);
-        Argument.ThrowIfNotEqual(arguments.Length, function.Arity);
+        ArgumentNullException.ThrowIfNull(function);
+        ArgumentOutOfRangeException.ThrowIfNotEqual(arguments.Length, function.Arity);
 
         result = XdmSequence.Empty;
         _cancellationToken.ThrowIfCancellationRequested();

@@ -18,7 +18,7 @@ internal sealed class XsltCopyOfExecutable : XsltExecutable, IXsltSlotReader, IX
 
     internal XsltCopyOfExecutable(QueryExpression select, DocumentLocation location, int slotEnd)
     {
-        Argument.ThrowIfNull(select);
+        ArgumentNullException.ThrowIfNull(select);
 
         _select = select;
         _location = location;
@@ -35,8 +35,8 @@ internal sealed class XsltCopyOfExecutable : XsltExecutable, IXsltSlotReader, IX
     /// <inheritdoc />
     internal override QueryStatus TryExecute(XsltFrame frame, ISequenceSink sink)
     {
-        Argument.ThrowIfNull(frame);
-        Argument.ThrowIfNull(sink);
+        ArgumentNullException.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(sink);
 
         if (sink.Kind != SequenceSinkKind.Items)
         {

@@ -17,8 +17,8 @@ public sealed class DatatypeRegistration
         Func<DatatypeRegistry, IDatatypeDescriptor> create
     )
     {
-        Argument.ThrowIfNull(name);
-        Argument.ThrowIfNull(create);
+        ArgumentNullException.ThrowIfNull(name);
+        ArgumentNullException.ThrowIfNull(create);
         Name = name;
         FirstVersion = firstVersion;
         Create = create;

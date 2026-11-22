@@ -101,7 +101,7 @@ public readonly struct XmlSequenceReader : IXmlReader, IDisposable, IEquatable<X
         // A struct sink cannot be null, and boxing it for the guard would allocate on every pump.
         if (!typeof(TSink).IsValueType)
         {
-            Argument.ThrowIfNull(sink);
+            ArgumentNullException.ThrowIfNull(sink);
         }
 
         return _span is not null ? _span.Pump(ref sink) : Feeder.Pump(ref sink);

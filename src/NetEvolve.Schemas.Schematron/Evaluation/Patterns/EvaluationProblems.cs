@@ -26,8 +26,8 @@ internal sealed class EvaluationProblems : IProblemSink
     /// <param name="instanceSystemId">The system identifier of the instance, or <see langword="null"/>.</param>
     internal EvaluationProblems(ValidationIssueCollector collector, IssueMapper events, string? instanceSystemId)
     {
-        Argument.ThrowIfNull(collector);
-        Argument.ThrowIfNull(events);
+        ArgumentNullException.ThrowIfNull(collector);
+        ArgumentNullException.ThrowIfNull(events);
 
         _collector = collector;
         _events = events;

@@ -37,8 +37,8 @@ internal sealed class XsltCommentExecutable : XsltExecutable, IXsltSlotReader, I
     /// <inheritdoc />
     internal override QueryStatus TryExecute(XsltFrame frame, ISequenceSink sink)
     {
-        Argument.ThrowIfNull(frame);
-        Argument.ThrowIfNull(sink);
+        ArgumentNullException.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(sink);
 
         return SimpleContent.TryEvaluate(frame, _select, _body, " ", _location, out var value) == QueryStatus.Problem
             ? QueryStatus.Problem

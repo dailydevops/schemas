@@ -19,7 +19,7 @@ internal sealed class GlobalDeclaration
         DocumentLocation location
     )
     {
-        Argument.ThrowIfNull(name);
+        ArgumentNullException.ThrowIfNull(name);
 
         Name = name;
         Value = value;

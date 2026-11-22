@@ -36,10 +36,10 @@ internal sealed class SchemaCompiler
     /// <param name="limits">The limits of the compilation.</param>
     internal SchemaCompiler(XsdVersion version, IResourceResolver resolver, ValidationLimits limits)
     {
-        Argument.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
-        Argument.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
-        Argument.ThrowIfNull(resolver);
-        Argument.ThrowIfNull(limits);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
+        ArgumentNullException.ThrowIfNull(resolver);
+        ArgumentNullException.ThrowIfNull(limits);
 
         _version = version;
         _resolver = resolver;
@@ -90,7 +90,7 @@ internal sealed class SchemaCompiler
     internal SchemaCompilation Compile(IReadOnlyList<SchemaInput> inputs, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        Argument.ThrowIfNull(inputs);
+        ArgumentNullException.ThrowIfNull(inputs);
 
         var run = new CompilationRun(_version, _resolver, _limits);
         var documents = new List<SchemaDocument>(inputs.Count);

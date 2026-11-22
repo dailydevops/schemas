@@ -78,8 +78,8 @@ internal sealed class AssertionListener : ValidationListener
     /// <param name="assessor">The datatype contract, which tells the accepting member of a union.</param>
     internal AssertionListener(ComplexTypeAssertions assertions, ISimpleValueAssessor assessor)
     {
-        Argument.ThrowIfNull(assertions);
-        Argument.ThrowIfNull(assessor);
+        ArgumentNullException.ThrowIfNull(assertions);
+        ArgumentNullException.ThrowIfNull(assessor);
 
         _assertions = assertions;
         _assessor = assessor;
@@ -336,8 +336,8 @@ internal sealed class AssertionListener : ValidationListener
             IReadOnlyList<ComplexTypeAssertion> assertions
         )
         {
-            Argument.ThrowIfNull(builder);
-            Argument.ThrowIfNull(assertions);
+            ArgumentNullException.ThrowIfNull(builder);
+            ArgumentNullException.ThrowIfNull(assertions);
 
             Builder = builder;
             Ordinal = info.Ordinal;

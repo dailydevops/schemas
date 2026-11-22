@@ -43,7 +43,7 @@ internal static class AggregateInput
     /// <exception cref="XPathException">An item is not a number (FORG0006) or cannot be cast (FORG0001), the sum overflows (FOAR0002 for a number, FODT0002 for a duration), or the durations are of two subtypes (FORG0006).</exception>
     public static XdmItem Sum(in XdmSequence items, XPathEvaluationContext context)
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         if (TemporalAggregation.IsSummable(items[0]))
         {
@@ -88,7 +88,7 @@ internal static class AggregateInput
     /// <exception cref="XPathException">The quotient is beyond the range (FODT0002).</exception>
     public static XdmItem DivideDuration(in XdmItem total, int count, XPathEvaluationContext context)
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         return TemporalAggregation.TryApply(
             ArithmeticOperator.Divide,

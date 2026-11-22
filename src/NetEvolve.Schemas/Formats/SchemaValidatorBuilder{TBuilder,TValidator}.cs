@@ -30,7 +30,7 @@ public abstract class SchemaValidatorBuilder<TBuilder, TValidator>
     /// <returns>This builder.</returns>
     public TBuilder WithLimits(ValidationLimits limits)
     {
-        Argument.ThrowIfNull(limits);
+        ArgumentNullException.ThrowIfNull(limits);
 
         _limits = limits;
         return (TBuilder)this;
@@ -41,7 +41,7 @@ public abstract class SchemaValidatorBuilder<TBuilder, TValidator>
     /// <returns>This builder.</returns>
     public TBuilder WithResolver(IResourceResolver resolver)
     {
-        Argument.ThrowIfNull(resolver);
+        ArgumentNullException.ThrowIfNull(resolver);
 
         _resolver = resolver;
         return (TBuilder)this;

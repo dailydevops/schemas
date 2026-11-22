@@ -18,11 +18,11 @@ internal sealed class CompiledRule
         CompiledAnnotations? annotations = null
     )
     {
-        Argument.ThrowIfNull(scope);
-        Argument.ThrowIfNull(context);
-        Argument.ThrowIfNull(id);
-        Argument.ThrowIfNull(contextText);
-        Argument.ThrowIfNull(assertions);
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(id);
+        ArgumentNullException.ThrowIfNull(contextText);
+        ArgumentNullException.ThrowIfNull(assertions);
 
         Scope = scope;
         Context = context;

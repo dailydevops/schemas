@@ -37,8 +37,8 @@ internal static class FlowCompile
         out QueryExpression expression
     )
     {
-        Argument.ThrowIfNull(context);
-        Argument.ThrowIfNull(text);
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(text);
 
         var binding = context.Binding
             ?? throw new InvalidOperationException(
@@ -69,7 +69,7 @@ internal static class FlowCompile
         out int slotEnd
     )
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         var names = new List<string>(context.Scope.VariableNames);
         var ok = XsltSequenceConstructor.TryCompile(context, first, names, out body);
@@ -90,8 +90,8 @@ internal static class FlowCompile
         out XsltIfExecutable branch
     )
     {
-        Argument.ThrowIfNull(context);
-        Argument.ThrowIfNull(elementName);
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(elementName);
 
         branch = null!;
         QueryExpression? test = null;
@@ -136,9 +136,9 @@ internal static class FlowCompile
         out string? value
     )
     {
-        Argument.ThrowIfNull(context);
-        Argument.ThrowIfNull(name);
-        Argument.ThrowIfNull(elementName);
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(name);
+        ArgumentNullException.ThrowIfNull(elementName);
 
         value = null;
         if (!XsltElementReader.TryGetAttribute(element, name, out var raw))
@@ -237,7 +237,7 @@ internal static class FlowCompile
         out string? value
     )
     {
-        Argument.ThrowIfNull(allowed);
+        ArgumentNullException.ThrowIfNull(allowed);
 
         if (!TryReadConstant(context, element, name, elementName, out value))
         {
@@ -273,7 +273,7 @@ internal static class FlowCompile
         string? constraint
     )
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         XsltProblems.Report(context.Problems, code, message, element, constraint);
     }

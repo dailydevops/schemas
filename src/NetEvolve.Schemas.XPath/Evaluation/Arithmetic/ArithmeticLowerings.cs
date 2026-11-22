@@ -22,8 +22,8 @@ internal static class ArithmeticLowerings
     /// <exception cref="System.InvalidOperationException">A node kind already has a lowering.</exception>
     public static void Register(LoweringRegistry registry, ArithmeticOperatorTable table)
     {
-        Argument.ThrowIfNull(registry);
-        Argument.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(registry);
+        ArgumentNullException.ThrowIfNull(table);
 
         registry.Register<ArithmeticExpression>(
             (node, context) =>

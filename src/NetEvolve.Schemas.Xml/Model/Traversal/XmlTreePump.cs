@@ -43,12 +43,12 @@ public static class XmlTreePump
     public static void Pump<TSink>(XmlNode node, ref TSink sink)
         where TSink : IXmlSink
     {
-        Argument.ThrowIfNull(node.Tree, nameof(node));
+        ArgumentNullException.ThrowIfNull(node.Tree, nameof(node));
 
         // A struct sink cannot be null; skipping the check for it keeps the call from boxing.
         if (!typeof(TSink).IsValueType)
         {
-            Argument.ThrowIfNull(sink);
+            ArgumentNullException.ThrowIfNull(sink);
         }
 
         // XmlTree can only be derived inside this assembly, and XmlDocumentTree is its only implementation.

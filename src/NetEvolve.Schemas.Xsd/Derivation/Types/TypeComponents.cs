@@ -28,8 +28,8 @@ internal static class TypeComponents
     /// <returns><see langword="true"/> when they are the same type definition.</returns>
     internal static bool IsSame(IXsdComponent left, IXsdComponent right)
     {
-        Argument.ThrowIfNull(left);
-        Argument.ThrowIfNull(right);
+        ArgumentNullException.ThrowIfNull(left);
+        ArgumentNullException.ThrowIfNull(right);
 
         return ReferenceEquals(left, right) || (left.Name != default && left.Name == right.Name);
     }
@@ -39,7 +39,7 @@ internal static class TypeComponents
     /// <returns><see langword="true"/> for the ur-type.</returns>
     internal static bool IsUrType(IXsdComponent type)
     {
-        Argument.ThrowIfNull(type);
+        ArgumentNullException.ThrowIfNull(type);
 
         return type.Kind == XsdComponentKind.ComplexType
             && string.Equals(type.Name.NamespaceName, SchemaGrammar.Namespace, StringComparison.Ordinal)
@@ -51,7 +51,7 @@ internal static class TypeComponents
     /// <returns>The final set, empty for a built-in type.</returns>
     internal static XsdDerivationMethod FinalOf(IXsdComponent type)
     {
-        Argument.ThrowIfNull(type);
+        ArgumentNullException.ThrowIfNull(type);
 
         return type switch
         {
@@ -66,7 +66,7 @@ internal static class TypeComponents
     /// <returns>The complex type definition, <see langword="null"/> for a simple type.</returns>
     internal static ComplexTypeDefinition? AsComplex(IXsdComponent type)
     {
-        Argument.ThrowIfNull(type);
+        ArgumentNullException.ThrowIfNull(type);
 
         return type switch
         {
@@ -81,7 +81,7 @@ internal static class TypeComponents
     /// <returns>The uses by the name of their declaration.</returns>
     internal static Dictionary<XPathQName, AttributeUse> IndexUses(IReadOnlyList<AttributeUse> uses)
     {
-        Argument.ThrowIfNull(uses);
+        ArgumentNullException.ThrowIfNull(uses);
 
         var index = new Dictionary<XPathQName, AttributeUse>(uses.Count);
         for (var i = 0; i < uses.Count; i++)
@@ -97,7 +97,7 @@ internal static class TypeComponents
     /// <returns>The quoted name, or a note for an anonymous type.</returns>
     internal static string Describe(IXsdComponent type)
     {
-        Argument.ThrowIfNull(type);
+        ArgumentNullException.ThrowIfNull(type);
 
         return type.Name == default ? "an anonymous type" : "'" + type.Name.LocalName + "'";
     }

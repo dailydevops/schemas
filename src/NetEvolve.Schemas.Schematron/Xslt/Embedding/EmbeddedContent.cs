@@ -42,7 +42,7 @@ internal sealed class EmbeddedContent : IEmbeddedContent
     /// <param name="names">The name table of every temporary tree of the run; the library never freezes it.</param>
     internal EmbeddedContent(XmlNameTable names)
     {
-        Argument.ThrowIfNull(names);
+        ArgumentNullException.ThrowIfNull(names);
 
         _names = names;
     }
@@ -55,8 +55,8 @@ internal sealed class EmbeddedContent : IEmbeddedContent
         out SchematronProblem problem
     )
     {
-        Argument.ThrowIfNull(run);
-        Argument.ThrowIfNull(content);
+        ArgumentNullException.ThrowIfNull(run);
+        ArgumentNullException.ThrowIfNull(content);
 
         if (run is not IXsltFunctionRun values)
         {

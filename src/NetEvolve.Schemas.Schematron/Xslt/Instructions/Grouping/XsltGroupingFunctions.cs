@@ -25,7 +25,7 @@ internal static class XsltGroupingFunctions
     /// <exception cref="ArgumentNullException"><paramref name="binding"/> is <see langword="null"/>.</exception>
     internal static XPathHostFunction[] Create(IQueryBinding binding)
     {
-        Argument.ThrowIfNull(binding);
+        ArgumentNullException.ThrowIfNull(binding);
 
         if (!binding.AllowsXsltInstructions)
         {

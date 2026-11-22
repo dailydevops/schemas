@@ -3,7 +3,7 @@ namespace NetEvolve.Schemas.Xsd.Tests.Integration.Differential;
 public class DifferentialRunnerTests
 {
     private static readonly DifferentialEnvironment BaselineEnvironment = new("net10.0", "10.0");
-    private static readonly DifferentialEnvironment OtherEnvironment = new("net9.0", "9.0");
+    private static readonly DifferentialEnvironment OtherEnvironment = new("net6.0", "9.0");
     private static readonly DeviationList NoDeviations = new("10.0", []);
 
     private static DifferentialCase Case(string id, Verdict schema = Verdict.Valid, Verdict instance = Verdict.Valid) =>

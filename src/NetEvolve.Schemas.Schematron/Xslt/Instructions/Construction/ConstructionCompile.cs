@@ -35,9 +35,9 @@ internal static class ConstructionCompile
         out AttributeValueTemplate template
     )
     {
-        Argument.ThrowIfNull(context);
-        Argument.ThrowIfNull(attributeName);
-        Argument.ThrowIfNull(elementName);
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(attributeName);
+        ArgumentNullException.ThrowIfNull(elementName);
 
         if (!XsltElementReader.TryGetAttribute(element, attributeName, out var text))
         {
@@ -67,8 +67,8 @@ internal static class ConstructionCompile
         out AttributeValueTemplate? template
     )
     {
-        Argument.ThrowIfNull(context);
-        Argument.ThrowIfNull(attributeName);
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(attributeName);
 
         template = null;
         if (!XsltElementReader.TryGetAttribute(element, attributeName, out var text))
@@ -103,9 +103,9 @@ internal static class ConstructionCompile
         out int slotEnd
     )
     {
-        Argument.ThrowIfNull(context);
-        Argument.ThrowIfNull(elementName);
-        Argument.ThrowIfNull(constraint);
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(elementName);
+        ArgumentNullException.ThrowIfNull(constraint);
 
         select = null;
         body = null;
@@ -146,9 +146,9 @@ internal static class ConstructionCompile
         params string[] attributes
     )
     {
-        Argument.ThrowIfNull(context);
-        Argument.ThrowIfNull(elementName);
-        Argument.ThrowIfNull(attributes);
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(elementName);
+        ArgumentNullException.ThrowIfNull(attributes);
 
         var ok = true;
         foreach (var attribute in attributes)
@@ -184,9 +184,9 @@ internal static class ConstructionCompile
         string elementName
     )
     {
-        Argument.ThrowIfNull(context);
-        Argument.ThrowIfNull(attributeName);
-        Argument.ThrowIfNull(elementName);
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(attributeName);
+        ArgumentNullException.ThrowIfNull(elementName);
 
         if (!XsltElementReader.TryGetAttribute(element, attributeName, out var raw))
         {
@@ -211,10 +211,10 @@ internal static class ConstructionCompile
         string raw
     )
     {
-        Argument.ThrowIfNull(context);
-        Argument.ThrowIfNull(attributeName);
-        Argument.ThrowIfNull(elementName);
-        Argument.ThrowIfNull(raw);
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(attributeName);
+        ArgumentNullException.ThrowIfNull(elementName);
+        ArgumentNullException.ThrowIfNull(raw);
 
         var value = raw.Trim();
         if (string.Equals(value, "yes", StringComparison.Ordinal))
@@ -254,10 +254,10 @@ internal static class ConstructionCompile
         string reason
     )
     {
-        Argument.ThrowIfNull(context);
-        Argument.ThrowIfNull(attributeName);
-        Argument.ThrowIfNull(elementName);
-        Argument.ThrowIfNull(reason);
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(attributeName);
+        ArgumentNullException.ThrowIfNull(elementName);
+        ArgumentNullException.ThrowIfNull(reason);
 
         XsltProblems.Report(
             context.Problems,

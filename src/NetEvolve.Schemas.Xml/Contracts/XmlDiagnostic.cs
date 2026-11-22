@@ -12,7 +12,7 @@ public sealed class XmlDiagnostic
     /// <exception cref="ArgumentNullException"><paramref name="code"/> is <see langword="null"/>.</exception>
     public XmlDiagnostic(XmlErrorCode code, XmlPosition position)
     {
-        Argument.ThrowIfNull(code);
+        ArgumentNullException.ThrowIfNull(code);
         Code = code;
         Position = position;
     }

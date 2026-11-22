@@ -11,7 +11,7 @@ internal sealed class XsdIssueReporter
 
     internal XsdIssueReporter(ValidationIssueCollector collector)
     {
-        Argument.ThrowIfNull(collector);
+        ArgumentNullException.ThrowIfNull(collector);
 
         _collector = collector;
     }
@@ -23,8 +23,8 @@ internal sealed class XsdIssueReporter
     /// <param name="clause">The clause path such as <c>cvc-complex-type.2.4</c>, or <see langword="null"/> for the rule id.</param>
     internal void Report(XsdRule rule, DocumentLocation location, string message, string? clause = null)
     {
-        Argument.ThrowIfNull(rule);
-        Argument.ThrowIfNull(message);
+        ArgumentNullException.ThrowIfNull(rule);
+        ArgumentNullException.ThrowIfNull(message);
 
         _collector.Add(new ValidationIssue(rule.Code, rule.DefaultSeverity, message, location, clause ?? rule.Id));
     }

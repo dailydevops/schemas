@@ -21,9 +21,9 @@ internal sealed class ModelExpander : IModelExpander
         out SchematronSchema effective
     )
     {
-        Argument.ThrowIfNull(model);
-        Argument.ThrowIfNull(settings);
-        Argument.ThrowIfNull(problems);
+        ArgumentNullException.ThrowIfNull(model);
+        ArgumentNullException.ThrowIfNull(settings);
+        ArgumentNullException.ThrowIfNull(problems);
 
         var schema = model.Schema;
         var rules = AbstractRuleExpander.TryExpand(schema.Rules, schema.Patterns, problems, out var withRules);

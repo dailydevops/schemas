@@ -11,7 +11,7 @@ internal sealed class XsltTextExecutable : XsltExecutable
 
     internal XsltTextExecutable(string text)
     {
-        Argument.ThrowIfNull(text);
+        ArgumentNullException.ThrowIfNull(text);
 
         _text = text;
     }
@@ -19,8 +19,8 @@ internal sealed class XsltTextExecutable : XsltExecutable
     /// <inheritdoc />
     internal override QueryStatus TryExecute(XsltFrame frame, ISequenceSink sink)
     {
-        Argument.ThrowIfNull(frame);
-        Argument.ThrowIfNull(sink);
+        ArgumentNullException.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(sink);
 
         sink.Text(_text.AsSpan());
         return QueryStatus.Ok;

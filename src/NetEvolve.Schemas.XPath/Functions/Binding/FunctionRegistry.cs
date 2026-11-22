@@ -47,8 +47,8 @@ internal sealed class FunctionRegistry
         out XPathFunction? function
     )
     {
-        Argument.ThrowIfNull(context);
-        Argument.ThrowIfLessThan(arity, 0);
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentOutOfRangeException.ThrowIfLessThan(arity, 0);
 
         var version = (XPathVersionMask)(1 << (int)context.Version);
 
@@ -104,9 +104,9 @@ internal sealed class FunctionRegistry
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="version"/> is not a defined version, or <paramref name="arity"/> is negative.</exception>
     public bool IsDefinedByCatalog(XPathVersion version, XPathQName name, int arity)
     {
-        Argument.ThrowIfLessThan((int)version, (int)XPathVersion.V20);
-        Argument.ThrowIfGreaterThan((int)version, (int)XPathVersion.V31);
-        Argument.ThrowIfLessThan(arity, 0);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)version, (int)XPathVersion.V20);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)version, (int)XPathVersion.V31);
+        ArgumentOutOfRangeException.ThrowIfLessThan(arity, 0);
 
         if (!_builtIn.TryGetValue(name, out var candidates))
         {
@@ -135,13 +135,13 @@ internal sealed class FunctionRegistry
     /// <exception cref="ArgumentNullException"><paramref name="functions"/> or one of its entries is <see langword="null"/>.</exception>
     public FunctionRegistry WithUserFunctions(IReadOnlyList<XPathFunction> functions)
     {
-        Argument.ThrowIfNull(functions);
+        ArgumentNullException.ThrowIfNull(functions);
 
         var user = new XPathFunction[_user.Length + functions.Count];
         Array.Copy(_user, user, _user.Length);
         for (var i = 0; i < functions.Count; i++)
         {
-            Argument.ThrowIfNull(functions[i]);
+            ArgumentNullException.ThrowIfNull(functions[i]);
 
             user[_user.Length + i] = functions[i];
         }
@@ -156,13 +156,13 @@ internal sealed class FunctionRegistry
     /// <exception cref="InvalidOperationException">Two functions register the same expanded name for an overlapping arity and version.</exception>
     internal static FunctionRegistry Create(IReadOnlyList<XPathFunction> functions)
     {
-        Argument.ThrowIfNull(functions);
+        ArgumentNullException.ThrowIfNull(functions);
 
         var byName = new Dictionary<XPathQName, List<XPathFunction>>();
         for (var i = 0; i < functions.Count; i++)
         {
             var function = functions[i];
-            Argument.ThrowIfNull(function);
+            ArgumentNullException.ThrowIfNull(function);
 
             if (!byName.TryGetValue(function.Name, out var same))
             {

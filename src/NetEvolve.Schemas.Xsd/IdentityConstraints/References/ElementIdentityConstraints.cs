@@ -44,9 +44,9 @@ internal sealed class ElementIdentityConstraints
         XsdIssueReporter reporter
     )
     {
-        Argument.ThrowIfNull(element);
-        Argument.ThrowIfNull(registry);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(element);
+        ArgumentNullException.ThrowIfNull(registry);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         var result = new ElementIdentityConstraints();
         for (var i = 0; i < element.ChildCount; i++)
@@ -85,8 +85,8 @@ internal sealed class ElementIdentityConstraints
     /// <param name="reporter">The reporter.</param>
     internal void Resolve(IComponentRegistry registry, XsdIssueReporter reporter)
     {
-        Argument.ThrowIfNull(registry);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(registry);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         var resolved = new List<IdentityConstraintDefinition>(_constraints.Count);
         for (var i = 0; i < _constraints.Count; i++)

@@ -18,7 +18,7 @@ internal sealed class RangeItems : IEnumerable<XdmItem>
     /// <exception cref="System.ArgumentOutOfRangeException"><paramref name="last"/> is below <paramref name="first"/>.</exception>
     public RangeItems(long first, long last)
     {
-        Argument.ThrowIfLessThan(last, first);
+        ArgumentOutOfRangeException.ThrowIfLessThan(last, first);
         _first = first;
         _last = last;
     }

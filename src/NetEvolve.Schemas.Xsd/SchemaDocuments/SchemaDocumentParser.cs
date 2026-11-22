@@ -26,7 +26,7 @@ internal static class SchemaDocumentParser
     /// <returns>The parsed document.</returns>
     internal static SchemaDocument Parse(ReadOnlySpan<char> schema, string? baseUri, XsdIssueReporter reporter)
     {
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         using var reader = XmlPipelineReader.Create(schema);
         return Parse(reader, baseUri, reporter);
@@ -39,7 +39,7 @@ internal static class SchemaDocumentParser
     /// <returns>The parsed document.</returns>
     internal static SchemaDocument Parse(ReadOnlySpan<byte> schema, string? baseUri, XsdIssueReporter reporter)
     {
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         using var reader = XmlPipelineReader.Create(schema);
         return Parse(reader, baseUri, reporter);
@@ -52,8 +52,8 @@ internal static class SchemaDocumentParser
     /// <returns>The parsed document.</returns>
     internal static SchemaDocument Parse(Stream schema, string? baseUri, XsdIssueReporter reporter)
     {
-        Argument.ThrowIfNull(schema);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(schema);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         using var buffer = new MemoryStream();
         schema.CopyTo(buffer);
@@ -67,8 +67,8 @@ internal static class SchemaDocumentParser
     /// <returns>The parsed document.</returns>
     internal static SchemaDocument Parse(IXmlReader reader, string? baseUri, XsdIssueReporter reporter)
     {
-        Argument.ThrowIfNull(reader);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(reader);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         var sink = new SchemaSyntaxSink(baseUri, reporter);
         var status = reader.Pump(ref sink);

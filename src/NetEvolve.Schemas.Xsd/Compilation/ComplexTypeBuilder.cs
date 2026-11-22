@@ -31,7 +31,7 @@ internal sealed class ComplexTypeBuilder : IComponentBuilder
 
     internal ComplexTypeBuilder(BuildContext context)
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         _context = context;
     }
@@ -43,9 +43,9 @@ internal sealed class ComplexTypeBuilder : IComponentBuilder
     /// <exception cref="NotSupportedException"><paramref name="element"/> is not the syntax of a top-level <c>complexType</c> of the build context.</exception>
     public IXsdComponent Build(ISchemaSyntaxElement element, IComponentRegistry registry, XsdIssueReporter reporter)
     {
-        Argument.ThrowIfNull(element);
-        Argument.ThrowIfNull(registry);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(element);
+        ArgumentNullException.ThrowIfNull(registry);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         return
             element is SchemaSyntaxNode node
@@ -60,7 +60,7 @@ internal sealed class ComplexTypeBuilder : IComponentBuilder
     /// <returns>The type.</returns>
     internal ComplexTypeDefinition Build(Definition definition)
     {
-        Argument.ThrowIfNull(definition);
+        ArgumentNullException.ThrowIfNull(definition);
 
         var node = definition.Node;
         var root = definition.Unit.Root;
@@ -88,8 +88,8 @@ internal sealed class ComplexTypeBuilder : IComponentBuilder
     /// <returns>The type, which the caller binds to its element.</returns>
     internal ComplexTypeDefinition BuildAnonymous(SchemaSyntaxNode node, UnitScope unit)
     {
-        Argument.ThrowIfNull(node);
-        Argument.ThrowIfNull(unit);
+        ArgumentNullException.ThrowIfNull(node);
+        ArgumentNullException.ThrowIfNull(unit);
 
         if (node.FindAttribute("name") is not null)
         {
@@ -118,7 +118,7 @@ internal sealed class ComplexTypeBuilder : IComponentBuilder
     /// <param name="unit">The unit that holds the syntax.</param>
     internal void Scan(Particle? particle, UnitScope unit)
     {
-        Argument.ThrowIfNull(unit);
+        ArgumentNullException.ThrowIfNull(unit);
 
         switch (particle?.Term)
         {
@@ -138,8 +138,8 @@ internal sealed class ComplexTypeBuilder : IComponentBuilder
     /// <param name="unit">The unit that holds the syntax.</param>
     internal void Scan(ModelGroup group, UnitScope unit)
     {
-        Argument.ThrowIfNull(group);
-        Argument.ThrowIfNull(unit);
+        ArgumentNullException.ThrowIfNull(group);
+        ArgumentNullException.ThrowIfNull(unit);
 
         for (var i = 0; i < group.Particles.Count; i++)
         {
@@ -152,8 +152,8 @@ internal sealed class ComplexTypeBuilder : IComponentBuilder
     /// <param name="unit">The unit that holds the syntax.</param>
     internal void Scan(ElementDeclaration element, UnitScope unit)
     {
-        Argument.ThrowIfNull(element);
-        Argument.ThrowIfNull(unit);
+        ArgumentNullException.ThrowIfNull(element);
+        ArgumentNullException.ThrowIfNull(unit);
 
         _context.FoundElements.Add(element);
         _context.ElementUnits[element] = unit;

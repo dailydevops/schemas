@@ -21,7 +21,7 @@ internal sealed class XsltFunctionTableBuilder
     /// <returns><see langword="false"/> when a function of the same name, arity, and precedence is already added.</returns>
     internal bool TryAdd(XsltFunctionComponent function, int precedence, out SchematronProblem problem)
     {
-        Argument.ThrowIfNull(function);
+        ArgumentNullException.ThrowIfNull(function);
 
         problem = default;
         if (!_byName.TryGetValue(function.Name, out var overloads))

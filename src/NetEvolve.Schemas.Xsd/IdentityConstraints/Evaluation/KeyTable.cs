@@ -17,8 +17,8 @@ internal sealed class KeyTable
     /// <returns><see langword="true"/> when the table holds an equal key-sequence.</returns>
     internal bool Contains(KeySequence sequence, ValueSpace space)
     {
-        Argument.ThrowIfNull(sequence);
-        Argument.ThrowIfNull(space);
+        ArgumentNullException.ThrowIfNull(sequence);
+        ArgumentNullException.ThrowIfNull(space);
 
         if (!_buckets.TryGetValue(sequence.Hash, out var bucket))
         {
@@ -40,7 +40,7 @@ internal sealed class KeyTable
     /// <param name="sequence">The key-sequence.</param>
     internal void Add(KeySequence sequence)
     {
-        Argument.ThrowIfNull(sequence);
+        ArgumentNullException.ThrowIfNull(sequence);
 
         if (!_buckets.TryGetValue(sequence.Hash, out var bucket))
         {

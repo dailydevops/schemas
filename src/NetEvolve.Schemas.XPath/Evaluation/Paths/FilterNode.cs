@@ -20,8 +20,8 @@ internal sealed class FilterNode : ExecutableNode, IOrderedNodeSequence
     /// <param name="predicates">The predicates.</param>
     public FilterNode(ExecutableNode primary, ExecutableNode[] predicates)
     {
-        Argument.ThrowIfNull(primary);
-        Argument.ThrowIfNull(predicates);
+        ArgumentNullException.ThrowIfNull(primary);
+        ArgumentNullException.ThrowIfNull(predicates);
 
         _primary = primary;
         _predicates = predicates;
@@ -35,7 +35,7 @@ internal sealed class FilterNode : ExecutableNode, IOrderedNodeSequence
     /// <exception cref="XPathException">A predicate value has no effective boolean value (FORG0006), or an operand raises an error.</exception>
     public override XdmSequence Evaluate(XPathEvaluationContext context)
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         var value = _primary.Evaluate(context);
         if (value.IsEmpty)

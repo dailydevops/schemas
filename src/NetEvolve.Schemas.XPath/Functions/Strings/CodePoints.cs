@@ -36,8 +36,8 @@ internal static class CodePoints
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is negative or not before the end of <paramref name="text"/>.</exception>
     public static int Next(ReadOnlySpan<char> text, ref int index)
     {
-        Argument.ThrowIfLessThan(index, 0);
-        Argument.ThrowIfGreaterThanOrEqual(index, text.Length);
+        ArgumentOutOfRangeException.ThrowIfLessThan(index, 0);
+        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, text.Length);
 
         var unit = text[index++];
         if (char.IsHighSurrogate(unit) && index < text.Length && char.IsLowSurrogate(text[index]))

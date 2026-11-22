@@ -14,8 +14,8 @@ internal readonly struct ExternalEntityFailure
     /// <param name="message">The message.</param>
     internal ExternalEntityFailure(XmlErrorCode code, string message)
     {
-        Argument.ThrowIfNull(code);
-        Argument.ThrowIfNull(message);
+        ArgumentNullException.ThrowIfNull(code);
+        ArgumentNullException.ThrowIfNull(message);
 
         Code = code;
         Message = message;

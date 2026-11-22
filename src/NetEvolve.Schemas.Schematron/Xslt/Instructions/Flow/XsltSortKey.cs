@@ -14,7 +14,7 @@ internal sealed class XsltSortKey : XsltExecutable, IXsltSlotReader
 {
     internal XsltSortKey(QueryExpression select, bool descending, bool asText, DocumentLocation location)
     {
-        Argument.ThrowIfNull(select);
+        ArgumentNullException.ThrowIfNull(select);
 
         Select = select;
         Descending = descending;
@@ -40,8 +40,8 @@ internal sealed class XsltSortKey : XsltExecutable, IXsltSlotReader
     /// <inheritdoc />
     internal override QueryStatus TryExecute(XsltFrame frame, ISequenceSink sink)
     {
-        Argument.ThrowIfNull(frame);
-        Argument.ThrowIfNull(sink);
+        ArgumentNullException.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(sink);
 
         return QueryStatus.Ok;
     }

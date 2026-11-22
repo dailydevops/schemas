@@ -117,7 +117,7 @@ internal partial struct XmlTokenizer
     /// <returns>A tokenizer that expects neither a byte order mark nor an XML declaration, rejects a document type declaration, turns references to other entities into tokens, and reads every CR and LF as a character of its own (line ends were normalized when the entity value was declared, section 4.5).</returns>
     internal static XmlTokenizer ForReplacementText(XmlReaderLimits limits)
     {
-        Argument.ThrowIfNull(limits);
+        ArgumentNullException.ThrowIfNull(limits);
 
         return new XmlTokenizer(limits, false, true)
         {

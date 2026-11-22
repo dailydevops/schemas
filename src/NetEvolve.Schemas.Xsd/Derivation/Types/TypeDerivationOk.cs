@@ -58,8 +58,8 @@ internal sealed class TypeDerivationOk
     /// <returns>The violation, none when the derivation is valid.</returns>
     internal TypeViolation Check(IXsdComponent derived, IXsdComponent baseType, XsdDerivationMethod subset)
     {
-        Argument.ThrowIfNull(derived);
-        Argument.ThrowIfNull(baseType);
+        ArgumentNullException.ThrowIfNull(derived);
+        ArgumentNullException.ThrowIfNull(baseType);
 
         subset &= TypeMethods;
         return derived.Kind == XsdComponentKind.ComplexType

@@ -12,7 +12,7 @@ internal sealed class XsltModuleSet
 {
     internal XsltModuleSet(IReadOnlyList<XsltModuleDeclaration> declarations)
     {
-        Argument.ThrowIfNull(declarations);
+        ArgumentNullException.ThrowIfNull(declarations);
 
         Declarations = declarations;
     }

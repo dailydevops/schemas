@@ -35,7 +35,7 @@ internal sealed class TextSink : ISequenceSink, IDisposable
     /// <param name="maxLength">The most characters the sink holds; the rest is cut and flagged.</param>
     internal TextSink(int maxLength)
     {
-        Argument.ThrowIfLessThan(maxLength, 0);
+        ArgumentOutOfRangeException.ThrowIfLessThan(maxLength, 0);
 
         _maxLength = maxLength;
     }
@@ -117,8 +117,8 @@ internal sealed class TextSink : ISequenceSink, IDisposable
     /// <param name="length">A value that <see cref="Length"/> returned earlier.</param>
     internal void Rewind(int length)
     {
-        Argument.ThrowIfLessThan(length, 0);
-        Argument.ThrowIfGreaterThan(length, _length);
+        ArgumentOutOfRangeException.ThrowIfLessThan(length, 0);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(length, _length);
 
         _length = length;
         _lastAtomic = false;

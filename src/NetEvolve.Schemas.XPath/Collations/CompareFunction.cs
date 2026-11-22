@@ -35,7 +35,7 @@ internal sealed class CompareFunction : TextFunction
     public CompareFunction(CollationRegistry registry, Uri? staticBaseUri)
         : base("compare", 2, 3, [OptionalString, OptionalString, OneString])
     {
-        Argument.ThrowIfNull(registry);
+        ArgumentNullException.ThrowIfNull(registry);
 
         _registry = registry;
         _staticBaseUri = staticBaseUri;

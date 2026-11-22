@@ -37,9 +37,9 @@ public sealed class SpanInterningNameTable : XmlNameTable
 
     internal SpanInterningNameTable(int maxDistinctNames, int initialCapacity, NameHash hash)
     {
-        Argument.ThrowIfLessThan(maxDistinctNames, 1);
-        Argument.ThrowIfLessThan(initialCapacity, 1);
-        Argument.ThrowIfNull(hash);
+        ArgumentOutOfRangeException.ThrowIfLessThan(maxDistinctNames, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(initialCapacity, 1);
+        ArgumentNullException.ThrowIfNull(hash);
 
         _maxDistinctNames = maxDistinctNames;
         _hash = hash;
@@ -112,7 +112,7 @@ public sealed class SpanInterningNameTable : XmlNameTable
     /// <inheritdoc />
     public override string GetString(XmlSymbol symbol)
     {
-        Argument.ThrowIfGreaterThan(symbol.Value, _count - 1);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(symbol.Value, _count - 1);
         return _strings[symbol.Value];
     }
 

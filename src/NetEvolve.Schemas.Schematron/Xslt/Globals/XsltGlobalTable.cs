@@ -23,8 +23,8 @@ internal sealed class XsltGlobalTable
 
     internal XsltGlobalTable(GlobalDeclaration[] declarations, Dictionary<XPathQName, GlobalDeclaration> byName)
     {
-        Argument.ThrowIfNull(declarations);
-        Argument.ThrowIfNull(byName);
+        ArgumentNullException.ThrowIfNull(declarations);
+        ArgumentNullException.ThrowIfNull(byName);
 
         _declarations = declarations;
         _byName = byName;
@@ -53,8 +53,8 @@ internal sealed class XsltGlobalTable
     /// <exception cref="System.ArgumentNullException"><paramref name="supplied"/> or <paramref name="problems"/> is <see langword="null"/>.</exception>
     internal bool CheckParameters(IReadOnlyDictionary<string, string> supplied, IProblemSink problems)
     {
-        Argument.ThrowIfNull(supplied);
-        Argument.ThrowIfNull(problems);
+        ArgumentNullException.ThrowIfNull(supplied);
+        ArgumentNullException.ThrowIfNull(problems);
 
         var ok = true;
         for (var i = 0; i < _declarations.Length; i++)

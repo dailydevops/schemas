@@ -49,7 +49,7 @@ internal abstract class IdentifierFunction : NodeFunction
     /// <returns>The list; the caller disposes it.</returns>
     protected static XdmItemList NewList(XPathEvaluationContext context)
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         return new(context.Limits.MaxSequenceSize, new SourceSpan(-1, 0));
     }

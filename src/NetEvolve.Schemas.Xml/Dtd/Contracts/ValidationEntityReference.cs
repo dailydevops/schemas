@@ -17,8 +17,8 @@ public readonly record struct ValidationEntityReference
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="outcome"/> is not a defined value.</exception>
     public ValidationEntityReference(ReadOnlyMemory<char> name, XmlPosition position, DtdEntityOutcome outcome)
     {
-        Argument.ThrowIfGreaterThan((int)outcome, (int)DtdEntityOutcome.Undeclared);
-        Argument.ThrowIfLessThan((int)outcome, (int)DtdEntityOutcome.DeclaredInternal);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)outcome, (int)DtdEntityOutcome.Undeclared);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)outcome, (int)DtdEntityOutcome.DeclaredInternal);
 
         Name = name;
         Position = position;

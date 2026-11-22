@@ -91,7 +91,7 @@ public sealed partial class RegexProgram : IRegexMatcher
     /// <exception cref="ArgumentNullException"><paramref name="tree"/> is <see langword="null"/>.</exception>
     public static RegexError TryCompile(RegexTree tree, out RegexProgram? program)
     {
-        Argument.ThrowIfNull(tree);
+        ArgumentNullException.ThrowIfNull(tree);
 
         var sets = new RegexCharacterSet[tree.SetCount];
         for (var i = 0; i < sets.Length; i++)
@@ -173,8 +173,8 @@ public sealed partial class RegexProgram : IRegexMatcher
         out int length
     )
     {
-        Argument.ThrowIfLessThan(startIndex, 0);
-        Argument.ThrowIfGreaterThan(startIndex, input.Length);
+        ArgumentOutOfRangeException.ThrowIfLessThan(startIndex, 0);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(startIndex, input.Length);
 
         if (_dialect == RegexDialect.XPath)
         {

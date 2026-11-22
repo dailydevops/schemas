@@ -41,7 +41,7 @@ internal sealed class XPathQueryRun : IQueryRun
 
     internal XPathQueryRun(QueryResources resources, CancellationToken cancellationToken)
     {
-        Argument.ThrowIfNull(resources);
+        ArgumentNullException.ThrowIfNull(resources);
 
         _cancellationToken = cancellationToken;
         _context.ResourceResolver = resources.XPathResolver;
@@ -50,7 +50,7 @@ internal sealed class XPathQueryRun : IQueryRun
 
     public QueryStatus TryEvaluateBoolean(QueryExpression expression, in QueryFocus focus, out bool value)
     {
-        Argument.ThrowIfNull(expression);
+        ArgumentNullException.ThrowIfNull(expression);
 
         var query = Cast(expression);
         value = false;
@@ -72,8 +72,8 @@ internal sealed class XPathQueryRun : IQueryRun
 
     public QueryStatus TryEvaluate(QueryExpression expression, in QueryFocus focus, ISequenceSink sink)
     {
-        Argument.ThrowIfNull(expression);
-        Argument.ThrowIfNull(sink);
+        ArgumentNullException.ThrowIfNull(expression);
+        ArgumentNullException.ThrowIfNull(sink);
 
         var query = Cast(expression);
         if (!TryRun(query, in focus, out var sequence))
@@ -91,7 +91,7 @@ internal sealed class XPathQueryRun : IQueryRun
 
     public QueryStatus TryBindVariable(int slot, QueryExpression value, in QueryFocus focus)
     {
-        Argument.ThrowIfNull(value);
+        ArgumentNullException.ThrowIfNull(value);
 
         var query = Cast(value);
         if (!TryRun(query, in focus, out var sequence))
@@ -116,7 +116,7 @@ internal sealed class XPathQueryRun : IQueryRun
 
     public void BindVariable(int slot, string value)
     {
-        Argument.ThrowIfNull(value);
+        ArgumentNullException.ThrowIfNull(value);
 
         Store(slot, XdmSequence.Create(XdmItem.FromString(value)));
     }

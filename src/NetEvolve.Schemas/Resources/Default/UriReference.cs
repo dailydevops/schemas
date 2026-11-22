@@ -21,7 +21,7 @@ internal static class UriReference
     /// <returns>The resolution; the failure code is <see cref="CoreDiagnosticCodes.ResourceReferenceInvalid"/> or <see cref="CoreDiagnosticCodes.ResourceBaseUriMissing"/>.</returns>
     internal static UriResolution Resolve(string reference, string? baseUri)
     {
-        Argument.ThrowIfNull(reference);
+        ArgumentNullException.ThrowIfNull(reference);
 
         char[]? rentedReference = null;
         char[]? rentedBase = null;

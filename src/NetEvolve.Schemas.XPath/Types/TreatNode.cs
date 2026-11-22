@@ -29,9 +29,9 @@ internal sealed class TreatNode : ExecutableNode
         SourceSpan location
     )
     {
-        Argument.ThrowIfNull(operand);
-        Argument.ThrowIfNull(type);
-        Argument.ThrowIfNull(annotations);
+        ArgumentNullException.ThrowIfNull(operand);
+        ArgumentNullException.ThrowIfNull(type);
+        ArgumentNullException.ThrowIfNull(annotations);
 
         _operand = operand;
         _type = type;
@@ -43,7 +43,7 @@ internal sealed class TreatNode : ExecutableNode
     /// <exception cref="XPathException">The operand does not match the sequence type (XPDY0050).</exception>
     public override XdmSequence Evaluate(XPathEvaluationContext context)
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         var value = _operand.Evaluate(context);
         return _type.Matches(value, _annotations)

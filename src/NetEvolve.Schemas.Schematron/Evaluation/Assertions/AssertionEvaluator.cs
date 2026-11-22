@@ -55,11 +55,11 @@ internal sealed class AssertionEvaluator : IDisposable
         IEmbeddedContent? embedded = null
     )
     {
-        Argument.ThrowIfNull(run);
-        Argument.ThrowIfNull(binder);
-        Argument.ThrowIfNull(events);
-        Argument.ThrowIfNull(problems);
-        Argument.ThrowIfLessThan(maxTextLength, 0);
+        ArgumentNullException.ThrowIfNull(run);
+        ArgumentNullException.ThrowIfNull(binder);
+        ArgumentNullException.ThrowIfNull(events);
+        ArgumentNullException.ThrowIfNull(problems);
+        ArgumentOutOfRangeException.ThrowIfLessThan(maxTextLength, 0);
 
         _run = run;
         _binder = binder;
@@ -82,7 +82,7 @@ internal sealed class AssertionEvaluator : IDisposable
     /// <returns>What the evaluation produced.</returns>
     internal AssertionOutcome Evaluate(CompiledAssertion assertion, in QueryFocus focus)
     {
-        Argument.ThrowIfNull(assertion);
+        ArgumentNullException.ThrowIfNull(assertion);
 
         var test = assertion.TestExpression;
         if (_binder.EnsureBound(test.ReferencedSlots) != QueryStatus.Ok)

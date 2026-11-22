@@ -38,8 +38,8 @@ internal sealed class ModuleLoader : IModuleLoader
 
     internal ModuleLoader(IResourceResolver resolver, ValidationLimits limits)
     {
-        Argument.ThrowIfNull(resolver);
-        Argument.ThrowIfNull(limits);
+        ArgumentNullException.ThrowIfNull(resolver);
+        ArgumentNullException.ThrowIfNull(limits);
 
         _resolver = resolver;
         _limits = limits;

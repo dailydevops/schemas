@@ -24,8 +24,8 @@ internal sealed class ComponentResolver : IComponentResolver
 
     internal ComponentResolver(XsdVersion version)
     {
-        Argument.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
-        Argument.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
 
         _version = version;
     }
@@ -34,8 +34,8 @@ internal sealed class ComponentResolver : IComponentResolver
     /// <exception cref="NotSupportedException"><paramref name="registry"/> is not a <see cref="ComponentRegistry"/>, which is the only one that can be enumerated.</exception>
     public void Resolve(IComponentRegistry registry, XsdIssueReporter reporter)
     {
-        Argument.ThrowIfNull(registry);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(registry);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         var concrete =
             registry as ComponentRegistry

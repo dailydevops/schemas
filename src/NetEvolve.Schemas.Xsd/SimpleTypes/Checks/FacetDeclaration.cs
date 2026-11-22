@@ -10,9 +10,9 @@ internal readonly struct FacetDeclaration
 {
     internal FacetDeclaration(FacetKind kind, string value, DocumentLocation location, bool isFixed = false)
     {
-        Argument.ThrowIfLessThan((int)kind, (int)FacetKind.Length);
-        Argument.ThrowIfGreaterThan((int)kind, (int)FacetKind.ExplicitTimezone);
-        Argument.ThrowIfNull(value);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)kind, (int)FacetKind.Length);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)kind, (int)FacetKind.ExplicitTimezone);
+        ArgumentNullException.ThrowIfNull(value);
 
         Kind = kind;
         Value = value;

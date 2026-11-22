@@ -26,7 +26,7 @@ internal sealed class PatternMatcher : IPatternMatcher
     /// <param name="binding">The binding that compiles and evaluates the predicates.</param>
     internal PatternMatcher(IQueryBinding binding)
     {
-        Argument.ThrowIfNull(binding);
+        ArgumentNullException.ThrowIfNull(binding);
         _binding = binding;
     }
 
@@ -35,7 +35,7 @@ internal sealed class PatternMatcher : IPatternMatcher
     /// <returns>The priorities.</returns>
     internal static IReadOnlyList<decimal> DefaultPriorities(CompiledPattern compiled)
     {
-        Argument.ThrowIfNull(compiled);
+        ArgumentNullException.ThrowIfNull(compiled);
         return ((PatternPlan)compiled).Priorities;
     }
 
@@ -48,7 +48,7 @@ internal sealed class PatternMatcher : IPatternMatcher
         out SchematronProblem problem
     )
     {
-        Argument.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(scope);
         compiled = null!;
         var text = pattern.ToString();
         var locator = new PatternLocator(text, scope.BaseUri);
@@ -87,9 +87,9 @@ internal sealed class PatternMatcher : IPatternMatcher
     /// <inheritdoc />
     public QueryStatus Matches(CompiledPattern compiled, IQueryRun run, in XPathNode candidate, out bool matched)
     {
-        Argument.ThrowIfNull(compiled);
-        Argument.ThrowIfNull(run);
-        Argument.ThrowIfNull(candidate.Tree);
+        ArgumentNullException.ThrowIfNull(compiled);
+        ArgumentNullException.ThrowIfNull(run);
+        ArgumentNullException.ThrowIfNull(candidate.Tree);
 
         var alternatives = ((PatternPlan)compiled).Alternatives;
         for (var i = 0; i < alternatives.Length; i++)
