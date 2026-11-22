@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.Xml.Tests.Unit.Dtd.Validation.Notations;
 
 using System;
 using NetEvolve.Schemas.Formats;
+using NetEvolve.Schemas.Testing.Allocations;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Dtd.Contracts;
 using NetEvolve.Schemas.Xml.Dtd.Model;
@@ -179,13 +180,15 @@ public class NotationStepLifecycleTests
         var element = new ValidationElement("r".AsMemory(), Origin, attributes);
         step.StartElement(in element);
 
-        var before = GC.GetAllocatedBytesForCurrentThread();
-        for (var i = 0; i < 1000; i++)
+        // Smallest of several runs after unmeasured warm-ups: one-time allocations (tiering, allocation context
+        // refill) cannot fail the test; a per-element allocation shows in every run.
+        var allocated = AllocationAssert.Measure(() =>
         {
-            step.StartElement(in element);
-        }
-
-        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+            for (var i = 0; i < 1000; i++)
+            {
+                step.StartElement(in element);
+            }
+        });
 
         await Assert.That(issues.Count).IsEqualTo(0);
         await Assert.That(allocated).IsLessThan(4096);
