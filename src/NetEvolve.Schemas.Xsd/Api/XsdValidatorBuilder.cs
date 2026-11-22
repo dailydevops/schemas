@@ -25,6 +25,7 @@ public sealed class XsdValidatorBuilder : SchemaValidatorBuilder<XsdValidatorBui
     private readonly List<SchemaSource> _sources = [];
     private XsdVersion _version = XsdVersion.V11;
     private bool _dtdProcessing;
+    private bool _schemaLocationHints;
 
     internal XsdValidatorBuilder() { }
 
@@ -86,6 +87,19 @@ public sealed class XsdValidatorBuilder : SchemaValidatorBuilder<XsdValidatorBui
     public XsdValidatorBuilder WithDtdProcessing(bool enabled)
     {
         _dtdProcessing = enabled;
+        return this;
+    }
+
+    /// <summary>
+    /// Selects whether the validator loads schema documents that the instance names with <c>xsi:schemaLocation</c> and
+    /// <c>xsi:noNamespaceSchemaLocation</c>. Off by default: the hints are then ignored and no location is accessed. When on, every
+    /// location goes through the resolver of the builder, which refuses everything unless another one is set.
+    /// </summary>
+    /// <param name="enabled"><see langword="true"/> to load the schema documents that the hints name.</param>
+    /// <returns>This builder.</returns>
+    public XsdValidatorBuilder WithSchemaLocationHints(bool enabled)
+    {
+        _schemaLocationHints = enabled;
         return this;
     }
 
