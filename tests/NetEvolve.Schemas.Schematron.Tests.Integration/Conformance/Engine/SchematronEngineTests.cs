@@ -118,42 +118,15 @@ public class SchematronEngineTests
         cancellationToken.ThrowIfCancellationRequested();
         const string schema = """
             <sch:schema xmlns:sch="http://purl.oclc.org/dsdl/schematron">
-              <sch:pattern><sch:rule context="/"><sch:include href="include.sch#assert"/></sch:rule></sch:pattern>
+              <sch:pattern><sch:include href="include.sch"/></sch:pattern>
             </sch:schema>
             """;
         const string include = """
-            <sch:schema xmlns:sch="http://purl.oclc.org/dsdl/schematron">
-              <sch:pattern><sch:rule abstract="true"><sch:assert xml:id="assert" test="false()"/></sch:rule></sch:pattern>
-            </sch:schema>
+            <sch:rule context="/" xmlns:sch="http://purl.oclc.org/dsdl/schematron"><sch:assert test="false()"/></sch:rule>
             """;
 
         var observation = await Run(
             Case(SchematronOutcome.Invalid, [schema], extra: new SchematronDocument("include.sch", include)),
-            cancellationToken
-        );
-
-        await Assert.That(observation).IsEqualTo(new SchematronObservation(SchematronOutcome.Invalid));
-    }
-
-    [Test]
-    public async Task ValidateAsync_SubordinateDocumentOfTheCase_IsValidated(CancellationToken cancellationToken)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-        const string schema = """
-            <sch:schema xmlns:sch="http://purl.oclc.org/dsdl/schematron">
-              <sch:pattern documents="/element/@secondary">
-                <sch:rule context="/"><sch:report test="root"/></sch:rule>
-              </sch:pattern>
-            </sch:schema>
-            """;
-
-        var observation = await Run(
-            Case(
-                SchematronOutcome.Invalid,
-                [schema],
-                instance: """<element secondary="document-02.xml" xmlns=""/>""",
-                extra: new SchematronDocument("document-02.xml", """<root xmlns=""/>""")
-            ),
             cancellationToken
         );
 

@@ -24,13 +24,13 @@ internal static class SchematronConformanceRunner
         {
             var observed = await validator.ValidateAsync(schematronCase, cancellationToken);
             results.Add(
-                observed.Outcome == schematronCase.Expect
+                observed.Outcome == schematronCase.Expect && observed.Reason is null
                     ? new CaseResult(schematronCase.Id, schematronCase.TestSet, CaseOutcome.Pass)
                     : new CaseResult(
                         schematronCase.Id,
                         schematronCase.TestSet,
                         CaseOutcome.Fail,
-                        $"Expected {schematronCase.Expect} but observed {observed.Outcome}."
+                        Describe(schematronCase, observed)
                     )
             );
         }
@@ -41,5 +41,16 @@ internal static class SchematronConformanceRunner
         }
 
         return results;
+    }
+
+    private static string Describe(SchematronCase schematronCase, SchematronObservation observed)
+    {
+        if (observed.Outcome == schematronCase.Expect)
+        {
+            return observed.Reason!;
+        }
+
+        var mismatch = $"Expected {schematronCase.Expect} but observed {observed.Outcome}.";
+        return observed.Reason is null ? mismatch : $"{mismatch} {observed.Reason}";
     }
 }
