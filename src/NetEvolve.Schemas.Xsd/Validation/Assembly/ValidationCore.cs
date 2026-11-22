@@ -9,6 +9,8 @@ using NetEvolve.Schemas.Resources;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xml.Input.Sequence;
+using NetEvolve.Schemas.Xml.Model;
+using NetEvolve.Schemas.Xml.Model.Traversal;
 using NetEvolve.Schemas.Xml.Reader.Pipeline;
 using NetEvolve.Schemas.Xsd.Compilation;
 using NetEvolve.Schemas.Xsd.Contracts;
@@ -16,10 +18,12 @@ using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.Elements;
 using NetEvolve.Schemas.Xsd.IdentityConstraints.Definitions;
 using NetEvolve.Schemas.Xsd.IdentityConstraints.Evaluation;
+using NetEvolve.Schemas.Xsd.Validation.Annotations;
 using NetEvolve.Schemas.Xsd.Validation.Core;
 using NetEvolve.Schemas.Xsd.Validation.Entities;
 using NetEvolve.Schemas.Xsd.Validation.Ids;
 using NetEvolve.Schemas.Xsd.Validation.SchemaLocation;
+using NetEvolve.Schemas.Xsd.Validation.Tree;
 using ValidationResult = NetEvolve.Schemas.ValidationResult;
 
 /// <summary>
@@ -85,6 +89,18 @@ internal sealed class ValidationCore : IValidationCore
                     .WithMaxEntityDepth(limits.MaxEntityDepth)
             );
     }
+
+    /// <inheritdoc />
+    public ISimpleValueAssessor Assessor => _assessor;
+
+    /// <inheritdoc />
+    public ValidationResult ValidateTree(
+        XmlNode node,
+        IAnnotationSink annotations,
+        TreeIssueLog issues,
+        out XmlDocumentTree copy,
+        CancellationToken cancellationToken
+    ) => throw new NotSupportedException("XSD-79 (#361)");
 
     /// <inheritdoc />
     public ValidationResult Validate(in DocumentSource source, CancellationToken cancellationToken)

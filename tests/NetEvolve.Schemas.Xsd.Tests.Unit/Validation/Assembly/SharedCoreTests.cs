@@ -8,7 +8,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Resources;
+using NetEvolve.Schemas.Xml.Contracts;
+using NetEvolve.Schemas.Xml.Model;
+using NetEvolve.Schemas.Xsd.Validation.Annotations;
 using NetEvolve.Schemas.Xsd.Validation.Assembly;
+using NetEvolve.Schemas.Xsd.Validation.Core;
+using NetEvolve.Schemas.Xsd.Validation.Tree;
 using XsdVersion = NetEvolve.Schemas.Xml.Datatypes.Contracts.XsdVersion;
 
 public class SharedCoreTests
@@ -123,6 +128,16 @@ public class SharedCoreTests
         public List<Call> Calls { get; } = [];
 
         public List<CancellationToken> Tokens { get; } = [];
+
+        public ISimpleValueAssessor Assessor => throw new NotSupportedException();
+
+        public ValidationResult ValidateTree(
+            XmlNode node,
+            IAnnotationSink annotations,
+            TreeIssueLog issues,
+            out XmlDocumentTree copy,
+            CancellationToken cancellationToken
+        ) => throw new NotSupportedException();
 
         public ValidationResult Validate(in DocumentSource source, CancellationToken cancellationToken)
         {
