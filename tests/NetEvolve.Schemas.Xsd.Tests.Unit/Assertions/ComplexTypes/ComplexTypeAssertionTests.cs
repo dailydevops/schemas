@@ -32,8 +32,8 @@ public class ComplexTypeAssertionTests
 
         await Assert.That(assertion).IsNull();
         await Assert.That(issues.Count).IsEqualTo(1);
-        await Assert.That(issues[0].Code).IsEqualTo(XsdRuleCodes.XpathValid);
-        await Assert.That(issues[0].Constraint).IsEqualTo("xpath-valid");
+        await Assert.That(issues[0].Code).IsEqualTo(XsdRuleCodes.AsPropsCorrect);
+        await Assert.That(issues[0].Constraint).IsEqualTo("as-props-correct");
         await Assert.That(issues[0].Location.Source).IsEqualTo("file:///t.xsd");
         await Assert.That(issues[0].Location.Line).IsEqualTo(1);
         await Assert.That(issues[0].Message).Contains("XPST");
@@ -46,7 +46,7 @@ public class ComplexTypeAssertionTests
 
         await Assert.That(assertion).IsNull();
         await Assert.That(issues.Count).IsEqualTo(1);
-        await Assert.That(issues[0].Code).IsEqualTo(XsdRuleCodes.XpathValid);
+        await Assert.That(issues[0].Code).IsEqualTo(XsdRuleCodes.AsPropsCorrect);
         await Assert.That(issues[0].Message).Contains("XPST0081");
     }
 
@@ -65,7 +65,7 @@ public class ComplexTypeAssertionTests
         var (assertion, issues) = AssertionFixture.TryCompile("$other = 1");
 
         await Assert.That(assertion).IsNull();
-        await Assert.That(Codes(issues)).IsEquivalentTo([XsdRuleCodes.XpathValid]);
+        await Assert.That(Codes(issues)).IsEquivalentTo([XsdRuleCodes.AsPropsCorrect]);
     }
 
     [Test]
@@ -97,7 +97,7 @@ public class ComplexTypeAssertionTests
         var (assertion, issues) = AssertionFixture.TryCompile("fn:count(*) = 0", " xmlns:fn=\"urn:other\"");
 
         await Assert.That(assertion).IsNull();
-        await Assert.That(Codes(issues)).IsEquivalentTo([XsdRuleCodes.XpathValid]);
+        await Assert.That(Codes(issues)).IsEquivalentTo([XsdRuleCodes.AsPropsCorrect]);
     }
 
     [Test]

@@ -59,13 +59,13 @@ public class AssertionEvaluationTests
     }
 
     [Test]
-    public async Task Assertion_DynamicError_ReportsXPathEvaluationAtTheElement()
+    public async Task Assertion_DynamicError_ReportsTheAssertionRuleAtTheElement()
     {
         var issues = AssertionFixture.Run("\n<r><a>1</a></r>", "1 idiv 0 = 1");
 
         await Assert.That(issues.Count).IsEqualTo(1);
-        await Assert.That(issues[0].Code).IsEqualTo(XsdRuleCodes.CvcXpath);
-        await Assert.That(issues[0].Constraint).IsEqualTo("cvc-xpath");
+        await Assert.That(issues[0].Code).IsEqualTo(XsdRuleCodes.CvcAssertion);
+        await Assert.That(issues[0].Constraint).IsEqualTo("cvc-assertion");
         await Assert.That(issues[0].Location.Line).IsEqualTo(2);
         await Assert.That(issues[0].Message).Contains("FOAR0001");
     }
@@ -75,7 +75,7 @@ public class AssertionEvaluationTests
     {
         var issues = AssertionFixture.Run("\n<r/>", "(1, 2)");
 
-        await Assert.That(Codes(issues)).IsEquivalentTo([XsdRuleCodes.CvcXpath]);
+        await Assert.That(Codes(issues)).IsEquivalentTo([XsdRuleCodes.CvcAssertion]);
         await Assert.That(issues[0].Message).Contains("FORG0006");
     }
 
@@ -84,7 +84,9 @@ public class AssertionEvaluationTests
     {
         var issues = AssertionFixture.Run("\n<r/>", "1 idiv 0 = 1", "false()", "true()");
 
-        await Assert.That(Codes(issues)).IsEquivalentTo([XsdRuleCodes.CvcXpath, XsdRuleCodes.CvcAssertion]);
+        await Assert.That(Codes(issues)).IsEquivalentTo([XsdRuleCodes.CvcAssertion, XsdRuleCodes.CvcAssertion]);
+        await Assert.That(issues[0].Message).Contains("dynamic error");
+        await Assert.That(issues[1].Message).Contains("does not satisfy");
     }
 
     [Test]
@@ -118,7 +120,7 @@ public class AssertionEvaluationTests
         var issues = AssertionFixture.Run(instance, "\n<r><c><n>1</n></c></r>");
 
         // The tree has no document node, so the root step raises XPDY0050 as it does for any parentless element tree.
-        await Assert.That(Codes(issues)).IsEquivalentTo([XsdRuleCodes.CvcXpath]);
+        await Assert.That(Codes(issues)).IsEquivalentTo([XsdRuleCodes.CvcAssertion]);
         await Assert.That(issues[0].Message).Contains("XPDY0050");
     }
 
@@ -257,5 +259,22 @@ public class AssertionEvaluationTests
         await Assert
             .That(Codes(issues))
             .IsEquivalentTo([CoreDiagnosticCodes.InputSizeLimitExceeded, XsdRuleCodes.CvcAssertion]);
+    }
+
+    [Test]
+    [Arguments("\n<r><zz>1</zz><a>1</a></r>")]
+    [Arguments("\n<r q=\"1\"><a>1</a></r>")]
+    [Arguments("\n<r>text<a>1</a></r>")]
+    [Arguments("\n<r><a>x</a><b>1</b></r>")]
+    [Arguments("\n<r><c><zz/></c><a>1</a></r>")]
+    [Arguments("\n<r><c><n>1</n><zz><y/></zz></c><a>1</a></r>")]
+    public async Task Assertion_ContentThatTheValidatorRejects_DoesNotBreakTheSubtree(string xml)
+    {
+        var instance = AssertionFixture.Instance(["count(a) = 1"], ["count(n) = 1"]);
+
+        var issues = AssertionFixture.Run(instance, xml);
+
+        // The run ends and the assertions see what the validator handed over; the rejected content is the validator's to report.
+        await Assert.That(issues).IsNotEmpty();
     }
 }

@@ -77,7 +77,7 @@ public class CollectTests
 
         await Assert.That(tests).IsEquivalentTo(["b"]);
         await Assert.That(issues.Count).IsEqualTo(1);
-        await Assert.That(issues[0].Code).IsEqualTo(XsdRuleCodes.XpathValid);
+        await Assert.That(issues[0].Code).IsEqualTo(XsdRuleCodes.AsPropsCorrect);
     }
 
     [Test]
