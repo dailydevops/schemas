@@ -21,7 +21,7 @@ public class GroupFunctionTests
 {
     private static string Call(string binding, string function, XdmSequence? group = null, XdmSequence? key = null)
     {
-        NetEvolve.Arguments.ArgumentNullException.ThrowIfNull(binding);
+        ArgumentNullException.ThrowIfNull(binding);
 
         var functions = XsltGroupingFunctions.Create(
             new XPathQueryBinding(binding, binding.StartsWith("xslt", StringComparison.Ordinal))
