@@ -166,10 +166,11 @@ public class DtdBenchmarkTargetsTests
     private static string? MethodName(string line)
     {
         var paren = line.IndexOf('(', StringComparison.Ordinal);
+        // A field or property initializer has its "=" before the parenthesis; the "=>" of a method body comes after it.
         if (
             paren < 0
             || !line.StartsWith("public ", StringComparison.Ordinal)
-            || line.Contains('=', StringComparison.Ordinal)
+            || line.IndexOf('=', StringComparison.Ordinal) is >= 0 and var assignment && assignment < paren
         )
         {
             return null;
