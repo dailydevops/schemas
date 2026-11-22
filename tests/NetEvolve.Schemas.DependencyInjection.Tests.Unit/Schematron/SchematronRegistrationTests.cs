@@ -76,22 +76,24 @@ public class SchematronRegistrationTests
     [Test]
     public async Task Callbacks_ReceiveTheProviderAndTheKey()
     {
-        IServiceProvider? seenBySchema = null;
-        IServiceProvider? seenByConfigure = null;
+        var marker = new List<string>();
+        List<string>? seenBySchema = null;
+        List<string>? seenByConfigure = null;
         object? keyForSchema = null;
         object? keyForConfigure = null;
         using var provider = new ServiceCollection()
+            .AddSingleton(marker)
             .AddKeyedSchematronValidator(
                 "rules",
                 (sp, key) =>
                 {
-                    seenBySchema = sp;
+                    seenBySchema = sp.GetRequiredService<List<string>>();
                     keyForSchema = key;
                     return Open(NumberSchema);
                 },
                 (sp, key, _) =>
                 {
-                    seenByConfigure = sp;
+                    seenByConfigure = sp.GetRequiredService<List<string>>();
                     keyForConfigure = key;
                 }
             )
@@ -99,8 +101,8 @@ public class SchematronRegistrationTests
 
         _ = provider.GetRequiredKeyedService<ISchematronValidator>("rules");
 
-        await Assert.That(seenBySchema).IsSameReferenceAs(provider);
-        await Assert.That(seenByConfigure).IsSameReferenceAs(provider);
+        await Assert.That(seenBySchema).IsSameReferenceAs(marker);
+        await Assert.That(seenByConfigure).IsSameReferenceAs(marker);
         await Assert.That(keyForSchema).IsEqualTo("rules");
         await Assert.That(keyForConfigure).IsEqualTo("rules");
     }
@@ -108,23 +110,25 @@ public class SchematronRegistrationTests
     [Test]
     public async Task PlainCallbacks_ReceiveTheProvider()
     {
-        IServiceProvider? seenBySchema = null;
-        IServiceProvider? seenByConfigure = null;
+        var marker = new List<string>();
+        List<string>? seenBySchema = null;
+        List<string>? seenByConfigure = null;
         using var provider = new ServiceCollection()
+            .AddSingleton(marker)
             .AddSchematronValidator(
                 sp =>
                 {
-                    seenBySchema = sp;
+                    seenBySchema = sp.GetRequiredService<List<string>>();
                     return Open(NumberSchema);
                 },
-                (sp, _) => seenByConfigure = sp
+                (sp, _) => seenByConfigure = sp.GetRequiredService<List<string>>()
             )
             .BuildServiceProvider();
 
         _ = provider.GetRequiredService<ISchematronValidator>();
 
-        await Assert.That(seenBySchema).IsSameReferenceAs(provider);
-        await Assert.That(seenByConfigure).IsSameReferenceAs(provider);
+        await Assert.That(seenBySchema).IsSameReferenceAs(marker);
+        await Assert.That(seenByConfigure).IsSameReferenceAs(marker);
     }
 
     [Test]
