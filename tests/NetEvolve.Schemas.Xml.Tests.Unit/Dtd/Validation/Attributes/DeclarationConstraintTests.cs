@@ -1,5 +1,6 @@
 namespace NetEvolve.Schemas.Xml.Tests.Unit.Dtd.Validation.Attributes;
 
+using System.Text;
 using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Dtd.Contracts;
@@ -175,6 +176,32 @@ public class DeclarationConstraintTests
 
         var within = Begin(model, XmlReaderLimits.Default.WithMaxEntityDepth(2));
         var beyond = Begin(model, XmlReaderLimits.Default.WithMaxEntityDepth(1));
+
+        await Assert.That(within.Issues.Count).IsEqualTo(1);
+        await Assert.That(beyond.Issues).IsEmpty();
+    }
+
+    [Test]
+    public async Task DefaultValue_WhoseExpansionExceedsTheWorkBudget_IsLeftToTheReader()
+    {
+        // Every level holds ten references to the level below and the lowest entity is empty: the output stays empty while
+        // the number of expanded references grows by a factor of ten per level, so only a budget on the references bounds it.
+        var model = new AttributeStepModel().Element("r").Entity("f0", string.Empty);
+        for (var level = 1; level <= 4; level++)
+        {
+            var text = new StringBuilder();
+            for (var i = 0; i < 10; i++)
+            {
+                text.Append("&f").Append(level - 1).Append(';');
+            }
+
+            model.Entity("f" + level, text.ToString());
+        }
+
+        var declarations = model.Attlist("r", NmToken("n", DtdDefaultKind.Default, "a b&f4;")).Build();
+
+        var within = Begin(declarations);
+        var beyond = Begin(declarations, XmlReaderLimits.Default.WithMaxEntityExpansionCharacters(1_000));
 
         await Assert.That(within.Issues.Count).IsEqualTo(1);
         await Assert.That(beyond.Issues).IsEmpty();
