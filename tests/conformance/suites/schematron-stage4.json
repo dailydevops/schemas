@@ -1,0 +1,117 @@
+{
+  "stage": 4,
+  "suite": "schematron-conformance",
+  "cases": [
+    "iso-rule-based-validation/let-value-element-content.xml",
+    "iso-rule-based-validation/rule-context-global-variable.xml",
+    "iso-rule-based-validation/rule-context-pattern-variable.xml",
+    "iso-rule-based-validation/rule-context-phase-variable.xml"
+  ],
+  "ownSchemas": [
+    {
+      "schema": "tests/NetEvolve.Schemas.Schematron.Tests.Integration/Goldens/Stage4Globals/global-variable.sch",
+      "documents": [
+        { "document": "global-variable/within-limit.xml", "valid": true, "rules": [] },
+        { "document": "global-variable/large-approved.xml", "valid": true, "rules": ["large-line"] },
+        { "document": "global-variable/large-unapproved.xml", "valid": false, "rules": ["large-line"] },
+        { "document": "global-variable/very-large.xml", "valid": false, "rules": ["large-line", "very-large-line"] },
+        { "document": "global-variable/foreign-currency.xml", "valid": false, "rules": ["foreign-currency"] }
+      ]
+    },
+    {
+      "schema": "tests/NetEvolve.Schemas.Schematron.Tests.Integration/Goldens/Stage4Globals/global-param.sch",
+      "documents": [
+        { "document": "global-param/small-quantity.xml", "valid": false, "rules": ["small-quantity"] },
+        { "document": "global-param/enough-priced.xml", "valid": true, "rules": ["enough-quantity"] },
+        { "document": "global-param/enough-unpriced.xml", "valid": false, "rules": ["enough-quantity"] },
+        { "document": "global-param/other-element.xml", "valid": true, "rules": [] },
+        {
+          "document": "global-param/raised-minimum.xml",
+          "valid": false,
+          "rules": ["small-quantity"],
+          "parameters": { "minimum": "20" }
+        }
+      ]
+    },
+    {
+      "schema": "tests/NetEvolve.Schemas.Schematron.Tests.Integration/Goldens/Stage4Globals/temporary-tree.sch",
+      "documents": [
+        { "document": "temporary-tree/known-codes.xml", "valid": true, "rules": ["item-code"] },
+        { "document": "temporary-tree/unknown-code.xml", "valid": false, "rules": ["item-code"] },
+        { "document": "temporary-tree/retired-code.xml", "valid": false, "rules": ["item-code", "retired-item"] }
+      ]
+    }
+  ],
+  "knownFailures": [
+    {
+      "id": "iso-rule-based-validation/let-value-element-content.xml",
+      "issue": 914,
+      "reason": "A let with element content is reported NES3204 because no embedded content is wired into the pipeline (#914); after that the documented exception of #877 applies, because the let binds a document node."
+    },
+    {
+      "id": "global-variable/within-limit.xml",
+      "issue": 832,
+      "reason": "A global xsl:variable or xsl:param of the schema is reported NES3204 until the XSLT modules of a schema are linked and compiled (#832)."
+    },
+    {
+      "id": "global-variable/large-approved.xml",
+      "issue": 832,
+      "reason": "A global xsl:variable or xsl:param of the schema is reported NES3204 until the XSLT modules of a schema are linked and compiled (#832)."
+    },
+    {
+      "id": "global-variable/large-unapproved.xml",
+      "issue": 832,
+      "reason": "A global xsl:variable or xsl:param of the schema is reported NES3204 until the XSLT modules of a schema are linked and compiled (#832)."
+    },
+    {
+      "id": "global-variable/very-large.xml",
+      "issue": 832,
+      "reason": "A global xsl:variable or xsl:param of the schema is reported NES3204 until the XSLT modules of a schema are linked and compiled (#832)."
+    },
+    {
+      "id": "global-variable/foreign-currency.xml",
+      "issue": 832,
+      "reason": "A global xsl:variable or xsl:param of the schema is reported NES3204 until the XSLT modules of a schema are linked and compiled (#832)."
+    },
+    {
+      "id": "global-param/small-quantity.xml",
+      "issue": 832,
+      "reason": "A global xsl:variable or xsl:param of the schema is reported NES3204 until the XSLT modules of a schema are linked and compiled (#832)."
+    },
+    {
+      "id": "global-param/enough-priced.xml",
+      "issue": 832,
+      "reason": "A global xsl:variable or xsl:param of the schema is reported NES3204 until the XSLT modules of a schema are linked and compiled (#832)."
+    },
+    {
+      "id": "global-param/enough-unpriced.xml",
+      "issue": 832,
+      "reason": "A global xsl:variable or xsl:param of the schema is reported NES3204 until the XSLT modules of a schema are linked and compiled (#832)."
+    },
+    {
+      "id": "global-param/other-element.xml",
+      "issue": 832,
+      "reason": "A global xsl:variable or xsl:param of the schema is reported NES3204 until the XSLT modules of a schema are linked and compiled (#832)."
+    },
+    {
+      "id": "global-param/raised-minimum.xml",
+      "issue": 832,
+      "reason": "A global xsl:variable or xsl:param of the schema is reported NES3204 until the XSLT modules of a schema are linked and compiled (#832)."
+    },
+    {
+      "id": "temporary-tree/known-codes.xml",
+      "issue": 832,
+      "reason": "A global xsl:variable or xsl:param of the schema is reported NES3204 until the XSLT modules of a schema are linked and compiled (#832)."
+    },
+    {
+      "id": "temporary-tree/unknown-code.xml",
+      "issue": 832,
+      "reason": "A global xsl:variable or xsl:param of the schema is reported NES3204 until the XSLT modules of a schema are linked and compiled (#832)."
+    },
+    {
+      "id": "temporary-tree/retired-code.xml",
+      "issue": 832,
+      "reason": "A global xsl:variable or xsl:param of the schema is reported NES3204 until the XSLT modules of a schema are linked and compiled (#832)."
+    }
+  ]
+}
