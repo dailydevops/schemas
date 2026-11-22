@@ -3,5 +3,8 @@
 namespace NetEvolve.Schemas;
 
 /// <summary>An immutable, thread-safe validator for documents against their document type declaration. Not intended for implementation by consumers.</summary>
-/// <remarks>Limitation: the validator is available when XML-69 lands; until then <c>DtdValidatorBuilder.Build</c> fails with a <see cref="System.NotSupportedException"/>.</remarks>
+/// <remarks>
+/// A validity error is an issue of severity error and never stops the run; a fatal status of the reader (a well-formedness error, a limit, or a denied external request) is the last issue.
+/// Limitations: a stream and a sequence are buffered completely before the run (#926), and the run observes the cancellation token only before it starts.
+/// </remarks>
 public interface IDtdValidator : ISchemaValidator { }

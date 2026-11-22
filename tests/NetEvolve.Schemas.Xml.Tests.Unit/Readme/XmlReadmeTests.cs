@@ -18,6 +18,8 @@ public class XmlReadmeTests
 {
     private const string Readme = "src/NetEvolve.Schemas.Xml/README.md";
     private const string Samples = "tests/NetEvolve.Schemas.Xml.Tests.Unit/Readme/XmlReadmeTests.cs";
+    private const string DtdSamples = "tests/NetEvolve.Schemas.Xml.Tests.Unit/Dtd/Entry/DtdEntryReadmeTests.cs";
+    private const string LegacyDtdSamples = "tests/NetEvolve.Schemas.Tests.LegacyCompiler/Dtd/DtdLegacyTests.cs";
 
     [Test]
     public async Task SpanSample_LoadsTheDocumentWithPositions()
@@ -214,8 +216,10 @@ public class XmlReadmeTests
     }
 
     [Test]
-    public async Task Limitations_AreBackedByTheReader()
+    public async Task Limitations_AreBackedByTheReader(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var dtd = XmlReaderOptions.Default.WithDtdProcessing(true);
 
         // Another version than 1.0, including one the Fifth Edition allows, is rejected.
@@ -231,8 +235,10 @@ public class XmlReadmeTests
         var tree = XmlDocumentLoader.Load("<!DOCTYPE a [<!NOTATION n SYSTEM \"n\">]><a/>".AsSpan(), dtd);
         await Assert.That(tree.Notations).IsEmpty();
         await Assert.That(tree.UnparsedEntities).IsEmpty();
-        // The entry point of DTD validation is declared and not built yet.
-        await Assert.That(() => SchemaValidator.ForDtd().Build()).Throws<NotSupportedException>();
+        // The reader does not validate: an element that its declaration forbids is accepted; the validator of the entry point reports it.
+        await Assert.That(CodeOf("<!DOCTYPE a [<!ELEMENT a EMPTY>]><a>x</a>", dtd)).IsNull();
+        var validator = await SchemaValidator.ForDtd().BuildAsync(cancellationToken);
+        await Assert.That(validator).IsAssignableTo<IDtdValidator>();
     }
 
     [Test]
@@ -349,7 +355,9 @@ public class XmlReadmeTests
     [Test]
     public async Task EveryReadmeCodeBlock_IsACompiledSample()
     {
-        var compiled = ReadmeSamples.SamplesIn(Samples);
+        var compiled = new List<string>(ReadmeSamples.SamplesIn(Samples));
+        compiled.AddRange(ReadmeSamples.SamplesIn(DtdSamples));
+        compiled.AddRange(ReadmeSamples.SamplesIn(LegacyDtdSamples));
         var blocks = ReadmeSamples.CodeBlocks(Readme);
 
         await Assert.That(blocks).Count().IsEqualTo(compiled.Count);

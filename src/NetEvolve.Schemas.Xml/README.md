@@ -1,6 +1,6 @@
 # NetEvolve.Schemas.Xml
 
-Reads XML 1.0 (Fifth Edition) and Namespaces in XML 1.0 (Third Edition) from characters or bytes into an immutable document tree with a line and column on every node. The input can be a span, memory, a sequence, or a stream. The defaults refuse a document type declaration and bound every resource that hostile input can inflate.
+Reads XML 1.0 (Fifth Edition) and Namespaces in XML 1.0 (Third Edition) from characters or bytes into an immutable document tree with a line and column on every node. The input can be a span, memory, a sequence, or a stream. The defaults refuse a document type declaration and bound every resource that hostile input can inflate. The package also validates a document against its document type declaration (see [DTD validation](#dtd-validation)).
 
 The package builds on `NetEvolve.Schemas` and `NetEvolve.Arguments`. It targets `netstandard2.0`, `netstandard2.1`, `net10.0`, and `net11.0` and behaves the same on all of them. On `netstandard2.0` it also depends on `Microsoft.Bcl.AsyncInterfaces`, `System.Memory`, and `System.Threading.Tasks.Extensions`.
 
@@ -144,7 +144,7 @@ Here `text` is `Ada`.
 
 ### No external access
 
-The public options have no resolver and no switch for external access. The external subset, the external parameter entities, and the external general entities are never read, and nothing is fetched or opened, whatever the document says. With `DtdProcessing` on:
+The public options of the reader, `XmlReaderOptions`, have no resolver and no switch for external access. (The DTD validator has both; see [DTD validation](#dtd-validation).) The external subset, the external parameter entities, and the external general entities are never read, and nothing is fetched or opened, whatever the document says. With `DtdProcessing` on:
 
 - A reference to an external parsed entity in content throws `XmlParseException` with the code `XML2002`.
 - A reference to an external entity in an attribute value always throws, with the code `XML0022`.
@@ -208,6 +208,88 @@ Here `code` is `XML1102`.
 
 By default every document owns its name table, which is frozen once the document is loaded. A table passed with `WithNameTable` is shared across documents and stays open; `MaxDistinctNames` bounds it.
 
+## DTD validation
+
+`SchemaValidator.ForDtd()` returns a builder for a validator that checks a document against its document type declaration (XML 1.0, section 5.1). It is a C# 14 extension member of `SchemaValidator` and is visible when this package is referenced. `Build` and `BuildAsync` create an immutable, thread-safe validator, which takes every input kind of `ISchemaValidator`: `Validate` takes a `string`, a `ReadOnlySpan<char>` or `ReadOnlySpan<byte>`, a `ReadOnlySequence<char>` or `ReadOnlySequence<byte>`, or a `Stream`; `ValidateAsync` takes a `Stream`, a `ReadOnlyMemory<char>` or `ReadOnlyMemory<byte>`, or a sequence. The optional `systemId` is the base URI of the document and the source in the locations of the issues. Every input kind gives the same issues with the same codes and locations.
+
+The samples in this section need these namespaces. `directory` is the path of a folder.
+
+```
+using System;
+using System.IO;
+using NetEvolve.Schemas;
+using NetEvolve.Schemas.Resources.FileSystem;
+```
+
+```csharp
+var validator = SchemaValidator.ForDtd().Build();
+
+var result = validator.Validate("<!DOCTYPE note [<!ELEMENT note EMPTY>]>\n<note>text</note>");
+
+var issue = result.Issues[0];
+var isValid = result.IsValid;
+var code = issue.Code;
+var constraint = issue.Constraint;
+var line = issue.Location.Line;
+```
+
+Here `isValid` is `false`, `code` is `NES1504`, `constraint` is `Element Valid`, and `line` is 2. `NES1504` is the code of the validity constraint Element Valid, which the Xml package also names `XML5004`. Every validity constraint of XML 1.0 has one code, `XML5001` to `XML5026`, and `DtdValidityCodes` lists them with the name of the constraint and the step that checks it. An optional report, such as a non-deterministic content model, is a warning with a code from `XML5901` to `XML5911`.
+
+A validity error is an issue of severity error and never stops the run, so one run reports every error of the document. A document that is not well formed ends the run: the error of the reader is the last issue and the result is truncated. A limit that the core names, such as the depth or the entity expansion, is reported with the core code (for example `NES0002`).
+
+### Compilers older than C# 14
+
+A compiler older than C# 14 has no extension members. It calls the public static extension class directly. The class is `DtdSchemaValidatorExtensions`, and it is declared in the namespace `NetEvolve.Schemas`:
+
+```csharp
+var validator = DtdSchemaValidatorExtensions.ForDtd().Build();
+
+var result = validator.Validate("<!DOCTYPE note [<!ELEMENT note EMPTY>]>\n<note>text</note>");
+```
+
+The builder and the result are the same as with `SchemaValidator.ForDtd()`. A project with `LangVersion` 13 compiles this sample in the tests of the repository.
+
+### Deny by default
+
+The validator opens nothing external unless the caller opts in. The default builder uses `DenyAllResourceResolver` and every flag is off, so no file and no socket is touched. A document that names an external subset ends the run with `XML2002`. It is a fatal status and not a validity error, because continuing without the subset would report many false validity errors.
+
+```csharp
+var validator = SchemaValidator.ForDtd().Build();
+
+var result = validator.Validate("<!DOCTYPE note SYSTEM \"note.dtd\"><note/>");
+
+var code = result.Issues[0].Code;
+```
+
+Here `code` is `NES1202`, the code of `XML2002`. Two things enable an external resource: a resolver that the caller sets, and the flag of the kind of resource. A resolver alone enables nothing, and a flag without a resolver reaches `DenyAllResourceResolver` and is refused. A refused or failing request is `XML2002` with the kind, the requested URI, and the base URI in the message.
+
+```csharp
+var validator = SchemaValidator
+    .ForDtd()
+    .WithResolver(new SandboxedFileSystemResourceResolver(directory))
+    .WithAllowExternalSubset(true)
+    .Build();
+
+var systemId = new Uri(Path.Combine(directory, "note.xml")).AbsoluteUri;
+var result = validator.Validate("<!DOCTYPE note SYSTEM \"note.dtd\"><note/>", systemId);
+```
+
+Here `directory` holds `note.dtd` with `<!ELEMENT note EMPTY>`, and `result` is valid. The resolver serves files below `directory` only. The relative system identifier `note.dtd` resolves against `systemId`.
+
+### Builder settings
+
+| Member | Default | Meaning |
+| --- | --- | --- |
+| `WithResolver` | `DenyAllResourceResolver` | Resolves the external subset and the external entities. |
+| `WithAllowExternalSubset` | `false` | Lets the external subset be requested. |
+| `WithAllowExternalGeneralEntities` | `false` | Lets external general entities be requested. |
+| `WithAllowExternalParameterEntities` | `false` | Lets external parameter entities be requested. |
+| `WithNonDeterministicContentModels` | `Warn` | `Accept` reports nothing, `Warn` reports `XML5911` as a warning, `Reject` reports it as an error. The accepted language is the same in every mode. |
+| `WithLimits` | `ValidationLimits.Default` | `MaxIssues` and `MaxInputSize` apply to the result and the input. `MaxDepth`, `MaxAttributesPerElement`, `MaxEntityExpansion`, and `MaxEntityDepth` apply to the reader. |
+| `WithDtdLimits` | `DtdValidationLimits.Default` | `MaxExternalEntityRequests` (32, error `XML1117`), `MaxContentModelStates` (65,536, error `XML1118`), and `MaxDeclarations` (100,000, error `XML1119`). |
+
+Exceeding a limit is a fatal status and never a validity error. `Build` takes a snapshot of the builder, so a later change of the builder does not reach a validator that exists.
+
 ## Conformance
 
 The reader is checked against the W3C XML Conformance Test Suite (`xmlts20130923`), which the conformance tests of the repository fetch by checksum. The suite has 2,585 cases. 2,001 of them apply to XML 1.0 (Fifth Edition) and Namespaces in XML 1.0, and 584 cases are excluded:
@@ -234,8 +316,12 @@ The reader is checked against the W3C XML Conformance Test Suite (`xmlts20130923
 ## Limitations
 
 - **XML 1.1 is not supported.** A document that declares another version than 1.0 is rejected with `XML0010`. That includes versions such as 1.7 that the Fifth Edition of XML 1.0 allows.
-- **DTD processing is off by default.** A document type declaration is rejected with `XML2001` unless `WithDtdProcessing(true)` is set. Even then only the internal subset is read, and no external resource is ever opened (see [No external access](#no-external-access)). The notations and the unparsed entities of the declaration are not added to the tree ([#731](https://github.com/dailydevops/schemas/issues/731)).
-- **The reader does not validate.** `SchemaValidator.ForDtd()` is declared for DTD validation, but its `Build` and `BuildAsync` throw `NotSupportedException` until DTD validation is available.
+- **DTD processing is off by default.** A document type declaration is rejected with `XML2001` unless `WithDtdProcessing(true)` is set. Even then the reader reads only the internal subset, and it never opens an external resource (see [No external access](#no-external-access)). The notations and the unparsed entities of the declaration are not added to the tree ([#731](https://github.com/dailydevops/schemas/issues/731)).
+- **The reader does not validate.** `XmlDocumentLoader` and the readers check well-formedness only. The validator of `SchemaValidator.ForDtd()` checks validity (see [DTD validation](#dtd-validation)).
+- **External access is off by default.** A validating processor should read the external subset and the external entities (XML 1.0, section 5.1). The DTD validator does so only when the caller sets a resolver and the flag of the kind of resource. A document that depends on an external subset ends with `XML2002` until access is enabled.
+- **A stream and a sequence are buffered.** The validating reader reads complete input. `Validate` and `ValidateAsync` read a `Stream` to its end into a pooled buffer, and a sequence of several segments is copied once into a pooled buffer, both bounded by `MaxInputSize` ([#926](https://github.com/dailydevops/schemas/issues/926)). The run observes the cancellation token only before it starts.
+- **Two core limits are not applied to external resources.** `MaxExternalResources` and `MaxResourceSize` of `ValidationLimits` do not reach the DTD validator. `DtdValidationLimits.MaxExternalEntityRequests` bounds the resolver calls ([#938](https://github.com/dailydevops/schemas/issues/938)), and the entity expansion budget bounds the bytes of a resource ([#674](https://github.com/dailydevops/schemas/issues/674)).
+- **Some validity checks are not complete.** The reader reports no event for a skipped entity reference, so the checks that depend on it are not reported ([#647](https://github.com/dailydevops/schemas/issues/647)). The location of an issue about text, a comment, or an end tag is the position after the token ([#927](https://github.com/dailydevops/schemas/issues/927)).
 - **Span inputs are synchronous.** `Load` and `LoadFromMemory` run on the calling thread, and so does the load of a sequence. Only `LoadAsync` is asynchronous. A span is copied or decoded during the call; memory and a sequence are read during the call only, so they must stay valid and unchanged until it returns.
 - **The stream path buffers.** `LoadAsync` reads the stream to its end through pooled buffers in chunks and decodes them as it goes. A token that spans a chunk edge waits in the parser until it is complete, bounded by the limits. A sequence of several segments is copied once into pooled chunk buffers. Whatever the input kind, the whole tree is held in memory, so `MaxDocumentCharacters` and `MaxNodeCount` bound its size.
 - **Namespace processing cannot be switched off.** An unbound prefix is an error.
