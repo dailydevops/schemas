@@ -93,6 +93,19 @@ public class AssertXmlTests
     }
 
     [Test]
+    public async Task ExpectedXmlFromAFile_MayBeAFragment()
+    {
+        var file = ("expected.out", "<a>1</a>x<b/>");
+
+        var pass = Run("/doc/node()", "<assert-xml file=\"expected.out\"/>", Document, file);
+        var fail = Run("/doc/a", "<assert-xml file=\"expected.out\"/>", Document, file);
+
+        await Assert.That(pass.Outcome).IsEqualTo(CaseOutcome.Pass).Because(pass.Reason ?? string.Empty);
+        await Assert.That(fail.Outcome).IsEqualTo(CaseOutcome.Fail);
+        await Assert.That(fail.Reason).Contains("but got");
+    }
+
+    [Test]
     [Arguments("/doc/@id")]
     [Arguments("(/doc/a, /doc/@id)")]
     public async Task AttributeItem_CannotBeSerialized_Fails(string query)
