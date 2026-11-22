@@ -58,7 +58,7 @@
 1.0/st_final00103m2/Negative
 1.0/st_final00103m3/Negative
 1.0/st_targetns00101m/ST_targetNS00101m1_n
-1.0/st_targetns00101m/ST_targetNS00101m2_p
+1.0/st_targetns00101m/ST_targetNS00101m2_n
 1.0/st_variety00101m1/Negative
 1.0/st_variety00101m2/Negative
 1.1/st_annotation00101m1/Positive

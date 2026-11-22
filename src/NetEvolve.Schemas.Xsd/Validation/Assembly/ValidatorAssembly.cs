@@ -23,6 +23,7 @@ internal static class ValidatorAssembly
     /// <param name="limits">The limits.</param>
     /// <param name="resolver">The resolver for the documents that a schema document refers to.</param>
     /// <param name="inputs">The schema documents.</param>
+    /// <param name="hintsEnabled">Whether the validator loads the schema documents that the hints of an instance name, through <paramref name="resolver"/>.</param>
     /// <param name="cancellationToken">The token that is observed between the documents and at every resolver call.</param>
     /// <returns>The validator.</returns>
     /// <exception cref="SchemaCompilationException">The schema has an error.</exception>
@@ -32,7 +33,8 @@ internal static class ValidatorAssembly
         ValidationLimits limits,
         IResourceResolver resolver,
         IReadOnlyList<SchemaInput> inputs,
-        CancellationToken cancellationToken
+        CancellationToken cancellationToken,
+        bool hintsEnabled = false
     )
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -47,7 +49,7 @@ internal static class ValidatorAssembly
         }
 
         return new XsdValidator(
-            new ValidationCore(compilation, version, dtdProcessing, limits),
+            new ValidationCore(compilation, version, dtdProcessing, limits, hintsEnabled ? resolver : null),
             version,
             limits,
             resolver

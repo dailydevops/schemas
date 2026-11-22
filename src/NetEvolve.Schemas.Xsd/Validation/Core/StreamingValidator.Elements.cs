@@ -327,9 +327,11 @@ internal sealed partial class StreamingValidator
     }
 
     // The type is chosen at the end of the attributes (BeginContent), because xsi:type may replace the declared one.
-    private void Open(XmlName name, XPathQName qname, DocumentLocation location, ElementDeclaration declaration)
+    private void Open(XmlName name, XPathQName qname, DocumentLocation location, ElementDeclaration declaration) =>
+        Declare(Push(name, qname, location), declaration);
+
+    private void Declare(ElementFrame frame, ElementDeclaration declaration)
     {
-        var frame = Push(name, qname, location);
         frame.Declaration = declaration;
         if (declaration.IsAbstract)
         {
@@ -538,7 +540,7 @@ internal sealed partial class StreamingValidator
     private void Report(XsdRule rule, DocumentLocation location, string message, string? clause) =>
         _reporter.Report(rule, location, message, clause);
 
-    private static string Display(XPathQName name) =>
+    internal static string Display(XPathQName name) =>
         name.LocalName.Length == 0 ? "(anonymous)"
         : name.NamespaceName.Length == 0 ? "'" + name.LocalName + "'"
         : "'{" + name.NamespaceName + "}" + name.LocalName + "'";
