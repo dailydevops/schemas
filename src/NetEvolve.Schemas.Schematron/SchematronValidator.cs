@@ -7,6 +7,7 @@ using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Resources;
 using NetEvolve.Schemas.Schematron.Diagnostics;
 using NetEvolve.Schemas.Schematron.Model;
+using NetEvolve.Schemas.Schematron.Pipeline;
 using NetEvolve.Schemas.Schematron.Seams;
 
 internal sealed class SchematronValidator : SchemaValidatorBase, ISchematronValidator
@@ -70,5 +71,7 @@ internal sealed class SchematronValidator : SchemaValidatorBase, ISchematronVali
     }
 
     protected override ValidationResult ValidateCore(in DocumentSource source, CancellationToken cancellationToken) =>
-        throw NotImplementedFailure.For("evaluation");
+        _compiled is CompiledProgram program
+            ? ValidationRun.Execute(program, _sink, _parameters, in source, Limits, cancellationToken)
+            : throw NotImplementedFailure.For("evaluation");
 }

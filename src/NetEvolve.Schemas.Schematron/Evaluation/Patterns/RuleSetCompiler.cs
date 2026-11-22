@@ -177,7 +177,8 @@ internal static class RuleSetCompiler
         return 0;
     }
 
-    private static string TitleText(SchematronTitle? title)
+    // The text of the title: the plain text parts in order; the span and emphasis parts of a title carry no information a report needs.
+    internal static string TitleText(SchematronTitle? title)
     {
         if (title is null)
         {

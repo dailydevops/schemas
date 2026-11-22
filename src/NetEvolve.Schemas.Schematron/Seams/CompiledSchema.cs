@@ -7,7 +7,7 @@ using NetEvolve.Schemas.Schematron.Model;
 /// The immutable, thread-safe result of the compile stage. The evaluation-context pool and the precomputed assertion strings
 /// are added by the packages that own them.
 /// </summary>
-internal sealed class CompiledSchema
+internal class CompiledSchema
 {
     internal CompiledSchema(SchematronSchema schema, string effectivePhase)
     {

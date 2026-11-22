@@ -42,14 +42,20 @@ internal sealed class QueryBindingRegistry
 
     /// <summary>
     /// Gets the registry with the bindings of the XPath 2.0 contract and, for <c>xpath</c>, <c>xslt</c>, and <c>xslt1</c>, the bindings of
-    /// <see cref="Registration"/> that turn XPath 1.0 compatibility mode on (SCH-16, #310).
+    /// <see cref="Registration"/> that turn XPath 1.0 compatibility mode on (SCH-16, #310). The bindings have the functions of XPath 2.0 only;
+    /// a build uses <see cref="Create"/> to add the functions of XSLT.
     /// </summary>
-    internal static QueryBindingRegistry Default { get; } =
+    internal static QueryBindingRegistry Default { get; } = Create(null);
+
+    /// <summary>Creates the registry of the six names with the host functions that <paramref name="extension"/> adds to every static context.</summary>
+    /// <param name="extension">Adds the host functions, or <see langword="null"/> for none.</param>
+    /// <returns>The registry.</returns>
+    internal static QueryBindingRegistry Create(XPathQueryBinding.StaticContextExtension? extension) =>
         new([
-            .. Registration.Create(),
-            new XPathQueryBinding("xpath2", allowsXsltInstructions: false),
-            new XPathQueryBinding("xslt2", allowsXsltInstructions: true),
-            new XPathQueryBinding("xslt3", allowsXsltInstructions: true),
+            .. Registration.Create(extension),
+            new XPathQueryBinding("xpath2", allowsXsltInstructions: false, extension: extension),
+            new XPathQueryBinding("xslt2", allowsXsltInstructions: true, extension: extension),
+            new XPathQueryBinding("xslt3", allowsXsltInstructions: true, extension: extension),
         ]);
 
     /// <summary>Resolves the binding named by <paramref name="schema"/>; on failure <paramref name="problem"/> is set.</summary>

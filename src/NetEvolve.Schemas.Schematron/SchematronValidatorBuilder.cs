@@ -6,17 +6,22 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading;
+using System.Threading.Tasks;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Resources;
 using NetEvolve.Schemas.Schematron;
+using NetEvolve.Schemas.Schematron.Pipeline;
 using NetEvolve.Schemas.Schematron.Seams;
 
 /// <summary>Fluent builder for a Schematron validator: phase, parameters, limits, and resolver. Builders are not thread-safe.</summary>
 /// <remarks>
-/// Limitation: until work package SCH-55 composes the pipeline, <c>Build</c> and <c>BuildAsync</c> fail with a
-/// <see cref="SchemaCompilationException"/> carrying <see cref="SchematronDiagnosticCodes.NotImplemented"/>. A schema
-/// source is read at <c>Build</c>, never at <c>ForSchematron</c>.
+/// <para>
+/// A schema source is read at <c>Build</c>, never at <c>ForSchematron</c>: a stream from its current position to its end, never
+/// disposed, bounded by <see cref="ValidationLimits.MaxResourceSize"/>, and by <c>BuildAsync</c> asynchronously. The bytes of a
+/// stream are kept, so a second <c>Build</c> of one builder does not read the stream again. Every problem of the schema is one
+/// <see cref="SchemaCompilationException"/> (SCH-55, #311).
+/// </para>
 /// </remarks>
 public sealed class SchematronValidatorBuilder
     : SchemaValidatorBuilder<SchematronValidatorBuilder, ISchematronValidator>
@@ -26,7 +31,7 @@ public sealed class SchematronValidatorBuilder
     private readonly SchemaSource _source;
     private readonly Dictionary<string, string> _parameters = new(StringComparer.Ordinal);
     private string _phase = DefaultPhaseName;
-    private ISchematronPipeline _pipeline = NotImplementedPipeline.Instance;
+    private ISchematronPipeline _pipeline = SchematronPipeline.Instance;
 
     internal SchematronValidatorBuilder(SchemaSource source) => _source = source;
 
@@ -69,13 +74,35 @@ public sealed class SchematronValidatorBuilder
     }
 
     /// <inheritdoc />
-    protected override ISchematronValidator CreateValidator(ValidationLimits limits, IResourceResolver resolver)
+    protected override ISchematronValidator CreateValidator(ValidationLimits limits, IResourceResolver resolver) =>
+        Create(limits, resolver, CancellationToken.None);
+
+    /// <inheritdoc />
+    protected override async ValueTask<ISchematronValidator> CreateValidatorAsync(
+        ValidationLimits limits,
+        IResourceResolver resolver,
+        CancellationToken cancellationToken
+    )
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        // The stream is read asynchronously and kept first; the stages after it are synchronous and find the bytes.
+        await SchemaSourceReader.PrefetchAsync(_source, limits, cancellationToken).ConfigureAwait(false);
+        return Create(limits, resolver, cancellationToken);
+    }
+
+    private SchematronValidator Create(
+        ValidationLimits limits,
+        IResourceResolver resolver,
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
         var parameters = Snapshot(_parameters);
         var settings = new BuildSettings(_phase, parameters, limits, resolver);
 
         return new SchematronValidator(
-            _pipeline.Load(_source, settings, CancellationToken.None),
+            _pipeline.Load(_source, settings, cancellationToken),
             _phase,
             parameters,
             limits,

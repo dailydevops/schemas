@@ -1,5 +1,6 @@
 namespace NetEvolve.Schemas.Schematron.Bindings.Xslt1;
 
+using NetEvolve.Schemas.Schematron.Bindings.Registry;
 using NetEvolve.Schemas.Schematron.Seams;
 
 /// <summary>
@@ -14,11 +15,12 @@ using NetEvolve.Schemas.Schematron.Seams;
 internal static class Registration
 {
     /// <summary>Creates the bindings of the folder.</summary>
+    /// <param name="extension">Adds the host functions to every static context, or <see langword="null"/> for none.</param>
     /// <returns>The bindings, one instance per name.</returns>
-    internal static IQueryBinding[] Create() =>
+    internal static IQueryBinding[] Create(XPathQueryBinding.StaticContextExtension? extension = null) =>
         [
-            new XPath10QueryBinding("xpath", allowsXsltInstructions: false),
-            new XPath10QueryBinding("xslt", allowsXsltInstructions: true),
-            new XPath10QueryBinding("xslt1", allowsXsltInstructions: true),
+            new XPath10QueryBinding("xpath", allowsXsltInstructions: false, extension),
+            new XPath10QueryBinding("xslt", allowsXsltInstructions: true, extension),
+            new XPath10QueryBinding("xslt1", allowsXsltInstructions: true, extension),
         ];
 }
