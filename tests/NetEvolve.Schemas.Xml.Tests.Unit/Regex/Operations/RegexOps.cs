@@ -114,19 +114,20 @@ internal static class RegexOps
     )
     {
         var status = Create(pattern, flags).TryTokenize(input, limits, out var tokens);
-        if (status != RegexOperationStatus.Success)
+        using (tokens)
         {
-            return status.ToString();
-        }
+            if (status != RegexOperationStatus.Success)
+            {
+                return status.ToString();
+            }
 
-        var text = new StringBuilder();
-        while (tokens.MoveNext())
-        {
-            _ = text.Append('[').Append(tokens.Current.Slice(input)).Append(']');
-        }
+            var text = new StringBuilder();
+            while (tokens.MoveNext())
+            {
+                _ = text.Append('[').Append(tokens.Current.Slice(input)).Append(']');
+            }
 
-        var aborted = tokens.IsAborted;
-        tokens.Dispose();
-        return aborted ? text.Append('!').ToString() : text.ToString();
+            return tokens.IsAborted ? text.Append('!').ToString() : text.ToString();
+        }
     }
 }

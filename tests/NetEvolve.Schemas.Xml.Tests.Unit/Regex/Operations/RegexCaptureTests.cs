@@ -199,6 +199,7 @@ public class RegexCaptureTests
     public async Task Iterating_OverASpan_AllocatesZeroBytes(string pattern, string unit)
     {
         var operations = RegexOps.Create(pattern);
+        ArgumentNullException.ThrowIfNull(unit);
         var input = RegexOps.Repeat(unit, 2_500);
         var count = 0;
         var characters = 0;

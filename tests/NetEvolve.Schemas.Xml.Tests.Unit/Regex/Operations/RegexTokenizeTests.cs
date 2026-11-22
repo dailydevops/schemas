@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.Xml.Tests.Unit.Regex.Operations;
 
 using NetEvolve.Schemas.Xml.Regex.Contracts;
+using NetEvolve.Schemas.Xml.Regex.Operations;
 using NetEvolve.Schemas.Xml.Regex.XPathDialect;
 
 public class RegexTokenizeTests
@@ -114,9 +115,12 @@ public class RegexTokenizeTests
     {
         _ = RegexOps.Create(pattern).TryTokenize(input, null, out var tokens);
         var count = 0;
-        foreach (var token in tokens)
+        using (tokens)
         {
-            count += token.Length >= 0 ? 1 : 0;
+            foreach (var token in tokens)
+            {
+                count += token.Length >= 0 ? 1 : 0;
+            }
         }
 
         return count;

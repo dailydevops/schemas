@@ -36,6 +36,26 @@ public class RegexOperationsCreationTests
     }
 
     [Test]
+    public async Task TryCreate_OfAPatternWithTooManyGroupsForItsSize_ReportsTheLimit()
+    {
+        var tree = XPathRegex.Tree(RegexOps.Repeat("()", 1_000));
+
+        var error = RegexOperations.TryCreate(tree, out var operations);
+
+        await Assert.That(error).IsEqualTo(RegexError.LimitExceeded);
+        await Assert.That(operations).IsNull();
+    }
+
+    [Test]
+    public async Task TryCreate_OfAPatternWithManyGroups_Works()
+    {
+        var operations = RegexOps.Create(RegexOps.Repeat("(a)", 500));
+
+        await Assert.That(operations.GroupCount).IsEqualTo(500);
+        await Assert.That(RegexOps.Matches(operations, RegexOps.Repeat("a", 500)).Length).IsGreaterThan(2_000);
+    }
+
+    [Test]
     [Arguments("a", false)]
     [Arguments("a*", true)]
     [Arguments("(a)?", true)]

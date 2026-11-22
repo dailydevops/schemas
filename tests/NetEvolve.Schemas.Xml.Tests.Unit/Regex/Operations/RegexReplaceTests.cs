@@ -208,10 +208,12 @@ public class RegexReplaceTests
     [Test]
     public async Task Status_CodesAreTheRxNumbers()
     {
-        await Assert.That((int)RegexOperationStatus.Success).IsEqualTo(0);
-        await Assert.That((int)RegexOperationStatus.ZeroLengthMatch).IsEqualTo(12);
-        await Assert.That((int)RegexOperationStatus.InvalidReplacement).IsEqualTo(13);
+        await Assert.That(Code(RegexOperationStatus.Success)).IsEqualTo(0);
+        await Assert.That(Code(RegexOperationStatus.ZeroLengthMatch)).IsEqualTo(12);
+        await Assert.That(Code(RegexOperationStatus.InvalidReplacement)).IsEqualTo(13);
     }
+
+    private static int Code(RegexOperationStatus status) => (int)status;
 
     private static RegexOperationStatus Replace(
         RegexOperations operations,
