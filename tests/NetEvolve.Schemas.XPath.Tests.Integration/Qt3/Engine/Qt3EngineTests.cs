@@ -241,4 +241,15 @@ public class Qt3EngineTests
 
         await Assert.That(result.Kind).IsEqualTo(EngineResultKind.NotBound);
     }
+
+    [Test]
+    public async Task Run_EvaluationLimitExceeded_FailsEvenWhereAnyErrorIsExpected()
+    {
+        using var directory = new TempDirectory();
+        var read = Prepare(directory, CaseXml("count(1 to 10000000000000)", "<error code=\"*\"/>"));
+
+        var result = Qt3Runner.Run(read, new Qt3Engine(directory.Path));
+
+        await Assert.That(result.Outcome).IsEqualTo(CaseOutcome.Fail);
+    }
 }
