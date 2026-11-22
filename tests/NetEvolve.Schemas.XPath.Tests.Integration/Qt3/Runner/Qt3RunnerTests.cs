@@ -16,6 +16,23 @@ public class Qt3RunnerTests
     private static Qt3Assertion Error(string code) => new("error", code);
 
     [Test]
+    [Arguments("assert-true", "")]
+    [Arguments("assert-eq", "1")]
+    public async Task Run_EngineResultNotBound_ReportsItsReason(string kind, string value)
+    {
+        var result = Run(new Qt3Assertion(kind, Value: value), EngineResult.NotBoundBecause("a limit was hit"));
+
+        await Assert.That(result.Outcome).IsEqualTo(CaseOutcome.Fail);
+        await Assert.That(result.Reason).IsEqualTo("a limit was hit");
+    }
+
+    [Test]
+    public async Task Run_UnboundEngine_ReportsThatNoEngineIsBound() =>
+        await Assert
+            .That(Qt3Runner.Run(Case(Active("assert-true")), new UnboundEngine()).Reason)
+            .IsEqualTo("no engine is bound");
+
+    [Test]
     public async Task Run_AssertTrue_PassesOnSingletonTrueAndFailsOtherwise()
     {
         var assertion = Active("assert-true");

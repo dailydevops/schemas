@@ -240,6 +240,16 @@ public class Qt3EngineTests
         var result = Evaluate(environment + CaseXml("1", "<error code=\"*\"/>", "<environment ref=\"m\"/>"));
 
         await Assert.That(result.Kind).IsEqualTo(EngineResultKind.NotBound);
+        await Assert.That(result.Reason).Contains("source document");
+    }
+
+    [Test]
+    public async Task Evaluate_EvaluationLimitExceeded_IsNotBoundBecauseOfTheLimit()
+    {
+        var result = Evaluate(CaseXml("count(1 to 10000000000000)"));
+
+        await Assert.That(result.Kind).IsEqualTo(EngineResultKind.NotBound);
+        await Assert.That(result.Reason).Contains("limit");
     }
 
     [Test]
