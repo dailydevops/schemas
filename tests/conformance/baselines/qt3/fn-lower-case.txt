@@ -1,3 +1,1 @@
-fn-lower-case/fn-lower-case-18
 fn-lower-case/fn-lower-case-19
-fn-lower-case/fn-lower-case-21

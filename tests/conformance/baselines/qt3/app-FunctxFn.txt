@@ -8,7 +8,6 @@ app-FunctxFn/functx-fn-doc-available-1
 app-FunctxFn/functx-fn-escape-html-uri-1
 app-FunctxFn/functx-fn-escape-html-uri-2
 app-FunctxFn/functx-fn-escape-html-uri-all
-app-FunctxFn/functx-fn-last-1
 app-FunctxFn/functx-fn-resolve-uri-4
 app-FunctxFn/functx-fn-resolve-uri-5
 app-FunctxFn/functx-fn-resolve-uri-all

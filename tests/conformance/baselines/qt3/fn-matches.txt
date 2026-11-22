@@ -1,3 +1,2 @@
-fn-matches/K2-MatchesFunc-15
 fn-matches/cbcl-matches-004
 fn-matches/cbcl-matches-038

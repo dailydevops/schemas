@@ -1,2 +1,0 @@
-prod-Comment/XQueryComment002
-prod-Comment/XQueryComment012
