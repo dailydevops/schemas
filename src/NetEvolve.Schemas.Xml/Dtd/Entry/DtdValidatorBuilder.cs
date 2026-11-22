@@ -2,15 +2,15 @@
 
 namespace NetEvolve.Schemas;
 
-using System;
 using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Resources;
 using NetEvolve.Schemas.Xml.Dtd.Contracts;
+using NetEvolve.Schemas.Xml.Dtd.Entry;
 
 /// <summary>Fluent builder for a DTD validator: resolver, limits, external access, and non-deterministic content models. Builders are not thread-safe.</summary>
 /// <remarks>
-/// Limitation: until work package XML-69 lands, <c>Build</c> and <c>BuildAsync</c> fail with a
-/// <see cref="NotSupportedException"/>. External access is off unless a resolver is set and the flag of the kind is on.
+/// The builder holds no validator state: <c>Build</c> and <c>BuildAsync</c> snapshot the resolver, the core limits, and the
+/// DTD settings into one immutable validator. External access is off unless a resolver is set and the flag of the kind is on.
 /// </remarks>
 public sealed class DtdValidatorBuilder : SchemaValidatorBuilder<DtdValidatorBuilder, IDtdValidator>
 {
@@ -85,5 +85,5 @@ public sealed class DtdValidatorBuilder : SchemaValidatorBuilder<DtdValidatorBui
 
     /// <inheritdoc />
     protected override IDtdValidator CreateValidator(ValidationLimits limits, IResourceResolver resolver) =>
-        throw new NotSupportedException("The DTD validator is not available until work package XML-69 lands.");
+        new DtdValidator(_options.WithResolver(resolver).WithLimits(limits));
 }

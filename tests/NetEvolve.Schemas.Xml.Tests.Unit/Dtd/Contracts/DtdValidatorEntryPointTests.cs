@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.Xml.Tests.Unit.Dtd.Contracts;
 
 using System;
 using System.Reflection;
+using System.Threading;
 using NetEvolve.Schemas.Resources;
 using NetEvolve.Schemas.Xml.Dtd.Contracts;
 using NetEvolve.Schemas.Xml.Tests.Unit.Dtd.Contracts.Fakes;
@@ -80,12 +81,13 @@ public class DtdValidatorEntryPointTests
     }
 
     [Test]
-    public async Task ForDtd_Build_ThrowsUntilTheValidatorLands()
+    public async Task ForDtd_Build_ReturnsAValidatorOfTheMarkerType(CancellationToken cancellationToken)
     {
-        var builder = SchemaValidator.ForDtd();
+        cancellationToken.ThrowIfCancellationRequested();
 
-        await Assert.That(() => builder.Build()).Throws<NotSupportedException>();
-        await Assert.That(async () => await builder.BuildAsync()).Throws<NotSupportedException>();
+        var validator = await SchemaValidator.ForDtd().BuildAsync(cancellationToken);
+
+        await Assert.That(validator).IsAssignableTo<IDtdValidator>();
     }
 
     [Test]
