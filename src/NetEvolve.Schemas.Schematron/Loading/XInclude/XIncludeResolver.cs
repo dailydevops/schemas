@@ -41,8 +41,13 @@ internal sealed class XIncludeResolver
 {
     private readonly IncludeFetcher _fetcher;
 
-    internal XIncludeResolver(IResourceResolver resolver, ValidationLimits limits) =>
+    internal XIncludeResolver(IResourceResolver resolver, ValidationLimits limits)
+    {
+        Argument.ThrowIfNull(resolver);
+        Argument.ThrowIfNull(limits);
+
         _fetcher = new IncludeFetcher(resolver, limits);
+    }
 
     internal ValidationLimits Limits => _fetcher.Limits;
 
@@ -84,5 +89,11 @@ internal sealed class XIncludeResolver
         out ReadOnlyMemory<byte> content,
         out string systemId,
         out SchematronProblem problem
-    ) => _fetcher.TryFetch(href, baseUri, at, cancellationToken, out content, out systemId, out problem);
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        Argument.ThrowIfNull(href);
+
+        return _fetcher.TryFetch(href, baseUri, at, cancellationToken, out content, out systemId, out problem);
+    }
 }

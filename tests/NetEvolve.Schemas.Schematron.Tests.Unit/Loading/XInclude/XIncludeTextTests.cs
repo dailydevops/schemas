@@ -185,6 +185,19 @@ public class XIncludeTextTests
         await Assert.That(text).IsEqualTo("héllo");
     }
 
+    [Test]
+    [Arguments(null, true)]
+    [Arguments("utf-8", true)]
+    [Arguments("bogus", false)]
+    public async Task TryDecode_EmptyContent_DecodesToAnEmptyTextOrReportsTheEncoding(string? encoding, bool decoded)
+    {
+        var ok = XIncludeText.TryDecode(ReadOnlyMemory<byte>.Empty, encoding, out var text, out var code);
+
+        await Assert.That(ok).IsEqualTo(decoded);
+        await Assert.That(text).IsEqualTo(string.Empty);
+        await Assert.That(decoded || code == SchematronDiagnosticCodes.Unsupported).IsTrue();
+    }
+
     private sealed class NativeBytes(byte[] bytes) : System.Buffers.MemoryManager<byte>
     {
         public override System.Memory<byte> Memory => base.Memory;

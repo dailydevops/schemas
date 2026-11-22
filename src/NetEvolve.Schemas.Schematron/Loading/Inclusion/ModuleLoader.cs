@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.Schematron.Loading.Inclusion;
 
 using System.Threading;
+using NetEvolve.Arguments;
 using NetEvolve.Schemas.Resources;
 using NetEvolve.Schemas.Resources.Default;
 using NetEvolve.Schemas.Schematron.Seams;
@@ -29,8 +30,13 @@ internal sealed class ModuleLoader : IModuleLoader
 {
     private readonly IncludeFetcher _fetcher;
 
-    internal ModuleLoader(IResourceResolver resolver, ValidationLimits limits) =>
+    internal ModuleLoader(IResourceResolver resolver, ValidationLimits limits)
+    {
+        Argument.ThrowIfNull(resolver);
+        Argument.ThrowIfNull(limits);
+
         _fetcher = new IncludeFetcher(resolver, limits);
+    }
 
     public bool TryLoad(
         in ModuleReference reference,
