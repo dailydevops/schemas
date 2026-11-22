@@ -1,14 +1,4 @@
 iso-rule-based-validation/let-value-element-content.xml
-iso-rule-based-validation/rule-context-attribute.xml
-iso-rule-based-validation/rule-context-comment.xml
-iso-rule-based-validation/rule-context-document.xml
-iso-rule-based-validation/rule-context-element.xml
-iso-rule-based-validation/rule-context-global-variable.xml
-iso-rule-based-validation/rule-context-pattern-variable.xml
-iso-rule-based-validation/rule-context-phase-variable.xml
-iso-rule-based-validation/rule-context-pi.xml
-iso-rule-based-validation/rule-context-text.xml
-iso-rule-based-validation/rule-order.xml
 iso-rule-based-validation/xsl-function.xml
 iso-rule-based-validation/xsl-key-element-content.xml
 iso-rule-based-validation/xsl-key.xml
