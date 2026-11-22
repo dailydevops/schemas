@@ -112,3 +112,20 @@ The W3C XML Conformance Test Suite is pinned by its official release archive,
   `<test-set>/<case-id>`, one per line. The test set is the effective `xml:base` of the case with `/` replaced by
   `-`. Regenerate the files with the explicit test `XmlConfSuiteTests.Baseline_Regenerate` after a deliberate filter
   change.
+
+## Schematron conformance suite (`schematron-conformance.json`)
+
+The Schematron conformance suite is pinned by release tag (`v2.0`); the runner lives in
+`tests/NetEvolve.Schemas.Schematron.Tests.Integration/Conformance`. The bindings `xslt-1` and `xslt-2` are selected, and the
+cases of `xslt-3` are excluded with a reason (SCH-21).
+
+- **Comparison:** the suite states its expectations as XPath assertions on the SVRL output, not as expected SVRL files. The engine
+  validates each case with the public `SchemaValidator.ForSchematron` entry point and the SVRL report sink, loads the SVRL output,
+  and evaluates the assertions on the XPath engine. The outcome is `error` for a schema that does not compile or an `svrl:error`,
+  `invalid` for a failed assertion or a successful report, and `valid` otherwise. The comparison ignores the order of attributes,
+  white space between elements, and the prefix of the SVRL namespace, and nothing else.
+- **Baseline:** `tests/conformance/baselines/schematron-conformance/<test set>.txt` lists the known failures. Each entry has a line in
+  `tests/NetEvolve.Schemas.Schematron.Tests.Integration/Conformance/Engine/known-failure-links.txt` with its issue and its reason,
+  separated by tabs; a baseline entry without a line, or a line without an entry, fails the test.
+- **Limitation:** the case reader keeps the text of an assertion and not its namespace declarations, so the engine declares the prefix
+  `svrl` for the assertions; every assertion of the pinned release uses this prefix only.

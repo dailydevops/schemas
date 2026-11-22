@@ -67,4 +67,5 @@ A conformance result does not depend on the target framework, so each suite runs
 
 - The environment variable `SCHEMAS_CONFORMANCE_LEGS` replaces the designated leg with a comma separated list of target framework monikers, for example `net8.0` or `net8.0,net10.0`. Use it to compare a leg locally.
 - A new suite class that runs a pinned suite against a baseline carries `[ConformanceLeg]`.
+- Exception: the Schematron engine tests (`SchematronEngineConformanceTests`) carry no `[ConformanceLeg]`, because the Schematron rate is reported for every library target framework (#325). The suite is small, so the run is cheap on every leg.
 - `net8.0` runs the `netstandard2.0` build of the libraries. A run with `SCHEMAS_CONFORMANCE_LEGS=net8.0` passes every baseline gate of QT3, XSTS, XML Conformance and Schematron, so the failure sets equal those of `net10.0`. A second leg is added only when a conformance result is shown to differ between builds.
