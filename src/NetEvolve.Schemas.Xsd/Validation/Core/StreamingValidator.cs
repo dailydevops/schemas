@@ -10,6 +10,7 @@ using NetEvolve.Schemas.Xsd.ContentModels.AllGroups;
 using NetEvolve.Schemas.Xsd.ContentModels.Automaton;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Diagnostics;
+using NetEvolve.Schemas.Xsd.Validation.SchemaLocation;
 using NetEvolve.Schemas.Xsd.Validation.Xsi;
 
 /// <summary>
@@ -49,23 +50,25 @@ internal sealed partial class StreamingValidator : IXmlSink
     private const int MaxExpectedNames = 8;
     private const int MaxReportedValue = 64;
 
-    private readonly ValidationModel _model;
+    private readonly IDerivationCheck? _derivation;
+    private readonly SchemaLocationHints? _hints;
     private readonly ISimpleValueAssessor _assessor;
     private readonly XsdIssueReporter _reporter;
     private readonly ValidationLimits _limits;
     private readonly string? _documentUri;
-    private readonly NameBinding _binding;
     private readonly XsiNamespaceScope _scope;
-    private readonly XsiTypeResolver _xsi;
     private readonly XsiNil _nil;
     private readonly ValidationListener[] _listeners;
     private readonly ValidationListener[] _onStart;
     private readonly ValidationListener[] _onAttribute;
     private readonly ValidationListener[] _onValue;
     private readonly ValidationListener[] _onEnd;
-    private readonly Stack<CountingRun>?[] _countingPool;
-    private readonly Stack<AllGroupRun>?[] _allPool;
 
+    private ValidationModel _model;
+    private NameBinding _binding;
+    private XsiTypeResolver _xsi;
+    private Stack<CountingRun>?[] _countingPool;
+    private Stack<AllGroupRun>?[] _allPool;
     private ElementFrame[] _frames = new ElementFrame[8];
     private int _depth;
     private int _skip;
@@ -87,6 +90,7 @@ internal sealed partial class StreamingValidator : IXmlSink
     /// <param name="listeners">The listeners in their fixed order.</param>
     /// <param name="derivation">The derivation check that <c>xsi:type</c> is judged by, <see langword="null"/> for the type derivation check of the schema version.</param>
     /// <param name="readerLimits">The limits of the reader that feeds the validator, <see langword="null"/> for the defaults.</param>
+    /// <param name="hints">The schema location hints of the run, <see langword="null"/> to ignore them.</param>
     internal StreamingValidator(
         ValidationModel model,
         ISimpleValueAssessor assessor,
@@ -95,7 +99,8 @@ internal sealed partial class StreamingValidator : IXmlSink
         string? documentUri,
         IReadOnlyList<ValidationListener> listeners,
         IDerivationCheck? derivation = null,
-        XmlReaderLimits? readerLimits = null
+        XmlReaderLimits? readerLimits = null,
+        SchemaLocationHints? hints = null
     )
     {
         Argument.ThrowIfNull(model);
@@ -105,6 +110,8 @@ internal sealed partial class StreamingValidator : IXmlSink
         Argument.ThrowIfNull(listeners);
 
         _model = model;
+        _hints = hints;
+        _derivation = derivation;
         _assessor = assessor;
         _reporter = reporter;
         _limits = limits;

@@ -17,8 +17,8 @@ using NetEvolve.Schemas.Xsd.Validation.Assembly;
 /// <remarks>
 /// <c>Build</c> compiles every schema document that was added and throws a <see cref="SchemaCompilationException"/> with all issues
 /// when the schema has an error; without any schema document it succeeds, and every element of an instance is then undeclared.
-/// <c>BuildAsync</c> reads the stream sources with <c>ReadAsync</c> and runs the same compilation. Limitation: schema location hints
-/// and <c>AddSchemaLocation</c> are added by the work packages that implement them (XSD-77).
+/// <c>BuildAsync</c> reads the stream sources with <c>ReadAsync</c> and runs the same compilation. Limitation: <c>AddSchemaLocation</c>
+/// is not available yet (#897).
 /// </remarks>
 public sealed class XsdValidatorBuilder : SchemaValidatorBuilder<XsdValidatorBuilder, IXsdValidator>
 {
@@ -95,6 +95,10 @@ public sealed class XsdValidatorBuilder : SchemaValidatorBuilder<XsdValidatorBui
     /// <c>xsi:noNamespaceSchemaLocation</c>. Off by default: the hints are then ignored and no location is accessed. When on, every
     /// location goes through the resolver of the builder, which refuses everything unless another one is set.
     /// </summary>
+    /// <remarks>
+    /// Limitations: a hinted schema document is compiled on its own, so it cannot refer to components of the configured schema; its identity
+    /// constraints are not enforced; the validation of a tree does not read hints.
+    /// </remarks>
     /// <param name="enabled"><see langword="true"/> to load the schema documents that the hints name.</param>
     /// <returns>This builder.</returns>
     public XsdValidatorBuilder WithSchemaLocationHints(bool enabled)
@@ -111,7 +115,8 @@ public sealed class XsdValidatorBuilder : SchemaValidatorBuilder<XsdValidatorBui
             limits,
             resolver,
             SchemaSources.Read(_sources, limits),
-            CancellationToken.None
+            CancellationToken.None,
+            _schemaLocationHints
         );
 
     /// <inheritdoc />
@@ -126,6 +131,7 @@ public sealed class XsdValidatorBuilder : SchemaValidatorBuilder<XsdValidatorBui
             limits,
             resolver,
             await SchemaSources.ReadAsync(_sources, limits, cancellationToken).ConfigureAwait(false),
-            cancellationToken
+            cancellationToken,
+            _schemaLocationHints
         );
 }

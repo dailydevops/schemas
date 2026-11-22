@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Threading;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Formats;
+using NetEvolve.Schemas.Resources;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xml.Input.Sequence;
@@ -18,6 +19,7 @@ using NetEvolve.Schemas.Xsd.IdentityConstraints.Evaluation;
 using NetEvolve.Schemas.Xsd.Validation.Core;
 using NetEvolve.Schemas.Xsd.Validation.Entities;
 using NetEvolve.Schemas.Xsd.Validation.Ids;
+using NetEvolve.Schemas.Xsd.Validation.SchemaLocation;
 using ValidationResult = NetEvolve.Schemas.ValidationResult;
 
 /// <summary>
@@ -48,12 +50,14 @@ internal sealed class ValidationCore : IValidationCore
     private readonly bool _needsEntities;
     private readonly ValidationLimits _limits;
     private readonly XmlReaderOptions _options;
+    private readonly IResourceResolver? _hintResolver;
 
     internal ValidationCore(
         SchemaCompilation compilation,
         XsdVersion version,
         bool dtdProcessing,
-        ValidationLimits limits
+        ValidationLimits limits,
+        IResourceResolver? hintResolver = null
     )
     {
         Argument.ThrowIfNull(compilation);
@@ -70,6 +74,7 @@ internal sealed class ValidationCore : IValidationCore
         _needsIds = compilation.NeedsIdListener;
         _needsEntities = compilation.NeedsEntityListener;
         _limits = limits;
+        _hintResolver = hintResolver;
         _options = XmlReaderOptions
             .Default.WithDtdProcessing(dtdProcessing)
             .WithLimits(
@@ -145,14 +150,25 @@ internal sealed class ValidationCore : IValidationCore
             Argument.ThrowIfNull(reader);
 
             var entities = _core._needsEntities ? new EntityListener(_core._assessor, _core._options.Limits) : null;
+            var reporter = new XsdIssueReporter(_collector);
             var validator = new StreamingValidator(
                 _core._model,
                 _core._assessor,
-                new XsdIssueReporter(_collector),
+                reporter,
                 _core._limits,
                 _systemId,
                 Listeners(entities),
-                readerLimits: _core._options.Limits
+                readerLimits: _core._options.Limits,
+                hints: _core._hintResolver is null
+                    ? null
+                    : new SchemaLocationHints(
+                        _core._version,
+                        _core._hintResolver,
+                        _core._limits,
+                        reporter,
+                        _systemId,
+                        _cancellationToken
+                    )
             );
             var sink = new SessionSink(validator, entities, _cancellationToken);
 

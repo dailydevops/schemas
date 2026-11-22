@@ -17,7 +17,7 @@ public class SchemaLocationHintTests
     }
 
     [Test]
-    public async Task Default_HintsAreIgnored_ResolverReceivesNoCall_ValidationUsesTheConfiguredSchemaOnly()
+    public async Task Builder_Hints_DefaultOff()
     {
         var resolver = HintFixture.Resolver();
         var validator = HintFixture.BuildDefault(resolver);

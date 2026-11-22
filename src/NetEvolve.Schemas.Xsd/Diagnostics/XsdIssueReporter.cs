@@ -29,6 +29,15 @@ internal sealed class XsdIssueReporter
         _collector.Add(new ValidationIssue(rule.Code, rule.DefaultSeverity, message, location, clause ?? rule.Id));
     }
 
+    /// <summary>Adds an issue as it is, for the core codes that no rule of the catalog owns.</summary>
+    /// <param name="issue">The issue.</param>
+    internal void Add(ValidationIssue issue)
+    {
+        Argument.ThrowIfNull(issue);
+
+        _collector.Add(issue);
+    }
+
     /// <summary>Reports a violation of the rule with a code; a code missing from the catalog is a defect and throws.</summary>
     /// <param name="code">The code of the violated rule.</param>
     /// <param name="location">The location of the violation.</param>
