@@ -24,11 +24,11 @@ internal sealed class SequenceNode : ExecutableNode
     /// <exception cref="System.ArgumentNullException"><paramref name="items"/> or one of its elements is <see langword="null"/>.</exception>
     public SequenceNode(ExecutableNode[] items, SourceSpan location)
     {
-        Argument.ThrowIfNull(items);
+        ArgumentNullException.ThrowIfNull(items);
 
         for (var i = 0; i < items.Length; i++)
         {
-            Argument.ThrowIfNull(items[i], nameof(items));
+            ArgumentNullException.ThrowIfNull(items[i], nameof(items));
         }
 
         _items = items;
@@ -39,7 +39,7 @@ internal sealed class SequenceNode : ExecutableNode
     /// <exception cref="XPathException">The result has more items than the sequence size limit, or an operand raises an error.</exception>
     public override XdmSequence Evaluate(XPathEvaluationContext context)
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         var list = new XdmItemList(context.Limits.MaxSequenceSize, _location);
         try

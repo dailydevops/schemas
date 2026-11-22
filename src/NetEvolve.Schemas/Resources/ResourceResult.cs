@@ -45,7 +45,7 @@ public readonly struct ResourceResult : IDisposable
     /// <returns>The result.</returns>
     public static ResourceResult Found(Stream stream, string? systemId = null)
     {
-        Argument.ThrowIfNull(stream);
+        ArgumentNullException.ThrowIfNull(stream);
 
         return new(ResourceStatus.Found, stream, default, systemId, message: null);
     }

@@ -49,7 +49,7 @@ internal sealed class LoweringContext
     /// <exception cref="XPathException">No lowering is registered for the node kind, a static error is found, or the nesting is deeper than the recursion depth limit.</exception>
     public ExecutableNode Lower(SyntaxNode node)
     {
-        Argument.ThrowIfNull(node);
+        ArgumentNullException.ThrowIfNull(node);
 
         // A failure ends the compilation, so the level is not restored on the way out.
         _limits.ThrowIfTooDeep(++_depth, node.Location);
@@ -82,7 +82,7 @@ internal sealed class LoweringContext
     /// <exception cref="XPathException">The prefix is undeclared (XPST0081) or the variable is not defined (XPST0008).</exception>
     public XPathQName ResolveVariable(QualifiedName name)
     {
-        Argument.ThrowIfNull(name);
+        ArgumentNullException.ThrowIfNull(name);
 
         var qname = Expand(name, string.Empty);
         if (_scope.Contains(qname) || StaticContext.TryGetVariableType(qname, out _))
@@ -101,7 +101,7 @@ internal sealed class LoweringContext
     /// <exception cref="XPathException">The prefix is undeclared (XPST0081) or no function matches (XPST0017).</exception>
     public XPathHostFunction ResolveFunction(QualifiedName name, int arity, SourceSpan location)
     {
-        Argument.ThrowIfNull(name);
+        ArgumentNullException.ThrowIfNull(name);
 
         var qname = Expand(name, StaticContext.DefaultFunctionNamespace);
         if (StaticContext.TryResolveFunction(qname, arity, out var function))
@@ -118,7 +118,7 @@ internal sealed class LoweringContext
     /// <exception cref="XPathException">The prefix is undeclared (XPST0081).</exception>
     public VariableScope DeclareVariable(QualifiedName name)
     {
-        Argument.ThrowIfNull(name);
+        ArgumentNullException.ThrowIfNull(name);
 
         _scope.Add(Expand(name, string.Empty));
         return new VariableScope(this);

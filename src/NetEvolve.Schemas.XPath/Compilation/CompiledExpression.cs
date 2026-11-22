@@ -22,9 +22,9 @@ internal sealed class CompiledExpression
     /// <param name="location">The location of the whole expression, reported when the tree is deeper than a limit.</param>
     public CompiledExpression(string source, XPathVersion version, ExecutableNode root, int depth, SourceSpan location)
     {
-        Argument.ThrowIfNull(source);
-        Argument.ThrowIfNull(root);
-        Argument.ThrowIfLessThan(depth, 1);
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(root);
+        ArgumentOutOfRangeException.ThrowIfLessThan(depth, 1);
 
         Source = source;
         Version = version;
@@ -51,7 +51,7 @@ internal sealed class CompiledExpression
     /// <exception cref="XPathException">The tree is deeper than the recursion depth limit of the context (<see cref="XPathLimitErrors.RecursionDepthExceeded"/>), or an operator raises an error.</exception>
     public XdmSequence Evaluate(XPathEvaluationContext context)
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         // One comparison per evaluation: the tree is as deep as the recursion of the operators below it.
         context.Limits.ThrowIfTooDeep(Depth, _location);

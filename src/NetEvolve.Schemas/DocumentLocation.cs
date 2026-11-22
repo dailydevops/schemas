@@ -13,8 +13,8 @@ public readonly struct DocumentLocation : IEquatable<DocumentLocation>
     /// <param name="column">The one-based column, zero when unknown.</param>
     public DocumentLocation(string? source, int line, int column)
     {
-        Argument.ThrowIfLessThan(line, 0);
-        Argument.ThrowIfLessThan(column, 0);
+        ArgumentOutOfRangeException.ThrowIfLessThan(line, 0);
+        ArgumentOutOfRangeException.ThrowIfLessThan(column, 0);
 
         Source = source;
         Line = line;

@@ -37,8 +37,8 @@ internal sealed class XsltDecimalFormatDeclaration : XsltExecutable
         DocumentLocation location
     )
     {
-        Argument.ThrowIfNull(displayName);
-        Argument.ThrowIfNull(values);
+        ArgumentNullException.ThrowIfNull(displayName);
+        ArgumentNullException.ThrowIfNull(values);
 
         Name = name;
         DisplayName = displayName;
@@ -61,8 +61,8 @@ internal sealed class XsltDecimalFormatDeclaration : XsltExecutable
     /// <inheritdoc />
     internal override QueryStatus TryExecute(XsltFrame frame, ISequenceSink sink)
     {
-        Argument.ThrowIfNull(frame);
-        Argument.ThrowIfNull(sink);
+        ArgumentNullException.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(sink);
 
         return QueryStatus.Ok;
     }

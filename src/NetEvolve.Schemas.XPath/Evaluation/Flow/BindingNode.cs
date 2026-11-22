@@ -35,9 +35,9 @@ internal abstract class BindingNode : ExecutableNode
     /// <exception cref="System.ArgumentException">The local name of <paramref name="name"/> is empty.</exception>
     protected BindingNode(XPathQName name, ExecutableNode source, ExecutableNode body)
     {
-        Argument.ThrowIfNullOrEmpty(name.LocalName, nameof(name));
-        Argument.ThrowIfNull(source);
-        Argument.ThrowIfNull(body);
+        ArgumentNullException.ThrowIfNullOrEmpty(name.LocalName, nameof(name));
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(body);
 
         _name = name;
         _source = source;

@@ -74,7 +74,7 @@ internal sealed class IdentityConstraintListener : ValidationListener
         Func<IXsdComponent, IReadOnlyList<IdentityConstraintDefinition>?> constraintsOf
     )
     {
-        Argument.ThrowIfNull(constraintsOf);
+        ArgumentNullException.ThrowIfNull(constraintsOf);
 
         _values = new ValueSpace(assessor, version);
         _constraintsOf = constraintsOf;

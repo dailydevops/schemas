@@ -31,8 +31,8 @@ internal sealed class DerivedStringType
     /// <exception cref="System.ArgumentOutOfRangeException"><paramref name="type"/> is <see langword="default"/>.</exception>
     public DerivedStringType(XdmTypeId type, AtomicDescriptor<XsdString> descriptor)
     {
-        Argument.ThrowIfLessThan(type.Value, 1);
-        Argument.ThrowIfNull(descriptor);
+        ArgumentOutOfRangeException.ThrowIfLessThan(type.Value, 1);
+        ArgumentNullException.ThrowIfNull(descriptor);
 
         _type = type;
         _descriptor = descriptor;

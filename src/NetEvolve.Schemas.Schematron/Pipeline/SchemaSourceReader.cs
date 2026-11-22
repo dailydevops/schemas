@@ -39,8 +39,8 @@ internal static class SchemaSourceReader
     )
     {
         cancellationToken.ThrowIfCancellationRequested();
-        Argument.ThrowIfNull(source);
-        Argument.ThrowIfNull(limits);
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(limits);
 
         if (source.Kind == SchemaSourceKind.Stream && !source.HasReplay)
         {
@@ -58,8 +58,8 @@ internal static class SchemaSourceReader
     /// <exception cref="SchemaCompilationException">The schema is larger than <see cref="ValidationLimits.MaxResourceSize"/>.</exception>
     internal static ReadOnlyMemory<char> Chars(SchemaSource source, ValidationLimits limits)
     {
-        Argument.ThrowIfNull(source);
-        Argument.ThrowIfNull(limits);
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(limits);
 
         return source.Chars.Length > limits.MaxResourceSize ? throw TooLarge(source, limits) : source.Chars;
     }
@@ -77,8 +77,8 @@ internal static class SchemaSourceReader
     )
     {
         cancellationToken.ThrowIfCancellationRequested();
-        Argument.ThrowIfNull(source);
-        Argument.ThrowIfNull(limits);
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(limits);
 
         if (source.Kind != SchemaSourceKind.Stream || source.HasReplay)
         {

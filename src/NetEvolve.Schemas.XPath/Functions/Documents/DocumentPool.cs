@@ -43,7 +43,7 @@ internal sealed class DocumentPool
     /// <exception cref="ArgumentNullException"><paramref name="context"/> is <see langword="null"/>.</exception>
     internal static DocumentPool For(XPathEvaluationContext context)
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         return Pools.GetValue(context, static _ => new DocumentPool());
     }
@@ -77,10 +77,10 @@ internal sealed class DocumentPool
         XmlReaderOptions options
     )
     {
-        Argument.ThrowIfNull(resolver);
-        Argument.ThrowIfNull(reference);
-        Argument.ThrowIfNull(absolute);
-        Argument.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(resolver);
+        ArgumentNullException.ThrowIfNull(reference);
+        ArgumentNullException.ThrowIfNull(absolute);
+        ArgumentNullException.ThrowIfNull(options);
 
         if (_documents.TryGetValue(absolute, out var pooled))
         {
@@ -117,9 +117,9 @@ internal sealed class DocumentPool
         out XPathErrorCode error
     )
     {
-        Argument.ThrowIfNull(resolver);
-        Argument.ThrowIfNull(reference);
-        Argument.ThrowIfNull(absolute);
+        ArgumentNullException.ThrowIfNull(resolver);
+        ArgumentNullException.ThrowIfNull(reference);
+        ArgumentNullException.ThrowIfNull(absolute);
 
         var key = encoding is null ? absolute : absolute + "\0" + encoding;
         if (!_texts.TryGetValue(key, out var entry))

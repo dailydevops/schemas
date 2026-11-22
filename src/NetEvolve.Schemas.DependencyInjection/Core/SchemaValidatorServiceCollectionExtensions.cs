@@ -28,8 +28,8 @@ public static class SchemaValidatorServiceCollectionExtensions
     )
         where TValidator : class, ISchemaValidator
     {
-        Argument.ThrowIfNull(services);
-        Argument.ThrowIfNull(factory);
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(factory);
 
         services.TryAddSingleton(factory);
         return services;
@@ -51,14 +51,14 @@ public static class SchemaValidatorServiceCollectionExtensions
     )
         where TValidator : class, ISchemaValidator
     {
-        Argument.ThrowIfNull(services);
-        Argument.ThrowIfNull(serviceKey);
-        Argument.ThrowIfNull(factory);
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(serviceKey);
+        ArgumentNullException.ThrowIfNull(factory);
 
-        // Explicit check (#111 DP-5, issue #125 decision): no Argument.ThrowIf* guard takes an object, ThrowIfEqual<T> needs IEquatable<T>.
+        // Explicit check (#111 DP-5, issue #125 decision): no ArgumentOutOfRangeException.ThrowIf* guard takes an object, ThrowIfEqual<T> needs IEquatable<T>.
         if (ReferenceEquals(serviceKey, KeyedService.AnyKey))
         {
-#pragma warning disable RS0030 // #125 DP-5 explicit AnyKey check: no Argument.ThrowIf equivalent for an object sentinel (decision recorded on #125)
+#pragma warning disable RS0030 // #125 DP-5 explicit AnyKey check: no ArgumentOutOfRangeException.ThrowIf equivalent for an object sentinel (decision recorded on #125)
             throw new ArgumentException(
                 "KeyedService.AnyKey is a resolution wildcard, not a registrable key.",
                 nameof(serviceKey)

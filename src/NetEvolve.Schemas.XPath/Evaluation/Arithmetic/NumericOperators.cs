@@ -28,7 +28,7 @@ internal static class NumericOperators
     /// <exception cref="System.InvalidOperationException">A numeric entry is already registered.</exception>
     public static void Register(ArithmeticOperatorTable table)
     {
-        Argument.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(table);
 
         RegisterBinary(table, ArithmeticOperator.Add, NumericArithmetic.Add);
         RegisterBinary(table, ArithmeticOperator.Subtract, NumericArithmetic.Subtract);

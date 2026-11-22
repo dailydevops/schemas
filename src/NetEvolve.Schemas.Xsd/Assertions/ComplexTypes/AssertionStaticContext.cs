@@ -29,9 +29,9 @@ internal static class AssertionStaticContext
     /// <returns>The static context.</returns>
     internal static XPathStaticContext Create(SchemaSyntaxNode node, string test, string defaultElementNamespace)
     {
-        Argument.ThrowIfNull(node);
-        Argument.ThrowIfNull(test);
-        Argument.ThrowIfNull(defaultElementNamespace);
+        ArgumentNullException.ThrowIfNull(node);
+        ArgumentNullException.ThrowIfNull(test);
+        ArgumentNullException.ThrowIfNull(defaultElementNamespace);
 
         var builder = XPathStaticContext
             .Default.ToBuilder()

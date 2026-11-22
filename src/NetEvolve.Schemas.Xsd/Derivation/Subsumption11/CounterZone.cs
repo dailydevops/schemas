@@ -37,7 +37,7 @@ internal sealed class CounterZone
     /// <returns>The zone.</returns>
     internal static CounterZone Origin(int variables)
     {
-        Argument.ThrowIfLessThan(variables, 0);
+        ArgumentOutOfRangeException.ThrowIfLessThan(variables, 0);
 
         var size = variables + 1;
         return new(size, new long[size * size]);
@@ -48,7 +48,7 @@ internal sealed class CounterZone
     /// <returns>The zone.</returns>
     internal static CounterZone Point(long[] values)
     {
-        Argument.ThrowIfNull(values);
+        ArgumentNullException.ThrowIfNull(values);
 
         var zone = Origin(values.Length);
         for (var i = 0; i < values.Length; i++)
@@ -83,8 +83,8 @@ internal sealed class CounterZone
     /// <returns>The smallest value.</returns>
     internal long Minimum(int variable)
     {
-        Argument.ThrowIfLessThan(variable, 1);
-        Argument.ThrowIfGreaterThan(variable, Variables);
+        ArgumentOutOfRangeException.ThrowIfLessThan(variable, 1);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(variable, Variables);
         return -_bounds[Index(0, variable)];
     }
 
@@ -93,8 +93,8 @@ internal sealed class CounterZone
     /// <returns>The largest value, <see cref="Infinity"/> when it is not bounded.</returns>
     internal long Maximum(int variable)
     {
-        Argument.ThrowIfLessThan(variable, 1);
-        Argument.ThrowIfGreaterThan(variable, Variables);
+        ArgumentOutOfRangeException.ThrowIfLessThan(variable, 1);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(variable, Variables);
         return _bounds[Index(variable, 0)];
     }
 
@@ -103,8 +103,8 @@ internal sealed class CounterZone
     /// <returns><see langword="true"/> when every bound holds.</returns>
     internal bool Contains(long[] values)
     {
-        Argument.ThrowIfNull(values);
-        Argument.ThrowIfNotEqual(values.Length, Variables);
+        ArgumentNullException.ThrowIfNull(values);
+        ArgumentOutOfRangeException.ThrowIfNotEqual(values.Length, Variables);
 
         for (var i = 0; i < _size; i++)
         {
@@ -127,8 +127,8 @@ internal sealed class CounterZone
     /// <returns>The zone, <see langword="null"/> when it is empty.</returns>
     internal CounterZone? AtLeast(int variable, long value)
     {
-        Argument.ThrowIfLessThan(variable, 1);
-        Argument.ThrowIfGreaterThan(variable, Variables);
+        ArgumentOutOfRangeException.ThrowIfLessThan(variable, 1);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(variable, Variables);
         return Tighten(0, variable, -value);
     }
 
@@ -138,8 +138,8 @@ internal sealed class CounterZone
     /// <returns>The zone, <see langword="null"/> when it is empty.</returns>
     internal CounterZone? AtMost(int variable, long value)
     {
-        Argument.ThrowIfLessThan(variable, 1);
-        Argument.ThrowIfGreaterThan(variable, Variables);
+        ArgumentOutOfRangeException.ThrowIfLessThan(variable, 1);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(variable, Variables);
         return Tighten(variable, 0, value);
     }
 
@@ -149,8 +149,8 @@ internal sealed class CounterZone
     /// <returns>The zone.</returns>
     internal CounterZone Assign(int variable, long value)
     {
-        Argument.ThrowIfLessThan(variable, 1);
-        Argument.ThrowIfGreaterThan(variable, Variables);
+        ArgumentOutOfRangeException.ThrowIfLessThan(variable, 1);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(variable, Variables);
 
         var next = (long[])_bounds.Clone();
         for (var j = 0; j < _size; j++)
@@ -171,8 +171,8 @@ internal sealed class CounterZone
     /// <returns>The zone.</returns>
     internal CounterZone Increment(int variable)
     {
-        Argument.ThrowIfLessThan(variable, 1);
-        Argument.ThrowIfGreaterThan(variable, Variables);
+        ArgumentOutOfRangeException.ThrowIfLessThan(variable, 1);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(variable, Variables);
 
         var next = (long[])_bounds.Clone();
         for (var j = 0; j < _size; j++)
@@ -192,7 +192,7 @@ internal sealed class CounterZone
     /// <returns><see langword="true"/> when this zone is contained.</returns>
     internal bool IsSubsetOf(CounterZone other)
     {
-        Argument.ThrowIfNull(other);
+        ArgumentNullException.ThrowIfNull(other);
 
         for (var i = 0; i < _bounds.Length; i++)
         {
@@ -210,7 +210,7 @@ internal sealed class CounterZone
     /// <returns>The hull.</returns>
     internal CounterZone Hull(CounterZone other)
     {
-        Argument.ThrowIfNull(other);
+        ArgumentNullException.ThrowIfNull(other);
 
         var next = new long[_bounds.Length];
         for (var i = 0; i < next.Length; i++)
@@ -230,9 +230,9 @@ internal sealed class CounterZone
     /// <returns>The widened zone.</returns>
     internal CounterZone Widen(CounterZone newer, long[] caps)
     {
-        Argument.ThrowIfNull(newer);
-        Argument.ThrowIfNull(caps);
-        Argument.ThrowIfNotEqual(caps.Length, Variables);
+        ArgumentNullException.ThrowIfNull(newer);
+        ArgumentNullException.ThrowIfNull(caps);
+        ArgumentOutOfRangeException.ThrowIfNotEqual(caps.Length, Variables);
 
         var next = new long[_bounds.Length];
         for (var i = 0; i < next.Length; i++)

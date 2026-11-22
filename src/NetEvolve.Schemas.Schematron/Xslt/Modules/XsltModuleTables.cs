@@ -10,9 +10,9 @@ internal sealed class XsltModuleTables
 {
     internal XsltModuleTables(XsltFunctionTable functions, XsltGlobalTable globals, XsltKeyTable keys)
     {
-        Argument.ThrowIfNull(functions);
-        Argument.ThrowIfNull(globals);
-        Argument.ThrowIfNull(keys);
+        ArgumentNullException.ThrowIfNull(functions);
+        ArgumentNullException.ThrowIfNull(globals);
+        ArgumentNullException.ThrowIfNull(keys);
 
         Functions = functions;
         Globals = globals;

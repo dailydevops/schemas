@@ -48,8 +48,8 @@ internal sealed class OverrideSet
         Dictionary<SchemaSyntaxNode, int> identities
     )
     {
-        Argument.ThrowIfNull(element);
-        Argument.ThrowIfNull(identities);
+        ArgumentNullException.ThrowIfNull(element);
+        ArgumentNullException.ThrowIfNull(identities);
 
         var children = new List<SchemaSyntaxNode>();
         for (var i = 0; i < element.ChildCount; i++)
@@ -100,7 +100,7 @@ internal sealed class OverrideSet
     /// <returns>The overriding component of the same kind and name, otherwise <paramref name="original"/>.</returns>
     internal SchemaSyntaxNode Replace(SchemaSyntaxNode original)
     {
-        Argument.ThrowIfNull(original);
+        ArgumentNullException.ThrowIfNull(original);
 
         return Find(original) ?? original;
     }
@@ -113,7 +113,7 @@ internal sealed class OverrideSet
     /// </returns>
     internal bool LeavesUnchanged(SchemaSyntaxNode schema)
     {
-        Argument.ThrowIfNull(schema);
+        ArgumentNullException.ThrowIfNull(schema);
 
         for (var i = 0; i < schema.ChildCount; i++)
         {

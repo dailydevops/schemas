@@ -42,7 +42,7 @@ internal sealed class CountingRun
 
     internal CountingRun(CountingAutomaton automaton)
     {
-        Argument.ThrowIfNull(automaton);
+        ArgumentNullException.ThrowIfNull(automaton);
 
         _automaton = automaton;
         _slots = automaton.CounterSlots;

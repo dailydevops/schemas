@@ -25,7 +25,7 @@ internal static class XPathAtomization
     /// <exception cref="System.ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
     public static XdmSequence Atomize(in XdmSequence sequence, IXdmTypeAnnotationSource source)
     {
-        Argument.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(source);
 
         var count = sequence.Count;
         if (count == 0)

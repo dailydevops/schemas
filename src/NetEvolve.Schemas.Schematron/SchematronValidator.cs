@@ -26,9 +26,9 @@ internal sealed class SchematronValidator : SchemaValidatorBase, ISchematronVali
     )
         : base(limits, resolver)
     {
-        Argument.ThrowIfNull(compiled);
-        Argument.ThrowIfNull(phase);
-        Argument.ThrowIfNull(parameters);
+        ArgumentNullException.ThrowIfNull(compiled);
+        ArgumentNullException.ThrowIfNull(phase);
+        ArgumentNullException.ThrowIfNull(parameters);
 
         _compiled = compiled;
         _phase = phase;
@@ -65,7 +65,7 @@ internal sealed class SchematronValidator : SchemaValidatorBase, ISchematronVali
 
     public ISchematronValidator WithReportSink(ISchematronReportSink sink)
     {
-        Argument.ThrowIfNull(sink);
+        ArgumentNullException.ThrowIfNull(sink);
 
         return new SchematronValidator(this, sink);
     }

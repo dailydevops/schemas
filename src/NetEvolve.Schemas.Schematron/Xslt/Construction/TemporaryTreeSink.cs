@@ -16,7 +16,7 @@ internal abstract class TemporaryTreeSink : ISequenceSink
 {
     private protected TemporaryTreeSink(XmlNameTable names)
     {
-        Argument.ThrowIfNull(names);
+        ArgumentNullException.ThrowIfNull(names);
 
         Names = names;
     }
@@ -41,7 +41,7 @@ internal abstract class TemporaryTreeSink : ISequenceSink
     public XdmItem EndTree(IXmlSink tree)
     {
         var builder = tree as XmlTreeBuilder;
-        Argument.ThrowIfNull(builder);
+        ArgumentNullException.ThrowIfNull(builder);
 
         using (builder)
         {

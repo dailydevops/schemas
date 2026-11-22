@@ -36,8 +36,8 @@ public static class SchematronValidatorServiceCollectionExtensions
         string? systemId = null
     )
     {
-        Argument.ThrowIfNull(services);
-        Argument.ThrowIfNull(schema);
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(schema);
 
         return services.AddSchemaValidator<ISchematronValidator>(provider =>
         {
@@ -66,8 +66,8 @@ public static class SchematronValidatorServiceCollectionExtensions
         string? systemId = null
     )
     {
-        Argument.ThrowIfNull(services);
-        Argument.ThrowIfNull(schema);
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(schema);
 
         return services.AddKeyedSchemaValidator<ISchematronValidator>(serviceKey, (provider, key) =>
         {

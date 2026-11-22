@@ -69,8 +69,8 @@ public readonly record struct RegexNode
     /// <exception cref="System.ArgumentOutOfRangeException"><paramref name="codePoint"/> is outside the Unicode range.</exception>
     public static RegexNode Character(int codePoint)
     {
-        Argument.ThrowIfLessThan(codePoint, 0);
-        Argument.ThrowIfGreaterThan(codePoint, MaxCodePoint);
+        ArgumentOutOfRangeException.ThrowIfLessThan(codePoint, 0);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(codePoint, MaxCodePoint);
 
         return Create(RegexNodeKind.Character, codePoint, NoNode);
     }
@@ -81,7 +81,7 @@ public readonly record struct RegexNode
     /// <exception cref="System.ArgumentOutOfRangeException"><paramref name="setIndex"/> is negative.</exception>
     public static RegexNode Set(int setIndex)
     {
-        Argument.ThrowIfLessThan(setIndex, 0);
+        ArgumentOutOfRangeException.ThrowIfLessThan(setIndex, 0);
 
         return Create(RegexNodeKind.Set, setIndex, NoNode);
     }
@@ -92,7 +92,7 @@ public readonly record struct RegexNode
     /// <exception cref="System.ArgumentOutOfRangeException"><paramref name="firstChild"/> is below <see cref="NoNode"/>.</exception>
     public static RegexNode Concat(int firstChild)
     {
-        Argument.ThrowIfLessThan(firstChild, NoNode);
+        ArgumentOutOfRangeException.ThrowIfLessThan(firstChild, NoNode);
 
         return Create(RegexNodeKind.Concat, 0, firstChild);
     }
@@ -103,7 +103,7 @@ public readonly record struct RegexNode
     /// <exception cref="System.ArgumentOutOfRangeException"><paramref name="firstChild"/> is below <see cref="NoNode"/>.</exception>
     public static RegexNode Alternation(int firstChild)
     {
-        Argument.ThrowIfLessThan(firstChild, NoNode);
+        ArgumentOutOfRangeException.ThrowIfLessThan(firstChild, NoNode);
 
         return Create(RegexNodeKind.Alternation, 0, firstChild);
     }
@@ -117,11 +117,11 @@ public readonly record struct RegexNode
     /// <exception cref="System.ArgumentOutOfRangeException">A count is out of range.</exception>
     public static RegexNode Repeat(int child, int min, int max, bool lazy)
     {
-        Argument.ThrowIfLessThan(child, NoNode);
-        Argument.ThrowIfLessThan(min, 0);
+        ArgumentOutOfRangeException.ThrowIfLessThan(child, NoNode);
+        ArgumentOutOfRangeException.ThrowIfLessThan(min, 0);
         if (max != Unbounded)
         {
-            Argument.ThrowIfLessThan(max, min);
+            ArgumentOutOfRangeException.ThrowIfLessThan(max, min);
         }
 
         return new(RegexNodeKind.Repeat, 0, child, min, max, lazy, NoNode);
@@ -134,8 +134,8 @@ public readonly record struct RegexNode
     /// <exception cref="System.ArgumentOutOfRangeException"><paramref name="child"/> is below <see cref="NoNode"/>, or <paramref name="groupNumber"/> is below <see cref="NoGroup"/>.</exception>
     public static RegexNode Group(int child, int groupNumber)
     {
-        Argument.ThrowIfLessThan(child, NoNode);
-        Argument.ThrowIfLessThan(groupNumber, NoGroup);
+        ArgumentOutOfRangeException.ThrowIfLessThan(child, NoNode);
+        ArgumentOutOfRangeException.ThrowIfLessThan(groupNumber, NoGroup);
 
         return Create(RegexNodeKind.Group, groupNumber, child);
     }
@@ -150,7 +150,7 @@ public readonly record struct RegexNode
     /// <exception cref="System.ArgumentOutOfRangeException"><paramref name="groupNumber"/> is below one.</exception>
     public static RegexNode BackReference(int groupNumber)
     {
-        Argument.ThrowIfLessThan(groupNumber, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(groupNumber, 1);
 
         return Create(RegexNodeKind.BackReference, groupNumber, NoNode);
     }
@@ -166,7 +166,7 @@ public readonly record struct RegexNode
     /// <exception cref="System.ArgumentOutOfRangeException"><paramref name="nextSibling"/> is below <see cref="NoNode"/>.</exception>
     public RegexNode WithNextSibling(int nextSibling)
     {
-        Argument.ThrowIfLessThan(nextSibling, NoNode);
+        ArgumentOutOfRangeException.ThrowIfLessThan(nextSibling, NoNode);
 
         return new(Kind, Value, FirstChild, Min, Max, IsLazy, nextSibling);
     }

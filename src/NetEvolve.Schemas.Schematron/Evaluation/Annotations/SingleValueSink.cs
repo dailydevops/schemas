@@ -28,7 +28,7 @@ internal sealed class SingleValueSink : ISequenceSink
     /// <param name="into">The text sink that receives the first item.</param>
     internal void Begin(TextSink into)
     {
-        Argument.ThrowIfNull(into);
+        ArgumentNullException.ThrowIfNull(into);
 
         _into = into;
         Count = 0;

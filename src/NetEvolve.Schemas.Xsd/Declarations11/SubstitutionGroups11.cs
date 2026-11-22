@@ -53,9 +53,9 @@ internal sealed class SubstitutionGroups11
         XsdIssueReporter reporter
     )
     {
-        Argument.ThrowIfNull(elements);
-        Argument.ThrowIfNull(derivation);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(elements);
+        ArgumentNullException.ThrowIfNull(derivation);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         var reach = new Dictionary<IMultiHeadElement, HashSet<IMultiHeadElement>>();
         var members = new Dictionary<IMultiHeadElement, List<IMultiHeadElement>>();
@@ -86,7 +86,7 @@ internal sealed class SubstitutionGroups11
     /// <returns>The members.</returns>
     public IReadOnlyList<IMultiHeadElement> GetMembers(IMultiHeadElement head)
     {
-        Argument.ThrowIfNull(head);
+        ArgumentNullException.ThrowIfNull(head);
 
         return _members.TryGetValue(head, out var list) ? list : [head];
     }

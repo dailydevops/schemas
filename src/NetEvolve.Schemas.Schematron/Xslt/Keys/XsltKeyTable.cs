@@ -23,7 +23,7 @@ internal sealed class XsltKeyTable
     /// <exception cref="System.ArgumentNullException"><paramref name="declarations"/> is <see langword="null"/>.</exception>
     internal static XsltKeyTable Create(IReadOnlyList<XsltKeyComponent> declarations)
     {
-        Argument.ThrowIfNull(declarations);
+        ArgumentNullException.ThrowIfNull(declarations);
 
         var lists = new Dictionary<XPathQName, List<XsltKeyComponent>>();
         for (var i = 0; i < declarations.Count; i++)

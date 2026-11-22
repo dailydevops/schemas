@@ -58,9 +58,9 @@ internal sealed class ExternalEntityFrame : IDisposable
         CancellationToken cancellationToken
     )
     {
-        Argument.ThrowIfNull(loader);
-        Argument.ThrowIfNull(name);
-        Argument.ThrowIfNull(limits);
+        ArgumentNullException.ThrowIfNull(loader);
+        ArgumentNullException.ThrowIfNull(name);
+        ArgumentNullException.ThrowIfNull(limits);
 
         _loader = loader;
         Kind = kind;
@@ -105,7 +105,7 @@ internal sealed class ExternalEntityFrame : IDisposable
     )
     {
         cancellationToken.ThrowIfCancellationRequested();
-        Argument.ThrowIfGreaterThan((int)kind, (int)ResourceKind.ExternalParameterEntity);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)kind, (int)ResourceKind.ExternalParameterEntity);
 
         var created = new ExternalEntityFrame(loader, kind, name, resolvedUri, in result, limits, cancellationToken);
         try

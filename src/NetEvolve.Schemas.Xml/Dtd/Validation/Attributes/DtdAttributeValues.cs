@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Xml.Dtd.Validation.Attributes;
+﻿namespace NetEvolve.Schemas.Xml.Dtd.Validation.Attributes;
 
 using System;
 using System.Collections.Generic;
@@ -86,7 +86,7 @@ internal static class DtdAttributeValues
     /// <returns><see langword="true"/> when the value is declared.</returns>
     internal static bool Contains(IReadOnlyList<string> values, ReadOnlySpan<char> value)
     {
-        Argument.ThrowIfNull(values);
+        ArgumentNullException.ThrowIfNull(values);
 
         for (var i = 0; i < values.Count; i++)
         {
@@ -105,7 +105,7 @@ internal static class DtdAttributeValues
     /// <returns><see langword="true"/> when the value is a legal value of the type; CDATA accepts every value.</returns>
     internal static bool Matches(DtdAttributeDefinition definition, ReadOnlySpan<char> value)
     {
-        Argument.ThrowIfNull(definition);
+        ArgumentNullException.ThrowIfNull(definition);
 
         switch (definition.Type)
         {
@@ -143,9 +143,9 @@ internal static class DtdAttributeValues
         out string value
     )
     {
-        Argument.ThrowIfNull(literal);
-        Argument.ThrowIfNull(declarations);
-        Argument.ThrowIfNull(limits);
+        ArgumentNullException.ThrowIfNull(literal);
+        ArgumentNullException.ThrowIfNull(declarations);
+        ArgumentNullException.ThrowIfNull(limits);
 
         var expansion = new Expansion(declarations, limits);
         if (!expansion.Expand(literal.AsSpan(), isLiteral: true, 0))
@@ -224,12 +224,12 @@ internal static class DtdAttributeValues
                         return false;
                     case '\t':
                     case '\n':
-                        Builder.Append(' ');
+                        _ = Builder.Append(' ');
                         i++;
                         break;
                     case '\r':
                         // CR LF of the literal is one line end (section 2.11); in an entity value it was normalized when declared.
-                        Builder.Append(' ');
+                        _ = Builder.Append(' ');
                         i += isLiteral && i + 1 < text.Length && text[i + 1] == '\n' ? 2 : 1;
                         break;
                     case '&':
@@ -242,7 +242,7 @@ internal static class DtdAttributeValues
                         i += length;
                         break;
                     default:
-                        Builder.Append(c);
+                        _ = Builder.Append(c);
                         i++;
                         break;
                 }
@@ -257,7 +257,7 @@ internal static class DtdAttributeValues
             var error = XmlReferenceResolver.TryParseReference(text, out var length, out var codePoint);
             if (error is null)
             {
-                Builder.Append(char.ConvertFromUtf32(codePoint));
+                _ = Builder.Append(char.ConvertFromUtf32(codePoint));
 
                 return length;
             }

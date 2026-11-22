@@ -17,7 +17,7 @@ public sealed class FractionDigitsFacet : IValueFacet<XsdDecimal>, IValueFacet<X
     /// <exception cref="System.ArgumentOutOfRangeException"><paramref name="value"/> is negative.</exception>
     public FractionDigitsFacet(int value)
     {
-        Argument.ThrowIfLessThan(value, 0);
+        ArgumentOutOfRangeException.ThrowIfLessThan(value, 0);
         Value = value;
     }
 

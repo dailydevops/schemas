@@ -78,11 +78,11 @@ internal sealed class SubsumptionSearch
         int maxWork
     )
     {
-        Argument.ThrowIfNull(restriction);
-        Argument.ThrowIfNull(baseSide);
-        Argument.ThrowIfNull(symbols);
-        Argument.ThrowIfNull(correspond);
-        Argument.ThrowIfLessThan(maxWork, 1);
+        ArgumentNullException.ThrowIfNull(restriction);
+        ArgumentNullException.ThrowIfNull(baseSide);
+        ArgumentNullException.ThrowIfNull(symbols);
+        ArgumentNullException.ThrowIfNull(correspond);
+        ArgumentOutOfRangeException.ThrowIfLessThan(maxWork, 1);
 
         _restriction = restriction;
         _base = baseSide;
@@ -373,7 +373,7 @@ internal sealed class SubsumptionSearch
     // The point after the last of zones that are points of one line: each step adds zero or one to every counter.
     internal static CounterZone? NextPoint(IReadOnlyList<CounterZone> zones)
     {
-        Argument.ThrowIfNull(zones);
+        ArgumentNullException.ThrowIfNull(zones);
 
         long[]? previous = null;
         long[]? step = null;

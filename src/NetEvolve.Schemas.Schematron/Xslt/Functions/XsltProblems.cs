@@ -22,8 +22,8 @@ internal static class XsltProblems
         string? constraint = null
     )
     {
-        Argument.ThrowIfNull(problems);
-        Argument.ThrowIfNull(message);
+        ArgumentNullException.ThrowIfNull(problems);
+        ArgumentNullException.ThrowIfNull(message);
 
         var problem = new SchematronProblem(code, message, XsltElementResolver.LocationOf(element, null), constraint);
         problems.Add(in problem);

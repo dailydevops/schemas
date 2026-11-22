@@ -38,15 +38,15 @@ internal static class RuleSetCompiler
         out CompiledRuleSet compiled
     )
     {
-        Argument.ThrowIfNull(schema);
-        Argument.ThrowIfNull(pattern);
-        Argument.ThrowIfNull(matcher);
-        Argument.ThrowIfNull(binding);
-        Argument.ThrowIfNull(problems);
+        ArgumentNullException.ThrowIfNull(schema);
+        ArgumentNullException.ThrowIfNull(pattern);
+        ArgumentNullException.ThrowIfNull(matcher);
+        ArgumentNullException.ThrowIfNull(binding);
+        ArgumentNullException.ThrowIfNull(problems);
 
         // A pattern that is not part of the schema is a caller defect: its ordinal is 0 and the guard rejects it.
         var ordinal = OrdinalOf(schema, pattern.Pattern);
-        Argument.ThrowIfLessThan(ordinal, 1, nameof(pattern));
+        ArgumentOutOfRangeException.ThrowIfLessThan(ordinal, 1, nameof(pattern));
 
         var rules = new CompiledRule[pattern.Rules.Count];
         var ok = true;

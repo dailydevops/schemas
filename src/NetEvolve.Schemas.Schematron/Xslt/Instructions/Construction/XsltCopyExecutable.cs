@@ -22,7 +22,7 @@ internal sealed class XsltCopyExecutable : XsltExecutable, IXsltSlotReader, IXsl
 
     internal XsltCopyExecutable(XsltBodyExecutable body, DocumentLocation location, int slotEnd)
     {
-        Argument.ThrowIfNull(body);
+        ArgumentNullException.ThrowIfNull(body);
 
         _body = body;
         _location = location;
@@ -39,8 +39,8 @@ internal sealed class XsltCopyExecutable : XsltExecutable, IXsltSlotReader, IXsl
     /// <inheritdoc />
     internal override QueryStatus TryExecute(XsltFrame frame, ISequenceSink sink)
     {
-        Argument.ThrowIfNull(frame);
-        Argument.ThrowIfNull(sink);
+        ArgumentNullException.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(sink);
 
         var item = frame.Focus.Item;
         if (item.Kind == XdmItemKind.None)

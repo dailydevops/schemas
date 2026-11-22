@@ -40,9 +40,9 @@ internal static class AllGroup11Compiler
     /// <returns>The program, <see langword="null"/> when the particle cannot occur, is no <c>all</c> group, or nests too deep.</returns>
     internal static AllGroup11? Compile(Particle content, Func<XPathQName, int> idOf, List<IXsdComponent> terms)
     {
-        Argument.ThrowIfNull(content);
-        Argument.ThrowIfNull(idOf);
-        Argument.ThrowIfNull(terms);
+        ArgumentNullException.ThrowIfNull(content);
+        ArgumentNullException.ThrowIfNull(idOf);
+        ArgumentNullException.ThrowIfNull(terms);
 
         if (
             content.MaxOccurs == 0
@@ -75,8 +75,8 @@ internal static class AllGroup11Compiler
     /// </returns>
     internal static Particle? Extend(Particle baseParticle, Particle content)
     {
-        Argument.ThrowIfNull(baseParticle);
-        Argument.ThrowIfNull(content);
+        ArgumentNullException.ThrowIfNull(baseParticle);
+        ArgumentNullException.ThrowIfNull(content);
 
         if (
             Unwrap(baseParticle.Term) is not ModelGroup { Compositor: ModelGroupCompositor.All } baseGroup

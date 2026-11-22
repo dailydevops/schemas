@@ -30,10 +30,10 @@ internal sealed class DtdContentModel
     /// <param name="ambiguousName">The symbol of a name that two follow positions share, <c>-1</c> when the model is deterministic.</param>
     internal DtdContentModel(int[] names, int[] offsets, int[] targets, bool[] isLast, int ambiguousName)
     {
-        Argument.ThrowIfNull(names);
-        Argument.ThrowIfNull(offsets);
-        Argument.ThrowIfNull(targets);
-        Argument.ThrowIfNull(isLast);
+        ArgumentNullException.ThrowIfNull(names);
+        ArgumentNullException.ThrowIfNull(offsets);
+        ArgumentNullException.ThrowIfNull(targets);
+        ArgumentNullException.ThrowIfNull(isLast);
 
         _names = names;
         _offsets = offsets;
@@ -59,9 +59,9 @@ internal sealed class DtdContentModel
     /// <returns>The number of reached positions; zero when the child does not match.</returns>
     internal int Step(ReadOnlySpan<int> current, int name, Span<int> next, byte[] mark)
     {
-        Argument.ThrowIfNull(mark);
-        Argument.ThrowIfLessThan(next.Length, _names.Length);
-        Argument.ThrowIfLessThan(mark.Length, _names.Length);
+        ArgumentNullException.ThrowIfNull(mark);
+        ArgumentOutOfRangeException.ThrowIfLessThan(next.Length, _names.Length);
+        ArgumentOutOfRangeException.ThrowIfLessThan(mark.Length, _names.Length);
 
         var count = 0;
         foreach (var position in current)

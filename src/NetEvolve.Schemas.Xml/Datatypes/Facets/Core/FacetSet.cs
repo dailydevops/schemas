@@ -27,17 +27,17 @@ public readonly record struct FacetSet
     {
         if (length.HasValue)
         {
-            Argument.ThrowIfLessThan(length.Value, 0);
+            ArgumentOutOfRangeException.ThrowIfLessThan(length.Value, 0);
         }
 
         if (minLength.HasValue)
         {
-            Argument.ThrowIfLessThan(minLength.Value, 0);
+            ArgumentOutOfRangeException.ThrowIfLessThan(minLength.Value, 0);
         }
 
         if (maxLength.HasValue)
         {
-            Argument.ThrowIfLessThan(maxLength.Value, 0);
+            ArgumentOutOfRangeException.ThrowIfLessThan(maxLength.Value, 0);
         }
 
         Length = length;

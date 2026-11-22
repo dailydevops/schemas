@@ -32,8 +32,8 @@ internal sealed class JoinSink : ISequenceSink, IDisposable
     /// <param name="separator">The text between two items.</param>
     internal JoinSink(ISequenceSink into, string separator)
     {
-        Argument.ThrowIfNull(into);
-        Argument.ThrowIfNull(separator);
+        ArgumentNullException.ThrowIfNull(into);
+        ArgumentNullException.ThrowIfNull(separator);
 
         _into = into;
         _separator = separator;

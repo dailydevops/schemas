@@ -15,7 +15,7 @@ internal sealed class ElementPriorityView : IWildcard
 
     internal ElementPriorityView(IWildcard wildcard)
     {
-        Argument.ThrowIfNull(wildcard);
+        ArgumentNullException.ThrowIfNull(wildcard);
 
         _wildcard = wildcard;
     }

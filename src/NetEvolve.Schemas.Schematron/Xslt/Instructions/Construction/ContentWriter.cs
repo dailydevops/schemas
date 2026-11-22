@@ -63,12 +63,12 @@ internal sealed class ContentWriter : ISequenceSink
         string uri
     )
     {
-        Argument.ThrowIfNull(owner);
-        Argument.ThrowIfNull(target);
-        Argument.ThrowIfNull(inherited);
-        Argument.ThrowIfNull(prefix);
-        Argument.ThrowIfNull(local);
-        Argument.ThrowIfNull(uri);
+        ArgumentNullException.ThrowIfNull(owner);
+        ArgumentNullException.ThrowIfNull(target);
+        ArgumentNullException.ThrowIfNull(inherited);
+        ArgumentNullException.ThrowIfNull(prefix);
+        ArgumentNullException.ThrowIfNull(local);
+        ArgumentNullException.ThrowIfNull(uri);
 
         _owner = owner;
         _target = target;
@@ -131,8 +131,8 @@ internal sealed class ContentWriter : ISequenceSink
     /// <returns><see langword="false"/> when the node is not allowed; <see cref="Problem"/> has the error.</returns>
     internal bool TryAddNamespace(string prefix, string uri)
     {
-        Argument.ThrowIfNull(prefix);
-        Argument.ThrowIfNull(uri);
+        ArgumentNullException.ThrowIfNull(prefix);
+        ArgumentNullException.ThrowIfNull(uri);
 
         if (!_isElement)
         {
@@ -175,10 +175,10 @@ internal sealed class ContentWriter : ISequenceSink
     /// <returns><see langword="false"/> when the node is not allowed; <see cref="Problem"/> has the error.</returns>
     internal bool TryAddAttribute(string prefix, string local, string uri, string value)
     {
-        Argument.ThrowIfNull(prefix);
-        Argument.ThrowIfNull(local);
-        Argument.ThrowIfNull(uri);
-        Argument.ThrowIfNull(value);
+        ArgumentNullException.ThrowIfNull(prefix);
+        ArgumentNullException.ThrowIfNull(local);
+        ArgumentNullException.ThrowIfNull(uri);
+        ArgumentNullException.ThrowIfNull(value);
 
         if (!_isElement)
         {

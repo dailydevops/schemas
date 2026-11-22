@@ -79,11 +79,11 @@ internal sealed class DtdValidatingSink<TInner> : IXmlAttributeInfoSink
         string? documentUri
     )
     {
-        Argument.ThrowIfNull(reader);
-        Argument.ThrowIfNull(inner);
-        Argument.ThrowIfNull(steps);
-        Argument.ThrowIfNull(options);
-        Argument.ThrowIfNull(issues);
+        ArgumentNullException.ThrowIfNull(reader);
+        ArgumentNullException.ThrowIfNull(inner);
+        ArgumentNullException.ThrowIfNull(steps);
+        ArgumentNullException.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(issues);
 
         _reader = reader;
         _box = new Box(inner);

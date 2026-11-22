@@ -58,7 +58,7 @@ public static class OrderedFacetRestriction
     )
         where TValue : struct
     {
-        Argument.ThrowIfNull(type);
+        ArgumentNullException.ThrowIfNull(type);
 
         var specified = derived.Specified;
         foreach (var kind in Checked)

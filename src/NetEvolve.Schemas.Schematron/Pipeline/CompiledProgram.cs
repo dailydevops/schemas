@@ -30,12 +30,12 @@ internal sealed class CompiledProgram : CompiledSchema
     )
         : base(schema, effectivePhase)
     {
-        Argument.ThrowIfNull(title);
-        Argument.ThrowIfNull(binding);
-        Argument.ThrowIfNull(matcher);
-        Argument.ThrowIfNull(resources);
-        Argument.ThrowIfNull(plan);
-        Argument.ThrowIfNull(sets);
+        ArgumentNullException.ThrowIfNull(title);
+        ArgumentNullException.ThrowIfNull(binding);
+        ArgumentNullException.ThrowIfNull(matcher);
+        ArgumentNullException.ThrowIfNull(resources);
+        ArgumentNullException.ThrowIfNull(plan);
+        ArgumentNullException.ThrowIfNull(sets);
 
         Title = title;
         Binding = binding;

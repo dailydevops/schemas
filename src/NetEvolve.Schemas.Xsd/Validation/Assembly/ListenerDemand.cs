@@ -28,7 +28,7 @@ internal static class ListenerDemand
     /// <returns>The listeners that the document needs.</returns>
     internal static ListenerKinds Scan(SchemaSyntaxNode node)
     {
-        Argument.ThrowIfNull(node);
+        ArgumentNullException.ThrowIfNull(node);
 
         var kinds = ListenerKinds.None;
         for (var i = 0; i < node.AttributeCount; i++)

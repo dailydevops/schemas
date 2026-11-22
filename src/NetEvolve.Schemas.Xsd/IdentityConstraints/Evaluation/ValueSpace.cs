@@ -52,9 +52,9 @@ internal sealed class ValueSpace
     /// <param name="version">The XSD version.</param>
     internal ValueSpace(ISimpleValueAssessor assessor, XsdVersion version)
     {
-        Argument.ThrowIfNull(assessor);
-        Argument.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
-        Argument.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
+        ArgumentNullException.ThrowIfNull(assessor);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
 
         _assessor = assessor;
         var types = XsdBuiltInTypes.For(version);
@@ -75,7 +75,7 @@ internal sealed class ValueSpace
     /// <returns>The hash.</returns>
     internal int Hash(IXsdComponent type, ReadOnlySpan<char> lexical)
     {
-        Argument.ThrowIfNull(type);
+        ArgumentNullException.ThrowIfNull(type);
 
         var shape = Resolve(type, lexical);
         if (shape.Primitive is not null)
@@ -101,8 +101,8 @@ internal sealed class ValueSpace
     /// <returns><see langword="true"/> when the values are equal.</returns>
     internal bool AreEqual(IXsdComponent typeA, ReadOnlySpan<char> a, IXsdComponent typeB, ReadOnlySpan<char> b)
     {
-        Argument.ThrowIfNull(typeA);
-        Argument.ThrowIfNull(typeB);
+        ArgumentNullException.ThrowIfNull(typeA);
+        ArgumentNullException.ThrowIfNull(typeB);
 
         var first = Resolve(typeA, a);
         var second = Resolve(typeB, b);

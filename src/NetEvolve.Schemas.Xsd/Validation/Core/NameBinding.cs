@@ -18,8 +18,8 @@ internal sealed class NameBinding
 
     internal NameBinding(ValidationModel model, XmlNameTable names)
     {
-        Argument.ThrowIfNull(model);
-        Argument.ThrowIfNull(names);
+        ArgumentNullException.ThrowIfNull(model);
+        ArgumentNullException.ThrowIfNull(names);
 
         _model = model;
         _names = names;

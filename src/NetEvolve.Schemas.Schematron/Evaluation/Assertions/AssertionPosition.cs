@@ -9,10 +9,10 @@ internal readonly struct AssertionPosition
 {
     internal AssertionPosition(int pattern, int rule, int assertion, int expansion = 0)
     {
-        Argument.ThrowIfLessThan(pattern, 1);
-        Argument.ThrowIfLessThan(rule, 1);
-        Argument.ThrowIfLessThan(assertion, 1);
-        Argument.ThrowIfLessThan(expansion, 0);
+        ArgumentOutOfRangeException.ThrowIfLessThan(pattern, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(rule, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(assertion, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(expansion, 0);
 
         Pattern = pattern;
         Rule = rule;

@@ -42,7 +42,7 @@ internal sealed class AllGroup11 : ICompiledContentModel
     /// <param name="members">The element particles and wildcard particles, each with <c>maxOccurs</c> of at least 1.</param>
     public AllGroup11(bool isOptional, AutomatonParticle[] members)
     {
-        Argument.ThrowIfNull(members);
+        ArgumentNullException.ThrowIfNull(members);
 
         IsOptional = isOptional;
         var count = members.Length;
@@ -57,9 +57,9 @@ internal sealed class AllGroup11 : ICompiledContentModel
         for (var m = 0; m < count; m++)
         {
             var member = members[m];
-            Argument.ThrowIfNull(member);
-            Argument.ThrowIfGreaterThan((int)member.Kind, (int)AutomatonParticleKind.Wildcard);
-            Argument.ThrowIfLessThan(member.MaxOccurs, 1L);
+            ArgumentNullException.ThrowIfNull(member);
+            ArgumentOutOfRangeException.ThrowIfGreaterThan((int)member.Kind, (int)AutomatonParticleKind.Wildcard);
+            ArgumentOutOfRangeException.ThrowIfLessThan(member.MaxOccurs, 1L);
 
             _minOccurs[m] = member.MinOccurs;
             _maxOccurs[m] = member.MaxOccurs;

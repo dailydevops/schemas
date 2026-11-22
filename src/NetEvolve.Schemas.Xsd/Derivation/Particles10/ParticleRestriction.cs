@@ -55,7 +55,7 @@ internal sealed class ParticleRestriction
     /// <param name="derivation">Type Derivation OK of XSD 1.0, for the types of element declarations.</param>
     internal ParticleRestriction(TypeDerivationOk derivation)
     {
-        Argument.ThrowIfNull(derivation);
+        ArgumentNullException.ThrowIfNull(derivation);
 
         _derivation = derivation;
     }
@@ -66,8 +66,8 @@ internal sealed class ParticleRestriction
     /// <returns>The first violated constraint, none when the particle is a valid restriction.</returns>
     internal ParticleViolation Check(Particle restriction, Particle baseParticle)
     {
-        Argument.ThrowIfNull(restriction);
-        Argument.ThrowIfNull(baseParticle);
+        ArgumentNullException.ThrowIfNull(restriction);
+        ArgumentNullException.ThrowIfNull(baseParticle);
 
         // The recursion needs finite structures; the resolver reports a circular group definition.
         return ParticleStructure.IsCircular(restriction) || ParticleStructure.IsCircular(baseParticle)
@@ -81,7 +81,7 @@ internal sealed class ParticleRestriction
     /// <param name="reporter">The reporter.</param>
     internal void Report(Particle restriction, Particle baseParticle, XsdIssueReporter reporter)
     {
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         var violation = Check(restriction, baseParticle);
         if (violation.IsViolation)

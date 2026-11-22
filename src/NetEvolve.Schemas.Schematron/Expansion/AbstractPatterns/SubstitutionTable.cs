@@ -19,8 +19,8 @@ internal sealed class SubstitutionTable
 
     internal SubstitutionTable(string[] names, string[] values)
     {
-        Argument.ThrowIfNull(names);
-        Argument.ThrowIfNull(values);
+        ArgumentNullException.ThrowIfNull(names);
+        ArgumentNullException.ThrowIfNull(values);
 
         _names = names;
         _values = values;
@@ -29,7 +29,7 @@ internal sealed class SubstitutionTable
     /// <summary>Gets the text with every known parameter reference replaced, or the same string when none occurs.</summary>
     internal string Apply(string text)
     {
-        Argument.ThrowIfNull(text);
+        ArgumentNullException.ThrowIfNull(text);
 
         StringBuilder? result = null;
         var copied = 0;

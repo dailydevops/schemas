@@ -14,7 +14,7 @@ internal sealed class BuildProblems : IProblemSink
 
     internal BuildProblems(ValidationLimits limits)
     {
-        Argument.ThrowIfNull(limits);
+        ArgumentNullException.ThrowIfNull(limits);
 
         _collector = new ValidationIssueCollector(limits);
     }

@@ -38,9 +38,9 @@ internal static class SubordinateConstructs
         IProblemSink problems
     )
     {
-        Argument.ThrowIfNull(patterns);
-        Argument.ThrowIfNull(resolver);
-        Argument.ThrowIfNull(problems);
+        ArgumentNullException.ThrowIfNull(patterns);
+        ArgumentNullException.ThrowIfNull(resolver);
+        ArgumentNullException.ThrowIfNull(problems);
 
         var denied = ReferenceEquals(resolver, DenyAllResourceResolver.Instance);
         var ok = true;

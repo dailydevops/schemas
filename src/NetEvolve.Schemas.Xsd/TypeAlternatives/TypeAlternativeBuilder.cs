@@ -54,9 +54,9 @@ internal sealed class TypeAlternativeBuilder : IComponentBuilder
     /// <exception cref="NotSupportedException"><paramref name="element"/> is not a <see cref="SchemaSyntaxNode"/>, the only syntax with parent and namespace scope.</exception>
     public IXsdComponent Build(ISchemaSyntaxElement element, IComponentRegistry registry, XsdIssueReporter reporter)
     {
-        Argument.ThrowIfNull(element);
-        Argument.ThrowIfNull(registry);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(element);
+        ArgumentNullException.ThrowIfNull(registry);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         var node =
             element as SchemaSyntaxNode
@@ -70,8 +70,8 @@ internal sealed class TypeAlternativeBuilder : IComponentBuilder
     /// <returns>The alternative.</returns>
     internal TypeAlternative BuildAlternative(SchemaSyntaxNode node, XsdIssueReporter reporter)
     {
-        Argument.ThrowIfNull(node);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(node);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         var test = CompileTest(node, reporter);
         var (typeName, inline) = ReadType(node, reporter);

@@ -20,7 +20,7 @@ internal sealed class AttributeGroupBuilder : IComponentBuilder
 
     internal AttributeGroupBuilder(BuildContext context)
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         _context = context;
     }
@@ -32,9 +32,9 @@ internal sealed class AttributeGroupBuilder : IComponentBuilder
     /// <exception cref="NotSupportedException"><paramref name="element"/> is not the syntax of a top-level <c>attributeGroup</c> of the build context.</exception>
     public IXsdComponent Build(ISchemaSyntaxElement element, IComponentRegistry registry, XsdIssueReporter reporter)
     {
-        Argument.ThrowIfNull(element);
-        Argument.ThrowIfNull(registry);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(element);
+        ArgumentNullException.ThrowIfNull(registry);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         return
             element is SchemaSyntaxNode node
@@ -49,7 +49,7 @@ internal sealed class AttributeGroupBuilder : IComponentBuilder
     /// <returns>The group.</returns>
     internal AttributeGroupDefinition Ensure(Definition definition)
     {
-        Argument.ThrowIfNull(definition);
+        ArgumentNullException.ThrowIfNull(definition);
 
         if (definition.Component is AttributeGroupDefinition built)
         {
@@ -105,8 +105,8 @@ internal sealed class AttributeGroupBuilder : IComponentBuilder
     /// <returns>The wildcard, <see langword="null"/> after an issue was reported.</returns>
     internal IWildcard? ReadWildcard(SchemaSyntaxNode node, UnitScope unit)
     {
-        Argument.ThrowIfNull(node);
-        Argument.ThrowIfNull(unit);
+        ArgumentNullException.ThrowIfNull(node);
+        ArgumentNullException.ThrowIfNull(unit);
 
         if (
             Wildcard.TryCreate(

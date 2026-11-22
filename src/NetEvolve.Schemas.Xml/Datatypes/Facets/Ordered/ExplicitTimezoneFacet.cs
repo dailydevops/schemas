@@ -16,8 +16,8 @@ public sealed class ExplicitTimezoneFacet : IValueFacet<XsdDateTime>
     /// <exception cref="System.ArgumentOutOfRangeException"><paramref name="mode"/> is not a defined value.</exception>
     public ExplicitTimezoneFacet(ExplicitTimezoneMode mode)
     {
-        Argument.ThrowIfLessThan((int)mode, (int)ExplicitTimezoneMode.Optional);
-        Argument.ThrowIfGreaterThan((int)mode, (int)ExplicitTimezoneMode.Prohibited);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)mode, (int)ExplicitTimezoneMode.Optional);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)mode, (int)ExplicitTimezoneMode.Prohibited);
         Mode = mode;
     }
 

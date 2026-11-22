@@ -156,8 +156,8 @@ public sealed class XPathStaticContext
         /// <exception cref="System.ArgumentException"><paramref name="prefix"/> is empty.</exception>
         public Builder WithNamespace(string prefix, string namespaceName)
         {
-            Argument.ThrowIfNullOrEmpty(prefix);
-            Argument.ThrowIfNull(namespaceName);
+            ArgumentNullException.ThrowIfNullOrEmpty(prefix);
+            ArgumentNullException.ThrowIfNull(namespaceName);
 
             Namespaces[prefix] = namespaceName;
             return this;
@@ -188,7 +188,7 @@ public sealed class XPathStaticContext
         /// <exception cref="System.ArgumentNullException"><paramref name="function"/> is <see langword="null"/>.</exception>
         public Builder WithFunction(XPathHostFunction function)
         {
-            Argument.ThrowIfNull(function);
+            ArgumentNullException.ThrowIfNull(function);
 
             return WithLibrary(new XPathFunctionLibrary(function.Name.LocalName, [function]));
         }
@@ -199,7 +199,7 @@ public sealed class XPathStaticContext
         /// <exception cref="System.ArgumentNullException"><paramref name="library"/> is <see langword="null"/>.</exception>
         public Builder WithLibrary(XPathFunctionLibrary library)
         {
-            Argument.ThrowIfNull(library);
+            ArgumentNullException.ThrowIfNull(library);
 
             Layers.Add(library);
             return this;

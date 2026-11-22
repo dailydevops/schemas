@@ -23,7 +23,7 @@ internal sealed class SchemaSyntaxSink : IXmlSink
 
     internal SchemaSyntaxSink(string? baseUri, XsdIssueReporter reporter)
     {
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         _baseUri = baseUri;
         _reporter = reporter;

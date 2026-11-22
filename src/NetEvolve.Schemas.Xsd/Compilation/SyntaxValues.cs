@@ -16,8 +16,8 @@ internal static class SyntaxValues
     /// <returns><see langword="true"/> for an element of the schema namespace with that name.</returns>
     internal static bool IsSchemaElement(SchemaSyntaxNode node, string localName)
     {
-        Argument.ThrowIfNull(node);
-        Argument.ThrowIfNull(localName);
+        ArgumentNullException.ThrowIfNull(node);
+        ArgumentNullException.ThrowIfNull(localName);
 
         return string.Equals(node.Name.NamespaceName, SchemaGrammar.Namespace, StringComparison.Ordinal)
             && string.Equals(node.Name.LocalName, localName, StringComparison.Ordinal);
@@ -29,8 +29,8 @@ internal static class SyntaxValues
     /// <returns>The child, <see langword="null"/> when there is none.</returns>
     internal static SchemaSyntaxNode? FindChild(SchemaSyntaxNode parent, string localName)
     {
-        Argument.ThrowIfNull(parent);
-        Argument.ThrowIfNull(localName);
+        ArgumentNullException.ThrowIfNull(parent);
+        ArgumentNullException.ThrowIfNull(localName);
 
         for (var i = 0; i < parent.ChildCount; i++)
         {
@@ -49,7 +49,7 @@ internal static class SyntaxValues
     /// <returns>The <c>schema</c> element.</returns>
     internal static SchemaSyntaxNode Root(SchemaSyntaxNode node)
     {
-        Argument.ThrowIfNull(node);
+        ArgumentNullException.ThrowIfNull(node);
 
         while (node.Parent is not null)
         {
@@ -70,7 +70,7 @@ internal static class SyntaxValues
     /// <returns>The items, none of them empty.</returns>
     internal static string[] Split(string value)
     {
-        Argument.ThrowIfNull(value);
+        ArgumentNullException.ThrowIfNull(value);
 
         return value.Split(Separators, StringSplitOptions.RemoveEmptyEntries);
     }

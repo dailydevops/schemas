@@ -47,7 +47,7 @@ internal static class OpenContentRules
         out OpenContentProperty? open
     )
     {
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         open = inherited;
         var element = own ?? (schemaDefault is { } d && (!explicitContentIsEmpty || d.AppliesToEmpty) ? d : null);

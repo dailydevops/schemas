@@ -28,7 +28,7 @@ public ref struct RegexMatchEnumerator
 
     internal RegexMatchEnumerator(RegexOperations operations, ReadOnlySpan<char> input, RegexStepLimits? limits)
     {
-        Argument.ThrowIfNull(operations);
+        ArgumentNullException.ThrowIfNull(operations);
 
         _operations = operations;
         _input = input;

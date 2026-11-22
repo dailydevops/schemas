@@ -18,7 +18,7 @@ internal readonly record struct DtdPipelineResult
     /// <param name="issues">The issues of the run in the order of the events.</param>
     internal DtdPipelineResult(XmlReadStatus status, XmlDiagnostic? diagnostic, ValidationResult issues)
     {
-        Argument.ThrowIfNull(issues);
+        ArgumentNullException.ThrowIfNull(issues);
 
         Status = status;
         Diagnostic = diagnostic;

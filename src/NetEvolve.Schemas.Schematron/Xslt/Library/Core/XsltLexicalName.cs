@@ -27,8 +27,8 @@ internal static class XsltLexicalName
         out XPathQName name
     )
     {
-        Argument.ThrowIfNull(statics);
-        Argument.ThrowIfNull(lexical);
+        ArgumentNullException.ThrowIfNull(statics);
+        ArgumentNullException.ThrowIfNull(lexical);
 
         var parsed = XsdQName.Parse(lexical.AsSpan(), new Namespaces(statics, unprefixedNamespace));
         name = parsed.Success
@@ -45,8 +45,8 @@ internal static class XsltLexicalName
     /// <exception cref="System.ArgumentNullException"><paramref name="code"/> or <paramref name="lexical"/> is <see langword="null"/>.</exception>
     internal static XPathEvaluationStatus Reject(ref XPathFunctionCall invocation, string code, string lexical)
     {
-        Argument.ThrowIfNull(code);
-        Argument.ThrowIfNull(lexical);
+        ArgumentNullException.ThrowIfNull(code);
+        ArgumentNullException.ThrowIfNull(lexical);
 
         invocation.Diagnostic = new XPathDiagnostic(
             new XPathErrorCode(code),

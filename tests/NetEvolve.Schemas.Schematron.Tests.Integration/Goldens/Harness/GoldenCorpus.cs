@@ -22,12 +22,12 @@ internal sealed class GoldenCorpus
     /// <exception cref="GoldenSourceException">A manifest has no well-formed lowercase SHA-256 checksum, or a suite key repeats.</exception>
     public GoldenCorpus(IReadOnlyList<SuiteManifest> manifests, SuiteFetcher fetcher)
     {
-        Argument.ThrowIfNull(manifests);
-        Argument.ThrowIfNull(fetcher);
+        ArgumentNullException.ThrowIfNull(manifests);
+        ArgumentNullException.ThrowIfNull(fetcher);
         foreach (var manifest in manifests)
         {
-            Argument.ThrowIfNull(manifest);
-            Argument.ThrowIfNullOrWhiteSpace(manifest.Key);
+            ArgumentNullException.ThrowIfNull(manifest);
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(manifest.Key);
             if (!IsSha256(manifest.Sha256))
             {
                 throw new GoldenSourceException(
@@ -49,8 +49,8 @@ internal sealed class GoldenCorpus
     /// <exception cref="GoldenSourceException">The suite has no manifest, or the path is empty, rooted, or leaves the suite.</exception>
     public void EnsurePinned(GoldenDocumentSource source)
     {
-        Argument.ThrowIfNull(source);
-        Argument.ThrowIfNullOrWhiteSpace(source.SuiteKey);
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(source.SuiteKey);
         if (!_manifests.ContainsKey(source.SuiteKey))
         {
             throw new GoldenSourceException(
@@ -75,7 +75,7 @@ internal sealed class GoldenCorpus
     public async Task<GoldenDocument> ResolveAsync(GoldenDocumentSource source, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        Argument.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(source);
         EnsurePinned(source);
         var root = await _fetcher.FetchAsync(_manifests[source.SuiteKey], cancellationToken);
         var path = Path.GetFullPath(Path.Combine(root, source.Path));

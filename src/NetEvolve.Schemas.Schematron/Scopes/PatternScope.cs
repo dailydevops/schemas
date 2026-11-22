@@ -18,10 +18,10 @@ internal sealed class PatternScope
         IReadOnlyList<RuleScope> rules
     )
     {
-        Argument.ThrowIfNull(pattern);
-        Argument.ThrowIfNull(lets);
-        Argument.ThrowIfNull(scope);
-        Argument.ThrowIfNull(rules);
+        ArgumentNullException.ThrowIfNull(pattern);
+        ArgumentNullException.ThrowIfNull(lets);
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(rules);
 
         Pattern = pattern;
         Lets = lets;

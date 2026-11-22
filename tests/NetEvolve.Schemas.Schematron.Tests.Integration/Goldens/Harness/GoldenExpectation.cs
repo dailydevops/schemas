@@ -13,11 +13,11 @@ internal sealed record GoldenExpectation
     /// <param name="expectedValid">Whether the document is expected to be valid.</param>
     public GoldenExpectation(GoldenDocumentSource source, IReadOnlyList<string> expectedRuleIds, bool expectedValid)
     {
-        Argument.ThrowIfNull(source);
-        Argument.ThrowIfNull(expectedRuleIds);
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(expectedRuleIds);
         foreach (var id in expectedRuleIds)
         {
-            Argument.ThrowIfNullOrWhiteSpace(id);
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(id);
         }
 
         Source = source;

@@ -35,7 +35,7 @@ internal readonly struct XsdAnnotation : IEquatable<XsdAnnotation>
 
     internal XsdAnnotation(AnnotationSource source, XmlNode node, in AnnotationRecord record)
     {
-        Argument.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(source);
 
         _source = source;
         _node = node;

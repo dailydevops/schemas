@@ -20,8 +20,8 @@ internal sealed class VariableSlot
         IReadOnlyList<SchematronNode>? content = null
     )
     {
-        Argument.ThrowIfNull(name);
-        Argument.ThrowIfLessThan(slot, 0);
+        ArgumentNullException.ThrowIfNull(name);
+        ArgumentOutOfRangeException.ThrowIfLessThan(slot, 0);
 
         Name = name;
         Slot = slot;

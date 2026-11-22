@@ -33,7 +33,7 @@ internal sealed class AnnotationTable : IAnnotationSink
     /// <exception cref="ArgumentOutOfRangeException">The ordinal of the record is less than one.</exception>
     public void Element(in AnnotationRecord record)
     {
-        Argument.ThrowIfLessThan(record.Ordinal, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(record.Ordinal, 1);
 
         if (record.Ordinal >= _elements.Length)
         {
@@ -51,8 +51,8 @@ internal sealed class AnnotationTable : IAnnotationSink
     /// <exception cref="ArgumentOutOfRangeException">The ordinal of the record is less than one or its attribute index is negative.</exception>
     public void Attribute(in AnnotationRecord record)
     {
-        Argument.ThrowIfLessThan(record.Ordinal, 1);
-        Argument.ThrowIfLessThan(record.AttributeIndex, 0);
+        ArgumentOutOfRangeException.ThrowIfLessThan(record.Ordinal, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(record.AttributeIndex, 0);
 
         if (_attributeCount == _attributes.Length)
         {

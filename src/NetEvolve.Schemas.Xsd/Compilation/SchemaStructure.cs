@@ -62,7 +62,7 @@ internal static class SchemaStructure
     /// <returns><see langword="true"/> when the content is valid or the element has no content model.</returns>
     internal static bool IsValid(SchemaSyntaxNode node)
     {
-        Argument.ThrowIfNull(node);
+        ArgumentNullException.ThrowIfNull(node);
 
         if (!Models.TryGetValue(KeyOf(node), out var model))
         {
@@ -88,7 +88,7 @@ internal static class SchemaStructure
     /// <returns>The model, <see langword="null"/> when the element has none.</returns>
     internal static string? DescribeModel(SchemaSyntaxNode node)
     {
-        Argument.ThrowIfNull(node);
+        ArgumentNullException.ThrowIfNull(node);
 
         return Models.TryGetValue(KeyOf(node), out var model) ? model.Text : null;
     }

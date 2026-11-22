@@ -21,8 +21,8 @@ internal abstract class Collation
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="uri"/> has no scheme, so it is not absolute.</exception>
     protected Collation(string uri)
     {
-        Argument.ThrowIfNullOrEmpty(uri);
-        Argument.ThrowIfEqual(CollationUri.IsAbsolute(uri), false);
+        ArgumentNullException.ThrowIfNullOrEmpty(uri);
+        ArgumentOutOfRangeException.ThrowIfEqual(CollationUri.IsAbsolute(uri), false);
 
         Uri = uri;
     }

@@ -7,8 +7,8 @@ internal sealed class XsltFunctionParameter
 {
     internal XsltFunctionParameter(string name, int slot, XsltSequenceType? type, DocumentLocation location)
     {
-        Argument.ThrowIfNull(name);
-        Argument.ThrowIfLessThan(slot, 0);
+        ArgumentNullException.ThrowIfNull(name);
+        ArgumentOutOfRangeException.ThrowIfLessThan(slot, 0);
 
         Name = name;
         Slot = slot;

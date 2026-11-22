@@ -44,10 +44,10 @@ internal sealed class BuildContext
 
     internal BuildContext(XsdVersion version, ComponentRegistry registry, XsdIssueReporter reporter)
     {
-        Argument.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
-        Argument.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
-        Argument.ThrowIfNull(registry);
-        Argument.ThrowIfNull(reporter);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
+        ArgumentNullException.ThrowIfNull(registry);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         Version = version;
         Registry = registry;
@@ -120,7 +120,7 @@ internal sealed class BuildContext
     /// <param name="units">The units.</param>
     internal void Index(IReadOnlyList<UnitScope> units)
     {
-        Argument.ThrowIfNull(units);
+        ArgumentNullException.ThrowIfNull(units);
 
         for (var u = 0; u < units.Count; u++)
         {
@@ -161,7 +161,7 @@ internal sealed class BuildContext
     /// <returns>The definition, <see langword="null"/> when the node is not a top-level definition of the units.</returns>
     internal Definition? DefinitionOf(SchemaSyntaxNode node)
     {
-        Argument.ThrowIfNull(node);
+        ArgumentNullException.ThrowIfNull(node);
 
         return _definitions.TryGetValue(node, out var definition) ? definition : null;
     }
@@ -173,7 +173,7 @@ internal sealed class BuildContext
     /// <param name="clause">The clause path, or <see langword="null"/> for the rule id.</param>
     internal void Report(DiagnosticCode code, DocumentLocation location, string message, string? clause = null)
     {
-        Argument.ThrowIfNull(message);
+        ArgumentNullException.ThrowIfNull(message);
 
         Reporter.Report(XsdRuleLookup.Find(code), location, message, clause);
     }
@@ -194,7 +194,7 @@ internal sealed class BuildContext
     /// <returns>The definition; one wrapper per built-in type. <see langword="null"/> for a complex type.</returns>
     internal SimpleTypeDefinition? AsSimple(IXsdComponent type)
     {
-        Argument.ThrowIfNull(type);
+        ArgumentNullException.ThrowIfNull(type);
 
         switch (type)
         {
@@ -218,7 +218,7 @@ internal sealed class BuildContext
     /// <returns>The set, empty for a type that was built without a restriction step.</returns>
     internal FacetKindSet FixedOf(IXsdComponent type)
     {
-        Argument.ThrowIfNull(type);
+        ArgumentNullException.ThrowIfNull(type);
 
         return _fixed.TryGetValue(type, out var set) ? set : default;
     }
@@ -228,7 +228,7 @@ internal sealed class BuildContext
     /// <param name="facets">The facets.</param>
     internal void SetFixed(IXsdComponent type, FacetKindSet facets)
     {
-        Argument.ThrowIfNull(type);
+        ArgumentNullException.ThrowIfNull(type);
 
         _fixed[type] = facets;
     }
@@ -246,9 +246,9 @@ internal sealed class BuildContext
         DocumentLocation location
     )
     {
-        Argument.ThrowIfNull(context);
-        Argument.ThrowIfNull(unit);
-        Argument.ThrowIfNull(lexical);
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(unit);
+        ArgumentNullException.ThrowIfNull(lexical);
 
         if (!unit.Scope.TryResolve(context, lexical, out var name))
         {
@@ -281,9 +281,9 @@ internal sealed class BuildContext
     /// <returns>The declaration, <see langword="null"/> after the reference was reported as unresolved.</returns>
     internal AttributeDeclaration? ResolveAttribute(SchemaSyntaxNode context, UnitScope unit, string lexical)
     {
-        Argument.ThrowIfNull(context);
-        Argument.ThrowIfNull(unit);
-        Argument.ThrowIfNull(lexical);
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(unit);
+        ArgumentNullException.ThrowIfNull(lexical);
 
         if (!unit.Scope.TryResolve(context, lexical, out var name))
         {
@@ -310,8 +310,8 @@ internal sealed class BuildContext
     /// <returns>The definition, <see langword="null"/> after the reference was reported as unresolved.</returns>
     internal AttributeGroupDefinition? ResolveAttributeGroup(SchemaSyntaxNode context, UnitScope unit)
     {
-        Argument.ThrowIfNull(context);
-        Argument.ThrowIfNull(unit);
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(unit);
 
         var lexical = context.FindAttribute("ref");
         if (lexical is null)
@@ -351,8 +351,8 @@ internal sealed class BuildContext
     /// <returns><see langword="true"/> when the reference is a QName with a declared prefix.</returns>
     internal static bool TryNameOf(SchemaSyntaxNode context, UnitScope unit, out XPathQName name)
     {
-        Argument.ThrowIfNull(context);
-        Argument.ThrowIfNull(unit);
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(unit);
 
         name = default;
         var lexical = context.FindAttribute("ref");
@@ -364,7 +364,7 @@ internal sealed class BuildContext
     /// <returns>The type, a placeholder when the definition is part of a cycle that is being built.</returns>
     internal IXsdComponent EnsureType(Definition definition)
     {
-        Argument.ThrowIfNull(definition);
+        ArgumentNullException.ThrowIfNull(definition);
 
         if (definition.Component is not null)
         {

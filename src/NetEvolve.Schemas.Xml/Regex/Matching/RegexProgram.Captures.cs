@@ -20,7 +20,7 @@ public sealed partial class RegexProgram
     // gets the capture instructions, which only the backtracking machine would otherwise have.
     internal static RegexError TryCompileForOperations(RegexTree tree, out RegexProgram? program)
     {
-        Argument.ThrowIfNull(tree);
+        ArgumentNullException.ThrowIfNull(tree);
 
         program = null;
         if (tree.Dialect != RegexDialect.XPath)
@@ -96,9 +96,9 @@ public sealed partial class RegexProgram
         Span<int> groups
     )
     {
-        Argument.ThrowIfLessThan(startIndex, 0);
-        Argument.ThrowIfGreaterThan(startIndex, input.Length);
-        Argument.ThrowIfLessThan(groups.Length, _captureSlots);
+        ArgumentOutOfRangeException.ThrowIfLessThan(startIndex, 0);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(startIndex, input.Length);
+        ArgumentOutOfRangeException.ThrowIfLessThan(groups.Length, _captureSlots);
 
         var effective = limits ?? RegexStepLimits.Default;
         groups.Fill(-1);

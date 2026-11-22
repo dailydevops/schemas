@@ -26,7 +26,7 @@ internal static class Registration
     /// <exception cref="System.ArgumentNullException"><paramref name="builder"/> is <see langword="null"/>.</exception>
     internal static void Register(FunctionCatalogBuilder builder)
     {
-        Argument.ThrowIfNull(builder);
+        ArgumentNullException.ThrowIfNull(builder);
 
         builder.Add(new CompareFunction());
         builder.Add(new CodepointEqualFunction());

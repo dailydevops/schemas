@@ -23,7 +23,7 @@ internal sealed class XsltOtherwiseInstruction : IXsltInstruction
     /// <inheritdoc />
     public bool TryCompile(XsltCompileContext context, out XsltExecutable executable, out SchematronProblem problem)
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         problem = default;
         var ok = TryRead(context, context.Element, out var body, out _);
@@ -44,7 +44,7 @@ internal sealed class XsltOtherwiseInstruction : IXsltInstruction
         out int slotEnd
     )
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         return FlowCompile.TryCompileBody(context, element.Node.FirstChild, out body, out slotEnd);
     }

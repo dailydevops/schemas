@@ -29,7 +29,7 @@ public sealed class XPathExpression
 
     internal XPathExpression(CompiledExpression compiled)
     {
-        Argument.ThrowIfNull(compiled);
+        ArgumentNullException.ThrowIfNull(compiled);
 
         _compiled = compiled;
     }
@@ -59,7 +59,7 @@ public sealed class XPathExpression
         XPathHostRequirements activeHost
     )
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         return XPathEngine.TryCompile(expression, expression.ToString(), context, activeHost);
     }
@@ -71,7 +71,7 @@ public sealed class XPathExpression
     /// <exception cref="ArgumentNullException"><paramref name="expression"/> is <see langword="null"/>.</exception>
     public static XPathCompileResult TryCompile(string expression, XPathStaticContext? context = null)
     {
-        Argument.ThrowIfNull(expression);
+        ArgumentNullException.ThrowIfNull(expression);
 
         return XPathEngine.TryCompile(expression.AsSpan(), expression, context, XPathEngine.AllSlots);
     }
@@ -94,7 +94,7 @@ public sealed class XPathExpression
     /// <exception cref="ArgumentNullException"><paramref name="context"/> is <see langword="null"/>.</exception>
     public XPathResult TryEvaluate(XPathEvaluationContext context)
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         try
         {
@@ -113,7 +113,7 @@ public sealed class XPathExpression
     /// <exception cref="XPathException">The evaluation fails.</exception>
     public XdmSequence Evaluate(XPathEvaluationContext context)
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         return _compiled.Evaluate(context);
     }

@@ -28,7 +28,7 @@ public class Qt3DocumentsTests
     [MethodDataSource(nameof(Cases))]
     public async Task Case_EndsInAnAcceptedOutcome(string id, string expression, string accepted)
     {
-        Argument.ThrowIfNull(accepted);
+        ArgumentNullException.ThrowIfNull(accepted);
         var result = DocumentsHarness.Run(expression);
 
         await Assert

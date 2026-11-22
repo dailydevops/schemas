@@ -18,7 +18,7 @@ internal sealed class XsltDocumentExecutable : XsltExecutable, IXsltSlotReader, 
 
     internal XsltDocumentExecutable(XsltBodyExecutable body, DocumentLocation location, int slotEnd)
     {
-        Argument.ThrowIfNull(body);
+        ArgumentNullException.ThrowIfNull(body);
 
         _body = body;
         _location = location;
@@ -35,8 +35,8 @@ internal sealed class XsltDocumentExecutable : XsltExecutable, IXsltSlotReader, 
     /// <inheritdoc />
     internal override QueryStatus TryExecute(XsltFrame frame, ISequenceSink sink)
     {
-        Argument.ThrowIfNull(frame);
-        Argument.ThrowIfNull(sink);
+        ArgumentNullException.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(sink);
 
         return ElementConstruction.ConstructDocument(frame, sink, _location, _body);
     }

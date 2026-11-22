@@ -32,8 +32,8 @@ internal sealed class XsiTypeResolver
 
     internal XsiTypeResolver(XsdSchemaSet schema, INamespaceContext namespaces, IDerivationCheck? derivation)
     {
-        Argument.ThrowIfNull(schema);
-        Argument.ThrowIfNull(namespaces);
+        ArgumentNullException.ThrowIfNull(schema);
+        ArgumentNullException.ThrowIfNull(namespaces);
 
         _schema = schema;
         _namespaces = namespaces;

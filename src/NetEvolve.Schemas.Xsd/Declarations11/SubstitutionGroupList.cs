@@ -42,8 +42,8 @@ internal static class SubstitutionGroupList
         XsdIssueReporter reporter
     )
     {
-        Argument.ThrowIfNull(element);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(element);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         var value = element.FindAttribute("substitutionGroup");
         if (value is null)

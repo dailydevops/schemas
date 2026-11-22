@@ -49,9 +49,9 @@ internal static class XPathDefaultNamespace
     /// <returns>The namespace name, empty for no namespace.</returns>
     internal static string Resolve(SchemaSyntaxNode path, SchemaNamespaceScope scope, XsdVersion version)
     {
-        Argument.ThrowIfNull(path);
-        Argument.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
-        Argument.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
+        ArgumentNullException.ThrowIfNull(path);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
 
         if (version == XsdVersion.V10)
         {
@@ -91,9 +91,9 @@ internal static class XPathDefaultNamespace
     /// <param name="version">The configured XSD version.</param>
     internal static void Apply(SchemaSyntaxNode constraint, SchemaNamespaceScope scope, XsdVersion version)
     {
-        Argument.ThrowIfNull(constraint);
-        Argument.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
-        Argument.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
+        ArgumentNullException.ThrowIfNull(constraint);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
 
         for (var i = 0; i < constraint.ChildCount; i++)
         {

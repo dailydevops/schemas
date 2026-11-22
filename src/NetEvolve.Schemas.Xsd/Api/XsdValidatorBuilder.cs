@@ -36,8 +36,8 @@ public sealed class XsdValidatorBuilder : SchemaValidatorBuilder<XsdValidatorBui
     /// <returns>This builder.</returns>
     public XsdValidatorBuilder WithVersion(XsdVersion version)
     {
-        Argument.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
-        Argument.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
 
         _version = version;
         return this;
@@ -69,7 +69,7 @@ public sealed class XsdValidatorBuilder : SchemaValidatorBuilder<XsdValidatorBui
     /// <returns>This builder.</returns>
     public XsdValidatorBuilder AddSchema(Stream stream, string? systemId = null)
     {
-        Argument.ThrowIfNull(stream);
+        ArgumentNullException.ThrowIfNull(stream);
 
         _sources.Add(SchemaSource.FromStream(stream, systemId));
         return this;

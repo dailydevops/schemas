@@ -23,7 +23,7 @@ internal sealed class AttributeBuilder : IComponentBuilder
 
     internal AttributeBuilder(BuildContext context)
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         _context = context;
     }
@@ -35,9 +35,9 @@ internal sealed class AttributeBuilder : IComponentBuilder
     /// <exception cref="NotSupportedException"><paramref name="element"/> is not the syntax of a top-level <c>attribute</c> of the build context.</exception>
     public IXsdComponent Build(ISchemaSyntaxElement element, IComponentRegistry registry, XsdIssueReporter reporter)
     {
-        Argument.ThrowIfNull(element);
-        Argument.ThrowIfNull(registry);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(element);
+        ArgumentNullException.ThrowIfNull(registry);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         return
             element is SchemaSyntaxNode node
@@ -52,7 +52,7 @@ internal sealed class AttributeBuilder : IComponentBuilder
     /// <returns>The declaration, <see langword="null"/> when it has an error that was reported.</returns>
     internal AttributeDeclaration? Ensure(Definition definition)
     {
-        Argument.ThrowIfNull(definition);
+        ArgumentNullException.ThrowIfNull(definition);
 
         if (definition.Component is null && !definition.IsFailed)
         {
@@ -77,8 +77,8 @@ internal sealed class AttributeBuilder : IComponentBuilder
     /// <returns>The use, <see langword="null"/> after an issue was reported.</returns>
     internal AttributeUse? BuildUse(SchemaSyntaxNode node, UnitScope unit)
     {
-        Argument.ThrowIfNull(node);
-        Argument.ThrowIfNull(unit);
+        ArgumentNullException.ThrowIfNull(node);
+        ArgumentNullException.ThrowIfNull(unit);
 
         var constraint = ReadConstraint(node);
         var reference = node.FindAttribute("ref");

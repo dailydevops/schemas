@@ -56,12 +56,12 @@ internal sealed class ValidationCore : IValidationCore
         ValidationLimits limits
     )
     {
-        Argument.ThrowIfNull(compilation);
-        Argument.ThrowIfNull(limits);
-        Argument.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
-        Argument.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
+        ArgumentNullException.ThrowIfNull(compilation);
+        ArgumentNullException.ThrowIfNull(limits);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
 
-        Argument.ThrowIfNull(compilation.Model);
+        ArgumentNullException.ThrowIfNull(compilation.Model);
 
         _model = compilation.Model;
         _constraints = compilation.IdentityConstraints;
@@ -130,8 +130,8 @@ internal sealed class ValidationCore : IValidationCore
             CancellationToken cancellationToken
         )
         {
-            Argument.ThrowIfNull(core);
-            Argument.ThrowIfNull(collector);
+            ArgumentNullException.ThrowIfNull(core);
+            ArgumentNullException.ThrowIfNull(collector);
 
             _core = core;
             _collector = collector;
@@ -142,7 +142,7 @@ internal sealed class ValidationCore : IValidationCore
         internal void Pump<TReader>(TReader reader)
             where TReader : IXmlReader
         {
-            Argument.ThrowIfNull(reader);
+            ArgumentNullException.ThrowIfNull(reader);
 
             var entities = _core._needsEntities ? new EntityListener(_core._assessor, _core._options.Limits) : null;
             var validator = new StreamingValidator(
@@ -193,7 +193,7 @@ internal sealed class ValidationCore : IValidationCore
 
         private void Report(XmlDiagnostic? diagnostic)
         {
-            Argument.ThrowIfNull(diagnostic);
+            ArgumentNullException.ThrowIfNull(diagnostic);
 
             var code = diagnostic.Code;
             var position = diagnostic.Position;

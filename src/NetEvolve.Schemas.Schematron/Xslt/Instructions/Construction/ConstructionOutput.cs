@@ -30,9 +30,9 @@ internal static class ConstructionOutput
     /// <returns><see cref="QueryStatus.Problem"/>.</returns>
     internal static QueryStatus Error(XsltFrame frame, in DocumentLocation location, string constraint, string message)
     {
-        Argument.ThrowIfNull(frame);
-        Argument.ThrowIfNull(constraint);
-        Argument.ThrowIfNull(message);
+        ArgumentNullException.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(constraint);
+        ArgumentNullException.ThrowIfNull(message);
 
         return frame.Fail(
             new SchematronProblem(SchematronDiagnosticCodes.EvaluationFailed, message, location, constraint)
@@ -46,8 +46,8 @@ internal static class ConstructionOutput
     /// <returns><see cref="QueryStatus.Problem"/>.</returns>
     internal static QueryStatus Unsupported(XsltFrame frame, in DocumentLocation location, string message)
     {
-        Argument.ThrowIfNull(frame);
-        Argument.ThrowIfNull(message);
+        ArgumentNullException.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(message);
 
         return frame.Fail(new SchematronProblem(SchematronDiagnosticCodes.XsltUnsupported, message, location));
     }
@@ -60,8 +60,8 @@ internal static class ConstructionOutput
     /// <returns><see langword="false"/> when the table is frozen or full.</returns>
     internal static bool TryIntern(XmlNameTable names, string text, out XmlSymbol symbol, out SchematronProblem problem)
     {
-        Argument.ThrowIfNull(names);
-        Argument.ThrowIfNull(text);
+        ArgumentNullException.ThrowIfNull(names);
+        ArgumentNullException.ThrowIfNull(text);
 
         var status = names.TryIntern(text.AsSpan(), out symbol);
         if (status == XmlNameTableStatus.Ok)
@@ -90,7 +90,7 @@ internal static class ConstructionOutput
     /// <param name="target">The events of the tree.</param>
     internal static void Pump(XmlNode node, IXmlSink target)
     {
-        Argument.ThrowIfNull(target);
+        ArgumentNullException.ThrowIfNull(target);
 
         if (node.Kind != XmlNodeKind.Document)
         {
@@ -121,8 +121,8 @@ internal static class ConstructionOutput
         out IXmlSink? owned
     )
     {
-        Argument.ThrowIfNull(frame);
-        Argument.ThrowIfNull(sink);
+        ArgumentNullException.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(sink);
 
         scope = NamespaceScope.Empty;
         owned = null;
@@ -161,8 +161,8 @@ internal static class ConstructionOutput
         out IXmlSink tree
     )
     {
-        Argument.ThrowIfNull(frame);
-        Argument.ThrowIfNull(sink);
+        ArgumentNullException.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(sink);
 
         tree = null!;
         if (sink.Kind != SequenceSinkKind.Text)
@@ -192,7 +192,7 @@ internal static class ConstructionOutput
     /// <param name="push">Whether to push the node, <see langword="false"/> after a failure that only releases the tree.</param>
     internal static void Complete(ISequenceSink sink, IXmlSink? owned, bool push)
     {
-        Argument.ThrowIfNull(sink);
+        ArgumentNullException.ThrowIfNull(sink);
 
         if (owned is null)
         {
@@ -217,8 +217,8 @@ internal static class ConstructionOutput
     /// <returns><see cref="QueryStatus.Problem"/> when the sink recorded a problem, otherwise <see cref="QueryStatus.Ok"/>.</returns>
     internal static QueryStatus Surface(XsltFrame frame, ISequenceSink sink, in DocumentLocation location)
     {
-        Argument.ThrowIfNull(frame);
-        Argument.ThrowIfNull(sink);
+        ArgumentNullException.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(sink);
 
         var problem = sink switch
         {
@@ -244,8 +244,8 @@ internal static class ConstructionOutput
         in DocumentLocation location
     )
     {
-        Argument.ThrowIfNull(frame);
-        Argument.ThrowIfNull(sink);
+        ArgumentNullException.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(sink);
 
         if (sink is ContentWriter writer)
         {
@@ -269,8 +269,8 @@ internal static class ConstructionOutput
         in DocumentLocation location
     )
     {
-        Argument.ThrowIfNull(frame);
-        Argument.ThrowIfNull(sink);
+        ArgumentNullException.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(sink);
 
         if (sink is ContentWriter writer)
         {
@@ -294,9 +294,9 @@ internal static class ConstructionOutput
         in DocumentLocation location
     )
     {
-        Argument.ThrowIfNull(frame);
-        Argument.ThrowIfNull(sink);
-        Argument.ThrowIfNull(value);
+        ArgumentNullException.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(sink);
+        ArgumentNullException.ThrowIfNull(value);
 
         if (!TryOpen(frame, sink, location, out var target, out _, out var owned))
         {
@@ -323,10 +323,10 @@ internal static class ConstructionOutput
         in DocumentLocation location
     )
     {
-        Argument.ThrowIfNull(frame);
-        Argument.ThrowIfNull(sink);
-        Argument.ThrowIfNull(name);
-        Argument.ThrowIfNull(value);
+        ArgumentNullException.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(sink);
+        ArgumentNullException.ThrowIfNull(name);
+        ArgumentNullException.ThrowIfNull(value);
 
         if (!TryOpen(frame, sink, location, out var target, out _, out var owned))
         {
@@ -357,8 +357,8 @@ internal static class ConstructionOutput
         in DocumentLocation location
     )
     {
-        Argument.ThrowIfNull(frame);
-        Argument.ThrowIfNull(sink);
+        ArgumentNullException.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(sink);
 
         if (sink.Kind != SequenceSinkKind.Items)
         {

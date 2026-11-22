@@ -20,9 +20,9 @@ public readonly struct XPathDiagnostic : IEquatable<XPathDiagnostic>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="offset"/> is below -1 or <paramref name="length"/> is negative.</exception>
     public XPathDiagnostic(XPathErrorCode qname, XPathErrorKind kind, string message, int offset, int length)
     {
-        Argument.ThrowIfLessThan(offset, -1);
-        Argument.ThrowIfLessThan(length, 0);
-        Argument.ThrowIfNull(message);
+        ArgumentOutOfRangeException.ThrowIfLessThan(offset, -1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(length, 0);
+        ArgumentNullException.ThrowIfNull(message);
 
         QName = qname;
         Kind = kind;

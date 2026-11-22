@@ -18,7 +18,7 @@ internal sealed class PrefixFromQNameFunction : QNamePartFunction
     /// <returns>The item.</returns>
     internal static XdmItem NCNameItem(string text)
     {
-        Argument.ThrowIfNull(text);
+        ArgumentNullException.ThrowIfNull(text);
         return XdmItem.FromString(text).WithTypeId(NCName);
     }
 

@@ -11,7 +11,7 @@ internal sealed class XsltKeyDeclaration : XsltExecutable
 {
     internal XsltKeyDeclaration(XsltKeyComponent component)
     {
-        Argument.ThrowIfNull(component);
+        ArgumentNullException.ThrowIfNull(component);
 
         Component = component;
     }
@@ -22,8 +22,8 @@ internal sealed class XsltKeyDeclaration : XsltExecutable
     /// <inheritdoc />
     internal override QueryStatus TryExecute(XsltFrame frame, ISequenceSink sink)
     {
-        Argument.ThrowIfNull(frame);
-        Argument.ThrowIfNull(sink);
+        ArgumentNullException.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(sink);
 
         return QueryStatus.Ok;
     }

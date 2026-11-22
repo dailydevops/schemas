@@ -17,11 +17,11 @@ internal sealed class CompiledRuleSet
         CompiledAnnotations? annotations = null
     )
     {
-        Argument.ThrowIfNull(scope);
-        Argument.ThrowIfNull(id);
-        Argument.ThrowIfNull(documents);
-        Argument.ThrowIfNull(name);
-        Argument.ThrowIfNull(rules);
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(id);
+        ArgumentNullException.ThrowIfNull(documents);
+        ArgumentNullException.ThrowIfNull(name);
+        ArgumentNullException.ThrowIfNull(rules);
 
         Scope = scope;
         Id = id;

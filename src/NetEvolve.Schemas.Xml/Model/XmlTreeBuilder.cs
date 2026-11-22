@@ -75,7 +75,7 @@ public sealed class XmlTreeBuilder : IXmlAttributeInfoSink, IDisposable
     /// <param name="entity">The declaration.</param>
     public void AddUnparsedEntity(XmlUnparsedEntity entity)
     {
-        Argument.ThrowIfNull(entity);
+        ArgumentNullException.ThrowIfNull(entity);
         _unparsedEntities.Add(entity);
     }
 
@@ -83,7 +83,7 @@ public sealed class XmlTreeBuilder : IXmlAttributeInfoSink, IDisposable
     /// <param name="notation">The declaration.</param>
     public void AddNotation(XmlNotation notation)
     {
-        Argument.ThrowIfNull(notation);
+        ArgumentNullException.ThrowIfNull(notation);
         _notations.Add(notation);
     }
 
@@ -94,7 +94,7 @@ public sealed class XmlTreeBuilder : IXmlAttributeInfoSink, IDisposable
     /// <param name="id">The ID value.</param>
     public void RegisterId(string id)
     {
-        Argument.ThrowIfNullOrEmpty(id);
+        ArgumentNullException.ThrowIfNullOrEmpty(id);
 
         var element = _depth == 0 ? XmlTree.NoNode : _open[_depth - 1];
         if (element == XmlTree.NoNode || (XmlNodeKind)_kinds.WrittenSpan[element] != XmlNodeKind.Element)

@@ -10,9 +10,9 @@ internal sealed class RuleScope
 {
     internal RuleScope(SchematronRule rule, IReadOnlyList<VariableSlot> lets, QueryStaticScope scope)
     {
-        Argument.ThrowIfNull(rule);
-        Argument.ThrowIfNull(lets);
-        Argument.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(rule);
+        ArgumentNullException.ThrowIfNull(lets);
+        ArgumentNullException.ThrowIfNull(scope);
 
         Rule = rule;
         Lets = lets;

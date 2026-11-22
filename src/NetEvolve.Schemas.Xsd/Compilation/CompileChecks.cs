@@ -41,10 +41,10 @@ internal static class CompileChecks
         XsdIssueReporter reporter
     )
     {
-        Argument.ThrowIfNull(context);
-        Argument.ThrowIfNull(derivation);
-        Argument.ThrowIfNull(definitions);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(derivation);
+        ArgumentNullException.ThrowIfNull(definitions);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         derivation.ReportAll(context.BuiltComplexTypes, reporter);
         CheckValueConstraints(context, version, reporter);

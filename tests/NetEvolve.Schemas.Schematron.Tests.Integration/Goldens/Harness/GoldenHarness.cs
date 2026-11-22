@@ -24,23 +24,23 @@ internal static class GoldenHarness
     )
     {
         cancellationToken.ThrowIfCancellationRequested();
-        Argument.ThrowIfNull(corpus);
-        Argument.ThrowIfNull(ruleSets);
+        ArgumentNullException.ThrowIfNull(corpus);
+        ArgumentNullException.ThrowIfNull(ruleSets);
         var count = 0;
         foreach (var ruleSet in ruleSets)
         {
-            Argument.ThrowIfNull(ruleSet);
-            Argument.ThrowIfNullOrWhiteSpace(ruleSet.Name);
-            Argument.ThrowIfNull(ruleSet.Validator);
-            Argument.ThrowIfNull(ruleSet.Expectations);
+            ArgumentNullException.ThrowIfNull(ruleSet);
+            ArgumentNullException.ThrowIfNullOrWhiteSpace(ruleSet.Name);
+            ArgumentNullException.ThrowIfNull(ruleSet.Validator);
+            ArgumentNullException.ThrowIfNull(ruleSet.Expectations);
             foreach (var expectation in ruleSet.Expectations)
             {
-                Argument.ThrowIfNull(expectation);
-                Argument.ThrowIfNull(expectation.Source);
-                Argument.ThrowIfNull(expectation.ExpectedRuleIds);
+                ArgumentNullException.ThrowIfNull(expectation);
+                ArgumentNullException.ThrowIfNull(expectation.Source);
+                ArgumentNullException.ThrowIfNull(expectation.ExpectedRuleIds);
                 foreach (var id in expectation.ExpectedRuleIds)
                 {
-                    Argument.ThrowIfNullOrWhiteSpace(id);
+                    ArgumentNullException.ThrowIfNullOrWhiteSpace(id);
                 }
 
                 corpus.EnsurePinned(expectation.Source);
@@ -55,8 +55,8 @@ internal static class GoldenHarness
             {
                 var document = await corpus.ResolveAsync(expectation.Source, cancellationToken);
                 var observed = await ruleSet.Validator.ValidateAsync(document, cancellationToken);
-                Argument.ThrowIfNull(observed);
-                Argument.ThrowIfNull(observed.FiredRuleIds);
+                ArgumentNullException.ThrowIfNull(observed);
+                ArgumentNullException.ThrowIfNull(observed.FiredRuleIds);
                 var reason = Compare(expectation, observed);
                 results.Add(
                     reason is null

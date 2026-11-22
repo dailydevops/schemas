@@ -65,7 +65,7 @@ internal sealed class NameTemplate
     /// <returns><see langword="false"/> when a problem was reported.</returns>
     internal static bool TryCompile(XsltCompileContext context, bool isElement, out NameTemplate template)
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         template = null!;
         var element = context.Element;
@@ -88,7 +88,7 @@ internal sealed class NameTemplate
     /// <returns>The status; the problem is read with <see cref="XsltFrame.TakeProblem"/>.</returns>
     internal QueryStatus TryResolve(XsltFrame frame, in DocumentLocation location, out ExpandedName expanded)
     {
-        Argument.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(frame);
 
         if (_constant is { } known)
         {

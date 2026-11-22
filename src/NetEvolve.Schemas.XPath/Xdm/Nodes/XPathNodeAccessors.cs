@@ -88,7 +88,7 @@ internal static class XPathNodeAccessors
     /// <returns>The annotation.</returns>
     public static XdmTypeId GetTypeAnnotation(this in XPathNode node, IXdmTypeAnnotationSource source)
     {
-        Argument.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(source);
 
         return source.GetTypeAnnotation(node);
     }
@@ -104,7 +104,7 @@ internal static class XPathNodeAccessors
     /// <returns>The typed value.</returns>
     public static XdmItem TypedValue(this in XPathNode node, IXdmTypeAnnotationSource source)
     {
-        Argument.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(source);
 
         if (source.TryGetTypedValue(node, out var typed))
         {

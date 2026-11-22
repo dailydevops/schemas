@@ -32,8 +32,8 @@ internal static class SimpleContent
         out string value
     )
     {
-        Argument.ThrowIfNull(frame);
-        Argument.ThrowIfNull(separator);
+        ArgumentNullException.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(separator);
 
         value = string.Empty;
         using var text = new TextSink(frame.MaxMessageLength);
@@ -72,7 +72,7 @@ internal static class SimpleContent
     /// <returns>The value of the comment.</returns>
     internal static string ToCommentValue(string value)
     {
-        Argument.ThrowIfNull(value);
+        ArgumentNullException.ThrowIfNull(value);
 
         if (value.AsSpan().IndexOf('-') < 0)
         {
@@ -97,7 +97,7 @@ internal static class SimpleContent
     /// <returns>The data of the instruction.</returns>
     internal static string ToInstructionValue(string value)
     {
-        Argument.ThrowIfNull(value);
+        ArgumentNullException.ThrowIfNull(value);
 
         var at = value.IndexOf("?>", StringComparison.Ordinal);
         if (at < 0)

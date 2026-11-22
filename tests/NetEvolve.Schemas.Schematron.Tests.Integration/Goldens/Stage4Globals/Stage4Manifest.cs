@@ -28,10 +28,10 @@ internal sealed record Stage4Manifest
         IReadOnlyList<KnownFailureLink> knownFailures
     )
     {
-        Argument.ThrowIfNullOrWhiteSpace(suite);
-        Argument.ThrowIfNull(cases);
-        Argument.ThrowIfNull(ownSchemas);
-        Argument.ThrowIfNull(knownFailures);
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(suite);
+        ArgumentNullException.ThrowIfNull(cases);
+        ArgumentNullException.ThrowIfNull(ownSchemas);
+        ArgumentNullException.ThrowIfNull(knownFailures);
         Suite = suite;
         Cases = cases;
         OwnSchemas = ownSchemas;
@@ -56,7 +56,7 @@ internal sealed record Stage4Manifest
     /// <exception cref="InvalidDataException">The JSON is malformed or a required member is missing.</exception>
     public static Stage4Manifest Parse(string json)
     {
-        Argument.ThrowIfNull(json);
+        ArgumentNullException.ThrowIfNull(json);
         try
         {
             using var document = JsonDocument.Parse(json);

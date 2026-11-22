@@ -26,7 +26,7 @@ internal sealed class SchematronModelParser : IModelParser
 
     internal SchematronModelParser(BuildSettings settings, CancellationToken cancellationToken)
     {
-        Argument.ThrowIfNull(settings);
+        ArgumentNullException.ThrowIfNull(settings);
 
         _settings = settings;
         _cancellationToken = cancellationToken;
@@ -34,8 +34,8 @@ internal sealed class SchematronModelParser : IModelParser
 
     public bool TryParse(SchemaSource source, IProblemSink problems, out ParsedModule module)
     {
-        Argument.ThrowIfNull(source);
-        Argument.ThrowIfNull(problems);
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(problems);
 
         module = null!;
         if (!TryRead(source, problems, out var tree))

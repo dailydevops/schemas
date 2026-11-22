@@ -22,8 +22,8 @@ public sealed class NameListDescriptor : IDatatypeDescriptor
     /// <param name="itemType">The type of the items.</param>
     public NameListDescriptor(string name, IDatatypeDescriptor itemType)
     {
-        Argument.ThrowIfNull(name);
-        Argument.ThrowIfNull(itemType);
+        ArgumentNullException.ThrowIfNull(name);
+        ArgumentNullException.ThrowIfNull(itemType);
         _list = new ListDescriptor(name, itemType);
         Facets = [_minLength];
     }

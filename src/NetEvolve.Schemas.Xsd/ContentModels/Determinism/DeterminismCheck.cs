@@ -46,10 +46,10 @@ internal static class DeterminismCheck
         DocumentLocation location
     )
     {
-        Argument.ThrowIfNull(model);
-        Argument.ThrowIfNull(terms);
-        Argument.ThrowIfNull(nameOf);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(model);
+        ArgumentNullException.ThrowIfNull(terms);
+        ArgumentNullException.ThrowIfNull(nameOf);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         var overlap = new ParticleOverlap(model, terms, nameOf);
         var analysis = new RegionAnalysis(model, overlap);

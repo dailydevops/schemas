@@ -14,7 +14,7 @@ internal sealed class DtdContentElement
     /// <param name="allowedChildren">The name symbols that mixed content allows, otherwise <see langword="null"/>.</param>
     internal DtdContentElement(string name, DtdContentKind kind, DtdContentModel? model, HashSet<int>? allowedChildren)
     {
-        Argument.ThrowIfNull(name);
+        ArgumentNullException.ThrowIfNull(name);
 
         Name = name;
         Kind = kind;

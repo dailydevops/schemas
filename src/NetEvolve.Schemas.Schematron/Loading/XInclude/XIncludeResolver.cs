@@ -44,8 +44,8 @@ internal sealed class XIncludeResolver
 
     internal XIncludeResolver(IResourceResolver resolver, ValidationLimits limits)
     {
-        Argument.ThrowIfNull(resolver);
-        Argument.ThrowIfNull(limits);
+        ArgumentNullException.ThrowIfNull(resolver);
+        ArgumentNullException.ThrowIfNull(limits);
 
         _resolver = resolver;
         Limits = limits;
@@ -69,8 +69,8 @@ internal sealed class XIncludeResolver
     )
     {
         cancellationToken.ThrowIfCancellationRequested();
-        Argument.ThrowIfNull(document.Tree);
-        Argument.ThrowIfNull(problems);
+        ArgumentNullException.ThrowIfNull(document.Tree);
+        ArgumentNullException.ThrowIfNull(problems);
 
         Uri? documentUri = null;
         if (systemId is not null)

@@ -30,8 +30,8 @@ internal sealed class ExternalSubsetReader
     /// <param name="limits">The reader limits.</param>
     internal ExternalSubsetReader(DtdValidationOptions options, XmlReaderLimits limits)
     {
-        Argument.ThrowIfNull(options);
-        Argument.ThrowIfNull(limits);
+        ArgumentNullException.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(limits);
 
         _loader = new ExternalEntityLoader(options, limits);
         _maxDeclarations = options.DtdLimits.MaxDeclarations;
@@ -62,8 +62,8 @@ internal sealed class ExternalSubsetReader
         out XmlErrorCode? error
     )
     {
-        Argument.ThrowIfNull(name);
-        Argument.ThrowIfNull(systemId);
+        ArgumentNullException.ThrowIfNull(name);
+        ArgumentNullException.ThrowIfNull(systemId);
 
         entity = null;
         error = null;
@@ -102,7 +102,7 @@ internal sealed class ExternalSubsetReader
     /// <returns><see langword="false"/> when the budget is exceeded; <c>XML1109</c> is then the error to report.</returns>
     internal bool TryChargeExpansion(int count)
     {
-        Argument.ThrowIfLessThan(count, 0);
+        ArgumentOutOfRangeException.ThrowIfLessThan(count, 0);
 
         return _loader.TryChargeExpansion(count);
     }

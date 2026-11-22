@@ -10,8 +10,8 @@ internal sealed class Definition
 {
     internal Definition(SchemaSyntaxNode node, UnitScope unit, XPathQName name)
     {
-        Argument.ThrowIfNull(node);
-        Argument.ThrowIfNull(unit);
+        ArgumentNullException.ThrowIfNull(node);
+        ArgumentNullException.ThrowIfNull(unit);
 
         Node = node;
         Unit = unit;

@@ -14,8 +14,8 @@ internal sealed class NumberPicture
     /// <exception cref="System.ArgumentNullException">An argument is <see langword="null"/>.</exception>
     public NumberPicture(SubPicture positive, SubPicture negative)
     {
-        Argument.ThrowIfNull(positive);
-        Argument.ThrowIfNull(negative);
+        ArgumentNullException.ThrowIfNull(positive);
+        ArgumentNullException.ThrowIfNull(negative);
 
         Positive = positive;
         Negative = negative;

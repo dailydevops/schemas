@@ -35,11 +35,19 @@ internal sealed class ValueComparisonNode : ExecutableNode
         ComparisonOperatorTable table
     )
     {
-        Argument.ThrowIfLessThan((int)@operator, (int)ComparisonOperator.ValueEqual, nameof(@operator));
-        Argument.ThrowIfGreaterThan((int)@operator, (int)ComparisonOperator.ValueGreaterThanOrEqual, nameof(@operator));
-        Argument.ThrowIfNull(left);
-        Argument.ThrowIfNull(right);
-        Argument.ThrowIfNull(table);
+        ArgumentOutOfRangeException.ThrowIfLessThan(
+            (int)@operator,
+            (int)ComparisonOperator.ValueEqual,
+            nameof(@operator)
+        );
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(
+            (int)@operator,
+            (int)ComparisonOperator.ValueGreaterThanOrEqual,
+            nameof(@operator)
+        );
+        ArgumentNullException.ThrowIfNull(left);
+        ArgumentNullException.ThrowIfNull(right);
+        ArgumentNullException.ThrowIfNull(table);
 
         _relation = ComparisonRelations.Of(@operator);
         _left = left;
@@ -51,7 +59,7 @@ internal sealed class ValueComparisonNode : ExecutableNode
     /// <exception cref="XPathException">An operand has more than one item, or the operand types have no operator (XPTY0004).</exception>
     public override XdmSequence Evaluate(XPathEvaluationContext context)
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         var left = XPathAtomization.Atomize(_left.Evaluate(context));
         var right = XPathAtomization.Atomize(_right.Evaluate(context));

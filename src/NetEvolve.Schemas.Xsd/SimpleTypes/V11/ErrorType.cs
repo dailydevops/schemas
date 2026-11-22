@@ -34,9 +34,9 @@ internal static class ErrorType
     /// <param name="version">The XSD version; the type is registered for 1.1 only.</param>
     internal static void Register(IComponentRegistry registry, XsdVersion version)
     {
-        Argument.ThrowIfNull(registry);
-        Argument.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
-        Argument.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
+        ArgumentNullException.ThrowIfNull(registry);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
 
         if (version == XsdVersion.V11)
         {

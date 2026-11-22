@@ -58,7 +58,7 @@ internal readonly struct SchemaSource
     /// <returns>The source.</returns>
     internal static SchemaSource FromStream(Stream stream, string? systemId)
     {
-        Argument.ThrowIfNull(stream);
+        ArgumentNullException.ThrowIfNull(stream);
 
         return new(default, default, false, stream, systemId);
     }

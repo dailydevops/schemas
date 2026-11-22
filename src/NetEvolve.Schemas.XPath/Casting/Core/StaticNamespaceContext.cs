@@ -19,7 +19,7 @@ internal sealed class StaticNamespaceContext : INamespaceContext
     /// <exception cref="ArgumentNullException"><paramref name="context"/> is <see langword="null"/>.</exception>
     public StaticNamespaceContext(XPathStaticContext context)
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         _context = context;
     }

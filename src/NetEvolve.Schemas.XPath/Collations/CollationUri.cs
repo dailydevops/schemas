@@ -16,7 +16,7 @@ internal static class CollationUri
     /// <exception cref="ArgumentNullException"><paramref name="uri"/> is <see langword="null"/>.</exception>
     public static bool IsAbsolute(string uri)
     {
-        Argument.ThrowIfNull(uri);
+        ArgumentNullException.ThrowIfNull(uri);
 
         if (uri.Length == 0 || !IsAsciiLetter(uri[0]))
         {
@@ -48,7 +48,7 @@ internal static class CollationUri
     /// <exception cref="ArgumentNullException"><paramref name="reference"/> is <see langword="null"/>.</exception>
     public static bool TryResolve(string reference, Uri? staticBaseUri, out string absolute)
     {
-        Argument.ThrowIfNull(reference);
+        ArgumentNullException.ThrowIfNull(reference);
 
         absolute = string.Empty;
         if (

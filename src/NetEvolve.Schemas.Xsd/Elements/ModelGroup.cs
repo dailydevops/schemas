@@ -51,7 +51,7 @@ internal sealed class ModelGroup : IReferencingComponent
     /// <inheritdoc />
     public void Bind(int index, IXsdComponent target)
     {
-        Argument.ThrowIfNull(target);
+        ArgumentNullException.ThrowIfNull(target);
 
         _sites[index].Owner.Bind(_sites[index].Index, target);
     }
@@ -67,7 +67,7 @@ internal sealed class ModelGroup : IReferencingComponent
         IReadOnlyList<Particle> particles
     )
     {
-        Argument.ThrowIfNull(particles);
+        ArgumentNullException.ThrowIfNull(particles);
 
         var copy = new Particle[particles.Count];
         var sites = new List<RefSite>();
@@ -84,7 +84,7 @@ internal sealed class ModelGroup : IReferencingComponent
     /// <param name="sites">The list that receives the references.</param>
     internal void CollectReferences(List<RefSite> sites)
     {
-        Argument.ThrowIfNull(sites);
+        ArgumentNullException.ThrowIfNull(sites);
 
         sites.AddRange(_sites);
     }

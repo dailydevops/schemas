@@ -72,7 +72,7 @@ public sealed class ValidationLimits
     /// <returns>The new limits.</returns>
     public ValidationLimits WithMaxIssues(int value)
     {
-        Argument.ThrowIfLessThan(value, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(value, 1);
 
         return new(
             value,
@@ -91,8 +91,8 @@ public sealed class ValidationLimits
     /// <returns>The new limits.</returns>
     public ValidationLimits WithMaxInputSize(long value)
     {
-        Argument.ThrowIfLessThan(value, 1);
-        Argument.ThrowIfGreaterThan(value, MaxInputSizeCeiling);
+        ArgumentOutOfRangeException.ThrowIfLessThan(value, 1);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(value, MaxInputSizeCeiling);
 
         return new(
             MaxIssues,
@@ -111,8 +111,8 @@ public sealed class ValidationLimits
     /// <returns>The new limits.</returns>
     public ValidationLimits WithMaxDepth(int value)
     {
-        Argument.ThrowIfLessThan(value, 1);
-        Argument.ThrowIfGreaterThan(value, MaxDepthCeiling);
+        ArgumentOutOfRangeException.ThrowIfLessThan(value, 1);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(value, MaxDepthCeiling);
 
         return new(
             MaxIssues,
@@ -131,7 +131,7 @@ public sealed class ValidationLimits
     /// <returns>The new limits.</returns>
     public ValidationLimits WithMaxAttributesPerElement(int value)
     {
-        Argument.ThrowIfLessThan(value, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(value, 1);
 
         return new(
             MaxIssues,
@@ -150,7 +150,7 @@ public sealed class ValidationLimits
     /// <returns>The new limits.</returns>
     public ValidationLimits WithMaxEntityExpansion(long value)
     {
-        Argument.ThrowIfLessThan(value, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(value, 1);
 
         return new(
             MaxIssues,
@@ -169,8 +169,8 @@ public sealed class ValidationLimits
     /// <returns>The new limits.</returns>
     public ValidationLimits WithMaxEntityDepth(int value)
     {
-        Argument.ThrowIfLessThan(value, 1);
-        Argument.ThrowIfGreaterThan(value, MaxEntityDepthCeiling);
+        ArgumentOutOfRangeException.ThrowIfLessThan(value, 1);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(value, MaxEntityDepthCeiling);
 
         return new(
             MaxIssues,
@@ -189,7 +189,7 @@ public sealed class ValidationLimits
     /// <returns>The new limits.</returns>
     public ValidationLimits WithMaxExternalResources(int value)
     {
-        Argument.ThrowIfLessThan(value, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(value, 1);
 
         return new(
             MaxIssues,
@@ -208,8 +208,8 @@ public sealed class ValidationLimits
     /// <returns>The new limits.</returns>
     public ValidationLimits WithMaxResourceSize(long value)
     {
-        Argument.ThrowIfLessThan(value, 1);
-        Argument.ThrowIfGreaterThan(value, MaxResourceSizeCeiling);
+        ArgumentOutOfRangeException.ThrowIfLessThan(value, 1);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(value, MaxResourceSizeCeiling);
 
         return new(
             MaxIssues,

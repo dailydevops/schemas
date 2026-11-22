@@ -23,8 +23,8 @@ internal sealed class ContentProgram
         int poolIndex
     )
     {
-        Argument.ThrowIfNull(terms);
-        Argument.ThrowIfLessThan(poolIndex, 0);
+        ArgumentNullException.ThrowIfNull(terms);
+        ArgumentOutOfRangeException.ThrowIfLessThan(poolIndex, 0);
 
         Automaton = automaton;
         AllGroup = allGroup;

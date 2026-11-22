@@ -41,8 +41,8 @@ internal static class LocalTargetNamespace
     /// <param name="reporter">Receives the errors.</param>
     internal static void Check(SchemaSyntaxNode root, XsdVersion version, XsdIssueReporter reporter)
     {
-        Argument.ThrowIfNull(root);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(root);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         if (version == XsdVersion.V10)
         {
@@ -59,7 +59,7 @@ internal static class LocalTargetNamespace
     /// <returns><see langword="true"/> when the declaration has a name and the attribute, and the version knows it.</returns>
     internal static bool TryGetName(SchemaSyntaxNode declaration, XsdVersion version, out XPathQName name)
     {
-        Argument.ThrowIfNull(declaration);
+        ArgumentNullException.ThrowIfNull(declaration);
 
         name = default;
         var targetNamespace = declaration.FindAttribute(TargetNamespace);

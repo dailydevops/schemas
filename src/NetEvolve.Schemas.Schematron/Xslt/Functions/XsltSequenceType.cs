@@ -51,8 +51,8 @@ internal sealed class XsltSequenceType
         out XPathDiagnostic diagnostic
     )
     {
-        Argument.ThrowIfNull(text);
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(text);
+        ArgumentNullException.ThrowIfNull(context);
 
         type = null!;
         // The type is parsed as the right operand of instance of; anything that is not exactly one sequence type changes the shape of the tree.

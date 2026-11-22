@@ -40,8 +40,8 @@ internal static class FacetFactory
         XsdVersion version
     )
     {
-        Argument.ThrowIfNull(baseType);
-        Argument.ThrowIfNull(step);
+        ArgumentNullException.ThrowIfNull(baseType);
+        ArgumentNullException.ThrowIfNull(step);
 
         var facts = FacetBase.Resolve(baseType, version);
         var facets = new List<IFacet>(step.Count);

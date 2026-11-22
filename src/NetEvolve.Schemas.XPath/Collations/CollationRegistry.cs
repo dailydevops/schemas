@@ -37,7 +37,7 @@ internal sealed class CollationRegistry
     /// <exception cref="ArgumentNullException"><paramref name="collation"/> is <see langword="null"/>.</exception>
     public CollationRegistry With(Collation collation)
     {
-        Argument.ThrowIfNull(collation);
+        ArgumentNullException.ThrowIfNull(collation);
 
         return new CollationRegistry(
             new Dictionary<string, Collation>(_collations, StringComparer.Ordinal) { [collation.Uri] = collation }
@@ -52,7 +52,7 @@ internal sealed class CollationRegistry
     /// <exception cref="ArgumentNullException"><paramref name="uri"/> is <see langword="null"/>.</exception>
     public bool TryResolve(string uri, Uri? staticBaseUri, out Collation? collation)
     {
-        Argument.ThrowIfNull(uri);
+        ArgumentNullException.ThrowIfNull(uri);
 
         var absolute = uri;
         if (!CollationUri.IsAbsolute(uri) && !CollationUri.TryResolve(uri, staticBaseUri, out absolute))

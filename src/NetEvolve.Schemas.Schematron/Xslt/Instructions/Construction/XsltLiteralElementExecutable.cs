@@ -28,9 +28,9 @@ internal sealed class XsltLiteralElementExecutable : XsltExecutable, IXsltSlotRe
         int slotEnd
     )
     {
-        Argument.ThrowIfNull(namespaces);
-        Argument.ThrowIfNull(attributes);
-        Argument.ThrowIfNull(body);
+        ArgumentNullException.ThrowIfNull(namespaces);
+        ArgumentNullException.ThrowIfNull(attributes);
+        ArgumentNullException.ThrowIfNull(body);
 
         _name = name;
         _namespaces = namespaces;
@@ -56,8 +56,8 @@ internal sealed class XsltLiteralElementExecutable : XsltExecutable, IXsltSlotRe
     /// <inheritdoc />
     internal override QueryStatus TryExecute(XsltFrame frame, ISequenceSink sink)
     {
-        Argument.ThrowIfNull(frame);
-        Argument.ThrowIfNull(sink);
+        ArgumentNullException.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(sink);
 
         var values = new PendingAttribute[_attributes.Length];
         for (var i = 0; i < values.Length; i++)

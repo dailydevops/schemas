@@ -14,8 +14,8 @@ internal sealed class XsltFunctionTable
 
     internal XsltFunctionTable(Dictionary<XPathQName, XsltFunctionComponent[]> byName, int count)
     {
-        Argument.ThrowIfNull(byName);
-        Argument.ThrowIfLessThan(count, 0);
+        ArgumentNullException.ThrowIfNull(byName);
+        ArgumentOutOfRangeException.ThrowIfLessThan(count, 0);
 
         _byName = byName;
         Count = count;
@@ -31,7 +31,7 @@ internal sealed class XsltFunctionTable
     /// <returns><see langword="true"/> when a function has that name and arity.</returns>
     internal bool TryGet(in XPathQName name, int arity, out XsltFunctionComponent function)
     {
-        Argument.ThrowIfLessThan(arity, 0);
+        ArgumentOutOfRangeException.ThrowIfLessThan(arity, 0);
 
         if (_byName.TryGetValue(name, out var overloads))
         {

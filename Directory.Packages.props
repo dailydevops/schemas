@@ -7,7 +7,6 @@
     <GlobalPackageReference Include="CSharpier.MSBuild" Version="1.4.1" />
     <GlobalPackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="5.6.0" />
     <GlobalPackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="11.0.100" />
-    <GlobalPackageReference Include="Meziantou.Analyzer" Version="3.0.341" />
     <GlobalPackageReference Include="Microsoft.SourceLink.GitHub" Version="11.0.100" />
     <GlobalPackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="18.12.1" />
     <GlobalPackageReference Include="NetEvolve.Defaults" Version="2.10.80" />
@@ -20,16 +19,11 @@
   </ItemGroup>
   <ItemGroup>
     <PackageVersion Include="BenchmarkDotNet" Version="0.15.8" />
-    <!-- Version floor per target framework (#457, same as #418): 11.x warns on every framework below net10.0, so only net11.0 takes it. -->
-    <PackageVersion Include="Microsoft.Bcl.AsyncInterfaces" Version="10.0.15" Condition="'$(TargetFramework)' != 'net11.0'" />
-    <PackageVersion Include="Microsoft.Bcl.AsyncInterfaces" Version="11.0.0" Condition="'$(TargetFramework)' == 'net11.0'" />
+    <PackageVersion Include="Microsoft.Bcl.AsyncInterfaces" Version="11.0.0" />
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="5.12.0" />
-    <!-- Version floor per target framework (#418): 11.x warns on every framework below net10.0, so only net11.0 takes it. -->
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.15" Condition="'$(TargetFramework)' != 'net11.0'" />
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="11.0.0" Condition="'$(TargetFramework)' == 'net11.0'" />
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="10.0.15" Condition="'$(TargetFramework)' != 'net11.0'" />
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="11.0.0" Condition="'$(TargetFramework)' == 'net11.0'" />
-    <!-- Pinned to 2.0.17 (#464): from 3.x on, the netstandard builds bind BCL-style guard calls to polyfills that exist only in lib/netstandard2.0 (per-asset mismatch), which crash on net8.0/net9.0, and Argument.ThrowIf* is obsolete in 4.x. Do not bump to >= 3 until upstream resolves this. -->
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="11.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="11.0.0" />
+    <!-- Pinned to 2.0.17 (#464): from 3.x on, the netstandard builds bind BCL-style guard calls to polyfills that exist only in lib/netstandard2.0 (per-asset mismatch), which crash on net5.0/net6.0, and Argument.ThrowIf* is obsolete in 4.x. Do not bump to >= 3 until upstream resolves this. -->
     <PackageVersion Include="NetEvolve.Arguments" Version="4.0.0" />
     <PackageVersion Include="NetArchTest.Rules" Version="1.3.2" />
     <PackageVersion Include="PublicApiGenerator" Version="11.5.4" />

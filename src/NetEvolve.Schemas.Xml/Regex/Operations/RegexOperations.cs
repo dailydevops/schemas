@@ -47,7 +47,7 @@ public sealed class RegexOperations
     /// <exception cref="ArgumentNullException"><paramref name="tree"/> is <see langword="null"/>.</exception>
     public static RegexError TryCreate(RegexTree tree, out RegexOperations? operations)
     {
-        Argument.ThrowIfNull(tree);
+        ArgumentNullException.ThrowIfNull(tree);
 
         operations = null;
         var error = RegexProgram.TryCompileForOperations(tree, out var program);

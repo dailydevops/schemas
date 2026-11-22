@@ -38,7 +38,7 @@ internal sealed class XsltSortInstruction : IXsltInstruction
     /// <inheritdoc />
     public bool TryCompile(XsltCompileContext context, out XsltExecutable executable, out SchematronProblem problem)
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         problem = default;
         var ok = TryRead(context, context.Element, true, out var key);
@@ -53,8 +53,8 @@ internal sealed class XsltSortInstruction : IXsltInstruction
     /// <returns><see langword="true"/> when every key compiled.</returns>
     internal static bool TryReadKeys(XsltCompileContext context, List<XsltSortKey> keys, out XmlNode first)
     {
-        Argument.ThrowIfNull(context);
-        Argument.ThrowIfNull(keys);
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(keys);
 
         var ok = true;
         var child = context.Element.Node.FirstChild;

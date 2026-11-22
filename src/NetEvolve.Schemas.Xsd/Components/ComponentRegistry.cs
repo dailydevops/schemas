@@ -25,7 +25,7 @@ internal sealed class ComponentRegistry : IComponentRegistry
 
     internal ComponentRegistry(XsdIssueReporter reporter)
     {
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         _reporter = reporter;
         _spaces = new Dictionary<XPathQName, IXsdComponent>[XsdSymbolSpaces.Count];
@@ -45,7 +45,7 @@ internal sealed class ComponentRegistry : IComponentRegistry
     /// <exception cref="InvalidOperationException">The registry is frozen.</exception>
     public void Add(IXsdComponent component)
     {
-        Argument.ThrowIfNull(component);
+        ArgumentNullException.ThrowIfNull(component);
 
         if (_isFrozen)
         {

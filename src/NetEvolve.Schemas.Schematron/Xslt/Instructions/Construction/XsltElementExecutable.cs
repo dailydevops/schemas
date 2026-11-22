@@ -16,8 +16,8 @@ internal sealed class XsltElementExecutable : XsltExecutable, IXsltSlotReader, I
 
     internal XsltElementExecutable(NameTemplate name, XsltBodyExecutable body, DocumentLocation location, int slotEnd)
     {
-        Argument.ThrowIfNull(name);
-        Argument.ThrowIfNull(body);
+        ArgumentNullException.ThrowIfNull(name);
+        ArgumentNullException.ThrowIfNull(body);
 
         _name = name;
         _body = body;
@@ -35,8 +35,8 @@ internal sealed class XsltElementExecutable : XsltExecutable, IXsltSlotReader, I
     /// <inheritdoc />
     internal override QueryStatus TryExecute(XsltFrame frame, ISequenceSink sink)
     {
-        Argument.ThrowIfNull(frame);
-        Argument.ThrowIfNull(sink);
+        ArgumentNullException.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(sink);
 
         return _name.TryResolve(frame, _location, out var name) == QueryStatus.Problem
             ? QueryStatus.Problem

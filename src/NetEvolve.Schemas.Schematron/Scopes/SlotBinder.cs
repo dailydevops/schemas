@@ -63,9 +63,9 @@ internal sealed class SlotBinder : ISlotBinder
         IEmbeddedContent? embedded = null
     )
     {
-        Argument.ThrowIfNull(plan);
-        Argument.ThrowIfNull(run);
-        Argument.ThrowIfNull(problems);
+        ArgumentNullException.ThrowIfNull(plan);
+        ArgumentNullException.ThrowIfNull(run);
+        ArgumentNullException.ThrowIfNull(problems);
 
         _plan = plan;
         _run = run;
@@ -87,8 +87,8 @@ internal sealed class SlotBinder : ISlotBinder
     /// <returns><see langword="false"/> when no such parameter is declared.</returns>
     internal bool SetParameter(string name, string value)
     {
-        Argument.ThrowIfNull(name);
-        Argument.ThrowIfNull(value);
+        ArgumentNullException.ThrowIfNull(name);
+        ArgumentNullException.ThrowIfNull(value);
 
         for (var i = 0; i < _plan.Globals.Count; i++)
         {
@@ -107,7 +107,7 @@ internal sealed class SlotBinder : ISlotBinder
     /// <param name="pattern">The pattern about to run.</param>
     internal void BeginPattern(PatternScope pattern)
     {
-        Argument.ThrowIfNull(pattern);
+        ArgumentNullException.ThrowIfNull(pattern);
 
         _patternEpoch++;
         Install(pattern.Lets);
@@ -119,7 +119,7 @@ internal sealed class SlotBinder : ISlotBinder
     /// <param name="focus">The matched node.</param>
     internal void BeginFiring(RuleScope rule, in QueryFocus focus)
     {
-        Argument.ThrowIfNull(rule);
+        ArgumentNullException.ThrowIfNull(rule);
 
         _firingEpoch++;
         _focus = focus;

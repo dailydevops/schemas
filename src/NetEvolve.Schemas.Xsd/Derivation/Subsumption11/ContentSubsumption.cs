@@ -74,8 +74,8 @@ internal sealed class ContentSubsumption
     /// <param name="maxWork">The work limit of one check.</param>
     internal ContentSubsumption(TypeDerivationOk derivation, int maxWork = DefaultMaxWork)
     {
-        Argument.ThrowIfNull(derivation);
-        Argument.ThrowIfLessThan(maxWork, 1);
+        ArgumentNullException.ThrowIfNull(derivation);
+        ArgumentOutOfRangeException.ThrowIfLessThan(maxWork, 1);
 
         _derivation = derivation;
         _maxWork = maxWork;
@@ -87,8 +87,8 @@ internal sealed class ContentSubsumption
     /// <returns>The verdict, with the first violation in the order of the exploration for a verdict that has one.</returns>
     internal SubsumptionOutcome Check(Particle restriction, Particle baseParticle)
     {
-        Argument.ThrowIfNull(restriction);
-        Argument.ThrowIfNull(baseParticle);
+        ArgumentNullException.ThrowIfNull(restriction);
+        ArgumentNullException.ThrowIfNull(baseParticle);
 
         // The expansion needs finite structures; the resolver reports a circular group definition.
         if (ParticleStructure.IsCircular(restriction) || ParticleStructure.IsCircular(baseParticle))
@@ -139,7 +139,7 @@ internal sealed class ContentSubsumption
     /// <param name="reporter">The reporter.</param>
     internal void Report(Particle restriction, Particle baseParticle, XsdIssueReporter reporter)
     {
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         var violation = Check(restriction, baseParticle).Violation;
         if (violation.IsViolation)

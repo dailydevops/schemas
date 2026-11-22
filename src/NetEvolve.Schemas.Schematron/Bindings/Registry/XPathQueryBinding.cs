@@ -48,7 +48,7 @@ internal sealed class XPathQueryBinding : IQueryBinding
         StaticContextExtension? extension = null
     )
     {
-        Argument.ThrowIfNull(name);
+        ArgumentNullException.ThrowIfNull(name);
 
         Name = name;
         AllowsXsltInstructions = allowsXsltInstructions;
@@ -84,7 +84,7 @@ internal sealed class XPathQueryBinding : IQueryBinding
     /// <exception cref="ArgumentNullException"><paramref name="scope"/> is <see langword="null"/>.</exception>
     internal static XPathStaticContext CreateStaticContext(QueryStaticScope scope, bool xpath10Compatibility)
     {
-        Argument.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(scope);
 
         var builder = XPathStaticContext.Default.ToBuilder().WithXPath10Compatibility(xpath10Compatibility);
         for (var i = 0; i < scope.Namespaces.Count; i++)
@@ -121,7 +121,7 @@ internal sealed class XPathQueryBinding : IQueryBinding
         out SchematronProblem problem
     )
     {
-        Argument.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(scope);
 
         var source = text.ToString();
 
@@ -155,7 +155,7 @@ internal sealed class XPathQueryBinding : IQueryBinding
     public IQueryRun BeginRun(QueryResources resources, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        Argument.ThrowIfNull(resources);
+        ArgumentNullException.ThrowIfNull(resources);
 
         return new XPathQueryRun(resources, cancellationToken);
     }

@@ -71,7 +71,7 @@ public readonly struct XdmItem : IEquatable<XdmItem>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="type"/> is <see langword="default"/>.</exception>
     internal XdmItem WithTypeId(XdmTypeId type)
     {
-        Argument.ThrowIfLessThan(type.Value, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(type.Value, 1);
 
         return new(Kind, type, _bits, _reference);
     }
@@ -88,7 +88,7 @@ public readonly struct XdmItem : IEquatable<XdmItem>
     /// <exception cref="ArgumentNullException"><paramref name="value"/> is <see langword="null"/>.</exception>
     public static XdmItem FromString(string value)
     {
-        Argument.ThrowIfNull(value);
+        ArgumentNullException.ThrowIfNull(value);
 
         return new(XdmItemKind.XsString, XdmTypeId.XsString, 0, value);
     }
@@ -99,7 +99,7 @@ public readonly struct XdmItem : IEquatable<XdmItem>
     /// <exception cref="ArgumentNullException"><paramref name="value"/> is <see langword="null"/>.</exception>
     internal static XdmItem FromUntypedAtomic(string value)
     {
-        Argument.ThrowIfNull(value);
+        ArgumentNullException.ThrowIfNull(value);
 
         return new(XdmItemKind.UntypedAtomic, XdmTypeId.UntypedAtomic, 0, value);
     }
@@ -111,7 +111,7 @@ public readonly struct XdmItem : IEquatable<XdmItem>
     /// <exception cref="ArgumentNullException"><paramref name="value"/> is <see langword="null"/>.</exception>
     internal static XdmItem FromAnyUri(string value)
     {
-        Argument.ThrowIfNull(value);
+        ArgumentNullException.ThrowIfNull(value);
 
         return new(XdmItemKind.AnyUri, XdmTypeId.AnyUri, 0, value);
     }
@@ -140,8 +140,8 @@ public readonly struct XdmItem : IEquatable<XdmItem>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="kind"/> is not a defined kind.</exception>
     internal static XdmItem FromBinary(in XsdBinary value, BinaryKind kind)
     {
-        Argument.ThrowIfLessThan((int)kind, (int)BinaryKind.HexBinary);
-        Argument.ThrowIfGreaterThan((int)kind, (int)BinaryKind.Base64Binary);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)kind, (int)BinaryKind.HexBinary);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)kind, (int)BinaryKind.Base64Binary);
 
         return kind == BinaryKind.HexBinary
             ? new(XdmItemKind.HexBinary, BinaryTypes.Hex, 0, value)
@@ -154,7 +154,7 @@ public readonly struct XdmItem : IEquatable<XdmItem>
     /// <exception cref="ArgumentNullException"><paramref name="value"/> is <see langword="null"/>.</exception>
     internal static XdmItem FromQName(XdmQName value)
     {
-        Argument.ThrowIfNull(value);
+        ArgumentNullException.ThrowIfNull(value);
 
         return new(XdmItemKind.QName, BinaryTypes.QName, 0, value);
     }
@@ -177,8 +177,8 @@ public readonly struct XdmItem : IEquatable<XdmItem>
     public static XdmItem FromDateTime(in XsdDateTime value)
     {
         var kind = value.Kind;
-        Argument.ThrowIfLessThan((int)kind, (int)XsdDateTimeKind.DateTime);
-        Argument.ThrowIfGreaterThan((int)kind, (int)XsdDateTimeKind.Time);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)kind, (int)XsdDateTimeKind.DateTime);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)kind, (int)XsdDateTimeKind.Time);
 
         return kind switch
         {
@@ -195,8 +195,8 @@ public readonly struct XdmItem : IEquatable<XdmItem>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="kind"/> is not a defined kind.</exception>
     public static XdmItem FromDuration(in XsdDuration value, DurationKind kind = DurationKind.Duration)
     {
-        Argument.ThrowIfLessThan((int)kind, (int)DurationKind.Duration);
-        Argument.ThrowIfGreaterThan((int)kind, (int)DurationKind.DayTime);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)kind, (int)DurationKind.Duration);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)kind, (int)DurationKind.DayTime);
 
         return kind switch
         {
@@ -213,7 +213,7 @@ public readonly struct XdmItem : IEquatable<XdmItem>
     public static XdmItem FromNode(in XPathNode node)
     {
         var tree = node.Node.Tree;
-        Argument.ThrowIfNull(tree);
+        ArgumentNullException.ThrowIfNull(tree);
 
         return new(XdmItemKind.Node, node.TypeAnnotation, node.Node.Index, tree);
     }

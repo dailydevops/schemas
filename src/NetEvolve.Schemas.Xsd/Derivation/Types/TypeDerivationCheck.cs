@@ -43,8 +43,8 @@ internal sealed class TypeDerivationCheck : IDerivationCheck
     /// <param name="version">The XSD version, which selects the built-in types.</param>
     internal TypeDerivationCheck(XsdVersion version)
     {
-        Argument.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
-        Argument.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
 
         _derivation = new TypeDerivationOk(version);
     }
@@ -57,12 +57,12 @@ internal sealed class TypeDerivationCheck : IDerivationCheck
         XsdDerivationMethod blockSet
     )
     {
-        Argument.ThrowIfNull(derived);
-        Argument.ThrowIfNull(baseType);
-        Argument.ThrowIfLessThan((int)method, 0);
-        Argument.ThrowIfGreaterThan((int)method, (int)AllMethods);
-        Argument.ThrowIfLessThan((int)blockSet, 0);
-        Argument.ThrowIfGreaterThan((int)blockSet, (int)AllMethods);
+        ArgumentNullException.ThrowIfNull(derived);
+        ArgumentNullException.ThrowIfNull(baseType);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)method, 0);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)method, (int)AllMethods);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)blockSet, 0);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)blockSet, (int)AllMethods);
 
         var violation = method switch
         {
@@ -89,8 +89,8 @@ internal sealed class TypeDerivationCheck : IDerivationCheck
     /// <param name="reporter">The reporter.</param>
     internal void Report(ComplexTypeDefinition type, XsdIssueReporter reporter)
     {
-        Argument.ThrowIfNull(type);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(type);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         if (type.BaseType is { } baseType)
         {
@@ -104,9 +104,9 @@ internal sealed class TypeDerivationCheck : IDerivationCheck
     /// <param name="reporter">The reporter.</param>
     internal void Report(ComplexTypeDefinition type, IXsdComponent baseType, XsdIssueReporter reporter)
     {
-        Argument.ThrowIfNull(type);
-        Argument.ThrowIfNull(baseType);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(type);
+        ArgumentNullException.ThrowIfNull(baseType);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         var violation =
             type.DerivationMethod == XsdDerivationMethod.Extension
@@ -123,13 +123,13 @@ internal sealed class TypeDerivationCheck : IDerivationCheck
     /// <param name="reporter">The reporter.</param>
     internal void ReportAll(IReadOnlyList<IXsdComponent> components, XsdIssueReporter reporter)
     {
-        Argument.ThrowIfNull(components);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(components);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         for (var i = 0; i < components.Count; i++)
         {
             var component = components[i];
-            Argument.ThrowIfNull(component);
+            ArgumentNullException.ThrowIfNull(component);
 
             if (component is ComplexTypeDefinition type)
             {

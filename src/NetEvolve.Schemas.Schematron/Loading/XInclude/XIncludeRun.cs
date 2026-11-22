@@ -54,8 +54,8 @@ internal sealed class XIncludeRun : IXmlSink, IDisposable
         CancellationToken cancellationToken
     )
     {
-        Argument.ThrowIfNull(owner);
-        Argument.ThrowIfNull(problems);
+        ArgumentNullException.ThrowIfNull(owner);
+        ArgumentNullException.ThrowIfNull(problems);
 
         _owner = owner;
         _problems = problems;

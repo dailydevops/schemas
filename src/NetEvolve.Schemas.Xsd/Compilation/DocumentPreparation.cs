@@ -40,8 +40,8 @@ internal static class DocumentPreparation
     /// <param name="reporter">The reporter.</param>
     internal static void Prepare(SchemaSyntaxNode root, XsdVersion version, XsdIssueReporter reporter)
     {
-        Argument.ThrowIfNull(root);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(root);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         if (!root.TryResolvePrefix("xml", out _))
         {

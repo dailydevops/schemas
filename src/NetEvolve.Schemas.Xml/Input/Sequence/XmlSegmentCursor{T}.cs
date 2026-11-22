@@ -27,7 +27,7 @@ internal struct XmlSegmentCursor<T>
     /// <returns><see langword="false"/> when no element is left.</returns>
     internal bool TryRead(int max, out ReadOnlyMemory<T> piece)
     {
-        Argument.ThrowIfLessThan(max, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(max, 1);
 
         while (_offset >= _current.Length)
         {

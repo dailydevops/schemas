@@ -43,10 +43,10 @@ internal static class XsltModuleCompiler
         out XsltModuleTables tables
     )
     {
-        Argument.ThrowIfNull(set);
-        Argument.ThrowIfNull(registry);
-        Argument.ThrowIfNull(compile);
-        Argument.ThrowIfNull(problems);
+        ArgumentNullException.ThrowIfNull(set);
+        ArgumentNullException.ThrowIfNull(registry);
+        ArgumentNullException.ThrowIfNull(compile);
+        ArgumentNullException.ThrowIfNull(problems);
 
         var functions = new XsltFunctionTableBuilder();
         var globals = new XsltGlobalTableBuilder();
@@ -178,7 +178,7 @@ internal static class XsltModuleCompiler
     private static string Describe(XsltModuleDeclaration declaration)
     {
         var element = declaration.Element;
-        Argument.ThrowIfNull(element.Tree);
+        ArgumentNullException.ThrowIfNull(element.Tree);
 
         var node = element.Node;
         return "xsl:" + element.Tree.Names.GetString(node.Name.Local);

@@ -18,7 +18,7 @@ internal static class XmlIssues
     /// <returns>The options.</returns>
     internal static XmlReaderOptions Options(ValidationLimits limits)
     {
-        Argument.ThrowIfNull(limits);
+        ArgumentNullException.ThrowIfNull(limits);
 
         return XmlReaderOptions.Default.WithLimits(
             XmlReaderLimits
@@ -36,7 +36,7 @@ internal static class XmlIssues
     /// <returns>The issue: an error at the position of the reader.</returns>
     internal static ValidationIssue Issue(XmlParseException failure, string? systemId)
     {
-        Argument.ThrowIfNull(failure);
+        ArgumentNullException.ThrowIfNull(failure);
 
         if (failure.Diagnostic is not { } diagnostic)
         {

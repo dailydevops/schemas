@@ -36,9 +36,9 @@ internal sealed class CastableNode : ExecutableNode
         INamespaceContext? namespaces = null
     )
     {
-        Argument.ThrowIfNull(operand);
-        Argument.ThrowIfLessThan(target.Value, 1);
-        Argument.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(operand);
+        ArgumentOutOfRangeException.ThrowIfLessThan(target.Value, 1);
+        ArgumentNullException.ThrowIfNull(table);
 
         _operand = operand;
         _target = target;
@@ -50,7 +50,7 @@ internal sealed class CastableNode : ExecutableNode
     /// <inheritdoc />
     public override XdmSequence Evaluate(XPathEvaluationContext context)
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         var value = XPathAtomization.Atomize(_operand.Evaluate(context));
         var castable = value.Count switch

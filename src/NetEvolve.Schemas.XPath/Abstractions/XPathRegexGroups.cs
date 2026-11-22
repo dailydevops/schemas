@@ -18,8 +18,8 @@ public readonly struct XPathRegexGroups : IEquatable<XPathRegexGroups>
     /// <exception cref="ArgumentNullException">An argument is <see langword="null"/>.</exception>
     public XPathRegexGroups(string subject, TextRange[] groups)
     {
-        Argument.ThrowIfNull(subject);
-        Argument.ThrowIfNull(groups);
+        ArgumentNullException.ThrowIfNull(subject);
+        ArgumentNullException.ThrowIfNull(groups);
 
         _subject = subject;
         _groups = (TextRange[])groups.Clone();
@@ -37,8 +37,8 @@ public readonly struct XPathRegexGroups : IEquatable<XPathRegexGroups>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is outside the groups.</exception>
     public ReadOnlySpan<char> GetGroup(int index)
     {
-        Argument.ThrowIfLessThan(index, 0);
-        Argument.ThrowIfGreaterThanOrEqual(index, Count);
+        ArgumentOutOfRangeException.ThrowIfLessThan(index, 0);
+        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, Count);
 
         return _groups![index].Slice(Subject.AsSpan());
     }

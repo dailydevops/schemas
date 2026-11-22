@@ -45,8 +45,8 @@ public readonly record struct ValidationAttributeInfo
     {
         if (declaredType is { } type)
         {
-            Argument.ThrowIfGreaterThan((int)type, (int)DtdAttributeType.Enumeration);
-            Argument.ThrowIfLessThan((int)type, (int)DtdAttributeType.Cdata);
+            ArgumentOutOfRangeException.ThrowIfGreaterThan((int)type, (int)DtdAttributeType.Enumeration);
+            ArgumentOutOfRangeException.ThrowIfLessThan((int)type, (int)DtdAttributeType.Cdata);
         }
 
         Name = name;

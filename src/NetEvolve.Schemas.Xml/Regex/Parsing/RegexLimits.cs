@@ -26,7 +26,7 @@ public sealed class RegexLimits
     /// <returns>The new limits.</returns>
     public RegexLimits WithMaxPatternLength(int value)
     {
-        Argument.ThrowIfLessThan(value, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(value, 1);
         return new(value, MaxNesting);
     }
 
@@ -35,7 +35,7 @@ public sealed class RegexLimits
     /// <returns>The new limits.</returns>
     public RegexLimits WithMaxNesting(int value)
     {
-        Argument.ThrowIfLessThan(value, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(value, 1);
         return new(MaxPatternLength, value);
     }
 }

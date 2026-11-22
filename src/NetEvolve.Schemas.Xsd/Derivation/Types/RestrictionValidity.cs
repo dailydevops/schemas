@@ -23,9 +23,9 @@ internal static class RestrictionValidity
     /// <returns>The first violated clause, none when the type is a valid restriction.</returns>
     internal static TypeViolation Check(ComplexTypeDefinition type, IXsdComponent baseType, TypeDerivationOk derivation)
     {
-        Argument.ThrowIfNull(type);
-        Argument.ThrowIfNull(baseType);
-        Argument.ThrowIfNull(derivation);
+        ArgumentNullException.ThrowIfNull(type);
+        ArgumentNullException.ThrowIfNull(baseType);
+        ArgumentNullException.ThrowIfNull(derivation);
 
         var complexBase = TypeComponents.AsComplex(baseType);
         if (complexBase is null || (complexBase.Final & XsdDerivationMethod.Restriction) != XsdDerivationMethod.None)

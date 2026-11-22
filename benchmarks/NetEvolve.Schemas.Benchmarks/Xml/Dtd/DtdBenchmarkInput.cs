@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Benchmarks.Xml.Dtd;
+﻿namespace NetEvolve.Schemas.Benchmarks.Xml.Dtd;
 
 using System.Globalization;
 using System.Text;
@@ -49,14 +49,16 @@ internal static class DtdBenchmarkInput
         for (var i = 0; i < LineCount; i++)
         {
             // Every other line leaves out kind and currency, so the default and the fixed value apply.
-            sb.Append("<line id=\"l").Append(i.ToString(CultureInfo.InvariantCulture)).Append('"');
+            _ = sb.Append("<line id=\"l").Append(i.ToString(CultureInfo.InvariantCulture)).Append('"');
             if (i % 2 == 1)
             {
-                sb.Append(" kind=\"service\" currency=\"EUR\"");
+                _ = sb.Append(" kind=\"service\" currency=\"EUR\"");
             }
 
-            sb.Append("><description>Item ").Append(i.ToString(CultureInfo.InvariantCulture)).Append("</description>");
-            sb.Append("<quantity>").Append(i % 7 + 1).Append("</quantity><price>9.99</price></line>\n");
+            _ = sb.Append("><description>Item ")
+                .Append(i.ToString(CultureInfo.InvariantCulture))
+                .Append("</description>");
+            _ = sb.Append("<quantity>").Append(i % 7 + 1).Append("</quantity><price>9.99</price></line>\n");
         }
 
         return Encoding.UTF8.GetBytes(sb.Append("</invoice>\n").ToString());

@@ -16,8 +16,8 @@ internal sealed class XsltIfExecutable : XsltExecutable, IXsltSlotReader, IXsltL
 
     internal XsltIfExecutable(QueryExpression test, XsltBodyExecutable body, int slotEnd)
     {
-        Argument.ThrowIfNull(test);
-        Argument.ThrowIfNull(body);
+        ArgumentNullException.ThrowIfNull(test);
+        ArgumentNullException.ThrowIfNull(body);
 
         _test = test;
         Body = body;
@@ -40,7 +40,7 @@ internal sealed class XsltIfExecutable : XsltExecutable, IXsltSlotReader, IXsltL
     /// <returns>The status of the evaluation.</returns>
     internal QueryStatus TryEvaluateTest(XsltFrame frame, out bool value)
     {
-        Argument.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(frame);
 
         return frame.Run.TryEvaluateBoolean(_test, frame.Focus, out value);
     }
@@ -48,8 +48,8 @@ internal sealed class XsltIfExecutable : XsltExecutable, IXsltSlotReader, IXsltL
     /// <inheritdoc />
     internal override QueryStatus TryExecute(XsltFrame frame, ISequenceSink sink)
     {
-        Argument.ThrowIfNull(frame);
-        Argument.ThrowIfNull(sink);
+        ArgumentNullException.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(sink);
 
         if (TryEvaluateTest(frame, out var value) == QueryStatus.Problem)
         {

@@ -46,7 +46,7 @@ internal sealed class GoldenFixture : IDisposable
 
     public static GoldenDocumentSource Source(string name)
     {
-        Argument.ThrowIfNullOrWhiteSpace(name);
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(name);
         return new(SuiteKey, $"docs/{name}.xml");
     }
 

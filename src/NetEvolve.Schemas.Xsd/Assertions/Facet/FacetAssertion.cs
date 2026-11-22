@@ -59,9 +59,9 @@ internal sealed class FacetAssertion
         XsdIssueReporter reporter
     )
     {
-        Argument.ThrowIfNull(test);
-        Argument.ThrowIfNull(context);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(test);
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         var result = XPathExpression.TryCompile(test, context.ToBuilder().WithVariable(ValueVariable).Build());
         if (!result.Success)

@@ -65,7 +65,7 @@ internal sealed class EntityListener : ValidationListener
     /// <param name="limits">The limits that bound the parse of the document type declaration, <see langword="null"/> for the defaults.</param>
     internal EntityListener(ISimpleValueAssessor assessor, XmlReaderLimits? limits = null)
     {
-        Argument.ThrowIfNull(assessor);
+        ArgumentNullException.ThrowIfNull(assessor);
 
         _assessor = assessor;
         _limits = limits ?? XmlReaderLimits.Default;

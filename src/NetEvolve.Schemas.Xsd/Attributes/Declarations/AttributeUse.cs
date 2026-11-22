@@ -67,8 +67,8 @@ internal sealed class AttributeUse : IXsdComponent
         XsdIssueReporter reporter
     )
     {
-        Argument.ThrowIfNull(declaration);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(declaration);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         if (valueConstraint.Kind == AttributeValueConstraintKind.Default && use != AttributeUseKind.Optional)
         {

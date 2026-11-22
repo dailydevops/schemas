@@ -58,14 +58,14 @@ internal sealed class ValidationModel
         XsdIssueReporter reporter
     )
     {
-        Argument.ThrowIfNull(schema);
-        Argument.ThrowIfNull(components);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(schema);
+        ArgumentNullException.ThrowIfNull(components);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         var builder = new Builder(reporter);
         for (var i = 0; i < components.Count; i++)
         {
-            Argument.ThrowIfNull(components[i]);
+            ArgumentNullException.ThrowIfNull(components[i]);
 
             builder.Push(components[i]);
         }
@@ -79,7 +79,7 @@ internal sealed class ValidationModel
     /// <returns>The program, or <see langword="null"/> when the type has no element-only or mixed content.</returns>
     public ContentProgram? GetProgram(ComplexTypeDefinition type)
     {
-        Argument.ThrowIfNull(type);
+        ArgumentNullException.ThrowIfNull(type);
 
         return _programs.TryGetValue(type, out var program) ? program : null;
     }
@@ -95,8 +95,8 @@ internal sealed class ValidationModel
     /// <returns>The expanded name.</returns>
     public XPathQName NameOf(int id)
     {
-        Argument.ThrowIfLessThan(id, 0);
-        Argument.ThrowIfGreaterThanOrEqual(id, _names.Length);
+        ArgumentOutOfRangeException.ThrowIfLessThan(id, 0);
+        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(id, _names.Length);
 
         return _names[id];
     }
@@ -110,7 +110,7 @@ internal sealed class ValidationModel
 
         internal Builder(XsdIssueReporter reporter)
         {
-            Argument.ThrowIfNull(reporter);
+            ArgumentNullException.ThrowIfNull(reporter);
 
             _reporter = reporter;
         }

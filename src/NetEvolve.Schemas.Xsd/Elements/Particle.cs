@@ -63,7 +63,7 @@ internal sealed class Particle : IReferencingComponent
     /// <inheritdoc />
     public void Bind(int index, IXsdComponent target)
     {
-        Argument.ThrowIfNull(target);
+        ArgumentNullException.ThrowIfNull(target);
 
         Term = target;
     }
@@ -76,7 +76,7 @@ internal sealed class Particle : IReferencingComponent
     /// <returns>The particle.</returns>
     internal static Particle Create(DocumentLocation location, long minOccurs, long maxOccurs, IXsdComponent term)
     {
-        Argument.ThrowIfNull(term);
+        ArgumentNullException.ThrowIfNull(term);
 
         return new(location, minOccurs, maxOccurs, term, []);
     }
@@ -108,7 +108,7 @@ internal sealed class Particle : IReferencingComponent
     /// <param name="sites">The list that receives the references.</param>
     internal void CollectReferences(List<RefSite> sites)
     {
-        Argument.ThrowIfNull(sites);
+        ArgumentNullException.ThrowIfNull(sites);
 
         switch (Term)
         {

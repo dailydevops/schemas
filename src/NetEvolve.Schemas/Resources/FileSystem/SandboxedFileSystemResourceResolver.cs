@@ -45,7 +45,7 @@ public sealed class SandboxedFileSystemResourceResolver : IResourceResolver
     /// <param name="rootDirectory">The root directory; relative paths are resolved against the current directory once.</param>
     public SandboxedFileSystemResourceResolver(string rootDirectory)
     {
-        Argument.ThrowIfNullOrWhiteSpace(rootDirectory);
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(rootDirectory);
 
         _root = Path.GetFullPath(rootDirectory);
         var separators = new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar };

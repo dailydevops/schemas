@@ -64,8 +64,8 @@ internal sealed class XsltModuleLinker
     /// <exception cref="ArgumentNullException"><paramref name="loader"/> or <paramref name="problems"/> is <see langword="null"/>.</exception>
     internal XsltModuleLinker(IModuleLoader loader, IProblemSink problems, CancellationToken cancellationToken)
     {
-        Argument.ThrowIfNull(loader);
-        Argument.ThrowIfNull(problems);
+        ArgumentNullException.ThrowIfNull(loader);
+        ArgumentNullException.ThrowIfNull(problems);
 
         _loader = loader;
         _problems = problems;
@@ -80,7 +80,7 @@ internal sealed class XsltModuleLinker
     /// <exception cref="ArgumentNullException"><paramref name="principal"/> is <see langword="null"/>.</exception>
     internal bool TryLink(IReadOnlyList<XPathNode> principal, string? principalSystemId, out XsltModuleSet set)
     {
-        Argument.ThrowIfNull(principal);
+        ArgumentNullException.ThrowIfNull(principal);
 
         var items = new List<XPathNode>();
         for (var i = 0; i < principal.Count; i++)
@@ -281,7 +281,7 @@ internal sealed class XsltModuleLinker
     // An XSLT element is a declaration or a reference, an element of another namespace is user-defined data, and one without a namespace is an error.
     private void Collect(XPathNode element, string? systemId, List<XPathNode> items)
     {
-        Argument.ThrowIfNull(element.Tree);
+        ArgumentNullException.ThrowIfNull(element.Tree);
 
         var name = element.Node.Name;
         if (name.NamespaceUri.IsEmpty)

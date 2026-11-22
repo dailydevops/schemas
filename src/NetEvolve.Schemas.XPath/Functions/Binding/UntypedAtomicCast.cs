@@ -26,7 +26,7 @@ internal static class UntypedAtomicCast
     /// <exception cref="XPathException">The lexical form is invalid for the type (FORG0001), an integer is beyond 64 bits (FOCA0003), a decimal, float, or double is beyond the digit cap (FOCA0001), or the target is not a cast target (XPTY0004).</exception>
     public static XdmItem Cast(string lexical, XPathItemType target)
     {
-        Argument.ThrowIfNull(lexical);
+        ArgumentNullException.ThrowIfNull(lexical);
 
         if (TypeOf(target) is not { } type)
         {

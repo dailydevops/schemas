@@ -16,7 +16,7 @@ internal sealed class FindingContent : IFindingContent
 
     internal FindingContent(XmlDocumentTree tree)
     {
-        Argument.ThrowIfNull(tree);
+        ArgumentNullException.ThrowIfNull(tree);
 
         _holder = tree.Document.FirstChild;
     }
@@ -24,7 +24,7 @@ internal sealed class FindingContent : IFindingContent
     /// <inheritdoc />
     public void WriteAttributes(IXmlSink sink)
     {
-        Argument.ThrowIfNull(sink);
+        ArgumentNullException.ThrowIfNull(sink);
 
         var names = _holder.Tree!.Names;
         for (var ns = _holder.FirstNamespace; !ns.IsEmpty; ns = ns.NextNamespace)
@@ -52,7 +52,7 @@ internal sealed class FindingContent : IFindingContent
     /// <inheritdoc />
     public void WriteChildren(IXmlSink sink)
     {
-        Argument.ThrowIfNull(sink);
+        ArgumentNullException.ThrowIfNull(sink);
 
         for (var child = _holder.FirstChild; !child.IsEmpty; child = child.NextSibling)
         {

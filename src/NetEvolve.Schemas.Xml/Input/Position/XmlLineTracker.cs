@@ -32,7 +32,7 @@ internal struct XmlLineTracker
     /// <returns>The number of characters written.</returns>
     internal int Normalize(ReadOnlySpan<char> input, Span<char> destination)
     {
-        Argument.ThrowIfLessThan(destination.Length, input.Length);
+        ArgumentOutOfRangeException.ThrowIfLessThan(destination.Length, input.Length);
 
         if (input.IsEmpty)
         {

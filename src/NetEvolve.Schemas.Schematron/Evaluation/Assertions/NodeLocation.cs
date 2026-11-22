@@ -45,7 +45,7 @@ internal static class NodeLocation
     /// <param name="into">The sink that receives the path.</param>
     internal static void AppendPath(in XPathNode node, TextSink into)
     {
-        Argument.ThrowIfNull(into);
+        ArgumentNullException.ThrowIfNull(into);
 
         var xml = node.Node;
         if (xml.Kind == XmlNodeKind.Document)

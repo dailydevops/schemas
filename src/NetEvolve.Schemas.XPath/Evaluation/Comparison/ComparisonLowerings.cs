@@ -22,8 +22,8 @@ internal static class ComparisonLowerings
     /// <exception cref="System.InvalidOperationException">The comparison expression already has a lowering.</exception>
     public static void Register(LoweringRegistry registry, ComparisonOperatorTable table)
     {
-        Argument.ThrowIfNull(registry);
-        Argument.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(registry);
+        ArgumentNullException.ThrowIfNull(table);
 
         registry.Register<ComparisonExpression>((node, context) => Lower(node, context, table));
     }
@@ -34,8 +34,8 @@ internal static class ComparisonLowerings
         ComparisonOperatorTable table
     )
     {
-        Argument.ThrowIfNull(node);
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(node);
+        ArgumentNullException.ThrowIfNull(context);
 
         var left = context.Lower(node.Left);
         var right = context.Lower(node.Right);

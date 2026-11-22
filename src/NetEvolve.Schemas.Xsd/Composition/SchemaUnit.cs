@@ -16,9 +16,9 @@ internal sealed class SchemaUnit
         OverrideSet? overrides = null
     )
     {
-        Argument.ThrowIfNull(document);
-        Argument.ThrowIfNull(root);
-        Argument.ThrowIfNull(effectiveNamespace);
+        ArgumentNullException.ThrowIfNull(document);
+        ArgumentNullException.ThrowIfNull(root);
+        ArgumentNullException.ThrowIfNull(effectiveNamespace);
 
         Document = document;
         Root = root;

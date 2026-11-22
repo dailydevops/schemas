@@ -17,7 +17,7 @@ internal sealed class XsltChooseExecutable : XsltExecutable, IXsltSlotReader, IX
 
     internal XsltChooseExecutable(XsltIfExecutable[] branches, XsltBodyExecutable? otherwise, int slotEnd)
     {
-        Argument.ThrowIfNull(branches);
+        ArgumentNullException.ThrowIfNull(branches);
 
         _branches = branches;
         _otherwise = otherwise;
@@ -40,8 +40,8 @@ internal sealed class XsltChooseExecutable : XsltExecutable, IXsltSlotReader, IX
     /// <inheritdoc />
     internal override QueryStatus TryExecute(XsltFrame frame, ISequenceSink sink)
     {
-        Argument.ThrowIfNull(frame);
-        Argument.ThrowIfNull(sink);
+        ArgumentNullException.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(sink);
 
         for (var i = 0; i < _branches.Length; i++)
         {

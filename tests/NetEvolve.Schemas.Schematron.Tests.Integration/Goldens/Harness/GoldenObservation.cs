@@ -13,7 +13,7 @@ internal sealed record GoldenObservation
     /// </param>
     public GoldenObservation(bool isValid, IReadOnlyList<string> firedRuleIds)
     {
-        Argument.ThrowIfNull(firedRuleIds);
+        ArgumentNullException.ThrowIfNull(firedRuleIds);
         IsValid = isValid;
         FiredRuleIds = firedRuleIds;
     }

@@ -19,8 +19,8 @@ internal static class ExtensionValidity
     /// <returns>The first violated clause, none when the type is a valid extension.</returns>
     internal static TypeViolation Check(ComplexTypeDefinition type, IXsdComponent baseType)
     {
-        Argument.ThrowIfNull(type);
-        Argument.ThrowIfNull(baseType);
+        ArgumentNullException.ThrowIfNull(type);
+        ArgumentNullException.ThrowIfNull(baseType);
 
         var complexBase = TypeComponents.AsComplex(baseType);
         if (complexBase is not null)

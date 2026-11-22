@@ -17,7 +17,7 @@ internal static class Qt3NumericFixture
     /// <summary>Checks a result against the alternatives of an expectation.</summary>
     public static bool Satisfies(string expectation, XdmSequence result, string code)
     {
-        Argument.ThrowIfNull(expectation);
+        ArgumentNullException.ThrowIfNull(expectation);
 
         foreach (var alternative in expectation.Split('\t'))
         {

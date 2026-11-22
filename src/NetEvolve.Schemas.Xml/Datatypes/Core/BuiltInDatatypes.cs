@@ -17,8 +17,8 @@ public static partial class BuiltInDatatypes
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="version"/> is not a defined version.</exception>
     public static DatatypeRegistry For(XsdVersion version)
     {
-        Argument.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
-        Argument.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
 
         return version == XsdVersion.V10 ? V10.Value : V11.Value;
     }

@@ -27,9 +27,9 @@ internal sealed class XsltForEachExecutable : XsltExecutable, IXsltSlotReader, I
         DocumentLocation location
     )
     {
-        Argument.ThrowIfNull(select);
-        Argument.ThrowIfNull(keys);
-        Argument.ThrowIfNull(body);
+        ArgumentNullException.ThrowIfNull(select);
+        ArgumentNullException.ThrowIfNull(keys);
+        ArgumentNullException.ThrowIfNull(body);
 
         _select = select;
         _keys = keys;
@@ -54,8 +54,8 @@ internal sealed class XsltForEachExecutable : XsltExecutable, IXsltSlotReader, I
     /// <inheritdoc />
     internal override QueryStatus TryExecute(XsltFrame frame, ISequenceSink sink)
     {
-        Argument.ThrowIfNull(frame);
-        Argument.ThrowIfNull(sink);
+        ArgumentNullException.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(sink);
 
         using var items = new ItemBuffer(frame.MaxSequenceLength);
         if (frame.Run.TryEvaluate(_select, frame.Focus, items) == QueryStatus.Problem)

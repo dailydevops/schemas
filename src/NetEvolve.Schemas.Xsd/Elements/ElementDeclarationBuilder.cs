@@ -37,9 +37,9 @@ internal sealed class ElementDeclarationBuilder : IComponentBuilder
     /// <exception cref="NotSupportedException"><paramref name="element"/> is not a <see cref="SchemaSyntaxNode"/>, the only syntax with parent and namespace scope.</exception>
     public IXsdComponent Build(ISchemaSyntaxElement element, IComponentRegistry registry, XsdIssueReporter reporter)
     {
-        Argument.ThrowIfNull(element);
-        Argument.ThrowIfNull(registry);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(element);
+        ArgumentNullException.ThrowIfNull(registry);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         var node =
             element as SchemaSyntaxNode
@@ -56,8 +56,8 @@ internal sealed class ElementDeclarationBuilder : IComponentBuilder
     /// <returns>The declaration.</returns>
     internal ElementDeclaration BuildDeclaration(SchemaSyntaxNode node, bool isGlobal, XsdIssueReporter reporter)
     {
-        Argument.ThrowIfNull(node);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(node);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         var name = node.FindAttribute("name");
         if (isGlobal && (name is null || node.FindAttribute("ref") is not null))

@@ -24,7 +24,7 @@ public readonly record struct ParseResult<TValue>
     /// <exception cref="System.ArgumentOutOfRangeException"><paramref name="errorOffset"/> is negative.</exception>
     public ParseResult(DatatypeError error, int errorOffset)
     {
-        Argument.ThrowIfLessThan(errorOffset, 0);
+        ArgumentOutOfRangeException.ThrowIfLessThan(errorOffset, 0);
         Success = false;
         Value = default!;
         Error = error;

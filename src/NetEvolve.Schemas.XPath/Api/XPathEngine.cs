@@ -62,7 +62,7 @@ internal static class XPathEngine
         XPathHostRequirements activeHost
     )
     {
-        Argument.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(source);
 
         context ??= XPathStaticContext.Default;
         if (context.Version != XPathVersion.V20)

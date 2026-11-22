@@ -21,8 +21,8 @@ public sealed class EnumerationFacet<TValue> : IValueFacet<TValue>
     /// <param name="values">The listed values.</param>
     public EnumerationFacet(IDatatypeDescriptor<TValue> type, IReadOnlyList<TValue> values)
     {
-        Argument.ThrowIfNull(type);
-        Argument.ThrowIfNull(values);
+        ArgumentNullException.ThrowIfNull(type);
+        ArgumentNullException.ThrowIfNull(values);
         _type = type;
         _values = new TValue[values.Count];
         for (var i = 0; i < _values.Length; i++)

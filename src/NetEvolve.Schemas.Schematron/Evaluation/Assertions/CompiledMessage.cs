@@ -10,8 +10,8 @@ internal sealed class CompiledMessage
 {
     internal CompiledMessage(string id, DocumentLocation location, MessagePart[] parts)
     {
-        Argument.ThrowIfNull(id);
-        Argument.ThrowIfNull(parts);
+        ArgumentNullException.ThrowIfNull(id);
+        ArgumentNullException.ThrowIfNull(parts);
 
         Id = id;
         Location = location;

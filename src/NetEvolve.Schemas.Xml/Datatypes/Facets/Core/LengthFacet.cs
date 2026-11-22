@@ -14,7 +14,7 @@ public sealed class LengthFacet : ILexicalFacet
 {
     private LengthFacet(FacetKind kind, int value, LengthUnit unit)
     {
-        Argument.ThrowIfLessThan(value, 0);
+        ArgumentOutOfRangeException.ThrowIfLessThan(value, 0);
         Kind = kind;
         Value = value;
         Unit = unit;

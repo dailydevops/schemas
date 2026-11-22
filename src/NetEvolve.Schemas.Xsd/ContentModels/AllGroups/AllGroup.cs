@@ -27,9 +27,9 @@ internal sealed class AllGroup : ICompiledContentModel
     /// <param name="memberOptional">Whether each member may be absent (<c>minOccurs</c> 0).</param>
     public AllGroup(bool isOptional, int[][] memberNameIds, bool[] memberOptional)
     {
-        Argument.ThrowIfNull(memberNameIds);
-        Argument.ThrowIfNull(memberOptional);
-        Argument.ThrowIfNotEqual(memberOptional.Length, memberNameIds.Length);
+        ArgumentNullException.ThrowIfNull(memberNameIds);
+        ArgumentNullException.ThrowIfNull(memberOptional);
+        ArgumentOutOfRangeException.ThrowIfNotEqual(memberOptional.Length, memberNameIds.Length);
 
         IsOptional = isOptional;
         _memberNameIds = new int[memberNameIds.Length][];
@@ -39,8 +39,8 @@ internal sealed class AllGroup : ICompiledContentModel
         for (var m = 0; m < memberNameIds.Length; m++)
         {
             var ids = memberNameIds[m];
-            Argument.ThrowIfNull(ids);
-            Argument.ThrowIfLessThan(ids.Length, 1);
+            ArgumentNullException.ThrowIfNull(ids);
+            ArgumentOutOfRangeException.ThrowIfLessThan(ids.Length, 1);
 
             _memberNameIds[m] = (int[])ids.Clone();
             total += ids.Length;
@@ -57,7 +57,7 @@ internal sealed class AllGroup : ICompiledContentModel
         {
             foreach (var id in _memberNameIds[m])
             {
-                Argument.ThrowIfLessThan(id, 0);
+                ArgumentOutOfRangeException.ThrowIfLessThan(id, 0);
 
                 _sortedNameIds[n] = id;
                 _memberOfName[n++] = m;

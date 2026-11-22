@@ -21,7 +21,7 @@ internal sealed class XsltNamespaceInstruction : IXsltInstruction
     /// <inheritdoc />
     public bool TryCompile(XsltCompileContext context, out XsltExecutable executable, out SchematronProblem problem)
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         executable = null!;
         problem = default;

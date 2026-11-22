@@ -67,7 +67,7 @@ internal sealed class ArithmeticOperatorTable
     )
     {
         CheckOperator(@operator);
-        Argument.ThrowIfNull(implementation);
+        ArgumentNullException.ThrowIfNull(implementation);
 
         Add(
             @operator,
@@ -93,7 +93,7 @@ internal sealed class ArithmeticOperatorTable
     )
     {
         CheckOperator(@operator);
-        Argument.ThrowIfNull(implementation);
+        ArgumentNullException.ThrowIfNull(implementation);
 
         Add(@operator, new BinaryEntry(left, right, null, implementation));
     }
@@ -108,7 +108,7 @@ internal sealed class ArithmeticOperatorTable
     public void Register(UnaryOperator @operator, XdmTypeId operand, UnaryOperatorImplementation implementation)
     {
         CheckOperator(@operator);
-        Argument.ThrowIfNull(implementation);
+        ArgumentNullException.ThrowIfNull(implementation);
 
         var key = ((int)@operator, operand.Value);
         if (_unary.ContainsKey(key))
@@ -253,14 +253,18 @@ internal sealed class ArithmeticOperatorTable
 
     private static void CheckOperator(ArithmeticOperator @operator)
     {
-        Argument.ThrowIfLessThan((int)@operator, (int)ArithmeticOperator.Add, nameof(@operator));
-        Argument.ThrowIfGreaterThan((int)@operator, (int)ArithmeticOperator.Modulo, nameof(@operator));
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)@operator, (int)ArithmeticOperator.Add, nameof(@operator));
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(
+            (int)@operator,
+            (int)ArithmeticOperator.Modulo,
+            nameof(@operator)
+        );
     }
 
     private static void CheckOperator(UnaryOperator @operator)
     {
-        Argument.ThrowIfLessThan((int)@operator, (int)UnaryOperator.Plus, nameof(@operator));
-        Argument.ThrowIfGreaterThan((int)@operator, (int)UnaryOperator.Minus, nameof(@operator));
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)@operator, (int)UnaryOperator.Plus, nameof(@operator));
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)@operator, (int)UnaryOperator.Minus, nameof(@operator));
     }
 
     [StructLayout(LayoutKind.Auto)]

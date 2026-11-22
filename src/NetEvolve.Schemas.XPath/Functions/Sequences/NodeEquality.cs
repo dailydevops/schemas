@@ -31,8 +31,8 @@ internal static class NodeEquality
     /// <exception cref="ArgumentNullException">A node is <see langword="default"/>.</exception>
     public static bool DeepEqual(in XPathNode left, in XPathNode right)
     {
-        Argument.ThrowIfNull(left.Tree);
-        Argument.ThrowIfNull(right.Tree);
+        ArgumentNullException.ThrowIfNull(left.Tree);
+        ArgumentNullException.ThrowIfNull(right.Tree);
 
         if (left.IsSameNode(in right))
         {

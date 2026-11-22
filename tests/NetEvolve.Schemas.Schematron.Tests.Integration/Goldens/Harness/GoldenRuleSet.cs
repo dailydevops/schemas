@@ -14,12 +14,12 @@ internal sealed record GoldenRuleSet
     /// <param name="expectations">The expectations, one per document.</param>
     public GoldenRuleSet(string name, IGoldenValidator validator, IReadOnlyList<GoldenExpectation> expectations)
     {
-        Argument.ThrowIfNullOrWhiteSpace(name);
-        Argument.ThrowIfNull(validator);
-        Argument.ThrowIfNull(expectations);
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(name);
+        ArgumentNullException.ThrowIfNull(validator);
+        ArgumentNullException.ThrowIfNull(expectations);
         foreach (var expectation in expectations)
         {
-            Argument.ThrowIfNull(expectation);
+            ArgumentNullException.ThrowIfNull(expectation);
         }
 
         Name = name;

@@ -19,7 +19,7 @@ internal sealed class SessionSink : IXmlSink
 
     internal SessionSink(StreamingValidator validator, EntityListener? entities, CancellationToken cancellationToken)
     {
-        Argument.ThrowIfNull(validator);
+        ArgumentNullException.ThrowIfNull(validator);
 
         _validator = validator;
         _entities = entities;

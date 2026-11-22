@@ -31,8 +31,8 @@ internal static class LetContentTree
         out SchematronProblem problem
     )
     {
-        Argument.ThrowIfNull(names);
-        Argument.ThrowIfNull(content);
+        ArgumentNullException.ThrowIfNull(names);
+        ArgumentNullException.ThrowIfNull(content);
 
         using var sink = new TreeContentSink(names);
         var pass = new Pass(sink);

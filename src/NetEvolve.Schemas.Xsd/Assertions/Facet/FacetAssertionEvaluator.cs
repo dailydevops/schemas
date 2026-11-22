@@ -52,12 +52,12 @@ internal static class FacetAssertionEvaluator
         XsdIssueReporter reporter
     )
     {
-        Argument.ThrowIfNull(assertions);
-        Argument.ThrowIfNull(type);
-        Argument.ThrowIfNull(text);
-        Argument.ThrowIfNull(assessor);
-        Argument.ThrowIfNull(context);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(assertions);
+        ArgumentNullException.ThrowIfNull(type);
+        ArgumentNullException.ThrowIfNull(text);
+        ArgumentNullException.ThrowIfNull(assessor);
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         var tests = assertions.Of(type);
         if (tests.Count == 0)

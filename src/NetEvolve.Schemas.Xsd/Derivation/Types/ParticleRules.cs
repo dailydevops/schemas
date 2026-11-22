@@ -20,8 +20,8 @@ internal static class ParticleRules
     /// <returns><see langword="true"/> when they are the same particle, or the extension is a sequence that occurs once and starts with the base.</returns>
     internal static bool IsValidExtension(Particle extension, Particle baseParticle)
     {
-        Argument.ThrowIfNull(extension);
-        Argument.ThrowIfNull(baseParticle);
+        ArgumentNullException.ThrowIfNull(extension);
+        ArgumentNullException.ThrowIfNull(baseParticle);
 
         return ReferenceEquals(extension, baseParticle)
             || (
@@ -38,7 +38,7 @@ internal static class ParticleRules
     /// <returns><see langword="true"/> when its minimum total range is zero.</returns>
     internal static bool IsEmptiable(Particle particle)
     {
-        Argument.ThrowIfNull(particle);
+        ArgumentNullException.ThrowIfNull(particle);
 
         return IsEmptiable(particle, []);
     }

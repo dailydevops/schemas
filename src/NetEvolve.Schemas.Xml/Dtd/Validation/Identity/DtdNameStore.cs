@@ -40,8 +40,8 @@ internal sealed class DtdNameStore
     /// <returns>The characters, valid until the next <see cref="Append"/> or <see cref="Clear"/>.</returns>
     internal ReadOnlySpan<char> Get(int start, int length)
     {
-        Argument.ThrowIfLessThan(start, 0);
-        Argument.ThrowIfLessThan(length, 0);
+        ArgumentOutOfRangeException.ThrowIfLessThan(start, 0);
+        ArgumentOutOfRangeException.ThrowIfLessThan(length, 0);
 
         return _chars.AsSpan(start, length);
     }

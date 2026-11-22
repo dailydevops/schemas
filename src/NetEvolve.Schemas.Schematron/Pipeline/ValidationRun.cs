@@ -54,9 +54,9 @@ internal static class ValidationRun
     )
     {
         cancellationToken.ThrowIfCancellationRequested();
-        Argument.ThrowIfNull(program);
-        Argument.ThrowIfNull(parameters);
-        Argument.ThrowIfNull(limits);
+        ArgumentNullException.ThrowIfNull(program);
+        ArgumentNullException.ThrowIfNull(parameters);
+        ArgumentNullException.ThrowIfNull(limits);
 
         var collector = new ValidationIssueCollector(limits);
         var events = new IssueMapper(collector, sink);

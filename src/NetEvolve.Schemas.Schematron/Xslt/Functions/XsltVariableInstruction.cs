@@ -35,7 +35,7 @@ internal sealed class XsltVariableInstruction : IXsltInstruction
     /// <inheritdoc />
     public bool TryCompile(XsltCompileContext context, out XsltExecutable executable, out SchematronProblem problem)
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         problem = default;
         if (XsltGlobalCompile.IsTopLevel(context.Element))
@@ -84,8 +84,8 @@ internal sealed class XsltVariableInstruction : IXsltInstruction
     /// <returns><see langword="false"/> when the type is not supported.</returns>
     internal static bool TryReadDeclaredType(XsltCompileContext context, string name, out string? declared)
     {
-        Argument.ThrowIfNull(context);
-        Argument.ThrowIfNull(name);
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(name);
 
         declared = null;
         if (
@@ -112,8 +112,8 @@ internal sealed class XsltVariableInstruction : IXsltInstruction
     /// <returns><see langword="false"/> when the element has content and a problem was reported.</returns>
     internal static bool CheckContent(XsltCompileContext context, bool hasSelect, string elementName)
     {
-        Argument.ThrowIfNull(context);
-        Argument.ThrowIfNull(elementName);
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(elementName);
 
         if (!HasContent(context.Element))
         {

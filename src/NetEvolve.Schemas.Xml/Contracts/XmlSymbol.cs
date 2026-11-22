@@ -15,7 +15,7 @@ public readonly struct XmlSymbol : IEquatable<XmlSymbol>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> is negative.</exception>
     public XmlSymbol(int value)
     {
-        Argument.ThrowIfLessThan(value, 0);
+        ArgumentOutOfRangeException.ThrowIfLessThan(value, 0);
         Value = value;
     }
 

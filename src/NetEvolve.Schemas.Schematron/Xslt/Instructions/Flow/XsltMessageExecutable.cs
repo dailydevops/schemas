@@ -28,7 +28,7 @@ internal sealed class XsltMessageExecutable : XsltExecutable, IXsltSlotReader, I
         DocumentLocation location
     )
     {
-        Argument.ThrowIfNull(body);
+        ArgumentNullException.ThrowIfNull(body);
 
         _select = select;
         _body = body;
@@ -47,8 +47,8 @@ internal sealed class XsltMessageExecutable : XsltExecutable, IXsltSlotReader, I
     /// <inheritdoc />
     internal override QueryStatus TryExecute(XsltFrame frame, ISequenceSink sink)
     {
-        Argument.ThrowIfNull(frame);
-        Argument.ThrowIfNull(sink);
+        ArgumentNullException.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(sink);
 
         using var text = new TextSink(frame.MaxMessageLength);
         if (_select is not null && frame.Run.TryEvaluate(_select, frame.Focus, text) == QueryStatus.Problem)

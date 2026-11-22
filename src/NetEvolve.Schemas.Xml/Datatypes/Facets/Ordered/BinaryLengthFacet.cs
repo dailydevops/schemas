@@ -18,9 +18,9 @@ public sealed class BinaryLengthFacet : ILexicalFacet
 {
     private BinaryLengthFacet(FacetKind kind, int value, BinaryKind encoding)
     {
-        Argument.ThrowIfLessThan(value, 0);
-        Argument.ThrowIfLessThan((int)encoding, (int)BinaryKind.HexBinary);
-        Argument.ThrowIfGreaterThan((int)encoding, (int)BinaryKind.Base64Binary);
+        ArgumentOutOfRangeException.ThrowIfLessThan(value, 0);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)encoding, (int)BinaryKind.HexBinary);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)encoding, (int)BinaryKind.Base64Binary);
         Kind = kind;
         Value = value;
         Encoding = encoding;

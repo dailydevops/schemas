@@ -34,7 +34,7 @@ internal sealed class GroupHarness
         CancellationToken cancellationToken = default
     )
     {
-        Argument.ThrowIfNull(binding);
+        ArgumentNullException.ThrowIfNull(binding);
 
         _variables = variables ?? [];
         Binding = new GroupBinding(binding);

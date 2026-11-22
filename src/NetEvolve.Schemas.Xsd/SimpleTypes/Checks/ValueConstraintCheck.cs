@@ -37,9 +37,9 @@ internal static class ValueConstraintCheck
         XsdIssueReporter reporter
     )
     {
-        Argument.ThrowIfNull(element);
-        Argument.ThrowIfNull(assessor);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(element);
+        ArgumentNullException.ThrowIfNull(assessor);
+        ArgumentNullException.ThrowIfNull(reporter);
         GuardVersion(version);
 
         var constraint = element.ValueConstraint;
@@ -83,9 +83,9 @@ internal static class ValueConstraintCheck
         XsdIssueReporter reporter
     )
     {
-        Argument.ThrowIfNull(attribute);
-        Argument.ThrowIfNull(assessor);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(attribute);
+        ArgumentNullException.ThrowIfNull(assessor);
+        ArgumentNullException.ThrowIfNull(reporter);
         GuardVersion(version);
 
         return CheckAttributeValue(
@@ -111,9 +111,9 @@ internal static class ValueConstraintCheck
         XsdIssueReporter reporter
     )
     {
-        Argument.ThrowIfNull(use);
-        Argument.ThrowIfNull(assessor);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(use);
+        ArgumentNullException.ThrowIfNull(assessor);
+        ArgumentNullException.ThrowIfNull(reporter);
         GuardVersion(version);
 
         // A use without an own constraint inherits the one of its declaration, which is checked with the declaration.
@@ -138,8 +138,8 @@ internal static class ValueConstraintCheck
 
     private static void GuardVersion(XsdVersion version)
     {
-        Argument.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
-        Argument.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
     }
 
     // XSD 1.1 names the value check of an attribute 'Simple Default Valid'; XSD 1.0 states it in a-props-correct.

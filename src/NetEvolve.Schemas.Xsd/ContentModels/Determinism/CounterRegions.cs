@@ -25,7 +25,7 @@ internal sealed class CounterRegions
     /// <param name="cap">The largest value the counter takes, at least one.</param>
     internal CounterRegions(long min, long limit, long cap)
     {
-        Argument.ThrowIfLessThan(cap, 1L);
+        ArgumentOutOfRangeException.ThrowIfLessThan(cap, 1L);
 
         _cap = cap;
 

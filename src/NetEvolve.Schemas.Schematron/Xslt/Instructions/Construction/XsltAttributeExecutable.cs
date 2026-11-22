@@ -28,7 +28,7 @@ internal sealed class XsltAttributeExecutable : XsltExecutable, IXsltSlotReader,
         int slotEnd
     )
     {
-        Argument.ThrowIfNull(name);
+        ArgumentNullException.ThrowIfNull(name);
 
         _name = name;
         _separator = separator;
@@ -53,8 +53,8 @@ internal sealed class XsltAttributeExecutable : XsltExecutable, IXsltSlotReader,
     /// <inheritdoc />
     internal override QueryStatus TryExecute(XsltFrame frame, ISequenceSink sink)
     {
-        Argument.ThrowIfNull(frame);
-        Argument.ThrowIfNull(sink);
+        ArgumentNullException.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(sink);
 
         if (_name.TryResolve(frame, _location, out var name) == QueryStatus.Problem)
         {

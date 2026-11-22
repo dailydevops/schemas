@@ -14,7 +14,7 @@ internal static class ConstructorFunctions
     /// <exception cref="System.ArgumentNullException"><paramref name="table"/> is <see langword="null"/>.</exception>
     public static IReadOnlyList<ConstructorFunction> Create(CastingTable table)
     {
-        Argument.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(table);
 
         var functions = new List<ConstructorFunction>(table.Targets.Count);
         for (var i = 0; i < table.Targets.Count; i++)

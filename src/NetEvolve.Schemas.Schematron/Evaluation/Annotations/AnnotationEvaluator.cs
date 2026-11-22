@@ -52,10 +52,10 @@ internal sealed class AnnotationEvaluator : IDisposable
     /// <param name="maxTextLength">The most characters of one value.</param>
     internal AnnotationEvaluator(IQueryRun run, ISlotBinder binder, IProblemSink problems, int maxTextLength)
     {
-        Argument.ThrowIfNull(run);
-        Argument.ThrowIfNull(binder);
-        Argument.ThrowIfNull(problems);
-        Argument.ThrowIfLessThan(maxTextLength, 0);
+        ArgumentNullException.ThrowIfNull(run);
+        ArgumentNullException.ThrowIfNull(binder);
+        ArgumentNullException.ThrowIfNull(problems);
+        ArgumentOutOfRangeException.ThrowIfLessThan(maxTextLength, 0);
 
         _run = run;
         _binder = binder;
@@ -67,7 +67,7 @@ internal sealed class AnnotationEvaluator : IDisposable
     /// <param name="pattern">The annotations of the pattern or group.</param>
     internal void BeginPattern(CompiledAnnotations pattern)
     {
-        Argument.ThrowIfNull(pattern);
+        ArgumentNullException.ThrowIfNull(pattern);
 
         _pattern = pattern;
         _patternRole = null;
@@ -77,7 +77,7 @@ internal sealed class AnnotationEvaluator : IDisposable
     /// <param name="rule">The annotations of the rule.</param>
     internal void BeginRule(CompiledAnnotations rule)
     {
-        Argument.ThrowIfNull(rule);
+        ArgumentNullException.ThrowIfNull(rule);
 
         _rule = rule;
         _ruleRole = null;
@@ -91,8 +91,8 @@ internal sealed class AnnotationEvaluator : IDisposable
     /// <returns>The values, empty where none applies or the value failed.</returns>
     internal ResolvedAnnotations Resolve(CompiledAnnotations assertion, string constraint, in QueryFocus focus)
     {
-        Argument.ThrowIfNull(assertion);
-        Argument.ThrowIfNull(constraint);
+        ArgumentNullException.ThrowIfNull(assertion);
+        ArgumentNullException.ThrowIfNull(constraint);
 
         var role = Read(assertion.Role, constraint, in focus)
             ?? Inherit(_rule.Role, ref _ruleRole, constraint, in focus)

@@ -47,7 +47,7 @@ internal static class IdAttributeUses
     /// <returns><see langword="true"/> for an ID type.</returns>
     internal static bool IsIdType(SimpleTypeDefinition type)
     {
-        Argument.ThrowIfNull(type);
+        ArgumentNullException.ThrowIfNull(type);
 
         for (var current = type; current is not null; current = current.BaseType)
         {
@@ -72,8 +72,8 @@ internal static class IdAttributeUses
         string target
     )
     {
-        Argument.ThrowIfNull(uses);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(uses);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         if (version != XsdVersion.V10)
         {

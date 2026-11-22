@@ -23,7 +23,7 @@ internal sealed class SchemaCompilation
         ListenerKinds listeners = ListenerKinds.None
     )
     {
-        Argument.ThrowIfNull(result);
+        ArgumentNullException.ThrowIfNull(result);
 
         Set = set;
         Model = model;

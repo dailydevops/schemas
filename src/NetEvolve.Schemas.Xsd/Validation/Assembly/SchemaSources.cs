@@ -24,8 +24,8 @@ internal static class SchemaSources
     /// <exception cref="SchemaCompilationException">A source exceeds <c>MaxInputSize</c>.</exception>
     internal static List<SchemaInput> Read(IReadOnlyList<SchemaSource> sources, ValidationLimits limits)
     {
-        Argument.ThrowIfNull(sources);
-        Argument.ThrowIfNull(limits);
+        ArgumentNullException.ThrowIfNull(sources);
+        ArgumentNullException.ThrowIfNull(limits);
 
         var inputs = new List<SchemaInput>(sources.Count);
         foreach (var source in sources)
@@ -49,8 +49,8 @@ internal static class SchemaSources
     )
     {
         cancellationToken.ThrowIfCancellationRequested();
-        Argument.ThrowIfNull(sources);
-        Argument.ThrowIfNull(limits);
+        ArgumentNullException.ThrowIfNull(sources);
+        ArgumentNullException.ThrowIfNull(limits);
 
         var inputs = new List<SchemaInput>(sources.Count);
         foreach (var source in sources)

@@ -32,8 +32,8 @@ internal static class AbstractPatternExpander
         out IReadOnlyList<SchematronPatternBase> expanded
     )
     {
-        Argument.ThrowIfNull(patterns);
-        Argument.ThrowIfNull(problems);
+        ArgumentNullException.ThrowIfNull(patterns);
+        ArgumentNullException.ThrowIfNull(problems);
 
         var catalog = new Dictionary<string, SchematronPatternBase>(StringComparer.Ordinal);
         foreach (var pattern in patterns)
