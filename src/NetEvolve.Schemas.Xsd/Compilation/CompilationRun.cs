@@ -453,6 +453,9 @@ internal sealed class CompilationRun
     {
         internal ConstraintOwner(DocumentLocation location, UnitScope unit, IdentityConstraintDefinition constraint)
         {
+            Argument.ThrowIfNull(unit);
+            Argument.ThrowIfNull(constraint);
+
             Location = location;
             Unit = unit;
             Constraint = constraint;

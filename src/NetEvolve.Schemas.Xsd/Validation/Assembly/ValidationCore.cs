@@ -125,6 +125,9 @@ internal sealed class ValidationCore : IValidationCore
             CancellationToken cancellationToken
         )
         {
+            Argument.ThrowIfNull(core);
+            Argument.ThrowIfNull(collector);
+
             _core = core;
             _collector = collector;
             _systemId = systemId;
@@ -134,6 +137,8 @@ internal sealed class ValidationCore : IValidationCore
         internal void Pump<TReader>(TReader reader)
             where TReader : IXmlReader
         {
+            Argument.ThrowIfNull(reader);
+
             var entities = new EntityListener(_core._assessor, _core._options.Limits);
             var validator = new StreamingValidator(
                 _core._model,

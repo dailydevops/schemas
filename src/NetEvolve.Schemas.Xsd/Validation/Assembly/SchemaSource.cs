@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.Xsd.Validation.Assembly;
 
 using System;
 using System.IO;
+using NetEvolve.Arguments;
 
 /// <summary>One schema document that the builder collected: characters, bytes, or a stream that is read at build time.</summary>
 /// <remarks>The memory is borrowed until the build returns, and a stream is read from its current position and never disposed.</remarks>
@@ -55,6 +56,10 @@ internal readonly struct SchemaSource
     /// <param name="stream">The stream.</param>
     /// <param name="systemId">The system identifier, or <see langword="null"/>.</param>
     /// <returns>The source.</returns>
-    internal static SchemaSource FromStream(Stream stream, string? systemId) =>
-        new(default, default, false, stream, systemId);
+    internal static SchemaSource FromStream(Stream stream, string? systemId)
+    {
+        Argument.ThrowIfNull(stream);
+
+        return new(default, default, false, stream, systemId);
+    }
 }
