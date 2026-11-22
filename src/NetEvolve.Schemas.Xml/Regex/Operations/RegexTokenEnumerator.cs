@@ -7,7 +7,7 @@ using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 /// <remarks>
 /// A separator at the start of the input gives an empty first token, a separator at the end an empty last token, and adjacent
 /// separators an empty token between them. Use it in a <see langword="foreach"/> loop or call <see cref="Dispose"/> after the
-/// last use. When a step ceiling is reached the enumeration ends and <see cref="IsAborted"/> is <see langword="true"/>; the
+/// last use. A copy shares the rented array, so dispose exactly one of the copies (a <see langword="foreach"/> loop disposes its own copy). When a step ceiling is reached the enumeration ends and <see cref="IsAborted"/> is <see langword="true"/>; the
 /// tokens already returned must then be discarded.
 /// </remarks>
 [StructLayout(LayoutKind.Auto)]

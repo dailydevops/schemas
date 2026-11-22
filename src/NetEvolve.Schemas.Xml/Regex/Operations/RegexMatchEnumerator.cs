@@ -7,8 +7,8 @@ using NetEvolve.Schemas.Xml.Regex.Contracts;
 
 /// <summary>Enumerates the non-overlapping matches of a pattern in an input, leftmost first, without allocating per match.</summary>
 /// <remarks>
-/// Use it in a <see langword="foreach"/> loop or call <see cref="Dispose"/> after the last use; it rents one small array from the
-/// shared pool, which the end of the enumeration returns as well. After a match of the empty string the search continues one code
+/// It rents one small array from the shared pool: use it in a <see langword="foreach"/> loop or call <see cref="Dispose"/> after the last
+/// use. A copy shares the rented array, so dispose exactly one of the copies (a <see langword="foreach"/> loop disposes its own copy). After a match of the empty string the search continues one code
 /// point further, so the enumeration always ends. When a step ceiling is reached the enumeration ends and <see cref="IsAborted"/>
 /// is <see langword="true"/>. Limitation: a capture group keeps the text of the last iteration of its enclosing loop in which it
 /// took part.
@@ -23,6 +23,7 @@ public ref struct RegexMatchEnumerator
     private int[]? _groups;
     private int _next;
     private bool _aborted;
+    private bool _finished;
 
     internal RegexMatchEnumerator(RegexOperations operations, ReadOnlySpan<char> input, RegexStepLimits? limits)
     {
@@ -33,6 +34,7 @@ public ref struct RegexMatchEnumerator
         _groups = ArrayPool<int>.Shared.Rent(_width);
         _next = 0;
         _aborted = false;
+        _finished = false;
     }
 
     /// <summary>Gets the current match; it is valid after <see cref="MoveNext"/> returned <see langword="true"/> and until the next call.</summary>
@@ -49,14 +51,14 @@ public ref struct RegexMatchEnumerator
     /// <returns><see langword="false"/> when no match is left, or a step ceiling was reached.</returns>
     public bool MoveNext()
     {
-        if (_groups is null)
+        if (_finished || _groups is null)
         {
             return false;
         }
 
         if (_next > _input.Length)
         {
-            Dispose();
+            _finished = true;
             return false;
         }
 
@@ -65,7 +67,7 @@ public ref struct RegexMatchEnumerator
         if (result != RegexMatchResult.Match)
         {
             _aborted = result == RegexMatchResult.Aborted;
-            Dispose();
+            _finished = true;
             return false;
         }
 

@@ -3,6 +3,7 @@ namespace NetEvolve.Schemas.Xml.Tests.Unit.Regex.Operations;
 using System;
 using NetEvolve.Schemas.Testing.Allocations;
 using NetEvolve.Schemas.Xml.Regex.Contracts;
+using NetEvolve.Schemas.Xml.Regex.Operations;
 using NetEvolve.Schemas.Xml.Regex.XPathDialect;
 using NetEvolve.Schemas.Xml.Tests.Unit.Regex.XPathDialect;
 
@@ -175,7 +176,7 @@ public class RegexCaptureTests
     {
         var results = EnumerateTwiceBeyondTheEnd();
 
-        await Assert.That(results).IsEqualTo("TFF");
+        await Assert.That(results).IsEqualTo("TFFFF");
     }
 
     [Test]
@@ -240,7 +241,9 @@ public class RegexCaptureTests
             (matches.MoveNext() ? "T" : "F") + (matches.MoveNext() ? "T" : "F") + (matches.MoveNext() ? "T" : "F");
         matches.Dispose();
         matches.Dispose();
-        return text;
+        var disposed = matches.MoveNext() ? "T" : "F";
+        var none = default(RegexMatchEnumerator);
+        return text + disposed + (none.MoveNext() ? "T" : "F");
     }
 
     private static (int Matches, int Groups) CountWithForEach(string pattern, string input)

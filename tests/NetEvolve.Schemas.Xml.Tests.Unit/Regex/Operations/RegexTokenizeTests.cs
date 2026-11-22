@@ -113,16 +113,18 @@ public class RegexTokenizeTests
 
     private static int CountWithForEach(string pattern, string input)
     {
-        _ = RegexOps.Create(pattern).TryTokenize(input, null, out var tokens);
         var count = 0;
-        using (tokens)
+        foreach (var token in Tokens(pattern, input))
         {
-            foreach (var token in tokens)
-            {
-                count += token.Length >= 0 ? 1 : 0;
-            }
+            count += token.Length >= 0 ? 1 : 0;
         }
 
         return count;
+    }
+
+    private static RegexTokenEnumerator Tokens(string pattern, string input)
+    {
+        _ = RegexOps.Create(pattern).TryTokenize(input, null, out var tokens);
+        return tokens;
     }
 }
