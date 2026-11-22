@@ -118,7 +118,7 @@ internal sealed class SchematronEngine : ISchematronValidator
         return Judge(schematronCase, output.WrittenMemory);
     }
 
-    private static SchematronObservation Judge(SchematronCase schematronCase, ReadOnlyMemory<byte> svrl)
+    internal static SchematronObservation Judge(SchematronCase schematronCase, ReadOnlyMemory<byte> svrl)
     {
         SvrlReport report;
         try

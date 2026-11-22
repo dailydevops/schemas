@@ -1,5 +1,6 @@
 namespace NetEvolve.Schemas.Schematron.Tests.Integration.Conformance.Engine;
 
+using System.Text;
 using NetEvolve.Schemas.Schematron.Tests.Integration.Conformance.Runner;
 using static NetEvolve.Schemas.Schematron.Tests.Integration.Conformance.Engine.EngineFixtures;
 
@@ -146,7 +147,7 @@ public class SchematronEngineTests
     }
 
     [Test]
-    public async Task ValidateAsync_Cancelled_Throws()
+    public async Task ValidateAsync_Canceled_Throws()
     {
         using var source = new CancellationTokenSource();
         await source.CancelAsync();
@@ -154,5 +155,28 @@ public class SchematronEngineTests
         await Assert
             .That(async () => await Run(Case(SchematronOutcome.Valid, [Schema("true()")]), source.Token))
             .Throws<OperationCanceledException>();
+    }
+
+    private static SchematronObservation Judge(string svrl) =>
+        SchematronEngine.Judge(Case(SchematronOutcome.Valid, [Schema("true()")]), Encoding.UTF8.GetBytes(svrl));
+
+    [Test]
+    public async Task Judge_SvrlWithAnError_IsErrorWithReason()
+    {
+        var observation = Judge(
+            "<svrl:schematron-output xmlns:svrl='http://purl.oclc.org/dsdl/svrl'><svrl:error/></svrl:schematron-output>"
+        );
+
+        await Assert.That(observation.Outcome).IsEqualTo(SchematronOutcome.Error);
+        await Assert.That(observation.Reason).Contains("svrl:error");
+    }
+
+    [Test]
+    public async Task Judge_MalformedSvrl_IsNotImplementedWithReason()
+    {
+        var observation = Judge("<svrl:schematron-output");
+
+        await Assert.That(observation.Outcome).IsEqualTo(SchematronOutcome.NotImplemented);
+        await Assert.That(observation.Reason).Contains("not well formed");
     }
 }

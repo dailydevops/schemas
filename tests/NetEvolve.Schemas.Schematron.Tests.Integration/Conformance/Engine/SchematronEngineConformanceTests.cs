@@ -105,7 +105,7 @@ public class SchematronEngineConformanceTests
     }
 
     [Test]
-    public async Task Class_IsNotRestrictedToTheDesignatedLeg() =>
+    public async Task Class_IsRestrictedToTheDesignatedLeg() =>
         await Assert
             .That(
                 typeof(SchematronEngineConformanceTests).GetCustomAttributes(
@@ -113,7 +113,7 @@ public class SchematronEngineConformanceTests
                     inherit: false
                 )
             )
-            .IsEmpty();
+            .IsNotEmpty();
 
     private static string Format(TestSetReport report, IReadOnlyList<CaseResult> results)
     {
