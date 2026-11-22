@@ -1,5 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Functions.Documents;
 
+using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Errors;
@@ -46,8 +47,12 @@ internal abstract class IdentifierFunction : NodeFunction
     /// <summary>Creates the list that collects the nodes of a result, bounded by the sequence limit of the context.</summary>
     /// <param name="context">The evaluation context.</param>
     /// <returns>The list; the caller disposes it.</returns>
-    protected static XdmItemList NewList(XPathEvaluationContext context) =>
-        new(context.Limits.MaxSequenceSize, new SourceSpan(-1, 0));
+    protected static XdmItemList NewList(XPathEvaluationContext context)
+    {
+        Argument.ThrowIfNull(context);
+
+        return new(context.Limits.MaxSequenceSize, new SourceSpan(-1, 0));
+    }
 
     /// <summary>Brings the collected nodes into document order without duplicates and copies them into a sequence.</summary>
     /// <param name="found">The collected nodes; every item is a node. The list is reused.</param>

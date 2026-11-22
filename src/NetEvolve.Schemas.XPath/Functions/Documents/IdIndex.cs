@@ -75,14 +75,23 @@ internal sealed class IdIndex
     /// <param name="id">The ID value.</param>
     /// <param name="element">The element when the result is <see langword="true"/>.</param>
     /// <returns><see langword="true"/> when an element has the ID.</returns>
-    internal bool TryGetElement(string id, out XmlNode element) => _elements.TryGetValue(id, out element);
+    internal bool TryGetElement(string id, out XmlNode element)
+    {
+        Argument.ThrowIfNull(id);
+
+        return _elements.TryGetValue(id, out element);
+    }
 
     /// <summary>Gets the attributes in document order whose IDREF or IDREFS value names an ID.</summary>
     /// <param name="id">The ID value.</param>
     /// <param name="attributes">The attributes when the result is <see langword="true"/>.</param>
     /// <returns><see langword="true"/> when an attribute names the ID.</returns>
-    internal bool TryGetReferences(string id, out List<XmlNode>? attributes) =>
-        _references.TryGetValue(id, out attributes);
+    internal bool TryGetReferences(string id, out List<XmlNode>? attributes)
+    {
+        Argument.ThrowIfNull(id);
+
+        return _references.TryGetValue(id, out attributes);
+    }
 
     private static IdIndex Build(XmlTree tree)
     {

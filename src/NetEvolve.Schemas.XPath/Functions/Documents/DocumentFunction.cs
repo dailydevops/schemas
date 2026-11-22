@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.XPath.Functions.Documents;
 
 using System;
 using System.Collections.Generic;
+using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Model;
 using NetEvolve.Schemas.XPath.Context;
@@ -78,6 +79,9 @@ internal abstract class DocumentFunction : NodeFunction
     /// <returns>The status.</returns>
     protected DocumentStatus TryLoad(XPathEvaluationContext context, string reference, out XmlDocumentTree? tree)
     {
+        Argument.ThrowIfNull(context);
+        Argument.ThrowIfNull(reference);
+
         tree = null;
         var status = ResourceUris.Resolve(reference, _staticBaseUri, out var absolute);
         if (status == ResourceUriStatus.Invalid)
