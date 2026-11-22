@@ -21,6 +21,27 @@ public class Qt3SuiteTests
     }
 
     [Test]
+    public async Task GetRootAsync_ReturnsTheFetchedSuiteDirectoryOnEveryCall(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var first = await Qt3Suite.GetRootAsync(cancellationToken);
+        var second = await Qt3Suite.GetRootAsync(cancellationToken);
+
+        await Assert.That(File.Exists(Path.Combine(first, "catalog.xml"))).IsTrue();
+        await Assert.That(second).IsEqualTo(first);
+    }
+
+    [Test]
+    public async Task GetRootAsync_CanceledToken_Throws()
+    {
+        using var source = new CancellationTokenSource();
+        await source.CancelAsync();
+
+        _ = await Assert.ThrowsAsync<OperationCanceledException>(async () => await Qt3Suite.GetRootAsync(source.Token));
+    }
+
+    [Test]
     public async Task Fetch_ArchiveWithDifferentBytes_FailsWithChecksumMismatch(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();

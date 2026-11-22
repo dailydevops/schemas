@@ -1,8 +1,1 @@
-fn-resolve-QName/K-ResolveQNameConstructFunc-1
-fn-resolve-QName/K-ResolveQNameConstructFunc-2
-fn-resolve-QName/K-ResolveQNameConstructFunc-3
 fn-resolve-QName/K-ResolveQNameConstructFunc-4
-fn-resolve-QName/fn-resolve-qname-23
-fn-resolve-QName/fn-resolve-qname-24
-fn-resolve-QName/fn-resolve-qname-25
-fn-resolve-QName/fn-resolve-qname-26

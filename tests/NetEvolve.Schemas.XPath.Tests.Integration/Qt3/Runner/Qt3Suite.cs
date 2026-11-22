@@ -10,6 +10,7 @@ internal static class Qt3Suite
 {
     private static readonly SemaphoreSlim Gate = new(1, 1);
     private static Qt3Selection? s_selection;
+    private static string? s_root;
 
     public static string RepositoryRoot { get; } = FindRepositoryRoot();
 
@@ -28,6 +29,23 @@ internal static class Qt3Suite
         try
         {
             return s_selection ??= await LoadSelectionAsync(cancellationToken).ConfigureAwait(false);
+        }
+        finally
+        {
+            _ = Gate.Release();
+        }
+    }
+
+    /// <summary>Gets the directory of the fetched suite, <c>catalog.xml</c> inside; the archive is downloaded once and cached by checksum.</summary>
+    /// <param name="cancellationToken">A token to cancel the fetch.</param>
+    /// <returns>The suite directory.</returns>
+    public static async Task<string> GetRootAsync(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        await Gate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            return await FetchRootAsync(cancellationToken).ConfigureAwait(false);
         }
         finally
         {
@@ -89,10 +107,21 @@ internal static class Qt3Suite
     private static async Task<Qt3Selection> LoadSelectionAsync(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
+        var root = await FetchRootAsync(cancellationToken).ConfigureAwait(false);
+        return Qt3Selector.Select(Qt3CatalogReader.Read(root));
+    }
+
+    // Callers hold the gate.
+    private static async Task<string> FetchRootAsync(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        if (s_root is not null)
+        {
+            return s_root;
+        }
         using var client = new HttpClient();
         var fetcher = new SuiteFetcher(new HttpSuiteTransport(client), ConformanceCache.ResolveRoot());
-        var root = await fetcher.FetchAsync(Manifest, cancellationToken).ConfigureAwait(false);
-        return Qt3Selector.Select(Qt3CatalogReader.Read(root));
+        return s_root = await fetcher.FetchAsync(Manifest, cancellationToken).ConfigureAwait(false);
     }
 
     private static string FindRepositoryRoot()

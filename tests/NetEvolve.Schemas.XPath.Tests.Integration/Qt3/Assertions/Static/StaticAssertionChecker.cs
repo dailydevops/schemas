@@ -13,7 +13,7 @@ internal static class StaticAssertionChecker
         }
         if (result.Kind == EngineResultKind.NotBound)
         {
-            return new(CaseOutcome.Fail, "no engine is bound");
+            return new(CaseOutcome.Fail, result.Reason);
         }
 
         return assertion.Kind switch

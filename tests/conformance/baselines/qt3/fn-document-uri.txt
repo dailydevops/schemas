@@ -1,5 +1,3 @@
-fn-document-uri/K-DocumentURIFunc-1
-fn-document-uri/K-DocumentURIFunc-2
 fn-document-uri/K-DocumentURIFunc-3
 fn-document-uri/fn-document-uri-12
 fn-document-uri/fn-document-uri-13

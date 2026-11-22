@@ -10,6 +10,10 @@ using NetEvolve.Schemas.XPath.Tests.Integration.Qt3.Assertions.Static;
 /// <param name="Environment">The referenced environment name, if any.</param>
 /// <param name="Assertion">The expected result.</param>
 /// <param name="Dependencies">The case-level dependencies.</param>
+/// <remarks>
+/// <see cref="ResultVariable"/> is set only on the derived case an evaluated assertion hands to the engine, so the assertion expression
+/// is evaluated through the same seam as the query.
+/// </remarks>
 internal sealed record Qt3Case(
     string TestSet,
     string Name,
@@ -20,6 +24,12 @@ internal sealed record Qt3Case(
     IReadOnlyList<Qt3Dependency> Dependencies
 )
 {
+    /// <summary>
+    /// Gets the items bound to the variable <c>$result</c> when <see cref="Query"/> is the expression of an evaluated assertion;
+    /// <see langword="null"/> for the query of the case itself.
+    /// </summary>
+    public IReadOnlyList<object>? ResultVariable { get; init; }
+
     /// <summary>Gets the stable case id, <c>&lt;test-set&gt;/&lt;case-name&gt;</c>.</summary>
     public string Id => TestSet + "/" + Name;
 }

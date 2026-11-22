@@ -2,7 +2,7 @@ namespace NetEvolve.Schemas.XPath.Tests.Integration.Qt3.Runner;
 
 using NetEvolve.Schemas.Conformance.Reporting;
 using NetEvolve.Schemas.Conformance.Results;
-using NetEvolve.Schemas.XPath.Tests.Integration.Qt3.ParserOnly;
+using NetEvolve.Schemas.XPath.Tests.Integration.Qt3.Engine;
 
 [ConformanceLeg]
 public class Qt3BaselineTests
@@ -15,7 +15,7 @@ public class Qt3BaselineTests
         cancellationToken.ThrowIfCancellationRequested();
         var selection = await Qt3Suite.GetSelectionAsync(cancellationToken);
 
-        Qt3Suite.RegenerateBaselines(selection, new ParserOnlyEngine());
+        Qt3Suite.RegenerateBaselines(selection, await Qt3Engine.GetSharedAsync(cancellationToken));
 
         await Assert.That(Qt3Suite.LoadBaselines().Count).IsEqualTo(selection.SelectedTestSets.Count);
     }
@@ -60,11 +60,11 @@ public class Qt3BaselineTests
     }
 
     [Test]
-    public async Task Baseline_MatchesParserOnlyEngineRun(CancellationToken cancellationToken)
+    public async Task Baseline_MatchesEngineRun(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         var selection = await Qt3Suite.GetSelectionAsync(cancellationToken);
-        var results = Qt3Runner.Run(selection.Selected, new ParserOnlyEngine());
+        var results = Qt3Runner.Run(selection.Selected, await Qt3Engine.GetSharedAsync(cancellationToken));
         var baselines = Qt3Suite.LoadBaselines();
         var listed = 0;
         foreach (var baseline in baselines.Values)

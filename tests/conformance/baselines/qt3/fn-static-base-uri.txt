@@ -1,5 +1,1 @@
-fn-static-base-uri/K-StaticBaseURIFunc-1
-fn-static-base-uri/K-StaticBaseURIFunc-2
-fn-static-base-uri/K-StaticBaseURIFunc-3
-fn-static-base-uri/fn-static-base-1
 fn-static-base-uri/fn-static-base-15

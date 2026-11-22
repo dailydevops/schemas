@@ -1,8 +1,6 @@
-fn-tokenize/K-TokenizeFunc-1
 fn-tokenize/K-TokenizeFunc-2
 fn-tokenize/K-TokenizeFunc-3
 fn-tokenize/K-TokenizeFunc-4
-fn-tokenize/K-TokenizeFunc-5
 fn-tokenize/K2-TokenizeFunc-1
 fn-tokenize/K2-TokenizeFunc-2
 fn-tokenize/K2-TokenizeFunc-3

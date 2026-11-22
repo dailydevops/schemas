@@ -1,4 +1,3 @@
-fn-dateTime/K-DateTimeFunc-1
 fn-dateTime/K-DateTimeFunc-10
 fn-dateTime/K-DateTimeFunc-11
 fn-dateTime/K-DateTimeFunc-12
@@ -8,8 +7,6 @@ fn-dateTime/K-DateTimeFunc-15
 fn-dateTime/K-DateTimeFunc-16
 fn-dateTime/K-DateTimeFunc-17
 fn-dateTime/K-DateTimeFunc-18
-fn-dateTime/K-DateTimeFunc-2
-fn-dateTime/K-DateTimeFunc-3
 fn-dateTime/K-DateTimeFunc-4
 fn-dateTime/K-DateTimeFunc-5
 fn-dateTime/K-DateTimeFunc-6

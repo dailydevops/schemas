@@ -9,9 +9,8 @@ namespace NetEvolve.Schemas.XPath.Tests.Unit.Functions.Numerics;
 /// </summary>
 /// <remarks>
 /// <para>
-/// Limitation: the QT3 runner of the integration tests still has no evaluator behind it (#295), so these cases run through the lowerings of
-/// <see cref="Sequences.Qt3SequenceFixture"/> and not through the runner, and the baselines are unchanged. The end-to-end run stays open
-/// until #295.
+/// Limitation: these cases were selected before the QT3 runner of the integration tests had an evaluator, and they run through the lowerings of
+/// <see cref="Sequences.Qt3SequenceFixture"/> and not through the runner. The end-to-end run is the QT3 runner (#295), whose baselines list only the cases that do not pass.
 /// </para>
 /// <para>
 /// Cases per test set, as selected of applicable: abs 181 of 183; ceiling 86 of 87; floor 87 of 88; round 244 of 245; round-half-to-even 126 of 128; number 63 of 66; true 22 of 24; false 22 of 24.
