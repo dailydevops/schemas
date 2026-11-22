@@ -128,7 +128,7 @@ internal sealed class Qt3Engine : IQt3Engine
         }
         foreach (var source in environment.Sources)
         {
-            if (source.Role.StartsWith('$'))
+            if (IsVariableRole(source.Role))
             {
                 _ = builder.WithVariable(VariableName(source.Role[1..], environment));
             }
@@ -151,7 +151,7 @@ internal sealed class Qt3Engine : IQt3Engine
             {
                 context.SetContextItem(document);
             }
-            else if (source.Role.StartsWith('$'))
+            else if (IsVariableRole(source.Role))
             {
                 variables.Add((VariableName(source.Role[1..], environment), XdmSequence.Create(document)));
             }
@@ -181,6 +181,8 @@ internal sealed class Qt3Engine : IQt3Engine
                 LazyThreadSafetyMode.ExecutionAndPublication
             ))
             .Value;
+
+    private static bool IsVariableRole(string role) => role.Length > 0 && role[0] == '$';
 
     private static XPathQName VariableName(string name, Qt3Environment environment)
     {
