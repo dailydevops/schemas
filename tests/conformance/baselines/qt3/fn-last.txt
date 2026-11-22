@@ -6,13 +6,5 @@ fn-last/K-ContextLastFunc-18
 fn-last/K-ContextLastFunc-7
 fn-last/K-ContextLastFunc-8
 fn-last/K-ContextLastFunc-9
-fn-last/last-12
-fn-last/last-18
 fn-last/last-19
-fn-last/last-20
-fn-last/last-21
-fn-last/last-22
-fn-last/last-23
 fn-last/last-25
-fn-last/last-3
-fn-last/last-8

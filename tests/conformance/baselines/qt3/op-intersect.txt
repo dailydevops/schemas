@@ -1,4 +1,2 @@
 op-intersect/combiningnodeseqintersecthc2
 op-intersect/fn-intersect-node-args-014
-op-intersect/fn-intersect-node-args-015
-op-intersect/fn-intersect-node-args-016

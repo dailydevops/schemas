@@ -104,8 +104,6 @@ prod-CastExpr/CastAs623
 prod-CastExpr/CastAs624
 prod-CastExpr/CastAs647
 prod-CastExpr/CastAs676
-prod-CastExpr/CastAs677
-prod-CastExpr/CastAs678
 prod-CastExpr/CastAs682
 prod-CastExpr/CastAs683
 prod-CastExpr/CastAs684

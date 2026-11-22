@@ -1,5 +1,3 @@
 fn-codepoints-to-string/K-CodepointToStringFunc-14
 fn-codepoints-to-string/K-CodepointToStringFunc-15
 fn-codepoints-to-string/K-CodepointToStringFunc-8
-fn-codepoints-to-string/cbcl-codepoints-to-string-027
-fn-codepoints-to-string/fn-codepoints-to-string-14

@@ -49,6 +49,14 @@ internal static class Qt3CatalogReader
                             (string?)assertion?.Attribute("normalize-space"),
                             "true",
                             StringComparison.Ordinal
+                        ),
+                        assertion?.Attribute("file") is { } assertionFile
+                            ? Path.Combine(directory, assertionFile.Value)
+                            : null,
+                        string.Equals(
+                            (string?)assertion?.Attribute("ignore-prefixes"),
+                            "true",
+                            StringComparison.Ordinal
                         )
                     ),
                     ReadDependencies(element)

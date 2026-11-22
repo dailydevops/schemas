@@ -1,7 +1,4 @@
-op-except/fn-except-node-args-002
 op-except/fn-except-node-args-011
-op-except/fn-except-node-args-012
-op-except/fn-except-node-args-013
 op-except/fn-except-node-args-014
 op-except/fn-except-node-args-015
 op-except/fn-except-node-args-016

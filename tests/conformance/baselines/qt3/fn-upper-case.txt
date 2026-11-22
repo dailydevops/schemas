@@ -1,4 +1,1 @@
-fn-upper-case/fn-upper-case-18
 fn-upper-case/fn-upper-case-19
-fn-upper-case/fn-upper-case-21
-fn-upper-case/fn-upper-case-22

@@ -1,5 +1,0 @@
-prod-AxisStep.preceding-sibling/preceding-sibling-11
-prod-AxisStep.preceding-sibling/preceding-sibling-12
-prod-AxisStep.preceding-sibling/preceding-sibling-13
-prod-AxisStep.preceding-sibling/preceding-sibling-15
-prod-AxisStep.preceding-sibling/unabbreviatedSyntax-25

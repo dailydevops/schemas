@@ -1,9 +1,0 @@
-fn-current-date/fn-current-date-1
-fn-current-date/fn-current-date-10
-fn-current-date/fn-current-date-11
-fn-current-date/fn-current-date-2
-fn-current-date/fn-current-date-21
-fn-current-date/fn-current-date-3
-fn-current-date/fn-current-date-4
-fn-current-date/fn-current-date-6
-fn-current-date/fn-current-date-7
