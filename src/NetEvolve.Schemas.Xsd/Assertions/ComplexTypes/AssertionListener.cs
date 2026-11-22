@@ -33,8 +33,8 @@ using NetEvolve.Schemas.Xsd.Validation.Core;
 /// (<see cref="ComplexTypeAssertions"/>).
 /// </para>
 /// <para>
-/// A test that is false is reported as <c>cvc-assertion</c>, a test that raises a dynamic error or has no effective boolean value as
-/// <c>cvc-xpath</c> (design #146 DP-14: an error makes the element invalid like a false result does), both at the start tag of the
+/// A test that is false, a test that raises a dynamic error, and a test that has no effective boolean value are all reported as
+/// <c>cvc-assertion</c> (design #146 DP-14: an error makes the element invalid like a false result does; the message names the XPath code), at the start tag of the
 /// element, one issue per assertion, so a failing assertion never hides the next. The variable <c>$value</c> holds the typed value of the
 /// element when its content is simple and the element is valid so far, and the empty sequence otherwise (Structures 3.13.4.1, clause 2.3).
 /// The size of a subtree is bounded by <c>MaxInputSize</c> in characters of attribute values and text; a larger subtree is dropped, reported
@@ -62,7 +62,6 @@ internal sealed class AssertionListener : ValidationListener
     );
 
     private static readonly XsdRule AssertionRule = XsdRuleLookup.Find(XsdRuleCodes.CvcAssertion);
-    private static readonly XsdRule EvaluationRule = XsdRuleLookup.Find(XsdRuleCodes.CvcXpath);
 
     private readonly ComplexTypeAssertions _assertions;
     private readonly ISimpleValueAssessor _assessor;
@@ -255,7 +254,7 @@ internal sealed class AssertionListener : ValidationListener
         if (failed)
         {
             _reporter!.Report(
-                EvaluationRule,
+                AssertionRule,
                 location,
                 "The assertion '"
                     + assertion.Test

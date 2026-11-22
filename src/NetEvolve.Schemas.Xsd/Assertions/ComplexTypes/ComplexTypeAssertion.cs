@@ -16,7 +16,7 @@ using NetEvolve.Schemas.Xsd.SchemaDocuments;
 /// <c>assert</c> element with the static context that its <c>xpathDefaultNamespace</c> and its namespace declarations give it.
 /// </summary>
 /// <remarks>
-/// A test that does not compile is a schema error of the rule <c>xpath-valid</c>, located at the <c>assert</c> element. Whether the test
+/// A test that does not compile is a schema error of the rule <c>as-props-correct</c> (Assertion Properties Correct, design #146 DP-17), located at the <c>assert</c> element. Whether the test
 /// holds for an element is decided by <see cref="AssertionListener"/>. Limitation: the XPath engine does not type statically (design
 /// #123), so a type error shows when the test is evaluated and is a dynamic error then.
 /// </remarks>
@@ -128,7 +128,7 @@ internal sealed class ComplexTypeAssertion
         {
             var diagnostic = result.Diagnostic;
             reporter.Report(
-                XsdRuleCodes.XpathValid,
+                XsdRuleCodes.AsPropsCorrect,
                 node.Location,
                 "The test of the assertion is not a valid XPath expression: "
                     + diagnostic.Message
