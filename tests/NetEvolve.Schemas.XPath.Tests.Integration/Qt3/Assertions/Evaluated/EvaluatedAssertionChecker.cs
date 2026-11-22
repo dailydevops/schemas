@@ -19,7 +19,7 @@ internal static class EvaluatedAssertionChecker
         var actual = engine.Evaluate(testCase);
         if (actual.Kind == EngineResultKind.NotBound)
         {
-            return new(CaseOutcome.Fail, "no engine is bound");
+            return new(CaseOutcome.Fail, actual.Reason);
         }
         if (actual.Kind == EngineResultKind.Error)
         {

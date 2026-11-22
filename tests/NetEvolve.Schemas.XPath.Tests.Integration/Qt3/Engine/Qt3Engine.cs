@@ -22,7 +22,7 @@ using QName = NetEvolve.Schemas.XPath.Tests.Integration.Qt3.Assertions.Static.QN
 /// An <c>xs:boolean</c> item is a <see cref="bool"/>, an <c>xs:string</c> item a <see cref="string"/>, every other item an
 /// <see cref="XdmItem"/>. A static or dynamic error of the specifications is an error result. A condition that is no error of the
 /// specifications is never an error result, because <c>error code="*"</c> would pass it: an engine condition (a limit), a document
-/// that does not load, and an unexpected exception all give <see cref="EngineResult.NotBound"/>, which fails every active case.
+/// that does not load, and an unexpected exception all give a not-bound result with its own reason, which fails every active case.
 /// </para>
 /// <para>
 /// Limitations: the prefixes <c>xs</c>, <c>xsi</c> and <c>fn</c> are declared in every static context, the implicit timezone and the
@@ -70,9 +70,13 @@ internal sealed class Qt3Engine : IQt3Engine
         {
             return EvaluateCore(testCase);
         }
+        catch (InvalidDataException)
+        {
+            return EngineResult.NotBoundBecause("a source document did not load");
+        }
         catch (Exception exception) when (exception is not OutOfMemoryException)
         {
-            return EngineResult.NotBound;
+            return EngineResult.NotBoundBecause("an unexpected exception: " + exception.GetType().Name);
         }
     }
 
@@ -146,7 +150,7 @@ internal sealed class Qt3Engine : IQt3Engine
         var variables = new List<(XPathQName, XdmSequence)>();
         foreach (var source in environment.Sources)
         {
-            var document = XdmItem.FromNode(new XPathNode(Load(source).Document));
+            var document = XdmItem.FromNode(new XPathNode(LoadOrThrow(source).Document));
             if (string.Equals(source.Role, ".", StringComparison.Ordinal))
             {
                 context.SetContextItem(document);
@@ -167,6 +171,18 @@ internal sealed class Qt3Engine : IQt3Engine
             }
         }
         return variables;
+    }
+
+    private XmlDocumentTree LoadOrThrow(Qt3Source source)
+    {
+        try
+        {
+            return Load(source);
+        }
+        catch (Exception exception) when (exception is not OutOfMemoryException)
+        {
+            throw new InvalidDataException("The source document " + source.File + " did not load.", exception);
+        }
     }
 
     private XmlDocumentTree Load(Qt3Source source) =>
@@ -246,6 +262,6 @@ internal sealed class Qt3Engine : IQt3Engine
     // A diagnostic outside the specifications is no error result: error code="*" would pass it.
     private static EngineResult Failure(XPathDiagnostic diagnostic) =>
         diagnostic.Kind == XPathErrorKind.Engine
-            ? EngineResult.NotBound
+            ? EngineResult.NotBoundBecause("the evaluation hit an engine limit")
             : EngineResult.Error(new QName(diagnostic.QName.Namespace, diagnostic.QName.LocalName));
 }
