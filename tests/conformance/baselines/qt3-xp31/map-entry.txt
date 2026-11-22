@@ -1,0 +1,9 @@
+map-entry/map-entry-001
+map-entry/map-entry-001-hof
+map-entry/map-entry-002
+map-entry/map-entry-003
+map-entry/map-entry-004
+map-entry/map-entry-005
+map-entry/map-entry-006
+map-entry/map-entry-007
+map-entry/map-entry-007-hof

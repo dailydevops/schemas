@@ -1,0 +1,9 @@
+array-fold-left/array-fold-left-101
+array-fold-left/array-fold-left-102
+array-fold-left/array-fold-left-103
+array-fold-left/array-fold-left-104
+array-fold-left/array-fold-left-105
+array-fold-left/array-fold-left-107
+array-fold-left/array-fold-left-108
+array-fold-left/array-fold-left-109
+array-fold-left/array-fold-left-110
