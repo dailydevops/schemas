@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.Xml.Tests.Unit.Dtd.Entry;
 
 using System;
+using System.Globalization;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -92,6 +93,35 @@ public class DtdEntryReadmeTests
         await Assert.That(readme).Contains("MaxResourceSize");
         await Assert.That(readme).Contains("[#926](https://github.com/dailydevops/schemas/issues/926)");
         await Assert.That(readme).Contains("[#698](https://github.com/dailydevops/schemas/issues/698)");
+    }
+
+    [Test]
+    public async Task Readme_NamesTheDefaultsOfTheBuilder()
+    {
+        var readme = ReadmeSamples.ReadText(Readme);
+        var limits = DtdValidationLimits.Default;
+        var builder = SchemaValidator.ForDtd();
+
+        await Assert
+            .That(readme)
+            .Contains(
+                $"`MaxExternalEntityRequests` ({limits.MaxExternalEntityRequests.ToString("N0", CultureInfo.InvariantCulture)}, error `{DtdLimitCodes.XML1117.Alias}`)"
+            );
+        await Assert
+            .That(readme)
+            .Contains(
+                $"`MaxContentModelStates` ({limits.MaxContentModelStates.ToString("N0", CultureInfo.InvariantCulture)}, error `{DtdLimitCodes.XML1118.Alias}`)"
+            );
+        await Assert
+            .That(readme)
+            .Contains(
+                $"`MaxDeclarations` ({limits.MaxDeclarations.ToString("N0", CultureInfo.InvariantCulture)}, error `{DtdLimitCodes.XML1119.Alias}`)"
+            );
+        await Assert
+            .That(readme)
+            .Contains($"| `WithNonDeterministicContentModels` | `{builder.NonDeterministicContentModels}` |");
+        await Assert.That(readme).Contains("| `WithAllowExternalSubset` | `false` |");
+        await Assert.That(builder.AllowExternalSubset).IsFalse();
     }
 
     [Test]
