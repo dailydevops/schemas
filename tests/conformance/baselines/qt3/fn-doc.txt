@@ -1,11 +1,3 @@
-fn-doc/K2-SeqDocFunc-1
-fn-doc/K2-SeqDocFunc-10
-fn-doc/K2-SeqDocFunc-11
-fn-doc/K2-SeqDocFunc-14
-fn-doc/K2-SeqDocFunc-3
-fn-doc/K2-SeqDocFunc-4
-fn-doc/K2-SeqDocFunc-5
-fn-doc/K2-SeqDocFunc-6
 fn-doc/K2-SeqDocFunc-7
 fn-doc/K2-SeqDocFunc-8
 fn-doc/K2-SeqDocFunc-9
@@ -24,14 +16,11 @@ fn-doc/fn-doc-26
 fn-doc/fn-doc-27
 fn-doc/fn-doc-28
 fn-doc/fn-doc-29
-fn-doc/fn-doc-3
 fn-doc/fn-doc-30
 fn-doc/fn-doc-31
 fn-doc/fn-doc-32
 fn-doc/fn-doc-34
-fn-doc/fn-doc-35
 fn-doc/fn-doc-36
-fn-doc/fn-doc-4
 fn-doc/fn-doc-5
 fn-doc/fn-doc-6
 fn-doc/fn-doc-7
