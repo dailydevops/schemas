@@ -7,7 +7,8 @@ using NetEvolve.Schemas.XPath.Functions.Binding;
 /// <summary>
 /// The registration file of the document group: its module initializer stages <see cref="Register"/> into the default catalog (#123,
 /// AP8, option B), so no shared list names the group. The group holds <c>fn:doc</c>, <c>fn:doc-available</c>, <c>fn:collection</c>, and
-/// the text functions <c>fn:unparsed-text</c>, <c>fn:unparsed-text-available</c>, and <c>fn:unparsed-text-lines</c>.
+/// the text functions <c>fn:unparsed-text</c>, <c>fn:unparsed-text-available</c>, and <c>fn:unparsed-text-lines</c>, and <c>fn:id</c> and
+/// <c>fn:idref</c>.
 /// </summary>
 /// <remarks>
 /// <c>fn:unparsed-text</c> and <c>fn:unparsed-text-available</c> are registered twice with disjoint version masks: for XPath 3.0 and
@@ -37,5 +38,7 @@ internal static class Registration
         builder.Add(new UnparsedTextAvailableFunction());
         builder.Add(new Xslt20UnparsedTextAvailableFunction());
         builder.Add(new UnparsedTextLinesFunction());
+        builder.Add(new IdFunction());
+        builder.Add(new IdRefFunction());
     }
 }
