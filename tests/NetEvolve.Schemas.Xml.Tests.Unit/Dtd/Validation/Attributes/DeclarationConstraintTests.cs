@@ -187,9 +187,11 @@ public class DeclarationConstraintTests
 
         var within = Begin(model, XmlReaderLimits.Default.WithMaxAttributeValueLength(9));
         var beyond = Begin(model, XmlReaderLimits.Default.WithMaxAttributeValueLength(8));
+        var farBeyond = Begin(model, XmlReaderLimits.Default.WithMaxAttributeValueLength(4));
 
         await Assert.That(within.Issues.Count).IsEqualTo(1);
         await Assert.That(beyond.Issues).IsEmpty();
+        await Assert.That(farBeyond.Issues).IsEmpty();
     }
 
     [Test]
