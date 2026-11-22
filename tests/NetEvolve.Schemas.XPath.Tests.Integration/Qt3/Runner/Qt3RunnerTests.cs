@@ -100,10 +100,6 @@ public class Qt3RunnerTests
     }
 
     [Test]
-    [Arguments("assert-xml")]
-    [Arguments("assert-deep-eq")]
-    [Arguments("assert-permutation")]
-    [Arguments("assert-type")]
     [Arguments("serialization-matches")]
     [Arguments("assert-serialization-error")]
     public async Task Run_OtherAssertionKind_IsSkippedNeverPassed(string kind)

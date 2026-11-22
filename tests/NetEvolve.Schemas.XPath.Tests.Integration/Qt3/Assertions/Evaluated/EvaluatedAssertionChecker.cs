@@ -79,10 +79,10 @@ internal static class EvaluatedAssertionChecker
             : new(CaseOutcome.Fail, $"expected string value '{expected}' but got '{value}'");
     }
 
-    private static EngineResult Ask(Qt3Case testCase, IQt3Engine engine, EngineResult actual, string query) =>
+    internal static EngineResult Ask(Qt3Case testCase, IQt3Engine engine, EngineResult actual, string query) =>
         engine.Evaluate(testCase with { Query = query, QueryFile = null, ResultVariable = actual.Items });
 
-    private static string Describe(Qt3Assertion assertion, EngineResult answer) =>
+    internal static string Describe(Qt3Assertion assertion, EngineResult answer) =>
         answer.Kind == EngineResultKind.Error
             ? $"{assertion.Kind}: the expression raised Q{{{answer.ErrorCode.Namespace}}}{answer.ErrorCode.LocalName}"
             : $"{assertion.Kind}: the expression did not hold";

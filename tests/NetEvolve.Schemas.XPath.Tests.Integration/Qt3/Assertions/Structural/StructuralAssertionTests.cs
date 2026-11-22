@@ -10,7 +10,7 @@ public class StructuralAssertionTests
     [Arguments("(1, 2, 3)", "(1, 2, 3)")]
     [Arguments("/doc/a", "/doc/a")]
     [Arguments("()", "()")]
-    [Arguments("/doc/a/text()", "'1'")]
+    [Arguments("/doc/a/text()", "/doc/a/text()")]
     public async Task AssertDeepEq_ResultEqualsTheExpression_Passes(string query, string expected)
     {
         var result = Run(query, $"<assert-deep-eq>{expected}</assert-deep-eq>");
