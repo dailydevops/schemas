@@ -1536,6 +1536,51 @@ namespace NetEvolve.Schemas.Xml.Regex.Matching
         public static NetEvolve.Schemas.Xml.Regex.Contracts.RegexError TryCompile(System.ReadOnlySpan<NetEvolve.Schemas.Xml.Regex.Contracts.RegexNode> nodes, int root, System.ReadOnlySpan<NetEvolve.Schemas.Xml.Regex.Matching.RegexCharacterSet> sets, NetEvolve.Schemas.Xml.Regex.Contracts.RegexDialect dialect, out NetEvolve.Schemas.Xml.Regex.Matching.RegexProgram? program) { }
     }
 }
+namespace NetEvolve.Schemas.Xml.Regex.Operations
+{
+    public readonly ref struct RegexMatch
+    {
+        public int GroupCount { get; }
+        public int Index { get; }
+        public int Length { get; }
+        public System.ReadOnlySpan<char> GetGroupText(int number) { }
+        public bool TryGetGroup(int number, out NetEvolve.Schemas.Xml.Datatypes.Contracts.TextRange range) { }
+    }
+    public ref struct RegexMatchEnumerator
+    {
+        public NetEvolve.Schemas.Xml.Regex.Operations.RegexMatch Current { get; }
+        public bool IsAborted { get; }
+        public void Dispose() { }
+        public NetEvolve.Schemas.Xml.Regex.Operations.RegexMatchEnumerator GetEnumerator() { }
+        public bool MoveNext() { }
+    }
+    public enum RegexOperationStatus
+    {
+        Success = 0,
+        Aborted = 1,
+        DestinationTooSmall = 2,
+        ZeroLengthMatch = 12,
+        InvalidReplacement = 13,
+    }
+    public sealed class RegexOperations
+    {
+        public int GroupCount { get; }
+        public bool MatchesEmptyString { get; }
+        public NetEvolve.Schemas.Xml.Regex.Operations.RegexMatchEnumerator EnumerateMatches(System.ReadOnlySpan<char> input, NetEvolve.Schemas.Xml.Regex.Contracts.RegexStepLimits? limits = null) { }
+        public NetEvolve.Schemas.Xml.Regex.Operations.RegexOperationStatus Replace(System.ReadOnlySpan<char> input, System.ReadOnlySpan<char> replacement, NetEvolve.Schemas.Xml.Regex.Contracts.RegexStepLimits? limits, out string? result) { }
+        public NetEvolve.Schemas.Xml.Regex.Operations.RegexOperationStatus Replace(System.ReadOnlySpan<char> input, System.ReadOnlySpan<char> replacement, System.Span<char> destination, NetEvolve.Schemas.Xml.Regex.Contracts.RegexStepLimits? limits, out int charsWritten) { }
+        public NetEvolve.Schemas.Xml.Regex.Operations.RegexOperationStatus TryTokenize(System.ReadOnlySpan<char> input, NetEvolve.Schemas.Xml.Regex.Contracts.RegexStepLimits? limits, out NetEvolve.Schemas.Xml.Regex.Operations.RegexTokenEnumerator tokens) { }
+        public static NetEvolve.Schemas.Xml.Regex.Contracts.RegexError TryCreate(NetEvolve.Schemas.Xml.Regex.Parsing.RegexTree tree, out NetEvolve.Schemas.Xml.Regex.Operations.RegexOperations? operations) { }
+    }
+    public ref struct RegexTokenEnumerator
+    {
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.TextRange Current { get; }
+        public bool IsAborted { get; }
+        public void Dispose() { }
+        public NetEvolve.Schemas.Xml.Regex.Operations.RegexTokenEnumerator GetEnumerator() { }
+        public bool MoveNext() { }
+    }
+}
 namespace NetEvolve.Schemas.Xml.Regex.Parsing
 {
     public sealed class RegexLimits
