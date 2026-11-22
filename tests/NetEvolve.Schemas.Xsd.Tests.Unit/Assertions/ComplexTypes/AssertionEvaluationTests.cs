@@ -113,7 +113,7 @@ public class AssertionEvaluationTests
     [Test]
     public async Task Assertion_RootOfTheTree_IsTheElementNotADocument()
     {
-        var instance = AssertionFixture.Instance([], ["/ and true()"]);
+        var instance = AssertionFixture.Instance([], ["boolean(/)"]);
 
         var issues = AssertionFixture.Run(instance, "\n<r><c><n>1</n></c></r>");
 

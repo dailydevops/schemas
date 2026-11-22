@@ -43,7 +43,12 @@ internal static class AssertionFixture
 
     /// <summary>An <c>assert</c> element with the given attributes.</summary>
     internal static string Assert(string test, string attributes = "") =>
-        "<xs:assert test=\"" + test.Replace("\"", "&quot;", StringComparison.Ordinal) + "\"" + attributes + "/>";
+        "<xs:assert test=\"" + Escape(test) + "\"" + attributes + "/>";
+
+    private static string Escape(string text) =>
+        text.Replace("&", "&amp;", StringComparison.Ordinal)
+            .Replace("<", "&lt;", StringComparison.Ordinal)
+            .Replace("\"", "&quot;", StringComparison.Ordinal);
 
     /// <summary>The <c>xpathDefaultNamespace</c> attribute with the given value.</summary>
     internal static string Default(string value) => " xpathDefaultNamespace=\"" + value + "\"";
@@ -71,7 +76,10 @@ internal static class AssertionFixture
         var result = new List<ComplexTypeAssertion>();
         foreach (var node in AssertNodes(schema))
         {
-            result.Add(ComplexTypeAssertion.TryCreate(node, Scope, XsdVersion.V11, reporter)!);
+            result.Add(
+                ComplexTypeAssertion.TryCreate(node, Scope, XsdVersion.V11, reporter)
+                    ?? throw new InvalidOperationException("The assertion does not compile.")
+            );
         }
 
         return [.. result];
