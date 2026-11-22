@@ -24,13 +24,13 @@ internal static class SchematronConformanceRunner
         {
             var observed = await validator.ValidateAsync(schematronCase, cancellationToken);
             results.Add(
-                observed == schematronCase.Expect
+                observed.Outcome == schematronCase.Expect
                     ? new CaseResult(schematronCase.Id, schematronCase.TestSet, CaseOutcome.Pass)
                     : new CaseResult(
                         schematronCase.Id,
                         schematronCase.TestSet,
                         CaseOutcome.Fail,
-                        $"Expected {schematronCase.Expect} but observed {observed}."
+                        $"Expected {schematronCase.Expect} but observed {observed.Outcome}."
                     )
             );
         }
