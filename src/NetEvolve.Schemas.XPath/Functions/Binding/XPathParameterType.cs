@@ -3,6 +3,8 @@ namespace NetEvolve.Schemas.XPath.Functions.Binding;
 using System.Runtime.InteropServices;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Syntax.Tree;
+using NetEvolve.Schemas.XPath.Types;
+using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>The expected type of one function parameter: an item type and an occurrence indicator.</summary>
 /// <remarks><see langword="default"/> is <c>item()</c> exactly once.</remarks>
@@ -22,6 +24,7 @@ internal readonly struct XPathParameterType
 
         ItemType = itemType;
         Occurrence = occurrence;
+        AtomicType = AtomicTypeOf(itemType);
     }
 
     /// <summary>Gets the item type.</summary>
@@ -29,4 +32,15 @@ internal readonly struct XPathParameterType
 
     /// <summary>Gets the occurrence indicator.</summary>
     public Occurrence Occurrence { get; }
+
+    /// <summary>Gets the handle of the atomic type that the item type names; <see langword="default"/> for <c>item()</c>, <c>node()</c>, and <c>numeric</c>.</summary>
+    public XdmTypeId AtomicType { get; }
+
+    private static XdmTypeId AtomicTypeOf(XPathItemType itemType) =>
+        itemType switch
+        {
+            XPathItemType.AnyAtomic => XdmTypes.Get("anyAtomicType"),
+            XPathItemType.UntypedAtomic => XdmTypeId.UntypedAtomic,
+            _ => UntypedAtomicCast.TypeOf(itemType) ?? default,
+        };
 }
