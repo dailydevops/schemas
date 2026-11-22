@@ -1,0 +1,5 @@
+fn-doc-available/K2-SeqDocAvailableFunc-1a
+fn-doc-available/cbcl-doc-available-002a
+fn-doc-available/cbcl-doc-available-004
+fn-doc-available/cbcl-doc-available-005
+fn-doc-available/cbcl-doc-available-006
