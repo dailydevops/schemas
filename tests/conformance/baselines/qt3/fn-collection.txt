@@ -14,7 +14,6 @@ fn-collection/collection-900
 fn-collection/collection-901
 fn-collection/collection-902
 fn-collection/collection-903
-fn-collection/fn-collection-1
 fn-collection/fn-collection-2
 fn-collection/fn-collection-3
 fn-collection/fn-collection-4

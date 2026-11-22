@@ -1,7 +1,4 @@
-fn-node-name/K-NodeNameFunc-1
-fn-node-name/K-NodeNameFunc-2
 fn-node-name/K-NodeNameFunc-3
-fn-node-name/K2-NodeNameFunc-1
 fn-node-name/K2-NodeNameFunc-2
 fn-node-name/K2-NodeNameFunc-3
 fn-node-name/K3-NodeNameFunc-1

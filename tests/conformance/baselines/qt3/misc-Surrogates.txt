@@ -1,17 +1,4 @@
-misc-Surrogates/surrogates01a
-misc-Surrogates/surrogates02a
-misc-Surrogates/surrogates03a
-misc-Surrogates/surrogates04a
-misc-Surrogates/surrogates05a
-misc-Surrogates/surrogates06a
-misc-Surrogates/surrogates07a
-misc-Surrogates/surrogates08
-misc-Surrogates/surrogates08a
-misc-Surrogates/surrogates09a
-misc-Surrogates/surrogates10a
-misc-Surrogates/surrogates11a
 misc-Surrogates/surrogates12a
 misc-Surrogates/surrogates13a
 misc-Surrogates/surrogates14a
 misc-Surrogates/surrogates15a
-misc-Surrogates/surrogates16a

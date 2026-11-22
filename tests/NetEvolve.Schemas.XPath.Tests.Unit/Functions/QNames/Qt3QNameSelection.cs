@@ -10,9 +10,8 @@ namespace NetEvolve.Schemas.XPath.Tests.Unit.Functions.QNames;
 /// </summary>
 /// <remarks>
 /// <para>
-/// Limitation: the QT3 runner of the integration tests still has no evaluator behind it (#295), so these cases run through the lowerings of
-/// <see cref="Sequences.Qt3SequenceFixture"/> and not through the runner, and the baselines are unchanged. The end-to-end run stays open
-/// until #295.
+/// Limitation: these cases were selected before the QT3 runner of the integration tests had an evaluator, and they run through the lowerings of
+/// <see cref="Sequences.Qt3SequenceFixture"/> and not through the runner. The end-to-end run is the QT3 runner (#295), whose baselines list only the cases that do not pass.
 /// </para>
 /// <para>
 /// Rewrite that keeps the value: a case of the environments that only bind a prefix writes <c>xs:QName("foo:name")</c>, which the

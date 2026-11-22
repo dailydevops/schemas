@@ -1,9 +1,6 @@
-fn-escape-html-uri/K-EscapeHTMLURIFunc-1
-fn-escape-html-uri/K-EscapeHTMLURIFunc-2
 fn-escape-html-uri/K-EscapeHTMLURIFunc-3
 fn-escape-html-uri/K-EscapeHTMLURIFunc-4
 fn-escape-html-uri/K-EscapeHTMLURIFunc-5
-fn-escape-html-uri/K-EscapeHTMLURIFunc-6
 fn-escape-html-uri/cbcl-escape-html-uri-001
 fn-escape-html-uri/fn-escape-html-uri-1
 fn-escape-html-uri/fn-escape-html-uri-10
@@ -31,4 +28,3 @@ fn-escape-html-uri/fn-escape-html-uri1args-2
 fn-escape-html-uri/fn-escape-html-uri1args-3
 fn-escape-html-uri/fn-escape-html-uri1args-4
 fn-escape-html-uri/fn-escape-html-uri1args-5
-fn-escape-html-uri/fn-escape-html-uri1args-6

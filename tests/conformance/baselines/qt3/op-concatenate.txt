@@ -1,6 +1,3 @@
-op-concatenate/K-commaOp-1
-op-concatenate/K-commaOp-2
-op-concatenate/K-commaOp-3
 op-concatenate/constSeq-1
 op-concatenate/constSeq-10
 op-concatenate/constSeq-11
@@ -13,9 +10,6 @@ op-concatenate/constSeq-17
 op-concatenate/constSeq-18
 op-concatenate/constSeq-19
 op-concatenate/constSeq-2
-op-concatenate/constSeq-20
-op-concatenate/constSeq-21
-op-concatenate/constSeq-22
 op-concatenate/constSeq-3
 op-concatenate/constSeq-4
 op-concatenate/constSeq-5
@@ -30,15 +24,8 @@ op-concatenate/op-concatenate-mix-args-004
 op-concatenate/op-concatenate-mix-args-005
 op-concatenate/op-concatenate-mix-args-006
 op-concatenate/op-concatenate-mix-args-007
-op-concatenate/op-concatenate-mix-args-008
-op-concatenate/op-concatenate-mix-args-009
-op-concatenate/op-concatenate-mix-args-010
 op-concatenate/op-concatenate-mix-args-011
 op-concatenate/op-concatenate-mix-args-012
-op-concatenate/op-concatenate-mix-args-013
-op-concatenate/op-concatenate-mix-args-014
-op-concatenate/op-concatenate-mix-args-015
-op-concatenate/op-concatenate-mix-args-016
 op-concatenate/op-concatenate-mix-args-017
 op-concatenate/op-concatenate-mix-args-018
 op-concatenate/op-concatenate-mix-args-019
@@ -48,7 +35,6 @@ op-concatenate/sequenceexpressionhc2
 op-concatenate/sequenceexpressionhc3
 op-concatenate/sequenceexpressionhc4
 op-concatenate/sequenceexpressionhc5
-op-concatenate/sequenceexpressionhc6
 op-concatenate/sequenceexpressionhc7
 op-concatenate/sequenceexpressionhc8
 op-concatenate/sequenceexpressionhc9

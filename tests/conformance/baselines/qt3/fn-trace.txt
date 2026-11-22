@@ -1,10 +1,6 @@
-fn-trace/K-TraceFunc-1
-fn-trace/K-TraceFunc-2
-fn-trace/K-TraceFunc-3
 fn-trace/K-TraceFunc-4
 fn-trace/K-TraceFunc-5
 fn-trace/K-TraceFunc-6
-fn-trace/fn-trace-1
 fn-trace/fn-trace-10
 fn-trace/fn-trace-11
 fn-trace/fn-trace-12

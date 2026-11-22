@@ -1,7 +1,4 @@
-fn-default-collation/K-ContextDefaultCollationFunc-1
-fn-default-collation/K-ContextDefaultCollationFunc-2
 fn-default-collation/K-ContextDefaultCollationFunc-3
 fn-default-collation/cbcl-default-collation-001
 fn-default-collation/cbcl-default-collation-002
-fn-default-collation/fn-default-collation-1
 fn-default-collation/fn-default-collation-2

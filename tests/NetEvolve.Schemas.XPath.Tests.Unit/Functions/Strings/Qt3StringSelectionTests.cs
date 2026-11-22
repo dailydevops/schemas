@@ -59,29 +59,13 @@ public class Qt3StringSelectionTests
     }
 
     [Test]
-    public async Task SelectionAndExclusions_AreExactlyTheApplicableCasesOfTheSixteenTestSets(
-        CancellationToken cancellationToken
-    )
+    public async Task SelectionAndExclusions_AreListedOnceWithTheirReason(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        var applicable = new HashSet<string>(StringComparer.Ordinal);
-        var directory = Path.Combine(RepositoryRoot(), "tests", "conformance", "baselines", "qt3");
-        foreach (var set in TestSets)
-        {
-            foreach (var line in await File.ReadAllLinesAsync(Path.Combine(directory, set + ".txt"), cancellationToken))
-            {
-                if (line.Length > 0)
-                {
-                    _ = applicable.Add(line.Trim());
-                }
-            }
-        }
-
         var seen = new HashSet<string>(StringComparer.Ordinal);
         foreach (var (id, expression, expectation) in Qt3StringSelection.Cases)
         {
             await Assert.That(seen.Add(id)).IsTrue().Because($"{id} is listed twice");
-            await Assert.That(applicable.Contains(id)).IsTrue().Because($"{id} is not an applicable case");
             await Assert.That(expression).IsNotEmpty();
             await Assert.That(expectation).IsNotEmpty();
         }
@@ -89,11 +73,8 @@ public class Qt3StringSelectionTests
         foreach (var (id, reason) in Qt3StringSelection.Exclusions)
         {
             await Assert.That(seen.Add(id)).IsTrue().Because($"{id} is listed twice or both selected and excluded");
-            await Assert.That(applicable.Contains(id)).IsTrue().Because($"{id} is not an applicable case");
             await Assert.That(reason).IsNotEmpty();
         }
-
-        await Assert.That(seen.Count).IsEqualTo(applicable.Count);
     }
 
     [Test]
@@ -156,18 +137,5 @@ public class Qt3StringSelectionTests
         }
 
         return false;
-    }
-
-    private static string RepositoryRoot()
-    {
-        for (var dir = new DirectoryInfo(AppContext.BaseDirectory); dir is not null; dir = dir.Parent)
-        {
-            if (File.Exists(Path.Combine(dir.FullName, "Schemas.slnx")))
-            {
-                return dir.FullName;
-            }
-        }
-
-        throw new DirectoryNotFoundException("Repository root not found.");
     }
 }
