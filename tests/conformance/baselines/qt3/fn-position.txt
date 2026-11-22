@@ -1,8 +1,1 @@
-fn-position/position-12
-fn-position/position-18
 fn-position/position-19
-fn-position/position-20
-fn-position/position-21
-fn-position/position-22
-fn-position/position-24
-fn-position/position-8

@@ -3,4 +3,3 @@ fn-reverse/K-SeqReverseFunc-3
 fn-reverse/K-SeqReverseFunc-5
 fn-reverse/K-SeqReverseFunc-6
 fn-reverse/cbcl-reverse-1
-fn-reverse/reverse-001
