@@ -238,10 +238,22 @@ public class AssertionEvaluationTests
     }
 
     [Test]
-    public async Task Assertion_SubtreeAtTheLimit_IsEvaluated()
+    public async Task Assertion_SubtreeOfEmptyElementsAboveTheLimit_YieldsTheLimitCodeAndNoVerdict()
     {
         var instance = AssertionFixture.Instance(["false()"], []);
-        var limits = ValidationLimits.Default.WithMaxInputSize(11);
+        var limits = ValidationLimits.Default.WithMaxInputSize(2);
+
+        var issues = AssertionFixture.Run(instance, "\n<r><s/><s/><s/></r>", limits);
+
+        await Assert.That(Codes(issues)).IsEquivalentTo([CoreDiagnosticCodes.InputSizeLimitExceeded]);
+    }
+
+    [Test]
+    public async Task Assertion_SubtreeAtTheLimit_IsEvaluated()
+    {
+        // Ten characters of text, the defaulted attribute d of one character, and the start tags of the two children, one each.
+        var instance = AssertionFixture.Instance(["false()"], []);
+        var limits = ValidationLimits.Default.WithMaxInputSize(13);
 
         var issues = AssertionFixture.Run(instance, "\n<r><a>12345</a><b>12345</b></r>", limits);
 
