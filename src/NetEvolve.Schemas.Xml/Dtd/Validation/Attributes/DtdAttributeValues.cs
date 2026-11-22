@@ -130,7 +130,7 @@ internal static class DtdAttributeValues
     /// <param name="literal">The literal as the declaration wrote it.</param>
     /// <param name="type">The declared type.</param>
     /// <param name="declarations">The declarations whose general entities the literal may refer to.</param>
-    /// <param name="limits">The limits of the depth of the expansion and of the value length.</param>
+    /// <param name="limits">The limits of the depth, the work, and the value length of the expansion.</param>
     /// <param name="value">The value an element receives; empty when the literal does not expand.</param>
     /// <returns><see langword="true"/> when the literal expanded.</returns>
     internal static bool TryNormalizeDefault(
@@ -145,8 +145,8 @@ internal static class DtdAttributeValues
         Argument.ThrowIfNull(declarations);
         Argument.ThrowIfNull(limits);
 
-        var builder = new StringBuilder();
-        if (!Expand(literal.AsSpan(), isLiteral: true, declarations, limits, builder, 0))
+        var expansion = new Expansion(declarations, limits);
+        if (!expansion.Expand(literal.AsSpan(), isLiteral: true, 0))
         {
             value = string.Empty;
 
@@ -155,12 +155,12 @@ internal static class DtdAttributeValues
 
         if (type == DtdAttributeType.Cdata)
         {
-            value = builder.ToString();
+            value = expansion.Builder.ToString();
 
             return true;
         }
 
-        var characters = builder.ToString().ToCharArray();
+        var characters = expansion.Builder.ToString().ToCharArray();
         value = new string(characters, 0, DtdAttributeNormalizer.Collapse(characters));
 
         return true;
@@ -183,88 +183,96 @@ internal static class DtdAttributeValues
         return true;
     }
 
-    private static bool Expand(
-        ReadOnlySpan<char> text,
-        bool isLiteral,
-        IDtdDeclarations declarations,
-        XmlReaderLimits limits,
-        StringBuilder builder,
-        int depth
-    )
+    // One expansion of a literal: the output, and the work budget that bounds the references, because an entity with an
+    // empty replacement text costs no output and could otherwise fan out without limit (design #122, section 8).
+    private sealed class Expansion
     {
-        if (depth > limits.MaxEntityDepth)
+        private readonly IDtdDeclarations _declarations;
+        private readonly XmlReaderLimits _limits;
+        private long _budget;
+
+        internal Expansion(IDtdDeclarations declarations, XmlReaderLimits limits)
         {
-            return false;
+            _declarations = declarations;
+            _limits = limits;
+            _budget = limits.MaxEntityExpansionCharacters;
         }
 
-        var i = 0;
-        while (i < text.Length)
+        internal StringBuilder Builder { get; } = new();
+
+        internal bool Expand(ReadOnlySpan<char> text, bool isLiteral, int depth)
         {
-            if (builder.Length > limits.MaxAttributeValueLength)
+            if (depth > _limits.MaxEntityDepth)
             {
                 return false;
             }
 
-            var c = text[i];
-            switch (c)
+            var i = 0;
+            while (i < text.Length)
             {
-                case '<':
+                if (Builder.Length > _limits.MaxAttributeValueLength)
+                {
                     return false;
-                case '\t':
-                case '\n':
-                    builder.Append(' ');
-                    i++;
-                    break;
-                case '\r':
-                    // CR LF of the literal is one line end (section 2.11); in an entity value it was normalized when declared.
-                    builder.Append(' ');
-                    i += isLiteral && i + 1 < text.Length && text[i + 1] == '\n' ? 2 : 1;
-                    break;
-                case '&':
-                    var length = ExpandReference(text.Slice(i), declarations, limits, builder, depth);
-                    if (length < 0)
-                    {
+                }
+
+                var c = text[i];
+                switch (c)
+                {
+                    case '<':
                         return false;
-                    }
+                    case '\t':
+                    case '\n':
+                        Builder.Append(' ');
+                        i++;
+                        break;
+                    case '\r':
+                        // CR LF of the literal is one line end (section 2.11); in an entity value it was normalized when declared.
+                        Builder.Append(' ');
+                        i += isLiteral && i + 1 < text.Length && text[i + 1] == '\n' ? 2 : 1;
+                        break;
+                    case '&':
+                        var length = ExpandReference(text.Slice(i), depth);
+                        if (length < 0)
+                        {
+                            return false;
+                        }
 
-                    i += length;
-                    break;
-                default:
-                    builder.Append(c);
-                    i++;
-                    break;
+                        i += length;
+                        break;
+                    default:
+                        Builder.Append(c);
+                        i++;
+                        break;
+                }
             }
+
+            return Builder.Length <= _limits.MaxAttributeValueLength;
         }
 
-        return builder.Length <= limits.MaxAttributeValueLength;
-    }
-
-    // The length of the reference at the front of the text, -1 when it does not expand.
-    private static int ExpandReference(
-        ReadOnlySpan<char> text,
-        IDtdDeclarations declarations,
-        XmlReaderLimits limits,
-        StringBuilder builder,
-        int depth
-    )
-    {
-        var error = XmlReferenceResolver.TryParseReference(text, out var length, out var codePoint);
-        if (error is null)
+        // The length of the reference at the front of the text, -1 when it does not expand.
+        private int ExpandReference(ReadOnlySpan<char> text, int depth)
         {
-            builder.Append(char.ConvertFromUtf32(codePoint));
+            var error = XmlReferenceResolver.TryParseReference(text, out var length, out var codePoint);
+            if (error is null)
+            {
+                Builder.Append(char.ConvertFromUtf32(codePoint));
 
-            return length;
+                return length;
+            }
+
+            if (
+                !ReferenceEquals(error, XmlErrorCodes.XML0008)
+                || !_declarations.GeneralEntities.TryGetValue(text.Slice(1, length - 2).ToString(), out var entity)
+                || entity.Value is not { } replacement
+            )
+            {
+                return -1;
+            }
+
+            // The reference itself costs one, so an empty replacement text is not free.
+            _budget -= replacement.Length + 1;
+
+            return _budget >= 0 && Expand(replacement.AsSpan(), isLiteral: false, depth + 1) ? length : -1;
         }
-
-        if (
-            !ReferenceEquals(error, XmlErrorCodes.XML0008)
-            || !declarations.GeneralEntities.TryGetValue(text.Slice(1, length - 2).ToString(), out var entity)
-            || entity.Value is not { } replacement
-        )
-        {
-            return -1;
-        }
-
-        return Expand(replacement.AsSpan(), isLiteral: false, declarations, limits, builder, depth + 1) ? length : -1;
     }
 }

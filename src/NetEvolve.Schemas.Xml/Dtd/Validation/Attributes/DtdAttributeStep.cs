@@ -39,8 +39,8 @@ using NetEvolve.Schemas.Xml.Text.NameTable;
 /// Limitations: (1) The attributes <c>xml:*</c> and <c>xmlns*</c> are declared like any other attribute; XML 1.0 has no
 /// exemption. (2) A document without a document type declaration (the empty name of the model) reports nothing here; the
 /// document step reports it once. (3) The second definition of an attribute is dropped by the declaration model, so the
-/// optional warning for it (<see cref="DtdValidityCodes.XML5903"/>) is not reported until the parse-time anomalies of
-/// #608 are part of the view. (4) A default value that the reader refuses (an undeclared, external, or unparsed entity, a
+/// optional warning for it (<see cref="DtdValidityCodes.XML5903"/>) is not reported until the dropped definitions are
+/// recorded (#909, #608). (4) A default value that the reader refuses (an undeclared, external, or unparsed entity, a
 /// <c>&lt;</c>, a recursion, or a value beyond the limits of the reader) does not expand and is neither checked for its
 /// syntax nor compared; the reader reports it as a well-formedness error where the default is applied. (5) The declaration-time
 /// reports use <see cref="DtdValidationContext.DocumentTypeLocation"/> until per-declaration locations exist (#608). (6) An
