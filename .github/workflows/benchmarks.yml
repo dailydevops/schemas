@@ -96,7 +96,7 @@ jobs:
         if: steps.targets.outputs.found == 'true'
         run: >
           dotnet run -c Release -f net10.0 --project "$BENCH_PROJECT"
-          -- --filter '*' --exclusion-filter '*Sample*' --artifacts "$RUNNER_TEMP/bdn"
+          -- --filter '*Benchmarks.Xml.*' '*Benchmarks.Xsd.*' '*Benchmarks.XPath.*' '*Benchmarks.Schematron.*' --artifacts "$RUNNER_TEMP/bdn"
       - name: Summarize
         if: steps.targets.outputs.found == 'true'
         run: |
