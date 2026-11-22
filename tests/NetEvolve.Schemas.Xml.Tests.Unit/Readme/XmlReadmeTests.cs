@@ -18,6 +18,8 @@ public class XmlReadmeTests
 {
     private const string Readme = "src/NetEvolve.Schemas.Xml/README.md";
     private const string Samples = "tests/NetEvolve.Schemas.Xml.Tests.Unit/Readme/XmlReadmeTests.cs";
+    private const string DtdSamples = "tests/NetEvolve.Schemas.Xml.Tests.Unit/Dtd/Entry/DtdEntryReadmeTests.cs";
+    private const string LegacyDtdSamples = "tests/NetEvolve.Schemas.Tests.LegacyCompiler/Dtd/DtdLegacyTests.cs";
 
     [Test]
     public async Task SpanSample_LoadsTheDocumentWithPositions()
@@ -353,7 +355,9 @@ public class XmlReadmeTests
     [Test]
     public async Task EveryReadmeCodeBlock_IsACompiledSample()
     {
-        var compiled = ReadmeSamples.SamplesIn(Samples);
+        var compiled = new List<string>(ReadmeSamples.SamplesIn(Samples));
+        compiled.AddRange(ReadmeSamples.SamplesIn(DtdSamples));
+        compiled.AddRange(ReadmeSamples.SamplesIn(LegacyDtdSamples));
         var blocks = ReadmeSamples.CodeBlocks(Readme);
 
         await Assert.That(blocks).Count().IsEqualTo(compiled.Count);
