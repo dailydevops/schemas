@@ -30,7 +30,7 @@ internal static class ParticleStructure
     /// <returns>The group, <see langword="null"/> when the term is an element declaration, a wildcard, or not resolved.</returns>
     internal static ModelGroup? GroupOf(Particle particle)
     {
-        Argument.ThrowIfNull(particle);
+        ArgumentNullException.ThrowIfNull(particle);
 
         return particle.Term switch
         {
@@ -45,7 +45,7 @@ internal static class ParticleStructure
     /// <returns><see langword="true"/> when a group can be reached from itself.</returns>
     internal static bool IsCircular(Particle particle)
     {
-        Argument.ThrowIfNull(particle);
+        ArgumentNullException.ThrowIfNull(particle);
 
         return Reaches(particle, []);
     }
@@ -55,7 +55,7 @@ internal static class ParticleStructure
     /// <returns>The particle that stands for it, <see langword="null"/> when it is ignored as an empty group.</returns>
     internal static Particle? Simplify(Particle particle)
     {
-        Argument.ThrowIfNull(particle);
+        ArgumentNullException.ThrowIfNull(particle);
 
         var current = particle;
         while (GroupOf(current) is { } group)
@@ -100,7 +100,7 @@ internal static class ParticleStructure
     /// <returns>The members in order.</returns>
     internal static List<Particle> Members(ModelGroup group)
     {
-        Argument.ThrowIfNull(group);
+        ArgumentNullException.ThrowIfNull(group);
 
         var members = new List<Particle>(group.Particles.Count);
         Append(members, group, group.Compositor);

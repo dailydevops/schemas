@@ -15,10 +15,10 @@ internal readonly struct XPathParameterType
     /// <exception cref="System.ArgumentOutOfRangeException">An argument is not a defined value.</exception>
     public XPathParameterType(XPathItemType itemType, Occurrence occurrence)
     {
-        Argument.ThrowIfLessThan((int)itemType, (int)XPathItemType.Item);
-        Argument.ThrowIfGreaterThan((int)itemType, (int)XPathItemType.DayTimeDuration);
-        Argument.ThrowIfLessThan((int)occurrence, (int)Occurrence.ExactlyOne);
-        Argument.ThrowIfGreaterThan((int)occurrence, (int)Occurrence.OneOrMore);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)itemType, (int)XPathItemType.Item);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)itemType, (int)XPathItemType.DayTimeDuration);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)occurrence, (int)Occurrence.ExactlyOne);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)occurrence, (int)Occurrence.OneOrMore);
 
         ItemType = itemType;
         Occurrence = occurrence;

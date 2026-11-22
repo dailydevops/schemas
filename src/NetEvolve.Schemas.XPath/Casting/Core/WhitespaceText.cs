@@ -20,7 +20,7 @@ internal static class WhitespaceText
     /// <exception cref="System.ArgumentNullException"><paramref name="lexical"/> is <see langword="null"/>.</exception>
     public static string Apply(string lexical, WhitespaceMode mode)
     {
-        Argument.ThrowIfNull(lexical);
+        ArgumentNullException.ThrowIfNull(lexical);
 
         if (WhitespaceNormalizer.IsNormalized(lexical.AsSpan(), mode))
         {

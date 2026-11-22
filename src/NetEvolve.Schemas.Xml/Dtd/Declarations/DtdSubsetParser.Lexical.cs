@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Xml.Dtd.Declarations;
+﻿namespace NetEvolve.Schemas.Xml.Dtd.Declarations;
 
 using System;
 using System.Text;
@@ -297,16 +297,16 @@ internal sealed partial class DtdSubsetParser
         }
 
         var builder = new StringBuilder(text.Length);
-        builder.Append(text, 0, first);
+        _ = builder.Append(text, 0, first);
         for (var i = first; i < text.Length; i++)
         {
             if (text[i] != '\r')
             {
-                builder.Append(text[i]);
+                _ = builder.Append(text[i]);
                 continue;
             }
 
-            builder.Append('\n');
+            _ = builder.Append('\n');
             if (i + 1 < text.Length && text[i + 1] == '\n')
             {
                 i++;
@@ -367,7 +367,7 @@ internal sealed partial class DtdSubsetParser
 
             if (raw[i] != '&')
             {
-                builder.Append(raw[i++]);
+                _ = builder.Append(raw[i++]);
                 continue;
             }
 
@@ -376,7 +376,7 @@ internal sealed partial class DtdSubsetParser
                 return false;
             }
 
-            builder.Append(expansion ?? raw.Substring(i, next - i));
+            _ = builder.Append(expansion ?? raw.Substring(i, next - i));
             i = next;
         }
 

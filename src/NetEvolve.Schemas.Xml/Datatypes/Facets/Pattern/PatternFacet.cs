@@ -60,8 +60,8 @@ public sealed class PatternFacet : ILexicalFacet
         out PatternDiagnostic diagnostic
     )
     {
-        Argument.ThrowIfNull(patterns);
-        Argument.ThrowIfLessThan(patterns.Count, 1);
+        ArgumentNullException.ThrowIfNull(patterns);
+        ArgumentOutOfRangeException.ThrowIfLessThan(patterns.Count, 1);
 
         var syntax = new RegexSyntax(
             RegexDialect.Xsd,
@@ -72,7 +72,7 @@ public sealed class PatternFacet : ILexicalFacet
         for (var i = 0; i < programs.Length; i++)
         {
             var pattern = patterns[i];
-            Argument.ThrowIfNull(pattern);
+            ArgumentNullException.ThrowIfNull(pattern);
             texts[i] = pattern;
             var program = Compile(pattern, syntax, out var error, out var position);
             if (program is null)

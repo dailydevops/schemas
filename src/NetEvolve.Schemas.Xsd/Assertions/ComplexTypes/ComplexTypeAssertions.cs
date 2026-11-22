@@ -27,7 +27,7 @@ internal sealed class ComplexTypeAssertions
     /// <param name="own">The assertions that each complex type declares itself, in document order.</param>
     internal ComplexTypeAssertions(IReadOnlyDictionary<ComplexTypeDefinition, IReadOnlyList<ComplexTypeAssertion>> own)
     {
-        Argument.ThrowIfNull(own);
+        ArgumentNullException.ThrowIfNull(own);
 
         _own = own;
     }

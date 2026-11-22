@@ -23,8 +23,8 @@ internal static class ElementDeclarationsConsistent
     /// <param name="reporter">The reporter.</param>
     internal static void Check(ModelGroup modelGroup, XsdIssueReporter reporter)
     {
-        Argument.ThrowIfNull(modelGroup);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(modelGroup);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         Walk(modelGroup, new Dictionary<XPathQName, object>(), new HashSet<ModelGroup> { modelGroup }, reporter);
     }

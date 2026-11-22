@@ -53,14 +53,14 @@ internal sealed class SchemaSource
     /// <param name="bytes">The bytes; owned by the source from now on.</param>
     internal void Remember(byte[] bytes)
     {
-        Argument.ThrowIfNull(bytes);
+        ArgumentNullException.ThrowIfNull(bytes);
 
         _replay = bytes;
     }
 
     internal static SchemaSource FromStream(Stream stream, string? systemId)
     {
-        Argument.ThrowIfNull(stream);
+        ArgumentNullException.ThrowIfNull(stream);
 
         return new(SchemaSourceKind.Stream, null, null, stream, systemId);
     }

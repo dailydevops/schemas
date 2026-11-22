@@ -26,8 +26,8 @@ public sealed class AnyUriDescriptor : IDatatypeDescriptor<XsdString>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="version"/> is not a defined version.</exception>
     public AnyUriDescriptor(XsdVersion version)
     {
-        Argument.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
-        Argument.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
 
         _inner = new("anyURI", version, new AnyUriMapping());
         Basis = version == XsdVersion.V10 ? AnyUriBasis.Rfc2396 : AnyUriBasis.Rfc3987;

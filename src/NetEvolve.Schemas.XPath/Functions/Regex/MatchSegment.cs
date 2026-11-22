@@ -14,8 +14,8 @@ internal readonly ref struct MatchSegment
 
     internal MatchSegment(MatchSegmentKind kind, ReadOnlySpan<char> input, int index, int length, RegexMatch match)
     {
-        Argument.ThrowIfLessThan(index, 0);
-        Argument.ThrowIfLessThan(length, 0);
+        ArgumentOutOfRangeException.ThrowIfLessThan(index, 0);
+        ArgumentOutOfRangeException.ThrowIfLessThan(length, 0);
 
         Kind = kind;
         _input = input;
@@ -46,8 +46,8 @@ internal readonly ref struct MatchSegment
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="number"/> is negative or above <see cref="GroupCount"/>.</exception>
     public bool TryGetGroup(int number, out TextRange range)
     {
-        Argument.ThrowIfLessThan(number, 0);
-        Argument.ThrowIfGreaterThan(number, GroupCount);
+        ArgumentOutOfRangeException.ThrowIfLessThan(number, 0);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(number, GroupCount);
 
         if (Kind != MatchSegmentKind.Match)
         {

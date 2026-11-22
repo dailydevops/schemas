@@ -44,8 +44,8 @@ internal static class VersionControl
         INamespaceContext context
     )
     {
-        Argument.ThrowIfNull(localName);
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(localName);
+        ArgumentNullException.ThrowIfNull(context);
 
         return localName switch
         {

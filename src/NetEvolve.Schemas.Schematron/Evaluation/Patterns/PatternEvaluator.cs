@@ -69,12 +69,12 @@ internal sealed class PatternEvaluator
         CancellationToken cancellationToken
     )
     {
-        Argument.ThrowIfNull(matcher);
-        Argument.ThrowIfNull(run);
-        Argument.ThrowIfNull(binder);
-        Argument.ThrowIfNull(assertions);
-        Argument.ThrowIfNull(events);
-        Argument.ThrowIfNull(problems);
+        ArgumentNullException.ThrowIfNull(matcher);
+        ArgumentNullException.ThrowIfNull(run);
+        ArgumentNullException.ThrowIfNull(binder);
+        ArgumentNullException.ThrowIfNull(assertions);
+        ArgumentNullException.ThrowIfNull(events);
+        ArgumentNullException.ThrowIfNull(problems);
 
         _matcher = matcher;
         _run = run;
@@ -94,8 +94,8 @@ internal sealed class PatternEvaluator
     /// <exception cref="System.OperationCanceledException">The token was cancelled; no event is delivered after that.</exception>
     internal SchematronRunSummary Evaluate(IReadOnlyList<CompiledRuleSet> sets, in XPathNode document)
     {
-        Argument.ThrowIfNull(sets);
-        Argument.ThrowIfNull(document.Tree);
+        ArgumentNullException.ThrowIfNull(sets);
+        ArgumentNullException.ThrowIfNull(document.Tree);
 
         for (var i = 0; i < sets.Count; i++)
         {

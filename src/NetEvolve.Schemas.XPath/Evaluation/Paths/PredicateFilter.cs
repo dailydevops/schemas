@@ -15,8 +15,8 @@ internal static class PredicateFilter
     /// <exception cref="XPathException">A predicate value has no effective boolean value (FORG0006), or a predicate raises an error.</exception>
     public static void Apply(XPathEvaluationContext context, ExecutableNode[] predicates, ref XdmItemList items)
     {
-        Argument.ThrowIfNull(context);
-        Argument.ThrowIfNull(predicates);
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(predicates);
 
         var outer = context.Focus;
         try

@@ -17,7 +17,7 @@ public sealed class DatatypeRegistry
     /// <param name="registrations">The registrations.</param>
     public DatatypeRegistry(XsdVersion version, IReadOnlyList<DatatypeRegistration> registrations)
     {
-        Argument.ThrowIfNull(registrations);
+        ArgumentNullException.ThrowIfNull(registrations);
         Version = version;
         for (var i = 0; i < registrations.Count; i++)
         {
@@ -48,7 +48,7 @@ public sealed class DatatypeRegistry
     /// <returns><see langword="true"/> when the type exists in this version.</returns>
     public bool TryGet(string name, out IDatatypeDescriptor? descriptor)
     {
-        Argument.ThrowIfNull(name);
+        ArgumentNullException.ThrowIfNull(name);
         var found = _built.TryGetValue(name, out var built);
         descriptor = built;
         return found;
@@ -60,7 +60,7 @@ public sealed class DatatypeRegistry
     /// <exception cref="InvalidOperationException">The type is unknown in this version, or its registration depends on itself.</exception>
     public IDatatypeDescriptor Get(string name)
     {
-        Argument.ThrowIfNull(name);
+        ArgumentNullException.ThrowIfNull(name);
         if (_built.TryGetValue(name, out var built))
         {
             return built;

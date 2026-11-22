@@ -46,7 +46,7 @@ internal sealed class ModelGroupDefinition : IReferencingComponent
     /// <returns>The definition.</returns>
     internal static ModelGroupDefinition Create(XPathQName name, DocumentLocation location, ModelGroup modelGroup)
     {
-        Argument.ThrowIfNull(modelGroup);
+        ArgumentNullException.ThrowIfNull(modelGroup);
 
         return new(name, location, modelGroup);
     }

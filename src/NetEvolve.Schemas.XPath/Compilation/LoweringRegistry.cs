@@ -20,7 +20,7 @@ internal sealed class LoweringRegistry
     public void Register<TNode>(Func<TNode, LoweringContext, ExecutableNode> lowering)
         where TNode : SyntaxNode
     {
-        Argument.ThrowIfNull(lowering);
+        ArgumentNullException.ThrowIfNull(lowering);
 
         if (_lowerings.ContainsKey(typeof(TNode)))
         {

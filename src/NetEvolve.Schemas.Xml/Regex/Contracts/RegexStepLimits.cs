@@ -30,7 +30,7 @@ public sealed class RegexStepLimits
     /// <exception cref="System.ArgumentOutOfRangeException"><paramref name="value"/> is below one.</exception>
     public RegexStepLimits WithMaxNfaSteps(long value)
     {
-        Argument.ThrowIfLessThan(value, 1L);
+        ArgumentOutOfRangeException.ThrowIfLessThan(value, 1L);
 
         return new(value, MaxBacktrackSteps);
     }
@@ -41,7 +41,7 @@ public sealed class RegexStepLimits
     /// <exception cref="System.ArgumentOutOfRangeException"><paramref name="value"/> is below one.</exception>
     public RegexStepLimits WithMaxBacktrackSteps(long value)
     {
-        Argument.ThrowIfLessThan(value, 1L);
+        ArgumentOutOfRangeException.ThrowIfLessThan(value, 1L);
 
         return new(MaxNfaSteps, value);
     }

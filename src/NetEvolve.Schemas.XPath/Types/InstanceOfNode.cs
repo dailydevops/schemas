@@ -20,9 +20,9 @@ internal sealed class InstanceOfNode : ExecutableNode
     /// <param name="annotations">The slot that supplies the type annotation of a node.</param>
     public InstanceOfNode(ExecutableNode operand, SequenceTypeMatcher type, IXdmTypeAnnotationSource annotations)
     {
-        Argument.ThrowIfNull(operand);
-        Argument.ThrowIfNull(type);
-        Argument.ThrowIfNull(annotations);
+        ArgumentNullException.ThrowIfNull(operand);
+        ArgumentNullException.ThrowIfNull(type);
+        ArgumentNullException.ThrowIfNull(annotations);
 
         _operand = operand;
         _type = type;
@@ -32,7 +32,7 @@ internal sealed class InstanceOfNode : ExecutableNode
     /// <inheritdoc />
     public override XdmSequence Evaluate(XPathEvaluationContext context)
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         var value = _operand.Evaluate(context);
         return XdmSequence.Create(XdmItem.FromBoolean(_type.Matches(value, _annotations)));

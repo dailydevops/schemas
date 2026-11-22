@@ -22,7 +22,7 @@ internal sealed class ItemBuffer : ISequenceSink, IFocusSizeSource, IDisposable
     /// <param name="max">The most items the buffer holds.</param>
     internal ItemBuffer(int max)
     {
-        Argument.ThrowIfLessThan(max, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(max, 1);
 
         _max = max;
         _items = ArrayPool<XdmItem>.Shared.Rent(Math.Min(max, 16));
@@ -45,8 +45,8 @@ internal sealed class ItemBuffer : ISequenceSink, IFocusSizeSource, IDisposable
     /// <returns>The item.</returns>
     internal XdmItem Get(int index)
     {
-        Argument.ThrowIfLessThan(index, 0);
-        Argument.ThrowIfGreaterThanOrEqual(index, _count);
+        ArgumentOutOfRangeException.ThrowIfLessThan(index, 0);
+        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, _count);
 
         return _items[index];
     }

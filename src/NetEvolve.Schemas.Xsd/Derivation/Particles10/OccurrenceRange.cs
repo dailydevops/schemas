@@ -47,7 +47,7 @@ internal static class OccurrenceRange
     /// <remarks>The group structure must not be circular, <see cref="ParticleStructure.IsCircular"/> tells.</remarks>
     internal static void EffectiveTotalRange(Particle particle, out long min, out long max)
     {
-        Argument.ThrowIfNull(particle);
+        ArgumentNullException.ThrowIfNull(particle);
 
         if (ParticleStructure.GroupOf(particle) is not { } group)
         {

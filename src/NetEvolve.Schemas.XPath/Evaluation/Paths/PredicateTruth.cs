@@ -20,7 +20,7 @@ internal static class PredicateTruth
     /// <exception cref="System.ArgumentOutOfRangeException"><paramref name="position"/> is below one.</exception>
     public static bool Test(in XdmSequence value, int position)
     {
-        Argument.ThrowIfLessThan(position, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(position, 1);
 
         if (value.Count == 1)
         {

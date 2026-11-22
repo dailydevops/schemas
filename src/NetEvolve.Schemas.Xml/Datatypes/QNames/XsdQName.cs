@@ -36,7 +36,7 @@ public readonly struct XsdQName : IEquatable<XsdQName>
     /// <exception cref="ArgumentNullException"><paramref name="context"/> is <see langword="null"/>.</exception>
     public static ParseResult<XsdQName> Parse(ReadOnlySpan<char> lexical, INamespaceContext context)
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
         var error = Scan(lexical, out var colon, out var offset);
         if (error != DatatypeError.None)
         {

@@ -14,10 +14,10 @@ internal sealed class BuildSettings
         IResourceResolver resolver
     )
     {
-        Argument.ThrowIfNull(phase);
-        Argument.ThrowIfNull(parameters);
-        Argument.ThrowIfNull(limits);
-        Argument.ThrowIfNull(resolver);
+        ArgumentNullException.ThrowIfNull(phase);
+        ArgumentNullException.ThrowIfNull(parameters);
+        ArgumentNullException.ThrowIfNull(limits);
+        ArgumentNullException.ThrowIfNull(resolver);
 
         Phase = phase;
         Parameters = parameters;

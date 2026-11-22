@@ -16,7 +16,7 @@ internal static class AttributeInheritance
     /// <returns><see langword="true"/> when the attribute is inheritable.</returns>
     internal static bool IsInheritable(SchemaSyntaxNode attribute)
     {
-        Argument.ThrowIfNull(attribute);
+        ArgumentNullException.ThrowIfNull(attribute);
 
         var value = attribute.FindAttribute("inheritable")?.Trim(' ', '\t', '\r', '\n');
         return string.Equals(value, "true", StringComparison.Ordinal)

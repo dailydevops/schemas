@@ -9,8 +9,8 @@ internal readonly struct TypeViolation
 {
     internal TypeViolation(DiagnosticCode code, string clause, string message)
     {
-        Argument.ThrowIfNull(clause);
-        Argument.ThrowIfNull(message);
+        ArgumentNullException.ThrowIfNull(clause);
+        ArgumentNullException.ThrowIfNull(message);
 
         Code = code;
         Clause = clause;

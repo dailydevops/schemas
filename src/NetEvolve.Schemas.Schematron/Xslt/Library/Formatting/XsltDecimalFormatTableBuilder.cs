@@ -26,7 +26,7 @@ internal sealed class XsltDecimalFormatTableBuilder
     /// <exception cref="ArgumentNullException"><paramref name="declaration"/> is <see langword="null"/>.</exception>
     internal void Add(XsltDecimalFormatDeclaration declaration, int precedence)
     {
-        Argument.ThrowIfNull(declaration);
+        ArgumentNullException.ThrowIfNull(declaration);
 
         if (!_byName.TryGetValue(declaration.Name, out var entries))
         {
@@ -45,7 +45,7 @@ internal sealed class XsltDecimalFormatTableBuilder
     /// <exception cref="ArgumentNullException"><paramref name="problems"/> is <see langword="null"/>.</exception>
     internal bool TryBuild(IProblemSink problems, out XsltDecimalFormatTable table)
     {
-        Argument.ThrowIfNull(problems);
+        ArgumentNullException.ThrowIfNull(problems);
 
         var formats = new Dictionary<XPathQName, XPathDecimalFormat>(_order.Count);
         var ok = true;

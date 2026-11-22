@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Tests.Unit.TargetFrameworks;
+﻿namespace NetEvolve.Schemas.Tests.Unit.TargetFrameworks;
 
 using System.Reflection;
 using System.Runtime.Versioning;
@@ -10,9 +10,9 @@ public class LibraryTargetFrameworkTests
     private const string Expected = ".NETCoreApp,Version=v11.0";
 #elif NET10_0
     private const string Expected = ".NETCoreApp,Version=v10.0";
-#elif NET9_0
+#elif NET6_0
     private const string Expected = ".NETStandard,Version=v2.1";
-#elif NET8_0
+#elif NET5_0
     private const string Expected = ".NETStandard,Version=v2.0";
 #endif
 

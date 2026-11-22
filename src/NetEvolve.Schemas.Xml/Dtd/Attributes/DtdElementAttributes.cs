@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Xml.Dtd.Attributes;
+﻿namespace NetEvolve.Schemas.Xml.Dtd.Attributes;
 
 using System;
 using System.Collections.Generic;
@@ -25,7 +25,7 @@ internal sealed class DtdElementAttributes
     /// <param name="definitions">The definitions of the element type in declaration order.</param>
     internal DtdElementAttributes(IReadOnlyList<DtdAttributeDefinition> definitions)
     {
-        Argument.ThrowIfNull(definitions);
+        ArgumentNullException.ThrowIfNull(definitions);
 
         _definitions = new DtdAttributeDefinition[definitions.Count];
         _defaultTexts = new string?[definitions.Count];
@@ -61,8 +61,8 @@ internal sealed class DtdElementAttributes
     {
         get
         {
-            Argument.ThrowIfLessThan(index, 0);
-            Argument.ThrowIfGreaterThanOrEqual(index, _definitions.Length);
+            ArgumentOutOfRangeException.ThrowIfLessThan(index, 0);
+            ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, _definitions.Length);
 
             return _definitions[index];
         }
@@ -90,8 +90,8 @@ internal sealed class DtdElementAttributes
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is not the index of a definition.</exception>
     internal string DefaultText(int index)
     {
-        Argument.ThrowIfLessThan(index, 0);
-        Argument.ThrowIfGreaterThanOrEqual(index, _definitions.Length);
+        ArgumentOutOfRangeException.ThrowIfLessThan(index, 0);
+        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, _definitions.Length);
 
         return _defaultTexts[index] ?? string.Empty;
     }
@@ -105,16 +105,16 @@ internal sealed class DtdElementAttributes
         }
 
         var builder = new StringBuilder(text.Length);
-        builder.Append(text, 0, first);
+        _ = builder.Append(text, 0, first);
         for (var i = first; i < text.Length; i++)
         {
             if (text[i] != '\r')
             {
-                builder.Append(text[i]);
+                _ = builder.Append(text[i]);
                 continue;
             }
 
-            builder.Append('\n');
+            _ = builder.Append('\n');
             if (i + 1 < text.Length && text[i + 1] == '\n')
             {
                 i++;

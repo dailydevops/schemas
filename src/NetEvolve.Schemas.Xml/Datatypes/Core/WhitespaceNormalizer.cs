@@ -14,7 +14,7 @@ internal static class WhitespaceNormalizer
     /// <returns>The number of characters written.</returns>
     internal static int Normalize(ReadOnlySpan<char> source, WhitespaceMode mode, Span<char> destination)
     {
-        Argument.ThrowIfLessThan(destination.Length, source.Length);
+        ArgumentOutOfRangeException.ThrowIfLessThan(destination.Length, source.Length);
         if (mode == WhitespaceMode.Preserve)
         {
             source.CopyTo(destination);

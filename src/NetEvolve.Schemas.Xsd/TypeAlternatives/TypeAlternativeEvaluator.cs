@@ -55,9 +55,9 @@ internal sealed class TypeAlternativeEvaluator : IDisposable
         InheritedAttributes inherited
     )
     {
-        Argument.ThrowIfNull(table);
-        Argument.ThrowIfNull(declaredType);
-        Argument.ThrowIfNull(inherited);
+        ArgumentNullException.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(declaredType);
+        ArgumentNullException.ThrowIfNull(inherited);
 
         if (table.Count > 0)
         {
@@ -85,7 +85,7 @@ internal sealed class TypeAlternativeEvaluator : IDisposable
 
     private static TypeSelection Choose(TypeAlternative alternative)
     {
-        Argument.ThrowIfNull(alternative.TypeDefinition);
+        ArgumentNullException.ThrowIfNull(alternative.TypeDefinition);
 
         return new TypeSelection(alternative.TypeDefinition!, alternative);
     }
@@ -103,9 +103,9 @@ internal sealed class TypeAlternativeEvaluator : IDisposable
         for (var i = 0; i < attributes.Length; i++)
         {
             var attribute = attributes[i];
-            Argument.ThrowIfLessThan(attribute.Start, 0);
-            Argument.ThrowIfLessThan(attribute.Length, 0);
-            Argument.ThrowIfGreaterThan(attribute.Start + attribute.Length, values.Length);
+            ArgumentOutOfRangeException.ThrowIfLessThan(attribute.Start, 0);
+            ArgumentOutOfRangeException.ThrowIfLessThan(attribute.Length, 0);
+            ArgumentOutOfRangeException.ThrowIfGreaterThan(attribute.Start + attribute.Length, values.Length);
 
             _builder.Attribute(Intern(names, attribute.Name), values.Slice(attribute.Start, attribute.Length));
         }

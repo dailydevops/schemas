@@ -59,7 +59,7 @@ internal static class TemporalOperators
     /// <exception cref="System.InvalidOperationException">An entry is already registered.</exception>
     public static void Register(ArithmeticOperatorTable table)
     {
-        Argument.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(table);
 
         foreach (var duration in Durations)
         {
@@ -99,7 +99,7 @@ internal static class TemporalOperators
     /// <exception cref="System.InvalidOperationException">An entry is already registered.</exception>
     public static void Register(ComparisonOperatorTable table)
     {
-        Argument.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(table);
 
         for (var relation = ComparisonRelation.Equal; relation <= ComparisonRelation.GreaterThanOrEqual; relation++)
         {

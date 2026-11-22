@@ -78,7 +78,7 @@ internal sealed class XmlByteSequenceFeeder : XmlSequenceFeeder
 
     internal override bool Fill(int wanted)
     {
-        Argument.ThrowIfLessThan(wanted, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(wanted, 1);
 
         var decoder = _decoder;
         if (decoder is null || _exhausted)

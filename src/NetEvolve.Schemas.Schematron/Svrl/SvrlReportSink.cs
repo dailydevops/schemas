@@ -76,7 +76,7 @@ public sealed class SvrlReportSink : ISchematronReportSink, IAsyncDisposable, ID
     /// <param name="options">The options, <see cref="SvrlWriterOptions.Default"/> when <see langword="null"/>.</param>
     public SvrlReportSink(IBufferWriter<byte> output, SvrlWriterOptions? options = null)
     {
-        Argument.ThrowIfNull(output);
+        ArgumentNullException.ThrowIfNull(output);
 
         Options = options ?? SvrlWriterOptions.Default;
         _names = new SvrlNames(_table);
@@ -88,7 +88,7 @@ public sealed class SvrlReportSink : ISchematronReportSink, IAsyncDisposable, ID
     /// <param name="options">The options, <see cref="SvrlWriterOptions.Default"/> when <see langword="null"/>.</param>
     public SvrlReportSink(Stream output, SvrlWriterOptions? options = null)
     {
-        Argument.ThrowIfNull(output);
+        ArgumentNullException.ThrowIfNull(output);
 
         Options = options ?? SvrlWriterOptions.Default;
         _names = new SvrlNames(_table);

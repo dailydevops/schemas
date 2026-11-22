@@ -25,8 +25,8 @@ internal sealed class XsltPatternGrouping : XsltGrouping
     )
         : base(location)
     {
-        Argument.ThrowIfNull(matcher);
-        Argument.ThrowIfNull(pattern);
+        ArgumentNullException.ThrowIfNull(matcher);
+        ArgumentNullException.ThrowIfNull(pattern);
 
         _matcher = matcher;
         _pattern = pattern;
@@ -39,9 +39,9 @@ internal sealed class XsltPatternGrouping : XsltGrouping
     /// <inheritdoc />
     internal override QueryStatus TryGroup(XsltFrame frame, ItemBuffer items, List<XsltGroup> groups)
     {
-        Argument.ThrowIfNull(frame);
-        Argument.ThrowIfNull(items);
-        Argument.ThrowIfNull(groups);
+        ArgumentNullException.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(items);
+        ArgumentNullException.ThrowIfNull(groups);
 
         var previousMatched = false;
         for (var i = 0; i < items.Count; i++)

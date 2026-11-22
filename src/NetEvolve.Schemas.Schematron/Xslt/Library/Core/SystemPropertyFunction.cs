@@ -39,7 +39,7 @@ internal sealed class SystemPropertyFunction : XPathFunction
             [new XPathParameterType(XPathItemType.String, Occurrence.ExactlyOne)]
         )
     {
-        Argument.ThrowIfNull(statics);
+        ArgumentNullException.ThrowIfNull(statics);
 
         _statics = statics;
     }

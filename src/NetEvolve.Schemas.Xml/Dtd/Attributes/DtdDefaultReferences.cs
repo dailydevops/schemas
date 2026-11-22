@@ -26,7 +26,7 @@ internal static class DtdDefaultReferences
     /// <returns>The code of the first violation in the order of the declarations, <see langword="null"/> when there is none.</returns>
     internal static XmlErrorCode? Validate(DtdDeclarations declarations)
     {
-        Argument.ThrowIfNull(declarations);
+        ArgumentNullException.ThrowIfNull(declarations);
 
         GeneralEntityResolver? resolver = null;
         foreach (var list in declarations.AttributeLists.Values)

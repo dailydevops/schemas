@@ -32,7 +32,7 @@ internal sealed class XsltRegistryCatalog
     /// <exception cref="InvalidOperationException">The default registry is already built.</exception>
     internal void Stage(Action<XsltRegistryBuilder> register)
     {
-        Argument.ThrowIfNull(register);
+        ArgumentNullException.ThrowIfNull(register);
 
         while (true)
         {

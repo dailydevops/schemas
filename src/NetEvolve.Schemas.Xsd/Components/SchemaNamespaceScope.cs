@@ -21,7 +21,7 @@ internal readonly struct SchemaNamespaceScope
     /// <param name="isChameleon">Whether the document has no target namespace of its own and was included.</param>
     internal SchemaNamespaceScope(string targetNamespace, bool isChameleon)
     {
-        Argument.ThrowIfNull(targetNamespace);
+        ArgumentNullException.ThrowIfNull(targetNamespace);
 
         TargetNamespace = targetNamespace;
         IsChameleon = isChameleon;
@@ -45,8 +45,8 @@ internal readonly struct SchemaNamespaceScope
     /// <returns><see langword="false"/> when the prefix is not declared or the value is malformed (<c>src-resolve</c>).</returns>
     internal bool TryResolve(SchemaSyntaxNode context, string lexical, out XPathQName name)
     {
-        Argument.ThrowIfNull(context);
-        Argument.ThrowIfNull(lexical);
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(lexical);
 
         name = default;
         var colon = lexical.AsSpan().IndexOf(':');

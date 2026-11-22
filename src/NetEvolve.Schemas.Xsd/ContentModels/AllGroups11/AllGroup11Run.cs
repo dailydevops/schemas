@@ -24,7 +24,7 @@ internal sealed class AllGroup11Run
 
     internal AllGroup11Run(AllGroup11 group)
     {
-        Argument.ThrowIfNull(group);
+        ArgumentNullException.ThrowIfNull(group);
 
         _group = group;
         _seen = new ulong[group.WordCount];
@@ -44,8 +44,8 @@ internal sealed class AllGroup11Run
     /// <returns><see langword="true"/> when it has been seen.</returns>
     public bool IsSeen(int member)
     {
-        Argument.ThrowIfLessThan(member, 0);
-        Argument.ThrowIfGreaterThanOrEqual(member, _group.MemberCount);
+        ArgumentOutOfRangeException.ThrowIfLessThan(member, 0);
+        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(member, _group.MemberCount);
 
         return IsSeenCore(member);
     }

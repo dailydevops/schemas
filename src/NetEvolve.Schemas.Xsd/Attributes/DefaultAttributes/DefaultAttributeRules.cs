@@ -52,9 +52,9 @@ internal static class DefaultAttributeRules
         XsdIssueReporter reporter
     )
     {
-        Argument.ThrowIfNull(schema);
-        Argument.ThrowIfNull(registry);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(schema);
+        ArgumentNullException.ThrowIfNull(registry);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         var value = schema.FindAttribute("defaultAttributes");
         if (value is null)
@@ -101,8 +101,8 @@ internal static class DefaultAttributeRules
         out IWildcard? wildcard
     )
     {
-        Argument.ThrowIfNull(ownUses);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(ownUses);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         uses = ownUses;
         wildcard = ownWildcard;

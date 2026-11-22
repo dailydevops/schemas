@@ -95,9 +95,9 @@ public sealed class XmlStreamReader<TSink> : IDisposable
         ArrayPool<char>? charPool
     )
     {
-        Argument.ThrowIfNull(stream);
-        Argument.ThrowIfNull(sink);
-        Argument.ThrowIfLessThan(bufferSize, 1);
+        ArgumentNullException.ThrowIfNull(stream);
+        ArgumentNullException.ThrowIfNull(sink);
+        ArgumentOutOfRangeException.ThrowIfLessThan(bufferSize, 1);
 
         options ??= XmlReaderOptions.Default;
         _stream = stream;

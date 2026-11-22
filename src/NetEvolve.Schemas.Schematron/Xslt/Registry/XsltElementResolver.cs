@@ -36,14 +36,14 @@ internal static class XsltElementResolver
         out SchematronProblem problem
     )
     {
-        Argument.ThrowIfNull(registry);
-        Argument.ThrowIfNull(element.Tree);
+        ArgumentNullException.ThrowIfNull(registry);
+        ArgumentNullException.ThrowIfNull(element.Tree);
         if (element.Kind == XdmNodeKind.Text)
         {
             return TryResolveText(registry, element, moduleSystemId, out instruction, out problem);
         }
 
-        Argument.ThrowIfNotEqual((int)element.Kind, (int)XdmNodeKind.Element);
+        ArgumentOutOfRangeException.ThrowIfNotEqual((int)element.Kind, (int)XdmNodeKind.Element);
 
         var names = element.Tree.Names;
         var xmlName = element.Node.Name;

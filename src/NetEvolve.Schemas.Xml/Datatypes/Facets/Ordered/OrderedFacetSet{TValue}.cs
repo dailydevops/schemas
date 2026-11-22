@@ -41,18 +41,24 @@ public readonly record struct OrderedFacetSet<TValue>
     {
         if (totalDigits.HasValue)
         {
-            Argument.ThrowIfLessThan(totalDigits.Value, 1);
+            ArgumentOutOfRangeException.ThrowIfLessThan(totalDigits.Value, 1);
         }
 
         if (fractionDigits.HasValue)
         {
-            Argument.ThrowIfLessThan(fractionDigits.Value, 0);
+            ArgumentOutOfRangeException.ThrowIfLessThan(fractionDigits.Value, 0);
         }
 
         if (explicitTimezone.HasValue)
         {
-            Argument.ThrowIfLessThan((int)explicitTimezone.Value, (int)ExplicitTimezoneMode.Optional);
-            Argument.ThrowIfGreaterThan((int)explicitTimezone.Value, (int)ExplicitTimezoneMode.Prohibited);
+            ArgumentOutOfRangeException.ThrowIfLessThan(
+                (int)explicitTimezone.Value,
+                (int)ExplicitTimezoneMode.Optional
+            );
+            ArgumentOutOfRangeException.ThrowIfGreaterThan(
+                (int)explicitTimezone.Value,
+                (int)ExplicitTimezoneMode.Prohibited
+            );
         }
 
         MinInclusive = minInclusive;

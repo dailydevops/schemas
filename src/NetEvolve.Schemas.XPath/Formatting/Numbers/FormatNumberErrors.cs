@@ -22,7 +22,7 @@ internal static class FormatNumberErrors
     /// <exception cref="System.ArgumentNullException"><paramref name="name"/> is <see langword="null"/>.</exception>
     public static XPathException UnknownFormat(bool xslt20, string name)
     {
-        Argument.ThrowIfNull(name);
+        ArgumentNullException.ThrowIfNull(name);
 
         return Create(
             xslt20 ? XTDE1280 : FODF1280,

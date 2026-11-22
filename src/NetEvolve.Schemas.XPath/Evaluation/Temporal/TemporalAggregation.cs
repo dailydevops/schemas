@@ -56,7 +56,7 @@ internal static class TemporalAggregation
         out bool holds
     )
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         if (Comparison.TryGetContextual(relation, left.TypeId, right.TypeId, out var implementation))
         {
@@ -85,7 +85,7 @@ internal static class TemporalAggregation
         out XdmItem result
     )
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         if (Arithmetic.TryGetContextual(@operator, left.TypeId, right.TypeId, out var implementation))
         {

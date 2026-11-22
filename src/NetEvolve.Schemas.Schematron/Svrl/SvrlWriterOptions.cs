@@ -25,8 +25,8 @@ public sealed class SvrlWriterOptions
         int maxBufferedBytes = DefaultMaxBufferedBytes
     )
     {
-        Argument.ThrowIfLessThan(maxBufferedBytes, 1);
-        Argument.ThrowIfGreaterThan(maxBufferedBytes, MaxBufferedBytesCeiling);
+        ArgumentOutOfRangeException.ThrowIfLessThan(maxBufferedBytes, 1);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(maxBufferedBytes, MaxBufferedBytesCeiling);
 
         Encoding = encoding;
         Indent = indent;

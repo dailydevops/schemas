@@ -37,8 +37,8 @@ internal sealed class ParticleBuilder
     /// <returns>The model group.</returns>
     internal ModelGroup BuildGroup(SchemaSyntaxNode node, XsdIssueReporter reporter)
     {
-        Argument.ThrowIfNull(node);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(node);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         var particles = new List<Particle>(node.ChildCount);
         for (var i = 0; i < node.ChildCount; i++)

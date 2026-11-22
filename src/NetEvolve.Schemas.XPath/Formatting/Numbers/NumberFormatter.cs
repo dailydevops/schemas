@@ -37,8 +37,8 @@ internal static class NumberFormatter
     /// <exception cref="XPathException">The item is not a number (XPTY0004), or the result is longer than the string limit (XP0006).</exception>
     public static void Format(in XdmItem item, NumberPicture picture, DecimalFormatModel format, ref TextBuilder output)
     {
-        Argument.ThrowIfNull(picture);
-        Argument.ThrowIfNull(format);
+        ArgumentNullException.ThrowIfNull(picture);
+        ArgumentNullException.ThrowIfNull(format);
 
         if (item.TryGetFloat(out var single))
         {

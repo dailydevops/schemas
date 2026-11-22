@@ -29,8 +29,8 @@ internal sealed class CodepointCollation : Collation
     /// <exception cref="ArgumentNullException">An argument is <see langword="null"/>.</exception>
     public override bool AreEqual(string first, string second)
     {
-        Argument.ThrowIfNull(first);
-        Argument.ThrowIfNull(second);
+        ArgumentNullException.ThrowIfNull(first);
+        ArgumentNullException.ThrowIfNull(second);
 
         // The codepoint order and the ordinal order agree on equality, and the ordinal test is the faster one.
         return string.Equals(first, second, StringComparison.Ordinal);

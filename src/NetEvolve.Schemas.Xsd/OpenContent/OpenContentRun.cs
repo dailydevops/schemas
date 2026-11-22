@@ -33,8 +33,8 @@ internal struct OpenContentRun
 
     internal OpenContentRun(OpenContentProperty open, CountingRun counting)
     {
-        Argument.ThrowIfNull(open);
-        Argument.ThrowIfNull(counting);
+        ArgumentNullException.ThrowIfNull(open);
+        ArgumentNullException.ThrowIfNull(counting);
 
         _open = open;
         _counting = counting;
@@ -44,8 +44,8 @@ internal struct OpenContentRun
 
     internal OpenContentRun(OpenContentProperty open, AllGroupRun all)
     {
-        Argument.ThrowIfNull(open);
-        Argument.ThrowIfNull(all);
+        ArgumentNullException.ThrowIfNull(open);
+        ArgumentNullException.ThrowIfNull(all);
 
         _open = open;
         _counting = null;

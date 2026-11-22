@@ -24,9 +24,9 @@ internal static class AbstractRuleExpander
         out IReadOnlyList<SchematronPatternBase> expanded
     )
     {
-        Argument.ThrowIfNull(containers);
-        Argument.ThrowIfNull(patterns);
-        Argument.ThrowIfNull(problems);
+        ArgumentNullException.ThrowIfNull(containers);
+        ArgumentNullException.ThrowIfNull(patterns);
+        ArgumentNullException.ThrowIfNull(problems);
 
         var run = new ExpansionRun(containers, patterns, problems);
         var result = new List<SchematronPatternBase>(patterns.Count);

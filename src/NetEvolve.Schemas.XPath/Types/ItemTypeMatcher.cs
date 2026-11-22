@@ -48,8 +48,8 @@ internal readonly struct ItemTypeMatcher
     /// <exception cref="XPathException">A prefix is not bound (XPST0081), a type name is not a built-in type (XPST0051), or a schema declaration is named (XPST0008).</exception>
     public static ItemTypeMatcher Bind(ItemType itemType, XPathStaticContext context)
     {
-        Argument.ThrowIfNull(itemType);
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(itemType);
+        ArgumentNullException.ThrowIfNull(context);
 
         switch (itemType)
         {
@@ -81,7 +81,7 @@ internal readonly struct ItemTypeMatcher
         ref XPathNodeMatcher bound
     )
     {
-        Argument.ThrowIfNull(annotations);
+        ArgumentNullException.ThrowIfNull(annotations);
 
         switch (_kind)
         {

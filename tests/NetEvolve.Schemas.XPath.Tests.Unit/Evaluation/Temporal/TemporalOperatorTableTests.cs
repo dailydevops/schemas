@@ -267,7 +267,7 @@ public class TemporalOperatorTableTests
     [Arguments(typeof(ReferencingDateTimeFixture))]
     public async Task TheScanOfTheNumericTypes_ReportsAFixtureThatReferencesAnXsdTemporalValueType(Type fixture)
     {
-        Argument.ThrowIfNull(fixture);
+        ArgumentNullException.ThrowIfNull(fixture);
 
         var violations = new List<string>();
 

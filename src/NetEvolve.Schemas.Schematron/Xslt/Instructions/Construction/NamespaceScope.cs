@@ -31,7 +31,7 @@ internal sealed class NamespaceScope
     /// <returns>The namespace URI, or <see langword="null"/> when the prefix is not bound.</returns>
     internal string? Lookup(string prefix)
     {
-        Argument.ThrowIfNull(prefix);
+        ArgumentNullException.ThrowIfNull(prefix);
 
         foreach (var binding in _bindings)
         {
@@ -49,7 +49,7 @@ internal sealed class NamespaceScope
     /// <returns>The scope of the element, this scope when nothing changes.</returns>
     internal NamespaceScope With(List<NamespaceBinding> declared)
     {
-        Argument.ThrowIfNull(declared);
+        ArgumentNullException.ThrowIfNull(declared);
 
         if (declared.Count == 0)
         {

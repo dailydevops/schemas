@@ -20,8 +20,8 @@ internal readonly struct XsdTypeName : IEquatable<XsdTypeName>
 
     internal XsdTypeName(string namespaceName, string localName, bool isAnonymous)
     {
-        Argument.ThrowIfNull(namespaceName);
-        Argument.ThrowIfNull(localName);
+        ArgumentNullException.ThrowIfNull(namespaceName);
+        ArgumentNullException.ThrowIfNull(localName);
 
         _namespaceName = namespaceName;
         _localName = localName;

@@ -18,7 +18,11 @@ public sealed class ValidationResult
     )
     {
         // Dropped errors require a truncated result; the guard throws an ArgumentOutOfRangeException, an ArgumentException.
-        Argument.ThrowIfGreaterThan(hasDroppedErrors ? 1 : 0, isTruncated ? 1 : 0, nameof(hasDroppedErrors));
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(
+            hasDroppedErrors ? 1 : 0,
+            isTruncated ? 1 : 0,
+            nameof(hasDroppedErrors)
+        );
 
         var copy = CopyOf(issues);
         Issues = copy;
@@ -45,13 +49,13 @@ public sealed class ValidationResult
     /// <summary>Copies the list into an immutable snapshot; shared with <see cref="SchemaCompilationException"/>.</summary>
     internal static ReadOnlyCollection<ValidationIssue> CopyOf(IReadOnlyList<ValidationIssue> issues)
     {
-        Argument.ThrowIfNull(issues);
+        ArgumentNullException.ThrowIfNull(issues);
 
         var copy = new ValidationIssue[issues.Count];
         for (var i = 0; i < copy.Length; i++)
         {
             var issue = issues[i];
-            Argument.ThrowIfNull(issue);
+            ArgumentNullException.ThrowIfNull(issue);
             copy[i] = issue;
         }
 

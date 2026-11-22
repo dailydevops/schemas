@@ -50,9 +50,9 @@ internal sealed class OpenContentElement
         XsdIssueReporter reporter
     )
     {
-        Argument.ThrowIfLessThan((int)mode, (int)OpenContentMode.None);
-        Argument.ThrowIfGreaterThan((int)mode, (int)OpenContentMode.Suffix);
-        Argument.ThrowIfNull(reporter);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)mode, (int)OpenContentMode.None);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)mode, (int)OpenContentMode.Suffix);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         var none = mode == OpenContentMode.None;
         if (none == (wildcard is not null))
@@ -91,9 +91,9 @@ internal sealed class OpenContentElement
         DocumentLocation location
     )
     {
-        Argument.ThrowIfLessThan((int)mode, (int)OpenContentMode.Interleave);
-        Argument.ThrowIfGreaterThan((int)mode, (int)OpenContentMode.Suffix);
-        Argument.ThrowIfNull(wildcard);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)mode, (int)OpenContentMode.Interleave);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)mode, (int)OpenContentMode.Suffix);
+        ArgumentNullException.ThrowIfNull(wildcard);
 
         return new(mode, wildcard, appliesToEmpty, location);
     }

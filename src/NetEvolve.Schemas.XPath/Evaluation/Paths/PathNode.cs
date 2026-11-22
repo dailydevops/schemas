@@ -35,12 +35,12 @@ internal sealed class PathNode : ExecutableNode, IOrderedNodeSequence
     /// <param name="location">The location of the path in the expression, reported when a result exceeds the sequence size limit; unknown when <see langword="null"/>.</param>
     public PathNode(PathRoot root, PathStep[] steps, SourceSpan? location = null)
     {
-        Argument.ThrowIfLessThan((int)root, (int)PathRoot.Relative, nameof(root));
-        Argument.ThrowIfGreaterThan((int)root, (int)PathRoot.RootDescendants, nameof(root));
-        Argument.ThrowIfNull(steps);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)root, (int)PathRoot.Relative, nameof(root));
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)root, (int)PathRoot.RootDescendants, nameof(root));
+        ArgumentNullException.ThrowIfNull(steps);
         if (root == PathRoot.Relative)
         {
-            Argument.ThrowIfLessThan(steps.Length, 1);
+            ArgumentOutOfRangeException.ThrowIfLessThan(steps.Length, 1);
         }
 
         _root = root;
@@ -63,7 +63,7 @@ internal sealed class PathNode : ExecutableNode, IOrderedNodeSequence
     /// </exception>
     public override XdmSequence Evaluate(XPathEvaluationContext context)
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         var limit = context.Limits.MaxSequenceSize;
         var current = new XdmItemList(limit, _location);

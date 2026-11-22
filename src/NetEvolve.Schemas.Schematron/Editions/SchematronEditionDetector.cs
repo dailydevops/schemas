@@ -41,7 +41,7 @@ internal static class SchematronEditionDetector
     /// <returns>The message, naming the attribute and the value.</returns>
     internal static string UnknownMessage(string text)
     {
-        Argument.ThrowIfNull(text);
+        ArgumentNullException.ThrowIfNull(text);
 
         return "The " + AttributeName + " value '" + text + "' is not known.";
     }

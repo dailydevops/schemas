@@ -63,7 +63,7 @@ internal sealed class ComparisonOperatorTable
     )
     {
         ComparisonRelations.Check(relation);
-        Argument.ThrowIfNull(implementation);
+        ArgumentNullException.ThrowIfNull(implementation);
 
         Add(
             relation,
@@ -92,7 +92,7 @@ internal sealed class ComparisonOperatorTable
     )
     {
         ComparisonRelations.Check(relation);
-        Argument.ThrowIfNull(implementation);
+        ArgumentNullException.ThrowIfNull(implementation);
 
         Add(relation, new Entry(left, right, null, implementation));
     }

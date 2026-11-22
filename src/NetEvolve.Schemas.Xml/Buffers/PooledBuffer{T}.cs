@@ -29,7 +29,7 @@ internal sealed class PooledBuffer<T> : IDisposable
     /// <param name="pool">The pool to rent from, or <see langword="null"/> for <see cref="ArrayPool{T}.Shared"/>.</param>
     internal PooledBuffer(int initialCapacity = DefaultCapacity, ArrayPool<T>? pool = null)
     {
-        Argument.ThrowIfLessThan(initialCapacity, 0);
+        ArgumentOutOfRangeException.ThrowIfLessThan(initialCapacity, 0);
 
         _pool = pool ?? ArrayPool<T>.Shared;
         _array = _pool.Rent(initialCapacity);
@@ -92,7 +92,7 @@ internal sealed class PooledBuffer<T> : IDisposable
     /// <param name="additionalCount">The number of free elements required.</param>
     internal void EnsureCapacity(int additionalCount)
     {
-        Argument.ThrowIfLessThan(additionalCount, 0);
+        ArgumentOutOfRangeException.ThrowIfLessThan(additionalCount, 0);
 
         var array = Array();
         if (array.Length - _length < additionalCount)
@@ -114,8 +114,8 @@ internal sealed class PooledBuffer<T> : IDisposable
     internal void Advance(int count)
     {
         var array = Array();
-        Argument.ThrowIfLessThan(count, 0);
-        Argument.ThrowIfGreaterThan(count, array.Length - _length);
+        ArgumentOutOfRangeException.ThrowIfLessThan(count, 0);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(count, array.Length - _length);
 
         _length += count;
     }

@@ -25,7 +25,7 @@ internal sealed class FacetAssertions
     /// <param name="own">The assertions that each simple type declares itself, in document order.</param>
     internal FacetAssertions(IReadOnlyDictionary<SimpleTypeDefinition, IReadOnlyList<FacetAssertion>> own)
     {
-        Argument.ThrowIfNull(own);
+        ArgumentNullException.ThrowIfNull(own);
 
         _own = own;
     }
@@ -35,7 +35,7 @@ internal sealed class FacetAssertions
     /// <returns>The assertions, empty for none. The list is the same instance on every call.</returns>
     internal IReadOnlyList<FacetAssertion> Of(SimpleTypeDefinition type)
     {
-        Argument.ThrowIfNull(type);
+        ArgumentNullException.ThrowIfNull(type);
 
         if (_own.Count == 0)
         {

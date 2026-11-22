@@ -49,7 +49,7 @@ internal sealed class Wildcard : IWildcard
         DocumentLocation location
     )
     {
-        Argument.ThrowIfNull(constraint);
+        ArgumentNullException.ThrowIfNull(constraint);
 
         return new(constraint, processContents, location);
     }
@@ -111,7 +111,7 @@ internal sealed class Wildcard : IWildcard
     /// <returns>The union, or <see langword="null"/> when it is not expressible.</returns>
     public IWildcard? Union(IWildcard other, XsdIssueReporter reporter)
     {
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         var union = Union(other);
         if (union is null)
@@ -128,7 +128,7 @@ internal sealed class Wildcard : IWildcard
     /// <returns>The intersection, or <see langword="null"/> when it is not expressible.</returns>
     public IWildcard? Intersect(IWildcard other, XsdIssueReporter reporter)
     {
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         var intersection = Intersect(other);
         if (intersection is null)
@@ -141,7 +141,7 @@ internal sealed class Wildcard : IWildcard
 
     private static Wildcard Cast(IWildcard other)
     {
-        Argument.ThrowIfNull(other);
+        ArgumentNullException.ThrowIfNull(other);
 
         return (Wildcard)other;
     }

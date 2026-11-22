@@ -80,9 +80,9 @@ internal sealed class NegatedWildcard : IWildcard
         DocumentLocation location
     )
     {
-        Argument.ThrowIfNull(constraint);
-        Argument.ThrowIfLessThan((int)processContents, (int)XsdProcessContents.Strict);
-        Argument.ThrowIfGreaterThan((int)processContents, (int)XsdProcessContents.Skip);
+        ArgumentNullException.ThrowIfNull(constraint);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)processContents, (int)XsdProcessContents.Strict);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)processContents, (int)XsdProcessContents.Skip);
 
         return new(constraint, processContents, location, null, null);
     }
@@ -106,8 +106,8 @@ internal sealed class NegatedWildcard : IWildcard
         out NegatedWildcard? wildcard
     )
     {
-        Argument.ThrowIfNull(node);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(node);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         wildcard = null;
         var namespaces = node.FindAttribute("namespace");
@@ -170,7 +170,7 @@ internal sealed class NegatedWildcard : IWildcard
     /// <exception cref="InvalidCastException"><paramref name="wildcard"/> is of another implementation of the seam.</exception>
     public static NameConstraint ConstraintOf(IWildcard wildcard)
     {
-        Argument.ThrowIfNull(wildcard);
+        ArgumentNullException.ThrowIfNull(wildcard);
 
         return wildcard is NegatedWildcard negated
             ? negated.Constraint

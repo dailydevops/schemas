@@ -88,7 +88,7 @@ internal sealed class AttributeDeclaration : IXsdComponent
         XsdIssueReporter reporter
     )
     {
-        Argument.ThrowIfNull(targetNamespace);
+        ArgumentNullException.ThrowIfNull(targetNamespace);
 
         return Create(
             localName,
@@ -111,10 +111,10 @@ internal sealed class AttributeDeclaration : IXsdComponent
         XsdIssueReporter reporter
     )
     {
-        Argument.ThrowIfNullOrEmpty(localName);
-        Argument.ThrowIfNull(namespaceName);
-        Argument.ThrowIfNull(typeDefinition);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNullOrEmpty(localName);
+        ArgumentNullException.ThrowIfNull(namespaceName);
+        ArgumentNullException.ThrowIfNull(typeDefinition);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         if (string.Equals(localName, "xmlns", StringComparison.Ordinal))
         {

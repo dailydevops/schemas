@@ -7,9 +7,9 @@ internal readonly struct ResolvedAnnotations
 {
     internal ResolvedAnnotations(string role, string flags, string severity)
     {
-        Argument.ThrowIfNull(role);
-        Argument.ThrowIfNull(flags);
-        Argument.ThrowIfNull(severity);
+        ArgumentNullException.ThrowIfNull(role);
+        ArgumentNullException.ThrowIfNull(flags);
+        ArgumentNullException.ThrowIfNull(severity);
 
         Role = role;
         Flags = flags;

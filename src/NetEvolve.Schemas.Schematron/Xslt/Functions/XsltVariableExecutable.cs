@@ -14,9 +14,9 @@ internal sealed class XsltVariableExecutable : XsltExecutable, IXsltSlotReader
 
     internal XsltVariableExecutable(string name, int slot, QueryExpression value)
     {
-        Argument.ThrowIfNull(name);
-        Argument.ThrowIfLessThan(slot, 0);
-        Argument.ThrowIfNull(value);
+        ArgumentNullException.ThrowIfNull(name);
+        ArgumentOutOfRangeException.ThrowIfLessThan(slot, 0);
+        ArgumentNullException.ThrowIfNull(value);
 
         Name = name;
         Slot = slot;
@@ -35,8 +35,8 @@ internal sealed class XsltVariableExecutable : XsltExecutable, IXsltSlotReader
     /// <inheritdoc />
     internal override QueryStatus TryExecute(XsltFrame frame, ISequenceSink sink)
     {
-        Argument.ThrowIfNull(frame);
-        Argument.ThrowIfNull(sink);
+        ArgumentNullException.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(sink);
 
         return frame.Run.TryBindVariable(Slot, _value, frame.Focus);
     }

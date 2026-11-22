@@ -9,8 +9,8 @@ internal readonly struct ElementName
 {
     internal ElementName(string namespaceName, string localName)
     {
-        Argument.ThrowIfNull(namespaceName);
-        Argument.ThrowIfNull(localName);
+        ArgumentNullException.ThrowIfNull(namespaceName);
+        ArgumentNullException.ThrowIfNull(localName);
 
         NamespaceName = namespaceName;
         LocalName = localName;

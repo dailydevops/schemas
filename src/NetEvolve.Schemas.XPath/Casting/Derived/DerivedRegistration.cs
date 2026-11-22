@@ -113,7 +113,7 @@ internal static class DerivedRegistration
     /// <exception cref="System.ArgumentNullException"><paramref name="builder"/> is <see langword="null"/>.</exception>
     public static void RegisterRows(CastingTableBuilder builder)
     {
-        Argument.ThrowIfNull(builder);
+        ArgumentNullException.ThrowIfNull(builder);
 
         var registry = BuiltInDatatypes.For(XsdVersion.V10);
         var integerSources = Types(IntegerSources);

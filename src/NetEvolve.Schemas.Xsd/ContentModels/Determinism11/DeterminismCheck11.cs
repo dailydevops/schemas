@@ -47,15 +47,15 @@ internal static class DeterminismCheck11
         DocumentLocation location
     )
     {
-        Argument.ThrowIfNull(model);
-        Argument.ThrowIfNull(terms);
-        Argument.ThrowIfNull(nameOf);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(model);
+        ArgumentNullException.ThrowIfNull(terms);
+        ArgumentNullException.ThrowIfNull(nameOf);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         var views = new List<IXsdComponent>(terms.Count);
         for (var i = 0; i < terms.Count; i++)
         {
-            Argument.ThrowIfNull(terms[i]);
+            ArgumentNullException.ThrowIfNull(terms[i]);
 
             views.Add(terms[i] is IWildcard wildcard ? new ElementPriorityView(wildcard) : terms[i]);
         }

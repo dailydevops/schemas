@@ -44,8 +44,8 @@ public static class XsdValidatorServiceCollectionExtensions
         string? systemId = null
     )
     {
-        Argument.ThrowIfNull(services);
-        Argument.ThrowIfNull(schema);
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(schema);
 
         return services.AddSchemaValidator<IXsdValidator>(provider =>
         {
@@ -74,8 +74,8 @@ public static class XsdValidatorServiceCollectionExtensions
         string? systemId = null
     )
     {
-        Argument.ThrowIfNull(services);
-        Argument.ThrowIfNull(schema);
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(schema);
 
         return services.AddKeyedSchemaValidator<IXsdValidator>(serviceKey, (provider, key) =>
         {

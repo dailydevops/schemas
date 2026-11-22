@@ -61,7 +61,7 @@ internal static class OtherRegistration
     /// <exception cref="System.ArgumentNullException"><paramref name="builder"/> is <see langword="null"/>.</exception>
     public static void RegisterRows(CastingTableBuilder builder)
     {
-        Argument.ThrowIfNull(builder);
+        ArgumentNullException.ThrowIfNull(builder);
 
         var types = new XdmTypeId[Names.Length];
         for (var i = 0; i < types.Length; i++)

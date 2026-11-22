@@ -90,9 +90,9 @@ internal sealed class IdentityConstraintDefinition : IXsdComponent
         XsdIssueReporter reporter
     )
     {
-        Argument.ThrowIfNull(element);
-        Argument.ThrowIfNull(registry);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(element);
+        ArgumentNullException.ThrowIfNull(registry);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         var kind = element.Name.LocalName switch
         {
@@ -151,8 +151,8 @@ internal sealed class IdentityConstraintDefinition : IXsdComponent
     /// <param name="reporter">The reporter.</param>
     internal void ResolveRefer(IComponentRegistry registry, XsdIssueReporter reporter)
     {
-        Argument.ThrowIfNull(registry);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(registry);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         if (ConstraintKind != IdentityConstraintKind.Keyref)
         {

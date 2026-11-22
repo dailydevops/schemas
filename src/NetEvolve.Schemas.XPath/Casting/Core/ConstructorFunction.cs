@@ -28,8 +28,8 @@ internal sealed class ConstructorFunction : XPathFunction
     public ConstructorFunction(XPathQName name, XdmTypeId target, CastingTable table)
         : base(name, 1, 1, Parameters)
     {
-        Argument.ThrowIfLessThan(target.Value, 1);
-        Argument.ThrowIfNull(table);
+        ArgumentOutOfRangeException.ThrowIfLessThan(target.Value, 1);
+        ArgumentNullException.ThrowIfNull(table);
 
         _target = target;
         _table = table;
@@ -38,7 +38,7 @@ internal sealed class ConstructorFunction : XPathFunction
     /// <inheritdoc />
     public override XPathEvaluationStatus Invoke(ref XPathFunctionCall invocation)
     {
-        Argument.ThrowIfLessThan(invocation.Arguments.Length, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(invocation.Arguments.Length, 1);
 
         var argument = invocation.Arguments[0];
         if (argument.Count == 0)

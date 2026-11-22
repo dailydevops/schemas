@@ -36,7 +36,7 @@ internal sealed class SchematronSchemaCompiler : ISchemaCompiler
 
     internal SchematronSchemaCompiler(QueryBindingRegistry bindings)
     {
-        Argument.ThrowIfNull(bindings);
+        ArgumentNullException.ThrowIfNull(bindings);
 
         _bindings = bindings;
     }
@@ -48,9 +48,9 @@ internal sealed class SchematronSchemaCompiler : ISchemaCompiler
         out CompiledSchema compiled
     )
     {
-        Argument.ThrowIfNull(effective);
-        Argument.ThrowIfNull(settings);
-        Argument.ThrowIfNull(problems);
+        ArgumentNullException.ThrowIfNull(effective);
+        ArgumentNullException.ThrowIfNull(settings);
+        ArgumentNullException.ThrowIfNull(problems);
 
         compiled = null!;
         if (!_bindings.TryResolve(effective, out var binding, out var unsupported))

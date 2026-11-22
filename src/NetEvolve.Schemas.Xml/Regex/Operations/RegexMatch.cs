@@ -34,8 +34,8 @@ public readonly ref struct RegexMatch
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="number"/> is negative or above <see cref="GroupCount"/>.</exception>
     public bool TryGetGroup(int number, out TextRange range)
     {
-        Argument.ThrowIfLessThan(number, 0);
-        Argument.ThrowIfGreaterThan(number, GroupCount);
+        ArgumentOutOfRangeException.ThrowIfLessThan(number, 0);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(number, GroupCount);
 
         var start = _groups[2 * number];
         if (start < 0)

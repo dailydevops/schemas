@@ -14,9 +14,9 @@ public sealed class UnionDescriptor : IDatatypeDescriptor
     /// <param name="members">The member types in declaration order; at least one.</param>
     public UnionDescriptor(string name, IReadOnlyList<IDatatypeDescriptor> members)
     {
-        Argument.ThrowIfNull(name);
-        Argument.ThrowIfNull(members);
-        Argument.ThrowIfLessThan(members.Count, 1);
+        ArgumentNullException.ThrowIfNull(name);
+        ArgumentNullException.ThrowIfNull(members);
+        ArgumentOutOfRangeException.ThrowIfLessThan(members.Count, 1);
         Name = name;
         Members = members;
         LexicalMode = members[0].LexicalMode;

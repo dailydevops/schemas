@@ -47,8 +47,8 @@ internal static class NumberPictureParser
         out string? problem
     )
     {
-        Argument.ThrowIfNull(picture);
-        Argument.ThrowIfNull(format);
+        ArgumentNullException.ThrowIfNull(picture);
+        ArgumentNullException.ThrowIfNull(format);
 
         result = null;
         var separator = picture.AsSpan().IndexOf(format.PatternSeparator);

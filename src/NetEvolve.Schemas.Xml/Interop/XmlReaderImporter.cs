@@ -10,7 +10,7 @@ internal static class XmlReaderImporter
 {
     internal static XmlTree Import(XmlReader reader, XmlInteropOptions? options)
     {
-        Argument.ThrowIfNull(reader);
+        ArgumentNullException.ThrowIfNull(reader);
 
         using var emitter = new TreeEmitter(options);
         var lineInfo = reader as IXmlLineInfo;

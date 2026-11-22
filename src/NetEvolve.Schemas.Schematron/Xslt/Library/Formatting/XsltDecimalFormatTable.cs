@@ -17,7 +17,7 @@ internal sealed class XsltDecimalFormatTable : IXPathDecimalFormatProvider
 
     internal XsltDecimalFormatTable(Dictionary<XPathQName, XPathDecimalFormat> formats)
     {
-        Argument.ThrowIfNull(formats);
+        ArgumentNullException.ThrowIfNull(formats);
 
         _formats = formats;
     }

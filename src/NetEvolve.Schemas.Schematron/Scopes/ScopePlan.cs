@@ -20,13 +20,13 @@ internal sealed class ScopePlan
         int slotCount
     )
     {
-        Argument.ThrowIfNull(globals);
-        Argument.ThrowIfNull(phaseLets);
-        Argument.ThrowIfNull(patterns);
-        Argument.ThrowIfNull(globalScope);
-        Argument.ThrowIfLessThan(patternStart, 0);
-        Argument.ThrowIfLessThan(ruleStart, patternStart);
-        Argument.ThrowIfLessThan(slotCount, ruleStart);
+        ArgumentNullException.ThrowIfNull(globals);
+        ArgumentNullException.ThrowIfNull(phaseLets);
+        ArgumentNullException.ThrowIfNull(patterns);
+        ArgumentNullException.ThrowIfNull(globalScope);
+        ArgumentOutOfRangeException.ThrowIfLessThan(patternStart, 0);
+        ArgumentOutOfRangeException.ThrowIfLessThan(ruleStart, patternStart);
+        ArgumentOutOfRangeException.ThrowIfLessThan(slotCount, ruleStart);
 
         Globals = globals;
         PhaseLets = phaseLets;

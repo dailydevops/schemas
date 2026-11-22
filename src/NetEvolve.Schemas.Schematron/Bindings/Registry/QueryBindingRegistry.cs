@@ -21,7 +21,7 @@ internal sealed class QueryBindingRegistry
 
     internal QueryBindingRegistry(IEnumerable<IQueryBinding> bindings)
     {
-        Argument.ThrowIfNull(bindings);
+        ArgumentNullException.ThrowIfNull(bindings);
 
         var names = new List<string>();
         foreach (var binding in bindings)
@@ -65,7 +65,7 @@ internal sealed class QueryBindingRegistry
     /// </remarks>
     internal bool TryResolve(SchematronSchema schema, out IQueryBinding binding, out SchematronProblem problem)
     {
-        Argument.ThrowIfNull(schema);
+        ArgumentNullException.ThrowIfNull(schema);
 
         var name = schema.QueryBinding ?? DefaultName;
         if (_bindings.TryGetValue(name, out binding!))

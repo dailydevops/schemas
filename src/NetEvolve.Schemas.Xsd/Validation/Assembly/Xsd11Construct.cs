@@ -16,8 +16,8 @@ internal sealed class Xsd11Construct
         Func<SchemaSyntaxNode, string, bool>? valueMatches = null
     )
     {
-        Argument.ThrowIfNull(names);
-        Argument.ThrowIfNull(notYetSupported);
+        ArgumentNullException.ThrowIfNull(names);
+        ArgumentNullException.ThrowIfNull(notYetSupported);
 
         IsAttribute = isAttribute;
         Names = names;

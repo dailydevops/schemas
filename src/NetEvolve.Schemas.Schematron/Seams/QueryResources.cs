@@ -12,7 +12,7 @@ internal sealed class QueryResources
 {
     internal QueryResources(IResourceResolver resolver)
     {
-        Argument.ThrowIfNull(resolver);
+        ArgumentNullException.ThrowIfNull(resolver);
 
         Resolver = resolver;
         XPathResolver = XPathResourceResolverAdapter.Wrap(resolver)!;

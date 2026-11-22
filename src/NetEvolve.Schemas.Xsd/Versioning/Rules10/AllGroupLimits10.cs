@@ -32,8 +32,8 @@ internal static class AllGroupLimits10
     /// <param name="reporter">Receives the errors.</param>
     internal static void CheckContent(Particle content, XsdVersion version, XsdIssueReporter reporter)
     {
-        Argument.ThrowIfNull(content);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(content);
+        ArgumentNullException.ThrowIfNull(reporter);
         GuardVersion(version);
 
         if (version == XsdVersion.V10)
@@ -48,8 +48,8 @@ internal static class AllGroupLimits10
     /// <param name="reporter">Receives the errors.</param>
     internal static void CheckDefinition(ModelGroupDefinition definition, XsdVersion version, XsdIssueReporter reporter)
     {
-        Argument.ThrowIfNull(definition);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(definition);
+        ArgumentNullException.ThrowIfNull(reporter);
         GuardVersion(version);
 
         if (version == XsdVersion.V10)
@@ -60,8 +60,8 @@ internal static class AllGroupLimits10
 
     private static void GuardVersion(XsdVersion version)
     {
-        Argument.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
-        Argument.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
     }
 
     // A particle that may hold an all group at its top: the content of a complex type, or any particle below a compositor.

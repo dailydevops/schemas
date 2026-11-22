@@ -19,7 +19,7 @@ internal sealed class XsltGroupByGrouping : XsltGrouping
     internal XsltGroupByGrouping(QueryExpression key, DocumentLocation location)
         : base(location)
     {
-        Argument.ThrowIfNull(key);
+        ArgumentNullException.ThrowIfNull(key);
 
         _key = key;
     }
@@ -30,9 +30,9 @@ internal sealed class XsltGroupByGrouping : XsltGrouping
     /// <inheritdoc />
     internal override QueryStatus TryGroup(XsltFrame frame, ItemBuffer items, List<XsltGroup> groups)
     {
-        Argument.ThrowIfNull(frame);
-        Argument.ThrowIfNull(items);
-        Argument.ThrowIfNull(groups);
+        ArgumentNullException.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(items);
+        ArgumentNullException.ThrowIfNull(groups);
 
         var index = new Dictionary<string, int>(StringComparer.Ordinal);
         using var keys = new ItemBuffer(frame.MaxSequenceLength);

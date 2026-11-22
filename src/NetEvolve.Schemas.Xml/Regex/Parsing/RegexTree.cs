@@ -50,8 +50,8 @@ public sealed class RegexTree
     /// <returns>The set.</returns>
     public RegexCharacterSet GetSet(int index)
     {
-        Argument.ThrowIfLessThan(index, 0);
-        Argument.ThrowIfGreaterThan(index, _sets.Length - 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(index, 0);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(index, _sets.Length - 1);
         return _sets[index];
     }
 }

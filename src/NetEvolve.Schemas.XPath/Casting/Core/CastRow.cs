@@ -15,11 +15,11 @@ internal sealed class CastRow
     /// <exception cref="System.ArgumentOutOfRangeException">A type is <see langword="default"/>, or <paramref name="cell"/> is <see cref="CastCell.NotAllowed"/> or not a defined cell.</exception>
     public CastRow(XdmTypeId source, XdmTypeId target, CastCell cell, CastConversion conversion)
     {
-        Argument.ThrowIfLessThan(source.Value, 1);
-        Argument.ThrowIfLessThan(target.Value, 1);
-        Argument.ThrowIfLessThan((int)cell, (int)CastCell.Always);
-        Argument.ThrowIfGreaterThan((int)cell, (int)CastCell.ValueDependent);
-        Argument.ThrowIfNull(conversion);
+        ArgumentOutOfRangeException.ThrowIfLessThan(source.Value, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(target.Value, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)cell, (int)CastCell.Always);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)cell, (int)CastCell.ValueDependent);
+        ArgumentNullException.ThrowIfNull(conversion);
 
         Source = source;
         Target = target;
@@ -58,7 +58,7 @@ internal sealed class CastRow
 
     private static CastConversion Wrap(NamespaceCastConversion conversion)
     {
-        Argument.ThrowIfNull(conversion);
+        ArgumentNullException.ThrowIfNull(conversion);
 
         return (in XdmItem source, out XdmItem result) =>
             conversion(in source, NoNamespaceContext.Instance, out result);

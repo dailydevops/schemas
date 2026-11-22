@@ -44,8 +44,8 @@ internal sealed class ExternalEntityLoader
     /// <param name="limits">The reader limits: the depth, the expansion budget, and the length of the text declaration.</param>
     internal ExternalEntityLoader(DtdValidationOptions options, XmlReaderLimits limits)
     {
-        Argument.ThrowIfNull(options);
-        Argument.ThrowIfNull(limits);
+        ArgumentNullException.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(limits);
 
         _options = options;
         _limits = limits;
@@ -76,9 +76,9 @@ internal sealed class ExternalEntityLoader
     )
     {
         cancellationToken.ThrowIfCancellationRequested();
-        Argument.ThrowIfNull(name);
-        Argument.ThrowIfNull(systemId);
-        Argument.ThrowIfGreaterThan((int)kind, (int)ResourceKind.ExternalParameterEntity);
+        ArgumentNullException.ThrowIfNull(name);
+        ArgumentNullException.ThrowIfNull(systemId);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)kind, (int)ResourceKind.ExternalParameterEntity);
 
         frame = null;
         failure = default;
@@ -126,7 +126,7 @@ internal sealed class ExternalEntityLoader
     /// <returns><see langword="false"/> when the budget is exceeded; <c>XML1109</c> is then the error to report.</returns>
     internal bool TryChargeExpansion(int count)
     {
-        Argument.ThrowIfLessThan(count, 0);
+        ArgumentOutOfRangeException.ThrowIfLessThan(count, 0);
 
         return _expansion.TryCharge(count);
     }
@@ -135,7 +135,7 @@ internal sealed class ExternalEntityLoader
     /// <param name="frame">The frame.</param>
     internal void Leave(ExternalEntityFrame frame)
     {
-        Argument.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(frame);
 
         if (_active.Remove(frame))
         {

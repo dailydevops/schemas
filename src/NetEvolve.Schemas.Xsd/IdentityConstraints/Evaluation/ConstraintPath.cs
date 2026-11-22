@@ -32,8 +32,8 @@ internal sealed class ConstraintPath
     /// <returns>The compiled paths.</returns>
     internal static ConstraintPath Compile(string xpath, IReadOnlyList<KeyValuePair<string, string>> bindings)
     {
-        Argument.ThrowIfNull(xpath);
-        Argument.ThrowIfNull(bindings);
+        ArgumentNullException.ThrowIfNull(xpath);
+        ArgumentNullException.ThrowIfNull(bindings);
 
         var alternatives = new List<Alternative>();
         if (XPathParser.TryParse(xpath.AsSpan(), out var tree, out _))
@@ -51,7 +51,7 @@ internal sealed class ConstraintPath
     /// <returns><see langword="true"/> when the element is selected.</returns>
     internal bool MatchesElement(ElementName[] stack, int contextDepth, int depth)
     {
-        Argument.ThrowIfNull(stack);
+        ArgumentNullException.ThrowIfNull(stack);
 
         for (var i = 0; i < _alternatives.Length; i++)
         {
@@ -79,9 +79,9 @@ internal sealed class ConstraintPath
         string localName
     )
     {
-        Argument.ThrowIfNull(stack);
-        Argument.ThrowIfNull(namespaceName);
-        Argument.ThrowIfNull(localName);
+        ArgumentNullException.ThrowIfNull(stack);
+        ArgumentNullException.ThrowIfNull(namespaceName);
+        ArgumentNullException.ThrowIfNull(localName);
 
         for (var i = 0; i < _alternatives.Length; i++)
         {

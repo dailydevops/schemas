@@ -22,12 +22,12 @@ public sealed class XsdRule
         IssueSeverity defaultSeverity = IssueSeverity.Error
     )
     {
-        Argument.ThrowIfNullOrEmpty(id);
-        Argument.ThrowIfNullOrEmpty(title);
-        Argument.ThrowIfNull(section);
-        Argument.ThrowIfGreaterThan((int)kind, (int)XsdRuleKind.Validation);
-        Argument.ThrowIfGreaterThan((int)versions, (int)XsdVersionMask.All);
-        Argument.ThrowIfGreaterThan((int)defaultSeverity, (int)IssueSeverity.Error);
+        ArgumentNullException.ThrowIfNullOrEmpty(id);
+        ArgumentNullException.ThrowIfNullOrEmpty(title);
+        ArgumentNullException.ThrowIfNull(section);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)kind, (int)XsdRuleKind.Validation);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)versions, (int)XsdVersionMask.All);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)defaultSeverity, (int)IssueSeverity.Error);
 
         Code = code;
         Id = id;

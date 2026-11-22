@@ -28,10 +28,14 @@ internal sealed class NodeComparisonNode : ExecutableNode
     /// <exception cref="System.ArgumentOutOfRangeException"><paramref name="operator"/> is not a node comparison operator.</exception>
     public NodeComparisonNode(ComparisonOperator @operator, ExecutableNode left, ExecutableNode right)
     {
-        Argument.ThrowIfLessThan((int)@operator, (int)ComparisonOperator.NodeIs, nameof(@operator));
-        Argument.ThrowIfGreaterThan((int)@operator, (int)ComparisonOperator.NodeFollows, nameof(@operator));
-        Argument.ThrowIfNull(left);
-        Argument.ThrowIfNull(right);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)@operator, (int)ComparisonOperator.NodeIs, nameof(@operator));
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(
+            (int)@operator,
+            (int)ComparisonOperator.NodeFollows,
+            nameof(@operator)
+        );
+        ArgumentNullException.ThrowIfNull(left);
+        ArgumentNullException.ThrowIfNull(right);
 
         _operator = @operator;
         _left = left;
@@ -42,7 +46,7 @@ internal sealed class NodeComparisonNode : ExecutableNode
     /// <exception cref="XPathException">An operand is not a single node (XPTY0004).</exception>
     public override XdmSequence Evaluate(XPathEvaluationContext context)
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         var left = _left.Evaluate(context);
         var right = _right.Evaluate(context);

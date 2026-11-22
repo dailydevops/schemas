@@ -43,8 +43,8 @@ internal sealed class XmlEntityInputStack : IXmlEntityInputStack
     /// <param name="doctype">The doctype handler whose declarations the references are resolved against.</param>
     internal XmlEntityInputStack(XmlReaderLimits limits, DtdDoctypeHandler doctype)
     {
-        Argument.ThrowIfNull(limits);
-        Argument.ThrowIfNull(doctype);
+        ArgumentNullException.ThrowIfNull(limits);
+        ArgumentNullException.ThrowIfNull(doctype);
 
         _doctype = doctype;
         _depth = XmlBudget.EntityDepth(limits);

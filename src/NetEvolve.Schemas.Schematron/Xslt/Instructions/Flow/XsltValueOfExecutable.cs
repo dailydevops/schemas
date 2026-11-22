@@ -31,7 +31,7 @@ internal sealed class XsltValueOfExecutable : XsltExecutable, IXsltSlotReader, I
         int slotEnd
     )
     {
-        Argument.ThrowIfNull(separator);
+        ArgumentNullException.ThrowIfNull(separator);
 
         _select = select;
         _body = body;
@@ -50,8 +50,8 @@ internal sealed class XsltValueOfExecutable : XsltExecutable, IXsltSlotReader, I
     /// <inheritdoc />
     internal override QueryStatus TryExecute(XsltFrame frame, ISequenceSink sink)
     {
-        Argument.ThrowIfNull(frame);
-        Argument.ThrowIfNull(sink);
+        ArgumentNullException.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(sink);
 
         using var join = new JoinSink(sink, _separator);
         var status = _select is not null

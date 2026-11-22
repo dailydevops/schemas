@@ -40,9 +40,9 @@ internal static class Stage4OwnSchemaRunner
     )
     {
         cancellationToken.ThrowIfCancellationRequested();
-        Argument.ThrowIfNull(manifest);
-        Argument.ThrowIfNullOrWhiteSpace(stageDirectory);
-        Argument.ThrowIfNullOrWhiteSpace(repositoryRoot);
+        ArgumentNullException.ThrowIfNull(manifest);
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(stageDirectory);
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(repositoryRoot);
         var results = new List<CaseResult>();
         foreach (var schema in manifest.OwnSchemas)
         {

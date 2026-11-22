@@ -64,8 +64,8 @@ internal sealed class IdListener : ValidationListener
     /// <param name="schema">The schema set that holds the notation declarations.</param>
     internal IdListener(ISimpleValueAssessor assessor, XsdSchemaSet schema)
     {
-        Argument.ThrowIfNull(assessor);
-        Argument.ThrowIfNull(schema);
+        ArgumentNullException.ThrowIfNull(assessor);
+        ArgumentNullException.ThrowIfNull(schema);
 
         _assessor = assessor;
         _schema = schema;

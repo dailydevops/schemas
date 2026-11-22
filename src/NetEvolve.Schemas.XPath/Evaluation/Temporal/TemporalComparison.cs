@@ -42,7 +42,7 @@ internal static class TemporalComparison
         XPathEvaluationContext context
     )
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
         ComparisonRelations.Check(relation);
 
         if (!left.TryGetTemporal(out var a) || !right.TryGetTemporal(out var b))

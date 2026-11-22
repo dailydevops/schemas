@@ -16,7 +16,7 @@ public sealed class ValidationIssueCollector
     /// <param name="limits">The limits.</param>
     public ValidationIssueCollector(ValidationLimits limits)
     {
-        Argument.ThrowIfNull(limits);
+        ArgumentNullException.ThrowIfNull(limits);
 
         _maxIssues = limits.MaxIssues;
     }
@@ -31,7 +31,7 @@ public sealed class ValidationIssueCollector
     /// <param name="issue">The issue.</param>
     public void Add(ValidationIssue issue)
     {
-        Argument.ThrowIfNull(issue);
+        ArgumentNullException.ThrowIfNull(issue);
 
         if (_isStopped)
         {
@@ -52,10 +52,14 @@ public sealed class ValidationIssueCollector
     /// <param name="stopIssue">The stop issue.</param>
     public void Stop(ValidationIssue stopIssue)
     {
-        Argument.ThrowIfNull(stopIssue);
+        ArgumentNullException.ThrowIfNull(stopIssue);
 
         // Only severity error may stop; the guard throws an ArgumentOutOfRangeException, an ArgumentException.
-        Argument.ThrowIfLessThan((int)stopIssue.Severity, (int)IssueSeverity.Error, nameof(stopIssue));
+        ArgumentOutOfRangeException.ThrowIfLessThan(
+            (int)stopIssue.Severity,
+            (int)IssueSeverity.Error,
+            nameof(stopIssue)
+        );
 
         if (_isStopped)
         {

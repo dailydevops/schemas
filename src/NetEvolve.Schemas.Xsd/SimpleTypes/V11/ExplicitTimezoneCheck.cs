@@ -53,11 +53,11 @@ internal static class ExplicitTimezoneCheck
     )
     {
         facet = null;
-        Argument.ThrowIfNull(baseType);
-        Argument.ThrowIfNull(step);
-        Argument.ThrowIfNull(reporter);
-        Argument.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
-        Argument.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
+        ArgumentNullException.ThrowIfNull(baseType);
+        ArgumentNullException.ThrowIfNull(step);
+        ArgumentNullException.ThrowIfNull(reporter);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
 
         var facts = FacetBase.Resolve(baseType, version);
         if (facts is null)

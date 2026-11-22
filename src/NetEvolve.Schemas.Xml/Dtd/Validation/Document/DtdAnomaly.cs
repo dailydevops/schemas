@@ -15,8 +15,8 @@ internal readonly record struct DtdAnomaly
     /// <exception cref="System.ArgumentOutOfRangeException"><paramref name="kind"/> is not a defined value.</exception>
     internal DtdAnomaly(DtdAnomalyKind kind, DocumentLocation location, string? name = null)
     {
-        Argument.ThrowIfGreaterThan((int)kind, (int)DtdAnomalyKind.ConditionalSectionNesting);
-        Argument.ThrowIfLessThan((int)kind, (int)DtdAnomalyKind.ElementRedeclared);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)kind, (int)DtdAnomalyKind.ConditionalSectionNesting);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)kind, (int)DtdAnomalyKind.ElementRedeclared);
 
         Kind = kind;
         Location = location;

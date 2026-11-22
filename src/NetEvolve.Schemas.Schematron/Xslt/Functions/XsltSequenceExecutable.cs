@@ -15,7 +15,7 @@ internal sealed class XsltSequenceExecutable : XsltExecutable, IXsltSlotReader
 
     internal XsltSequenceExecutable(QueryExpression select)
     {
-        Argument.ThrowIfNull(select);
+        ArgumentNullException.ThrowIfNull(select);
 
         _select = select;
     }
@@ -26,8 +26,8 @@ internal sealed class XsltSequenceExecutable : XsltExecutable, IXsltSlotReader
     /// <inheritdoc />
     internal override QueryStatus TryExecute(XsltFrame frame, ISequenceSink sink)
     {
-        Argument.ThrowIfNull(frame);
-        Argument.ThrowIfNull(sink);
+        ArgumentNullException.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(sink);
 
         return frame.Run.TryEvaluate(_select, frame.Focus, sink);
     }

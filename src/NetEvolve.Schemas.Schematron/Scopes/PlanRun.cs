@@ -24,10 +24,10 @@ internal sealed class PlanRun
         IReadOnlyList<GlobalDeclaration> globals
     )
     {
-        Argument.ThrowIfNull(schema);
-        Argument.ThrowIfNull(binding);
-        Argument.ThrowIfNull(problems);
-        Argument.ThrowIfNull(globals);
+        ArgumentNullException.ThrowIfNull(schema);
+        ArgumentNullException.ThrowIfNull(binding);
+        ArgumentNullException.ThrowIfNull(problems);
+        ArgumentNullException.ThrowIfNull(globals);
 
         _schema = schema;
         _binding = binding;
@@ -37,7 +37,7 @@ internal sealed class PlanRun
 
     internal bool Execute(PhaseSelection selection, out ScopePlan plan)
     {
-        Argument.ThrowIfNull(selection);
+        ArgumentNullException.ThrowIfNull(selection);
 
         var schemaCount = _schema.Parameters.Count + _globals.Count + _schema.Lets.Count;
         var patternStart = schemaCount + selection.Lets.Count;

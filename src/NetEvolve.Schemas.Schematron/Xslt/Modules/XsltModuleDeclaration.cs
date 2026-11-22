@@ -12,8 +12,8 @@ internal sealed class XsltModuleDeclaration
 {
     internal XsltModuleDeclaration(XPathNode element, string? systemId, int precedence)
     {
-        Argument.ThrowIfNull(element.Tree);
-        Argument.ThrowIfLessThan(precedence, 1);
+        ArgumentNullException.ThrowIfNull(element.Tree);
+        ArgumentOutOfRangeException.ThrowIfLessThan(precedence, 1);
 
         Element = element;
         SystemId = systemId;

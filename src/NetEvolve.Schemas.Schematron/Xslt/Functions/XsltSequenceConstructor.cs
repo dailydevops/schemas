@@ -34,8 +34,8 @@ internal static class XsltSequenceConstructor
         out XsltBodyExecutable body
     )
     {
-        Argument.ThrowIfNull(context);
-        Argument.ThrowIfNull(names);
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(names);
 
         body = null!;
         var instructions = new List<XsltExecutable>();

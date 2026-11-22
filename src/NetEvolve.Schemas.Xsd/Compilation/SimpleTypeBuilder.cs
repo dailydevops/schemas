@@ -32,7 +32,7 @@ internal sealed class SimpleTypeBuilder : IComponentBuilder
 
     internal SimpleTypeBuilder(BuildContext context)
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         _context = context;
     }
@@ -44,9 +44,9 @@ internal sealed class SimpleTypeBuilder : IComponentBuilder
     /// <exception cref="NotSupportedException"><paramref name="element"/> is not the syntax of a top-level <c>simpleType</c> of the build context.</exception>
     public IXsdComponent Build(ISchemaSyntaxElement element, IComponentRegistry registry, XsdIssueReporter reporter)
     {
-        Argument.ThrowIfNull(element);
-        Argument.ThrowIfNull(registry);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(element);
+        ArgumentNullException.ThrowIfNull(registry);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         return
             element is SchemaSyntaxNode node
@@ -61,7 +61,7 @@ internal sealed class SimpleTypeBuilder : IComponentBuilder
     /// <returns>The type.</returns>
     internal SimpleTypeDefinition Build(Definition definition)
     {
-        Argument.ThrowIfNull(definition);
+        ArgumentNullException.ThrowIfNull(definition);
 
         var node = definition.Node;
         var final = SyntaxValues.ParseMethods(
@@ -79,8 +79,8 @@ internal sealed class SimpleTypeBuilder : IComponentBuilder
     /// <returns>The type.</returns>
     internal SimpleTypeDefinition BuildAnonymous(SchemaSyntaxNode node, UnitScope unit)
     {
-        Argument.ThrowIfNull(node);
-        Argument.ThrowIfNull(unit);
+        ArgumentNullException.ThrowIfNull(node);
+        ArgumentNullException.ThrowIfNull(unit);
 
         if (node.FindAttribute("name") is not null)
         {
@@ -260,7 +260,7 @@ internal sealed class SimpleTypeBuilder : IComponentBuilder
 
     internal List<FacetDeclaration> ReadFacets(SchemaSyntaxNode restriction)
     {
-        Argument.ThrowIfNull(restriction);
+        ArgumentNullException.ThrowIfNull(restriction);
 
         var step = new List<FacetDeclaration>();
         var seen = new HashSet<FacetKind>();

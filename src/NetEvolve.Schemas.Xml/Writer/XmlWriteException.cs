@@ -28,7 +28,7 @@ public sealed class XmlWriteException : Exception
     public XmlWriteException(XmlErrorCode code)
         : base(code?.Message ?? string.Empty)
     {
-        Argument.ThrowIfNull(code);
+        ArgumentNullException.ThrowIfNull(code);
         Code = code;
     }
 

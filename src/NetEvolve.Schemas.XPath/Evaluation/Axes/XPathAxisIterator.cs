@@ -36,7 +36,7 @@ internal struct XPathAxisIterator
     public XPathAxisIterator(in XPathNode context, Axis axis, in XPathNodeMatcher matcher)
     {
         _ = XPathAxes.GetProperties(axis);
-        Argument.ThrowIfNull(context.Tree);
+        ArgumentNullException.ThrowIfNull(context.Tree);
 
         _context = context;
         _axis = axis;

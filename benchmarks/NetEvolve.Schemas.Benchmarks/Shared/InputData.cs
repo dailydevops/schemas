@@ -1,4 +1,4 @@
-#pragma warning disable CA1716 // Folder-mandated namespace (NE0002) collides with the VB keyword
+﻿#pragma warning disable CA1716 // Folder-mandated namespace (NE0002) collides with the VB keyword
 namespace NetEvolve.Schemas.Benchmarks.Shared;
 
 using System.Text;
@@ -12,7 +12,7 @@ internal static class InputData
         var sb = new StringBuilder("<root>");
         for (var i = 0; i < elementCount; i++)
         {
-            sb.Append("<item id=\"").Append(i).Append("\">value").Append(i).Append("</item>");
+            _ = sb.Append("<item id=\"").Append(i).Append("\">value").Append(i).Append("</item>");
         }
         return sb.Append("</root>").ToString();
     }

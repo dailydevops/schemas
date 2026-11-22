@@ -50,9 +50,9 @@ internal sealed class AnnotationSource : IXdmTypeAnnotationSource
     /// <param name="assessor">The datatype contract, which tells the accepting member of a union.</param>
     internal AnnotationSource(AnnotationTable table, XmlTree tree, ISimpleValueAssessor assessor)
     {
-        Argument.ThrowIfNull(table);
-        Argument.ThrowIfNull(tree);
-        Argument.ThrowIfNull(assessor);
+        ArgumentNullException.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(tree);
+        ArgumentNullException.ThrowIfNull(assessor);
 
         _table = table;
         _tree = tree;

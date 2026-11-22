@@ -131,7 +131,7 @@ internal static class DtdValidatingPipeline
     /// <returns>New steps; a step keeps the state of one run, so a run needs its own.</returns>
     internal static IReadOnlyList<IDtdValidationStep> CreateSteps(XmlReaderLimits limits)
     {
-        Argument.ThrowIfNull(limits);
+        ArgumentNullException.ThrowIfNull(limits);
 
         return
         [
@@ -154,7 +154,7 @@ internal static class DtdValidatingPipeline
         string? documentUri
     )
     {
-        Argument.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(options);
 
         return (readerOptions ?? XmlReaderOptions.Default)
             .WithDtdProcessing(true)
@@ -179,8 +179,8 @@ internal static class DtdValidatingPipeline
     )
         where TSink : IXmlSink
     {
-        Argument.ThrowIfNull(reader);
-        Argument.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(reader);
+        ArgumentNullException.ThrowIfNull(options);
 
         var issues = new ValidationIssueCollector(options.Limits);
         var sink = new DtdValidatingSink<TSink>(reader, inner, steps, options, issues, documentUri);

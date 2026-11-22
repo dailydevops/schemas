@@ -109,8 +109,8 @@ public sealed class XmlDocumentTree : XmlTree
     /// <returns>The start position of an element; <see langword="default"/> for other kinds and for trees built without positions.</returns>
     public XmlPosition GetPosition(int index)
     {
-        Argument.ThrowIfLessThan(index, 0);
-        Argument.ThrowIfGreaterThanOrEqual(index, _kinds.Length);
+        ArgumentOutOfRangeException.ThrowIfLessThan(index, 0);
+        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, _kinds.Length);
 
         return _positions is null ? default : _positions[index];
     }
@@ -121,7 +121,7 @@ public sealed class XmlDocumentTree : XmlTree
     /// <returns><see langword="true"/> when an element was found.</returns>
     public bool TryGetElementById(string id, out XmlNode element)
     {
-        Argument.ThrowIfNull(id);
+        ArgumentNullException.ThrowIfNull(id);
 
         if (_ids is not null && _ids.TryGetValue(id, out var index))
         {

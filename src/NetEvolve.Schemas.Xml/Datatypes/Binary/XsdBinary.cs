@@ -23,8 +23,8 @@ public readonly struct XsdBinary : IEquatable<XsdBinary>
     /// <returns>The value, or the error with its offset.</returns>
     public static ParseResult<XsdBinary> Parse(ReadOnlySpan<char> lexical, BinaryKind kind)
     {
-        Argument.ThrowIfLessThan((int)kind, (int)BinaryKind.HexBinary);
-        Argument.ThrowIfGreaterThan((int)kind, (int)BinaryKind.Base64Binary);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)kind, (int)BinaryKind.HexBinary);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)kind, (int)BinaryKind.Base64Binary);
         var error = BinaryLexical.Scan(lexical, kind, out var octets, out var offset);
         return error == DatatypeError.None
             ? new ParseResult<XsdBinary>(Map(lexical, kind, octets))

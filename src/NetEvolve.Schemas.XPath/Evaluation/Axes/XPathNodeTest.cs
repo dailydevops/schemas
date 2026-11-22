@@ -78,8 +78,8 @@ internal readonly struct XPathNodeTest
     /// <exception cref="XPathException">A prefix is not bound (XPST0081); the error carries the location of <paramref name="test"/>.</exception>
     public static bool TryFromSyntax(NodeTest test, Axis axis, XPathStaticContext context, out XPathNodeTest result)
     {
-        Argument.ThrowIfNull(test);
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(test);
+        ArgumentNullException.ThrowIfNull(context);
 
         switch (test)
         {
@@ -122,7 +122,7 @@ internal readonly struct XPathNodeTest
     /// <returns>The matcher.</returns>
     public XPathNodeMatcher Bind(XmlNameTable names)
     {
-        Argument.ThrowIfNull(names);
+        ArgumentNullException.ThrowIfNull(names);
 
         var local = default(XmlSymbol);
         var namespaceUri = default(XmlSymbol);

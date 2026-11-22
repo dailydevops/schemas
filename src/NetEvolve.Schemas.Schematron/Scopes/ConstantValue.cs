@@ -38,8 +38,8 @@ internal static class ConstantValue
         out string? type
     )
     {
-        Argument.ThrowIfNull(written);
-        Argument.ThrowIfNull(namespaces);
+        ArgumentNullException.ThrowIfNull(written);
+        ArgumentNullException.ThrowIfNull(namespaces);
 
         type = null;
         var colon = written.AsSpan().IndexOf(':');
@@ -72,7 +72,7 @@ internal static class ConstantValue
         out string? type
     )
     {
-        Argument.ThrowIfNull(namespaces);
+        ArgumentNullException.ThrowIfNull(namespaces);
 
         type = null;
         if (!XPathParser.TryParse(text, out var tree, out _))
@@ -101,8 +101,8 @@ internal static class ConstantValue
     /// <returns><see langword="true"/> when the value matches.</returns>
     internal static bool Satisfies(string constantType, string declaredType)
     {
-        Argument.ThrowIfNull(constantType);
-        Argument.ThrowIfNull(declaredType);
+        ArgumentNullException.ThrowIfNull(constantType);
+        ArgumentNullException.ThrowIfNull(declaredType);
 
         if (string.Equals(constantType, declaredType, StringComparison.Ordinal))
         {

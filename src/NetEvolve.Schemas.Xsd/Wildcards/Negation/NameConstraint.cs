@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Xsd.Wildcards.Negation;
+﻿namespace NetEvolve.Schemas.Xsd.Wildcards.Negation;
 
 using System;
 using System.Collections.Generic;
@@ -92,12 +92,12 @@ internal sealed class NameConstraint : IEquatable<NameConstraint>
         bool disallowsSibling = false
     )
     {
-        Argument.ThrowIfNull(namespaces);
-        Argument.ThrowIfNull(disallowedNames);
+        ArgumentNullException.ThrowIfNull(namespaces);
+        ArgumentNullException.ThrowIfNull(disallowedNames);
 
         for (var i = 0; i < namespaces.Length; i++)
         {
-            Argument.ThrowIfNull(namespaces[i]);
+            ArgumentNullException.ThrowIfNull(namespaces[i]);
         }
 
         return Build(negation, namespaces, disallowedNames, disallowsDefined, disallowsSibling);
@@ -108,7 +108,7 @@ internal sealed class NameConstraint : IEquatable<NameConstraint>
     /// <returns>The equivalent constraint.</returns>
     public static NameConstraint FromCore(NamespaceConstraint constraint)
     {
-        Argument.ThrowIfNull(constraint);
+        ArgumentNullException.ThrowIfNull(constraint);
 
         return constraint.Variety switch
         {
@@ -123,7 +123,7 @@ internal sealed class NameConstraint : IEquatable<NameConstraint>
     /// <returns><see langword="true"/> when allowed.</returns>
     public bool AllowsNamespace(string namespaceName)
     {
-        Argument.ThrowIfNull(namespaceName);
+        ArgumentNullException.ThrowIfNull(namespaceName);
 
         return Contains(Namespaces, namespaceName) != IsNegation;
     }
@@ -156,7 +156,7 @@ internal sealed class NameConstraint : IEquatable<NameConstraint>
     /// <returns><see langword="true"/> when a subset.</returns>
     public bool IsSubsetOf(NameConstraint super)
     {
-        Argument.ThrowIfNull(super);
+        ArgumentNullException.ThrowIfNull(super);
 
         if (!NamespacesAreSubsetOf(super) || (super.DisallowsDefined && !DisallowsDefined))
         {
@@ -179,7 +179,7 @@ internal sealed class NameConstraint : IEquatable<NameConstraint>
     /// <returns>The union.</returns>
     public NameConstraint Union(NameConstraint other)
     {
-        Argument.ThrowIfNull(other);
+        ArgumentNullException.ThrowIfNull(other);
 
         if (Equals(other))
         {
@@ -222,7 +222,7 @@ internal sealed class NameConstraint : IEquatable<NameConstraint>
     /// <returns>The intersection.</returns>
     public NameConstraint Intersect(NameConstraint other)
     {
-        Argument.ThrowIfNull(other);
+        ArgumentNullException.ThrowIfNull(other);
 
         string[] namespaces;
         if (IsNegation && other.IsNegation)
@@ -255,7 +255,7 @@ internal sealed class NameConstraint : IEquatable<NameConstraint>
     /// <returns><see langword="true"/> when they overlap.</returns>
     public bool Overlaps(NameConstraint other)
     {
-        Argument.ThrowIfNull(other);
+        ArgumentNullException.ThrowIfNull(other);
 
         if (IsNegation && other.IsNegation)
         {
@@ -337,19 +337,19 @@ internal sealed class NameConstraint : IEquatable<NameConstraint>
         var builder = new StringBuilder();
         if (IsNegation && Namespaces.Length == 0)
         {
-            builder.Append("##any");
+            _ = builder.Append("##any");
         }
         else
         {
-            builder.Append(IsNegation ? "not(" : "{");
+            _ = builder.Append(IsNegation ? "not(" : "{");
             for (var i = 0; i < Namespaces.Length; i++)
             {
-                builder
+                _ = builder
                     .Append(i > 0 ? "," : string.Empty)
                     .Append(Namespaces[i].Length == 0 ? "##local" : Namespaces[i]);
             }
 
-            builder.Append(IsNegation ? ')' : '}');
+            _ = builder.Append(IsNegation ? ')' : '}');
         }
 
         var exceptions = new List<string>(DisallowedNames.Length + 2);

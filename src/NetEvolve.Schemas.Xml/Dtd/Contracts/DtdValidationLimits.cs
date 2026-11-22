@@ -32,7 +32,7 @@ public sealed class DtdValidationLimits
     /// <returns>The new limits.</returns>
     public DtdValidationLimits WithMaxExternalEntityRequests(int value)
     {
-        Argument.ThrowIfLessThan(value, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(value, 1);
 
         var copy = (DtdValidationLimits)MemberwiseClone();
         copy._maxExternalEntityRequests = value;
@@ -45,7 +45,7 @@ public sealed class DtdValidationLimits
     /// <returns>The new limits.</returns>
     public DtdValidationLimits WithMaxContentModelStates(int value)
     {
-        Argument.ThrowIfLessThan(value, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(value, 1);
 
         var copy = (DtdValidationLimits)MemberwiseClone();
         copy._maxContentModelStates = value;
@@ -58,7 +58,7 @@ public sealed class DtdValidationLimits
     /// <returns>The new limits.</returns>
     public DtdValidationLimits WithMaxDeclarations(int value)
     {
-        Argument.ThrowIfLessThan(value, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(value, 1);
 
         var copy = (DtdValidationLimits)MemberwiseClone();
         copy._maxDeclarations = value;

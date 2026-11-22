@@ -47,8 +47,8 @@ internal sealed class DtdContentModelCompiler
     /// <param name="maxPositions">The most positions one model may have; at least one.</param>
     internal DtdContentModelCompiler(XmlNameTable names, int maxPositions)
     {
-        Argument.ThrowIfNull(names);
-        Argument.ThrowIfLessThan(maxPositions, 1);
+        ArgumentNullException.ThrowIfNull(names);
+        ArgumentOutOfRangeException.ThrowIfLessThan(maxPositions, 1);
 
         _names = names;
         _maxPositions = maxPositions;
@@ -60,7 +60,7 @@ internal sealed class DtdContentModelCompiler
     /// <returns><see langword="false"/> when the table cannot take the name.</returns>
     internal bool TryIntern(string name, out int symbol)
     {
-        Argument.ThrowIfNull(name);
+        ArgumentNullException.ThrowIfNull(name);
 
         var status = _names.TryIntern(name.AsSpan(), out var interned);
         symbol = interned.Value;

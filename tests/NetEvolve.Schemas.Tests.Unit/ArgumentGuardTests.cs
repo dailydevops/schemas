@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Tests.Unit;
+﻿namespace NetEvolve.Schemas.Tests.Unit;
 
 using NetEvolve.Arguments;
 
@@ -9,7 +9,9 @@ public class ArgumentGuardTests
     {
         var offset = -2;
 
-        await Assert.That(() => Argument.ThrowIfLessThan(offset, -1)).Throws<ArgumentOutOfRangeException>();
+        await Assert
+            .That(() => ArgumentOutOfRangeException.ThrowIfLessThan(offset, -1))
+            .Throws<ArgumentOutOfRangeException>();
     }
 
     [Test]
@@ -17,10 +19,10 @@ public class ArgumentGuardTests
     {
         var offset = -1;
 
-        await Assert.That(() => Argument.ThrowIfLessThan(offset, -1)).ThrowsNothing();
+        await Assert.That(() => ArgumentOutOfRangeException.ThrowIfLessThan(offset, -1)).ThrowsNothing();
     }
 
-    // Regression for #464: the guard is executed from the netstandard build of src on the net8.0 and net9.0 legs.
+    // Regression for #464: the guard is executed from the netstandard build of src on the net5.0 and net6.0 legs.
     [Test]
     public async Task PolyfillProbe_RequirePositive_RunsGuardFromLibraryBuild()
     {

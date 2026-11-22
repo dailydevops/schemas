@@ -14,8 +14,8 @@ internal sealed class XsiNil
 
     internal XsiNil(XsdVersion version)
     {
-        Argument.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
-        Argument.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
 
         _boolean = BuiltInDatatypes.For(version).Get("boolean");
     }

@@ -31,7 +31,7 @@ internal static class CaseMapping
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="destination"/> holds fewer than <see cref="MaxExpansion"/> items.</exception>
     public static int Map(int codePoint, bool upper, Span<int> destination)
     {
-        Argument.ThrowIfLessThan(destination.Length, MaxExpansion);
+        ArgumentOutOfRangeException.ThrowIfLessThan(destination.Length, MaxExpansion);
 
         var keys = upper ? CaseMappingTables.UpperKeys : CaseMappingTables.LowerKeys;
         var index = (uint)codePoint <= MaxCodePoint ? Array.BinarySearch(keys, codePoint) : -1;
@@ -79,8 +79,8 @@ internal static class CaseMapping
 
     private static string Apply(string text, XPathLimits limits, bool upper)
     {
-        Argument.ThrowIfNull(text);
-        Argument.ThrowIfNull(limits);
+        ArgumentNullException.ThrowIfNull(text);
+        ArgumentNullException.ThrowIfNull(limits);
 
         var first = IndexOfChange(text, upper);
         if (first < 0)

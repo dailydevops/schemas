@@ -14,8 +14,8 @@ public sealed class XPathFunctionLibrary
     /// <exception cref="ArgumentException"><paramref name="name"/> is empty.</exception>
     public XPathFunctionLibrary(string name, IReadOnlyList<XPathHostFunction> functions)
     {
-        Argument.ThrowIfNullOrEmpty(name);
-        Argument.ThrowIfNull(functions);
+        ArgumentNullException.ThrowIfNullOrEmpty(name);
+        ArgumentNullException.ThrowIfNull(functions);
 
         var copy = new XPathHostFunction[functions.Count];
         for (var i = 0; i < copy.Length; i++)

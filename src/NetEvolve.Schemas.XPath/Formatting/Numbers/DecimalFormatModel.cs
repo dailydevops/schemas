@@ -84,7 +84,7 @@ internal sealed class DecimalFormatModel
         out string? problem
     )
     {
-        Argument.ThrowIfNull(format);
+        ArgumentNullException.ThrowIfNull(format);
 
         model = null;
         if (format.Infinity is null || format.NaN is null)

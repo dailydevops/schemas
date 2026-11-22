@@ -63,7 +63,7 @@ internal sealed class DtdIdentityStep : IDtdValidationStep
     /// <inheritdoc />
     public void BeginDocument(DtdValidationContext context)
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         _context = context;
         _ids.Clear();
@@ -116,8 +116,8 @@ internal sealed class DtdIdentityStep : IDtdValidationStep
     /// <inheritdoc />
     public void Text(ReadOnlySpan<char> text, XmlTextKind kind, in XmlPosition position)
     {
-        Argument.ThrowIfLessThan((int)kind, (int)XmlTextKind.Text);
-        Argument.ThrowIfGreaterThan((int)kind, (int)XmlTextKind.Reference);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)kind, (int)XmlTextKind.Text);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)kind, (int)XmlTextKind.Reference);
     }
 
     /// <inheritdoc />

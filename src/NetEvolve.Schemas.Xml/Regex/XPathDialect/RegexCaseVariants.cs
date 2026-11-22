@@ -42,7 +42,7 @@ internal static class RegexCaseVariants
     /// <exception cref="ArgumentNullException"><paramref name="ranges"/> is <see langword="null"/>.</exception>
     internal static int[] Close(int[] ranges)
     {
-        Argument.ThrowIfNull(ranges);
+        ArgumentNullException.ThrowIfNull(ranges);
 
         var set = new RegexCharacterSet(ranges);
         var builder = new RegexSetMath.Builder();

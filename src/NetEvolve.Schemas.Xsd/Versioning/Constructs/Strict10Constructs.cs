@@ -23,8 +23,8 @@ internal static class Strict10Constructs
     /// <param name="reporter">Receives the errors.</param>
     internal static void Check(ISchemaSyntaxElement root, XsdVersion version, XsdIssueReporter reporter)
     {
-        Argument.ThrowIfNull(root);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(root);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         if (version != XsdVersion.V10)
         {

@@ -24,8 +24,8 @@ internal sealed class CastingTable
 
     internal CastingTable(Dictionary<long, CastRow> rows, List<XdmTypeId> targets)
     {
-        Argument.ThrowIfNull(rows);
-        Argument.ThrowIfNull(targets);
+        ArgumentNullException.ThrowIfNull(rows);
+        ArgumentNullException.ThrowIfNull(targets);
 
         _rows = new Dictionary<long, CastRow>(rows);
         _targets = new List<XdmTypeId>(targets);
@@ -77,7 +77,7 @@ internal sealed class CastingTable
     /// <exception cref="System.ArgumentOutOfRangeException"><paramref name="target"/> is <see langword="default"/>.</exception>
     public CastStatus TryCast(in XdmItem source, XdmTypeId target, out XdmItem result)
     {
-        Argument.ThrowIfLessThan(target.Value, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(target.Value, 1);
 
         result = default;
         return TryFindRow(in source, target, out var row, out var typed)
@@ -94,7 +94,7 @@ internal sealed class CastingTable
     /// <exception cref="System.ArgumentOutOfRangeException"><paramref name="target"/> is <see langword="default"/>.</exception>
     public CastStatus TryCast(in XdmItem source, XdmTypeId target, INamespaceContext? namespaces, out XdmItem result)
     {
-        Argument.ThrowIfLessThan(target.Value, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(target.Value, 1);
 
         result = default;
         if (!TryFindRow(in source, target, out var row, out var typed))

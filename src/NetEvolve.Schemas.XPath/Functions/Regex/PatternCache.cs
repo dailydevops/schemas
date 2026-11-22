@@ -51,8 +51,8 @@ internal sealed class PatternCache
     /// <exception cref="XPathException">A flag is invalid (FORX0001), the pattern is invalid (FORX0002), or it exceeds a limit of the regex engine.</exception>
     internal RegexOperations Get(string pattern, string flags)
     {
-        Argument.ThrowIfNull(pattern);
-        Argument.ThrowIfNull(flags);
+        ArgumentNullException.ThrowIfNull(pattern);
+        ArgumentNullException.ThrowIfNull(flags);
 
         var error = RegexOptionsParser.TryParse(flags.AsSpan(), out var options, out _);
         if (error != RegexError.None)

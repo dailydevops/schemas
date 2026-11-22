@@ -12,7 +12,7 @@ internal sealed class DtdDiscardSink : IXmlSink
     /// <param name="limits">The limits that bound the name table.</param>
     internal DtdDiscardSink(XmlReaderLimits limits)
     {
-        Argument.ThrowIfNull(limits);
+        ArgumentNullException.ThrowIfNull(limits);
 
         Names = new SpanInterningNameTable(limits.MaxDistinctNames);
     }

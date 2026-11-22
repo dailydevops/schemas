@@ -17,9 +17,9 @@ internal sealed record Stage4Document
         IReadOnlyDictionary<string, string> parameters
     )
     {
-        Argument.ThrowIfNullOrWhiteSpace(path);
-        Argument.ThrowIfNull(expectedRuleIds);
-        Argument.ThrowIfNull(parameters);
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(path);
+        ArgumentNullException.ThrowIfNull(expectedRuleIds);
+        ArgumentNullException.ThrowIfNull(parameters);
         Path = path;
         ExpectedValid = expectedValid;
         ExpectedRuleIds = expectedRuleIds;

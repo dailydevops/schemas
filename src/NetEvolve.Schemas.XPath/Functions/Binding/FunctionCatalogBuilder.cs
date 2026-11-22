@@ -15,7 +15,7 @@ internal sealed class FunctionCatalogBuilder
     /// <exception cref="System.ArgumentNullException"><paramref name="function"/> is <see langword="null"/>.</exception>
     public void Add(XPathFunction function)
     {
-        Argument.ThrowIfNull(function);
+        ArgumentNullException.ThrowIfNull(function);
 
         _functions.Add(function);
     }

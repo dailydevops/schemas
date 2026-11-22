@@ -20,7 +20,7 @@ internal sealed class XsltRegistryBuilder
     /// <exception cref="InvalidOperationException">The name is not in the XSLT namespace or is already registered.</exception>
     internal void Add(IXsltInstruction instruction)
     {
-        Argument.ThrowIfNull(instruction);
+        ArgumentNullException.ThrowIfNull(instruction);
 
         var name = instruction.Name;
         if (
@@ -47,9 +47,9 @@ internal sealed class XsltRegistryBuilder
     /// <exception cref="InvalidOperationException">The construct is already registered.</exception>
     internal void AddSynthetic(XsltSyntheticElement kind, IXsltInstruction instruction)
     {
-        Argument.ThrowIfNull(instruction);
-        Argument.ThrowIfLessThan((int)kind, 0);
-        Argument.ThrowIfGreaterThanOrEqual((int)kind, XsltInstructionRegistry.SyntheticKinds);
+        ArgumentNullException.ThrowIfNull(instruction);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)kind, 0);
+        ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual((int)kind, XsltInstructionRegistry.SyntheticKinds);
 
         if (_synthetic[(int)kind] is not null)
         {

@@ -22,7 +22,7 @@ internal static class CastingLowerings
     /// <exception cref="System.InvalidOperationException">A node kind already has a lowering.</exception>
     public static void Register(LoweringRegistry registry)
     {
-        Argument.ThrowIfNull(registry);
+        ArgumentNullException.ThrowIfNull(registry);
 
         Register(registry, CastingCatalog.Default.Table);
     }
@@ -34,8 +34,8 @@ internal static class CastingLowerings
     /// <exception cref="System.InvalidOperationException">A node kind already has a lowering.</exception>
     public static void Register(LoweringRegistry registry, CastingTable table)
     {
-        Argument.ThrowIfNull(registry);
-        Argument.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(registry);
+        ArgumentNullException.ThrowIfNull(table);
 
         registry.Register<CastExpression>(
             (node, context) =>
@@ -84,9 +84,9 @@ internal static class CastingLowerings
         XdmTypeId target
     )
     {
-        Argument.ThrowIfNull(operand);
-        Argument.ThrowIfNull(statics);
-        Argument.ThrowIfNull(table);
+        ArgumentNullException.ThrowIfNull(operand);
+        ArgumentNullException.ThrowIfNull(statics);
+        ArgumentNullException.ThrowIfNull(table);
 
         if (!table.IsNamespaceSensitive(target))
         {

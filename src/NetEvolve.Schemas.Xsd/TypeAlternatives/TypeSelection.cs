@@ -14,7 +14,7 @@ internal readonly struct TypeSelection
 {
     internal TypeSelection(IXsdComponent type, TypeAlternative? alternative)
     {
-        Argument.ThrowIfNull(type);
+        ArgumentNullException.ThrowIfNull(type);
 
         Type = type;
         Alternative = alternative;
@@ -34,7 +34,7 @@ internal readonly struct TypeSelection
     /// <returns><see langword="true"/> for <c>xs:error</c>.</returns>
     internal static bool IsErrorType(IXsdComponent type)
     {
-        Argument.ThrowIfNull(type);
+        ArgumentNullException.ThrowIfNull(type);
 
         return type.Kind == XsdComponentKind.SimpleType
             && string.Equals(type.Name.NamespaceName, SchemaGrammar.Namespace, StringComparison.Ordinal)
@@ -49,7 +49,7 @@ internal readonly struct TypeSelection
     /// <remarks>The rule is Element Locally Valid (Type); the clause is the rule id, because <c>xs:error</c> has no clause of its own.</remarks>
     internal bool Validate(XPathQName element, DocumentLocation location, XsdIssueReporter reporter)
     {
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         if (!IsError)
         {

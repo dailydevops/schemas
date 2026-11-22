@@ -27,7 +27,7 @@ internal static class Qt3Xp3Selector
 
     public static Qt3Selection Select(IReadOnlyList<Qt3TestSet> testSets, Qt3SpecLevel level)
     {
-        Argument.ThrowIfNull(testSets);
+        ArgumentNullException.ThrowIfNull(testSets);
         var accepted = level == Qt3SpecLevel.XPath30 ? Xp30Tokens : Xp31Tokens;
         var selected = new List<Qt3Case>();
         var excluded = new List<Qt3Exclusion>();

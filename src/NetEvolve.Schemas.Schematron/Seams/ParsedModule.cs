@@ -8,7 +8,7 @@ internal sealed class ParsedModule
 {
     internal ParsedModule(SchematronSchema schema)
     {
-        Argument.ThrowIfNull(schema);
+        ArgumentNullException.ThrowIfNull(schema);
 
         Schema = schema;
     }

@@ -16,7 +16,7 @@ internal struct XdmItemListNodeSource : IXPathNodeSource
 
     internal XdmItemListNodeSource(XdmItem[]? items, int count)
     {
-        Argument.ThrowIfLessThan(count, 0);
+        ArgumentOutOfRangeException.ThrowIfLessThan(count, 0);
 
         _items = items;
         _count = count;

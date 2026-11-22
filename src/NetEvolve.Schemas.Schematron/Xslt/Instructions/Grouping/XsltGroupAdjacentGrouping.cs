@@ -17,7 +17,7 @@ internal sealed class XsltGroupAdjacentGrouping : XsltGrouping
     internal XsltGroupAdjacentGrouping(QueryExpression key, DocumentLocation location)
         : base(location)
     {
-        Argument.ThrowIfNull(key);
+        ArgumentNullException.ThrowIfNull(key);
 
         _key = key;
     }
@@ -28,9 +28,9 @@ internal sealed class XsltGroupAdjacentGrouping : XsltGrouping
     /// <inheritdoc />
     internal override QueryStatus TryGroup(XsltFrame frame, ItemBuffer items, List<XsltGroup> groups)
     {
-        Argument.ThrowIfNull(frame);
-        Argument.ThrowIfNull(items);
-        Argument.ThrowIfNull(groups);
+        ArgumentNullException.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(items);
+        ArgumentNullException.ThrowIfNull(groups);
 
         // Two values are enough to tell that the key is not one value: a second one is dropped and flagged, and counts as two as well.
         using var keys = new ItemBuffer(2);

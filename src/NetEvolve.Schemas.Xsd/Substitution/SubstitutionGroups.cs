@@ -40,9 +40,9 @@ internal sealed class SubstitutionGroups
         XsdIssueReporter reporter
     )
     {
-        Argument.ThrowIfNull(elements);
-        Argument.ThrowIfNull(derivation);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(elements);
+        ArgumentNullException.ThrowIfNull(derivation);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         var members = new Dictionary<ISubstitutionElement, List<ISubstitutionElement>>();
         for (var i = 0; i < elements.Count; i++)
@@ -73,7 +73,7 @@ internal sealed class SubstitutionGroups
     /// <returns>The members.</returns>
     public IReadOnlyList<ISubstitutionElement> GetMembers(ISubstitutionElement head)
     {
-        Argument.ThrowIfNull(head);
+        ArgumentNullException.ThrowIfNull(head);
 
         return _members.TryGetValue(head, out var list) ? list : [head];
     }

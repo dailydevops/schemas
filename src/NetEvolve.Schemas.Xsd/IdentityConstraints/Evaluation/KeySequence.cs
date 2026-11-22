@@ -8,8 +8,8 @@ internal sealed class KeySequence
 {
     internal KeySequence(string[] lexicals, IXsdComponent[] types, int hash)
     {
-        Argument.ThrowIfNull(lexicals);
-        Argument.ThrowIfNull(types);
+        ArgumentNullException.ThrowIfNull(lexicals);
+        ArgumentNullException.ThrowIfNull(types);
 
         Lexicals = lexicals;
         Types = types;

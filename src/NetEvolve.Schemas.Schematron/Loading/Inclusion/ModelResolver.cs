@@ -33,9 +33,9 @@ internal sealed class ModelResolver : IModelResolver
 {
     public bool TryResolve(ParsedModule root, IModuleLoader loader, IProblemSink problems, out ResolvedModel model)
     {
-        Argument.ThrowIfNull(root);
-        Argument.ThrowIfNull(loader);
-        Argument.ThrowIfNull(problems);
+        ArgumentNullException.ThrowIfNull(root);
+        ArgumentNullException.ThrowIfNull(loader);
+        ArgumentNullException.ThrowIfNull(problems);
 
         var schema = new ResolveRun(root.Schema, loader, problems).Run();
         model = new ResolvedModel(schema ?? root.Schema);

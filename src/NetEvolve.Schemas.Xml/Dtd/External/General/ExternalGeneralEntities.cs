@@ -28,7 +28,7 @@ internal sealed class ExternalGeneralEntities
     /// <param name="loader">The loader of the document.</param>
     internal ExternalGeneralEntities(ExternalEntityLoader loader)
     {
-        Argument.ThrowIfNull(loader);
+        ArgumentNullException.ThrowIfNull(loader);
 
         _loader = loader;
     }
@@ -38,7 +38,7 @@ internal sealed class ExternalGeneralEntities
     /// <returns><see langword="false"/> when the budget is exceeded; <c>XML1109</c> is then the error to report.</returns>
     internal bool TryChargeExpansion(int count)
     {
-        Argument.ThrowIfLessThan(count, 0);
+        ArgumentOutOfRangeException.ThrowIfLessThan(count, 0);
 
         return _loader.TryChargeExpansion(count);
     }
@@ -50,8 +50,8 @@ internal sealed class ExternalGeneralEntities
     /// <returns><see langword="true"/> when the entity was found and its head was read.</returns>
     internal bool TryOpen(DtdEntityDeclaration entity, out IXmlEntityText? text, out XmlErrorCode? error)
     {
-        Argument.ThrowIfNull(entity);
-        Argument.ThrowIfNull(entity.SystemId);
+        ArgumentNullException.ThrowIfNull(entity);
+        ArgumentNullException.ThrowIfNull(entity.SystemId);
 
         text = null;
         error = null;

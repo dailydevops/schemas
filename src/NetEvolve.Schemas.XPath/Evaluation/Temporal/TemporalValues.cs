@@ -122,7 +122,7 @@ internal static class TemporalValues
     /// </remarks>
     public static XsdDecimal ToDecimal(double value)
     {
-        Argument.ThrowIfGreaterThan(Math.Abs(value), double.MaxValue, nameof(value));
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(Math.Abs(value), double.MaxValue, nameof(value));
 
         if (value == 0)
         {

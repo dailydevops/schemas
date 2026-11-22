@@ -23,7 +23,7 @@ internal sealed class DtdAttributeTable
     /// <param name="doctype">The doctype handler whose declarations the table reads.</param>
     internal DtdAttributeTable(DtdDoctypeHandler doctype)
     {
-        Argument.ThrowIfNull(doctype);
+        ArgumentNullException.ThrowIfNull(doctype);
 
         _doctype = doctype;
     }

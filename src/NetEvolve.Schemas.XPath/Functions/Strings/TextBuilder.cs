@@ -27,7 +27,7 @@ internal ref struct TextBuilder
     /// <exception cref="ArgumentNullException"><paramref name="limits"/> is <see langword="null"/>.</exception>
     public TextBuilder(Span<char> initial, XPathLimits limits)
     {
-        Argument.ThrowIfNull(limits);
+        ArgumentNullException.ThrowIfNull(limits);
 
         _limits = limits;
         _buffer = initial;
@@ -63,8 +63,8 @@ internal ref struct TextBuilder
     /// <exception cref="XPathException">The text would be longer than the limit (XP0006).</exception>
     public void AppendCodePoint(int codePoint)
     {
-        Argument.ThrowIfLessThan(codePoint, 0);
-        Argument.ThrowIfGreaterThan(codePoint, 0x10FFFF);
+        ArgumentOutOfRangeException.ThrowIfLessThan(codePoint, 0);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(codePoint, 0x10FFFF);
 
         if (codePoint < 0x10000)
         {
@@ -106,7 +106,7 @@ internal ref struct TextBuilder
 
     private void Grow(long needed)
     {
-        Argument.ThrowIfGreaterThan(needed, int.MaxValue);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(needed, int.MaxValue);
 
         var next = ArrayPool<char>.Shared.Rent((int)Math.Max(needed, (long)_buffer.Length * 2));
         _buffer.Slice(0, Length).CopyTo(next);

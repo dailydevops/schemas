@@ -12,8 +12,8 @@ internal static class CastStatusExtensions
     /// <exception cref="System.ArgumentOutOfRangeException"><paramref name="status"/> is <see cref="CastStatus.Ok"/> or not a defined status.</exception>
     public static XPathErrorCode ToErrorCode(this CastStatus status)
     {
-        Argument.ThrowIfLessThan((int)status, (int)CastStatus.NotAllowed);
-        Argument.ThrowIfGreaterThan((int)status, (int)CastStatus.UnboundPrefix);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)status, (int)CastStatus.NotAllowed);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)status, (int)CastStatus.UnboundPrefix);
 
         return status switch
         {

@@ -27,7 +27,7 @@ internal static class Registration
     /// <exception cref="System.InvalidOperationException">A name is already registered.</exception>
     internal static void Register(XsltRegistryBuilder builder)
     {
-        Argument.ThrowIfNull(builder);
+        ArgumentNullException.ThrowIfNull(builder);
 
         builder.Add(new XsltForEachGroupInstruction());
     }

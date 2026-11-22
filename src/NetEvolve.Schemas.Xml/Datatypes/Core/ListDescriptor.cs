@@ -17,8 +17,8 @@ public sealed class ListDescriptor : IDatatypeDescriptor
     /// <param name="itemType">The type of the items.</param>
     public ListDescriptor(string name, IDatatypeDescriptor itemType)
     {
-        Argument.ThrowIfNull(name);
-        Argument.ThrowIfNull(itemType);
+        ArgumentNullException.ThrowIfNull(name);
+        ArgumentNullException.ThrowIfNull(itemType);
         Name = name;
         ItemType = itemType;
     }

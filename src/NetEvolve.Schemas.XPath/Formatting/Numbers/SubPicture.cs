@@ -35,10 +35,10 @@ internal sealed class SubPicture
         int[] fractionGroupingPositions
     )
     {
-        Argument.ThrowIfNull(prefix);
-        Argument.ThrowIfNull(suffix);
-        Argument.ThrowIfNull(integerGroupingPositions);
-        Argument.ThrowIfNull(fractionGroupingPositions);
+        ArgumentNullException.ThrowIfNull(prefix);
+        ArgumentNullException.ThrowIfNull(suffix);
+        ArgumentNullException.ThrowIfNull(integerGroupingPositions);
+        ArgumentNullException.ThrowIfNull(fractionGroupingPositions);
 
         Prefix = prefix;
         Suffix = suffix;
@@ -95,7 +95,7 @@ internal sealed class SubPicture
     /// <exception cref="System.ArgumentOutOfRangeException"><paramref name="digitsToRight"/> is below one.</exception>
     public int GroupingSeparatorsAfter(int digitsToRight)
     {
-        Argument.ThrowIfLessThan(digitsToRight, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(digitsToRight, 1);
 
         if (GroupingSize > 0)
         {
@@ -111,7 +111,7 @@ internal sealed class SubPicture
     /// <exception cref="System.ArgumentOutOfRangeException"><paramref name="digitsToLeft"/> is below one.</exception>
     public int GroupingSeparatorsBefore(int digitsToLeft)
     {
-        Argument.ThrowIfLessThan(digitsToLeft, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(digitsToLeft, 1);
 
         return Count(FractionGroupingPositions, digitsToLeft);
     }

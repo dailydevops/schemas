@@ -108,10 +108,10 @@ internal static class UnicodeNormalization
     /// <exception cref="XPathException">The normalized string is longer than the limit (XP0006).</exception>
     public static string Normalize(string text, UnicodeNormalizationForm form, XPathLimits limits)
     {
-        Argument.ThrowIfNull(text);
-        Argument.ThrowIfNull(limits);
-        Argument.ThrowIfLessThan((int)form, (int)UnicodeNormalizationForm.Nfc);
-        Argument.ThrowIfGreaterThan((int)form, (int)UnicodeNormalizationForm.Nfkd);
+        ArgumentNullException.ThrowIfNull(text);
+        ArgumentNullException.ThrowIfNull(limits);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)form, (int)UnicodeNormalizationForm.Nfc);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)form, (int)UnicodeNormalizationForm.Nfkd);
 
         // ASCII is stable under all four forms.
         if (IsAscii(text))

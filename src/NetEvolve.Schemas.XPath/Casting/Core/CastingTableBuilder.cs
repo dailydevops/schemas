@@ -19,7 +19,7 @@ internal sealed class CastingTableBuilder
     /// <exception cref="InvalidOperationException">A row for the same source and target type exists.</exception>
     public void Add(CastRow row)
     {
-        Argument.ThrowIfNull(row);
+        ArgumentNullException.ThrowIfNull(row);
 
         var key = CastingTable.Key(row.Source, row.Target);
         if (_rows.ContainsKey(key))

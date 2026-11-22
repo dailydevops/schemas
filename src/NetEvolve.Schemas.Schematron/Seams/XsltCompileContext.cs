@@ -18,9 +18,9 @@ internal sealed class XsltCompileContext
         Func<XPathNode, QueryStaticScope, XsltExecutable?>? compileChildIn = null
     )
     {
-        Argument.ThrowIfNull(scope);
-        Argument.ThrowIfNull(compileChild);
-        Argument.ThrowIfNull(problems);
+        ArgumentNullException.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(compileChild);
+        ArgumentNullException.ThrowIfNull(problems);
 
         Element = element;
         Scope = scope;
@@ -55,7 +55,7 @@ internal sealed class XsltCompileContext
     /// <exception cref="InvalidOperationException">The compiler gave no callback for a scoped child.</exception>
     internal XsltExecutable? CompileChildIn(XPathNode child, QueryStaticScope scope)
     {
-        Argument.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(scope);
 
         return (
             _compileChildIn

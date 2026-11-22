@@ -27,7 +27,7 @@ internal sealed class FunctionAvailableFunction : XPathFunction
             ]
         )
     {
-        Argument.ThrowIfNull(scope);
+        ArgumentNullException.ThrowIfNull(scope);
 
         _scope = scope;
     }

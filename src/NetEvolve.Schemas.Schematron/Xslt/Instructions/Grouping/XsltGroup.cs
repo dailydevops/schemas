@@ -32,7 +32,7 @@ internal sealed class XsltGroup
     /// <returns>The sequence.</returns>
     internal XdmSequence GetSequence(ItemBuffer population)
     {
-        Argument.ThrowIfNull(population);
+        ArgumentNullException.ThrowIfNull(population);
 
         if (_sequence is { } built)
         {

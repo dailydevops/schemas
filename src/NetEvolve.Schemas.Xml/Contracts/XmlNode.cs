@@ -24,8 +24,8 @@ public readonly struct XmlNode : IEquatable<XmlNode>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is negative.</exception>
     public XmlNode(XmlTree tree, int index)
     {
-        Argument.ThrowIfNull(tree);
-        Argument.ThrowIfLessThan(index, 0);
+        ArgumentNullException.ThrowIfNull(tree);
+        ArgumentOutOfRangeException.ThrowIfLessThan(index, 0);
         _tree = tree;
         Index = index;
     }

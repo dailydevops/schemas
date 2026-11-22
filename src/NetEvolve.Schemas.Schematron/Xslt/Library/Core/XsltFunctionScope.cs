@@ -38,8 +38,8 @@ internal sealed class XsltFunctionScope
         XsltFunctionTable? userFunctions = null
     )
     {
-        Argument.ThrowIfNull(binding);
-        Argument.ThrowIfNull(statics);
+        ArgumentNullException.ThrowIfNull(binding);
+        ArgumentNullException.ThrowIfNull(statics);
 
         _user = userFunctions;
         if (!binding.AllowsXsltInstructions)
@@ -77,7 +77,7 @@ internal sealed class XsltFunctionScope
     /// <exception cref="System.ArgumentException"><paramref name="localName"/> is empty.</exception>
     internal static XPathQName Name(string localName)
     {
-        Argument.ThrowIfNullOrEmpty(localName);
+        ArgumentNullException.ThrowIfNullOrEmpty(localName);
 
         return new(XPathStaticContext.Default.DefaultFunctionNamespace, localName);
     }

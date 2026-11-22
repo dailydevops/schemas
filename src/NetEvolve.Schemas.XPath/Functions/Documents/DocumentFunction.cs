@@ -79,8 +79,8 @@ internal abstract class DocumentFunction : NodeFunction
     /// <returns>The status.</returns>
     protected DocumentStatus TryLoad(XPathEvaluationContext context, string reference, out XmlDocumentTree? tree)
     {
-        Argument.ThrowIfNull(context);
-        Argument.ThrowIfNull(reference);
+        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(reference);
 
         tree = null;
         var status = ResourceUris.Resolve(reference, _staticBaseUri, out var absolute);

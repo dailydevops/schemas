@@ -44,7 +44,7 @@ public static class RegexParser
     /// <returns>The tree or the error.</returns>
     public static RegexParseResult Parse(ReadOnlySpan<char> pattern, RegexSyntax syntax, RegexLimits limits)
     {
-        Argument.ThrowIfNull(limits);
+        ArgumentNullException.ThrowIfNull(limits);
 
         if (syntax.Dialect != RegexDialect.XPath && syntax.Options != RegexOptions.None)
         {

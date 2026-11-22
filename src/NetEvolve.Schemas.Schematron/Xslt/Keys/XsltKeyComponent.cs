@@ -25,8 +25,8 @@ internal sealed class XsltKeyComponent
         DocumentLocation location
     )
     {
-        Argument.ThrowIfNull(displayName);
-        Argument.ThrowIfNull(match);
+        ArgumentNullException.ThrowIfNull(displayName);
+        ArgumentNullException.ThrowIfNull(match);
 
         Name = name;
         DisplayName = displayName;

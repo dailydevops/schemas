@@ -53,7 +53,7 @@ internal sealed class FunctionCatalog
     /// <exception cref="InvalidOperationException">The catalog is frozen.</exception>
     public void Stage(Action<FunctionCatalogBuilder> registration)
     {
-        Argument.ThrowIfNull(registration);
+        ArgumentNullException.ThrowIfNull(registration);
 
         while (true)
         {

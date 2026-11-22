@@ -41,7 +41,7 @@ internal static class XsltGlobalCompile
     /// <returns><see langword="true"/> when the parent is <c>xsl:stylesheet</c>, <c>xsl:transform</c>, or a Schematron <c>schema</c> or <c>library</c>.</returns>
     internal static bool IsTopLevel(XPathNode element)
     {
-        Argument.ThrowIfNull(element.Tree);
+        ArgumentNullException.ThrowIfNull(element.Tree);
 
         var parent = element.Node.Parent;
         return XsltElementReader.IsXslt(parent, "stylesheet")
@@ -58,7 +58,7 @@ internal static class XsltGlobalCompile
     /// <exception cref="ArgumentNullException"><paramref name="context"/> is <see langword="null"/>.</exception>
     internal static bool TryCompile(XsltCompileContext context, bool isParameter, out XsltExecutable executable)
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         executable = null!;
         var element = context.Element;

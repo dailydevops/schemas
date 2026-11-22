@@ -12,7 +12,7 @@ internal sealed class ResolvedModel
 {
     internal ResolvedModel(SchematronSchema schema)
     {
-        Argument.ThrowIfNull(schema);
+        ArgumentNullException.ThrowIfNull(schema);
 
         Schema = schema;
     }

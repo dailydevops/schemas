@@ -21,9 +21,9 @@ internal sealed class XPathQueryExpression : QueryExpression
         string? declaredType
     )
     {
-        Argument.ThrowIfNull(expression);
-        Argument.ThrowIfNull(slots);
-        Argument.ThrowIfNull(names);
+        ArgumentNullException.ThrowIfNull(expression);
+        ArgumentNullException.ThrowIfNull(slots);
+        ArgumentNullException.ThrowIfNull(names);
 
         Expression = expression;
         Location = location;

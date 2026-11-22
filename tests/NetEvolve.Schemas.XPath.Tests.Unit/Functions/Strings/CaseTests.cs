@@ -128,7 +128,7 @@ public class CaseTests
     [Arguments("lower-case", "abc 123 !")]
     public async Task AString_WithoutAChange_IsReturnedAsIs(string local, string text)
     {
-        Argument.ThrowIfNull(text);
+        ArgumentNullException.ThrowIfNull(text);
 
         var source = new string(text.ToCharArray());
         var result = Call(local, Str(source));

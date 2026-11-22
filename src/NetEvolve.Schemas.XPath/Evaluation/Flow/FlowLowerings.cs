@@ -37,7 +37,7 @@ internal static class FlowLowerings
     /// <exception cref="System.InvalidOperationException">A node kind already has a lowering.</exception>
     public static void Register(LoweringRegistry registry)
     {
-        Argument.ThrowIfNull(registry);
+        ArgumentNullException.ThrowIfNull(registry);
 
         registry.Register<IntegerLiteral>(static (node, _) => Constant(ParseInteger(node)));
         registry.Register<DecimalLiteral>(static (node, _) => Constant(ParseDecimal(node)));

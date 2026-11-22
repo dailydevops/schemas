@@ -77,7 +77,7 @@ public sealed class XmlReaderLimits
     /// <returns>The new limits.</returns>
     public XmlReaderLimits WithMaxDocumentCharacters(long value)
     {
-        Argument.ThrowIfLessThan(value, 1L);
+        ArgumentOutOfRangeException.ThrowIfLessThan(value, 1L);
 
         var copy = (XmlReaderLimits)MemberwiseClone();
         copy._maxDocumentCharacters = value;
@@ -90,7 +90,7 @@ public sealed class XmlReaderLimits
     /// <returns>The new limits.</returns>
     public XmlReaderLimits WithMaxElementDepth(int value)
     {
-        Argument.ThrowIfLessThan(value, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(value, 1);
 
         var copy = (XmlReaderLimits)MemberwiseClone();
         copy._maxElementDepth = value;
@@ -103,7 +103,7 @@ public sealed class XmlReaderLimits
     /// <returns>The new limits.</returns>
     public XmlReaderLimits WithMaxAttributesPerElement(int value)
     {
-        Argument.ThrowIfLessThan(value, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(value, 1);
 
         var copy = (XmlReaderLimits)MemberwiseClone();
         copy._maxAttributesPerElement = value;
@@ -116,7 +116,7 @@ public sealed class XmlReaderLimits
     /// <returns>The new limits.</returns>
     public XmlReaderLimits WithMaxNamespaceDeclarationsPerElement(int value)
     {
-        Argument.ThrowIfLessThan(value, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(value, 1);
 
         var copy = (XmlReaderLimits)MemberwiseClone();
         copy._maxNamespaceDeclarationsPerElement = value;
@@ -129,7 +129,7 @@ public sealed class XmlReaderLimits
     /// <returns>The new limits.</returns>
     public XmlReaderLimits WithMaxNameLength(int value)
     {
-        Argument.ThrowIfLessThan(value, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(value, 1);
 
         var copy = (XmlReaderLimits)MemberwiseClone();
         copy._maxNameLength = value;
@@ -142,7 +142,7 @@ public sealed class XmlReaderLimits
     /// <returns>The new limits.</returns>
     public XmlReaderLimits WithMaxTokenLength(int value)
     {
-        Argument.ThrowIfLessThan(value, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(value, 1);
 
         var copy = (XmlReaderLimits)MemberwiseClone();
         copy._maxTokenLength = value;
@@ -155,7 +155,7 @@ public sealed class XmlReaderLimits
     /// <returns>The new limits.</returns>
     public XmlReaderLimits WithMaxTextNodeLength(int value)
     {
-        Argument.ThrowIfLessThan(value, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(value, 1);
 
         var copy = (XmlReaderLimits)MemberwiseClone();
         copy._maxTextNodeLength = value;
@@ -168,7 +168,7 @@ public sealed class XmlReaderLimits
     /// <returns>The new limits.</returns>
     public XmlReaderLimits WithMaxNodeCount(int value)
     {
-        Argument.ThrowIfLessThan(value, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(value, 1);
 
         var copy = (XmlReaderLimits)MemberwiseClone();
         copy._maxNodeCount = value;
@@ -181,7 +181,7 @@ public sealed class XmlReaderLimits
     /// <returns>The new limits.</returns>
     public XmlReaderLimits WithMaxEntityExpansionCharacters(long value)
     {
-        Argument.ThrowIfLessThan(value, 1L);
+        ArgumentOutOfRangeException.ThrowIfLessThan(value, 1L);
 
         var copy = (XmlReaderLimits)MemberwiseClone();
         copy._maxEntityExpansionCharacters = value;
@@ -194,7 +194,7 @@ public sealed class XmlReaderLimits
     /// <returns>The new limits.</returns>
     public XmlReaderLimits WithMaxEntityDepth(int value)
     {
-        Argument.ThrowIfLessThan(value, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(value, 1);
 
         var copy = (XmlReaderLimits)MemberwiseClone();
         copy._maxEntityDepth = value;
@@ -207,7 +207,7 @@ public sealed class XmlReaderLimits
     /// <returns>The new limits.</returns>
     public XmlReaderLimits WithMaxDistinctNames(int value)
     {
-        Argument.ThrowIfLessThan(value, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(value, 1);
 
         var copy = (XmlReaderLimits)MemberwiseClone();
         copy._maxDistinctNames = value;
@@ -220,7 +220,7 @@ public sealed class XmlReaderLimits
     /// <returns>The new limits.</returns>
     public XmlReaderLimits WithMaxAttributeValueLength(int value)
     {
-        Argument.ThrowIfLessThan(value, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(value, 1);
 
         var copy = (XmlReaderLimits)MemberwiseClone();
         copy._maxAttributeValueLength = value;
@@ -233,7 +233,7 @@ public sealed class XmlReaderLimits
     /// <returns>The new limits.</returns>
     public XmlReaderLimits WithMaxStartTagCharacters(int value)
     {
-        Argument.ThrowIfLessThan(value, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(value, 1);
 
         var copy = (XmlReaderLimits)MemberwiseClone();
         copy._maxStartTagCharacters = value;
@@ -246,7 +246,7 @@ public sealed class XmlReaderLimits
     /// <returns>The new limits.</returns>
     public XmlReaderLimits WithMaxXmlDeclarationLength(int value)
     {
-        Argument.ThrowIfLessThan(value, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(value, 1);
 
         var copy = (XmlReaderLimits)MemberwiseClone();
         copy._maxXmlDeclarationLength = value;
@@ -259,7 +259,7 @@ public sealed class XmlReaderLimits
     /// <returns>The new limits.</returns>
     public XmlReaderLimits WithMaxDoctypeLength(int value)
     {
-        Argument.ThrowIfLessThan(value, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(value, 1);
 
         var copy = (XmlReaderLimits)MemberwiseClone();
         copy._maxDoctypeLength = value;

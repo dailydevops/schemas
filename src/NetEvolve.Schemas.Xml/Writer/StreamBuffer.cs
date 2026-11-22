@@ -16,7 +16,7 @@ internal sealed class StreamBuffer : IBufferWriter<byte>
 
     internal StreamBuffer(Stream stream)
     {
-        Argument.ThrowIfNull(stream);
+        ArgumentNullException.ThrowIfNull(stream);
         _stream = stream;
     }
 

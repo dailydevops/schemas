@@ -25,22 +25,22 @@ internal sealed class ParticleOverlap
 
     internal ParticleOverlap(CountingAutomaton model, IReadOnlyList<IXsdComponent> terms, Func<int, XPathQName> nameOf)
     {
-        Argument.ThrowIfNull(model);
-        Argument.ThrowIfNull(terms);
-        Argument.ThrowIfNull(nameOf);
-        Argument.ThrowIfNotEqual(terms.Count, model.PositionCount);
+        ArgumentNullException.ThrowIfNull(model);
+        ArgumentNullException.ThrowIfNull(terms);
+        ArgumentNullException.ThrowIfNull(nameOf);
+        ArgumentOutOfRangeException.ThrowIfNotEqual(terms.Count, model.PositionCount);
 
         _model = model;
         _nameOf = nameOf;
         _wildcards = new IWildcard?[model.PositionCount];
         for (var position = 0; position < _wildcards.Length; position++)
         {
-            Argument.ThrowIfNull(terms[position]);
+            ArgumentNullException.ThrowIfNull(terms[position]);
 
             if (model.IsWildcard(position))
             {
                 var wildcard = terms[position] as IWildcard;
-                Argument.ThrowIfNull(wildcard);
+                ArgumentNullException.ThrowIfNull(wildcard);
 
                 _wildcards[position] = wildcard;
             }

@@ -12,8 +12,8 @@ public abstract class XPathHostFunction
     /// <exception cref="System.ArgumentOutOfRangeException"><paramref name="minArity"/> is negative or <paramref name="maxArity"/> is below it.</exception>
     protected XPathHostFunction(XPathQName name, int minArity, int maxArity)
     {
-        Argument.ThrowIfLessThan(minArity, 0);
-        Argument.ThrowIfLessThan(maxArity, minArity);
+        ArgumentOutOfRangeException.ThrowIfLessThan(minArity, 0);
+        ArgumentOutOfRangeException.ThrowIfLessThan(maxArity, minArity);
 
         Name = name;
         MinArity = minArity;

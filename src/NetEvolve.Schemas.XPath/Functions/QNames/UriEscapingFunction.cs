@@ -21,7 +21,7 @@ internal sealed class UriEscapingFunction : QNameFunction
     public UriEscapingFunction(string localName, Func<string, string> escape)
         : base(localName, 1, 1, [OptionalString])
     {
-        Argument.ThrowIfNull(escape);
+        ArgumentNullException.ThrowIfNull(escape);
 
         _escape = escape;
     }

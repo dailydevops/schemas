@@ -22,8 +22,8 @@ internal static class XsltElementReader
     /// <returns><see langword="true"/> when the attribute is present.</returns>
     internal static bool TryGetAttribute(XPathNode element, string name, out string value)
     {
-        Argument.ThrowIfNull(name);
-        Argument.ThrowIfNull(element.Tree);
+        ArgumentNullException.ThrowIfNull(name);
+        ArgumentNullException.ThrowIfNull(element.Tree);
 
         var names = element.Tree.Names;
         for (var attribute = element.Node.FirstAttribute; !attribute.IsEmpty; attribute = attribute.NextAttribute)
@@ -56,8 +56,8 @@ internal static class XsltElementReader
         out string name
     )
     {
-        Argument.ThrowIfNull(problems);
-        Argument.ThrowIfNull(elementName);
+        ArgumentNullException.ThrowIfNull(problems);
+        ArgumentNullException.ThrowIfNull(elementName);
 
         if (!TryGetAttribute(element, "name", out name))
         {
@@ -97,8 +97,8 @@ internal static class XsltElementReader
     /// <returns><see langword="true"/> for that element.</returns>
     internal static bool IsXslt(XmlNode node, string local)
     {
-        Argument.ThrowIfNull(local);
-        Argument.ThrowIfNull(node.Tree);
+        ArgumentNullException.ThrowIfNull(local);
+        ArgumentNullException.ThrowIfNull(node.Tree);
 
         if (node.Kind != XmlNodeKind.Element)
         {
@@ -121,7 +121,7 @@ internal static class XsltElementReader
     /// <returns><see langword="true"/> when the text is empty or white space.</returns>
     internal static bool IsWhitespace(string text)
     {
-        Argument.ThrowIfNull(text);
+        ArgumentNullException.ThrowIfNull(text);
 
         foreach (var c in text)
         {
@@ -141,7 +141,7 @@ internal static class XsltElementReader
     /// <returns><see langword="true"/> when the whole text is one QName.</returns>
     internal static bool TryParseQName(string text, out string? prefix, out string local)
     {
-        Argument.ThrowIfNull(text);
+        ArgumentNullException.ThrowIfNull(text);
 
         prefix = null;
         local = string.Empty;
@@ -171,8 +171,8 @@ internal static class XsltElementReader
     /// <returns><see langword="true"/> when the prefix is bound.</returns>
     internal static bool TryResolvePrefix(XPathNode element, string prefix, out string namespaceName)
     {
-        Argument.ThrowIfNull(prefix);
-        Argument.ThrowIfNull(element.Tree);
+        ArgumentNullException.ThrowIfNull(prefix);
+        ArgumentNullException.ThrowIfNull(element.Tree);
 
         var names = element.Tree.Names;
         for (var node = element.Node.FirstNamespace; !node.IsEmpty; node = node.NextNamespace)
@@ -198,7 +198,7 @@ internal static class XsltElementReader
     /// <returns>The static context.</returns>
     internal static XPathStaticContext StaticContext(XPathNode element)
     {
-        Argument.ThrowIfNull(element.Tree);
+        ArgumentNullException.ThrowIfNull(element.Tree);
 
         var names = element.Tree.Names;
         var builder = XPathStaticContext.Default.ToBuilder().WithNamespace("xs", XmlSchemaNamespace);

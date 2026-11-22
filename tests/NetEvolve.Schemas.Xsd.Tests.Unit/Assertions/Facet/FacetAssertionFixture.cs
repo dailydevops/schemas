@@ -43,7 +43,7 @@ internal sealed class FacetAssertionFixture : IDisposable
     /// <summary>Compiles an assertion that must compile.</summary>
     internal FacetAssertion Assertion(string test, int line = 12)
     {
-        Argument.ThrowIfNull(test);
+        ArgumentNullException.ThrowIfNull(test);
 
         return FacetAssertion.TryCreate(
             test,

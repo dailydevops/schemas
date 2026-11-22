@@ -44,7 +44,7 @@ public sealed class XPathEvaluationContext : IDisposable
         get => _limits;
         set
         {
-            Argument.ThrowIfNull(value);
+            ArgumentNullException.ThrowIfNull(value);
 
             _limits = value;
         }
@@ -64,8 +64,8 @@ public sealed class XPathEvaluationContext : IDisposable
         get => _implicitTimezoneMinutes;
         set
         {
-            Argument.ThrowIfLessThan(value, -MaxTimezoneMinutes);
-            Argument.ThrowIfGreaterThan(value, MaxTimezoneMinutes);
+            ArgumentOutOfRangeException.ThrowIfLessThan(value, -MaxTimezoneMinutes);
+            ArgumentOutOfRangeException.ThrowIfGreaterThan(value, MaxTimezoneMinutes);
 
             _implicitTimezoneMinutes = value;
             _currentDateTime = null;
@@ -104,8 +104,8 @@ public sealed class XPathEvaluationContext : IDisposable
     public void SetContextItem(in XdmItem item, int position = 1, int size = 1)
     {
         ThrowIfDisposed();
-        Argument.ThrowIfLessThan(position, 1);
-        Argument.ThrowIfLessThan(size, position);
+        ArgumentOutOfRangeException.ThrowIfLessThan(position, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(size, position);
 
         Focus = new XPathFocus(item, position, size);
     }

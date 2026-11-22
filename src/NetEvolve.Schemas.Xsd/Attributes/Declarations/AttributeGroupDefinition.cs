@@ -71,8 +71,8 @@ internal sealed class AttributeGroupDefinition : IXsdComponent
         IWildcard? wildcard
     )
     {
-        Argument.ThrowIfNull(uses);
-        Argument.ThrowIfNull(references);
+        ArgumentNullException.ThrowIfNull(uses);
+        ArgumentNullException.ThrowIfNull(references);
 
         var directUses = new AttributeUse[uses.Count];
         for (var i = 0; i < directUses.Length; i++)
@@ -94,8 +94,8 @@ internal sealed class AttributeGroupDefinition : IXsdComponent
     /// <param name="reporter">The reporter for unresolved references, cycles, duplicate uses, and wildcard intersections.</param>
     internal void Resolve(IComponentRegistry registry, XsdIssueReporter reporter)
     {
-        Argument.ThrowIfNull(registry);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(registry);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         if (_state != ResolveState.Unresolved)
         {

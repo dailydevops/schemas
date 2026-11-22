@@ -69,8 +69,8 @@ public sealed partial class XmlWriter : IXmlSink, IDisposable
     /// <exception cref="ArgumentNullException"><paramref name="output"/> or <paramref name="names"/> is <see langword="null"/>.</exception>
     public XmlWriter(IBufferWriter<char> output, XmlNameTable names, XmlWriterOptions? options = null)
     {
-        Argument.ThrowIfNull(output);
-        Argument.ThrowIfNull(names);
+        ArgumentNullException.ThrowIfNull(output);
+        ArgumentNullException.ThrowIfNull(names);
         _output = output;
         _names = names;
         var effective = options ?? XmlWriterOptions.Default;

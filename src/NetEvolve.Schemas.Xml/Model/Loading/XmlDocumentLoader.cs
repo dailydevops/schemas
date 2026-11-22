@@ -151,7 +151,7 @@ public static class XmlDocumentLoader
     )
     {
         cancellationToken.ThrowIfCancellationRequested();
-        Argument.ThrowIfNull(stream);
+        ArgumentNullException.ThrowIfNull(stream);
 
         return LoadCoreAsync(stream, WithBaseUri(options, baseUri), baseUri, cancellationToken);
     }

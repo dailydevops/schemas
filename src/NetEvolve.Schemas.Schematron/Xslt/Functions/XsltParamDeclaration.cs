@@ -8,7 +8,7 @@ internal sealed class XsltParamDeclaration : XsltExecutable
 {
     internal XsltParamDeclaration(XsltFunctionParameter parameter)
     {
-        Argument.ThrowIfNull(parameter);
+        ArgumentNullException.ThrowIfNull(parameter);
 
         Parameter = parameter;
     }
@@ -19,8 +19,8 @@ internal sealed class XsltParamDeclaration : XsltExecutable
     /// <inheritdoc />
     internal override QueryStatus TryExecute(XsltFrame frame, ISequenceSink sink)
     {
-        Argument.ThrowIfNull(frame);
-        Argument.ThrowIfNull(sink);
+        ArgumentNullException.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(sink);
 
         return QueryStatus.Ok;
     }

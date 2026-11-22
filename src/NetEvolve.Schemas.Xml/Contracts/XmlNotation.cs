@@ -14,7 +14,7 @@ public sealed class XmlNotation
     /// <exception cref="ArgumentException"><paramref name="name"/> is empty.</exception>
     public XmlNotation(string name, string? systemId, string? publicId)
     {
-        Argument.ThrowIfNullOrEmpty(name);
+        ArgumentNullException.ThrowIfNullOrEmpty(name);
         Name = name;
         SystemId = systemId;
         PublicId = publicId;

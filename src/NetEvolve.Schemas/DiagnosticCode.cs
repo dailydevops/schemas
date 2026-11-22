@@ -14,8 +14,8 @@ public readonly struct DiagnosticCode : IEquatable<DiagnosticCode>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="number"/> is outside 1 to 9999.</exception>
     public DiagnosticCode(int number)
     {
-        Argument.ThrowIfLessThan(number, 1);
-        Argument.ThrowIfGreaterThan(number, MaxNumber);
+        ArgumentOutOfRangeException.ThrowIfLessThan(number, 1);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(number, MaxNumber);
 
         Number = number;
     }

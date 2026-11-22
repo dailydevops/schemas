@@ -36,9 +36,9 @@ internal static class ValidatorAssembly
     )
     {
         cancellationToken.ThrowIfCancellationRequested();
-        Argument.ThrowIfNull(limits);
-        Argument.ThrowIfNull(resolver);
-        Argument.ThrowIfNull(inputs);
+        ArgumentNullException.ThrowIfNull(limits);
+        ArgumentNullException.ThrowIfNull(resolver);
+        ArgumentNullException.ThrowIfNull(inputs);
 
         var compilation = new SchemaCompiler(version, resolver, limits).Compile(inputs, cancellationToken);
         if (!compilation.IsValid)

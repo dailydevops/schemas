@@ -50,8 +50,8 @@ internal sealed class RegionAnalysis
 
     internal RegionAnalysis(CountingAutomaton model, ParticleOverlap overlap)
     {
-        Argument.ThrowIfNull(model);
-        Argument.ThrowIfNull(overlap);
+        ArgumentNullException.ThrowIfNull(model);
+        ArgumentNullException.ThrowIfNull(overlap);
 
         _model = model;
         _overlap = overlap;

@@ -17,7 +17,7 @@ internal sealed class VariableNode : ExecutableNode
     /// <exception cref="System.ArgumentException">The local name of <paramref name="name"/> is empty.</exception>
     public VariableNode(XPathQName name)
     {
-        Argument.ThrowIfNullOrEmpty(name.LocalName, nameof(name));
+        ArgumentNullException.ThrowIfNullOrEmpty(name.LocalName, nameof(name));
 
         _name = name;
     }
@@ -26,7 +26,7 @@ internal sealed class VariableNode : ExecutableNode
     /// <exception cref="XPathException">The variable is not bound (XPDY0002).</exception>
     public override XdmSequence Evaluate(XPathEvaluationContext context)
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         return context.Variables.Get(_name);
     }

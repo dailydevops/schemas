@@ -10,8 +10,8 @@ internal sealed record GoldenDocument
     /// <param name="path">The full path of the extracted document.</param>
     public GoldenDocument(string id, string path)
     {
-        Argument.ThrowIfNullOrWhiteSpace(id);
-        Argument.ThrowIfNullOrWhiteSpace(path);
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(id);
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(path);
         Id = id;
         Path = path;
     }

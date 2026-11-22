@@ -25,8 +25,8 @@ internal sealed class DescriptorValueAssessor : ISimpleValueAssessor
 
     internal DescriptorValueAssessor(XsdVersion version)
     {
-        Argument.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
-        Argument.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
 
         var types = XsdBuiltInTypes.For(version);
         for (var i = 0; i < types.Count; i++)
@@ -41,7 +41,7 @@ internal sealed class DescriptorValueAssessor : ISimpleValueAssessor
     /// <inheritdoc />
     public DatatypeResult Assess(IXsdComponent simpleType, ReadOnlySpan<char> lexical, out int memberIndex)
     {
-        Argument.ThrowIfNull(simpleType);
+        ArgumentNullException.ThrowIfNull(simpleType);
 
         memberIndex = -1;
         switch (simpleType)

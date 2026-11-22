@@ -21,8 +21,8 @@ internal static class XsdBuiltInTypes
     /// <returns>The types, base types before the types derived from them.</returns>
     internal static IReadOnlyList<IXsdComponent> For(XsdVersion version)
     {
-        Argument.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
-        Argument.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
 
         return version == XsdVersion.V10 ? V10.Value : V11.Value;
     }
@@ -32,7 +32,7 @@ internal static class XsdBuiltInTypes
     /// <param name="version">The XSD version.</param>
     internal static void Register(IComponentRegistry registry, XsdVersion version)
     {
-        Argument.ThrowIfNull(registry);
+        ArgumentNullException.ThrowIfNull(registry);
 
         var types = For(version);
         for (var i = 0; i < types.Count; i++)

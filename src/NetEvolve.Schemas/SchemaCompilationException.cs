@@ -39,7 +39,7 @@ public sealed class SchemaCompilationException : Exception
     private static ReadOnlyCollection<ValidationIssue> NonEmptyCopyOf(IReadOnlyList<ValidationIssue> issues)
     {
         var copy = ValidationResult.CopyOf(issues);
-        Argument.ThrowIfLessThan(copy.Count, 1, nameof(issues));
+        ArgumentOutOfRangeException.ThrowIfLessThan(copy.Count, 1, nameof(issues));
         return copy;
     }
 }

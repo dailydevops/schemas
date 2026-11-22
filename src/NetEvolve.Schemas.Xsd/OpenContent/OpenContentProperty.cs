@@ -27,9 +27,9 @@ internal sealed class OpenContentProperty
     /// <returns>The record.</returns>
     public static OpenContentProperty Create(OpenContentMode mode, IWildcard wildcard)
     {
-        Argument.ThrowIfLessThan((int)mode, (int)OpenContentMode.Interleave);
-        Argument.ThrowIfGreaterThan((int)mode, (int)OpenContentMode.Suffix);
-        Argument.ThrowIfNull(wildcard);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)mode, (int)OpenContentMode.Interleave);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)mode, (int)OpenContentMode.Suffix);
+        ArgumentNullException.ThrowIfNull(wildcard);
 
         return new(mode, wildcard);
     }

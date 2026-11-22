@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Xsd.Tests.Integration.Differential;
+﻿namespace NetEvolve.Schemas.Xsd.Tests.Integration.Differential;
 
 using NetEvolve.Schemas.Conformance.Reporting;
 
@@ -6,8 +6,8 @@ public class DifferentialLegTests
 {
     [Test]
     [Arguments("net10.0", true)]
-    [Arguments("net8.0", false)]
-    [Arguments("net9.0", false)]
+    [Arguments("net5.0", false)]
+    [Arguments("net6.0", false)]
     [Arguments("net11.0", false)]
     [Arguments("netstandard2.0", false)]
     public async Task RunsBaseline_OnlyOnTheNet10Leg(string targetFramework, bool expected) =>

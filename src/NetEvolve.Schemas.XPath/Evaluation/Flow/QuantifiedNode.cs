@@ -30,8 +30,8 @@ internal sealed class QuantifiedNode : BindingNode
     public QuantifiedNode(Quantifier quantifier, XPathQName name, ExecutableNode source, ExecutableNode body)
         : base(name, source, body)
     {
-        Argument.ThrowIfLessThan((int)quantifier, (int)Quantifier.Some, nameof(quantifier));
-        Argument.ThrowIfGreaterThan((int)quantifier, (int)Quantifier.Every, nameof(quantifier));
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)quantifier, (int)Quantifier.Some, nameof(quantifier));
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)quantifier, (int)Quantifier.Every, nameof(quantifier));
 
         _quantifier = quantifier;
     }
@@ -40,7 +40,7 @@ internal sealed class QuantifiedNode : BindingNode
     /// <exception cref="XPathException">The body has no effective boolean value (FORG0006), or an expression raises an error.</exception>
     public override XdmSequence Evaluate(XPathEvaluationContext context)
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         // Some starts false and every starts true: the value of the empty sequence, which a decision replaces.
         var state = new BindingState(default, _quantifier == Quantifier.Every);

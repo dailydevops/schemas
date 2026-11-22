@@ -35,11 +35,15 @@ internal sealed class ArithmeticNode : ExecutableNode
         ArithmeticOperatorTable table
     )
     {
-        Argument.ThrowIfLessThan((int)@operator, (int)ArithmeticOperator.Add, nameof(@operator));
-        Argument.ThrowIfGreaterThan((int)@operator, (int)ArithmeticOperator.Modulo, nameof(@operator));
-        Argument.ThrowIfNull(left);
-        Argument.ThrowIfNull(right);
-        Argument.ThrowIfNull(table);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)@operator, (int)ArithmeticOperator.Add, nameof(@operator));
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(
+            (int)@operator,
+            (int)ArithmeticOperator.Modulo,
+            nameof(@operator)
+        );
+        ArgumentNullException.ThrowIfNull(left);
+        ArgumentNullException.ThrowIfNull(right);
+        ArgumentNullException.ThrowIfNull(table);
 
         _operator = @operator;
         _left = left;
@@ -51,7 +55,7 @@ internal sealed class ArithmeticNode : ExecutableNode
     /// <exception cref="XPathException">An operand is not a single number (XPTY0004), an <c>xs:untypedAtomic</c> operand is not a double (FORG0001), or the operator raises a dynamic error (FOAR0001, FOAR0002), or the operator of another type family raises its own (FODT0001, FODT0002, FOCA0005).</exception>
     public override XdmSequence Evaluate(XPathEvaluationContext context)
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         var left = XPathAtomization.Atomize(_left.Evaluate(context));
         var right = XPathAtomization.Atomize(_right.Evaluate(context));

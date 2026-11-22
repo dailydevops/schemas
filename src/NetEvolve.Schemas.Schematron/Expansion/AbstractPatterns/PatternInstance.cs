@@ -16,9 +16,9 @@ internal static class PatternInstance
         out SchematronPatternBase instance
     )
     {
-        Argument.ThrowIfNull(site);
-        Argument.ThrowIfNull(catalog);
-        Argument.ThrowIfNull(problems);
+        ArgumentNullException.ThrowIfNull(site);
+        ArgumentNullException.ThrowIfNull(catalog);
+        ArgumentNullException.ThrowIfNull(problems);
 
         instance = site;
         var id = site.IsA!;

@@ -18,8 +18,8 @@ public readonly struct XPathQName : IEquatable<XPathQName>
     /// <exception cref="ArgumentException"><paramref name="localName"/> is empty.</exception>
     public XPathQName(string namespaceName, string localName)
     {
-        Argument.ThrowIfNull(namespaceName);
-        Argument.ThrowIfNullOrEmpty(localName);
+        ArgumentNullException.ThrowIfNull(namespaceName);
+        ArgumentNullException.ThrowIfNullOrEmpty(localName);
 
         _namespaceName = namespaceName;
         _localName = localName;

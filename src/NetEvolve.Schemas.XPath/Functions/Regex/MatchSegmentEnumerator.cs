@@ -119,7 +119,7 @@ internal ref struct MatchSegmentEnumerator
         RegexStepLimits? limits
     )
     {
-        Argument.ThrowIfNull(operations);
+        ArgumentNullException.ThrowIfNull(operations);
 
         return operations.EnumerateMatches(input, limits);
     }

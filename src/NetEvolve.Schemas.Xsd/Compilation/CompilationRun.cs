@@ -64,10 +64,10 @@ internal sealed class CompilationRun
 
     internal CompilationRun(XsdVersion version, IResourceResolver resolver, ValidationLimits limits)
     {
-        Argument.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
-        Argument.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
-        Argument.ThrowIfNull(resolver);
-        Argument.ThrowIfNull(limits);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
+        ArgumentNullException.ThrowIfNull(resolver);
+        ArgumentNullException.ThrowIfNull(limits);
 
         _version = version;
         _resolver = resolver;
@@ -141,7 +141,7 @@ internal sealed class CompilationRun
     internal SchemaCompilation Execute(IReadOnlyList<SchemaDocument> documents, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        Argument.ThrowIfNull(documents);
+        ArgumentNullException.ThrowIfNull(documents);
 
         var units = Compose(documents, cancellationToken);
         Prepare(units);
@@ -471,8 +471,8 @@ internal sealed class CompilationRun
     {
         internal ConstraintOwner(DocumentLocation location, UnitScope unit, IdentityConstraintDefinition constraint)
         {
-            Argument.ThrowIfNull(unit);
-            Argument.ThrowIfNull(constraint);
+            ArgumentNullException.ThrowIfNull(unit);
+            ArgumentNullException.ThrowIfNull(constraint);
 
             Location = location;
             Unit = unit;

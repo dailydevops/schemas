@@ -88,7 +88,7 @@ internal sealed class SimpleTypeDefinition : IXsdComponent
         XsdDerivationMethod final = XsdDerivationMethod.None
     )
     {
-        Argument.ThrowIfNull(datatype);
+        ArgumentNullException.ThrowIfNull(datatype);
 
         return new(name, location, final, datatype.Variety, null, null, NoMembers, datatype.Facets);
     }
@@ -110,9 +110,9 @@ internal sealed class SimpleTypeDefinition : IXsdComponent
         XsdIssueReporter reporter
     )
     {
-        Argument.ThrowIfNull(baseType);
-        Argument.ThrowIfNull(facets);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(baseType);
+        ArgumentNullException.ThrowIfNull(facets);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         if (baseType is not SimpleTypeDefinition parent)
         {
@@ -155,9 +155,9 @@ internal sealed class SimpleTypeDefinition : IXsdComponent
         XsdIssueReporter reporter
     )
     {
-        Argument.ThrowIfNull(itemType);
-        Argument.ThrowIfNull(facets);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(itemType);
+        ArgumentNullException.ThrowIfNull(facets);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         if (itemType is not SimpleTypeDefinition item)
         {
@@ -197,9 +197,9 @@ internal sealed class SimpleTypeDefinition : IXsdComponent
         XsdIssueReporter reporter
     )
     {
-        Argument.ThrowIfNull(memberTypes);
-        Argument.ThrowIfNull(facets);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(memberTypes);
+        ArgumentNullException.ThrowIfNull(facets);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         var members = new SimpleTypeDefinition[memberTypes.Count];
         for (var i = 0; i < members.Length; i++)

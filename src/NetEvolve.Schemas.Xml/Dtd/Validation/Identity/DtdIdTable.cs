@@ -38,7 +38,7 @@ internal sealed class DtdIdTable
     /// <returns>What happened.</returns>
     internal DtdIdAddResult TryAdd(ReadOnlySpan<char> value, int limit)
     {
-        Argument.ThrowIfLessThan(limit, 1);
+        ArgumentOutOfRangeException.ThrowIfLessThan(limit, 1);
 
         var hash = Hash(value);
         if (Find(value, hash) >= 0)

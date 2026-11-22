@@ -21,7 +21,7 @@ internal sealed class XsiNamespaceScope : INamespaceContext
 
     internal XsiNamespaceScope(XmlNameTable names)
     {
-        Argument.ThrowIfNull(names);
+        ArgumentNullException.ThrowIfNull(names);
 
         _names = names;
     }
@@ -50,8 +50,8 @@ internal sealed class XsiNamespaceScope : INamespaceContext
     /// <param name="count">The size to cut back to.</param>
     internal void Truncate(int count)
     {
-        Argument.ThrowIfLessThan(count, 0);
-        Argument.ThrowIfGreaterThan(count, Count);
+        ArgumentOutOfRangeException.ThrowIfLessThan(count, 0);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(count, Count);
 
         Count = count;
     }

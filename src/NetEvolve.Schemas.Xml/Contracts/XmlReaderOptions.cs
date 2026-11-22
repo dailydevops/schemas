@@ -92,7 +92,7 @@ public sealed class XmlReaderOptions
     /// <returns>The new options.</returns>
     public XmlReaderOptions WithLimits(XmlReaderLimits value)
     {
-        Argument.ThrowIfNull(value);
+        ArgumentNullException.ThrowIfNull(value);
 
         var copy = (XmlReaderOptions)MemberwiseClone();
         copy._limits = value;

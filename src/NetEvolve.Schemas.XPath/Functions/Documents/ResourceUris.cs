@@ -24,7 +24,7 @@ internal static class ResourceUris
     /// <exception cref="ArgumentNullException"><paramref name="reference"/> is <see langword="null"/>.</exception>
     internal static ResourceUriStatus Resolve(string reference, string? baseUri, out string? absolute)
     {
-        Argument.ThrowIfNull(reference);
+        ArgumentNullException.ThrowIfNull(reference);
 
         absolute = null;
         if (HasForbiddenCharacter(reference) || reference.AsSpan().IndexOf('#') >= 0)

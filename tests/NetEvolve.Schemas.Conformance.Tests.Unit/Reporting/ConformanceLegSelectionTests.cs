@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Conformance.Tests.Unit.Reporting;
+﻿namespace NetEvolve.Schemas.Conformance.Tests.Unit.Reporting;
 
 using NetEvolve.Schemas.Conformance.Reporting;
 
@@ -6,8 +6,8 @@ public class ConformanceLegSelectionTests
 {
     [Test]
     [Arguments("net10.0", true)]
-    [Arguments("net8.0", false)]
-    [Arguments("net9.0", false)]
+    [Arguments("net5.0", false)]
+    [Arguments("net6.0", false)]
     [Arguments("net11.0", false)]
     public async Task IsDesignated_NoConfiguration_SelectsOnlyTheDefaultLeg(string leg, bool expected)
     {
@@ -22,16 +22,16 @@ public class ConformanceLegSelectionTests
     public async Task IsDesignated_BlankConfiguration_SelectsTheDefaultLeg(string configured)
     {
         await Assert.That(ConformanceLeg.IsDesignated("net10.0", configured)).IsTrue();
-        await Assert.That(ConformanceLeg.IsDesignated("net8.0", configured)).IsFalse();
+        await Assert.That(ConformanceLeg.IsDesignated("net5.0", configured)).IsFalse();
     }
 
     [Test]
-    [Arguments("net8.0,net10.0", "net8.0", true)]
-    [Arguments("net8.0,net10.0", "net10.0", true)]
-    [Arguments("net8.0,net10.0", "net9.0", false)]
-    [Arguments(" net9.0 , NET11.0 ", "net9.0", true)]
-    [Arguments(" net9.0 , NET11.0 ", "net11.0", true)]
-    [Arguments("net9.0", "net10.0", false)]
+    [Arguments("net5.0,net10.0", "net5.0", true)]
+    [Arguments("net5.0,net10.0", "net10.0", true)]
+    [Arguments("net5.0,net10.0", "net6.0", false)]
+    [Arguments(" net6.0 , NET11.0 ", "net6.0", true)]
+    [Arguments(" net6.0 , NET11.0 ", "net11.0", true)]
+    [Arguments("net6.0", "net10.0", false)]
     [Arguments("net99.0", "net10.0", false)]
     public async Task IsDesignated_ConfiguredLegs_ReplaceTheDefault(string configured, string leg, bool expected) =>
         await Assert.That(ConformanceLeg.IsDesignated(leg, configured)).IsEqualTo(expected);

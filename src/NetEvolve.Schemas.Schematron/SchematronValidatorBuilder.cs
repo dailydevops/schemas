@@ -46,7 +46,7 @@ public sealed class SchematronValidatorBuilder
     /// <returns>This builder.</returns>
     public SchematronValidatorBuilder WithPhase(string phase)
     {
-        Argument.ThrowIfNullOrEmpty(phase);
+        ArgumentNullException.ThrowIfNullOrEmpty(phase);
 
         _phase = phase;
         return this;
@@ -58,8 +58,8 @@ public sealed class SchematronValidatorBuilder
     /// <returns>This builder.</returns>
     public SchematronValidatorBuilder WithParameter(string name, string value)
     {
-        Argument.ThrowIfNullOrEmpty(name);
-        Argument.ThrowIfNull(value);
+        ArgumentNullException.ThrowIfNullOrEmpty(name);
+        ArgumentNullException.ThrowIfNull(value);
 
         _parameters[name] = value;
         return this;
@@ -67,7 +67,7 @@ public sealed class SchematronValidatorBuilder
 
     internal SchematronValidatorBuilder UsePipeline(ISchematronPipeline pipeline)
     {
-        Argument.ThrowIfNull(pipeline);
+        ArgumentNullException.ThrowIfNull(pipeline);
 
         _pipeline = pipeline;
         return this;

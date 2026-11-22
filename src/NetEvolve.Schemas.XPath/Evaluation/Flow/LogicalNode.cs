@@ -30,10 +30,10 @@ internal sealed class LogicalNode : ExecutableNode
     /// <exception cref="System.ArgumentOutOfRangeException"><paramref name="operator"/> is not a defined operator.</exception>
     public LogicalNode(LogicalOperator @operator, ExecutableNode left, ExecutableNode right)
     {
-        Argument.ThrowIfLessThan((int)@operator, (int)LogicalOperator.Or, nameof(@operator));
-        Argument.ThrowIfGreaterThan((int)@operator, (int)LogicalOperator.And, nameof(@operator));
-        Argument.ThrowIfNull(left);
-        Argument.ThrowIfNull(right);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)@operator, (int)LogicalOperator.Or, nameof(@operator));
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)@operator, (int)LogicalOperator.And, nameof(@operator));
+        ArgumentNullException.ThrowIfNull(left);
+        ArgumentNullException.ThrowIfNull(right);
 
         // The value of the first operand that settles the result: true for or, false for and.
         _decisive = @operator == LogicalOperator.Or;
@@ -45,7 +45,7 @@ internal sealed class LogicalNode : ExecutableNode
     /// <exception cref="XPathException">An evaluated operand has no effective boolean value (FORG0006), or raises an error.</exception>
     public override XdmSequence Evaluate(XPathEvaluationContext context)
     {
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(context);
 
         var first = XPathAtomization.EffectiveBooleanValue(_left.Evaluate(context));
         var value = first == _decisive ? _decisive : XPathAtomization.EffectiveBooleanValue(_right.Evaluate(context));

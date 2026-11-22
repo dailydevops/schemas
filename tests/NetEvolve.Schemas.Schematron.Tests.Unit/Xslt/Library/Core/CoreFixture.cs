@@ -34,7 +34,7 @@ internal static class CoreFixture
 
     internal static XsltFunctionScope Scope(string binding = "xslt2", XsltFunctionTable? user = null)
     {
-        Argument.ThrowIfNull(binding);
+        ArgumentNullException.ThrowIfNull(binding);
 
         return new(new XPathQueryBinding(binding, binding.StartsWith("xslt", StringComparison.Ordinal)), Statics, user);
     }

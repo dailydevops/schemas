@@ -14,10 +14,10 @@ public readonly struct DiagnosticCodeRange : IEquatable<DiagnosticCodeRange>
     /// <exception cref="ArgumentOutOfRangeException">The bounds violate <c>1 &lt;= first &lt;= last &lt;= 9999</c>.</exception>
     public DiagnosticCodeRange(int first, int last)
     {
-        Argument.ThrowIfLessThan(first, 1);
-        Argument.ThrowIfGreaterThan(first, DiagnosticCode.MaxNumber);
-        Argument.ThrowIfLessThan(last, first);
-        Argument.ThrowIfGreaterThan(last, DiagnosticCode.MaxNumber);
+        ArgumentOutOfRangeException.ThrowIfLessThan(first, 1);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(first, DiagnosticCode.MaxNumber);
+        ArgumentOutOfRangeException.ThrowIfLessThan(last, first);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(last, DiagnosticCode.MaxNumber);
 
         First = first;
         Last = last;
