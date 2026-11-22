@@ -102,6 +102,22 @@ internal static class DocumentsHarness
         }
     }
 
+    /// <summary>
+    /// Calls a built-in function of the default catalog for a language version and host flags, the way a compiled call does. The
+    /// compiler enables XPath 2.0 only, so the functions of XPath 3.0 and 3.1 are reached through the registry. An unknown function is
+    /// <c>error:XPST0017</c>.
+    /// </summary>
+    internal static string RunFunction(
+        string local,
+        XPathVersion version,
+        XPathHostRequirements host,
+        XPathEvaluationContext context,
+        params string[] arguments
+    ) =>
+        TryResolve(local, arguments.Length, out var function, version, host)
+            ? Call(function!, context, arguments)
+            : "error:XPST0017";
+
     /// <summary>Loads a document with document type processing and returns its document node.</summary>
     internal static XPathNode LoadWithDtd(string xml) =>
         new(XmlDocumentLoader.Load(xml.AsSpan(), XmlReaderOptions.Default.WithDtdProcessing(true)).Document);
