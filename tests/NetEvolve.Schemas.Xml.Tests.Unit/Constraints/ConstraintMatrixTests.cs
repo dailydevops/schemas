@@ -3,6 +3,7 @@ namespace NetEvolve.Schemas.Xml.Tests.Unit.Constraints;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 /// <summary>
 /// The coverage matrix of the well-formedness, validity, and namespace constraints, checked against the error tables and the
@@ -176,13 +177,12 @@ public class ConstraintMatrixTests
     }
 
     [Test]
-    public async Task Matrix_ReportsEveryEntryAsTestOutput()
+    public async Task Matrix_ReportsEveryEntryAsTestOutput(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var lines = ConstraintMatrixReport.Render(ConstraintMatrix.Entries);
-        foreach (var line in lines)
-        {
-            await TestContext.Current!.OutputWriter.WriteLineAsync(line);
-        }
+        var report = string.Join(Environment.NewLine, lines);
+        await TestContext.Current!.OutputWriter.WriteLineAsync(report.AsMemory(), cancellationToken);
 
         await Assert.That(lines.Count).IsEqualTo(ConstraintMatrix.Entries.Count + 1);
         await Assert.That(lines[^1]).Contains(ConstraintMatrix.Entries.Count + " constraints");
