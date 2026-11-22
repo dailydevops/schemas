@@ -35,6 +35,15 @@ internal static class Qt3Suite
         }
     }
 
+    /// <summary>Gets the directory of the fetched suite; not written yet.</summary>
+    /// <param name="cancellationToken">A token to cancel the fetch.</param>
+    /// <returns>The suite directory.</returns>
+    public static Task<string> GetRootAsync(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        return Task.FromResult(string.Empty);
+    }
+
     /// <summary>Loads the baseline of every test set that has a file, keyed by test set name.</summary>
     /// <returns>The baselines.</returns>
     public static Dictionary<string, KnownFailureBaseline> LoadBaselines()
