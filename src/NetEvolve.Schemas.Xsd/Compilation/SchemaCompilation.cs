@@ -46,6 +46,12 @@ internal sealed class SchemaCompilation
         IReadOnlyList<IdentityConstraintDefinition>
     > IdentityConstraints { get; }
 
+    /// <summary>Gets a value indicating whether the schema names an ID, IDREF, IDREFS, or NOTATION type, so the ID listener has work.</summary>
+    public bool NeedsIdListener { get; } = true;
+
+    /// <summary>Gets a value indicating whether the schema names an ENTITY or ENTITIES type, so the entity listener has work.</summary>
+    public bool NeedsEntityListener { get; } = true;
+
     /// <summary>Gets a value indicating whether the schema is valid and the set is available.</summary>
     public bool IsValid => Set is not null;
 }
