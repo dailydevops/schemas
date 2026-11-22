@@ -1,14 +1,10 @@
 namespace NetEvolve.Schemas.Schematron.Loading.Inclusion;
 
-using System;
 using System.Threading;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Resources;
 using NetEvolve.Schemas.Resources.Default;
 using NetEvolve.Schemas.Schematron.Seams;
-using NetEvolve.Schemas.Xml.Contracts;
-using NetEvolve.Schemas.Xml.Model;
-using NetEvolve.Schemas.Xml.Reader.Pipeline;
 using NetEvolve.Schemas.XPath.Xdm.Nodes;
 
 /// <summary>
@@ -32,17 +28,14 @@ using NetEvolve.Schemas.XPath.Xdm.Nodes;
 /// </remarks>
 internal sealed class ModuleLoader : IModuleLoader
 {
-    private readonly IResourceResolver _resolver;
-    private readonly ValidationLimits _limits;
-    private int _requests;
+    private readonly IncludeFetcher _fetcher;
 
     internal ModuleLoader(IResourceResolver resolver, ValidationLimits limits)
     {
         ArgumentNullException.ThrowIfNull(resolver);
         ArgumentNullException.ThrowIfNull(limits);
 
-        _resolver = resolver;
-        _limits = limits;
+        _fetcher = new IncludeFetcher(resolver, limits);
     }
 
     public bool TryLoad(
@@ -55,103 +48,30 @@ internal sealed class ModuleLoader : IModuleLoader
         cancellationToken.ThrowIfCancellationRequested();
 
         module = default;
-        if (_requests >= _limits.MaxExternalResources)
+        if (
+            _fetcher.TryFetch(
+                reference.Href,
+                reference.BaseUri,
+                reference.Location,
+                cancellationToken,
+                out var content,
+                out var systemId,
+                out problem
+            ) != FetchStatus.Found
+            || !IncludeFetcher.TryParse(
+                content.Span,
+                "module",
+                systemId,
+                reference.Location,
+                out var document,
+                out problem
+            )
+        )
         {
-            problem = Problem(
-                CoreDiagnosticCodes.ExternalResourceLimitExceeded,
-                "More than " + _limits.MaxExternalResources + " external resources are referenced.",
-                in reference
-            );
             return false;
         }
 
-        _requests++;
-        var resolution = UriReference.Resolve(reference.Href, reference.BaseUri);
-        if (resolution.Uri is null)
-        {
-            problem = Problem(
-                resolution.Code,
-                resolution.Code == CoreDiagnosticCodes.ResourceBaseUriMissing
-                    ? "The reference '" + reference.Href + "' is relative and the base URI is not absolute."
-                    : "The reference '" + reference.Href + "' is not a valid URI reference.",
-                in reference
-            );
-            return false;
-        }
-
-        var request = new ResourceRequest(
-            ResourceKind.SchemaDocument,
-            reference.Href,
-            reference.BaseUri,
-            resolution.Uri
-        );
-        using var result = _resolver.Resolve(in request, cancellationToken);
-        if (result.Status != ResourceStatus.Found)
-        {
-            var notFound = result.Status == ResourceStatus.NotFound;
-            problem = Problem(
-                notFound ? CoreDiagnosticCodes.ResourceNotFound : CoreDiagnosticCodes.ResourceDenied,
-                result.Message ?? "The resource '" + resolution.Uri + (notFound ? "' was not found." : "' was denied."),
-                in reference
-            );
-            return false;
-        }
-
-        var systemId = result.SystemId ?? resolution.Uri;
-        if (!ResourceContent.TryRead(in result, _limits.MaxResourceSize, out var content))
-        {
-            problem = Problem(
-                CoreDiagnosticCodes.ResourceSizeLimitExceeded,
-                "The resource '" + systemId + "' is larger than " + _limits.MaxResourceSize + " bytes.",
-                in reference
-            );
-            return false;
-        }
-
-        return TryParse(content.Span, systemId, in reference, out module, out problem);
+        module = new LoadedModule(new XPathNode(document), systemId);
+        return true;
     }
-
-    private static bool TryParse(
-        ReadOnlySpan<byte> content,
-        string systemId,
-        in ModuleReference reference,
-        out LoadedModule module,
-        out SchematronProblem problem
-    )
-    {
-        using var reader = XmlPipelineReader.Create(content);
-        using var builder = new XmlTreeBuilder();
-        var sink = builder;
-        if (reader.Pump(ref sink) == XmlReadStatus.Completed)
-        {
-            module = new LoadedModule(new XPathNode(builder.Complete().Document), systemId);
-            problem = default;
-            return true;
-        }
-
-        var error = reader.Diagnostic;
-        module = default;
-        problem = Problem(
-            SchematronDiagnosticCodes.ModuleInvalid,
-            "The module '"
-                + systemId
-                + "' is not well formed"
-                + (
-                    error is null
-                        ? "."
-                        : ": "
-                            + error.Message
-                            + " (line "
-                            + error.Position.Line
-                            + ", column "
-                            + error.Position.Column
-                            + ")."
-                ),
-            in reference
-        );
-        return false;
-    }
-
-    private static SchematronProblem Problem(DiagnosticCode code, string message, in ModuleReference reference) =>
-        new(code, message, reference.Location);
 }

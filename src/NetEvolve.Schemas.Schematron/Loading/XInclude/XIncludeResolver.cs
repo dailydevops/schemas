@@ -39,19 +39,17 @@ using NetEvolve.Schemas.Xml.Contracts;
 /// </remarks>
 internal sealed class XIncludeResolver
 {
-    private readonly IResourceResolver _resolver;
-    private int _requests;
+    private readonly IncludeFetcher _fetcher;
 
     internal XIncludeResolver(IResourceResolver resolver, ValidationLimits limits)
     {
         ArgumentNullException.ThrowIfNull(resolver);
         ArgumentNullException.ThrowIfNull(limits);
 
-        _resolver = resolver;
-        Limits = limits;
+        _fetcher = new IncludeFetcher(resolver, limits);
     }
 
-    internal ValidationLimits Limits { get; }
+    internal ValidationLimits Limits => _fetcher.Limits;
 
     /// <summary>Resolves the includes of a document.</summary>
     /// <param name="document">The document node.</param>
@@ -94,58 +92,8 @@ internal sealed class XIncludeResolver
     )
     {
         cancellationToken.ThrowIfCancellationRequested();
+        Argument.ThrowIfNull(href);
 
-        content = default;
-        systemId = string.Empty;
-        if (_requests >= Limits.MaxExternalResources)
-        {
-            problem = new SchematronProblem(
-                CoreDiagnosticCodes.ExternalResourceLimitExceeded,
-                "More than " + Limits.MaxExternalResources + " external resources are referenced.",
-                at
-            );
-            return FetchStatus.Fatal;
-        }
-
-        _requests++;
-        var resolution = UriReference.Resolve(href, baseUri);
-        if (resolution.Uri is null)
-        {
-            problem = new SchematronProblem(
-                resolution.Code,
-                resolution.Code == CoreDiagnosticCodes.ResourceBaseUriMissing
-                    ? "The reference '" + href + "' is relative and the base URI is not absolute."
-                    : "The reference '" + href + "' is not a valid URI reference.",
-                at
-            );
-            return FetchStatus.Recoverable;
-        }
-
-        var request = new ResourceRequest(ResourceKind.SchemaDocument, href, baseUri, resolution.Uri);
-        using var result = _resolver.Resolve(in request, cancellationToken);
-        if (result.Status != ResourceStatus.Found)
-        {
-            var notFound = result.Status == ResourceStatus.NotFound;
-            problem = new SchematronProblem(
-                notFound ? CoreDiagnosticCodes.ResourceNotFound : CoreDiagnosticCodes.ResourceDenied,
-                result.Message ?? "The resource '" + resolution.Uri + (notFound ? "' was not found." : "' was denied."),
-                at
-            );
-            return FetchStatus.Recoverable;
-        }
-
-        systemId = result.SystemId ?? resolution.Uri;
-        if (!ResourceContent.TryRead(in result, Limits.MaxResourceSize, out content))
-        {
-            problem = new SchematronProblem(
-                CoreDiagnosticCodes.ResourceSizeLimitExceeded,
-                "The resource '" + systemId + "' is larger than " + Limits.MaxResourceSize + " bytes.",
-                at
-            );
-            return FetchStatus.Fatal;
-        }
-
-        problem = default;
-        return FetchStatus.Found;
+        return _fetcher.TryFetch(href, baseUri, at, cancellationToken, out content, out systemId, out problem);
     }
 }

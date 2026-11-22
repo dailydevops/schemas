@@ -9,7 +9,6 @@ using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Model;
 using NetEvolve.Schemas.Xml.Model.Traversal;
-using NetEvolve.Schemas.Xml.Reader.Pipeline;
 
 /// <summary>
 /// The state of one resolution: a sink between the traversal of a document and a tree builder. It forwards every event, except
@@ -470,7 +469,7 @@ internal sealed class XIncludeRun : IXmlSink, IDisposable
                 )
             );
         }
-        else if (TryParse(content.Span, systemId, at, out var document, out var problem))
+        else if (IncludeFetcher.TryParse(content.Span, "document", systemId, at, out var document, out var problem))
         {
             Splice(document, systemId, include.Position);
         }
@@ -525,47 +524,6 @@ internal sealed class XIncludeRun : IXmlSink, IDisposable
             }
         }
 
-        return false;
-    }
-
-    private static bool TryParse(
-        ReadOnlySpan<byte> content,
-        string systemId,
-        DocumentLocation at,
-        out XmlNode document,
-        out SchematronProblem problem
-    )
-    {
-        using var reader = XmlPipelineReader.Create(content);
-        using var builder = new XmlTreeBuilder();
-        var sink = builder;
-        if (reader.Pump(ref sink) == XmlReadStatus.Completed)
-        {
-            document = builder.Complete().Document;
-            problem = default;
-            return true;
-        }
-
-        var error = reader.Diagnostic;
-        document = default;
-        problem = new SchematronProblem(
-            SchematronDiagnosticCodes.ModuleInvalid,
-            "The document '"
-                + systemId
-                + "' is not well formed"
-                + (
-                    error is null
-                        ? "."
-                        : ": "
-                            + error.Message
-                            + " (line "
-                            + error.Position.Line
-                            + ", column "
-                            + error.Position.Column
-                            + ")."
-                ),
-            at
-        );
         return false;
     }
 

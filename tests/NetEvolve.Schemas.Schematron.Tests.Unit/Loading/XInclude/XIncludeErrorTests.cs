@@ -136,6 +136,26 @@ public class XIncludeErrorTests
     }
 
     [Test]
+    public async Task Depth_LongChainWithAHighResourceLimit_StopsAtMaxDepthInsteadOfOverflowingTheStack()
+    {
+        var limits = ValidationLimits.Default.WithMaxExternalResources(100_000);
+
+        var outcome = Run(Doc(Inc("c1.xml")), Chain(20_000), limits);
+
+        await AssertSingle(outcome, CoreDiagnosticCodes.DepthLimitExceeded);
+    }
+
+    [Test]
+    public async Task Depth_ChainNearMaxDepthWithAHighResourceLimit_Succeeds()
+    {
+        var limits = ValidationLimits.Default.WithMaxExternalResources(100_000);
+
+        var outcome = Run(Doc(Inc("c1.xml")), Chain(250), limits);
+
+        await Assert.That(outcome.Ok).IsTrue();
+    }
+
+    [Test]
     public async Task Depth_ChainAtTheLimit_Succeeds()
     {
         var limits = ValidationLimits.Default.WithMaxExternalResources(3);

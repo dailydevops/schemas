@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.Schematron.Loading.XInclude;
 
 using System;
+using System.Runtime.InteropServices;
 using System.Text;
 
 /// <summary>Decodes the bytes of an <c>xi:include</c> element with <c>parse="text"</c>.</summary>
@@ -38,10 +39,14 @@ internal static class XIncludeText
         out DiagnosticCode code
     )
     {
-        var bytes = content.ToArray();
+        // The resolver hands over array-backed memory; only other memory is copied.
+        var segment = MemoryMarshal.TryGetArray(content, out var found)
+            ? found
+            : new ArraySegment<byte>(content.ToArray());
+        var bytes = segment.Array ?? [];
         text = string.Empty;
         code = default;
-        if (!TrySelect(bytes, encoding, out var selected, out var skip))
+        if (!TrySelect(content.Span, encoding, out var selected, out var skip))
         {
             code = SchematronDiagnosticCodes.Unsupported;
             return false;
@@ -49,7 +54,7 @@ internal static class XIncludeText
 
         try
         {
-            text = selected.GetString(bytes, skip, bytes.Length - skip);
+            text = selected.GetString(bytes, segment.Offset + skip, segment.Count - skip);
         }
         catch (DecoderFallbackException)
         {
@@ -70,7 +75,7 @@ internal static class XIncludeText
         return true;
     }
 
-    private static bool TrySelect(byte[] bytes, string? name, out Encoding encoding, out int skip)
+    private static bool TrySelect(ReadOnlySpan<byte> bytes, string? name, out Encoding encoding, out int skip)
     {
         skip = 0;
         var utf8Bom = bytes.Length >= 3 && bytes[0] == 0xEF && bytes[1] == 0xBB && bytes[2] == 0xBF;
