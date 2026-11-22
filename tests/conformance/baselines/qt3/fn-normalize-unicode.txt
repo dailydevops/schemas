@@ -3,6 +3,3 @@ fn-normalize-unicode/cbcl-fn-normalize-unicode-001
 fn-normalize-unicode/cbcl-fn-normalize-unicode-006
 fn-normalize-unicode/fn-normalize-unicode-10
 fn-normalize-unicode/fn-normalize-unicode-9
-fn-normalize-unicode/fn-normalize-unicode1args-3
-fn-normalize-unicode/fn-normalize-unicode1args-4
-fn-normalize-unicode/fn-normalize-unicode1args-5
