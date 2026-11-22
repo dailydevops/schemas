@@ -1,0 +1,6 @@
+fn-ends-with/K2-EndsWithFunc-1
+fn-ends-with/K2-EndsWithFunc-2
+fn-ends-with/K2-EndsWithFunc-3
+fn-ends-with/K2-EndsWithFunc-4
+fn-ends-with/K2-EndsWithFunc-5
+fn-ends-with/K2-EndsWithFunc-6
