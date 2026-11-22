@@ -14,6 +14,10 @@ public class AttributeValuesTests
         await Assert.That(() => DtdAttributeValues.Matches(null!, "x".AsSpan())).Throws<ArgumentNullException>();
 
     [Test]
+    public async Task Contains_WithoutValues_Throws() =>
+        await Assert.That(() => DtdAttributeValues.Contains(null!, "x".AsSpan())).Throws<ArgumentNullException>();
+
+    [Test]
     public async Task TryNormalizeDefault_WithoutALiteral_Throws()
     {
         var declarations = new AttributeStepModel().Build();
