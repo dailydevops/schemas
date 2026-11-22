@@ -20,6 +20,12 @@ public class ConstraintMatrixCheckerTests
 
     private static readonly string[] ConstraintCodeAliases = ["XML0001", "XML5001", "XML3001"];
 
+    private static readonly ConstraintViolationKind[] MissingBothSides =
+    [
+        ConstraintViolationKind.MissingPositive,
+        ConstraintViolationKind.MissingNegative,
+    ];
+
     private static readonly HashSet<string> Tests = new(StringComparer.Ordinal)
     {
         "Fixture.Alpha_Accepts",
@@ -52,6 +58,8 @@ public class ConstraintMatrixCheckerTests
 
     private static ConstraintEntry Gamma() =>
         new(ConstraintKind.Namespace, "Gamma", "6.3", "XML3001", ["Fixture.Gamma_Accepts"], ["Fixture.Gamma_Rejects"]);
+
+    private static ConstraintGap Gap(string issue, string probe) => new([issue], [probe]);
 
     private static ConstraintEntry[] Complete() => [Alpha(), Beta(), Gamma()];
 
@@ -223,14 +231,9 @@ public class ConstraintMatrixCheckerTests
     }
 
     [Test]
-    public async Task Check_GapWithAnIssueAndAnExistingProbe_NeedsNoTests()
+    public async Task Check_GapWithTestsAnIssueAndAnExistingProbe_HasNoViolation()
     {
-        var gamma = Gamma() with
-        {
-            Positive = [],
-            Negative = [],
-            Gap = new ConstraintGap("#608", "Fixture.Gamma_Probe"),
-        };
+        var gamma = Gamma() with { Gap = Gap("#608", "Fixture.Gamma_Probe") };
 
         var violations = Check(Alpha(), Beta(), gamma);
 
@@ -238,9 +241,30 @@ public class ConstraintMatrixCheckerTests
     }
 
     [Test]
+    public async Task Check_GapWithoutPositiveAndNegativeTests_StillFailsWithMissingPositiveAndMissingNegative()
+    {
+        var gamma = Gamma() with { Positive = [], Negative = [], Gap = Gap("#608", "Fixture.Gamma_Probe") };
+
+        var violations = Check(Alpha(), Beta(), gamma);
+
+        await Assert.That(violations.Select(v => v.Kind).ToArray()).IsEquivalentTo(MissingBothSides);
+    }
+
+    [Test]
     public async Task Check_GapWithoutAnIssue_FailsWithInvalidGap()
     {
-        var gamma = Gamma() with { Gap = new ConstraintGap("later", "Fixture.Gamma_Probe") };
+        var gamma = Gamma() with { Gap = Gap("later", "Fixture.Gamma_Probe") };
+
+        var violations = Check(Alpha(), Beta(), gamma);
+
+        await Assert.That(violations.Count).IsEqualTo(1);
+        await Assert.That(violations[0].Kind).IsEqualTo(ConstraintViolationKind.InvalidGap);
+    }
+
+    [Test]
+    public async Task Check_GapWithNoIssueAtAll_FailsWithInvalidGap()
+    {
+        var gamma = Gamma() with { Gap = new ConstraintGap([], ["Fixture.Gamma_Probe"]) };
 
         var violations = Check(Alpha(), Beta(), gamma);
 
@@ -251,7 +275,7 @@ public class ConstraintMatrixCheckerTests
     [Test]
     public async Task Check_GapWhoseProbeDoesNotExist_FailsWithInvalidGap()
     {
-        var gamma = Gamma() with { Gap = new ConstraintGap("#608", "Fixture.Gamma_Gone") };
+        var gamma = Gamma() with { Gap = Gap("#608", "Fixture.Gamma_Gone") };
 
         var violations = Check(Alpha(), Beta(), gamma);
 
@@ -260,13 +284,36 @@ public class ConstraintMatrixCheckerTests
     }
 
     [Test]
+    public async Task Check_GapWithNoProbeAtAll_FailsWithInvalidGap()
+    {
+        var gamma = Gamma() with { Gap = new ConstraintGap(["#608"], []) };
+
+        var violations = Check(Alpha(), Beta(), gamma);
+
+        await Assert.That(violations.Count).IsEqualTo(1);
+        await Assert.That(violations[0].Kind).IsEqualTo(ConstraintViolationKind.InvalidGap);
+    }
+
+    [Test]
+    public async Task Check_GapWithSeveralIssuesAndProbes_ChecksEachOfThem()
+    {
+        var valid = Gamma() with
+        {
+            Gap = new ConstraintGap(["#608", "#935"], ["Fixture.Gamma_Probe", "Fixture.Alpha_Accepts"]),
+        };
+        var broken = Gamma() with
+        {
+            Gap = new ConstraintGap(["#608", "935"], ["Fixture.Gamma_Probe", "Fixture.Gamma_Gone"]),
+        };
+
+        await Assert.That(Describe(Check(Alpha(), Beta(), valid))).IsEqualTo(string.Empty);
+        await Assert.That(Check(Alpha(), Beta(), broken).Count).IsEqualTo(2);
+    }
+
+    [Test]
     public async Task Check_GapThatListsATestThatDoesNotExist_StillFailsWithUnknownTest()
     {
-        var gamma = Gamma() with
-        {
-            Negative = ["Fixture.Gamma_Gone"],
-            Gap = new ConstraintGap("#608", "Fixture.Gamma_Probe"),
-        };
+        var gamma = Gamma() with { Negative = ["Fixture.Gamma_Gone"], Gap = Gap("#608", "Fixture.Gamma_Probe") };
 
         var violations = Check(Alpha(), Beta(), gamma);
 
@@ -276,7 +323,7 @@ public class ConstraintMatrixCheckerTests
     [Test]
     public async Task Report_ListsEveryEntryWithItsStatus_AndSummarizesTheGaps()
     {
-        var gamma = Gamma() with { Gap = new ConstraintGap("#608", "Fixture.Gamma_Probe") };
+        var gamma = Gamma() with { Gap = Gap("#608", "Fixture.Gamma_Probe") };
 
         var lines = ConstraintMatrixReport.Render([Alpha(), Beta(), gamma]);
 
@@ -285,5 +332,15 @@ public class ConstraintMatrixCheckerTests
         await Assert.That(lines[0]).Contains("covered");
         await Assert.That(lines[2]).Contains("Namespace").And.Contains("Gamma").And.Contains("gap #608");
         await Assert.That(lines[3]).Contains("3 constraints").And.Contains("2 covered").And.Contains("1 gap");
+    }
+
+    [Test]
+    public async Task Report_NamesEveryIssueOfAGap()
+    {
+        var gamma = Gamma() with { Gap = new ConstraintGap(["#647", "#935"], ["Fixture.Gamma_Probe"]) };
+
+        var lines = ConstraintMatrixReport.Render([gamma]);
+
+        await Assert.That(lines[0]).Contains("gap #647, #935");
     }
 }

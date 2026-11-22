@@ -75,7 +75,7 @@ public class ConstraintMatrixTests
         ("Validity/Unique Element Type Declaration", "#608"),
         ("Validity/Proper Group/PE Nesting", "#608"),
         ("Validity/Proper Conditional Section/PE Nesting", "#608"),
-        ("Validity/Entity Declared", "#647"),
+        ("Validity/Entity Declared", "#647, #935"),
     ];
 
     private static readonly Lazy<IReadOnlyList<ConstraintViolation>> Violations = new(() =>
@@ -169,7 +169,7 @@ public class ConstraintMatrixTests
     {
         var actual = ConstraintMatrix
             .Entries.Where(entry => entry.Gap is not null)
-            .Select(entry => (entry.Key, entry.Gap!.Issue))
+            .Select(entry => (entry.Key, string.Join(", ", entry.Gap!.Issues)))
             .ToArray();
 
         await Assert.That(actual).IsEquivalentTo(RecordedGaps);

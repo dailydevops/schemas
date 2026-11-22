@@ -163,8 +163,8 @@ internal static class ConstraintMatrix
             "Proper Declaration/PE Nesting",
             "2.8",
             "XML5002",
-            "#608",
-            Gp + "Gap_ProperDeclarationPeNesting_IsNotReported_Issue608",
+            ["#608"],
+            [Gp + "Gap_ProperDeclarationPeNesting_IsNotReported_Issue608"],
             [DocumentStep + "DeclarationConstraintTests.ProperDeclarationNesting_ModelWithoutFacts_ReportsNothing"],
             [
                 DocumentStep
@@ -204,8 +204,8 @@ internal static class ConstraintMatrix
             "Unique Element Type Declaration",
             "3.2",
             "XML5006",
-            "#608",
-            Gp + "Gap_UniqueElementTypeDeclaration_IsNotReported_Issue608",
+            ["#608"],
+            [Gp + "Gap_UniqueElementTypeDeclaration_IsNotReported_Issue608"],
             [DocumentStep + "DeclarationConstraintTests.UniqueElementType_EachElementTypeDeclaredOnce_ReportsNothing"],
             [
                 DocumentStep
@@ -216,8 +216,8 @@ internal static class ConstraintMatrix
             "Proper Group/PE Nesting",
             "3.2.1",
             "XML5007",
-            "#608",
-            Gp + "Gap_ProperGroupPeNesting_IsNotReported_Issue608",
+            ["#608"],
+            [Gp + "Gap_ProperGroupPeNesting_IsNotReported_Issue608"],
             [DocumentStep + "DeclarationConstraintTests.ProperGroupNesting_OnlyOtherFacts_ReportsNothingForGroups"],
             [
                 DocumentStep
@@ -342,8 +342,8 @@ internal static class ConstraintMatrix
             "Proper Conditional Section/PE Nesting",
             "3.4",
             "XML5023",
-            "#608",
-            Gp + "Gap_ProperConditionalSectionPeNesting_IsNotReported_Issue608",
+            ["#608"],
+            [Gp + "Gap_ProperConditionalSectionPeNesting_IsNotReported_Issue608"],
             [
                 DocumentStep
                     + "DeclarationConstraintTests.ProperConditionalSectionNesting_ModelWithoutFacts_ReportsNothing",
@@ -357,8 +357,8 @@ internal static class ConstraintMatrix
             "Entity Declared",
             "4.1",
             "XML5024",
-            "#647",
-            Gp + "Gap_EntityDeclaredValidityForm_IsNotReported_Issue647",
+            ["#647"],
+            [Gp + "Gap_EntityDeclaredValidityForm_IsNotReported_Issue647"],
             [DocumentStep + "DocumentReportTests.EntityDeclared_ReferenceToADeclaredEntity_ReportsNothing"],
             [
                 DocumentStep
@@ -447,12 +447,12 @@ internal static class ConstraintMatrix
         string name,
         string section,
         string code,
-        string issue,
-        string probe,
+        string[] issues,
+        string[] probes,
         string[] positive,
         string[] negative,
         string note = ""
-    ) => new(ConstraintKind.Validity, name, section, code, positive, negative, new ConstraintGap(issue, probe), note);
+    ) => new(ConstraintKind.Validity, name, section, code, positive, negative, new ConstraintGap(issues, probes), note);
 
     private static ConstraintEntry Nsc(
         string name,

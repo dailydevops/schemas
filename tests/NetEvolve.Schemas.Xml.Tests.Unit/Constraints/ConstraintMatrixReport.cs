@@ -37,13 +37,13 @@ internal static class ConstraintMatrixReport
 
     private static string Line(ConstraintEntry entry)
     {
-        var status = entry.Gap is { } gap ? "gap " + gap.Issue : "covered";
+        var status = entry.Gap is { } gap ? "gap " + string.Join(", ", gap.Issues) : "covered";
 
         return entry.Kind.ToString().PadRight(16)
             + entry.Name.PadRight(48)
             + entry.Code.PadRight(9)
             + ("s" + entry.Section).PadRight(13)
-            + status.PadRight(12)
+            + status.PadRight(16)
             + "+"
             + entry.Positive.Count.ToString(CultureInfo.InvariantCulture)
             + " -"

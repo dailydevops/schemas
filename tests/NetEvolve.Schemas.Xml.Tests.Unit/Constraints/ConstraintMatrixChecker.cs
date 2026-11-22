@@ -192,26 +192,42 @@ internal static class ConstraintMatrixChecker
         List<ConstraintViolation> violations
     )
     {
-        if (!IsIssueReference(gap.Issue))
+        if (gap.Issues.Count == 0)
         {
-            violations.Add(
-                new(
-                    ConstraintViolationKind.InvalidGap,
-                    entry.Key,
-                    "The gap names no issue ('" + gap.Issue + "'); an issue reference is '#' and its number."
-                )
-            );
+            violations.Add(new(ConstraintViolationKind.InvalidGap, entry.Key, "The gap names no issue."));
         }
 
-        if (string.IsNullOrWhiteSpace(gap.Probe) || !testExists(gap.Probe))
+        foreach (var issue in gap.Issues)
         {
-            violations.Add(
-                new(
-                    ConstraintViolationKind.InvalidGap,
-                    entry.Key,
-                    "The probe '" + gap.Probe + "' of the gap does not exist."
-                )
-            );
+            if (!IsIssueReference(issue))
+            {
+                violations.Add(
+                    new(
+                        ConstraintViolationKind.InvalidGap,
+                        entry.Key,
+                        "The gap names no issue ('" + issue + "'); an issue reference is '#' and its number."
+                    )
+                );
+            }
+        }
+
+        if (gap.Probes.Count == 0)
+        {
+            violations.Add(new(ConstraintViolationKind.InvalidGap, entry.Key, "The gap names no probe."));
+        }
+
+        foreach (var probe in gap.Probes)
+        {
+            if (string.IsNullOrWhiteSpace(probe) || !testExists(probe))
+            {
+                violations.Add(
+                    new(
+                        ConstraintViolationKind.InvalidGap,
+                        entry.Key,
+                        "The probe '" + probe + "' of the gap does not exist."
+                    )
+                );
+            }
         }
     }
 

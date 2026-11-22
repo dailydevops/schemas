@@ -35,4 +35,25 @@ public class ConstraintGapTests
     [Test]
     public async Task Gap_EntityDeclaredValidityForm_IsNotReported_Issue647() =>
         await DoesNotReport("<!DOCTYPE r SYSTEM \"ext.dtd\"><r>&e;</r>", "XML5024", ("ext.dtd", "<!ELEMENT r ANY>"));
+
+    // Issue #935: the declaration parser skips a reference to an undeclared parameter entity (production 69) and reports nothing.
+    [Test]
+    public async Task Gap_EntityDeclaredForParameterEntityReference_InTheExternalSubset_IsNotReported_Issue935() =>
+        await DoesNotReport(ExternalSubsetDocument, "XML5024", ("ext.dtd", "<!ELEMENT r ANY> %undeclared;"));
+
+    [Test]
+    public async Task Gap_EntityDeclaredForParameterEntityReference_InAnEntityValue_IsNotReported_Issue935() =>
+        await DoesNotReport(
+            ExternalSubsetDocument,
+            "XML5024",
+            ("ext.dtd", "<!ENTITY % a \"%undeclared;\"> <!ELEMENT r ANY>")
+        );
+
+    [Test]
+    public async Task Gap_EntityDeclaredForParameterEntityReference_InTheInternalSubset_IsNotReported_Issue935() =>
+        await DoesNotReport(
+            "<!DOCTYPE r SYSTEM \"ext.dtd\" [ %undeclared; ]><r/>",
+            "XML5024",
+            ("ext.dtd", "<!ELEMENT r ANY>")
+        );
 }
