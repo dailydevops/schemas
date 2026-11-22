@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.Schematron.Tests.Unit.Loading.XInclude;
 
 using System.Threading;
 using NetEvolve.Schemas.Resources;
+using NetEvolve.Schemas.Schematron.Loading;
 using NetEvolve.Schemas.Schematron.Loading.XInclude;
 using NetEvolve.Schemas.Schematron.Model;
 using NetEvolve.Schemas.Schematron.Parsing.Core;
@@ -114,5 +115,23 @@ public class XIncludeSchemaTests
         await Assert
             .That(() => resolver.TryResolve(document, RootUri, null!, CancellationToken.None, out _))
             .Throws<ArgumentNullException>();
+        await Assert
+            .That(() => resolver.TryFetch(null!, RootUri, default, CancellationToken.None, out _, out _, out _))
+            .Throws<ArgumentNullException>();
+    }
+
+    [Test]
+    public async Task TryFetch_NullHref_ThrowsBeforeTheRequestIsCounted(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var files = new FakeResources().Add("file:///a/p.xml", "<p/>");
+        var resolver = new XIncludeResolver(files, ValidationLimits.Default.WithMaxExternalResources(1));
+
+        await Assert
+            .That(() => resolver.TryFetch(null!, RootUri, default, cancellationToken, out _, out _, out _))
+            .Throws<ArgumentNullException>();
+        var status = resolver.TryFetch("p.xml", RootUri, default, cancellationToken, out _, out _, out _);
+
+        await Assert.That(status).IsEqualTo(FetchStatus.Found);
     }
 }

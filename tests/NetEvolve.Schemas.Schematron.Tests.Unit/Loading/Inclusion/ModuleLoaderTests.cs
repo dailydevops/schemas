@@ -63,6 +63,21 @@ public class ModuleLoaderTests
     }
 
     [Test]
+    public async Task TryLoad_NullHref_ThrowsBeforeTheRequestIsCounted(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var files = new FakeResources().Add("file:///s/x.sch", Pattern("px"));
+        var loader = new ModuleLoader(files, ValidationLimits.Default.WithMaxExternalResources(1));
+
+        await Assert
+            .That(() => loader.TryLoad(Reference(null!), cancellationToken, out _, out _))
+            .Throws<ArgumentNullException>();
+        var ok = loader.TryLoad(Reference("x.sch"), cancellationToken, out _, out _);
+
+        await Assert.That(ok).IsTrue();
+    }
+
+    [Test]
     public async Task TryLoad_CancelledToken_Throws()
     {
         var loader = new ModuleLoader(new FakeResources(), ValidationLimits.Default);
