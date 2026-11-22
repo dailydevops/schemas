@@ -178,7 +178,7 @@ public class DtdBenchmarkTargetsTests
 
         var head = line[..paren].TrimEnd();
 
-        return head[(head.LastIndexOf(' ') + 1)..];
+        return head.Split(' ')[^1];
     }
 
     private static string[] SourceFiles()
