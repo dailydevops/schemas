@@ -21,7 +21,7 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// <para>
 /// A sequence is serialized as with <c>method="xml"</c>: a document node as its children, adjacent atomic values separated by a single
 /// space, and an attribute or namespace node cannot be serialized, so it fails the case. The string form of an atomic value is the
-/// <c>fn:string</c> of the engine. The expected XML is a fragment in the wrapper element, or the document of the file attribute.
+/// <c>fn:string</c> of the engine. The expected XML, inline or from the file attribute, is a fragment that is parsed in the wrapper element.
 /// </para>
 /// <para>
 /// Limitations: the canonical form of the writer is a documented subset of the W3C form, so a case can fail on a detail the subset does
@@ -59,7 +59,7 @@ internal static class AssertXmlChecker
         try
         {
             var expected = Serialize(assertion.IgnorePrefixes, sink =>
-                WriteChildren(assertion.File is null ? expectedTree.Document.FirstChild : expectedTree.Document, sink)
+                WriteChildren(expectedTree.Document.FirstChild, sink)
             );
             var serialized = Serialize(assertion.IgnorePrefixes, sink => WriteResult(items, strings, sink));
             return string.Equals(expected, serialized, StringComparison.Ordinal)
@@ -118,12 +118,29 @@ internal static class AssertXmlChecker
         return strings;
     }
 
-    private static XmlDocumentTree ParseExpected(Qt3Assertion assertion)
+    private static XmlDocumentTree ParseExpected(Qt3Assertion assertion) =>
+        XmlDocumentLoader.Load(
+            "<w>" + ExpectedText(assertion) + "</w>",
+            XmlReaderOptions.Default.WithDtdProcessing(true)
+        );
+
+    // The inline text, or the text of the file; a file that starts with an XML declaration is a document, so the declaration and the
+    // white space around the root element go, and any other file is a fragment that is compared as it is.
+    private static string ExpectedText(Qt3Assertion assertion)
     {
-        var options = XmlReaderOptions.Default.WithDtdProcessing(true);
-        return assertion.File is { } file
-            ? XmlDocumentLoader.LoadFromMemory(File.ReadAllBytes(file), options)
-            : XmlDocumentLoader.Load("<w>" + assertion.Value + "</w>", options);
+        if (assertion.File is not { } file)
+        {
+            return assertion.Value;
+        }
+
+        var text = File.ReadAllText(file);
+        if (!text.StartsWith("<?xml", StringComparison.Ordinal))
+        {
+            return text;
+        }
+
+        var end = text.IndexOf("?>", StringComparison.Ordinal);
+        return end < 0 ? text : text[(end + 2)..].Trim();
     }
 
     private static string Serialize(bool ignorePrefixes, Action<IXmlSink> content)
