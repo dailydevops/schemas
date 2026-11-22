@@ -1,6 +1,8 @@
 namespace NetEvolve.Schemas.Schematron.Tests.Unit.Loading.XInclude;
 
+using System;
 using System.Text;
+using NetEvolve.Schemas.Schematron.Loading.XInclude;
 using static NetEvolve.Schemas.Schematron.Tests.Unit.Loading.XInclude.XIncludeFixture;
 
 public class XIncludeTextTests
@@ -139,5 +141,60 @@ public class XIncludeTextTests
         await Assert.That(bad.Ok).IsTrue();
         await Assert.That(bad.Text).IsEqualTo("<root><f></f></root>");
         await Assert.That(unknown.Text).IsEqualTo("<root><f></f></root>");
+    }
+
+    [Test]
+    public async Task TryDecode_ArrayBackedContent_IsNotCopiedBeforeDecoding()
+    {
+        const int Length = 1_000_000;
+        var bytes = new byte[Length];
+        Array.Fill(bytes, (byte)'a');
+        var content = new ReadOnlyMemory<byte>(bytes);
+        _ = XIncludeText.TryDecode(content, null, out _, out _);
+
+        var before = GC.GetAllocatedBytesForCurrentThread();
+        var ok = XIncludeText.TryDecode(content, null, out var text, out _);
+        var allocated = GC.GetAllocatedBytesForCurrentThread() - before;
+
+        await Assert.That(ok).IsTrue();
+        await Assert.That(text.Length).IsEqualTo(Length);
+        // The string needs 2 * Length bytes; a copy of the content would add another Length.
+        await Assert.That(allocated).IsLessThan(2L * Length + Length / 2);
+    }
+
+    [Test]
+    public async Task TryDecode_SlicedArrayContent_DecodesOnlyTheSlice()
+    {
+        var bytes = Encoding.UTF8.GetBytes("xx-héllo-yy");
+        var content = new ReadOnlyMemory<byte>(bytes, 3, bytes.Length - 6);
+
+        var ok = XIncludeText.TryDecode(content, null, out var text, out _);
+
+        await Assert.That(ok).IsTrue();
+        await Assert.That(text).IsEqualTo("héllo");
+    }
+
+    [Test]
+    public async Task TryDecode_ContentWithoutAnArray_IsDecodedThroughACopy()
+    {
+        using var manager = new NativeBytes(Encoding.UTF8.GetBytes("héllo"));
+
+        var ok = XIncludeText.TryDecode(manager.Memory, null, out var text, out _);
+
+        await Assert.That(ok).IsTrue();
+        await Assert.That(text).IsEqualTo("héllo");
+    }
+
+    private sealed class NativeBytes(byte[] bytes) : System.Buffers.MemoryManager<byte>
+    {
+        public override System.Memory<byte> Memory => base.Memory;
+
+        public override System.Span<byte> GetSpan() => bytes;
+
+        public override System.Buffers.MemoryHandle Pin(int elementIndex = 0) => throw new NotSupportedException();
+
+        public override void Unpin() { }
+
+        protected override void Dispose(bool disposing) { }
     }
 }
