@@ -164,7 +164,7 @@ public class RegexCaptureTests
         for (var ceiling = 1; ceiling < 400 && !aborted; ceiling++)
         {
             var matches = RegexOps.Matches(operations, text, RegexStepLimits.Default.WithMaxNfaSteps(ceiling));
-            aborted = matches.StartsWith("0,1|0,1", StringComparison.Ordinal) && matches.EndsWith('!');
+            aborted = matches.StartsWith("0,1|0,1", StringComparison.Ordinal) && matches.AsSpan().IndexOf('!') >= 0;
         }
 
         await Assert.That(aborted).IsTrue();
