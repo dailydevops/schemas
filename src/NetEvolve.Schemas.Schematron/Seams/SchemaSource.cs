@@ -10,13 +10,15 @@ using NetEvolve.Arguments;
 /// buffer; a stream is kept unread and undisposed for the pipeline to read from its current position.
 /// </summary>
 /// <remarks>
-/// Limitation: the size cap, the asynchronous read, and the replay on a second build belong to the shared schema-source
-/// holder of the core facade follow-up; until it exists this holder only keeps the source.
+/// Limitation: the shared schema-source holder of the core facade follow-up does not exist, so the read of a stream (the size cap, the
+/// asynchronous read) is done by <c>Pipeline.SchemaSourceReader</c>, and this holder keeps the bytes of a stream that was read once, so
+/// that a second build replays them: a stream may not seek back and is never read twice.
 /// </remarks>
 internal sealed class SchemaSource
 {
     private readonly byte[]? _bytes;
     private readonly char[]? _chars;
+    private byte[]? _replay;
 
     private SchemaSource(SchemaSourceKind kind, byte[]? bytes, char[]? chars, Stream? stream, string? systemId)
     {
@@ -35,11 +37,26 @@ internal sealed class SchemaSource
     /// <summary>Gets the base URI of the schema and the source of every model location, or <see langword="null"/>.</summary>
     internal string? SystemId { get; }
 
+    /// <summary>Gets the bytes of a stream that was read to its end, empty before; see <see cref="Remember"/>.</summary>
+    internal ReadOnlyMemory<byte> Replay => _replay;
+
+    /// <summary>Gets a value indicating whether the stream was read to its end and its bytes are kept.</summary>
+    internal bool HasReplay => _replay is not null;
+
     /// <summary>Gets the copied bytes; empty unless <see cref="Kind"/> is <see cref="SchemaSourceKind.Bytes"/>.</summary>
     internal ReadOnlyMemory<byte> Bytes => _bytes;
 
     /// <summary>Gets the copied characters; empty unless <see cref="Kind"/> is <see cref="SchemaSourceKind.Chars"/>.</summary>
     internal ReadOnlyMemory<char> Chars => _chars;
+
+    /// <summary>Keeps the bytes of the stream, read to its end, for the next build.</summary>
+    /// <param name="bytes">The bytes; owned by the source from now on.</param>
+    internal void Remember(byte[] bytes)
+    {
+        Argument.ThrowIfNull(bytes);
+
+        _replay = bytes;
+    }
 
     internal static SchemaSource FromStream(Stream stream, string? systemId)
     {

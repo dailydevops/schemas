@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using NetEvolve.Schemas.Schematron.Model;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Schematron.Tests.Unit.Fakes;
 
@@ -159,14 +160,14 @@ public class EntryPointContractTests
     }
 
     [Test]
-    public async Task Build_WithoutPipeline_FailsWithNotImplementedDiagnostic()
+    public async Task Build_WithoutAPipelineOverride_UsesTheComposedPipeline()
     {
         var builder = SchemaValidator.ForSchematron(SchemaText.AsSpan());
 
-        var exception = Capture(() => builder.BuildNow());
+        var validator = builder.BuildNow();
 
-        await Assert.That(exception.Issues.Count).IsEqualTo(1);
-        await Assert.That(exception.Issues[0].Code).IsEqualTo(SchematronDiagnosticCodes.NotImplemented);
+        await Assert.That(validator.Edition).IsEqualTo(SchematronEdition.Iso2016);
+        await Assert.That(validator.EffectivePhase).IsEqualTo("#ALL");
     }
 
     internal static SchemaCompilationException Capture(Action action)
