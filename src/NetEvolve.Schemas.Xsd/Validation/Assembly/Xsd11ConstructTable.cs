@@ -14,9 +14,9 @@ using NetEvolve.Schemas.Xsd.Versioning.Constructs;
 /// </summary>
 /// <remarks>
 /// The rows of the strict 1.0 table (<see cref="Strict10ConstructTable"/>) are the first rows; their not-yet-supported code is the
-/// strict code plus 40, the offset that the rule codes share (NES4020 and NES4060). Three constructs have no strict 1.0 row because
+/// strict code plus 40, the offset that the rule codes share (NES4020 and NES4060). Four constructs have no strict 1.0 row because
 /// they are rules of a value, not of a name: the <see langword="ref"/> attribute of an identity constraint, a list of substitution group heads, and the
-/// datatype <c>xs:precisionDecimal</c>, which is a name that exists in 1.1 but not in the registry of the datatypes yet (DEF-52, #64).
+/// datatypes <c>xs:precisionDecimal</c> and <c>xs:error</c>, which are names that exist in 1.1 but not in the registry of the datatypes yet (DEF-52, #64).
 /// Limitation: conditional inclusion (<c>vc:</c> attributes) is not applied by the pipeline yet (XSD-78), so a construct inside an
 /// excluded block is reported as well.
 /// </remarks>
@@ -32,7 +32,7 @@ internal static class Xsd11ConstructTable
 
     private static List<Xsd11Construct> Create()
     {
-        var entries = new List<Xsd11Construct>(Strict10ConstructTable.Entries.Count + 3);
+        var entries = new List<Xsd11Construct>(Strict10ConstructTable.Entries.Count + 4);
         foreach (var strict in Strict10ConstructTable.Entries)
         {
             entries.Add(
@@ -68,7 +68,15 @@ internal static class Xsd11ConstructTable
                 true,
                 TypeAttributes,
                 XsdRuleLookup.Find(XsdRuleCodes.NotYetSupportedPrecisionDecimal),
-                valueMatches: static (node, value) => NamesPrecisionDecimal(node, value)
+                valueMatches: static (node, value) => NamesXsType(node, value, "precisionDecimal")
+            )
+        );
+        entries.Add(
+            new Xsd11Construct(
+                true,
+                TypeAttributes,
+                XsdRuleLookup.Find(XsdRuleCodes.NotYetSupportedError),
+                valueMatches: static (node, value) => NamesXsType(node, value, "error")
             )
         );
 
@@ -78,14 +86,14 @@ internal static class Xsd11ConstructTable
     // Several heads are separated by white space.
     private static bool IsList(string value) => SyntaxValues.Split(value).Length > 1;
 
-    private static bool NamesPrecisionDecimal(SchemaSyntaxNode node, string value)
+    private static bool NamesXsType(SchemaSyntaxNode node, string value, string localName)
     {
         foreach (var token in SyntaxValues.Split(value))
         {
             if (
                 NoNamespace.TryResolve(node, token, out var name)
                 && string.Equals(name.NamespaceName, SchemaGrammar.Namespace, StringComparison.Ordinal)
-                && string.Equals(name.LocalName, "precisionDecimal", StringComparison.Ordinal)
+                && string.Equals(name.LocalName, localName, StringComparison.Ordinal)
             )
             {
                 return true;

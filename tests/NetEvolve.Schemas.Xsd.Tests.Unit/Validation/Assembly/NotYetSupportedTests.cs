@@ -10,7 +10,7 @@ using NetEvolve.Schemas.Xsd.Versioning.Constructs;
 using XsdVersion = NetEvolve.Schemas.Xml.Datatypes.Contracts.XsdVersion;
 
 /// <summary>
-/// Under the default builder every XSD 1.1 construct of the table of #242 and the three value constructs that no row of that
+/// Under the default builder every XSD 1.1 construct of the table of #242 and the four value constructs that no row of that
 /// table names yields its coded not-yet-supported schema error and never a silent pass (design #146 DP-16).
 /// </summary>
 public class NotYetSupportedTests

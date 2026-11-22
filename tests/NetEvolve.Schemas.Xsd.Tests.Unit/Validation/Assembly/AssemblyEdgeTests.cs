@@ -60,7 +60,7 @@ public class AssemblyEdgeTests
 
         var failure = TryBuild(schema);
 
-        await Assert.That(failure.Any(i => i.Code.Number is >= 4060 and <= 4076)).IsFalse();
+        await Assert.That(failure.Any(i => i.Code.Number is >= 4060 and <= 4077)).IsFalse();
     }
 
     [Test]

@@ -44,6 +44,7 @@ internal static class RecordedRuleCodes
         "4074 NotYetSupportedIdentityConstraintRef not-yet-supported-identity-constraint-ref",
         "4075 NotYetSupportedSubstitutionGroupList not-yet-supported-substitution-group-list",
         "4076 NotYetSupportedPrecisionDecimal not-yet-supported-precision-decimal",
+        "4077 NotYetSupportedError not-yet-supported-error",
         "4100 SrcAttribute src-attribute",
         "4101 SrcElement src-element",
         "4102 SrcCt src-ct",
