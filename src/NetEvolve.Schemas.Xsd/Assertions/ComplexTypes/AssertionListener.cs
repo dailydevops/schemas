@@ -42,7 +42,7 @@ using NetEvolve.Schemas.Xsd.Validation.Core;
 /// </para>
 /// <para>
 /// Limitations: the hooks carry no namespace declarations, no text of mixed content or between elements, no <c>xsi</c> attributes, and nothing
-/// of a lax or skipped descendant, so the subtree misses those nodes until the validator forwards its events to the builder; the in-scope
+/// of a lax or skipped descendant, so the subtree misses those nodes until the validator forwards its events to the builder (#948); the in-scope
 /// namespaces of a tree node are not materialized. The XPath evaluator atomizes every node as <c>xs:untypedAtomic</c> (#791), so a comparison
 /// of two integer children is a comparison of strings, while a comparison with a number converts as XPath 2.0 specifies; <c>$value</c> is typed.
 /// The root of the tree has the untyped annotation, not <c>xs:anyType</c>. A violation does not mark the element invalid, because the shared
