@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.Tests.LegacyCompiler.Schematron;
 
 using Microsoft.CodeAnalysis.CSharp;
+using NetEvolve.Schemas.Resources;
 
 /// <summary>
 /// Compiled with C# 13 (no extension member syntax): the Schematron entry point is reached through the named static class.
@@ -96,7 +97,7 @@ public class SchematronLegacyTests
     {
         var compilation = ConsumerCompiler.Compile(ExtensionMemberSource, LanguageVersion.CSharp13);
 
-        await Assert.That(compilation.Errors).Contains("CS0117");
+        await Assert.That(compilation.Errors).Contains("CS9260");
     }
 
     [Test]
