@@ -5,6 +5,7 @@ using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.SchemaDocuments;
+using NetEvolve.Schemas.Xsd.Versioning.Constructs;
 
 /// <summary>
 /// Reports every XSD 1.1 construct of a schema document that the assembled validator does not support yet as a located schema
@@ -17,6 +18,8 @@ using NetEvolve.Schemas.Xsd.SchemaDocuments;
 /// </remarks>
 internal static class Xsd11ConstructGate
 {
+    private const string NotSupportedYet = "not supported yet";
+
     /// <summary>Checks the syntax tree of one schema document.</summary>
     /// <param name="root">The <c>schema</c> element.</param>
     /// <param name="version">The configured XSD version.</param>
@@ -47,7 +50,14 @@ internal static class Xsd11ConstructGate
             }
             else if (inSchema && Array.IndexOf(construct.Names, local) >= 0)
             {
-                Report(reporter, construct, node.Location, "element", local);
+                Strict10Constructs.Report(
+                    reporter,
+                    construct.NotYetSupported,
+                    node.Location,
+                    "element",
+                    local,
+                    NotSupportedYet
+                );
             }
         }
 
@@ -65,7 +75,7 @@ internal static class Xsd11ConstructGate
         XsdIssueReporter reporter
     )
     {
-        if (!Applies(construct, owner, parent))
+        if (!Strict10Constructs.Applies(construct.Owners, construct.LocalOnly, owner, parent))
         {
             return;
         }
@@ -79,25 +89,15 @@ internal static class Xsd11ConstructGate
                 && (construct.ValueMatches is null || construct.ValueMatches(node, attribute.Value))
             )
             {
-                Report(reporter, construct, attribute.Location, "attribute", attribute.Name.LocalName);
+                Strict10Constructs.Report(
+                    reporter,
+                    construct.NotYetSupported,
+                    attribute.Location,
+                    "attribute",
+                    attribute.Name.LocalName,
+                    NotSupportedYet
+                );
             }
         }
     }
-
-    private static bool Applies(Xsd11Construct construct, string owner, string parent) =>
-        (construct.Owners.Length == 0 || Array.IndexOf(construct.Owners, owner) >= 0)
-        && (!construct.LocalOnly || !(parent is "schema" or "redefine" or "override"));
-
-    private static void Report(
-        XsdIssueReporter reporter,
-        Xsd11Construct construct,
-        DocumentLocation location,
-        string kind,
-        string name
-    ) =>
-        reporter.Report(
-            construct.NotYetSupported,
-            location,
-            "The XSD 1.1 " + kind + " '" + name + "' is not supported yet."
-        );
 }
