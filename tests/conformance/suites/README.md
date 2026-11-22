@@ -64,9 +64,12 @@ The W3C QT3 test suite is pinned by commit, not by branch. The archive is the Gi
   (the sources, the namespace bindings, the parameters, and the static base URI; defined in the case, the test
   set, or the catalog) with the Xml document loader and binds the context item and the variables.
 - **Assertions:** `error`, `assert-true`, `assert-false`, `assert-empty`, `assert`, `assert-eq`, `assert-count`,
-  and `assert-string-value` decide a case. Every other kind (`assert-xml`, `assert-deep-eq`, `assert-permutation`,
-  `assert-type`, the serialization assertions, and the compound `any-of`, `all-of`, and `not`) is skipped and
-  never counts as passed.
+  `assert-string-value`, `assert-deep-eq`, `assert-permutation`, `assert-type`, and `assert-xml` decide a case.
+  Every other kind (the serialization assertions and the compound `any-of`, `all-of`, and `not`) is skipped and
+  never counts as passed. `assert-xml` writes the result and the expected XML through the canonical XML writer and
+  compares the two texts; `ignore-prefixes` compares them without prefixes and namespace declarations, and the
+  expected XML of a `file` attribute is read as a fragment. The test `StructuralSuiteTests` reports, per test set,
+  how many of these cases moved from skipped to passed or failed.
 - **Limitations:** the schema, collection, resource, collation, decimal-format, function-library, and
   context-item elements of an environment are ignored. The static base URI is absent unless the environment
   gives one, so a result never depends on the checkout path. A case whose query raises an engine condition that is
