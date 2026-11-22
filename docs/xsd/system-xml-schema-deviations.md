@@ -19,7 +19,7 @@ The differential run reads every schema and instance case of XSD 1.0 with this l
 2. **The difference is equivalent.** Both engines agree on the verdict and report issues at other positions or in another number. The specification defines no issue positions, so the entry records the observed positions as an accepted difference.
 3. **This library is wrong.** The case is a known failure of the schema tests or the instance tests with a bug issue. It has no entry here: its differences to the baseline are symptoms of that defect and are tracked by the issue. A case leaves this set when its issue is fixed and the case leaves the known-failures list; every difference that is left on it then needs an entry of its own. The differential run excludes these cases, so no difference stays unexplained.
 
-A known failure without an issue is a documented limitation of this library (see the section of documented limitations). Its differences have entries.
+A known failure without a bug issue is a documented limitation of this library: a design decision (DP-3 and DP-16 of design #146), a resource limit, or a left-out function with its own issue (#956). Its differences have entries; see the section of documented limitations.
 
 No builder option, switch, or code path in the library reproduces System.Xml.Schema behavior; a compatibility mode is tracked separately (DEF-77, #89).
 
@@ -1985,7 +1985,7 @@ msMeta-Additional_w3c/1.0/addB049/addB049.v
 
 ### An incomplete schema
 
-Documented limitation: a reference to a component that no document declares is reported as src-resolve, whereas the suite accepts the incomplete schema (the known-failures list of the XSTS tests records the case without an issue).
+Documented limitation: a reference to a component that no document declares is reported as src-resolve, whereas the suite accepts the incomplete schema and fails only where the missing component is used. The left-out function is tracked by #956.
 
 - Difference: InstanceVerdict `instance verdict: ours=NotRun, baseline=Valid` (5); SchemaVerdict `schema verdict: ours=Invalid, baseline=Valid` (5)
 - Specification: XSD 1.0 Part 1, 5.3 (Missing Sub-components) and 3.15.3 (src-resolve)
