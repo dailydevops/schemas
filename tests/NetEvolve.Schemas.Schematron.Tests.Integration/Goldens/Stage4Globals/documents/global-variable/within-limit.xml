@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<invoice>
+  <line amount="40" currency="EUR" />
+  <line amount="100" currency="EUR" />
+</invoice>
