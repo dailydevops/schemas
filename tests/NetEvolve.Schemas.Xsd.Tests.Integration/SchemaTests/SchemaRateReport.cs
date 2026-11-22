@@ -21,10 +21,12 @@ internal static class SchemaRateReport
     /// <param name="results">The case results of the run.</param>
     /// <param name="schemaCases">The keys (see <see cref="KeyOf"/>) of the schema tests of XSD 1.0; other results are not counted.</param>
     /// <param name="summaryPath">The summary file path; nothing is written when it is <see langword="null"/> or empty.</param>
+    /// <param name="package">The label of the row; the instance tests publish their own row through the same code.</param>
     public static void Publish(
         IReadOnlyCollection<CaseResult> results,
         IReadOnlySet<string> schemaCases,
-        string? summaryPath
+        string? summaryPath,
+        string package = Package
     )
     {
         ArgumentNullException.ThrowIfNull(results);
@@ -51,7 +53,7 @@ internal static class SchemaRateReport
         }
 
         ConformanceRateReporter.Append(
-            Package,
+            package,
             TargetFrameworkName.Of(typeof(SchemaRateReport).Assembly),
             ConformanceReport.Compare(selected, baselines),
             summaryPath

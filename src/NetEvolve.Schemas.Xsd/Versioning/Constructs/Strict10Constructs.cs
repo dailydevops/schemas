@@ -15,6 +15,8 @@ using NetEvolve.Schemas.Xsd.SchemaDocuments;
 /// </remarks>
 internal static class Strict10Constructs
 {
+    private const string NotAllowedInStrict10 = "not allowed in strict 1.0 mode";
+
     /// <summary>Checks the syntax tree of one schema document.</summary>
     /// <param name="root">The <c>schema</c> element.</param>
     /// <param name="version">The configured XSD version.</param>
@@ -40,7 +42,7 @@ internal static class Strict10Constructs
             var entry = Strict10ConstructTable.Find(false, name);
             if (entry is not null)
             {
-                Report(reporter, entry, element.Location, "element", name);
+                Report(reporter, entry.Rule, element.Location, "element", name, NotAllowedInStrict10);
             }
         }
 
@@ -53,9 +55,16 @@ internal static class Strict10Constructs
             }
 
             var entry = Strict10ConstructTable.Find(true, attribute.Name.LocalName);
-            if (entry is not null && Applies(entry, name, parent))
+            if (entry is not null && Applies(entry.Owners, entry.LocalOnly, name, parent))
             {
-                Report(reporter, entry, attribute.Location, "attribute", attribute.Name.LocalName);
+                Report(
+                    reporter,
+                    entry.Rule,
+                    attribute.Location,
+                    "attribute",
+                    attribute.Name.LocalName,
+                    NotAllowedInStrict10
+                );
             }
         }
 
@@ -65,20 +74,29 @@ internal static class Strict10Constructs
         }
     }
 
-    private static bool Applies(Strict10Construct entry, string owner, string parent) =>
-        (entry.Owners.Length == 0 || Array.IndexOf(entry.Owners, owner) >= 0)
-        && (!entry.LocalOnly || !(parent is "schema" or "redefine" or "override"));
+    /// <summary>Tells whether an attribute construct applies to an element, shared with the not-yet-supported gate of XSD 1.1 (design #146 DP-16).</summary>
+    /// <param name="owners">The local names of the elements that carry the attribute; empty for any.</param>
+    /// <param name="localOnly">Whether the construct is rejected only on a local declaration.</param>
+    /// <param name="owner">The local name of the element that carries the attribute.</param>
+    /// <param name="parent">The local name of the parent of that element, empty for the root.</param>
+    /// <returns><see langword="true"/> when the construct applies.</returns>
+    internal static bool Applies(string[] owners, bool localOnly, string owner, string parent) =>
+        (owners.Length == 0 || Array.IndexOf(owners, owner) >= 0)
+        && (!localOnly || !(parent is "schema" or "redefine" or "override"));
 
-    private static void Report(
+    /// <summary>Reports one XSD 1.1 construct, shared with the not-yet-supported gate of XSD 1.1 (design #146 DP-16).</summary>
+    /// <param name="reporter">Receives the error.</param>
+    /// <param name="rule">The rule.</param>
+    /// <param name="location">The location.</param>
+    /// <param name="kind">Either <c>element</c> or <c>attribute</c>.</param>
+    /// <param name="name">The local name of the construct.</param>
+    /// <param name="outcome">What the message says about the construct, such as <c>not supported yet</c>.</param>
+    internal static void Report(
         XsdIssueReporter reporter,
-        Strict10Construct entry,
+        XsdRule rule,
         DocumentLocation location,
         string kind,
-        string name
-    ) =>
-        reporter.Report(
-            entry.Rule,
-            location,
-            "The XSD 1.1 " + kind + " '" + name + "' is not allowed in strict 1.0 mode."
-        );
+        string name,
+        string outcome
+    ) => reporter.Report(rule, location, "The XSD 1.1 " + kind + " '" + name + "' is " + outcome + ".");
 }

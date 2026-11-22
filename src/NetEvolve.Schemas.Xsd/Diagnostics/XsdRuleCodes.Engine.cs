@@ -114,6 +114,9 @@ public static partial class XsdRuleCodes
     /// <summary>XSD 1.1 construct the xs:precisionDecimal datatype is not supported yet.</summary>
     public static readonly DiagnosticCode NotYetSupportedPrecisionDecimal = new(4076);
 
+    /// <summary>XSD 1.1 construct the xs:error datatype is not supported yet.</summary>
+    public static readonly DiagnosticCode NotYetSupportedError = new(4077);
+
     internal static XsdRule[] EngineRules { get; } =
     [
         new(
@@ -400,6 +403,14 @@ public static partial class XsdRuleCodes
             NotYetSupportedPrecisionDecimal,
             "not-yet-supported-precision-decimal",
             "XSD 1.1 construct the xs:precisionDecimal datatype is not supported yet",
+            XsdRuleKind.NotYetSupported,
+            XsdVersionMask.V11,
+            ""
+        ),
+        new(
+            NotYetSupportedError,
+            "not-yet-supported-error",
+            "XSD 1.1 construct the xs:error datatype is not supported yet",
             XsdRuleKind.NotYetSupported,
             XsdVersionMask.V11,
             ""

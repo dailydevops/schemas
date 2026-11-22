@@ -156,6 +156,7 @@ internal sealed class ComplexTypeBuilder : IComponentBuilder
         Argument.ThrowIfNull(unit);
 
         _context.FoundElements.Add(element);
+        _context.ElementUnits[element] = unit;
         if (element.InlineTypeSyntax is not null)
         {
             _context.PendingElements.Enqueue(new KeyValuePair<ElementDeclaration, UnitScope>(element, unit));
