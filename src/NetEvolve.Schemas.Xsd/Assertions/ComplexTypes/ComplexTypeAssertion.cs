@@ -1,5 +1,6 @@
 namespace NetEvolve.Schemas.Xsd.Assertions.ComplexTypes;
 
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using NetEvolve.Arguments;
@@ -56,9 +57,50 @@ internal sealed class ComplexTypeAssertion
         Argument.ThrowIfNull(type);
         Argument.ThrowIfNull(reporter);
 
-        _ = (scope, version);
-        return [];
+        var found = new List<ComplexTypeAssertion>();
+        Add(type, scope, version, reporter, found);
+        for (var i = 0; i < type.ChildCount; i++)
+        {
+            var content = type.GetChildNode(i);
+            if (!IsSchemaElement(content, "complexContent") && !IsSchemaElement(content, "simpleContent"))
+            {
+                continue;
+            }
+
+            for (var j = 0; j < content.ChildCount; j++)
+            {
+                var derivation = content.GetChildNode(j);
+                if (IsSchemaElement(derivation, "extension") || IsSchemaElement(derivation, "restriction"))
+                {
+                    Add(derivation, scope, version, reporter, found);
+                }
+            }
+        }
+
+        return found;
     }
+
+    private static void Add(
+        SchemaSyntaxNode owner,
+        SchemaNamespaceScope scope,
+        XsdVersion version,
+        XsdIssueReporter reporter,
+        List<ComplexTypeAssertion> found
+    )
+    {
+        for (var i = 0; i < owner.ChildCount; i++)
+        {
+            var child = owner.GetChildNode(i);
+            if (IsSchemaElement(child, "assert") && TryCreate(child, scope, version, reporter) is { } assertion)
+            {
+                found.Add(assertion);
+            }
+        }
+    }
+
+    private static bool IsSchemaElement(SchemaSyntaxNode node, string localName) =>
+        string.Equals(node.Name.LocalName, localName, StringComparison.Ordinal)
+        && string.Equals(node.Name.NamespaceName, SchemaGrammar.Namespace, StringComparison.Ordinal);
 
     /// <summary>Compiles the <c>test</c> of an <c>assert</c> element.</summary>
     /// <param name="node">The <c>assert</c> element.</param>
