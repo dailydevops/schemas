@@ -84,6 +84,7 @@ public class NotYetSupportedTests
             "",
             4076
         ),
+        ["error"] = ("<xs:element name=\"e\" type=\"xs:error\"/>", "", 4077),
     };
 
     public static IEnumerable<Func<string>> Names() => Constructs.Keys.Select(k => (Func<string>)(() => k));
@@ -180,6 +181,28 @@ public class NotYetSupportedTests
         var validator = AssemblyFixture.Build(schema, XsdVersion.V11);
 
         await Assert.That(validator).IsNotNull();
+    }
+
+    [Test]
+    public async Task Build_Version11_AQNameOfAnotherNamespaceNamedError_IsNotReported()
+    {
+        var schema = AssemblyFixture.WrapSchema(
+            "<xs:simpleType name=\"error\"><xs:restriction base=\"xs:string\"/></xs:simpleType>"
+                + "<xs:element name=\"e\" type=\"t:error\"/>"
+        );
+
+        var validator = AssemblyFixture.Build(schema, XsdVersion.V11);
+
+        await Assert.That(validator).IsNotNull();
+    }
+
+    [Test]
+    public async Task Build_Version10_XsError_IsAnUnresolvedReferenceBecauseTheTypeIsXsd11()
+    {
+        var exception = BuildFailure("<xs:element name=\"e\" type=\"xs:error\"/>", "", XsdVersion.V10);
+
+        await Assert.That(exception.Issues.Any(i => i.Code == XsdRuleCodes.SrcResolve)).IsTrue();
+        await Assert.That(exception.Issues.Any(i => i.Code.Number == 4077)).IsFalse();
     }
 
     private static SchemaCompilationException BuildFailure(string body, string attributes, XsdVersion version) =>
