@@ -3,12 +3,14 @@
   <!-- The XPath unit tests derive a fake node source from the sealed-by-accessibility XmlTree (XP-50, #168). -->
   <!-- The xmlconf runner of the integration tests reads documents with the external subset enabled (XML-20, #291). -->
   <!-- The XSD schema document parser checks NCName and QName attribute values with XmlCharClass (XSD-03, #230). -->
+  <!-- The DTD validation benchmarks measure the internal validating pipeline against System.Xml until the public entry point of XML-69 lands (XML-72, #351). -->
   <ItemGroup>
     <InternalsVisibleTo Include="NetEvolve.Schemas.Xsd" />
     <InternalsVisibleTo Include="NetEvolve.Schemas.XPath" />
     <InternalsVisibleTo Include="NetEvolve.Schemas.XPath.Tests.Unit" />
     <InternalsVisibleTo Include="NetEvolve.Schemas.Xml.Tests.Unit" />
     <InternalsVisibleTo Include="NetEvolve.Schemas.Xml.Tests.Integration" />
+    <InternalsVisibleTo Include="NetEvolve.Schemas.Benchmarks" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../NetEvolve.Schemas/NetEvolve.Schemas.csproj" />
