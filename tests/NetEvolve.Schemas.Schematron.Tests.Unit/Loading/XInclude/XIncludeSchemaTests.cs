@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.Schematron.Tests.Unit.Loading.XInclude;
 
 using System.Threading;
 using NetEvolve.Schemas.Resources;
+using NetEvolve.Schemas.Schematron.Loading;
 using NetEvolve.Schemas.Schematron.Loading.XInclude;
 using NetEvolve.Schemas.Schematron.Model;
 using NetEvolve.Schemas.Schematron.Parsing.Core;
