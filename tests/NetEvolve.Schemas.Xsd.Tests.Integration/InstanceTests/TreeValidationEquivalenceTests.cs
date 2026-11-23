@@ -155,26 +155,33 @@ public class TreeValidationEquivalenceTests
         var observed = new ConcurrentBag<string>();
         var compared = 0;
 
-        await Parallel.ForEachAsync(
-            cases,
-            new ParallelOptions { CancellationToken = cancellationToken, MaxDegreeOfParallelism = 8 },
-            async (xstsCase, token) =>
+        using var gate = new SemaphoreSlim(8);
+        await Task.WhenAll(
+            cases.Select(async xstsCase =>
             {
-                var kind = await CompareAsync(xstsCase, validators, root, token);
-                if (kind is not null)
+                await gate.WaitAsync(cancellationToken);
+                try
                 {
-                    _ = Interlocked.Increment(ref compared);
-                }
+                    var kind = await CompareAsync(xstsCase, validators, root, cancellationToken);
+                    if (kind is not null)
+                    {
+                        _ = Interlocked.Increment(ref compared);
+                    }
 
-                if (kind is not null and not Agreed)
-                {
-                    observed.Add(xstsCase.TestSet + "\t" + xstsCase.Id + "\t" + kind);
+                    if (kind is not null and not Agreed)
+                    {
+                        observed.Add(xstsCase.TestSet + "	" + xstsCase.Id + "	" + kind);
+                    }
                 }
-            }
+                finally
+                {
+                    _ = gate.Release();
+                }
+            })
         );
 
         var listed = (await ReadListAsync(cancellationToken)).Select(r => r[0] + "\t" + r[1] + "\t" + r[2]).ToList();
-        var difference = observed.Order(StringComparer.Ordinal).ToList();
+        var difference = observed.OrderBy(l => l, StringComparer.Ordinal).ToList();
         Directory.CreateDirectory(Path.Combine(XstsSuite.RepositoryRoot, "artifacts"));
         await File.WriteAllLinesAsync(
             Path.Combine(XstsSuite.RepositoryRoot, "artifacts", "tree-exclusions.observed.txt"),
@@ -185,7 +192,7 @@ public class TreeValidationEquivalenceTests
         Console.WriteLine("Compared " + compared + " of " + cases.Count + " instance tests.");
         await Assert.That(compared).IsGreaterThan(10000);
         await Assert.That(difference.Any(l => l.EndsWith("\t" + Defect, StringComparison.Ordinal))).IsFalse();
-        await Assert.That(difference).IsEquivalentTo(listed.Order(StringComparer.Ordinal));
+        await Assert.That(difference).IsEquivalentTo(listed.OrderBy(l => l, StringComparer.Ordinal));
     }
 
     [Test]

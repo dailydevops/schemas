@@ -47,7 +47,11 @@ public class TreeApiTests
     {
         cancellationToken.ThrowIfCancellationRequested();
         using var source = new CancellationTokenSource();
+#if NET10_0_OR_GREATER
         await source.CancelAsync();
+#else
+        source.Cancel();
+#endif
         var input = TreeFixture.Load("<root/>");
 
         await Assert
