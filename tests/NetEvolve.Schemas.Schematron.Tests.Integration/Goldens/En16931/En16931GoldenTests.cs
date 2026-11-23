@@ -157,8 +157,9 @@ public class En16931GoldenTests
     }
 
     [Test]
-    public async Task TrackedTree_HoldsNoCenArtifact()
+    public async Task TrackedTree_HoldsNoCenArtifact(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var offenders = new List<string>();
         foreach (var directory in new[] { "src", "tests", "docs", "specs", "templates" })
         {
@@ -176,7 +177,7 @@ public class En16931GoldenTests
                     continue;
                 }
 
-                var text = await File.ReadAllTextAsync(file);
+                var text = await File.ReadAllTextAsync(file, cancellationToken);
                 var isCenRules =
                     extension is ".sch" or ".xslt"
                     && text.Contains("EN16931", StringComparison.Ordinal)
