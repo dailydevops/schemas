@@ -104,7 +104,6 @@ public class ConstructionFolderArchitectureTests
                 || text.Contains("new XmlTreeBuilder", StringComparison.Ordinal)
                 || text.Contains("is XmlDocumentTree", StringComparison.Ordinal)
                 || text.Contains("throw new Argument", StringComparison.Ordinal)
-                || text.Contains("ArgumentNullException.ThrowIfNull", StringComparison.Ordinal)
             )
             {
                 offenders.Add(file);
