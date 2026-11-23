@@ -43,7 +43,7 @@ internal static class XIncludeText
         var segment = MemoryMarshal.TryGetArray(content, out var found)
             ? found
             : new ArraySegment<byte>(content.ToArray());
-        var bytes = segment.Array ?? [];
+        var bytes = segment.Array!;
         text = string.Empty;
         code = default;
         if (!TrySelect(content.Span, encoding, out var selected, out var skip))
