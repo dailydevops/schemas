@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Schematron.Loading;
+﻿namespace NetEvolve.Schemas.Schematron.Loading;
 
 using System;
 using System.Threading;
@@ -26,8 +26,8 @@ internal sealed class IncludeFetcher
 
     internal IncludeFetcher(IResourceResolver resolver, ValidationLimits limits)
     {
-        Argument.ThrowIfNull(resolver);
-        Argument.ThrowIfNull(limits);
+        ArgumentNullException.ThrowIfNull(resolver);
+        ArgumentNullException.ThrowIfNull(limits);
 
         _resolver = resolver;
         Limits = limits;
@@ -58,7 +58,7 @@ internal sealed class IncludeFetcher
     )
     {
         cancellationToken.ThrowIfCancellationRequested();
-        Argument.ThrowIfNull(href);
+        ArgumentNullException.ThrowIfNull(href);
 
         content = default;
         systemId = string.Empty;
@@ -131,8 +131,8 @@ internal sealed class IncludeFetcher
         out SchematronProblem problem
     )
     {
-        Argument.ThrowIfNull(kind);
-        Argument.ThrowIfNull(systemId);
+        ArgumentNullException.ThrowIfNull(kind);
+        ArgumentNullException.ThrowIfNull(systemId);
 
         using var reader = XmlPipelineReader.Create(content);
         using var builder = new XmlTreeBuilder();

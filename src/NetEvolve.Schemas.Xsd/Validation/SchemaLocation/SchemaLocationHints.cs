@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Xsd.Validation.SchemaLocation;
+﻿namespace NetEvolve.Schemas.Xsd.Validation.SchemaLocation;
 
 using System;
 using System.Collections.Generic;
@@ -67,11 +67,11 @@ internal sealed class SchemaLocationHints
         CancellationToken cancellationToken
     )
     {
-        Argument.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
-        Argument.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
-        Argument.ThrowIfNull(resolver);
-        Argument.ThrowIfNull(limits);
-        Argument.ThrowIfNull(reporter);
+        ArgumentOutOfRangeException.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
+        ArgumentNullException.ThrowIfNull(resolver);
+        ArgumentNullException.ThrowIfNull(limits);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         _version = version;
         _resolver = resolver;
@@ -85,7 +85,7 @@ internal sealed class SchemaLocationHints
     /// <param name="namespaceName">The namespace name, empty for none.</param>
     internal void NoteUse(string namespaceName)
     {
-        Argument.ThrowIfNull(namespaceName);
+        ArgumentNullException.ThrowIfNull(namespaceName);
 
         _ = _used.Add(namespaceName);
     }
@@ -101,7 +101,7 @@ internal sealed class SchemaLocationHints
         DocumentLocation location
     )
     {
-        Argument.ThrowIfNull(model);
+        ArgumentNullException.ThrowIfNull(model);
 
         var count = CountTokens(value);
         if (count % 2 != 0)
@@ -136,7 +136,7 @@ internal sealed class SchemaLocationHints
         DocumentLocation location
     )
     {
-        Argument.ThrowIfNull(model);
+        ArgumentNullException.ThrowIfNull(model);
 
         var count = CountTokens(value);
         if (count != 1)

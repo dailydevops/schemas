@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Xsd.Validation.Core;
+﻿namespace NetEvolve.Schemas.Xsd.Validation.Core;
 
 using System.Collections.Generic;
 using NetEvolve.Arguments;
@@ -89,14 +89,14 @@ internal sealed class ValidationModel
         XsdIssueReporter reporter
     )
     {
-        Argument.ThrowIfNull(overlay);
-        Argument.ThrowIfNull(components);
-        Argument.ThrowIfNull(reporter);
+        ArgumentNullException.ThrowIfNull(overlay);
+        ArgumentNullException.ThrowIfNull(components);
+        ArgumentNullException.ThrowIfNull(reporter);
 
         var builder = new Builder(reporter, _ids, _names, _programs);
         for (var i = 0; i < components.Count; i++)
         {
-            Argument.ThrowIfNull(components[i]);
+            ArgumentNullException.ThrowIfNull(components[i]);
 
             builder.Push(components[i]);
         }
@@ -157,10 +157,10 @@ internal sealed class ValidationModel
             Dictionary<ComplexTypeDefinition, ContentProgram> programs
         )
         {
-            Argument.ThrowIfNull(reporter);
-            Argument.ThrowIfNull(ids);
-            Argument.ThrowIfNull(names);
-            Argument.ThrowIfNull(programs);
+            ArgumentNullException.ThrowIfNull(reporter);
+            ArgumentNullException.ThrowIfNull(ids);
+            ArgumentNullException.ThrowIfNull(names);
+            ArgumentNullException.ThrowIfNull(programs);
 
             _reporter = reporter;
             Ids = new Dictionary<XPathQName, int>(ids);

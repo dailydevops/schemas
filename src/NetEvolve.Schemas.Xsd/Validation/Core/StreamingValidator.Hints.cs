@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Xsd.Validation.Core;
+﻿namespace NetEvolve.Schemas.Xsd.Validation.Core;
 
 using System;
 using NetEvolve.Arguments;
@@ -15,8 +15,8 @@ internal sealed partial class StreamingValidator
     // is recorded as a use of its namespaces only afterwards, so a hint for the namespace of its own name is not late.
     private void ApplyHints(ElementFrame frame, SchemaLocationHints hints)
     {
-        Argument.ThrowIfNull(frame);
-        Argument.ThrowIfNull(hints);
+        ArgumentNullException.ThrowIfNull(frame);
+        ArgumentNullException.ThrowIfNull(hints);
 
         var model = _model;
         var index = FindXsiAttribute(SchemaLocationAttribute);
