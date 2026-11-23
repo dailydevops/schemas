@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Xsd.Tests.Unit.Composition;
+﻿namespace NetEvolve.Schemas.Xsd.Tests.Unit.Composition;
 
 using System;
 using System.Threading;
@@ -317,7 +317,11 @@ public class CompositionTests
             new XsdIssueReporter(collector)
         );
         using var source = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+#if NET10_0_OR_GREATER
         await source.CancelAsync();
+#else
+        source.Cancel();
+#endif
 
         var load = () => new SchemaDocumentLoader(resolver, limits, collector).Load(document, source.Token);
 

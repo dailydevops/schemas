@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Xsd.Tests.Unit.Compilation;
+﻿namespace NetEvolve.Schemas.Xsd.Tests.Unit.Compilation;
 
 using System;
 using System.Collections.Generic;
@@ -221,7 +221,11 @@ public class SchemaCompilerTests
     public async Task Compile_ACanceledToken_Throws()
     {
         using var source = new CancellationTokenSource();
+#if NET10_0_OR_GREATER
         await source.CancelAsync();
+#else
+        source.Cancel();
+#endif
 
         await Assert
             .That(() => Compiler().Compile(Schema(string.Empty).AsSpan(), RootUri, source.Token))

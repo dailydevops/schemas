@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Tests.Unit.Inputs;
+﻿namespace NetEvolve.Schemas.Tests.Unit.Inputs;
 
 using System;
 using System.Buffers;
@@ -36,7 +36,11 @@ public class FailureContractTests
         cancellationToken.ThrowIfCancellationRequested();
         ArgumentNullException.ThrowIfNull(overload);
         using var source = new CancellationTokenSource();
+#if NET10_0_OR_GREATER
         await source.CancelAsync().ConfigureAwait(false);
+#else
+        source.Cancel();
+#endif
         var validator = new RecordingValidator();
 
         var task = overload(validator, source.Token);
@@ -111,7 +115,11 @@ public class FailureContractTests
     {
         cancellationToken.ThrowIfCancellationRequested();
         using var source = new CancellationTokenSource();
+#if NET10_0_OR_GREATER
         await source.CancelAsync().ConfigureAwait(false);
+#else
+        source.Cancel();
+#endif
         using var stream = new MemoryStream(Bytes);
         var validator = new RecordingValidator();
         Action span = () => SyncSpan(validator, source.Token);
