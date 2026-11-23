@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Xsd.Tests.Unit.Validation.Assembly;
+﻿namespace NetEvolve.Schemas.Xsd.Tests.Unit.Validation.Assembly;
 
 using System;
 using System.Collections.Generic;
@@ -74,7 +74,7 @@ public class ConstraintOwnerTests
         }
 
         await Assert
-            .That(elements.Select(e => e.Name.NamespaceName).Order(StringComparer.Ordinal))
+            .That(elements.Select(e => e.Name.NamespaceName).OrderBy(name => name, StringComparer.Ordinal))
             .IsEquivalentTo(["urn:a", "urn:b"]);
     }
 

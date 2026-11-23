@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.DependencyInjection.Tests.Unit.Schematron;
+﻿namespace NetEvolve.Schemas.DependencyInjection.Tests.Unit.Schematron;
 
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
@@ -91,7 +91,7 @@ public class SchematronRegistrationArgumentTests
         await Assert.That(extensions.IsAbstract && extensions.IsSealed).IsTrue();
         await Assert.That(extensions.Namespace).IsEqualTo("Microsoft.Extensions.DependencyInjection");
         await Assert
-            .That(methods.Select(m => m.Name).Order(StringComparer.Ordinal))
+            .That(methods.Select(m => m.Name).OrderBy(name => name, StringComparer.Ordinal))
             .IsEquivalentTo(["AddKeyedSchematronValidator", "AddSchematronValidator"]);
         foreach (var method in methods)
         {

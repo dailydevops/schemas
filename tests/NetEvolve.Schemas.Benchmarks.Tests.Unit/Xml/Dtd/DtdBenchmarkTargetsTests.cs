@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Benchmarks.Tests.Unit.Xml.Dtd;
+﻿namespace NetEvolve.Schemas.Benchmarks.Tests.Unit.Xml.Dtd;
 
 using NetEvolve.Schemas.Benchmarks.Gate;
 
@@ -45,12 +45,18 @@ public class DtdBenchmarkTargetsTests
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var expected = Scan().Where(m => !m.IsBaseline).Select(m => m.Name).Order(StringComparer.Ordinal).ToArray();
+        var expected = Scan()
+            .Where(m => !m.IsBaseline)
+            .Select(m => m.Name)
+            .OrderBy(name => name, StringComparer.Ordinal)
+            .ToArray();
         var entries = TargetReader.Read(
             await File.ReadAllTextAsync(Path.Combine(RepositoryRoot(), TargetFile), cancellationToken)
         );
 
-        await Assert.That(entries.Select(t => t.Name).Order(StringComparer.Ordinal)).IsEquivalentTo(expected);
+        await Assert
+            .That(entries.Select(t => t.Name).OrderBy(name => name, StringComparer.Ordinal))
+            .IsEquivalentTo(expected);
     }
 
     [Test]

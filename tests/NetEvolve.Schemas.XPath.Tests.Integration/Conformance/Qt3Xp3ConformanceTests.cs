@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.XPath.Tests.Integration.Conformance;
+﻿namespace NetEvolve.Schemas.XPath.Tests.Integration.Conformance;
 
 using NetEvolve.Schemas.Conformance.Baseline;
 using NetEvolve.Schemas.Conformance.Reporting;
@@ -76,7 +76,7 @@ public class Qt3Xp3ConformanceTests
 
     private static IEnumerable<Func<string>> TestSets(Qt3SpecLevel level)
     {
-        foreach (var name in Qt3Xp3Selections.LoadBaselines(level).Keys.Order(StringComparer.Ordinal))
+        foreach (var name in Qt3Xp3Selections.LoadBaselines(level).Keys.OrderBy(name => name, StringComparer.Ordinal))
         {
             yield return () => name;
         }
