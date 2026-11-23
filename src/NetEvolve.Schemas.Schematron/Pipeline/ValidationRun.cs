@@ -43,7 +43,7 @@ internal static class ValidationRun
     /// <param name="limits">The limits of the validator.</param>
     /// <param name="cancellationToken">The token of the call.</param>
     /// <returns>The result.</returns>
-    /// <exception cref="OperationCanceledException">The token was cancelled.</exception>
+    /// <exception cref="OperationCanceledException">The token was canceled.</exception>
     internal static ValidationResult Execute(
         CompiledProgram program,
         ISchematronReportSink? sink,
