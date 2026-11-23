@@ -1,0 +1,12 @@
+[
+  { "name": "SchemaCompilationBenchmarks.CompileSmall", "meanNs": 19204.4, "allocatedBytes": 30664 },
+  { "name": "SchemaCompilationBenchmarks.CompileMedium", "meanNs": 95900.2, "allocatedBytes": 162680 },
+  { "name": "SchemaCompilationBenchmarks.CompileLarge", "meanNs": 867269.7, "allocatedBytes": 1485296 },
+  { "name": "SmallRuleSetValidationBenchmarks.ValidateStream", "meanNs": 219207.7, "allocatedBytes": 60680, "baselineRatio": 3.0 },
+  { "name": "SmallRuleSetValidationBenchmarks.ValidateMemory", "meanNs": 221806.0, "allocatedBytes": 60576, "baselineRatio": 3.0 },
+  { "name": "MediumRuleSetValidationBenchmarks.ValidateStream", "meanNs": 1067627.8, "allocatedBytes": 89480, "baselineRatio": 3.7 },
+  { "name": "MediumRuleSetValidationBenchmarks.ValidateMemory", "meanNs": 1059803.5, "allocatedBytes": 89376, "baselineRatio": 3.7 },
+  { "name": "LargeRuleSetValidationBenchmarks.ValidateStream", "meanNs": 9835009.4, "allocatedBytes": 377480, "baselineRatio": 3.9 },
+  { "name": "LargeRuleSetValidationBenchmarks.ValidateMemory", "meanNs": 9834742.1, "allocatedBytes": 377376, "baselineRatio": 3.9 },
+  { "name": "SvrlWriteBenchmarks.WriteSvrl", "meanNs": 2654138.8, "allocatedBytes": 162000 }
+]
