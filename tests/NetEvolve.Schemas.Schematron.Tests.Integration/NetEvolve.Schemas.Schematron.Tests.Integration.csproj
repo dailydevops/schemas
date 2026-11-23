@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <!-- Verify.TUnit does not support net5.0. -->
-    <TargetFrameworks>net6.0;net10.0;net11.0</TargetFrameworks>
-    <!-- The net5.0 leg runs the netstandard2.0 build of the library; net6.0, net10.0 and net11.0 resolve their builds on their own. -->
+    <TargetFrameworks>net10.0;net11.0</TargetFrameworks>
+    <!-- The net5.0 leg runs the netstandard2.0 build of the library; net10.0 and net11.0 resolve their builds on their own. -->
     <LibraryLegTargetFramework Condition="'$(TargetFramework)' == 'net5.0'">TargetFramework=netstandard2.0</LibraryLegTargetFramework>
   </PropertyGroup>
   <!-- Restore ignores SetTargetFramework, so the polyfill packages of the netstandard2.0 build are declared here. -->

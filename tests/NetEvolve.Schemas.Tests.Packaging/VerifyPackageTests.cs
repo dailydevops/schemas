@@ -9,7 +9,7 @@ public sealed class VerifyPackageTests
 {
     private const string DependencyInjectionAbstractions = "Microsoft.Extensions.DependencyInjection.Abstractions";
 
-    private static readonly string[] Folders = ["netstandard2.0", "netstandard2.1", "net10.0", "net11.0"];
+    private static readonly string[] Folders = ["netstandard2.0", "net10.0", "net11.0"];
 
     [Test]
     public async Task Verify_ValidPackage_Passes(CancellationToken cancellationToken)

@@ -23,7 +23,7 @@ its argument. `fn:string-length`, `fn:contains`, `fn:starts-with`, and `fn:ends-
 ## Embedded Unicode tables
 
 Case mapping and normalization follow the one pinned **Unicode 18.0.0** (the version of `tests/conformance/suites/ucd.json` and of
-`UnicodeTables.Version` in the Xml package) on every target framework (`netstandard2.0`, `netstandard2.1`, `net10.0`, `net11.0`).
+`UnicodeTables.Version` in the Xml package) on every target framework (`netstandard2.0`, `net10.0`, `net11.0`).
 Neither the case mapping of the runtime (`ToUpperInvariant`, `ToLowerInvariant`) nor `string.Normalize` is used: they follow the
 Unicode version and the platform of the running process, and the first cannot apply the full mappings the specification asks for.
 

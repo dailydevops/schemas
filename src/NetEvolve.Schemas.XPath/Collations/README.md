@@ -9,7 +9,7 @@ the two functions that compare strings: `fn:compare` (two and three arguments) a
 The Unicode codepoint collation, `http://www.w3.org/2005/xpath-functions/collation/codepoint`, is the only built-in collation. It
 orders strings by Unicode code point, not by UTF-16 code unit: a supplementary character follows U+FFFD, which a comparison of the
 code units gets the other way round. No operating system culture data is used, so the result is the same on every target framework
-(`netstandard2.0`, `netstandard2.1`, `net10.0`, `net11.0`), and a comparison allocates nothing.
+(`netstandard2.0`, `net10.0`, `net11.0`), and a comparison allocates nothing.
 
 Every other collation URI is the error `FOCH0002`, never a silent fallback. This covers an unknown absolute URI, the Unicode
 Collation Algorithm collations (DEF-43, #55), and the HTML ASCII case-insensitive collation (DEF-76, #88).

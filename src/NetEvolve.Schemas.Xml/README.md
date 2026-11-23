@@ -2,7 +2,7 @@
 
 Reads XML 1.0 (Fifth Edition) and Namespaces in XML 1.0 (Third Edition) from characters or bytes into an immutable document tree with a line and column on every node. The input can be a span, memory, a sequence, or a stream. The defaults refuse a document type declaration and bound every resource that hostile input can inflate. The package also validates a document against its document type declaration (see [DTD validation](#dtd-validation)).
 
-The package builds on `NetEvolve.Schemas` and `NetEvolve.Arguments`. It targets `netstandard2.0`, `netstandard2.1`, `net10.0`, and `net11.0` and behaves the same on all of them. On `netstandard2.0` it also depends on `Microsoft.Bcl.AsyncInterfaces`, `System.Memory`, and `System.Threading.Tasks.Extensions`.
+The package builds on `NetEvolve.Schemas` and `NetEvolve.Arguments`. It targets `netstandard2.0`, `net10.0`, and `net11.0` and behaves the same on all of them. On `netstandard2.0` it also depends on `Microsoft.Bcl.AsyncInterfaces`, `System.Memory`, and `System.Threading.Tasks.Extensions`.
 
 ## Install
 

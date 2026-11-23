@@ -20,7 +20,7 @@ param(
 $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 
-$requiredFolders = @('netstandard2.0', 'netstandard2.1', 'net10.0', 'net11.0')
+$requiredFolders = @('netstandard2.0', 'net10.0', 'net11.0')
 $polyfills = @('Microsoft.Bcl.AsyncInterfaces', 'System.Memory', 'System.Threading.Tasks.Extensions')
 $suiteSegments = @('conformance', 'suites', 'rulesets')
 $suiteExtensions = @('.sch', '.xsl', '.xslt')
