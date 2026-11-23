@@ -1,10 +1,11 @@
-namespace NetEvolve.Schemas.Schematron.Tests.Unit.Pipeline;
+﻿namespace NetEvolve.Schemas.Schematron.Tests.Unit.Pipeline;
 
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Mono.Cecil;
 using NetEvolve.Schemas.Schematron.Tests.Unit.Fakes;
 using static NetEvolve.Schemas.Schematron.Tests.Unit.Pipeline.PipelineFixture;
 
@@ -285,7 +286,11 @@ public class BuildTests
             AsyncReads++;
             if (_cancel is not null)
             {
+#if NET10_0_OR_GREATER
                 await _cancel.CancelAsync();
+#else
+        _cancel.Cancel();
+#endif
             }
 
             return await _inner.ReadAsync(buffer, CancellationToken.None);

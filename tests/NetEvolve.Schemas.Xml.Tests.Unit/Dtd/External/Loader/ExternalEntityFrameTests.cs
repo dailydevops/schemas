@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Xml.Tests.Unit.Dtd.External.Loader;
+﻿namespace NetEvolve.Schemas.Xml.Tests.Unit.Dtd.External.Loader;
 
 using System;
 using System.IO;
@@ -329,7 +329,11 @@ public class ExternalEntityFrameTests
         var (resolver, loader) = Setup(Utf8("abcdef"), maxRead: 2);
         using var source = new CancellationTokenSource();
         var (frame, _) = Load(loader, "e", "e.ent", DocumentUri, source.Token);
-        await source.CancelAsync();
+#if NET10_0_OR_GREATER
+            await source.CancelAsync();
+#else
+        source.Cancel();
+#endif
 
         await Assert.That(() => Drain(frame!)).Throws<System.OperationCanceledException>();
         await Assert.That(resolver.Streams[0].IsDisposed).IsTrue();

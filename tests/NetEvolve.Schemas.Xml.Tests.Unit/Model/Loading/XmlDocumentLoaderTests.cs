@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Xml.Tests.Unit.Model.Loading;
+﻿namespace NetEvolve.Schemas.Xml.Tests.Unit.Model.Loading;
 
 using System;
 using System.Buffers;
@@ -413,7 +413,11 @@ public class XmlDocumentLoaderTests
         cancellationToken.ThrowIfCancellationRequested();
 
         using var source = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        await source.CancelAsync();
+#if NET10_0_OR_GREATER
+            await source.CancelAsync();
+#else
+        source.Cancel();
+#endif
         using var stream = new ChunkedReadStream(Encoding.UTF8.GetBytes("<a/>"), _ => 4096);
 
         await Assert

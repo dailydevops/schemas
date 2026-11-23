@@ -120,7 +120,7 @@ public class SchemaCompilerTests
         await Assert.That(steps.OfType<IDerivationCheck>().Count()).IsEqualTo(1);
         await Assert.That(steps.OfType<IDeterminismCheck>().Count()).IsEqualTo(1);
         await Assert
-            .That(steps.OfType<IComponentBuilder>().Select(b => b.Kind).Order())
+            .That(steps.OfType<IComponentBuilder>().Select(b => b.Kind).OrderBy(kind => kind))
             .IsEquivalentTo([
                 XsdComponentKind.SimpleType,
                 XsdComponentKind.ComplexType,

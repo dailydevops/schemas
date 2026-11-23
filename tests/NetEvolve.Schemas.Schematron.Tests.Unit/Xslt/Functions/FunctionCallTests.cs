@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Functions;
+﻿namespace NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Functions;
 
 using System;
 using System.Threading;
@@ -380,7 +380,11 @@ public class FunctionCallTests
         var function = Find(fixture, "down", 1);
 
         var before = caller.TryCall(function, [Int(1)], out _);
+#if NET10_0_OR_GREATER
         await source.CancelAsync();
+#else
+        source.Cancel();
+#endif
 
         await Assert.That(before).IsEqualTo(QueryStatus.Ok);
         await Assert.That(() => caller.TryCall(function, [Int(1)], out _)).Throws<OperationCanceledException>();

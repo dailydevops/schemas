@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Xsd.Tests.Unit.Validation.Assembly;
+﻿namespace NetEvolve.Schemas.Xsd.Tests.Unit.Validation.Assembly;
 
 using System;
 using System.Collections.Generic;
@@ -132,7 +132,7 @@ public class NotYetSupportedTests
         }
 
         await Assert.That(counterparts.Distinct().Count()).IsEqualTo(counterparts.Length);
-        await Assert.That(Constructs.Values.Select(c => c.Code).Order()).IsEquivalentTo(counterparts.Order());
+        await Assert.That(Constructs.Values.Select(c => c.Code).OrderBy(code => code)).IsEquivalentTo(counterparts.OrderBy(code => code));
     }
 
     [Test]

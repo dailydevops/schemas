@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Instructions.Flow;
+﻿namespace NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Instructions.Flow;
 
 using System.Threading;
 using System.Threading.Tasks;
@@ -137,7 +137,11 @@ public class ForEachTests
     {
         using var source = new CancellationTokenSource();
         var harness = new FlowHarness(ForEach("(1, 2, 3)", 10, ValueOf("'x'", null, 11)), source.Token);
+#if NET10_0_OR_GREATER
         await source.CancelAsync();
+#else
+        source.Cancel();
+#endif
 
         await Assert.That(() => harness.Execute()).Throws<System.OperationCanceledException>();
         await Assert.That(harness.Sink.Events.Count).IsEqualTo(0);

@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Xml.Tests.Unit.Input.Stream;
+﻿namespace NetEvolve.Schemas.Xml.Tests.Unit.Input.Stream;
 
 using System;
 using System.Collections.Generic;
@@ -379,7 +379,11 @@ public class XmlStreamReaderTests
         var bytePool = new TrackingPool<byte>();
         var charPool = new TrackingPool<char>();
         using var source = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        await source.CancelAsync();
+#if NET10_0_OR_GREATER
+            await source.CancelAsync();
+#else
+        source.Cancel();
+#endif
         using var stream = new ChunkedReadStream(Utf8("<a/>"), _ => 2);
         using var reader = new XmlStreamReader<RecordingXmlSink>(
             stream,

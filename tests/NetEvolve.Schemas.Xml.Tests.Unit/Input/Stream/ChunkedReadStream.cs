@@ -1,9 +1,10 @@
-namespace NetEvolve.Schemas.Xml.Tests.Unit.Input.Stream;
+﻿namespace NetEvolve.Schemas.Xml.Tests.Unit.Input.Stream;
 
 using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Mono.Cecil;
 
 /// <summary>A read-only stream that hands out the bytes in chunks of a chosen size and can fail or cancel on a chosen read.</summary>
 internal sealed class ChunkedReadStream : System.IO.Stream
@@ -85,7 +86,11 @@ internal sealed class ChunkedReadStream : System.IO.Stream
 
         if (call == CancelOnRead)
         {
+#if NET10_0_OR_GREATER
             await Source!.CancelAsync();
+#else
+            Source!.Cancel();
+#endif
             cancellationToken.ThrowIfCancellationRequested();
         }
 
