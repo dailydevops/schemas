@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Keys;
+﻿namespace NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Keys;
 
 using System;
 using System.Threading;
@@ -460,7 +460,11 @@ public class KeyIndexTests
         var document = new KeyDocument();
         using var source = new CancellationTokenSource();
         var (_, provider) = fixture.CreateCancellable(source.Token, Kx.Key("k", "item", "@code", 10));
+#if NET10_0_OR_GREATER
         await source.CancelAsync();
+#else
+        source.Cancel();
+#endif
 
         await Assert
             .That(() => provider.TryLookup(Key("k"), Str("a"), document["doc"], false, out _))

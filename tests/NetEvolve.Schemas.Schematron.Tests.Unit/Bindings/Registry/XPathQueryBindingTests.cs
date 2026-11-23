@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Schematron.Tests.Unit.Bindings.Registry;
+﻿namespace NetEvolve.Schemas.Schematron.Tests.Unit.Bindings.Registry;
 
 using System;
 using System.Linq;
@@ -420,7 +420,11 @@ public class XPathQueryBindingTests
         using var source = new CancellationTokenSource();
         using var run = BeginWith(source.Token);
         var expression = Compile(Xpath2(), "1 = 1");
+#if NET10_0_OR_GREATER
         await source.CancelAsync();
+#else
+        source.Cancel();
+#endif
 
         await Assert
             .That(() => run.TryEvaluateBoolean(expression, new QueryFocus(Document, 1, 1), out _))

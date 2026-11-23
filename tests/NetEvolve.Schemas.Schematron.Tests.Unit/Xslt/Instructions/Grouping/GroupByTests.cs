@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Instructions.Grouping;
+﻿namespace NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Instructions.Grouping;
 
 using System.Threading;
 using System.Threading.Tasks;
@@ -268,7 +268,11 @@ public class GroupByTests
     {
         using var source = new CancellationTokenSource();
         var harness = new GroupHarness(By("*", "@k", 10, Members(11)), "i=a i=b i=c", cancellationToken: source.Token);
+#if NET10_0_OR_GREATER
         await source.CancelAsync();
+#else
+        source.Cancel();
+#endif
 
         await Assert.That(() => harness.Execute()).Throws<System.OperationCanceledException>();
         await Assert.That(harness.Sink.Events.Count).IsEqualTo(0);

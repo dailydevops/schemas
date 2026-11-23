@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Schematron.Tests.Unit.Svrl;
+﻿namespace NetEvolve.Schemas.Schematron.Tests.Unit.Svrl;
 
 using System;
 using System.Buffers;
@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using Mono.Cecil;
 using NetEvolve.Schemas.Schematron.Model;
 using NetEvolve.Schemas.Schematron.Svrl;
 using NetEvolve.Schemas.Xml.Writer;
@@ -229,7 +230,11 @@ public class SvrlReportSinkTests
         using var sink = new SvrlReportSink(stream);
         SvrlRuns.Fixed(sink);
         using var cts = new CancellationTokenSource();
+#if NET10_0_OR_GREATER
         await cts.CancelAsync();
+#else
+        cts.Cancel();
+#endif
 
         await Assert.That(async () => await sink.CompleteAsync(cts.Token)).Throws<OperationCanceledException>();
         await Assert.That(sink.IsCompleted).IsFalse();
