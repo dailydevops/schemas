@@ -7,7 +7,7 @@ This document lists every difference that the differential run over the W3C XML 
 | Baseline | `System.Xml.Schema` of the .NET runtime 10.0, compared on the `net10.0` test leg only (`baseline-runtime: 10.0`) |
 | Corpus | XSTS cases of XSD 1.0 (schema tests and instance tests), pinned in `tests/conformance/suites/xsts.json` |
 | Data file | `tests/NetEvolve.Schemas.Xsd.Tests.Integration/DifferentialData/xsts-1.0-deviations.txt`, one entry per difference: case id, difference kind, observed difference, specification reference, reason |
-| Entries | 5547 entries for 5538 cases |
+| Entries | 5550 entries for 5541 cases |
 
 The list is valid for the recorded baseline runtime version only. A run on another runtime version fails until the list is compared again. System.Xml.Schema implements XSD 1.0 only, so cases of XSD 1.1 are not compared.
 
@@ -27,7 +27,7 @@ No builder option, switch, or code path in the library reproduces System.Xml.Sch
 
 | Class | Entries | Cases |
 |---|---:|---:|
-| Verdict differences: this library follows the specification | 1624 | 1620 |
+| Verdict differences: this library follows the specification | 1627 | 1623 |
 | Verdict differences: documented limitations of this library | 26 | 21 |
 | Position differences: equivalent | 3897 | 3897 |
 | Differences on cases that a bug issue tracks (no entry) | 10213 | |
@@ -1896,7 +1896,7 @@ sunMeta-ElemDecl/1.0/targetns00402m/targetNS00402m1_n
 
 The value is not in the lexical space of its datatype, so the instance is invalid. System.Xml.Schema accepts it.
 
-- Difference: InstanceVerdict `instance verdict: ours=Invalid, baseline=Valid` (10)
+- Difference: InstanceVerdict `instance verdict: ours=Invalid, baseline=Valid` (9)
 - Specification:
   - XSD 1.0 Part 2, 4.1.4 (Datatype Valid) and 3.2.14 (gMonth: lexical representation)
   - XSD 1.0 Part 2, 4.1.4 (Datatype Valid) and 3.2.15 (hexBinary: lexical representation)
@@ -1925,7 +1925,7 @@ The type named by xsi:type is not validly derived from the type of the declarati
 - Specification:
   - XSD 1.0 Part 1, 3.3.4 (Element Locally Valid (Element), cvc-elt.4.2)
   - XSD 1.0 Part 1, 3.3.4 (Element Locally Valid (Element), cvc-elt.4.3)
-- Cases: 10
+- Cases: 9
 
 ```text
 msMeta-Element_w3c/1.0/elemT026/elemT026.v
@@ -1937,7 +1937,6 @@ msMeta-Element_w3c/1.0/elemT055/elemT055.v
 msMeta-Element_w3c/1.0/elemT056/elemT056.v
 msMeta-Element_w3c/1.0/elemT057/elemT057.v
 msMeta-Particles_w3c/1.0/particlesIg003/particlesIg003.v
-sunMeta-SType/1.0/st_targetns00101m/ST_targetNS00101m2_n
 ```
 
 ### Element content that does not match the content model
@@ -1979,6 +1978,21 @@ A key reference has a value that no key of the referenced constraint has, so the
 
 ```text
 msMeta-Additional_w3c/1.0/addB049/addB049.v
+```
+
+### A schema document that only an xsi:schemaLocation hint names
+
+The instance names a schema document that it needs only through xsi:schemaLocation. This library loads the hint, as the suite expects, and accepts the instance. System.Xml.Schema does not load the hint, finds no declaration for the construct, and rejects it. The suite expects the instance to be valid.
+
+- Difference: InstanceVerdict `instance verdict: ours=Valid, baseline=Invalid` (4)
+- Specification: XSD 1.0 Part 1, 4.3.2 (the xsi:schemaLocation attribute is a hint that names the schema documents of the instance) and 5.2
+- Cases: 4
+
+```text
+msMeta-AttributeGroup_w3c/1.0/attgD034/attgD034.v
+msMeta-ComplexType_w3c/1.0/ctL021/ctL021.v
+msMeta-Particles_w3c/1.0/particlesB013/particlesB013.v
+msMeta-Schema_w3c/1.0/schA1/schA1.v
 ```
 
 ## Verdict differences: documented limitations of this library

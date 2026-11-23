@@ -8,7 +8,7 @@ using ValidationResult = NetEvolve.Schemas.ValidationResult;
 
 /// <summary>
 /// This library as a differential engine: the schema documents of a case are built through the public entry point, strict 1.0 with
-/// DTD processing for the entities of the instances, and the instance is validated with the result.
+/// DTD processing for the entities of the instances and the xsi:schemaLocation hints (as the XSTS instance tests do), and the instance is validated with the result.
 /// </summary>
 /// <remarks>
 /// Limitation: a pipeline that throws something other than a schema compilation error observes nothing; <see cref="ObserveAsync"/>
@@ -87,6 +87,7 @@ internal sealed class OursEngine : IDifferentialEngine
                 .ForXsd()
                 .WithVersion(XsdVersion.V10)
                 .WithDtdProcessing(true)
+                .WithSchemaLocationHints(true)
                 .WithResolver(new SandboxedFileSystemResourceResolver(_suiteRoot));
             foreach (var path in paths)
             {
