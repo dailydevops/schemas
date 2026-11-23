@@ -42,7 +42,10 @@ internal static class Net6Polyfills
         }
     }
 
-    public static StringBuilder Append(this StringBuilder builder, IFormatProvider? provider, FormattableString value) =>
-        builder.Append(value.ToString(provider));
+    public static StringBuilder Append(
+        this StringBuilder builder,
+        IFormatProvider? provider,
+        FormattableString value
+    ) => builder.Append(value.ToString(provider));
 }
 #endif
