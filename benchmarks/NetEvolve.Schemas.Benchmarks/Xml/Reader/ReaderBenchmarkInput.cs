@@ -17,10 +17,10 @@ internal static class ReaderBenchmarkInput
     public static string Small { get; } =
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<note id=\"n1\"><to>Example</to><body>Hello &amp; welcome</body></note>\n";
 
-    /// <summary>Gets the invoice-sized document (about 20 KB).</summary>
+    /// <summary>Gets the invoice-sized document (about 25 KB).</summary>
     public static string Invoice { get; } = BuildInvoice(InvoiceLines);
 
-    /// <summary>Gets the large document (about 2 MB).</summary>
+    /// <summary>Gets the large document (about 2.5 MB).</summary>
     public static string Large { get; } = BuildInvoice(LargeLines);
 
     /// <summary>Gets the document as UTF-8.</summary>
