@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Xml.Tests.Integration.Hostile;
+﻿namespace NetEvolve.Schemas.Xml.Tests.Integration.Hostile;
 
 /// <summary>
 /// The time bound of the hostile corpus counts the processor time a load uses, not the time it waits for a processor:
@@ -45,7 +45,11 @@ public class HostileTimeBoundTests
             TimeSpan.FromMilliseconds(300),
             cancellationToken
         );
+#if NET10_0_OR_GREATER
         await stop.CancelAsync();
+#else
+        stop.Cancel();
+#endif
 
         await Assert.That(timedOut).IsTrue();
     }
@@ -64,7 +68,11 @@ public class HostileTimeBoundTests
             TimeSpan.FromMilliseconds(30),
             cancellationToken
         );
+#if NET10_0_OR_GREATER
         await stop.CancelAsync();
+#else
+        stop.Cancel();
+#endif
 
         await Assert.That(timedOut).IsTrue();
     }

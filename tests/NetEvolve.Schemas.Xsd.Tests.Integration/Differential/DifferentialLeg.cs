@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Xsd.Tests.Integration.Differential;
+﻿namespace NetEvolve.Schemas.Xsd.Tests.Integration.Differential;
 
 using System.Globalization;
 using System.Reflection;
@@ -19,6 +19,6 @@ internal static class DifferentialLeg
     public static DifferentialEnvironment Current(Assembly assembly) =>
         new(
             TargetFrameworkName.Of(assembly),
-            string.Create(CultureInfo.InvariantCulture, $"{Environment.Version.Major}.{Environment.Version.Minor}")
+            FormattableString.Invariant($"{Environment.Version.Major}.{Environment.Version.Minor}")
         );
 }

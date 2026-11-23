@@ -211,7 +211,7 @@ public static class ConformanceRateReporter
         }
 
         var tenths = (long)totals.Passed * 1000 / totals.Applicable;
-        return string.Create(CultureInfo.InvariantCulture, $"{tenths / 10}.{tenths % 10}%");
+        return FormattableString.Invariant($"{tenths / 10}.{tenths % 10}%");
     }
 
     private static int CompareGroups(Group left, Group right)

@@ -130,7 +130,11 @@ public class InstanceInputTests
     {
         var validator = Build(Schema);
         using var source = new CancellationTokenSource();
+#if NET10_0_OR_GREATER
         await source.CancelAsync();
+#else
+        source.Cancel();
+#endif
 
         await Assert
             .That(async () => await validator.ValidateAsync(Utf8(Instance).AsMemory(), InstanceSystemId, source.Token))

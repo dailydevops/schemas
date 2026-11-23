@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Xml.Tests.Unit.Buffers;
+﻿namespace NetEvolve.Schemas.Xml.Tests.Unit.Buffers;
 
 using System;
 using System.Buffers;
@@ -195,7 +195,11 @@ public class PooledBufferTests
             Returned.Add(array);
             if (ClearOnReturn)
             {
+#if NET6_0_OR_GREATER
                 Array.Clear(array);
+#else
+                Array.Clear(array, 0, array.Length);
+#endif
             }
         }
     }

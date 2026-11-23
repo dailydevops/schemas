@@ -153,7 +153,7 @@ public static class SuiteManifestLoader
         }
         foreach (var c in value)
         {
-            if (!char.IsAsciiHexDigit(c))
+            if (!Uri.IsHexDigit(c))
             {
                 return false;
             }
