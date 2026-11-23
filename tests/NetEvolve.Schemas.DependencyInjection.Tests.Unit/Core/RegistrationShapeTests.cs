@@ -21,7 +21,7 @@ public class RegistrationShapeTests
         var methods = _extensions.GetMethods(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly);
 
         await Assert
-            .That(methods.Select(m => m.Name).Order(StringComparer.Ordinal))
+            .That(methods.Select(m => m.Name).OrderBy(name => name, StringComparer.Ordinal))
             .IsEquivalentTo(["AddKeyedSchemaValidator", "AddSchemaValidator"]);
         foreach (var method in methods)
         {

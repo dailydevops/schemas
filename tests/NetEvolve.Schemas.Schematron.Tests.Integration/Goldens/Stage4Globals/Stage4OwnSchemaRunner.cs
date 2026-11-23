@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Schematron.Tests.Integration.Goldens.Stage4Globals;
+﻿namespace NetEvolve.Schemas.Schematron.Tests.Integration.Goldens.Stage4Globals;
 
 using System.Buffers;
 using System.Text;
@@ -142,13 +142,13 @@ internal static class Stage4OwnSchemaRunner
         parts.AddRange(
             expected
                 .Except(fired, StringComparer.Ordinal)
-                .Order(StringComparer.Ordinal)
+                .OrderBy(name => name, StringComparer.Ordinal)
                 .Select(id => $"Missing expected rule '{id}'.")
         );
         parts.AddRange(
             fired
                 .Except(expected, StringComparer.Ordinal)
-                .Order(StringComparer.Ordinal)
+                .OrderBy(name => name, StringComparer.Ordinal)
                 .Select(id => $"Unexpected fired rule '{id}'.")
         );
         return parts.Count == 0 ? null : string.Join(" ", parts);

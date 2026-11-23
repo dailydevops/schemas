@@ -127,11 +127,13 @@ public class XmlConfReadmeTests
         var baselined = XmlConfSuite
             .LoadBaselines(selection)
             .Values.SelectMany(b => b.Ids)
-            .Order(StringComparer.Ordinal)
+            .OrderBy(name => name, StringComparer.Ordinal)
             .ToList();
         var readme = ReadmeSamples.ReadText(Readme);
 
-        await Assert.That(baselined).IsEquivalentTo(KnownFailures.SelectMany(c => c.Ids).Order(StringComparer.Ordinal));
+        await Assert
+            .That(baselined)
+            .IsEquivalentTo(KnownFailures.SelectMany(c => c.Ids).OrderBy(name => name, StringComparer.Ordinal));
         foreach (var (label, reason, ids) in KnownFailures)
         {
             await Assert.That(readme).Contains($"| {label} | {Number(ids.Length)} | {reason} |");

@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.XPath.Tests.Integration.Conformance;
+﻿namespace NetEvolve.Schemas.XPath.Tests.Integration.Conformance;
 
 using NetEvolve.Schemas.Conformance.Baseline;
 using NetEvolve.Schemas.Conformance.Reporting;
@@ -13,7 +13,7 @@ public class Qt3ConformanceTests
     /// <summary>The test sets are the baseline files, so discovery needs no download; a missing file fails the baseline test.</summary>
     public static IEnumerable<Func<string>> TestSets()
     {
-        foreach (var name in Qt3Suite.LoadBaselines().Keys.Order(StringComparer.Ordinal))
+        foreach (var name in Qt3Suite.LoadBaselines().Keys.OrderBy(name => name, StringComparer.Ordinal))
         {
             yield return () => name;
         }

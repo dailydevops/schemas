@@ -53,7 +53,7 @@ public class SchematronCatalogReaderTests
 
         var ids = SchematronCatalogReader.Read(fixture.Path, Bindings).Select(c => c.Id).ToArray();
 
-        await Assert.That(ids).IsEquivalentTo(ids.Order(StringComparer.Ordinal));
+        await Assert.That(ids).IsEquivalentTo(ids.OrderBy(name => name, StringComparer.Ordinal));
     }
 
     [Test]

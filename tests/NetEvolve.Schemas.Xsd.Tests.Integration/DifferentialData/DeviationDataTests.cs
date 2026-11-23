@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Xsd.Tests.Integration.DifferentialData;
+﻿namespace NetEvolve.Schemas.Xsd.Tests.Integration.DifferentialData;
 
 using NetEvolve.Schemas.Xsd.Tests.Integration.Differential;
 
@@ -45,7 +45,7 @@ public class DeviationDataTests
         var inData = Load()
             .Entries.Select(e => e.CaseId)
             .Distinct(StringComparer.Ordinal)
-            .Order(StringComparer.Ordinal);
+            .OrderBy(name => name, StringComparer.Ordinal);
 
         await Assert.That(inDocument).IsEquivalentTo(inData);
     }
