@@ -24,7 +24,9 @@ internal static class XstsSuite
     public static async Task<XstsSelection> LoadSelectionAsync(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
+#pragma warning disable VSTHRD003 // net5.0: the WaitAsync polyfill is not known to the analyzer; Shared is started by Task.Run.
         return (await Shared.WaitAsync(cancellationToken)).Selection;
+#pragma warning restore VSTHRD003
     }
 
     /// <summary>Fetches the pinned suite (from the cache when present) and gives the directory that holds it.</summary>
@@ -33,7 +35,9 @@ internal static class XstsSuite
     public static async Task<string> LoadRootAsync(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
+#pragma warning disable VSTHRD003 // net5.0: the WaitAsync polyfill is not known to the analyzer; Shared is started by Task.Run.
         return (await Shared.WaitAsync(cancellationToken)).Root;
+#pragma warning restore VSTHRD003
     }
 
     private static async Task<(string Root, XstsSelection Selection)> FetchAndSelectAsync(

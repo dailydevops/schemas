@@ -1,5 +1,5 @@
 ﻿#if !NET6_0_OR_GREATER
-#pragma warning disable IDE0130, CA1707, CA1062, CA2007, CA1307, MA0048, MA0004, CS1591
+#pragma warning disable IDE0130, CA1707, CA1062, CA2007, CA1307, MA0048, MA0004, CS1591, VSTHRD003
 namespace System;
 
 using System.Collections.Generic;
