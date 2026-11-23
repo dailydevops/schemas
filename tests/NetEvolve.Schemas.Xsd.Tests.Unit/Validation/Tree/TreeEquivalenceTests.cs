@@ -95,7 +95,11 @@ public class TreeEquivalenceTests
     {
         cancellationToken.ThrowIfCancellationRequested();
         using var source = new CancellationTokenSource();
+#if NET10_0_OR_GREATER
         await source.CancelAsync();
+#else
+        source.Cancel();
+#endif
         var document = TreeFixture.Load(TreeFixture.Instances[0]).Document;
 
         await Assert
