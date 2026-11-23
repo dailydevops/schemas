@@ -18,16 +18,26 @@ public class GenerateIdTests
 
     private static string Id(string node) => NodesHarness.Run("generate-id", "node:" + node)[Prefix.Length..];
 
+#if NET7_0_OR_GREATER
+    private static bool IsAsciiLetter(char c) => char.IsAsciiLetter(c);
+
+    private static bool IsAsciiLetterOrDigit(char c) => char.IsAsciiLetterOrDigit(c);
+#else
+    private static bool IsAsciiLetter(char c) => (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
+
+    private static bool IsAsciiLetterOrDigit(char c) => IsAsciiLetter(c) || (c >= '0' && c <= '9');
+#endif
+
     private static bool IsNcName(string text)
     {
-        if (text.Length == 0 || !char.IsAsciiLetter(text[0]))
+        if (text.Length == 0 || !IsAsciiLetter(text[0]))
         {
             return false;
         }
 
         foreach (var c in text)
         {
-            if (!char.IsAsciiLetterOrDigit(c))
+            if (!IsAsciiLetterOrDigit(c))
             {
                 return false;
             }
