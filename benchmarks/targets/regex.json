@@ -1,0 +1,19 @@
+[
+  {
+    "name": "RegexCompileBenchmarks.Compile",
+    "meanNs": 7381.0,
+    "allocatedBytes": 39528,
+    "baselineRatio": 0.24
+  },
+  {
+    "name": "RegexMatchBenchmarks.MatchCompiled",
+    "meanNs": 2608.0,
+    "allocatedBytes": 0,
+    "baselineRatio": 2.03
+  },
+  {
+    "name": "RegexStepLimitBenchmarks.MatchUntilStepLimit",
+    "meanNs": 612301.0,
+    "allocatedBytes": 0
+  }
+]
