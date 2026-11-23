@@ -148,6 +148,7 @@ internal static partial class ArchitectureRules
         return files;
     }
 
+#if NET7_0_OR_GREATER
     [GeneratedRegex(
         @"^\s*namespace\s+(?<name>[\w.]+)",
         RegexOptions.Multiline | RegexOptions.ExplicitCapture,
@@ -157,4 +158,22 @@ internal static partial class ArchitectureRules
 
     [GeneratedRegex(InteropNamespacePattern, RegexOptions.ExplicitCapture, matchTimeoutMilliseconds: 1000)]
     private static partial Regex InteropNamespace();
+#else
+    // GeneratedRegex needs .NET 7+; older TFMs fall back to cached instances.
+    private static readonly Regex NamespaceDeclarationRegex = new(
+        @"^\s*namespace\s+(?<name>[\w.]+)",
+        RegexOptions.Multiline | RegexOptions.ExplicitCapture,
+        TimeSpan.FromMilliseconds(1000)
+    );
+
+    private static readonly Regex InteropNamespaceRegex = new(
+        InteropNamespacePattern,
+        RegexOptions.ExplicitCapture,
+        TimeSpan.FromMilliseconds(1000)
+    );
+
+    private static Regex NamespaceDeclaration() => NamespaceDeclarationRegex;
+
+    private static Regex InteropNamespace() => InteropNamespaceRegex;
+#endif
 }

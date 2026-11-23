@@ -275,6 +275,7 @@ internal static partial class CorpusScanner
     private static void Increment(SortedDictionary<string, int> counts, string key) =>
         counts[key] = counts.TryGetValue(key, out var count) ? count + 1 : 1;
 
+#if NET7_0_OR_GREATER
     [GeneratedRegex(@"'[^']*'|""[^""]*""", RegexOptions.CultureInvariant, MatchTimeoutMilliseconds)]
     private static partial Regex StringLiteral();
 
@@ -287,6 +288,34 @@ internal static partial class CorpusScanner
         MatchTimeoutMilliseconds
     )]
     private static partial Regex FunctionCall();
+#else
+    // GeneratedRegex needs .NET 7+; older TFMs fall back to cached instances.
+    private static readonly TimeSpan MatchTimeout = TimeSpan.FromMilliseconds(MatchTimeoutMilliseconds);
+
+    private static readonly Regex StringLiteralRegex = new(
+        @"'[^']*'|""[^""]*""",
+        RegexOptions.CultureInvariant | RegexOptions.Compiled,
+        MatchTimeout
+    );
+
+    private static readonly Regex XPathCommentRegex = new(
+        @"\(:.*?:\)",
+        RegexOptions.CultureInvariant | RegexOptions.Singleline | RegexOptions.Compiled,
+        MatchTimeout
+    );
+
+    private static readonly Regex FunctionCallRegex = new(
+        @"(?<![\w.\-:$@])(?<name>(?:[A-Za-z_][\w.\-]*:)?[A-Za-z_][\w.\-]*)\s*\(",
+        RegexOptions.CultureInvariant | RegexOptions.Compiled,
+        MatchTimeout
+    );
+
+    private static Regex StringLiteral() => StringLiteralRegex;
+
+    private static Regex XPathComment() => XPathCommentRegex;
+
+    private static Regex FunctionCall() => FunctionCallRegex;
+#endif
 
     private sealed class ScanState(string root)
     {
