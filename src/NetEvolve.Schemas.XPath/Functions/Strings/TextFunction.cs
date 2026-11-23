@@ -68,14 +68,13 @@ internal abstract class TextFunction : XPathFunction
     }
 
     /// <summary>Reads the string of a call that has no argument: the string value of the context item.</summary>
-    /// <remarks>Limitation: a context item without a value type yet (<c>xs:QName</c>, the binary and the Gregorian types, #545) raises XPTY0004 through <c>AtomicString</c>; the casting table replaces it in #625.</remarks>
     /// <param name="invocation">The call.</param>
     /// <returns>The string value of the context item.</returns>
     /// <exception cref="XPathException">The context item is absent (XPDY0002).</exception>
     protected static string ContextText(ref XPathFunctionCall invocation)
     {
         var item = invocation.Context.ContextItem ?? throw XPathErrors.Exception(XPathErrorCodes.XPDY0002);
-        return item.TryGetNode(out var node) ? node.StringValue() : AtomicString.Of(in item);
+        return item.TryGetNode(out var node) ? node.StringValue() : StringFunction.OfAtomic(in item);
     }
 
     /// <summary>Sets the result of a call to one string.</summary>

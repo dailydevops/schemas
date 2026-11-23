@@ -59,7 +59,9 @@ internal static class CompatibilityFunctionConversion
         }
 
         var item = value[0];
-        return XdmItem.FromString(item.TryGetNode(out var node) ? node.StringValue() : AtomicString.Of(in item));
+        return XdmItem.FromString(
+            item.TryGetNode(out var node) ? node.StringValue() : StringFunction.OfAtomic(in item)
+        );
     }
 
     // fn:number: NaN for the empty sequence and for a value without a number; a node is atomized first.
