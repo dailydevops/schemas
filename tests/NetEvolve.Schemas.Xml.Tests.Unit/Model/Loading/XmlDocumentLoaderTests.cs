@@ -414,7 +414,7 @@ public class XmlDocumentLoaderTests
 
         using var source = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 #if NET10_0_OR_GREATER
-            await source.CancelAsync();
+        await source.CancelAsync();
 #else
         source.Cancel();
 #endif

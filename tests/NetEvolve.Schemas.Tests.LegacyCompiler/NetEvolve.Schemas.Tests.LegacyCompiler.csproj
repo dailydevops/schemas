@@ -17,6 +17,10 @@
     <ProjectReference Include="../../src/NetEvolve.Schemas.Schematron/NetEvolve.Schemas.Schematron.csproj" SetTargetFramework="$(LibraryLegTargetFramework)" />
     <ProjectReference Include="../../src/NetEvolve.Schemas.DependencyInjection/NetEvolve.Schemas.DependencyInjection.csproj" SetTargetFramework="$(LibraryLegTargetFramework)" />
   </ItemGroup>
+  <!-- The shared test polyfills use C# 14 extension members, which LangVersion 13 cannot parse. -->
+  <ItemGroup>
+    <Compile Remove="$(MSBuildThisFileDirectory)../Shared/Polyfills/*.cs" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
   </ItemGroup>

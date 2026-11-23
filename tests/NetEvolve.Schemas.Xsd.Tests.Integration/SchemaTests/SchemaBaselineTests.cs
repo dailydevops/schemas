@@ -27,7 +27,7 @@ public class SchemaBaselineTests
         var chunks = selection
             .Selected.GroupBy(c => c.TestSet, StringComparer.Ordinal)
             .SelectMany(group => group.OrderBy(c => c.Id, StringComparer.Ordinal).Chunk(100));
-        await Parallel.ForEachAsync(
+        await ParallelPolyfills.ForEachAsync(
             chunks,
             new ParallelOptions { CancellationToken = cancellationToken },
             async (chunk, token) =>

@@ -28,7 +28,7 @@ public class SchemaSetTests
         var set = Frozen(out var components);
         var failures = 0;
 
-        await Parallel.ForEachAsync(Enumerable.Range(0, 64), async (_, _) =>
+        await ParallelPolyfills.ForEachAsync(Enumerable.Range(0, 64), async (_, _) =>
         {
             for (var i = 0; i < components.Length; i++)
             {

@@ -11,7 +11,9 @@ internal sealed class GoldenFixture : IDisposable
 {
     public const string SuiteKey = "golden-rules";
 
-    private readonly string _cache = Directory.CreateTempSubdirectory("golden-harness-").FullName;
+    private readonly string _cache = Directory
+        .CreateDirectory(Path.Combine(Path.GetTempPath(), "golden-harness-" + Guid.NewGuid().ToString("N")))
+        .FullName;
 
     public GoldenFixture()
     {

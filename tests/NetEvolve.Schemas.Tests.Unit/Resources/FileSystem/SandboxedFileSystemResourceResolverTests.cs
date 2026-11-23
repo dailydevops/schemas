@@ -2,6 +2,7 @@
 
 using System;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using NetEvolve.Schemas.Resources;
@@ -430,8 +431,12 @@ internal sealed class SandboxedFileSystemResourceResolverTests : IDisposable
     {
         try
         {
+#if NET6_0_OR_GREATER
             _ = File.CreateSymbolicLink(link, target);
             return true;
+#else
+            return CreateLinkNative(link, target, isDirectory: false);
+#endif
         }
         catch (Exception e) when (e is UnauthorizedAccessException or IOException or PlatformNotSupportedException)
         {
@@ -443,12 +448,48 @@ internal sealed class SandboxedFileSystemResourceResolverTests : IDisposable
     {
         try
         {
+#if NET6_0_OR_GREATER
             _ = Directory.CreateSymbolicLink(link, target);
             return true;
+#else
+            return CreateLinkNative(link, target, isDirectory: true);
+#endif
         }
         catch (Exception e) when (e is UnauthorizedAccessException or IOException or PlatformNotSupportedException)
         {
             return false;
         }
     }
+
+#if !NET6_0_OR_GREATER
+    // File/Directory.CreateSymbolicLink exist only since .NET 6; P/Invoke on net5.0.
+    private static bool CreateLinkNative(string link, string target, bool isDirectory)
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            // 0x2 = ALLOW_UNPRIVILEGED_CREATE (developer mode), 0x1 = DIRECTORY
+            return CreateSymbolicLinkW(link, target, (isDirectory ? 1u : 0u) | 2u);
+        }
+
+        return symlink(target, link) == 0;
+    }
+
+    [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.I1)]
+    private static extern bool CreateSymbolicLinkW(
+        [MarshalAs(UnmanagedType.LPWStr)] string link,
+        [MarshalAs(UnmanagedType.LPWStr)] string target,
+        uint flags
+    );
+
+#pragma warning disable CA2101 // explicit LPUTF8Str marshalling
+    [DefaultDllImportSearchPaths(DllImportSearchPath.SafeDirectories)]
+    [DllImport("libc", SetLastError = true)]
+    private static extern int symlink(
+        [MarshalAs(UnmanagedType.LPUTF8Str)] string target,
+        [MarshalAs(UnmanagedType.LPUTF8Str)] string link
+    );
+#pragma warning restore CA2101
+#endif
 }

@@ -11,9 +11,11 @@
     <!-- Suppress warnings for target framework support -->
     <SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
     <CheckEolTargetFramework>false</CheckEolTargetFramework>
-    <NoWarn>$(NoWarn);NU1701;</NoWarn>
+    <NoWarn>$(NoWarn);NU1701;CA5394;</NoWarn>
   </PropertyGroup>
   <ItemGroup>
+    <!-- Polyfills compile into the leaf test projects only: a support library with InternalsVisibleTo would make the same helpers ambiguous in its tests. -->
+    <Compile Condition="$(MSBuildProjectName.Contains('.Tests.'))" Include="$(MSBuildThisFileDirectory)Shared/Polyfills/*.cs" Link="Polyfills/%(Filename)%(Extension)" />
     <PackageReference Include="TUnit" />
   </ItemGroup>
   <ItemGroup Condition="'$(MSBuildProjectName)' != 'NetEvolve.Schemas.Testing'">
