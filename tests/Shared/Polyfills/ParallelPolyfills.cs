@@ -18,6 +18,10 @@ internal static class ParallelPolyfills
 #if NET6_0_OR_GREATER
         Parallel.ForEachAsync(source, options, body);
 #else
-        Task.WhenAll(source.Select(item => Task.Run(async () => await body(item, options.CancellationToken), options.CancellationToken)));
+        Task.WhenAll(
+            source.Select(item =>
+                Task.Run(async () => await body(item, options.CancellationToken), options.CancellationToken)
+            )
+        );
 #endif
 }
