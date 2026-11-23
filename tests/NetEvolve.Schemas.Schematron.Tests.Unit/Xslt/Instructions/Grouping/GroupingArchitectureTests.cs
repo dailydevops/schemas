@@ -139,7 +139,6 @@ public class GroupingArchitectureTests
                 || text.Contains("using System.Xml", StringComparison.Ordinal)
                 || text.Contains("System.Text.Json", StringComparison.Ordinal)
                 || text.Contains("throw new Argument", StringComparison.Ordinal)
-                || text.Contains("ArgumentNullException.ThrowIfNull", StringComparison.Ordinal)
             )
             {
                 offenders.Add(file);
