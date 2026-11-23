@@ -15,11 +15,16 @@ public class DtdRegistrationTests
     private const string SubsetUri = "http://example.org/doc/ext.dtd";
     private const string ExternalSubsetDocument = "<!DOCTYPE r SYSTEM \"ext.dtd\">\n<r/>";
 
-    private static bool IsValid(ISchemaValidator validator, string xml) => validator.Validate(xml.AsSpan()).IsValid;
+    private static bool IsValid(ISchemaValidator validator, string xml, CancellationToken cancellationToken) =>
+        validator.Validate(xml.AsSpan(), null, cancellationToken).IsValid;
 
     [Test]
-    public async Task Plain_ResolvesOneSingletonValidator_ThatAcceptsValidAndRejectsInvalidDocuments()
+    public async Task Plain_ResolvesOneSingletonValidator_ThatAcceptsValidAndRejectsInvalidDocuments(
+        CancellationToken cancellationToken
+    )
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var services = new ServiceCollection().AddDtdValidator();
         using var provider = services.BuildServiceProvider();
 
@@ -28,15 +33,17 @@ public class DtdRegistrationTests
         await Assert.That(services.Count).IsEqualTo(1);
         await Assert.That(services.Single().Lifetime).IsEqualTo(ServiceLifetime.Singleton);
         await Assert.That(provider.GetRequiredService<IDtdValidator>()).IsSameReferenceAs(validator);
-        await Assert.That(IsValid(validator, Valid)).IsTrue();
-        var result = validator.Validate(Invalid.AsSpan());
+        await Assert.That(IsValid(validator, Valid, cancellationToken)).IsTrue();
+        var result = validator.Validate(Invalid.AsSpan(), null, cancellationToken);
         await Assert.That(result.IsValid).IsFalse();
         await Assert.That(result.Issues.Count).IsGreaterThan(0);
     }
 
     [Test]
-    public async Task Keyed_ResolvesDistinctSingletonValidatorsPerKey()
+    public async Task Keyed_ResolvesDistinctSingletonValidatorsPerKey(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         using var provider = new ServiceCollection()
             .AddKeyedDtdValidator("a")
             .AddKeyedDtdValidator("b")
@@ -49,19 +56,18 @@ public class DtdRegistrationTests
         await Assert.That(provider.GetRequiredKeyedService<IDtdValidator>("a")).IsSameReferenceAs(a);
         await Assert.That(provider.GetRequiredKeyedService<IDtdValidator>("b")).IsSameReferenceAs(b);
         await Assert.That(provider.GetRequiredKeyedService<ISchemaValidator>("a")).IsSameReferenceAs(a);
-        await Assert.That(IsValid(a, Valid)).IsTrue();
-        await Assert.That(IsValid(a, Invalid)).IsFalse();
-        await Assert.That(IsValid(b, OtherValid)).IsTrue();
-        await Assert.That(IsValid(b, OtherInvalid)).IsFalse();
+        await Assert.That(IsValid(a, Valid, cancellationToken)).IsTrue();
+        await Assert.That(IsValid(a, Invalid, cancellationToken)).IsFalse();
+        await Assert.That(IsValid(b, OtherValid, cancellationToken)).IsTrue();
+        await Assert.That(IsValid(b, OtherInvalid, cancellationToken)).IsFalse();
     }
 
     [Test]
-    public async Task WithoutAResolver_AnExternalSubset_IsRefusedAsResolverDenied()
+    public async Task WithoutAResolver_AnExternalSubset_IsRefusedAsResolverDenied(CancellationToken cancellationToken)
     {
-        using var provider = new ServiceCollection()
-            .AddDtdValidator()
-            .AddKeyedDtdValidator("k")
-            .BuildServiceProvider();
+        cancellationToken.ThrowIfCancellationRequested();
+
+        using var provider = new ServiceCollection().AddDtdValidator().AddKeyedDtdValidator("k").BuildServiceProvider();
 
         IDtdValidator[] validators =
         [
@@ -70,7 +76,7 @@ public class DtdRegistrationTests
         ];
         foreach (var validator in validators)
         {
-            var result = validator.Validate(ExternalSubsetDocument.AsSpan(), SystemId);
+            var result = validator.Validate(ExternalSubsetDocument.AsSpan(), SystemId, cancellationToken);
 
             await Assert.That(result.IsValid).IsFalse();
             await Assert.That(result.Issues[0].Code).IsEqualTo(XmlErrorCodes.XML2002.Code);
@@ -78,25 +84,31 @@ public class DtdRegistrationTests
     }
 
     [Test]
-    public async Task ConfigureCallback_WithAnInMemoryResolver_LetsTheExternalSubsetValidate()
+    public async Task ConfigureCallback_WithAnInMemoryResolver_LetsTheExternalSubsetValidate(
+        CancellationToken cancellationToken
+    )
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var resolver = new InMemoryResourceResolver().Add(SubsetUri, Encoding.UTF8.GetBytes("<!ELEMENT r EMPTY>"));
         using var provider = new ServiceCollection()
             .AddDtdValidator((_, builder) => builder.WithResolver(resolver).WithAllowExternalSubset(true))
-            .AddKeyedDtdValidator(
-                "k",
-                (_, _, builder) => builder.WithResolver(resolver).WithAllowExternalSubset(true)
-            )
+            .AddKeyedDtdValidator("k", (_, _, builder) => builder.WithResolver(resolver).WithAllowExternalSubset(true))
             .BuildServiceProvider();
 
         await Assert
-            .That(provider.GetRequiredService<IDtdValidator>().Validate(ExternalSubsetDocument.AsSpan(), SystemId).IsValid)
+            .That(
+                provider
+                    .GetRequiredService<IDtdValidator>()
+                    .Validate(ExternalSubsetDocument.AsSpan(), SystemId, cancellationToken)
+                    .IsValid
+            )
             .IsTrue();
         await Assert
             .That(
                 provider
                     .GetRequiredKeyedService<IDtdValidator>("k")
-                    .Validate(ExternalSubsetDocument.AsSpan(), SystemId)
+                    .Validate(ExternalSubsetDocument.AsSpan(), SystemId, cancellationToken)
                     .IsValid
             )
             .IsTrue();
