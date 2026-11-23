@@ -1,10 +1,11 @@
-namespace NetEvolve.Schemas.Tests.Unit.Contract;
+﻿namespace NetEvolve.Schemas.Tests.Unit.Contract;
 
 using System;
 using System.Buffers;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Mono.Cecil;
 using NetEvolve.Schemas.Testing.Fakes;
 
 public class FakeValidatorContractTests
@@ -161,7 +162,12 @@ public class FakeValidatorContractTests
         cancellationToken.ThrowIfCancellationRequested();
         var fake = new FakeValidator();
         using var canceled = new CancellationTokenSource();
+
+#if NET10_0_OR_GREATER
         await canceled.CancelAsync();
+#else
+        canceled.Cancel();
+#endif
 
         await Assert
             .That(async () => await fake.ValidateAsync(new ReadOnlyMemory<byte>(Utf8), SystemId, canceled.Token))
@@ -175,7 +181,12 @@ public class FakeValidatorContractTests
         cancellationToken.ThrowIfCancellationRequested();
         var fake = new FakeValidator();
         using var canceled = new CancellationTokenSource();
+
+#if NET10_0_OR_GREATER
         await canceled.CancelAsync();
+#else
+        canceled.Cancel();
+#endif
 
         await Assert
             .That(() => fake.Validate(new ReadOnlySpan<byte>(Utf8), SystemId, canceled.Token))

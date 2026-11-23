@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Xsd.Tests.Unit.Validation.Assembly;
+﻿namespace NetEvolve.Schemas.Xsd.Tests.Unit.Validation.Assembly;
 
 using System;
 using System.IO;
@@ -81,7 +81,11 @@ public class BuilderTests
     public async Task BuildAsync_CanceledToken_IsCanceled()
     {
         using var source = new CancellationTokenSource();
+#if NET10_0_OR_GREATER
         await source.CancelAsync();
+#else
+        source.Cancel();
+#endif
         var builder = SchemaValidator.ForXsd().AddSchema(AssemblyFixture.Schema.AsMemory());
 
         await Assert.That(async () => await builder.BuildAsync(source.Token)).Throws<OperationCanceledException>();

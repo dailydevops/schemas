@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Xsd.Tests.Unit.Validation.SchemaLocation;
+﻿namespace NetEvolve.Schemas.Xsd.Tests.Unit.Validation.SchemaLocation;
 
 using System;
 using System.Collections.Generic;
@@ -137,7 +137,11 @@ public class HintGuardTests
         var inner = new MapResolver();
         var budget = new BudgetResolver(inner, 1);
         using var source = new CancellationTokenSource();
+#if NET10_0_OR_GREATER
         await source.CancelAsync();
+#else
+        source.Cancel();
+#endif
 
         await Assert
             .That(() =>

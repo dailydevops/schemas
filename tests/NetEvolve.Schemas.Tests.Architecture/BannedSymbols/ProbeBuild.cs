@@ -118,12 +118,12 @@ internal static class ProbeBuild
 #if NET7_0_OR_GREATER
             cancellationToken
 #endif
-            );
+        );
         var stderr = process.StandardError.ReadToEndAsync(
 #if NET7_0_OR_GREATER
             cancellationToken
 #endif
-            );
+        );
         await process.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
 
         return (process.ExitCode, await stdout.ConfigureAwait(false) + await stderr.ConfigureAwait(false));

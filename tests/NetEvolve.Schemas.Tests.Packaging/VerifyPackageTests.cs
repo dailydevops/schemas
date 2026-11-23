@@ -229,12 +229,12 @@ public sealed class VerifyPackageTests
 #if NET7_0_OR_GREATER
             cancellationToken
 #endif
-            );
+        );
         var error = process.StandardError.ReadToEndAsync(
 #if NET7_0_OR_GREATER
             cancellationToken
 #endif
-            );
+        );
         await process.WaitForExitAsync(cancellationToken);
         return (process.ExitCode, await output + await error);
     }
