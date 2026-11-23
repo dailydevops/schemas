@@ -1,4 +1,3 @@
 fn-string/K-StringFunc-2
 fn-string/fn-string-2
 fn-string/fn-string-6
-fn-string/fn-string-8
