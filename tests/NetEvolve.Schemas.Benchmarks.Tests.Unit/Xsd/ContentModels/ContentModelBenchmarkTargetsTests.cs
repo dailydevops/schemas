@@ -29,6 +29,8 @@ public class ContentModelBenchmarkTargetsTests
     [Test]
     public async Task Targets_HaveOneEntryPerBenchmark_AndNoOther(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var targets = await ReadTargets(cancellationToken);
 
         await Assert.That(targets.Select(t => t.Name).OrderBy(n => n, StringComparer.Ordinal)).IsEquivalentTo(Expected);
@@ -37,6 +39,8 @@ public class ContentModelBenchmarkTargetsTests
     [Test]
     public async Task Targets_MatchSteps_AllocateZeroBytes(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var targets = await ReadTargets(cancellationToken);
 
         var match = targets.Where(t => t.Name.StartsWith("ContentModelMatchBenchmarks.", StringComparison.Ordinal));
@@ -54,6 +58,8 @@ public class ContentModelBenchmarkTargetsTests
         CancellationToken cancellationToken
     )
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var targets = await ReadTargets(cancellationToken);
         var results = string.Join(
             ",",
