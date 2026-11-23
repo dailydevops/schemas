@@ -8,7 +8,7 @@ using NetEvolve.Schemas.Benchmarks.XPath.Core;
 public class XPathBenchmarkInputTests
 {
     // Recorded once; a change of the generator changes every recorded benchmark target.
-    private const string ExpectedSha256 = "pending";
+    private const string ExpectedSha256 = "051545F8C205B53534CAE1978D488D08B2A3EF60EBE6FB90E4EFE4F1D43FB46B";
 
     [Test]
     public async Task Invoice_IsByteIdenticalAcrossGenerations()

@@ -20,10 +20,8 @@ public class XPathBenchmarkTargetsTests
     [Arguments("AxisWalk")]
     [Arguments("Predicate")]
     [Arguments("Comparison")]
-    public async Task Folder_CoversEveryArea(string area)
-    {
+    public async Task Folder_CoversEveryArea(string area) =>
         await Assert.That(Scan().Where(m => m.Type.Contains(area, StringComparison.Ordinal))).IsNotEmpty();
-    }
 
     [Test]
     public async Task Folder_ClassesHaveAtMostOneBaseline_NamedLikeOne()
@@ -74,8 +72,7 @@ public class XPathBenchmarkTargetsTests
         var entries = await ReadTargets(cancellationToken);
         var mismatched = entries
             .Where(t =>
-                (t.BaselineRatio is not null)
-                != withBaseline.Contains(methods.Single(m => m.Name == t.Name).Type)
+                (t.BaselineRatio is not null) != withBaseline.Contains(methods.Single(m => m.Name == t.Name).Type)
             )
             .Select(t => t.Name);
 
@@ -101,7 +98,16 @@ public class XPathBenchmarkTargetsTests
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        string[] forbidden = ["XmlUrlResolver", "HttpClient", "WebRequest", "WebClient", "File.", "FileStream", "Directory."];
+        string[] forbidden =
+        [
+            "XmlUrlResolver",
+            "HttpClient",
+            "WebRequest",
+            "WebClient",
+            "File.",
+            "FileStream",
+            "Directory.",
+        ];
         var found = new List<string>();
         var files = SourceFiles();
         foreach (var file in files)
