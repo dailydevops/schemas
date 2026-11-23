@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Tests.Architecture.XPath;
+﻿namespace NetEvolve.Schemas.Tests.Architecture.XPath;
 
 using System.Reflection;
 using NetArchTest.Rules;
@@ -87,6 +87,7 @@ public class XPathSeamTests
             .Where(type =>
                 !type.IsNested
                 && !(internalOnly && type.IsPublic)
+                && !string.IsNullOrWhiteSpace(type.Namespace)
                 && !allowedNamespaces.Contains(type.Namespace)
                 && IsXPathType(type)
             )

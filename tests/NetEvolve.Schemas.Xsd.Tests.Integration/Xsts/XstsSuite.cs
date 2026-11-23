@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Xsd.Tests.Integration.Xsts;
+﻿namespace NetEvolve.Schemas.Xsd.Tests.Integration.Xsts;
 
 using NetEvolve.Schemas.Conformance.Fetch;
 using NetEvolve.Schemas.Conformance.Manifest;

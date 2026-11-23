@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Schematron.Tests.Integration.Goldens.Stage4Globals;
+﻿namespace NetEvolve.Schemas.Schematron.Tests.Integration.Goldens.Stage4Globals;
 
 using System.Text;
 using System.Text.Json;
@@ -150,7 +150,7 @@ public class Stage4GlobalsTests
         var suites = SuiteManifestLoader.LoadDirectory(Stage4Run.SuitesDirectory);
 
         var suite = suites.Single(s => string.Equals(s.Key, manifest.Suite, StringComparison.Ordinal));
-        await Assert.That(suite.Sha256).HasLength(64);
+        await Assert.That(suite.Sha256).Length().IsEqualTo(64);
         await Assert.That(suites.Select(s => s.Key)).DoesNotContain("schematron-stage4");
     }
 
