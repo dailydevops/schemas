@@ -225,8 +225,16 @@ public sealed class VerifyPackageTests
         }
 
         using var process = Process.Start(info)!;
-        var output = process.StandardOutput.ReadToEndAsync(cancellationToken);
-        var error = process.StandardError.ReadToEndAsync(cancellationToken);
+        var output = process.StandardOutput.ReadToEndAsync(
+#if NET7_0_OR_GREATER
+            cancellationToken
+#endif
+            );
+        var error = process.StandardError.ReadToEndAsync(
+#if NET7_0_OR_GREATER
+            cancellationToken
+#endif
+            );
         await process.WaitForExitAsync(cancellationToken);
         return (process.ExitCode, await output + await error);
     }

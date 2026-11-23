@@ -66,7 +66,11 @@ internal sealed class SandboxedFileSystemResourceResolverTests : IDisposable
 
         await Assert.That(result.Status).IsEqualTo(ResourceStatus.Found);
         using var reader = new StreamReader(result.Stream!);
-        await Assert.That(await reader.ReadToEndAsync(cancellationToken)).IsEqualTo(expected);
+        await Assert.That(await reader.ReadToEndAsync(
+#if NET7_0_OR_GREATER
+                cancellationToken
+#endif
+            )).IsEqualTo(expected);
     }
 
     [Test]
