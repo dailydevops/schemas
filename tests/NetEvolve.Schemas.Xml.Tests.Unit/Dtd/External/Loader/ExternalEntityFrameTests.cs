@@ -330,7 +330,7 @@ public class ExternalEntityFrameTests
         using var source = new CancellationTokenSource();
         var (frame, _) = Load(loader, "e", "e.ent", DocumentUri, source.Token);
 #if NET10_0_OR_GREATER
-            await source.CancelAsync();
+        await source.CancelAsync();
 #else
         source.Cancel();
 #endif

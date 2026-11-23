@@ -98,7 +98,7 @@ internal sealed class GoldenCorpus
 
         foreach (var c in value)
         {
-            if (!char.IsAsciiDigit(c) && !char.IsAsciiHexDigitLower(c))
+            if (!c.IsAsciiDigit() && !c.IsAsciiHexDigitLower())
             {
                 return false;
             }

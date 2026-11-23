@@ -138,7 +138,9 @@ public sealed class VerifyPackageTests
         bool grouped = true
     )
     {
-        var directory = Directory.CreateTempSubdirectory("verify-package-").FullName;
+        var directory = Directory
+            .CreateDirectory(Path.Combine(Path.GetTempPath(), "verify-package-" + Guid.NewGuid().ToString("N")))
+            .FullName;
         var nuspec = new StringBuilder()
             .Append("<package xmlns=\"http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd\"><metadata>")
             .Append(CultureInfo.InvariantCulture, $"<id>{id}</id><version>1.0.0</version>")

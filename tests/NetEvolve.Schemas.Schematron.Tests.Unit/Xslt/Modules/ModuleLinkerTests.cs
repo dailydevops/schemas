@@ -672,7 +672,11 @@ public class ModuleLinkerTests
             var uri = request.ResolvedUri ?? request.Reference;
             var path = uri.AsSpan();
             var name = path.Slice(path.LastIndexOf((char)47) + 1);
-            var index = int.Parse(name.Slice(1, name.Length - 5), System.Globalization.CultureInfo.InvariantCulture);
+            var index = int.Parse(
+                name.Slice(1, name.Length - 5),
+                System.Globalization.NumberStyles.Integer,
+                System.Globalization.CultureInfo.InvariantCulture
+            );
             var body =
                 index + 1 < depth
                     ? Sheet(Import("m" + (index + 1) + ".xsl"), Decl("v" + index))

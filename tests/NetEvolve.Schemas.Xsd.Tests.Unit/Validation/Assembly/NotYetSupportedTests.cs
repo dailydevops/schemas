@@ -132,7 +132,9 @@ public class NotYetSupportedTests
         }
 
         await Assert.That(counterparts.Distinct().Count()).IsEqualTo(counterparts.Length);
-        await Assert.That(Constructs.Values.Select(c => c.Code).OrderBy(code => code)).IsEquivalentTo(counterparts.OrderBy(code => code));
+        await Assert
+            .That(Constructs.Values.Select(c => c.Code).OrderBy(code => code))
+            .IsEquivalentTo(counterparts.OrderBy(code => code));
     }
 
     [Test]

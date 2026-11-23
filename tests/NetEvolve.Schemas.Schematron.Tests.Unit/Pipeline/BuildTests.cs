@@ -289,7 +289,7 @@ public class BuildTests
 #if NET10_0_OR_GREATER
                 await _cancel.CancelAsync();
 #else
-        _cancel.Cancel();
+                _cancel.Cancel();
 #endif
             }
 

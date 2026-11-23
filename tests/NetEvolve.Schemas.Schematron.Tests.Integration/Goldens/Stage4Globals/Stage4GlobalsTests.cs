@@ -237,7 +237,10 @@ public class Stage4GlobalsTests
 
     private sealed class StageDirectory : IDisposable
     {
-        public string Root { get; } = Directory.CreateTempSubdirectory("stage4-globals-").FullName;
+        public string Root { get; } =
+            Directory
+                .CreateDirectory(Path.Combine(Path.GetTempPath(), "stage4-globals-" + Guid.NewGuid().ToString("N")))
+                .FullName;
 
         public void Write(string relativePath, string content)
         {

@@ -541,7 +541,11 @@ internal static class MiniQuery
                 _at++;
             }
 
-            var number = long.Parse(text.AsSpan(start, _at - start), CultureInfo.InvariantCulture);
+            var number = long.Parse(
+                text.AsSpan(start, _at - start),
+                NumberStyles.Integer,
+                CultureInfo.InvariantCulture
+            );
             return new Literal(One(XdmItem.FromInteger(number)));
         }
 

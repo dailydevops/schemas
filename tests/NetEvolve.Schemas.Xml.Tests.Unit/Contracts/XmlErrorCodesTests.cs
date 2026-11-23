@@ -33,7 +33,9 @@ public class XmlErrorCodesTests
     }
 
     private static int Formula(string alias) =>
-        1000 + (100 * (alias[3] - '0')) + int.Parse(alias.AsSpan(5), CultureInfo.InvariantCulture);
+        1000
+        + (100 * (alias[3] - '0'))
+        + int.Parse(alias.AsSpan(5), NumberStyles.Integer, CultureInfo.InvariantCulture);
 
     [Test]
     public async Task All_ContainsExactlyTheApprovedCatalog()

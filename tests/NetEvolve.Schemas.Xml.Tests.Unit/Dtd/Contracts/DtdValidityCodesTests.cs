@@ -66,7 +66,8 @@ public class DtdValidityCodesTests
         ("XML1119", "Limit: MaxDeclarations"),
     ];
 
-    private static int Number(string alias) => int.Parse(alias.AsSpan(3), CultureInfo.InvariantCulture);
+    private static int Number(string alias) =>
+        int.Parse(alias.AsSpan(3), NumberStyles.Integer, CultureInfo.InvariantCulture);
 
     [Test]
     public async Task Codes_EveryVc_HasExactlyOneUniqueCode()

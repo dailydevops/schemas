@@ -96,7 +96,9 @@ public class BenchmarkGateTests
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var dir = Directory.CreateTempSubdirectory().FullName;
+        var dir = Directory
+            .CreateDirectory(Path.Combine(Path.GetTempPath(), "gate-" + Guid.NewGuid().ToString("N")))
+            .FullName;
         var file = Path.Combine(dir, "results.json");
         await File.WriteAllTextAsync(file, Results(100, 0, 200, 200, 24), cancellationToken);
         try
@@ -119,7 +121,9 @@ public class BenchmarkGateTests
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var dir = Directory.CreateTempSubdirectory().FullName;
+        var dir = Directory
+            .CreateDirectory(Path.Combine(Path.GetTempPath(), "gate-" + Guid.NewGuid().ToString("N")))
+            .FullName;
         var file = Path.Combine(dir, "results.json");
         await File.WriteAllTextAsync(file, Results(100, 0, 200, 200, 24), cancellationToken);
         await File.WriteAllTextAsync(Path.Combine(dir, "parse.json"), Targets, cancellationToken);

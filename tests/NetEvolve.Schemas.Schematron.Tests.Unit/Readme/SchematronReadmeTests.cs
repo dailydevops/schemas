@@ -203,7 +203,9 @@ public class SchematronReadmeTests
     public async Task ResolverSample_LoadsTheIncludeBelowTheRoot(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        var directory = Directory.CreateTempSubdirectory("schematron-readme-");
+        var directory = Directory.CreateDirectory(
+            Path.Combine(Path.GetTempPath(), "schematron-readme-" + Guid.NewGuid().ToString("N"))
+        );
         try
         {
             await File.WriteAllTextAsync(
