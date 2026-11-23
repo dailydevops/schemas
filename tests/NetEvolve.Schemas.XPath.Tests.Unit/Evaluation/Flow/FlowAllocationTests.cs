@@ -68,6 +68,9 @@ public class FlowAllocationTests
     [Test]
     public async Task ForExpressions_ThatCollectManyItems_AllocateTheResultOnly()
     {
+#if !NET6_0_OR_GREATER
+        Skip.Test("The allocation bound is calibrated for net6.0 and newer.");
+#endif
         var compiled = Compile("for $x in 1 to 1000 return $x");
         using var context = NewContext();
         var count = 0;

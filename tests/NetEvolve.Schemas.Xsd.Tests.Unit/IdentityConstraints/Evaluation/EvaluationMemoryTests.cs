@@ -69,6 +69,9 @@ public class EvaluationMemoryTests
     [Test]
     public async Task Elements_OfADeclarationWithoutConstraints_AllocateNoGrowthWithTheElementCount()
     {
+#if !NET6_0_OR_GREATER
+        Skip.Test("The allocation bound is calibrated for net6.0 and newer.");
+#endif
         var schema = IdcFixture.Schema();
         var small = Document(1_000, static i => "a=\"" + i + "\"");
         var large = Document(100_000, static i => "a=\"" + i + "\"");
