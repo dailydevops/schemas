@@ -85,14 +85,17 @@ public class AnnotationValueTests
     }
 
     [Test]
-    public async Task Types_AreInternal_UntilTheAssemblyOfTheValidatorExposesThem()
+    public async Task Types_AreOnlyPublic_WhereTheAnnotatedResultExposesThem()
     {
-        var names = new[]
+        var exposed = new[]
         {
             typeof(XsdAnnotation),
             typeof(XsdTypeName),
             typeof(XsdValidity),
             typeof(XsdTypedValueKind),
+        };
+        var machinery = new[]
+        {
             typeof(IAnnotationSink),
             typeof(AnnotationTable),
             typeof(AnnotationListener),
@@ -100,11 +103,16 @@ public class AnnotationValueTests
         };
 
         var visible = 0;
-        foreach (var type in names)
+        foreach (var type in exposed)
         {
             visible += type.IsPublic ? 1 : 0;
         }
 
-        await Assert.That(visible).IsEqualTo(0);
+        foreach (var type in machinery)
+        {
+            visible += type.IsPublic ? 100 : 0;
+        }
+
+        await Assert.That(visible).IsEqualTo(exposed.Length);
     }
 }

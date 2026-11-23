@@ -1,0 +1,9 @@
+# The instance tests of XSD 1.0 of the W3C XML Schema Test Suite for which tree validation (IXsdValidator.ValidateTree) cannot be compared one to one with the streaming path (XSD-79, #361).
+# One line per case, sorted by test set and case id: test set, case id, kind, issue (- when no issue is open), reason.
+# Kind unloadable: the instance cannot be loaded into a tree, because it is not well formed or exceeds a reader limit; the tree path takes a loaded tree.
+# Kind doctype: the instance has a document type declaration, and the tree holds no unparsed entities or notations (#731), so the issues differ.
+# The test TreeValidationEquivalenceTests keeps this list equal to the cases it observes: a case that starts to agree leaves the list.
+msMeta-AttributeGroup_w3c	1.0/attgD003/attgD003.v	unloadable	-	The element has 2000 attributes, which exceeds the reader limit of 1024 attributes per element; the streaming path reports the limit as an issue, and no tree exists to validate.
+sunMeta-Wildcard	1.0/pscontents00201m1/Negative	unloadable	-	The instance is not well formed (the end tag of the date element does not match its start tag), so no tree exists for it.
+sunMeta-Wildcard	1.0/pscontents00301m2/Negative	unloadable	-	The instance is not well formed (the end tag of the test:date element has no prefix), so no tree exists for it.
+sunMeta-Wildcard	1.0/pscontents00302m2/Negative	unloadable	-	The instance is not well formed (an attribute value is not delimited correctly), so no tree exists for it.
