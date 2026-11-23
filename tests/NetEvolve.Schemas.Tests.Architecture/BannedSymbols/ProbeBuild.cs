@@ -114,8 +114,16 @@ internal static class ProbeBuild
                 Environment = { ["DOTNET_CLI_UI_LANGUAGE"] = "en", ["VSLANG"] = "1033" },
             }
         )!;
-        var stdout = process.StandardOutput.ReadToEndAsync(cancellationToken);
-        var stderr = process.StandardError.ReadToEndAsync(cancellationToken);
+        var stdout = process.StandardOutput.ReadToEndAsync(
+#if NET7_0_OR_GREATER
+            cancellationToken
+#endif
+            );
+        var stderr = process.StandardError.ReadToEndAsync(
+#if NET7_0_OR_GREATER
+            cancellationToken
+#endif
+            );
         await process.WaitForExitAsync(cancellationToken).ConfigureAwait(false);
 
         return (process.ExitCode, await stdout.ConfigureAwait(false) + await stderr.ConfigureAwait(false));
