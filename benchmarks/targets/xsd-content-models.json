@@ -1,32 +1,32 @@
 [
   {
     "name": "ContentModelCompileBenchmarks.CompileMaxOccurs10",
-    "meanNs": 295.4,
-    "allocatedBytes": 1672
+    "meanNs": 626,
+    "allocatedBytes": 1689
   },
   {
     "name": "ContentModelCompileBenchmarks.CompileMaxOccurs10000",
-    "meanNs": 282.2,
-    "allocatedBytes": 1672
+    "meanNs": 621,
+    "allocatedBytes": 1689
   },
   {
     "name": "ContentModelCompileBenchmarks.CompileMaxOccursOneBillion",
-    "meanNs": 278.9,
-    "allocatedBytes": 1672
+    "meanNs": 625,
+    "allocatedBytes": 1689
   },
   {
     "name": "ContentModelMatchBenchmarks.MatchSequence",
-    "meanNs": 23.7,
+    "meanNs": 32,
     "allocatedBytes": 0
   },
   {
     "name": "ContentModelMatchBenchmarks.MatchChoice",
-    "meanNs": 37.3,
+    "meanNs": 52,
     "allocatedBytes": 0
   },
   {
     "name": "ContentModelMatchBenchmarks.MatchNestedCountedGroups",
-    "meanNs": 19464.2,
+    "meanNs": 29353,
     "allocatedBytes": 0
   }
 ]
