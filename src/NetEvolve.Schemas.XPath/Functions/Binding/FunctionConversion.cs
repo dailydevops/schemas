@@ -6,17 +6,20 @@ using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Evaluation.Arithmetic;
 using NetEvolve.Schemas.XPath.Evaluation.Atomization;
 using NetEvolve.Schemas.XPath.Syntax.Tree;
+using NetEvolve.Schemas.XPath.Types;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>
 /// The function conversion rules (XPath 2.0, 3.1.5, with the type promotion of B.1): the argument is atomized, each
 /// <c>xs:untypedAtomic</c> item is cast to the expected atomic type through the casting table (<see cref="UntypedAtomicCast"/>), each numeric item is promoted, each <c>xs:anyURI</c> item is
-/// promoted to <c>xs:string</c>, and the result must match the expected type, or XPTY0004 is raised.
+/// promoted to <c>xs:string</c>, and the result must match the expected type, or XPTY0004 is raised. A kind test or <c>empty-sequence()</c>
+/// is matched by the shared sequence type matcher (<see cref="SequenceTypeMatcher"/>) without atomization.
 /// </summary>
 /// <remarks>
 /// Limitations: nodes atomize with the untyped default, so annotated nodes await schema-aware processing (DEF-40, #52); the
-/// derivation check covers the built-in atomic types a function signature names (<c>xs:integer</c> is a <c>xs:decimal</c>, the two
-/// duration types are <c>xs:duration</c>), and the shared matcher of XP-21 (#227) replaces it; XPath 1.0 compatibility mode is not
+/// derivation check is the one of the built-in type table (<see cref="XdmTypes.IsDerivedFrom"/>), so an item of a derived type keeps its
+/// type for every base type, and an atomic type outside the item types of <see cref="XPathItemType"/> is not promoted to; XPath 1.0
+/// compatibility mode is not
 /// applied here: <see cref="Compatibility.CompatibilityFunctionConversion"/> runs in front of these rules. A singleton argument allocates nothing in the binding layer unless an <c>xs:untypedAtomic</c> value is cast to a decimal, date and time, or
 /// duration value, which is boxed (#661).
 /// </remarks>
@@ -33,6 +36,12 @@ internal static class FunctionConversion
         if (type is { ItemType: XPathItemType.Item, Occurrence: Occurrence.ZeroOrMore })
         {
             return argument;
+        }
+
+        // A kind test or empty-sequence(): the matcher decides, nothing is atomized.
+        if (type.Matcher is { } matcher)
+        {
+            return matcher.Matches(argument) ? argument : throw XPathErrors.Exception(XPathErrorCodes.XPTY0004);
         }
 
         var count = argument.Count;
@@ -61,7 +70,7 @@ internal static class FunctionConversion
 
                 return argument;
             default:
-                return ConvertAtomic(XPathAtomization.Atomize(argument), count, type.ItemType);
+                return ConvertAtomic(XPathAtomization.Atomize(argument), count, type);
         }
     }
 
@@ -74,7 +83,7 @@ internal static class FunctionConversion
             _ => true,
         };
 
-    private static XdmSequence ConvertAtomic(in XdmSequence atomic, int count, XPathItemType target)
+    private static XdmSequence ConvertAtomic(in XdmSequence atomic, int count, XPathParameterType target)
     {
         if (count == 1)
         {
@@ -125,22 +134,25 @@ internal static class FunctionConversion
         }
     }
 
-    private static XdmItem ConvertItem(in XdmItem item, XPathItemType target)
+    private static XdmItem ConvertItem(in XdmItem item, XPathParameterType target)
     {
-        if (target == XPathItemType.AnyAtomic)
+        var itemType = target.ItemType;
+        if (itemType == XPathItemType.AnyAtomic)
         {
             return item;
         }
 
         if (item.Kind == XdmItemKind.UntypedAtomic)
         {
-            if (target == XPathItemType.UntypedAtomic)
+            if (itemType == XPathItemType.UntypedAtomic)
             {
                 return item;
             }
 
             _ = item.TryGetUntypedAtomic(out var lexical);
-            return UntypedAtomicCast.Cast(lexical!, target == XPathItemType.Numeric ? XPathItemType.Double : target);
+            return itemType == XPathItemType.Numeric
+                ? UntypedAtomicCast.Cast(lexical!, XPathItemType.Double)
+                : UntypedAtomicCast.Cast(lexical!, target.AtomicTypeId);
         }
 
         if (Matches(target, item))
@@ -148,72 +160,41 @@ internal static class FunctionConversion
             return item;
         }
 
-        return TryPromote(item, target, out var promoted)
+        return TryPromote(item, target.AtomicTypeId, out var promoted)
             ? promoted
             : throw XPathErrors.Exception(XPathErrorCodes.XPTY0004);
     }
 
-    // Subtype substitution: the item keeps its own type when that type is the expected one or derives from it.
-    private static bool Matches(XPathItemType target, in XdmItem item) =>
-        MatchesKind(target, item.Kind) || (target == XPathItemType.Integer && item.TryGetBigInteger(out _));
-
-    private static bool MatchesKind(XPathItemType target, XdmItemKind kind) =>
-        target switch
-        {
-            XPathItemType.Numeric => kind
-                is XdmItemKind.XsInteger
-                    or XdmItemKind.XsDecimal
-                    or XdmItemKind.XsFloat
-                    or XdmItemKind.XsDouble,
-            XPathItemType.Decimal => kind is XdmItemKind.XsDecimal or XdmItemKind.XsInteger,
-            XPathItemType.Integer => kind == XdmItemKind.XsInteger,
-            XPathItemType.Float => kind == XdmItemKind.XsFloat,
-            XPathItemType.Double => kind == XdmItemKind.XsDouble,
-            XPathItemType.String => kind == XdmItemKind.XsString,
-            XPathItemType.Boolean => kind == XdmItemKind.Boolean,
-            XPathItemType.UntypedAtomic => kind == XdmItemKind.UntypedAtomic,
-            XPathItemType.AnyUri => kind == XdmItemKind.AnyUri,
-            XPathItemType.DateTime => kind == XdmItemKind.DateTime,
-            XPathItemType.Date => kind == XdmItemKind.Date,
-            XPathItemType.Time => kind == XdmItemKind.Time,
-            XPathItemType.Duration => kind
-                is XdmItemKind.Duration
-                    or XdmItemKind.YearMonthDuration
-                    or XdmItemKind.DayTimeDuration,
-            XPathItemType.YearMonthDuration => kind == XdmItemKind.YearMonthDuration,
-            XPathItemType.DayTimeDuration => kind == XdmItemKind.DayTimeDuration,
-            _ => false,
-        };
+    // Subtype substitution: the item keeps its own type when that type is the expected one or derives from it. The numeric pseudo type is
+    // the union of the three primitive numeric types, which also covers the integers and the types derived from them.
+    private static bool Matches(XPathParameterType target, in XdmItem item) =>
+        target.ItemType == XPathItemType.Numeric
+            ? XdmTypes.IsDerivedFrom(item.TypeId, XdmTypeId.XsDecimal)
+                || XdmTypes.IsDerivedFrom(item.TypeId, XdmTypeId.XsFloat)
+                || XdmTypes.IsDerivedFrom(item.TypeId, XdmTypeId.XsDouble)
+            : XdmTypes.IsDerivedFrom(item.TypeId, target.AtomicTypeId);
 
     // Numeric promotion (B.1): float to double, decimal to float or double, with the integers as decimals; URI promotion: anyURI to string.
-    private static bool TryPromote(in XdmItem item, XPathItemType target, out XdmItem promoted)
+    private static bool TryPromote(in XdmItem item, XdmTypeId target, out XdmItem promoted)
     {
         promoted = default;
-        switch (target)
+        if (target == XdmTypeId.XsDouble)
         {
-            case XPathItemType.Double:
-                if (NumericPromotion.TryToDouble(item, out var number))
-                {
-                    promoted = XdmItem.FromDouble(number);
-                }
-
-                break;
-            case XPathItemType.Float:
-                if (NumericPromotion.TryToSingle(item, out var single))
-                {
-                    promoted = XdmItem.FromFloat(single);
-                }
-
-                break;
-            case XPathItemType.String:
-                if (item.TryGetAnyUri(out var uri))
-                {
-                    promoted = XdmItem.FromString(uri!);
-                }
-
-                break;
-            default:
-                break;
+            if (NumericPromotion.TryToDouble(item, out var number))
+            {
+                promoted = XdmItem.FromDouble(number);
+            }
+        }
+        else if (target == XdmTypeId.XsFloat)
+        {
+            if (NumericPromotion.TryToSingle(item, out var single))
+            {
+                promoted = XdmItem.FromFloat(single);
+            }
+        }
+        else if (target == XdmTypeId.XsString && item.TryGetAnyUri(out var uri))
+        {
+            promoted = XdmItem.FromString(uri!);
         }
 
         return promoted.Kind != XdmItemKind.None;
