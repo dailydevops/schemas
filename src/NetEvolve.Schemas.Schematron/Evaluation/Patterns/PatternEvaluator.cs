@@ -91,7 +91,7 @@ internal sealed class PatternEvaluator
     /// <param name="sets">The active patterns and groups in document order.</param>
     /// <param name="document">The document node of the instance.</param>
     /// <returns>The summary for <c>Finish</c>: truncated with <see cref="SchematronDiagnosticCodes.IssueLimitStop"/> when the issue limit ended the run.</returns>
-    /// <exception cref="System.OperationCanceledException">The token was cancelled; no event is delivered after that.</exception>
+    /// <exception cref="System.OperationCanceledException">The token was canceled; no event is delivered after that.</exception>
     internal SchematronRunSummary Evaluate(IReadOnlyList<CompiledRuleSet> sets, in XPathNode document)
     {
         ArgumentNullException.ThrowIfNull(sets);
