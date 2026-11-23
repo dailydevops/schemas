@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Xsd.Components;
+﻿namespace NetEvolve.Schemas.Xsd.Components;
 
 using System.Collections.Generic;
 using System.Threading;
@@ -52,7 +52,7 @@ internal sealed class XsdSchemaSet
     /// <returns>The overlay set.</returns>
     internal XsdSchemaSet WithParent(XsdSchemaSet parent)
     {
-        Argument.ThrowIfNull(parent);
+        ArgumentNullException.ThrowIfNull(parent);
 
         return new XsdSchemaSet(Version, _spaces, Count, parent, _namespaces);
     }
@@ -63,7 +63,7 @@ internal sealed class XsdSchemaSet
     /// <remarks>The built-in types make the XML Schema namespace always defined. The answer is computed when the set is built.</remarks>
     internal bool DefinesNamespace(string namespaceName)
     {
-        Argument.ThrowIfNull(namespaceName);
+        ArgumentNullException.ThrowIfNull(namespaceName);
 
         return _namespaces.Contains(namespaceName) || (Parent?.DefinesNamespace(namespaceName) ?? false);
     }

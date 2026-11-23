@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Xsd.Validation.SchemaLocation;
+﻿namespace NetEvolve.Schemas.Xsd.Validation.SchemaLocation;
 
 using System.Threading;
 using NetEvolve.Arguments;
@@ -19,8 +19,8 @@ internal sealed class BudgetResolver : IResourceResolver
 
     internal BudgetResolver(IResourceResolver inner, int allowance)
     {
-        Argument.ThrowIfNull(inner);
-        Argument.ThrowIfLessThan(allowance, 0);
+        ArgumentNullException.ThrowIfNull(inner);
+        ArgumentOutOfRangeException.ThrowIfLessThan(allowance, 0);
 
         _inner = inner;
         _allowance = allowance;

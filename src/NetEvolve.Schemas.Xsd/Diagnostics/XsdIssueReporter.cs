@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Xsd.Diagnostics;
+﻿namespace NetEvolve.Schemas.Xsd.Diagnostics;
 
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Formats;
@@ -33,7 +33,7 @@ internal sealed class XsdIssueReporter
     /// <param name="issue">The issue.</param>
     internal void Add(ValidationIssue issue)
     {
-        Argument.ThrowIfNull(issue);
+        ArgumentNullException.ThrowIfNull(issue);
 
         _collector.Add(issue);
     }

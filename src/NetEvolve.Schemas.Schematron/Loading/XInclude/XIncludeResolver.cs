@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Schematron.Loading.XInclude;
+﻿namespace NetEvolve.Schemas.Schematron.Loading.XInclude;
 
 using System;
 using System.Threading;
@@ -92,7 +92,7 @@ internal sealed class XIncludeResolver
     )
     {
         cancellationToken.ThrowIfCancellationRequested();
-        Argument.ThrowIfNull(href);
+        ArgumentNullException.ThrowIfNull(href);
 
         return _fetcher.TryFetch(href, baseUri, at, cancellationToken, out content, out systemId, out problem);
     }
