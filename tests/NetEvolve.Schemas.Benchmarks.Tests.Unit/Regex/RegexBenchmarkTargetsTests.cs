@@ -41,10 +41,10 @@ public class RegexBenchmarkTargetsTests
 
         var expected = Scan().Where(m => !m.IsBaseline).Select(m => m.Name).OrderBy(n => n, StringComparer.Ordinal);
 
-        await Assert.That(await ReadTargets(cancellationToken)).IsNotEmpty();
-        await Assert
-            .That((await ReadTargets(cancellationToken)).Select(t => t.Name).OrderBy(n => n, StringComparer.Ordinal))
-            .IsEquivalentTo(expected);
+        var targets = await ReadTargets(cancellationToken);
+
+        await Assert.That(targets).IsNotEmpty();
+        await Assert.That(targets.Select(t => t.Name).OrderBy(n => n, StringComparer.Ordinal)).IsEquivalentTo(expected);
     }
 
     [Test]
