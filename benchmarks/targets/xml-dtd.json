@@ -2,13 +2,13 @@
   {
     "name": "InternalSubsetValidationBenchmarks.ValidateInternalSubset",
     "meanNs": 762107.0,
-    "allocatedBytes": 46368,
+    "allocatedBytes": 46889,
     "baselineRatio": 2.9
   },
   {
     "name": "ExternalSubsetValidationBenchmarks.ValidateExternalSubset",
     "meanNs": 958893.0,
-    "allocatedBytes": 63648,
+    "allocatedBytes": 64285,
     "baselineRatio": 3.5
   }
 ]
