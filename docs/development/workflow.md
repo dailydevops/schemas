@@ -10,7 +10,7 @@ A failing test exists before the implementation.
 2. Run it and confirm that it fails for the expected reason. Commit it on its own (`test(<scope>): ...`).
 3. Implement until the test is green. Commit the implementation separately (`feat(<scope>): ...`).
 
-No implementation is merged without a confirming test. Where no test is possible, the issue names the evidence to deliver instead. A test must run green on every leg: `net5.0` (runs the `netstandard2.0` build), `net6.0` (runs the `netstandard2.1` build), `net10.0`, and `net11.0`.
+No implementation is merged without a confirming test. Where no test is possible, the issue names the evidence to deliver instead. A test must run green on every leg: `net5.0` (runs the `netstandard2.0` build), `net10.0`, and `net11.0`.
 
 ```shell
 dotnet test --solution Schemas.slnx -c Release -f net5.0

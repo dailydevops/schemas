@@ -22,7 +22,7 @@ public class ArgumentGuardTests
         await Assert.That(() => ArgumentOutOfRangeException.ThrowIfLessThan(offset, -1)).ThrowsNothing();
     }
 
-    // Regression for #464: the guard is executed from the netstandard build of src on the net5.0 and net6.0 legs.
+    // Regression for #464: the guard is executed from the netstandard build of src on the net5.0 leg.
     [Test]
     public async Task PolyfillProbe_RequirePositive_RunsGuardFromLibraryBuild()
     {

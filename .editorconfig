@@ -2,8 +2,6 @@
 # top-most EditorConfig file
 root = true
 
-# DO NOT CHANGE SETTINGS IN THIS FILE. PLEASE CREATE PULL REQUEST IN REPOSITORY `dotnet-engineering`.
-
 # Don't use tabs for indentation.
 [*]
 insert_final_newline = true

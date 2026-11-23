@@ -9,13 +9,7 @@ internal sealed class CorePublicApiTests
 {
     private const string AssemblyName = "NetEvolve.Schemas";
 
-    private static readonly string[] LibraryTargetFrameworks =
-    [
-        "netstandard2.0",
-        "netstandard2.1",
-        "net10.0",
-        "net11.0",
-    ];
+    private static readonly string[] LibraryTargetFrameworks = ["netstandard2.0", "net10.0", "net11.0"];
 
     [Test]
     public async Task PublicApi_MatchesVerifiedFile() =>
@@ -31,7 +25,6 @@ internal sealed class CorePublicApiTests
 
     [Test]
     [Arguments("netstandard2.0")]
-    [Arguments("netstandard2.1")]
     [Arguments("net11.0")]
     public async Task VerifiedFile_IsLineForLineIdenticalToNet10(
         string targetFramework,

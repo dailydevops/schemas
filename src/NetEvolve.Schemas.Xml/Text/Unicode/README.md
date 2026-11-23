@@ -2,7 +2,7 @@
 
 Lookup tables for the Unicode general category, the block, and the simple case folding of a code point, embedded
 in the Xml package so the regex engine gives the same answers on every target framework (`netstandard2.0`,
-`netstandard2.1`, `net10.0`, `net11.0`). The runtime's own Unicode data is never consulted.
+`net10.0`, `net11.0`). The runtime's own Unicode data is never consulted.
 
 ## Pinned version
 

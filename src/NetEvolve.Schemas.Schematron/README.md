@@ -2,7 +2,7 @@
 
 Validates XML documents against ISO Schematron schemas. A schema is compiled once into an immutable, thread-safe validator; a validation reports every failed `assert` and every successful `report` as an issue, and can also write the run as SVRL (Schematron Validation Report Language).
 
-The implemented edition is ISO/IEC 19757-3:2025. A schema without `schematronEdition` keeps the semantics of the earlier edition, see [Edition detection](#edition-detection). The package builds on `NetEvolve.Schemas.XPath`, `NetEvolve.Schemas.Xml`, and `NetEvolve.Schemas`, and targets `netstandard2.0`, `netstandard2.1`, `net10.0`, and `net11.0`.
+The implemented edition is ISO/IEC 19757-3:2025. A schema without `schematronEdition` keeps the semantics of the earlier edition, see [Edition detection](#edition-detection). The package builds on `NetEvolve.Schemas.XPath`, `NetEvolve.Schemas.Xml`, and `NetEvolve.Schemas`, and targets `netstandard2.0`, `net10.0`, and `net11.0`.
 
 This readme describes the state of the main branch at the time of writing; the sections [Conformance](#conformance) and [Limitations](#limitations) say what is missing.
 

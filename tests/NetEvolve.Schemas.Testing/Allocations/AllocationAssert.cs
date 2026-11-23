@@ -14,7 +14,7 @@
 /// <para>
 /// Known deviations: the unavailable path cannot occur with the real meter on the supported runtimes (it never
 /// returns a negative value and does not throw), so it is verified only through the injectable meter. The issue's
-/// net472/net481 legs are not covered; the helper is verified on net5.0, net6.0, net10.0, and net11.0 only.
+/// net472/net481 legs are not covered; the helper is verified on net5.0, net10.0, and net11.0 only.
 /// </para>
 /// </remarks>
 public static class AllocationAssert
