@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Conformance.Fetch;
+﻿namespace NetEvolve.Schemas.Conformance.Fetch;
 
 using System.Security.Cryptography;
 using NetEvolve.Schemas.Conformance.Manifest;
@@ -116,6 +116,8 @@ public sealed class SuiteFetcher
     // SHA256.HashDataAsync only exists on .NET 7+.
     private static async Task<byte[]> ComputeSha256Async(Stream stream, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
 #if NET7_0_OR_GREATER
         return await SHA256.HashDataAsync(stream, cancellationToken).ConfigureAwait(false);
 #else

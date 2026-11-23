@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Xml.Tests.Unit.Interop;
+﻿namespace NetEvolve.Schemas.Xml.Tests.Unit.Interop;
 
 using System;
 using System.Collections.Generic;
@@ -39,7 +39,7 @@ public class XmlInteropTests
 
     private static XmlDocument LoadDom(string xml)
     {
-        var document = new XmlDocument { PreserveWhitespace = true, XmlResolver = null };
+        var document = new XmlDocument { PreserveWhitespace = true, XmlResolver = null! };
         document.LoadXml(xml);
         return document;
     }

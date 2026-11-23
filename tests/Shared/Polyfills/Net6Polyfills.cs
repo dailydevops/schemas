@@ -14,6 +14,8 @@ internal static class Net6Polyfills
 
     public static async Task<T> WaitAsync<T>(this Task<T> task, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var cancelled = new TaskCompletionSource<T>();
         using (cancellationToken.Register(() => cancelled.TrySetCanceled(cancellationToken)))
         {
