@@ -261,6 +261,9 @@ internal sealed class SandboxedFileSystemResourceResolverTests : IDisposable
     public async Task Resolve_FileThatIsASymbolicLinkInsideRoot_IsServed(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
+#if !NET6_0_OR_GREATER
+        Skip.Test("Without the link target API every link is refused by design.");
+#endif
         if (!TryCreateFileLink(Path.Combine(_root, "link-in.xml"), Path.Combine(_root, "sub", "b.xml")))
         {
             Skip.Test("The operating system denies the creation of symbolic links.");
@@ -303,6 +306,9 @@ internal sealed class SandboxedFileSystemResourceResolverTests : IDisposable
     public async Task Resolve_DirectoryThatIsASymbolicLinkInsideRoot_IsServed(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
+#if !NET6_0_OR_GREATER
+        Skip.Test("Without the link target API every link is refused by design.");
+#endif
         if (!TryCreateDirectoryLink(Path.Combine(_root, "dir-in"), Path.Combine(_root, "sub")))
         {
             Skip.Test("The operating system denies the creation of symbolic links.");

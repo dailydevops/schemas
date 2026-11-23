@@ -46,7 +46,7 @@ public class FakeValidatorContractTests
         await Assert.That(call.CancellationToken).IsEqualTo(Source.Token);
         if (bytes)
         {
-            await Assert.That(call.Bytes).IsEquivalentTo(Utf8);
+            await Assert.That(call.Bytes.Span.SequenceEqual(Utf8)).IsTrue();
         }
         else
         {
