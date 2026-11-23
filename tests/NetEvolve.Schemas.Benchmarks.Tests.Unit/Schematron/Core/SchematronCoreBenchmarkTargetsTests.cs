@@ -16,6 +16,7 @@ public class SchematronCoreBenchmarkTargetsTests
     [Test]
     public async Task Targets_CoverCompileValidateAndSvrlWrite_AndNothingElse(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         string[] expected =
         [
             .. Sizes.Select(s => $"SchemaCompilationBenchmarks.Compile{s}"),
@@ -39,6 +40,7 @@ public class SchematronCoreBenchmarkTargetsTests
         CancellationToken cancellationToken
     )
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var entries = await ReadTargets(cancellationToken);
 
         foreach (var entry in entries)
