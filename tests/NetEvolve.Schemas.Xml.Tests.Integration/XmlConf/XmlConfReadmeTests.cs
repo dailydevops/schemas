@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Xml.Tests.Integration.XmlConf;
+﻿namespace NetEvolve.Schemas.Xml.Tests.Integration.XmlConf;
 
 using System.Globalization;
 using NetEvolve.Schemas.Conformance.Reporting;
@@ -96,7 +96,7 @@ public class XmlConfReadmeTests
         var applicable = passed + failed;
         // Truncated to one decimal, as the conformance summary does, so that only a run without a failure shows 100.0%.
         var tenths = (long)passed * 1000 / applicable;
-        var rate = string.Create(CultureInfo.InvariantCulture, $"{tenths / 10}.{tenths % 10}%");
+        var rate = FormattableString.Invariant($"{tenths / 10}.{tenths % 10}%");
 
         await Assert.That(readme).Contains("## Conformance");
         await Assert.That(readme).Contains($"The suite has {Number(applicable + excluded)} cases");

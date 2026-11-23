@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Xml.Tests.Unit.Dtd.External.Subset;
+﻿namespace NetEvolve.Schemas.Xml.Tests.Unit.Dtd.External.Subset;
 
 using System.Globalization;
 using System.Linq;
@@ -18,11 +18,7 @@ public class ExternalSubsetStreamingTests
     private const string EntityUri = "http://example.org/doc/pe.ent";
 
     private static string Entities(int count) =>
-        string.Concat(
-            Enumerable
-                .Range(0, count)
-                .Select(i => string.Create(CultureInfo.InvariantCulture, $"<!ENTITY e{i} 'v{i}'>\n"))
-        );
+        string.Concat(Enumerable.Range(0, count).Select(i => FormattableString.Invariant($"<!ENTITY e{i} 'v{i}'>\n")));
 
     private static (string Model, XmlErrorCode? Error) Parse(
         string internalSubset,

@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.XPath.Tests.Integration.Qt3.Runner;
+﻿namespace NetEvolve.Schemas.XPath.Tests.Integration.Qt3.Runner;
 
 using NetEvolve.Schemas.Conformance.Fetch;
 using NetEvolve.Schemas.Conformance.Manifest;
@@ -36,7 +36,11 @@ public class Qt3SuiteTests
     public async Task GetRootAsync_CanceledToken_Throws()
     {
         using var source = new CancellationTokenSource();
+#if NET10_0_OR_GREATER
         await source.CancelAsync();
+#else
+        source.Cancel();
+#endif
 
         _ = await Assert.ThrowsAsync<OperationCanceledException>(async () => await Qt3Suite.GetRootAsync(source.Token));
     }

@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Xsd.Tests.Unit.ContentModels.Determinism;
+﻿namespace NetEvolve.Schemas.Xsd.Tests.Unit.ContentModels.Determinism;
 
 using System;
 using System.Globalization;
@@ -33,7 +33,7 @@ public class CounterRegionsTests
             text[i] =
                 regions.Low(i) == regions.High(i)
                     ? regions.Low(i).ToString(CultureInfo.InvariantCulture)
-                    : string.Create(CultureInfo.InvariantCulture, $"{regions.Low(i)},{regions.High(i)}");
+                    : FormattableString.Invariant($"{regions.Low(i)},{regions.High(i)}");
         }
 
         await Assert.That(string.Join(";", text)).IsEqualTo(expected);

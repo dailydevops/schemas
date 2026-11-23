@@ -5,7 +5,7 @@ using NetEvolve.Schemas.Conformance.Reporting;
 public class TargetFrameworkNameTests
 {
     [Test]
-    [Arguments(".NETCoreApp,Version=v8.0", "net5.0")]
+    [Arguments(".NETCoreApp,Version=v8.0", "net8.0")]
     [Arguments(".NETCoreApp,Version=v11.0", "net11.0")]
     [Arguments(".NETStandard,Version=v2.1", "netstandard2.1")]
     [Arguments("Unknown,Version=v1.0", "Unknown,Version=v1.0")]

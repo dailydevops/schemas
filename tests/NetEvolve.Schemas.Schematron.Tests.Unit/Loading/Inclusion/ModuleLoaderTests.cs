@@ -82,7 +82,11 @@ public class ModuleLoaderTests
     {
         var loader = new ModuleLoader(new FakeResources(), ValidationLimits.Default);
         using var source = new CancellationTokenSource();
+#if NET10_0_OR_GREATER
         await source.CancelAsync();
+#else
+        source.Cancel();
+#endif
 
         await Assert
             .That(() => loader.TryLoad(Reference("x.sch"), source.Token, out _, out _))

@@ -57,7 +57,7 @@ public sealed class SuiteFetcher
             using (var file = File.OpenRead(archivePath))
             {
                 var actual = HexEncoding.ToLower(
-                    await SHA256.HashDataAsync(file, cancellationToken).ConfigureAwait(false)
+                    await ComputeSha256Async(file, cancellationToken).ConfigureAwait(false)
                 );
                 if (!string.Equals(actual, manifest.Sha256, StringComparison.Ordinal))
                 {
@@ -111,5 +111,16 @@ public sealed class SuiteFetcher
             );
         }
         return path;
+    }
+
+    // SHA256.HashDataAsync only exists on .NET 7+.
+    private static async Task<byte[]> ComputeSha256Async(Stream stream, CancellationToken cancellationToken)
+    {
+#if NET7_0_OR_GREATER
+        return await SHA256.HashDataAsync(stream, cancellationToken).ConfigureAwait(false);
+#else
+        using var sha = SHA256.Create();
+        return await sha.ComputeHashAsync(stream, cancellationToken).ConfigureAwait(false);
+#endif
     }
 }

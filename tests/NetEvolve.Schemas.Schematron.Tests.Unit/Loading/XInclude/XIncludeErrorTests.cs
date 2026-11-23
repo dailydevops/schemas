@@ -349,7 +349,11 @@ public class XIncludeErrorTests
     {
         var files = new FakeResources().Add("file:///a/p.xml", "<p/>");
         using var source = new CancellationTokenSource();
+#if NET10_0_OR_GREATER
         await source.CancelAsync();
+#else
+        source.Cancel();
+#endif
         var resolver = new XIncludeResolver(files, ValidationLimits.Default);
         var document = Load(Doc(Inc("p.xml")));
         var problems = new FakeProblemSink();

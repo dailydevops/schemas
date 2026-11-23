@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.Conformance.Tests.Unit.Fetch;
 
-using System.Formats.Tar;
 using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text;

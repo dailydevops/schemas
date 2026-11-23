@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Xsd.Tests.Integration.Differential;
+﻿namespace NetEvolve.Schemas.Xsd.Tests.Integration.Differential;
 
 using System.Net;
 using System.Net.Sockets;
@@ -161,7 +161,10 @@ public class SystemXmlSchemaEngineTests
 
     private static int FreeLoopbackPort()
     {
-        using var probe = new TcpListener(IPAddress.Loopback, 0);
+#if NET10_0_OR_GREATER
+        using
+#endif
+        var probe = new TcpListener(IPAddress.Loopback, 0);
         probe.Start();
         return ((IPEndPoint)probe.LocalEndpoint).Port;
     }
