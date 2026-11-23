@@ -2,6 +2,7 @@
   <!-- The unit tests reach the internal seams and fake them (XSD-50, design #146 DP-1). -->
   <ItemGroup>
     <InternalsVisibleTo Include="NetEvolve.Schemas.Xsd.Tests.Unit" />
+    <InternalsVisibleTo Include="NetEvolve.Schemas.Benchmarks" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../NetEvolve.Schemas.XPath/NetEvolve.Schemas.XPath.csproj" />

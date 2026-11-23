@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.Benchmarks.Tests.Unit.Xsd.ContentModels;
 
-using System.Globalization;
 using System.Text.RegularExpressions;
 using NetEvolve.Schemas.Benchmarks.Gate;
 
@@ -8,7 +7,7 @@ using NetEvolve.Schemas.Benchmarks.Gate;
 /// The content model benchmarks (XSD-65) and their recorded targets. The benchmark project targets only the newest
 /// runtimes, so the benchmark sources are scanned instead of referenced.
 /// </summary>
-public partial class ContentModelBenchmarkTargetsTests
+public class ContentModelBenchmarkTargetsTests
 {
     private const string BenchmarkFolder = "benchmarks/NetEvolve.Schemas.Benchmarks/Xsd/ContentModels";
     private const string TargetFile = "benchmarks/targets/xsd-content-models.json";
@@ -61,8 +60,7 @@ public partial class ContentModelBenchmarkTargetsTests
             targets.Select(t =>
             {
                 var dot = t.Name.IndexOf('.', StringComparison.Ordinal);
-                return string.Create(
-                    CultureInfo.InvariantCulture,
+                return FormattableString.Invariant(
                     $$"""{ "Type": "{{t.Name[..dot]}}", "Method": "{{t.Name[(dot + 1)..]}}", "Parameters": "", "Statistics": { "Mean": {{t.MeanNs * factor}} }, "Memory": { "BytesAllocatedPerOperation": {{t.AllocatedBytes}} } }"""
                 );
             })
@@ -84,18 +82,19 @@ public partial class ContentModelBenchmarkTargetsTests
         foreach (var file in Directory.Exists(folder) ? Directory.GetFiles(folder, "*.cs") : [])
         {
             var code = File.ReadAllText(file);
-            var type = ClassRegex().Match(code).Groups[1].Value;
-            names.AddRange(MethodRegex().Matches(code).Select(m => $"{type}.{m.Groups[1].Value}"));
+            var type = ClassRegex.Match(code).Groups[1].Value;
+            names.AddRange(MethodRegex.Matches(code).Select(m => $"{type}.{m.Groups[1].Value}"));
         }
 
         return names;
     }
 
-    [GeneratedRegex(@"public class (\w+)")]
-    private static partial Regex ClassRegex();
-
-    [GeneratedRegex(@"\[Benchmark[^\]]*\]\s*public \S+ (\w+)\(")]
-    private static partial Regex MethodRegex();
+    private static readonly Regex ClassRegex = new(@"public class (\w+)", RegexOptions.None, TimeSpan.FromSeconds(5));
+    private static readonly Regex MethodRegex = new(
+        @"\[Benchmark[^\]]*\]\s*public \S+ (\w+)\(",
+        RegexOptions.None,
+        TimeSpan.FromSeconds(5)
+    );
 
     private static string RepositoryRoot()
     {

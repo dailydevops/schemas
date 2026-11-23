@@ -1,0 +1,32 @@
+[
+  {
+    "name": "ContentModelCompileBenchmarks.CompileMaxOccurs10",
+    "meanNs": 295.4,
+    "allocatedBytes": 1672
+  },
+  {
+    "name": "ContentModelCompileBenchmarks.CompileMaxOccurs10000",
+    "meanNs": 282.2,
+    "allocatedBytes": 1672
+  },
+  {
+    "name": "ContentModelCompileBenchmarks.CompileMaxOccursOneBillion",
+    "meanNs": 278.9,
+    "allocatedBytes": 1672
+  },
+  {
+    "name": "ContentModelMatchBenchmarks.MatchSequence",
+    "meanNs": 23.7,
+    "allocatedBytes": 0
+  },
+  {
+    "name": "ContentModelMatchBenchmarks.MatchChoice",
+    "meanNs": 37.3,
+    "allocatedBytes": 0
+  },
+  {
+    "name": "ContentModelMatchBenchmarks.MatchNestedCountedGroups",
+    "meanNs": 19464.2,
+    "allocatedBytes": 0
+  }
+]
