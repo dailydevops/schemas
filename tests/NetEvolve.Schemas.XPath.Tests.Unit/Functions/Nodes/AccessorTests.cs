@@ -1,6 +1,9 @@
 namespace NetEvolve.Schemas.XPath.Tests.Unit.Functions.Nodes;
 
 using System.Threading.Tasks;
+using NetEvolve.Schemas.XPath.Errors;
+using NetEvolve.Schemas.XPath.Functions.Nodes;
+using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>
 /// <c>fn:string</c> and <c>fn:data</c> (Functions and Operators 1.0, 2.1 and 2.4): the string value of a node or an atomic value,
@@ -104,4 +107,14 @@ public class AccessorTests
     [Test]
     public async Task Data_WithoutArgument_IsNotRegisteredInXPath20() =>
         await Assert.That(NodesHarness.Run("data")).IsEqualTo("error:not-registered");
+
+    [Test]
+    public async Task OfAtomic_OfAnItemWithoutAStringForm_ThrowsTheErrorOfTheCast()
+    {
+        var item = default(XdmItem);
+
+        var failure = Assert.Throws<XPathException>(() => StringFunction.OfAtomic(in item));
+
+        await Assert.That(failure.Diagnostic.Code).IsEqualTo("XPTY0004");
+    }
 }
