@@ -30,37 +30,40 @@ No builder option, switch, or code path in the library reproduces System.Xml.Sch
 | Verdict differences: this library follows the specification | 1626 | 1624 |
 | Verdict differences: documented limitations of this library | 26 | 21 |
 | Position differences: equivalent | 3916 | 3916 |
-| Differences on cases that a bug issue tracks (no entry) | 10152 | |
+| Differences on cases that a bug issue tracks (no entry) | 9986 | |
 
 ## Differences on cases that a bug issue tracks
 
-The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTests/known-failures.txt` and `tests/NetEvolve.Schemas.Xsd.Tests.Integration/InstanceTests/known-failures.txt` record every case of XSD 1.0 that this library does not pass yet, each with its bug issue. At the time of this triage the run found 10152 differences on these cases:
+The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTests/known-failures.txt` and `tests/NetEvolve.Schemas.Xsd.Tests.Integration/InstanceTests/known-failures.txt` record every case of XSD 1.0 that this library does not pass yet, each with its bug issue. At the time of this triage these lists hold 9986 cases:
 
-| Issue | Differences | Title |
+| Issue | Cases | Title |
 |---|---:|---|
-| #600 | 9686 | feat(xsd): evaluate the own facets of user-defined simple types when validating instance values |
-| #858 | 150 | bug(datatypes): the xsd regex parser rejects the anchors ^ and $ outside a character class |
-| #859 | 63 | bug(xsd): the import check of the namespace attribute is inverted |
-| #359 | 55 | feat(xsd): load schemas from xsi:schemalocation hints through the resolver |
-| #860 | 38 | bug(xsd): a restriction of NOTATION without an enumeration is rejected where the type is not used |
-| #874 | 38 | bug(xsd): schema constraints that the pipeline does not check yet |
+| #600 | 9676 | feat(xsd): evaluate the own facets of user-defined simple types when validating instance values |
+| #963 | 50 | test(conformance): run the xsts instance tests of groups without a schema document through schema location hints |
+| #859 | 45 | bug(xsd): the import check of the namespace attribute is inverted |
+| #874 | 36 | bug(xsd): schema constraints that the pipeline does not check yet |
+| #861 | 31 | bug(xml): a schema document that declares XML 1.1 is rejected as unreadable |
 | #862 | 28 | bug(xsd): length together with minLength or maxLength in one restriction step is accepted |
-| #869 | 22 | feat(xsd): check redefinitions against the redefined component |
-| #863 | 19 | bug(xsd): particle restriction reports errors for restrictions that the XSTS accepts |
-| #870 | 11 | feat(xsd): add notation declarations as components |
+| #860 | 27 | bug(xsd): a restriction of NOTATION without an enumeration is rejected where the type is not used |
+| #869 | 19 | feat(xsd): check redefinitions against the redefined component |
+| #863 | 13 | bug(xsd): particle restriction reports errors for restrictions that the XSTS accepts |
+| #870 | 10 | feat(xsd): add notation declarations as components |
+| #602 | 7 | feat(xsd): apply default values to elements with mixed content |
 | #896 | 7 | feat(xsd): compare fixed values in the value space when validating instances |
-| #602 | 6 | feat(xsd): apply default values to elements with mixed content |
 | #865 | 5 | bug(xsd): a local element declaration with abstract or final is accepted |
 | #866 | 5 | bug(xsd): the all group limits of 1.0 miss particles that occur zero times and identical declarations |
 | #871 | 5 | feat(xsd): reject a value constraint on an attribute or element of type ID |
+| #872 | 5 | feat(xsd): restrict component references to the documents that include or import them |
 | #894 | 4 | bug(xsd): the content model transition ceiling rejects the instance schemas of four xsts cases |
-| #604 | 2 | feat(xsd): resolve QName and NOTATION instance values with the namespace context |
+| #604 | 3 | feat(xsd): resolve QName and NOTATION instance values with the namespace context |
 | #904 | 2 | bug(xsd): an element with two ID-typed attributes through a wildcard is accepted |
 | #905 | 2 | bug(xsd): use=prohibited on an attribute is treated with the XSD 1.1 meaning in a 1.0 schema |
 | #864 | 1 | bug(xsd): fixed values of attribute uses are compared as strings in the derivation check |
 | #903 | 1 | bug(xsd): a strict wildcard rejects an element that has no declaration but a valid xsi:type |
+| #906 | 1 | bug(xsd): an identity constraint field of @* with xsi:nil on the element is accepted |
 | #907 | 1 | bug(xsd): an identity constraint field that selects a skipped attribute is accepted |
 | #908 | 1 | bug(xsd): IDREFS items of a restriction of xs:IDREFS are not resolved |
+| #1056 | 1 | bug(datatypes): the xsd regex parser rejects a class subtraction that follows a trailing hyphen |
 
 ## Verdict differences: this library follows the specification
 
