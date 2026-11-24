@@ -131,6 +131,7 @@ var svrl = Encoding.UTF8.GetString(output.WrittenSpan);
 ```
 
 Here `schema` is the schema of the first sample, and `svrl` holds a `svrl:schematron-output` document with the active pattern `totals`, the fired rule `order`, and the `svrl:failed-assert` `total-limit`.
+
 ### Query bindings
 
 The `queryBinding` of the schema selects the language of the expressions. Names compare without regard to case, and a schema without `queryBinding` is bound as `xslt`. Any other name fails at `Build` with `NES3010`, which lists the supported names. The table lists every reserved name: supported, planned with its work package, or deferred with its DEF ID.
@@ -413,51 +414,6 @@ The suite file of the binding `xslt-3-2025` lists three cases that no selected b
 
 - `iso-schema-composition/rule-abstract-scope-error.xml`
 
-
-**[#915](https://github.com/dailydevops/schemas/issues/915)** (4 cases): Abstract pattern parameters are not substituted in name paths and in diagnostic and property content (NES3300).
-
-- `iso-pattern-templating/pattern-abstract-diagnostic-value-of.xml`
-- `iso-pattern-templating/pattern-abstract-name-path.xml`
-- `iso-pattern-templating/pattern-abstract-property-copy-of.xml`
-- `iso-pattern-templating/pattern-abstract-property-value-of.xml`
-
-**[#916](https://github.com/dailydevops/schemas/issues/916)** (6 cases): The SVRL text of a diagnostic or property reference lacks fpi, icon, and see.
-
-- `iso-reporting/svrl-diagnostic-fpi.xml`
-- `iso-reporting/svrl-diagnostic-icon.xml`
-- `iso-reporting/svrl-diagnostic-see.xml`
-- `iso-reporting/svrl-property-fpi.xml`
-- `iso-reporting/svrl-property-icon.xml`
-- `iso-reporting/svrl-property-see.xml`
-
-**[#917](https://github.com/dailydevops/schemas/issues/917)** (6 cases): The SVRL output carries no xml:lang.
-
-- `iso-reporting/svrl-diagnostic-language.xml`
-- `iso-reporting/svrl-failed-assert-lang.xml`
-- `iso-reporting/svrl-pattern-abstract-lang.xml`
-- `iso-reporting/svrl-property-lang.xml`
-- `iso-reporting/svrl-rule-abstract-lang.xml`
-- `iso-reporting/svrl-successful-report-lang.xml`
-
-**[#918](https://github.com/dailydevops/schemas/issues/918)** (2 cases): The SVRL property-reference lacks role and scheme.
-
-- `iso-reporting/svrl-property-role.xml`
-- `iso-reporting/svrl-property-scheme.xml`
-
-**[#919](https://github.com/dailydevops/schemas/issues/919)** (1 case): The message of sch:name with a path holds the node name, the case expects the value.
-
-- `iso-reporting/svrl-name-path.xml`
-
-**[#920](https://github.com/dailydevops/schemas/issues/920)** (3 cases): White space only text around value-of is kept in the message, the case expects it stripped.
-
-- `iso-pattern-templating/pattern-abstract-pattern-let-value.xml`
-- `iso-pattern-templating/pattern-abstract-rule-let-value.xml`
-- `iso-pattern-templating/pattern-abstract-value-of.xml`
-
-**[#921](https://github.com/dailydevops/schemas/issues/921)** (1 case): An extends of an abstract rule of another pattern builds, the case expects an error.
-
-- `iso-schema-composition/rule-abstract-scope-error.xml`
-
 ### EN 16931 golden tests
 
 The CEN EN 16931 validation artefacts, release 1.3.17, are a real rule set. The archive is pinned by checksum in [`tests/conformance/suites/cen-en16931.json`](https://github.com/dailydevops/schemas/blob/main/tests/conformance/suites/cen-en16931.json) and is fetched, never committed. The cases are every `test` of the unit-test corpus and every official example of the UBL and CII syntaxes, and each case compares the rules that fire with the expected ones.
@@ -486,7 +442,6 @@ dotnet test --project tests/NetEvolve.Schemas.Schematron.Tests.Integration --con
 - **Locations.** A problem of an expression is located by the base URI of the schema and by the line and column within the text of the expression, and a dynamic problem has no line and column ([#881](https://github.com/dailydevops/schemas/issues/881)). `last()` in a predicate without a known size equals `position()` ([#883](https://github.com/dailydevops/schemas/issues/883)).
 - **Thread safety.** A validator is immutable and thread-safe; a `WithReportSink` view and a builder are not.
 - **Compile cost.** Every `Build` compiles the schema; there is no compile-once cache ([#340](https://github.com/dailydevops/schemas/issues/340)).
-
 
 ## Requirements
 
