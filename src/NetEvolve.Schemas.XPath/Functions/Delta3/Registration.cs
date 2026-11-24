@@ -32,5 +32,8 @@ internal static class Registration
         builder.Add(new NodeSelectionFunction(outermost: true));
         builder.Add(new PathFunction());
         builder.Add(new HasChildrenFunction());
+        builder.Add(new StringJoinItemsFunction());
+        builder.Add(new TokenizeWhitespaceFunction());
+        builder.Add(new ContainsTokenFunction());
     }
 }
