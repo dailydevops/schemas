@@ -3,36 +3,36 @@
     "name": "InvoiceCharsReaderBenchmarks.Read",
     "meanNs": 402963.7,
     "allocatedBytes": 4162,
-    "baselineRatio": 5.7
+    "baselineRatio": 7.5
   },
   {
     "name": "InvoiceUtf8ReaderBenchmarks.Read",
     "meanNs": 545195.6,
     "allocatedBytes": 4251,
-    "baselineRatio": 7.2
+    "baselineRatio": 9.4
   },
   {
     "name": "LargeCharsReaderBenchmarks.Read",
     "meanNs": 37072089.8,
     "allocatedBytes": 4162,
-    "baselineRatio": 6.0
+    "baselineRatio": 7.8
   },
   {
     "name": "LargeUtf8ReaderBenchmarks.Read",
     "meanNs": 52097135.0,
     "allocatedBytes": 4251,
-    "baselineRatio": 7.3
+    "baselineRatio": 9.5
   },
   {
     "name": "SmallCharsReaderBenchmarks.Read",
     "meanNs": 1865.9,
     "allocatedBytes": 3758,
-    "baselineRatio": 1.9
+    "baselineRatio": 2.5
   },
   {
     "name": "SmallUtf8ReaderBenchmarks.Read",
     "meanNs": 2392.7,
     "allocatedBytes": 3847,
-    "baselineRatio": 2.5
+    "baselineRatio": 3.3
   }
 ]
