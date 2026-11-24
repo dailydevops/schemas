@@ -1,9 +1,13 @@
-namespace NetEvolve.Schemas.Schematron.Tests.Unit.Evaluation.Assertions;
+﻿namespace NetEvolve.Schemas.Schematron.Tests.Unit.Evaluation.Assertions;
 
 using System;
 using NetEvolve.Schemas.Schematron.Evaluation.Assertions;
 using NetEvolve.Schemas.Schematron.Seams;
+using NetEvolve.Schemas.Xml.Datatypes.Binary;
+using NetEvolve.Schemas.Xml.Datatypes.Contracts;
+using NetEvolve.Schemas.Xml.Datatypes.DateTime;
 using NetEvolve.Schemas.Xml.Datatypes.Decimals;
+using NetEvolve.Schemas.Xml.Datatypes.QNames;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>The text-only sink of design #150 EP-8, examples S2 and S6.</summary>
@@ -156,16 +160,112 @@ public class TextSinkTests
     }
 
     [Test]
-    public async Task Text_UnsupportedAtomicKind_RecordsFailure_AndAppendsNothing()
+    public async Task Text_AtomicWithoutCastToString_RecordsFailure_AndAppendsNothing()
     {
         using var sink = new TextSink(100);
-        var number = XdmItem.FromDouble(1.5);
+        var none = default(XdmItem);
 
         sink.Text("a".AsSpan());
-        sink.Item(in number);
+        sink.Item(in none);
 
         await Assert.That(sink.ToString()).IsEqualTo("a");
         await Assert.That(sink.Failure).IsNotNull();
+    }
+
+    [Test]
+    [Arguments(1.5, "1.5")]
+    [Arguments(1e21, "1.0E21")]
+    [Arguments(double.NaN, "NaN")]
+    [Arguments(double.PositiveInfinity, "INF")]
+    [Arguments(double.NegativeInfinity, "-INF")]
+    [Arguments(-0.0, "-0")]
+    public async Task Text_Double_UsesTheCanonicalForm(double value, string expected)
+    {
+        using var sink = new TextSink(100);
+        var item = XdmItem.FromDouble(value);
+
+        sink.Item(in item);
+
+        await Assert.That(sink.ToString()).IsEqualTo(expected);
+        await Assert.That(sink.Failure).IsNull();
+    }
+
+    [Test]
+    [Arguments(1.5f, "1.5")]
+    [Arguments(1e10f, "1.0E10")]
+    [Arguments(float.NaN, "NaN")]
+    [Arguments(float.NegativeInfinity, "-INF")]
+    public async Task Text_Float_UsesTheCanonicalForm(float value, string expected)
+    {
+        using var sink = new TextSink(100);
+        var item = XdmItem.FromFloat(value);
+
+        sink.Item(in item);
+
+        await Assert.That(sink.ToString()).IsEqualTo(expected);
+    }
+
+    [Test]
+    [Arguments(BinaryKind.HexBinary, "0AFF", "0AFF")]
+    [Arguments(BinaryKind.Base64Binary, "AQID", "AQID")]
+    public async Task Text_Binary_UsesTheCanonicalForm(BinaryKind kind, string lexical, string expected)
+    {
+        using var sink = new TextSink(100);
+        var item = XdmItem.FromBinary(XsdBinary.Parse(lexical.AsSpan(), kind).Value, kind);
+
+        sink.Item(in item);
+
+        await Assert.That(sink.ToString()).IsEqualTo(expected);
+    }
+
+    [Test]
+    [Arguments(XsdDateTimeKind.GYear, "2024")]
+    [Arguments(XsdDateTimeKind.GMonth, "--05")]
+    [Arguments(XsdDateTimeKind.GDay, "---07")]
+    [Arguments(XsdDateTimeKind.GYearMonth, "2024-05")]
+    [Arguments(XsdDateTimeKind.GMonthDay, "--05-07")]
+    public async Task Text_Gregorian_UsesTheCanonicalForm(XsdDateTimeKind kind, string lexical)
+    {
+        using var sink = new TextSink(100);
+        var item = XdmItem.FromTemporal(XsdDateTime.Parse(lexical.AsSpan(), kind, XsdVersion.V10).Value);
+
+        sink.Item(in item);
+
+        await Assert.That(sink.ToString()).IsEqualTo(lexical);
+    }
+
+    [Test]
+    public async Task Text_QName_UsesThePrefixedForm()
+    {
+        using var sink = new TextSink(100);
+        var name = XsdQName.Parse("b:local".AsSpan(), new Bindings()).Value;
+        var item = XdmItem.FromQName(new XdmQName(name, "b"));
+
+        sink.Item(in item);
+
+        await Assert.That(sink.ToString()).IsEqualTo("b:local");
+    }
+
+    [Test]
+    public async Task Text_ConvertedKinds_AreSpaceSeparated()
+    {
+        using var sink = new TextSink(100);
+        var one = Item(1);
+        var two = XdmItem.FromDouble(2.5);
+
+        sink.Item(in one);
+        sink.Item(in two);
+
+        await Assert.That(sink.ToString()).IsEqualTo("1 2.5");
+    }
+
+    private sealed class Bindings : INamespaceContext
+    {
+        public bool TryResolvePrefix(ReadOnlySpan<char> name, out string? resolved)
+        {
+            resolved = name.SequenceEqual("b".AsSpan()) ? "urn:b" : null;
+            return resolved is not null;
+        }
     }
 
     [Test]
@@ -217,7 +317,7 @@ public class TextSinkTests
     public async Task Clear_EmptiesTheSink_AndResetsFlags()
     {
         using var sink = new TextSink(2);
-        var number = XdmItem.FromDouble(1.5);
+        var number = default(XdmItem);
         sink.Text("abc".AsSpan());
         sink.Item(in number);
 
