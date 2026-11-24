@@ -16,9 +16,9 @@ using NetEvolve.Schemas.Xml.Text.Unicode;
 /// for a pattern: a defect is a <see cref="RegexError"/> with the position in the pattern.
 /// </summary>
 /// <remarks>
-/// Limitations: in the XSD dialect the anchors <c>^</c> and <c>$</c> outside a character class, back references (<c>\1</c> to
-/// <c>\9</c>), and reluctant quantifiers are rejected with <see cref="RegexError.ConstructNotAllowed"/> as the approved design
-/// stipulates; XSD Part 2 itself would read a bare <c>^</c> or <c>$</c> as a literal character. Groups do not capture in the XSD
+/// Limitations: in the XSD dialect back references (<c>\1</c> to
+/// <c>\9</c>) and reluctant quantifiers are rejected with <see cref="RegexError.ConstructNotAllowed"/> as the approved design
+/// stipulates; a bare <c>^</c> or <c>$</c> is a literal character there, as in XSD Part 2. Groups do not capture in the XSD
 /// dialect (<see cref="RegexNode.NoGroup"/>). The XPath dialect adds the anchors, reluctant quantifiers, back references, the
 /// escape <c>\$</c>, and non-capturing groups <c>(?:</c>; its capturing groups are numbered by their opening parenthesis, and
 /// any other <c>(?</c> construct, such as a lookahead, is rejected as an invalid quantifier. The flag <c>x</c> removes the
@@ -477,10 +477,8 @@ public static class RegexParser
                     return Fail(RegexError.Unbalanced, _pos);
                 case '{' or '}' or '?' or '*' or '+':
                     return Fail(RegexError.InvalidQuantifier, _pos);
-                case '^' or '$':
-                    return IsXPath
-                        ? Add(RegexNode.Anchor(_p[_pos++] == '^' ? RegexAnchor.Start : RegexAnchor.End))
-                        : Fail(RegexError.ConstructNotAllowed, _pos);
+                case '^' or '$' when IsXPath:
+                    return Add(RegexNode.Anchor(_p[_pos++] == '^' ? RegexAnchor.Start : RegexAnchor.End));
                 case '.':
                     _pos++;
                     return Add(RegexNode.AnyChar());
