@@ -1,8 +1,8 @@
 namespace NetEvolve.Schemas.XPath.Syntax.Lexer;
 
-/// <summary>The terminal symbols of XPath 2.0 (section A.2) as the lexer reports them.</summary>
+/// <summary>The terminal symbols of XPath 2.0 and 3.0 (section A.2) as the lexer reports them.</summary>
 /// <remarks>
-/// Limitation: terminals added by XPath 3.0 and 3.1 are not part of the enumeration.
+/// Limitation: terminals added by XPath 3.1 are not part of the enumeration.
 /// Reserved words are reported as keywords only where the grammar allows them, otherwise as <see cref="Name"/>.
 /// </remarks>
 internal enum XPathTokenKind
@@ -207,4 +207,31 @@ internal enum XPathTokenKind
 
     /// <summary>Keyword <see langword="is"/>.</summary>
     Is,
+
+    /// <summary>The keyword <see langword="let"/> before <c>$</c> (XPath 3.0 and later).</summary>
+    Let,
+
+    /// <summary>The keyword <see langword="function"/> before <c>(</c> (XPath 3.0 and later).</summary>
+    Function,
+
+    /// <summary><c>:=</c> (XPath 3.0 and later).</summary>
+    ColonEqual,
+
+    /// <summary><c>!</c>, the simple map operator (XPath 3.0 and later).</summary>
+    Bang,
+
+    /// <summary><c>||</c>, string concatenation (XPath 3.0 and later).</summary>
+    Concat,
+
+    /// <summary><c>#</c> of a named function reference (XPath 3.0 and later).</summary>
+    Hash,
+
+    /// <summary><c>{</c> (XPath 3.0 and later).</summary>
+    LeftBrace,
+
+    /// <summary><c>}</c> (XPath 3.0 and later).</summary>
+    RightBrace,
+
+    /// <summary>An EQName in the form <c>Q{uri}local</c>; the token covers the whole name (XPath 3.0 and later).</summary>
+    BracedName,
 }

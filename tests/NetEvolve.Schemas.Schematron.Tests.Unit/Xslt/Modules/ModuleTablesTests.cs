@@ -401,13 +401,34 @@ public class ModuleTablesTests
         _ = harness.Compile();
 
         await Assert
-            .That(() => new XsltModuleTables(null!, harness.Tables.Globals, harness.Tables.Keys))
+            .That(() =>
+                new XsltModuleTables(null!, harness.Tables.Globals, harness.Tables.Keys, harness.Tables.DecimalFormats)
+            )
             .Throws<ArgumentNullException>();
         await Assert
-            .That(() => new XsltModuleTables(harness.Tables.Functions, null!, harness.Tables.Keys))
+            .That(() =>
+                new XsltModuleTables(
+                    harness.Tables.Functions,
+                    null!,
+                    harness.Tables.Keys,
+                    harness.Tables.DecimalFormats
+                )
+            )
             .Throws<ArgumentNullException>();
         await Assert
-            .That(() => new XsltModuleTables(harness.Tables.Functions, harness.Tables.Globals, null!))
+            .That(() =>
+                new XsltModuleTables(
+                    harness.Tables.Functions,
+                    harness.Tables.Globals,
+                    null!,
+                    harness.Tables.DecimalFormats
+                )
+            )
+            .Throws<ArgumentNullException>();
+        await Assert
+            .That(() =>
+                new XsltModuleTables(harness.Tables.Functions, harness.Tables.Globals, harness.Tables.Keys, null!)
+            )
             .Throws<ArgumentNullException>();
     }
 

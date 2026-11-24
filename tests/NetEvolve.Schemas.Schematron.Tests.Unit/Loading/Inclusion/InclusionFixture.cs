@@ -9,6 +9,7 @@ using NetEvolve.Schemas.Schematron.Model;
 using NetEvolve.Schemas.Schematron.Parsing.Core;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Schematron.Tests.Unit.Fakes;
+using NetEvolve.Schemas.Schematron.Xslt.Modules;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Model;
 using NetEvolve.Schemas.Xml.Reader.Pipeline;
@@ -67,15 +68,22 @@ internal static class InclusionFixture
         var problems = new FakeProblemSink();
         var loader = new ModuleLoader(resources, limits ?? ValidationLimits.Default);
         var ok = new ModelResolver().TryResolve(Parse(root, systemId), loader, problems, out var model);
-        return new Outcome(ok, model.Schema, problems.Problems);
+        return new Outcome(ok, model.Schema, problems.Problems, model.Modules);
     }
 
-    internal sealed class Outcome(bool ok, SchematronSchema schema, List<SchematronProblem> problems)
+    internal sealed class Outcome(
+        bool ok,
+        SchematronSchema schema,
+        List<SchematronProblem> problems,
+        XsltModuleSet modules
+    )
     {
         internal bool Ok { get; } = ok;
 
         internal SchematronSchema Schema { get; } = schema;
 
         internal List<SchematronProblem> Problems { get; } = problems;
+
+        internal XsltModuleSet Modules { get; } = modules;
     }
 }

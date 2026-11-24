@@ -147,14 +147,24 @@ public class CompilationFailureTests
     }
 
     [Test]
-    public async Task XsltDeclaration_IsReportedUntilTheModulesAreLinked()
+    public async Task XsltDeclaration_ThatNoInstructionHandles_IsReportedAsUnsupported()
     {
         var failure = BuildFailure(
-            Wrap("<xsl:variable xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" name=\"v\" select=\"1\"/>" + Pattern)
+            Wrap("<xsl:template xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" match=\"/\"/>" + Pattern)
         );
 
         await Assert.That(failure.Issues.Single().Code).IsEqualTo(SchematronDiagnosticCodes.XsltUnsupported);
-        await Assert.That(failure.Issues.Single().Message).Contains("xsl:variable");
+        await Assert.That(failure.Issues.Single().Message).Contains("xsl:template");
+    }
+
+    [Test]
+    public async Task XsltVariable_InASchema_Builds()
+    {
+        var validator = Build(
+            Wrap("<xsl:variable xmlns:xsl=\"http://www.w3.org/1999/XSL/Transform\" name=\"v\" select=\"1\"/>" + Pattern)
+        );
+
+        await Assert.That(validator.Schema.Patterns.Count).IsEqualTo(1);
     }
 
     [Test]

@@ -204,8 +204,13 @@ internal sealed partial class CoreParseRun
         return new SchematronProperty(Location(element), id, role, scheme, ParseMessage(element, CoreInline.Property));
     }
 
-    private SchematronForeignElement ParseForeign(XmlNode element)
+    private SchematronForeignElement ParseForeign(
+        XmlNode element,
+        IReadOnlyList<KeyValuePair<string, string>>? inherited = null,
+        bool declareNamespaces = false
+    )
     {
+        var declarations = declareNamespaces ? Declarations(element, inherited) : null;
         var attributes = new List<KeyValuePair<string, string>>();
         for (var attribute = element.FirstAttribute; !attribute.IsEmpty; attribute = attribute.NextAttribute)
         {
@@ -215,6 +220,7 @@ internal sealed partial class CoreParseRun
             attributes.Add(new KeyValuePair<string, string>(key, attribute.StringValue));
         }
 
+        var scope = declareNamespaces ? InScope(element) : null;
         var children = new List<SchematronNode>();
         for (var child = element.FirstChild; !child.IsEmpty; child = child.NextSibling)
         {
@@ -224,7 +230,7 @@ internal sealed partial class CoreParseRun
             }
             else if (child.Kind == XmlNodeKind.Element)
             {
-                children.Add(ParseForeign(child));
+                children.Add(ParseForeign(child, scope, declareNamespaces));
             }
         }
 
@@ -233,8 +239,50 @@ internal sealed partial class CoreParseRun
             _names.GetString(element.Name.NamespaceUri),
             LocalName(element),
             attributes.ToArray(),
-            children.ToArray()
+            children.ToArray(),
+            declarations
         );
+    }
+
+    // The prefixed bindings in scope at the element. The default namespace is left out: the writer of the module tree derives it from
+    // the name of the element, and a binding of it here could contradict that.
+    private List<KeyValuePair<string, string>> InScope(XmlNode element)
+    {
+        var scope = new List<KeyValuePair<string, string>>();
+        for (var ns = element.FirstNamespace; !ns.IsEmpty; ns = ns.NextNamespace)
+        {
+            var prefix = ns.Name.Local.IsEmpty ? string.Empty : _names.GetString(ns.Name.Local);
+            if (prefix.Length > 0 && !string.Equals(prefix, "xml", StringComparison.Ordinal))
+            {
+                scope.Add(new KeyValuePair<string, string>(prefix, ns.StringValue));
+            }
+        }
+
+        return scope;
+    }
+
+    // The bindings of the element that its parent does not have with the same namespace name.
+    private List<KeyValuePair<string, string>> Declarations(
+        XmlNode element,
+        IReadOnlyList<KeyValuePair<string, string>>? inherited
+    )
+    {
+        var declarations = new List<KeyValuePair<string, string>>();
+        foreach (var binding in InScope(element))
+        {
+            var known = false;
+            for (var i = 0; inherited is not null && i < inherited.Count && !known; i++)
+            {
+                known = inherited[i].Key == binding.Key && inherited[i].Value == binding.Value;
+            }
+
+            if (!known)
+            {
+                declarations.Add(binding);
+            }
+        }
+
+        return declarations;
     }
 
     private void RejectXslt(XmlNode element, XmlNode parent)
