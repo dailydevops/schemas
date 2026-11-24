@@ -365,4 +365,56 @@ public class FormatDateTimeTests
                 )
             )
             .IsEqualTo("error:XTDE1350");
+
+    [Test]
+    [Arguments("Q{abc")]
+    [Arguments("a b:c")]
+    [Arguments("1x:c")]
+    public async Task MalformedCalendarName_RaisesFOFD1340(string calendar) =>
+        await Assert
+            .That(FormatDateTimeHarness.Format("format-date", "2003-09-07", "[M01]", "en", calendar))
+            .IsEqualTo("error:FOFD1340");
+
+    [Test]
+    [Arguments("2003-09-07T09:15:06+14:00", "[ZZ]", "+14:00")]
+    [Arguments("2003-09-07T09:15:06+10:00", "[ZZ]", "K")]
+    [Arguments("2003-09-07T09:15:06+09:00", "[ZZ]", "I")]
+    [Arguments("2003-09-07T09:15:06-01:00", "[ZZ]", "N")]
+    [Arguments("2003-09-07T09:15:06-00:30", "[Z]", "-00:30")]
+    [Arguments("2003-09-07T09:15:06-05:00", "[Zxyz]", "-05:00")]
+    [Arguments("2003-09-07T09:15:06-05:00", "[ZNn]", "GMT-05:00")]
+    [Arguments("2003-09-07T09:15:06", "[ZN]", "")]
+    [Arguments("2003-09-07T09:15:06Z", "[z]", "GMT+00:00")]
+    [Arguments("2003-09-07T09:15:06Z", "[Z0t]", "Z")]
+    [Arguments("2003-09-07T09:15:06Z", "[z0t]", "GMT+0")]
+    public async Task TimeZone_MilitaryAndUnusualPatterns(string value, string picture, string expected) =>
+        await Assert.That(FormatDateTimeHarness.Format("format-dateTime", value, picture)).IsEqualTo(expected);
+
+    [Test]
+    [Arguments("[fI]", "456")]
+    [Arguments("[f001,1-1]", "4")]
+    [Arguments("[f,2]", "456")]
+    [Arguments("[Y,2-2]", "03")]
+    [Arguments("[Yw,2-2]", "two thousand and three")]
+    [Arguments("[P,1-1]", "a")]
+    [Arguments("[D#1]", "7")]
+    [Arguments("[H٠١]", "٠٩")]
+    [Arguments("[Fn,2-2]", "su")]
+    public async Task UnusualPresentationAndWidth(string picture, string expected) =>
+        await Assert
+            .That(FormatDateTimeHarness.Format("format-dateTime", "2003-09-07T09:15:06.456", picture))
+            .IsEqualTo(expected);
+
+    [Test]
+    [Arguments("2008-02-29", "[d]", "60")]
+    [Arguments("2008-12-31", "[d]", "366")]
+    [Arguments("2009-01-04", "[w]", "1")]
+    [Arguments("2009-01-01", "[F]", "Thursday")]
+    [Arguments("2009-02-28", "[w]", "4")]
+    [Arguments("1969-12-31", "[F]", "Wednesday")]
+    [Arguments("-0001-12-31", "[F]", "Friday")]
+    [Arguments("2010-01-03", "[W]", "53")]
+    [Arguments("2012-01-01", "[W]", "52")]
+    public async Task CalendarArithmetic_AcrossYearsAndLeapDays(string value, string picture, string expected) =>
+        await Assert.That(FormatDateTimeHarness.Format("format-date", value, picture)).IsEqualTo(expected);
 }
