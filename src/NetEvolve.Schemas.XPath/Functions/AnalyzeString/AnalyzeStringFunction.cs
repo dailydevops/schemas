@@ -110,6 +110,13 @@ internal sealed class AnalyzeStringFunction : RegexFunction
                 position = Close(builder, open, text, position);
             }
 
+            // A quantified group can keep a capture from an earlier iteration that lies before the current position
+            // or outside the enclosing open group. Such a capture cannot be nested in the tree, so it is skipped.
+            if (start < position || (open.Count > 0 && start + range.Length > open.Peek().End))
+            {
+                continue;
+            }
+
             builder.Text(text.Slice(position, start - position), XmlTextKind.Text);
             position = start;
             var group = names.Name("group");
