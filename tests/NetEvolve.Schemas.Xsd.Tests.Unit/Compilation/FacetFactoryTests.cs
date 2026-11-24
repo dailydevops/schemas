@@ -144,7 +144,7 @@ public class FacetFactoryTests
     [Test]
     public async Task Facets_OfAFamilyThatDoesNotCarryThem_AreLeftOut()
     {
-        var enumerated = Facets("xs:anyURI", "<xs:enumeration value=\"urn:a\"/>");
+        var enumerated = Facets("xs:hexBinary", "<xs:enumeration value=\"0A\"/>");
         var digits = Facets("xs:string", "<xs:totalDigits value=\"2\"/>");
         var bound = Facets("xs:boolean", "<xs:minInclusive value=\"true\"/>");
 

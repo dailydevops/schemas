@@ -168,6 +168,26 @@ public class OwnFacetAssessmentTests
     }
 
     [Test]
+    public async Task Restriction_OfAnyUri_EvaluatesLexicalFacets()
+    {
+        var fixture = new FacetFixture();
+        var length = fixture.Base("anyURI", fixture.Facet("anyURI", FacetKind.MaxLength, "5"));
+        var facets = FacetFactory.Create(
+            fixture.Wrapped("anyURI"),
+            [FacetFixture.Decl(FacetKind.Enumeration, "urn:a"), FacetFixture.Decl(FacetKind.Enumeration, "urn:b")],
+            XsdVersion.V11
+        );
+        var enumeration = fixture.Derive(fixture.Wrapped("anyURI"), [.. facets]);
+
+        await Assert.That(fixture.Assessor.Assess(length, " urn:a ", out _).IsValid).IsTrue();
+        await Assert.That(fixture.Assessor.Assess(length, "urn:abc", out _).FailedFacet).IsEqualTo(FacetKind.MaxLength);
+        await Assert.That(fixture.Assessor.Assess(enumeration, "urn:b", out _).IsValid).IsTrue();
+        await Assert
+            .That(fixture.Assessor.Assess(enumeration, "urn:c", out _).FailedFacet)
+            .IsEqualTo(FacetKind.Enumeration);
+    }
+
+    [Test]
     public async Task Restriction_OfQName_IgnoresTheLengthFacets()
     {
         var fixture = new FacetFixture();
