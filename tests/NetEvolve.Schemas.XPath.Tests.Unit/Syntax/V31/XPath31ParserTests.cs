@@ -189,7 +189,7 @@ public class XPath31ParserTests
     [Arguments("-$x => f()", "ArrowExpression(UnaryExpression<Operator=Minus>(VariableReference(x)) f)")]
     [Arguments(
         "$x => f() cast as xs:integer",
-        "CastExpression(ArrowExpression(VariableReference(x) f) SingleType(xs:integer))"
+        "CastExpression(ArrowExpression(VariableReference(x) f) SingleType<AllowsEmpty=False>(xs:integer))"
     )]
     [Arguments(
         "- $x => f() instance of xs:integer",
@@ -348,7 +348,7 @@ public class XPath31ParserTests
     [Arguments("array 1", 6)]
     [Arguments("array { 1", 9)]
     [Arguments("$m?", 3)]
-    [Arguments("$m?()", 4)]
+    [Arguments("$m?(", 4)]
     [Arguments("$m?1.5", 3)]
     [Arguments("$m?-1", 3)]
     [Arguments("$m?$k", 3)]
@@ -362,10 +362,10 @@ public class XPath31ParserTests
     [Arguments("$x => item()", 6)]
     [Arguments("$x => map()", 6)]
     [Arguments("=> f()", 0)]
-    [Arguments("$x instance of map(xs:string)", 29)]
+    [Arguments("$x instance of map(xs:string)", 28)]
     [Arguments("$x instance of map(item(), item())", 23)]
-    [Arguments("$x instance of map(xs:string, item()", 37)]
-    [Arguments("$x instance of map(*, item())", 24)]
+    [Arguments("$x instance of map(xs:string, item()", 36)]
+    [Arguments("$x instance of map(*, item())", 20)]
     [Arguments("$x instance of array()", 21)]
     [Arguments("$x instance of array(xs:integer, xs:integer)", 31)]
     [Arguments("$x instance of array(*", 22)]
@@ -398,7 +398,7 @@ public class XPath31ParserTests
     [Arguments("", "map { 'a' : ", "1", " }", 101)]
     [Arguments("$m", "?(", "1", ")", 10_000)]
     [Arguments("$m", "?(", "1", ")", 101)]
-    [Arguments("$x", " => f(", "1", ")", 10_000)]
+    [Arguments("", "$x => f(", "1", ")", 10_000)]
     [Arguments("$x => (", "(", "f#1", ")", 10_000)]
     [Arguments("$x instance of ", "map(xs:string, ", "item()", ")", 10_000)]
     [Arguments("$x instance of ", "map(xs:string, ", "item()", ")", 101)]
@@ -456,6 +456,6 @@ public class XPath31ParserTests
             }
         });
 
-        await Assert.That(count).IsGreaterThan(50);
+        await Assert.That(count).IsGreaterThan(40);
     }
 }

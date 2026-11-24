@@ -24,14 +24,16 @@ using NetEvolve.Schemas.XPath.Syntax.Tree;
 /// <c>?</c> are occurrence indicators until a keyword or a comma outside the type ends the sequence type, as the
 /// occurrence-indicators constraint requires. The terminals of XPath 3.0 (<see langword="let"/>, <c>:=</c>, <c>!</c>, <c>||</c>,
 /// <c>#</c>, braces, <c>function</c>, and <c>Q{uri}local</c>) are recognized only when the version is XPath 3.0 or
-/// later, so XPath 2.0 input is tokenized as before. Not supported: XPath 3.1 terminals and the <c>Q{uri}*</c>
-/// wildcard. The XPath 3.1 version is tokenized and parsed with the 3.0 grammar.
+/// later, so XPath 2.0 input is tokenized as before. Not supported: the <c>Q{uri}*</c>
+/// wildcard. The terminals of XPath 3.1 (<c>=&gt;</c>, <c>:</c>, <c>map</c> and <c>array</c> before a brace, and the
+/// key specifier after a lookup <c>?</c>) are recognized only when the version is XPath 3.1.
 /// </para>
 /// </remarks>
 internal ref struct XPathLexer
 {
     private readonly ReadOnlySpan<char> _text;
     private readonly bool _v30;
+    private readonly bool _v31;
     private int _position;
     private int _depth;
     private int _typeDepth;
@@ -39,6 +41,7 @@ internal ref struct XPathLexer
     private bool _expectOfOrAs;
     private bool _inType;
     private bool _failed;
+    private bool _lookupKey;
 
     /// <summary>Initializes a new instance of the <see cref="XPathLexer"/> struct.</summary>
     /// <param name="text">The expression; it must outlive the lexer.</param>
@@ -47,6 +50,7 @@ internal ref struct XPathLexer
     {
         _text = text;
         _v30 = version >= XPathVersion.V30;
+        _v31 = version >= XPathVersion.V31;
         _position = 0;
         _depth = 0;
         _typeDepth = 0;
@@ -54,6 +58,7 @@ internal ref struct XPathLexer
         _expectOfOrAs = false;
         _inType = false;
         _failed = false;
+        _lookupKey = false;
     }
 
     /// <summary>Reads the next token; at the end of the input and after an error it returns <see cref="XPathTokenKind.EndOfInput"/>.</summary>
@@ -78,6 +83,22 @@ internal ref struct XPathLexer
         }
 
         var c = _text[start];
+        if (_lookupKey)
+        {
+            // The key specifier of a lookup: a name is never an operator keyword here, so "?div" is a lookup of "div".
+            _lookupKey = false;
+            if (c == '*')
+            {
+                return Emit(XPathTokenKind.Wildcard, start, 1, true);
+            }
+
+            var keyLength = IsDigit(c) ? 0 : NcNameLength(start);
+            if (keyLength > 0)
+            {
+                return Emit(XPathTokenKind.Name, start, keyLength, true);
+            }
+        }
+
         if (IsDigit(c) || (c == '.' && IsDigit(Peek(start + 1))))
         {
             return Number(start);
@@ -330,9 +351,13 @@ internal ref struct XPathLexer
             case '$':
                 return Emit(XPathTokenKind.Dollar, start, 1, false);
             case '?':
+                // Outside a sequence type, a "?" of XPath 3.1 starts a lookup: the next token is its key specifier.
+                _lookupKey = _v31 && !_inType;
                 return Emit(XPathTokenKind.Question, start, 1, true);
             case '=':
-                return Emit(XPathTokenKind.Equal, start, 1, false);
+                return _v31 && Peek(start + 1) == '>'
+                    ? Emit(XPathTokenKind.Arrow, start, 2, false)
+                    : Emit(XPathTokenKind.Equal, start, 1, false);
             case '+':
                 return Emit(XPathTokenKind.Plus, start, 1, _inType && _afterOperand);
             case '*':
@@ -366,6 +391,8 @@ internal ref struct XPathLexer
                 return Emit(XPathTokenKind.ColonColon, start, 2, false);
             case ':' when _v30 && Peek(start + 1) == '=':
                 return Emit(XPathTokenKind.ColonEqual, start, 2, false);
+            case ':' when _v31:
+                return Emit(XPathTokenKind.Colon, start, 1, false);
             case '!' when _v30:
                 return Emit(XPathTokenKind.Bang, start, 1, false);
             case '#' when _v30:
@@ -447,6 +474,8 @@ internal ref struct XPathLexer
             "every" when following == '$' => XPathTokenKind.Every,
             "let" when _v30 && following == '$' => XPathTokenKind.Let,
             "function" when _v30 && following == '(' => XPathTokenKind.Function,
+            "map" when _v31 && following == '{' => XPathTokenKind.Map,
+            "array" when _v31 && following == '{' => XPathTokenKind.Array,
             _ => XPathTokenKind.Name,
         };
     }

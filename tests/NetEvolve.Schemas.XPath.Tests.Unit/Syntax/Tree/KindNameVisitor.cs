@@ -115,4 +115,24 @@ internal sealed class KindNameVisitor : SyntaxVisitor<string>
     public override string? VisitTypedFunctionTest(TypedFunctionTest node) => nameof(TypedFunctionTest);
 
     public override string? VisitParenthesizedItemType(ParenthesizedItemType node) => nameof(ParenthesizedItemType);
+
+    public override string? VisitMapEntry(MapEntry node) => nameof(MapEntry);
+
+    public override string? VisitMapConstructor(MapConstructor node) => nameof(MapConstructor);
+
+    public override string? VisitSquareArrayConstructor(SquareArrayConstructor node) => nameof(SquareArrayConstructor);
+
+    public override string? VisitCurlyArrayConstructor(CurlyArrayConstructor node) => nameof(CurlyArrayConstructor);
+
+    public override string? VisitLookupExpression(LookupExpression node) => nameof(LookupExpression);
+
+    public override string? VisitArrowExpression(ArrowExpression node) => nameof(ArrowExpression);
+
+    public override string? VisitAnyMapTest(AnyMapTest node) => nameof(AnyMapTest);
+
+    public override string? VisitTypedMapTest(TypedMapTest node) => nameof(TypedMapTest);
+
+    public override string? VisitAnyArrayTest(AnyArrayTest node) => nameof(AnyArrayTest);
+
+    public override string? VisitTypedArrayTest(TypedArrayTest node) => nameof(TypedArrayTest);
 }
