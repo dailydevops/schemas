@@ -73,14 +73,19 @@ internal ref partial struct ExpressionParser
 
         if (_v30 && token.Kind == XPathTokenKind.Function)
         {
-            return ParseFunctionTest();
+            Enter();
+            var test = ParseFunctionTest();
+            _depth--;
+            return test;
         }
 
         if (_v30 && token.Kind == XPathTokenKind.LeftParen)
         {
             // XPath 3.0 [ParenthesizedItemType]
             _ = Advance();
+            Enter();
             var inner = ParseItemType();
+            _depth--;
             Expect(XPathTokenKind.RightParen);
             return new ParenthesizedItemType(Span(token.Span.Offset), inner);
         }

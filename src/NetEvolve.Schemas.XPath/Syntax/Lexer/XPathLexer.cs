@@ -22,7 +22,7 @@ using NetEvolve.Schemas.XPath.Syntax.Tree;
 /// Limitation: the lexer stops at the first error and reports the end of the input afterwards. After
 /// <c>instance of</c>, <c>treat as</c>, <c>cast as</c>, and <c>castable as</c> the characters <c>*</c>, <c>+</c>, and
 /// <c>?</c> are occurrence indicators until a keyword or a comma outside the type ends the sequence type, as the
-/// occurrence-indicators constraint requires. The terminals of XPath 3.0 (<c>let</c>, <c>:=</c>, <c>!</c>, <c>||</c>,
+/// occurrence-indicators constraint requires. The terminals of XPath 3.0 (<see langword="let"/>, <c>:=</c>, <c>!</c>, <c>||</c>,
 /// <c>#</c>, braces, <c>function</c>, and <c>Q{uri}local</c>) are recognized only when the version is XPath 3.0 or
 /// later, so XPath 2.0 input is tokenized as before. Not supported: XPath 3.1 terminals and the <c>Q{uri}*</c>
 /// wildcard. The XPath 3.1 version is tokenized and parsed with the 3.0 grammar.
