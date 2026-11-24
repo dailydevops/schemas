@@ -7,6 +7,7 @@ using NetEvolve.Schemas.Schematron.Evaluation.Patterns;
 using NetEvolve.Schemas.Schematron.Model;
 using NetEvolve.Schemas.Schematron.Scopes;
 using NetEvolve.Schemas.Schematron.Seams;
+using NetEvolve.Schemas.Schematron.Xslt.Modules;
 
 /// <summary>
 /// The compiled schema of the pipeline: the effective model with the selected phase, the binding that compiled it, the plan of the
@@ -29,7 +30,8 @@ internal sealed class CompiledProgram : CompiledSchema
         IPatternMatcher matcher,
         QueryResources resources,
         ScopePlan plan,
-        IReadOnlyList<CompiledRuleSet> sets
+        IReadOnlyList<CompiledRuleSet> sets,
+        XsltModuleTables? xsltTables = null
     )
         : base(schema, effectivePhase)
     {
@@ -46,6 +48,7 @@ internal sealed class CompiledProgram : CompiledSchema
         Resources = resources;
         Plan = plan;
         Sets = sets;
+        XsltTables = xsltTables;
     }
 
     /// <summary>Gets the text of the title of the schema, empty when it has none.</summary>
@@ -65,4 +68,10 @@ internal sealed class CompiledProgram : CompiledSchema
 
     /// <summary>Gets the rule index of <see cref="Sets"/> for the single-pass dispatch, built at the first run that has two or more patterns and shared by every run.</summary>
     internal DispatchTable Dispatch => _dispatch ??= new DispatchTable(Sets);
+
+    /// <summary>
+    /// Gets the tables of the XSLT declarations (functions, globals, keys, and decimal formats) that the schema links, or
+    /// <see langword="null"/> when it links none. Limitation: a run reads the globals through the plan, but not the functions and keys.
+    /// </summary>
+    internal XsltModuleTables? XsltTables { get; }
 }

@@ -43,13 +43,28 @@ public class BenchmarkGateTests
     }
 
     [Test]
-    public async Task Evaluate_WorseBaselineRatio_Fails()
+    public async Task Evaluate_RatioWithinTolerance_Passes() =>
+        // 0.57 / 1 = 0.57 <= 0.5 * 1.15 = 0.575.
+        await Assert.That(Evaluate(Results(114, 0, 200, 200, 24))).IsEmpty();
+
+    [Test]
+    public async Task Evaluate_RatioAboveTolerance_FailsWithRatioTargetAndLimit()
     {
-        // 120 / 200 = 0.6 > 0.5, although the mean is only 20 % above the recorded value (absolute mean is not gated here).
+        // 120 / 200 = 0.6 > 0.575 (0.5 * 1.15).
         var violations = Evaluate(Results(120, 0, 200, 200, 24));
 
         await Assert.That(violations.Count).IsEqualTo(1);
         await Assert.That(violations[0].Kind).IsEqualTo(GateViolationKind.WorseBaselineRatio);
+        await Assert.That(violations[0].Message).IsEqualTo("ratio 0.600 > target 0.500 (limit 0.575)");
+    }
+
+    [Test]
+    public async Task Evaluate_HigherAllocationWithRatioWithinTolerance_StillFails()
+    {
+        var violations = Evaluate(Results(114, 1, 200, 200, 24));
+
+        await Assert.That(violations.Count).IsEqualTo(1);
+        await Assert.That(violations[0].Kind).IsEqualTo(GateViolationKind.AllocationGrowth);
     }
 
     [Test]
