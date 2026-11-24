@@ -11,9 +11,9 @@ using NetEvolve.Schemas.Xml.Dtd.Model;
 using NetEvolve.Schemas.Xml.Text.CharClasses;
 
 /// <summary>
-/// The validation step for the identity constraints of XML 1.0, section 3.3.1 (design #122, XML-65): ID (the value is a Name
+/// The validation step for the identity constraints of XML 1.0, section 3.3.1 (design #122, XML-65): ID (the value is an NCName
 /// that no other ID attribute of the document has), One ID per Element Type, ID Attribute Default, and IDREF (an IDREF value
-/// is a Name and an IDREFS value is Names, each matching the value of an ID attribute).
+/// is an NCName and an IDREFS value is NCNames, each matching the value of an ID attribute).
 /// </summary>
 /// <remarks>
 /// <para>
@@ -22,8 +22,8 @@ using NetEvolve.Schemas.Xml.Text.CharClasses;
 /// that is already known is resolved at once; a reference to an unknown name may still match a later ID, so it waits and
 /// is decided at <see cref="EndDocument"/>, where an unmatched name is reported at the position of its attribute, one issue
 /// per occurrence in document order. Because the reader always processes namespaces, a Name must also be free of colons
-/// (an NCName, Namespaces in XML 1.0, erratum NE08). A value that is not such a Name is reported at once and is never stored. For IDREFS only the
-/// offending token is reported.
+/// (an NCName, Namespaces in XML 1.0, erratum NE08). A value that is not such a Name is reported at once and is
+/// never stored. For IDREFS only the offending token is reported.
 /// </para>
 /// <para>
 /// The IDs live in a <see cref="DtdIdTable"/> and the waiting references in a <see cref="DtdNameStore"/>: names are kept in
@@ -200,7 +200,7 @@ internal sealed class DtdIdentityStep : IDtdValidationStep
     private void CheckId(in ValidationAttributeInfo attribute)
     {
         var value = attribute.Value.Span;
-        if (!IsName(value))
+        if (!IsNcName(value))
         {
             ReportNotAName(DtdValidityCodes.XML5009, in attribute, value);
 
@@ -248,7 +248,7 @@ internal sealed class DtdIdentityStep : IDtdValidationStep
 
     private void CheckReference(in ValidationAttributeInfo attribute, ReadOnlySpan<char> token)
     {
-        if (!IsName(token))
+        if (!IsNcName(token))
         {
             ReportNotAName(DtdValidityCodes.XML5012, in attribute, token);
         }
@@ -290,7 +290,7 @@ internal sealed class DtdIdentityStep : IDtdValidationStep
 
     // The reader always processes namespaces, so the value must be an NCName: a Name without a colon (Namespaces in XML 1.0,
     // erratum NE08, "Colon in ID attribute name").
-    private static bool IsName(ReadOnlySpan<char> value) =>
+    private static bool IsNcName(ReadOnlySpan<char> value) =>
         value.Length > 0 && XmlCharClass.NameLength(value) == value.Length && value.IndexOf(':') < 0;
 
     [StructLayout(LayoutKind.Auto)]
