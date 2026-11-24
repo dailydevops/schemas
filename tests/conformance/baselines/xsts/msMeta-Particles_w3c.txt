@@ -23,10 +23,6 @@
 1.0/particlesZ001/particlesZ001
 1.0/particlesZ001/particlesZ001.i
 1.0/particlesZ025/particlesZ025.v
-1.0/particlesZ034_a1/particlesZ034_a1.v
-1.0/particlesZ036_b1/particlesZ036_b1.i
-1.0/particlesZ036_b2/particlesZ036_b2.i
-1.0/particlesZ036_c/particlesZ036_c.v
 1.1/particlesA001/particlesA001
 1.1/particlesA001/particlesA001.i
 1.1/particlesA002/particlesA002
