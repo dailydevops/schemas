@@ -20,7 +20,8 @@ internal sealed class XIncludeRun : IXmlSink, IDisposable
     private const string XIncludeNamespace = "http://www.w3.org/2001/XInclude";
     private const string XmlNamespace = "http://www.w3.org/XML/1998/namespace";
 
-    // Each nested include costs a few stack frames, so the nesting is capped apart from MaxDepth, which can be raised to the ceiling.
+    // Each nested include costs a few stack frames, so the nesting is capped apart from MaxDepth, which can be raised to the
+    // ceiling. The path holds the root document too, hence the cap counts the includes below it.
     // The value is the default MaxDepth: the nesting of a document within the default limits is never refused by it.
     private const int MaxIncludeNesting = 256;
 
@@ -473,7 +474,7 @@ internal sealed class XIncludeRun : IXmlSink, IDisposable
                 )
             );
         }
-        else if (_path.Count >= MaxIncludeNesting)
+        else if (_path.Count > MaxIncludeNesting)
         {
             Fail(
                 CoreDiagnosticCodes.DepthLimitExceeded,

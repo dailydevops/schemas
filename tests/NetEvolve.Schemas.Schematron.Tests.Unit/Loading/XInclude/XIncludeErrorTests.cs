@@ -1,4 +1,4 @@
-﻿namespace NetEvolve.Schemas.Schematron.Tests.Unit.Loading.XInclude;
+namespace NetEvolve.Schemas.Schematron.Tests.Unit.Loading.XInclude;
 
 using NetEvolve.Schemas.Resources;
 using NetEvolve.Schemas.Schematron.Loading.XInclude;
