@@ -105,6 +105,9 @@ public class FormatIntegerTests
     [Arguments("1", "1;a", "1")]
     [Arguments("1", "1;o(-er)", "1st")]
     [Arguments("1", "1;o(-er)a", "1st")]
+    [Arguments("1", "1;o(-er)t", "1st")]
+    [Arguments("1", "1;o(-er", "error:FODF1310")]
+    [Arguments("1", "1;c(x)", "1")]
     [Arguments("3", "a;o", "c")]
     public async Task Modifiers(string value, string picture, string expected) =>
         await Assert.That(FormatIntegerHarness.Format(value, picture)).IsEqualTo(expected);
@@ -124,6 +127,8 @@ public class FormatIntegerTests
     [Arguments("12345678", "0 000", "12 345 678")]
     [Arguments("5", "٠٠٠", "٠٠٥")]
     [Arguments("5", "１", "５")]
+    [Arguments("5", "𝟎𝟎", "𝟎𝟓")]
+    [Arguments("1234", "𝟎,𝟎𝟎𝟎", "𝟏,𝟐𝟑𝟒")]
     public async Task DecimalPictures(string value, string picture, string expected) =>
         await Assert.That(FormatIntegerHarness.Format(value, picture)).IsEqualTo(expected);
 
@@ -136,7 +141,7 @@ public class FormatIntegerTests
     [Arguments("1;o(")]
     [Arguments("1;ao")]
     [Arguments("0#")]
-    [Arguments("#,0")]
+    [Arguments("#,,0")]
     [Arguments("0,")]
     [Arguments(",0")]
     [Arguments("0,,0")]
