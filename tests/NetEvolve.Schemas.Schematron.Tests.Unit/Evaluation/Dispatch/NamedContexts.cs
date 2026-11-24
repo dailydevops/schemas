@@ -16,11 +16,7 @@ using NetEvolve.Schemas.XPath.Xdm.Nodes;
 internal sealed class NamedContexts(ScriptedMatcher inner) : IPatternMatcher
 {
     /// <summary>Wraps the contexts of the sets and returns an evaluator that matches them with this matcher.</summary>
-    internal static PatternEvaluator Evaluator(
-        PatternHarness harness,
-        out List<CompiledRuleSet> sets,
-        CancellationToken cancellationToken = default
-    )
+    internal static PatternEvaluator Evaluator(PatternHarness harness, out List<CompiledRuleSet> sets)
     {
         var matcher = new NamedContexts(harness.Matcher);
         sets = [];
@@ -52,7 +48,7 @@ internal sealed class NamedContexts(ScriptedMatcher inner) : IPatternMatcher
             harness.Assertions,
             harness.Mapper,
             harness.Problems,
-            cancellationToken
+            CancellationToken.None
         );
     }
 
@@ -69,11 +65,12 @@ internal sealed class NamedContexts(ScriptedMatcher inner) : IPatternMatcher
 
     private static XPathQName[] NamesOf(string context)
     {
-        var name = context.StartsWith('@') ? context.Substring(1) : context;
+        var name = context is ['@', ..] ? context.Substring(1) : context;
         return name is "*" or "/" or "@*" or "text()" or "node()" or "" ? [] : [new XPathQName(string.Empty, name)];
     }
 
-    private sealed class NamedPattern(CompiledPattern inner, XPathQName[] names) : CompiledPattern(inner.NodeKinds, names)
+    private sealed class NamedPattern(CompiledPattern inner, XPathQName[] names)
+        : CompiledPattern(inner.NodeKinds, names)
     {
         internal CompiledPattern Inner { get; } = inner;
 

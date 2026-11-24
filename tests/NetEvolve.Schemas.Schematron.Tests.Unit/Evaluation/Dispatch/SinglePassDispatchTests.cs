@@ -13,19 +13,7 @@ using static NetEvolve.Schemas.Schematron.Tests.Unit.Evaluation.Patterns.Pattern
 /// <summary>All active patterns are matched in one traversal with a rule index, with the fired rules and their order of naive matching (SCH-72).</summary>
 public class SinglePassDispatchTests
 {
-    private static readonly string[] Contexts =
-    [
-        "a",
-        "b",
-        "c",
-        "*",
-        "@x",
-        "@y",
-        "@*",
-        "text()",
-        "/",
-        "node()",
-    ];
+    private static readonly string[] Contexts = ["a", "b", "c", "*", "@x", "@y", "@*", "text()", "/", "node()"];
 
     [Test]
     public async Task Traversals_TenActivePatterns_OnePass()
@@ -163,27 +151,52 @@ public class SinglePassDispatchTests
     }
 
     [Test]
+    public async Task Dispatch_MoreCandidatesThanTheInitialCapacity_AreAllVisited()
+    {
+        var schema = Schema(
+            Pattern("p1", Rule("r1", "item")),
+            Pattern("p2", Rule("r2", "@*")),
+            Pattern("p3", Rule("r3", "x"))
+        );
+        using var h = new PatternHarness(schema, Wide(700));
+        var evaluator = NamedContexts.Evaluator(h, out var sets);
+
+        _ = evaluator.Evaluate(sets, h.Document);
+
+        await Assert.That(h.Log.Rules.Count).IsEqualTo(700);
+        await Assert.That(h.Matcher.MatchCalls).IsEqualTo(700);
+    }
+
+    [Test]
     public async Task Cancellation_BeforeTheTraversal_Throws()
     {
         using var source = new CancellationTokenSource();
         var schema = Schema(Pattern("p1", Rule("r1", "a")), Pattern("p2", Rule("r2", "b")));
         using var h = new PatternHarness(schema, E("r", E("a")), cancellationToken: source.Token);
+#if NET10_0_OR_GREATER
         await source.CancelAsync();
+#else
+        source.Cancel();
+#endif
 
         await Assert.That(() => _ = h.Evaluate()).Throws<OperationCanceledException>();
         await Assert.That(h.Log.Events).IsEmpty();
     }
 
     [Test]
-    public async Task Cancellation_DuringTheTraversal_Throws()
+    public async Task Build_CanceledToken_Throws()
     {
         using var source = new CancellationTokenSource();
         var schema = Schema(Pattern("p1", Rule("r1", "a")), Pattern("p2", Rule("r2", "b")));
         using var h = new PatternHarness(schema, E("r", E("a")));
-        var tree = BuildChain(600);
+#if NET10_0_OR_GREATER
         await source.CancelAsync();
+#else
+        source.Cancel();
+#endif
 
-        await Assert.That(() => DispatchIndex.Build(h.Sets, tree.Node, source.Token))
+        await Assert
+            .That(() => DispatchIndex.Build(new DispatchTable(h.Sets), h.Document.Node, source.Token))
             .Throws<OperationCanceledException>();
     }
 
@@ -192,7 +205,8 @@ public class SinglePassDispatchTests
     {
         var tree = BuildChain(1);
 
-        await Assert.That(() => DispatchIndex.Build(null!, tree.Node, CancellationToken.None))
+        await Assert
+            .That(() => DispatchIndex.Build(null!, tree.Node, CancellationToken.None))
             .Throws<ArgumentNullException>();
     }
 
@@ -201,18 +215,21 @@ public class SinglePassDispatchTests
     {
         using var h = new PatternHarness(Schema(Pattern("p", Rule("r", "a"))), E("r"));
 
-        await Assert.That(() => DispatchIndex.Build(h.Sets, default, CancellationToken.None))
+        await Assert
+            .That(() => DispatchIndex.Build(new DispatchTable(h.Sets), default, CancellationToken.None))
             .Throws<ArgumentNullException>();
     }
 
     [Test]
-    public async Task Build_NoCandidate_IsEmpty()
+    public async Task Build_NoCandidate_IsEmpty(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var schema = Schema(Pattern("p1", Rule("r1", "a")), Pattern("p2", Rule("r2", "b")));
         using var h = new PatternHarness(schema, E("r", E("c")));
         _ = NamedContexts.Evaluator(h, out var sets);
 
-        var index = DispatchIndex.Build(sets, h.Document.Node, CancellationToken.None);
+        using var index = DispatchIndex.Build(new DispatchTable(sets), h.Document.Node, cancellationToken);
 
         await Assert.That(index.Count).IsEqualTo(0);
     }

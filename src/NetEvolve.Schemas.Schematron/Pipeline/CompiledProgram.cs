@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.Schematron.Pipeline;
 
 using System.Collections.Generic;
 using NetEvolve.Arguments;
+using NetEvolve.Schemas.Schematron.Evaluation.Dispatch;
 using NetEvolve.Schemas.Schematron.Evaluation.Patterns;
 using NetEvolve.Schemas.Schematron.Model;
 using NetEvolve.Schemas.Schematron.Scopes;
@@ -9,7 +10,7 @@ using NetEvolve.Schemas.Schematron.Seams;
 
 /// <summary>
 /// The compiled schema of the pipeline: the effective model with the selected phase, the binding that compiled it, the plan of the
-/// variables, and the active patterns with their compiled rules. Immutable; every run of the validator reads it and writes nothing.
+/// variables, and the active patterns with their compiled rules. Immutable apart from the dispatch table that the first run with two or more patterns builds; every run of the validator reads it and writes nothing.
 /// </summary>
 /// <remarks>
 /// Limitation: that nothing a run does is visible to another run holds for what the pipeline composes (the compiled rule sets, the
@@ -18,6 +19,8 @@ using NetEvolve.Schemas.Schematron.Seams;
 /// </remarks>
 internal sealed class CompiledProgram : CompiledSchema
 {
+    private DispatchTable? _dispatch;
+
     internal CompiledProgram(
         SchematronSchema schema,
         string effectivePhase,
@@ -59,4 +62,7 @@ internal sealed class CompiledProgram : CompiledSchema
 
     /// <summary>Gets the active patterns and groups in document order; empty when the phase activates none.</summary>
     internal IReadOnlyList<CompiledRuleSet> Sets { get; }
+
+    /// <summary>Gets the rule index of <see cref="Sets"/> for the single-pass dispatch, built at the first run that has two or more patterns and shared by every run.</summary>
+    internal DispatchTable Dispatch => _dispatch ??= new DispatchTable(Sets);
 }

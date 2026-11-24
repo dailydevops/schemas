@@ -88,7 +88,9 @@ internal static class ValidationRun
             cancellationToken
         );
         var summary =
-            program.Sets.Count == 0 ? NoActivePattern(events, systemId) : evaluator.Evaluate(program.Sets, document);
+            program.Sets.Count == 0
+                ? NoActivePattern(events, systemId)
+                : evaluator.Evaluate(program.Sets, document, program.Sets.Count > 1 ? program.Dispatch : null);
         events.Finish(in summary);
         return collector.ToResult();
     }
