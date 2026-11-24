@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.Xsd.Tests.Unit.Validation.Core;
 
 using System;
+using System.Linq;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xml.Datatypes.Facets.Core;
 using NetEvolve.Schemas.Xml.Datatypes.Facets.Pattern;
@@ -185,6 +186,37 @@ public class OwnFacetAssessmentTests
         await Assert
             .That(fixture.Assessor.Assess(enumeration, "urn:c", out _).FailedFacet)
             .IsEqualTo(FacetKind.Enumeration);
+    }
+
+    [Test]
+    [Arguments("string", "a")]
+    [Arguments("decimal", "1")]
+    [Arguments("integer", "1")]
+    [Arguments("dateTime", "2020-01-01T00:00:00")]
+    [Arguments("duration", "P1D")]
+    [Arguments("hexBinary", "0A")]
+    [Arguments("double", "1")]
+    [Arguments("float", "1")]
+    [Arguments("boolean", "true")]
+    [Arguments("QName", "a")]
+    public async Task Restriction_OfEveryFamily_EvaluatesAPattern(string type, string lexical)
+    {
+        var fixture = new FacetFixture();
+        var restricted = fixture.Base(type, Pattern("ZZZ"));
+
+        var result = fixture.Assessor.Assess(restricted, lexical, out _);
+
+        await Assert.That(result.FailedFacet).IsEqualTo(FacetKind.Pattern);
+    }
+
+    [Test]
+    public async Task List_CollapsesALongLexicalFormBeforeItsPattern()
+    {
+        var fixture = new FacetFixture();
+        var type = fixture.Derive(fixture.Base("list:integer"), Pattern("[0-9]+( [0-9]+)*"));
+        var longForm = string.Join("  ", Enumerable.Repeat("12", 200));
+
+        await Assert.That(fixture.Assessor.Assess(type, longForm, out _).IsValid).IsTrue();
     }
 
     [Test]
