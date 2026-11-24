@@ -1,100 +1,198 @@
 namespace NetEvolve.Schemas.XPath.Tests.Unit.Functions.AnalyzeString;
 
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Context;
+using NetEvolve.Schemas.XPath.Errors;
+using NetEvolve.Schemas.XPath.Functions.Binding;
 using NetEvolve.Schemas.XPath.Tests.Unit.Api;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>
 /// <c>fn:analyze-string</c> (Functions and Operators 3.1, 5.6.5): the result tree for no match, nested groups, adjacent matches, and the
-/// empty input; the string value of the result; the errors; and the XPath 3.0 version gate.
+/// empty input; the string value of the result; the errors; and the XPath 3.0 version gate. The function is called through the
+/// default catalog, because the compiler enables XPath 2.0 only until the XPath 3.0 syntax lands.
 /// </summary>
 public class AnalyzeStringTests
 {
-    private const string Root = "analyze-string-result";
+    private const string ResultOpen = "<analyze-string-result>";
+    private const string ResultClose = "</analyze-string-result>";
 
     [Test]
-    [Arguments("analyze-string('abc', 'x')", "<analyze-string-result><non-match>abc</non-match></analyze-string-result>")]
+    [Arguments("abc", "x", "", ResultOpen + "<non-match>abc</non-match>" + ResultClose)]
     [Arguments(
-        "analyze-string('abc', 'b')",
-        "<analyze-string-result><non-match>a</non-match><match>b</match><non-match>c</non-match></analyze-string-result>"
+        "abc",
+        "b",
+        "",
+        ResultOpen + "<non-match>a</non-match><match>b</match><non-match>c</non-match>" + ResultClose
+    )]
+    [Arguments("aa", "a", "", ResultOpen + "<match>a</match><match>a</match>" + ResultClose)]
+    [Arguments(
+        "abcd",
+        "(a(b)c)",
+        "",
+        ResultOpen
+            + "<match><group nr=\"1\">a<group nr=\"2\">b</group>c</group></match><non-match>d</non-match>"
+            + ResultClose
     )]
     [Arguments(
-        "analyze-string('aa', 'a')",
-        "<analyze-string-result><match>a</match><match>a</match></analyze-string-result>"
+        "ab",
+        "(a)(b)",
+        "",
+        ResultOpen + "<match><group nr=\"1\">a</group><group nr=\"2\">b</group></match>" + ResultClose
     )]
     [Arguments(
-        "analyze-string('abcd', '(a(b)c)')",
-        "<analyze-string-result><match><group nr=\"1\">a<group nr=\"2\">b</group>c</group></match><non-match>d</non-match></analyze-string-result>"
+        "xaby",
+        "x(a)?(c)?(b)y",
+        "",
+        ResultOpen + "<match>x<group nr=\"1\">a</group><group nr=\"3\">b</group>y</match>" + ResultClose
     )]
+    [Arguments("ab", "a()b", "", ResultOpen + "<match>a<group nr=\"1\"></group>b</match>" + ResultClose)]
     [Arguments(
-        "analyze-string('ab', '(a)(b)')",
-        "<analyze-string-result><match><group nr=\"1\">a</group><group nr=\"2\">b</group></match></analyze-string-result>"
+        "xabab",
+        "(ab)",
+        "",
+        ResultOpen
+            + "<non-match>x</non-match><match><group nr=\"1\">ab</group></match><match><group nr=\"1\">ab</group></match>"
+            + ResultClose
     )]
+    [Arguments("", "a", "", ResultOpen + ResultClose)]
     [Arguments(
-        "analyze-string('xaby', 'x(a)?(c)?(b)y')",
-        "<analyze-string-result><match>x<group nr=\"1\">a</group><group nr=\"3\">b</group>y</match></analyze-string-result>"
+        "aXb",
+        "x",
+        "i",
+        ResultOpen + "<non-match>a</non-match><match>X</match><non-match>b</non-match>" + ResultClose
     )]
-    [Arguments(
-        "analyze-string('ab', 'a()b')",
-        "<analyze-string-result><match>a<group nr=\"1\"></group>b</match></analyze-string-result>"
-    )]
-    [Arguments("analyze-string('', 'a')", "<analyze-string-result></analyze-string-result>")]
-    [Arguments("analyze-string((), 'a')", "<analyze-string-result></analyze-string-result>")]
-    [Arguments(
-        "analyze-string('aXb', 'x', 'i')",
-        "<analyze-string-result><non-match>a</non-match><match>X</match><non-match>b</non-match></analyze-string-result>"
-    )]
-    public async Task Result_IsTheTreeOfMatchesNonMatchesAndGroups(string expression, string expected) =>
-        await Assert.That(Run(expression)).IsEqualTo(expected);
-
-    [Test]
-    [Arguments("string(analyze-string('The quick brown fox', '\w+'))", "The quick brown fox")]
-    [Arguments("string(analyze-string('abcd', '(a(b)c)'))", "abcd")]
-    [Arguments("string(analyze-string('', 'a'))", "")]
-    [Arguments("count(analyze-string('a-b-c', '-')/*)", "5")]
-    [Arguments("analyze-string('a-b', '-')/*/name()", "non-match|match|non-match")]
-    [Arguments("analyze-string('ab', '(a)(b)')/*/*/@nr/string()", "1|2")]
-    [Arguments("namespace-uri(analyze-string('a', 'a'))", ApiFixture.FunctionNamespace)]
-    public async Task Result_CanBeNavigated_AndKeepsTheInput(string expression, string expected) =>
-        await Assert.That(ApiFixture.Run(expression, statics: Statics())).IsEqualTo(expected);
-
-    [Test]
-    [Arguments("analyze-string('abc', 'a*')", "error:FORX0003")]
-    [Arguments("analyze-string('', 'a*')", "error:FORX0003")]
-    [Arguments("analyze-string('abc', 'b', 'z')", "error:FORX0001")]
-    [Arguments("analyze-string('abc', '(')", "error:FORX0002")]
-    [Arguments("analyze-string('abc')", "error:XPST0017")]
-    [Arguments("analyze-string('abc', 'b', 'i', 'x')", "error:XPST0017")]
-    public async Task Errors_AreReported(string expression, string expected) =>
-        await Assert.That(ApiFixture.Run(expression, statics: Statics())).IsEqualTo(expected);
-
-    [Test]
-    public async Task InXPath20_TheFunctionIsUnknown() =>
-        await Assert
-            .That(ApiFixture.Run("analyze-string('abc', 'b')", statics: Statics(XPathVersion.V20)))
-            .IsEqualTo("error:XPST0017");
-
-    private static XPathStaticContext Statics(XPathVersion version = XPathVersion.V31) =>
-        ApiFixture.Builder().WithVersion(version).Build();
-
-    private static string Run(string expression)
+    public async Task Result_IsTheTreeOfMatchesNonMatchesAndGroups(
+        string input,
+        string pattern,
+        string flags,
+        string expected,
+        CancellationToken cancellationToken
+    )
     {
-        var compiled = ApiFixture.Compile(expression, Statics());
-        using var context = new XPathEvaluationContext();
-        var outcome = compiled.TryEvaluate(context);
-        return outcome.Status == XPathEvaluationStatus.Ok && outcome.Value.Count == 1 && outcome.Value[0].TryGetNode(out var node)
-            ? Render(node.Node)
-            : "error:" + outcome.Diagnostic.Code;
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var result = Call(Str(input), Str(pattern), Str(flags));
+
+        await Assert.That(Render(result)).IsEqualTo(expected);
     }
 
-    private static string Render(XmlNode node)
+    [Test]
+    public async Task TwoArgumentForm_AndTheEmptySequence_AreTheSameAsTheirDefaults(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        await Assert
+            .That(Render(Call(XdmSequence.Empty, Str("a"))))
+            .IsEqualTo(Render(Call(Str(string.Empty), Str("a"), Str(string.Empty))));
+        await Assert
+            .That(Render(Call(Str("abc"), Str("b"))))
+            .IsEqualTo(Render(Call(Str("abc"), Str("b"), Str(string.Empty))));
+    }
+
+    [Test]
+    [Arguments("The quick brown fox", "[a-z]+")]
+    [Arguments("abcd", "(a(b)c)")]
+    [Arguments("a-b-c", "-")]
+    [Arguments("", "a")]
+    public async Task StringValueOfTheResult_IsTheInput(
+        string input,
+        string pattern,
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var result = Call(Str(input), Str(pattern), Str("i"));
+
+        await Assert.That(result.Count).IsEqualTo(1);
+        await Assert.That(result[0].TryGetNode(out var node)).IsTrue();
+        await Assert.That(node.Node.StringValue).IsEqualTo(input);
+    }
+
+    [Test]
+    public async Task TheResultElements_AreInTheFunctionNamespace(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        _ = Call(Str("a"), Str("(a)"))[0].TryGetNode(out var root);
+        var tree = root.Node.Tree!;
+        var match = root.Node.FirstChild;
+        var group = match.FirstChild;
+
+        await Assert.That(tree.Names.GetString(root.Node.Name.NamespaceUri)).IsEqualTo(ApiFixture.FunctionNamespace);
+        await Assert.That(tree.Names.GetString(match.Name.NamespaceUri)).IsEqualTo(ApiFixture.FunctionNamespace);
+        await Assert.That(tree.Names.GetString(group.Name.NamespaceUri)).IsEqualTo(ApiFixture.FunctionNamespace);
+        await Assert.That(group.FirstAttribute.Name.NamespaceUri.IsEmpty).IsTrue();
+    }
+
+    [Test]
+    [Arguments("abc", "a*", "", "FORX0003")]
+    [Arguments("", "a*", "", "FORX0003")]
+    [Arguments("abc", "b", "z", "FORX0001")]
+    [Arguments("abc", "(", "", "FORX0002")]
+    public async Task Errors_AreReported(
+        string input,
+        string pattern,
+        string flags,
+        string code,
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var raised = string.Empty;
+        try
+        {
+            _ = Call(Str(input), Str(pattern), Str(flags));
+        }
+        catch (XPathException failure)
+        {
+            raised = failure.Diagnostic.Code;
+        }
+
+        await Assert.That(raised).IsEqualTo(code);
+    }
+
+    [Test]
+    public async Task Registry_ResolvesInXPath30AndLater_ButNotInXPath20(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        await Assert.That(TryResolve(2, XPathVersion.V20, out _)).IsFalse();
+        await Assert.That(TryResolve(2, XPathVersion.V30, out _)).IsTrue();
+        await Assert.That(TryResolve(3, XPathVersion.V31, out _)).IsTrue();
+        await Assert.That(TryResolve(1, XPathVersion.V31, out _)).IsFalse();
+        await Assert.That(TryResolve(4, XPathVersion.V31, out _)).IsFalse();
+    }
+
+    private static XdmSequence Str(string value) => XdmSequence.Create(XdmItem.FromString(value));
+
+    private static bool TryResolve(int arity, XPathVersion version, out XPathFunction? function) =>
+        FunctionCatalog.Default.Registry.TryResolve(
+            XPathStaticContext.Default.ToBuilder().WithVersion(version).Build(),
+            new XPathQName(ApiFixture.FunctionNamespace, "analyze-string"),
+            arity,
+            XPathHostRequirements.None,
+            out function
+        );
+
+    private static XdmSequence Call(params XdmSequence[] arguments)
+    {
+        _ = TryResolve(arguments.Length, XPathVersion.V31, out var function);
+        using var context = new XPathEvaluationContext();
+        return function!.Call(context, arguments);
+    }
+
+    private static string Render(XdmSequence result)
+    {
+        _ = result[0].TryGetNode(out var node);
         var text = new StringBuilder();
-        Append(text, node);
+        Append(text, node.Node);
         return text.ToString();
     }
 
