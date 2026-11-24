@@ -68,3 +68,11 @@ A conformance result does not depend on the target framework, so each suite runs
 - The environment variable `SCHEMAS_CONFORMANCE_LEGS` replaces the designated leg with a comma separated list of target framework monikers, for example `net5.0` or `net5.0,net10.0`. Use it to compare a leg locally.
 - A new suite class that runs a pinned suite against a baseline carries `[ConformanceLeg]`.
 - `net5.0` runs the `netstandard2.0` build of the libraries. A run with `SCHEMAS_CONFORMANCE_LEGS=net5.0` passes every baseline gate of QT3, XSTS, XML Conformance and Schematron, so the failure sets equal those of `net10.0`. A second leg is added only when a conformance result is shown to differ between builds.
+
+### Explicit conformance suites
+
+The suite classes also carry `[Explicit]` and `[Category(ConformanceCategory.Name)]` (category `Conformance`, defined once in `tests/NetEvolve.Schemas.Conformance`). TUnit excludes explicit tests from a run that selects any non-explicit test, so the main CI test run, which takes no filter, executes none of the suites, and `conformance.yml` is the only place that runs them. See <https://tunit.dev/docs/writing-tests/explicit/#combining-explicit-with-category>.
+
+- The conformance workflow selects the suites by category: `--treenode-filter "/*/*/*/*[Category=Conformance]"`. A filter such as `/*/*Conformance*/*/*` also selects non-explicit tests, so TUnit would drop the explicit ones from that run. Do not use a namespace or class-name filter for the suites.
+- Because the leg gating makes every other leg a pure skip (#728), the workflow matrix runs the designated leg `net10.0` only. To compare another leg locally, set `SCHEMAS_CONFORMANCE_LEGS` and run the category filter with `--framework`.
+- A new suite class carries `[Explicit]`, `[Category(ConformanceCategory.Name)]` and `[ConformanceLeg]`.
