@@ -228,7 +228,7 @@ public class DynamicAnnotationTests
     {
         var schema = Schema(Pattern("p", RuleWith("r", "a", null, null, [Let("r")], Failing(role: "$r"))));
         using var h = new PatternHarness(schema, E("a"));
-        h.Binding.Items["$r"] = [XdmItem.FromDouble(1.5)];
+        h.Binding.Items["$r"] = [default(XdmItem)];
 
         _ = h.Evaluate();
 

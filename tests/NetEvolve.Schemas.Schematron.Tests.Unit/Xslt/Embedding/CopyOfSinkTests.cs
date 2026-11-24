@@ -47,7 +47,7 @@ public class CopyOfSinkTests
         var sink = new CopyOfSink();
         sink.Begin(text, content);
 
-        sink.Item(XdmItem.FromDouble(1.5));
+        sink.Item(default(XdmItem));
 
         await Assert.That(text.ToString()).IsEqualTo(string.Empty);
         await Assert.That(text.Failure).IsNotNull();
