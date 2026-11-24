@@ -141,7 +141,7 @@ The instruction engine (instruction registry, sequence sink, function table, key
 
 What does work are the XSLT functions in the expressions of a schema (`test`, `select`, `value`, `context`) under the bindings `xslt`, `xslt1`, `xslt2`, and `xslt3`: `current`, `system-property`, `function-available`, `format-number`, and `generate-id`. These functions do not exist under `xpath` and `xpath2`. A named decimal format is unknown, because no `xsl:decimal-format` is handed to the run (#882).
 
-These functions are not available yet: `key` (the function is in the XPath package, #776, but a run has no key provider until the stylesheet modules reach it, #832; as a rule context, #780), `document`, `doc`, and `unparsed-text` (#312, #302), `current-group` and `current-grouping-key` (#803), `regex-group` (#287), calls of stylesheet functions (#628), `element-available` (DEF-30, #42), `type-available` (DEF-31, #43), `unparsed-entity-uri` and `unparsed-entity-public-id` (DEF-32, #44), and `snapshot` (DEF-33, #45).
+These functions are not available yet: `key` (the function is in the XPath package, #776, but a run has no key provider until the stylesheet modules reach it, #832; as a rule context, #780), `document`, `doc`, and `unparsed-text` (#312, #302), `current-group` and `current-grouping-key` (#803), `regex-group` (the function is in the package, #287, but a run offers no regex groups slot, #628), calls of stylesheet functions (#628), `element-available` (DEF-30, #42), `type-available` (DEF-31, #43), `unparsed-entity-uri` and `unparsed-entity-public-id` (DEF-32, #44), and `snapshot` (DEF-33, #45).
 
 ### Matrix of the registered constructs
 
@@ -175,6 +175,9 @@ Every entry of the instruction registry, with the stage that delivered it. The p
 | literal result element | instruction | 4 | Has no XSLT name; the registry holds one entry for it. |
 | text node | instruction | 4 | Character data of a sequence constructor; the registry holds one entry for it. |
 | `xsl:for-each-group` | instruction | 5 | `group-by`, `group-adjacent`, `group-starting-with`, and `group-ending-with`. `composite` is not supported (DEF-54, #66); the collation is limited to the codepoint collation (DEF-43, #55). |
+| `xsl:analyze-string` | instruction | 5 | `regex` and `flags` are attribute value templates; `xsl:fallback` inside it is not supported (DEF-27, #39). A regex that is invalid, has invalid flags, or matches the zero-length string is a dynamic error when the instruction runs (XTDE1140, XTDE1145, XTDE1150). `regex-group()` is in the package, but no run offers its slot yet (#628). |
+| `xsl:matching-substring` | child of `xsl:analyze-string` | 5 | |
+| `xsl:non-matching-substring` | child of `xsl:analyze-string` | 5 | |
 
 The module linker (stage 3) is not an entry of the registry: it handles `xsl:include`, `xsl:import`, and the root elements `xsl:stylesheet` and `xsl:transform` of a module, with import precedence and cycle detection, and loads modules through the resolver of the builder. The build runs it in the resolve stage, with the loader of the Schematron `include`, so the resource limits are shared (#832).
 
@@ -211,7 +214,6 @@ Every other element of the XSLT namespace is not registered. Compiling one raise
 | `xsl:map`, `xsl:map-entry` | DEF-26 (#38) |
 | `xsl:fallback` | DEF-27 (#39) |
 | `xsl:context-item`, `xsl:global-context-item` | DEF-29 (#41) |
-| `xsl:analyze-string`, `xsl:matching-substring`, `xsl:non-matching-substring` | planned, stage 5: #287 |
 
 The module elements of stage 3 (`xsl:include`, `xsl:import`, `xsl:stylesheet`, `xsl:transform`) are not registry entries either, see above; the build handles them in the linker (#832). Further, a registered construct raises `NES3204` for an attribute or form that is left out:
 
@@ -375,4 +377,4 @@ The edition is read from the `schematronEdition` attribute of the `schema` eleme
 - **Messages.** White space only text around `value-of` is kept in a message (#920), `sch:name` with a path outputs the node name (#919), and abstract pattern parameters are not substituted in name paths and in diagnostic and property content (#915).
 - **Locations.** A problem of an expression is located by the base URI of the schema and by the line and column within the text of the expression, and a dynamic problem has no line and column (#881). `last()` in a predicate without a known size equals `position()` (#883).
 - **Thread safety.** A validator is immutable and thread-safe; a `WithReportSink` view and a builder are not.
-- **Compile cost.** Every `Build` compiles the schema; there is no compile-once cache (#340).
+- **Compile cost.** Every `Build` compiles the schema once; a validation compiles nothing (#340).

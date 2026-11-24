@@ -7,7 +7,6 @@ ibmMeta-anyAttribute	1.0/s3_10_6ii02/s3_10_6v02i	-	The test group has no version
 ibmMeta-anyAttribute	1.0/s3_10_6ii04/s3_10_6v04i	-	The test group has no version attribute but its schema uses an XSD 1.1 construct, which strict 1.0 mode rejects (design 146, DP-16).
 ibmMeta-wildcard	1.0/s3_10_1ii08/s3_10_1ii08i	-	The test group has no version attribute but its schema uses an XSD 1.1 construct, which strict 1.0 mode rejects (design 146, DP-16).
 ibmMeta-wildcard	1.0/s3_10_1ii09/s3_10_1ii09i	-	The test group has no version attribute but its schema uses an XSD 1.1 construct, which strict 1.0 mode rejects (design 146, DP-16).
-msMeta-Additional_w3c	1.0/addA005/addA005.v	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
 msMeta-Additional_w3c	1.0/addA006/addA006.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-Additional_w3c	1.0/addA008/addA008.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-Additional_w3c	1.0/addB002/addB002.i	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
@@ -20,7 +19,6 @@ msMeta-Additional_w3c	1.0/addB114/addB114.i	#600	The own facets of a restriction
 msMeta-Additional_w3c	1.0/addB116/addB116.v	#903	A strict wildcard rejects an element that has no declaration but a valid xsi:type, which the specification assesses against that type.
 msMeta-Additional_w3c	1.0/addB120/addB120.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-Additional_w3c	1.0/addB124/addB124.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-Additional_w3c	1.0/addB132/addB132.v	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
 msMeta-Additional_w3c	1.0/addB134/addB134.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-Additional_w3c	1.0/addB138/addB138.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-Additional_w3c	1.0/addB139/addB139.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
@@ -70,8 +68,6 @@ msMeta-Attribute_w3c	1.0/attP031/attP031.i	#905	A prohibited attribute use is ap
 msMeta-Attribute_w3c	1.0/attZ014a/attZ014a.i	#904	An element with two ID-typed attributes that a wildcard matches is accepted; an element has at most one ID attribute.
 msMeta-Attribute_w3c	1.0/attZ014b/attZ014b.i	#904	An element with two ID-typed attributes that a wildcard matches is accepted; an element has at most one ID attribute.
 msMeta-Attribute_w3c	1.0/attZ015/attZ015.v	#905	A prohibited attribute use is applied with the XSD 1.1 meaning, but the suite expects the XSD 1.0 result.
-msMeta-ComplexType_w3c	1.0/ctZ001/ctZ001.v	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
-msMeta-ComplexType_w3c	1.0/ctZ007/ctZ007.v	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
 msMeta-ComplexType_w3c	1.0/ctZ011_a/ctZ011_a.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-ComplexType_w3c	1.0/ctZ013c/ctZ013c.i	#602	The fixed value of an element with mixed content is not enforced; the element value constraint covers simple content only.
 msMeta-ComplexType_w3c	1.0/ctZ013d/ctZ013d.i	#602	The fixed value of an element with mixed content is not enforced; the element value constraint covers simple content only.
@@ -317,34 +313,15 @@ msMeta-DataTypes_w3c	1.0/unsignedShort_minExclusive001_1794/unsignedShort_minExc
 msMeta-DataTypes_w3c	1.0/unsignedShort_minExclusive002_1795/unsignedShort_minExclusive002_1795.i	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
 msMeta-DataTypes_w3c	1.0/unsignedShort_minInclusive002_1790/unsignedShort_minInclusive002_1790.i	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
 msMeta-DataTypes_w3c	1.0/unsignedShort_totalDigits001_1799/unsignedShort_totalDigits001_1799.i	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
-msMeta-Element_w3c	1.0/elemS002/elemS002.v	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
-msMeta-Element_w3c	1.0/elemS003/elemS003.v	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
-msMeta-Element_w3c	1.0/elemS007/elemS007.v	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
-msMeta-Element_w3c	1.0/elemS008/elemS008.v	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
-msMeta-Element_w3c	1.0/elemT062/elemT062.v	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
-msMeta-Element_w3c	1.0/elemT064/elemT064.v	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
-msMeta-Element_w3c	1.0/elemT066/elemT066.v	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
-msMeta-Element_w3c	1.0/elemT067/elemT067.v	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
 msMeta-Element_w3c	1.0/elemU025/elemU025.i	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
-msMeta-Element_w3c	1.0/elemZ003/elemZ003.v	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
 msMeta-Element_w3c	1.0/elemZ017/elemZ017.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-Element_w3c	1.0/elemZ020/elemZ020.v	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
-msMeta-Element_w3c	1.0/elemZ021d/elemZ021d.v	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
 msMeta-Element_w3c	1.0/elemZ021g/elemZ021g.i	#859	The schema does not build: the import check of the namespace attribute is inverted.
 msMeta-Element_w3c	1.0/elemZ022b/elemZ022b.v	#859	The schema does not build: the import check of the namespace attribute is inverted.
 msMeta-Element_w3c	1.0/elemZ033b/elemZ033b.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-Errata10_w3c	1.0/errF001/errF001.i	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
-msMeta-IdentityConstraint_w3c	1.0/idF026/idF026.v	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
-msMeta-IdentityConstraint_w3c	1.0/idF031/idF031.v	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
-msMeta-IdentityConstraint_w3c	1.0/idH024/idH024.v	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
-msMeta-IdentityConstraint_w3c	1.0/idH029/idH029.v	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
 msMeta-IdentityConstraint_w3c	1.0/idL100/idL100.v	#906	A key field of @* on an element with xsi:nil is accepted; the field selects more than one attribute, so the key is not satisfied.
 msMeta-IdentityConstraint_w3c	1.0/idZ015/idZ015.i	#907	A key field that selects an attribute matched by a skipped wildcard (no type definition) is accepted.
 msMeta-ModelGroups_w3c	1.0/mgH014/mgH014.v	#863	The schema does not build: the particle restriction check rejects a restriction that the suite accepts.
-msMeta-Particles_w3c	1.0/particlesDc001/particlesDc001.v	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
-msMeta-Particles_w3c	1.0/particlesDc002/particlesDc002.v	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
-msMeta-Particles_w3c	1.0/particlesDc003/particlesDc003.v	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
-msMeta-Particles_w3c	1.0/particlesDc007/particlesDc007.v	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
 msMeta-Particles_w3c	1.0/particlesJq010/particlesJq010.v	#863	The schema does not build: the particle restriction check rejects a restriction that the suite accepts.
 msMeta-Particles_w3c	1.0/particlesJs001/particlesJs001.v	#859	The schema does not build: the import check of the namespace attribute is inverted.
 msMeta-Particles_w3c	1.0/particlesQ013/particlesQ013.v	#863	The schema does not build: the particle restriction check rejects a restriction that the suite accepts.
@@ -354,8 +331,6 @@ msMeta-Particles_w3c	1.0/particlesR013/particlesR013.v	#863	The schema does not 
 msMeta-Particles_w3c	1.0/particlesR016/particlesR016.v	#859	The schema does not build: the import check of the namespace attribute is inverted.
 msMeta-Particles_w3c	1.0/particlesR022/particlesR022.v	#859	The schema does not build: the import check of the namespace attribute is inverted.
 msMeta-Particles_w3c	1.0/particlesZ001/particlesZ001.i	#863	The schema does not build: the particle restriction check rejects a restriction that the suite accepts.
-msMeta-Particles_w3c	1.0/particlesZ008/particlesZ008.v	#863	The schema does not build: the particle restriction check rejects a restriction that the suite accepts.
-msMeta-Particles_w3c	1.0/particlesZ012/particlesZ012.v	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
 msMeta-Particles_w3c	1.0/particlesZ025/particlesZ025.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-Particles_w3c	1.0/particlesZ034_a1/particlesZ034_a1.v	#894	The validator model cannot be built: the content model transition ceiling is exceeded.
 msMeta-Particles_w3c	1.0/particlesZ036_b1/particlesZ036_b1.i	#894	The validator model cannot be built: the content model transition ceiling is exceeded.
@@ -1185,11 +1160,6 @@ msMeta-SimpleType_w3c	1.0/stZ034/stZ034.i	#600	The own facets of a restriction a
 msMeta-SimpleType_w3c	1.0/stZ035/stZ035.i	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
 msMeta-SimpleType_w3c	1.0/stZ037/stZ037.i	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
 msMeta-SimpleType_w3c	1.0/stZ039/stZ039.i	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
-msMeta-SimpleType_w3c	1.0/stZ043/stZ043.v	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
-msMeta-SimpleType_w3c	1.0/stZ045/stZ045.v	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
-msMeta-SimpleType_w3c	1.0/stZ046/stZ046.v	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
-msMeta-SimpleType_w3c	1.0/stZ047/stZ047.v	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
-msMeta-SimpleType_w3c	1.0/stZ050/stZ050.v	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
 msMeta-SimpleType_w3c	1.0/stZ058/stZ058.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-SimpleType_w3c	1.0/stZ059/stZ059.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-SimpleType_w3c	1.0/stZ060/stZ060.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
@@ -9746,6 +9716,8 @@ nistMeta-NISTXMLSchemaDatatypes	1.0/union-short-gYear-pattern-9/NISTXML-SV-II-un
 nistMeta-NISTXMLSchemaDatatypes	1.0/union-short-gYear-pattern-9/NISTXML-SV-II-union-short-gYear-pattern-5-5	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
 saxonMeta-Missing	1.0/missing001/missing001.n1.xml	-	The schema is incomplete (a missing component or document); the suite accepts it, the validator reports src-resolve.
 saxonMeta-Missing	1.0/missing001/missing001.v1.xml	-	The schema is incomplete (a missing component or document); the suite accepts it, the validator reports src-resolve.
+saxonMeta-Missing	1.0/missing002/missing001.n1.xml	-	The schema is incomplete (a missing component or document); the suite accepts it, the validator reports src-resolve.
+saxonMeta-Missing	1.0/missing002/missing001.v1.xml	-	The schema is incomplete (a missing component or document); the suite accepts it, the validator reports src-resolve.
 saxonMeta-Missing	1.0/missing003/missing003.n1.xml	-	The schema is incomplete (a missing component or document); the suite accepts it, the validator reports src-resolve.
 saxonMeta-Missing	1.0/missing003/missing003.v1.xml	-	The schema is incomplete (a missing component or document); the suite accepts it, the validator reports src-resolve.
 saxonMeta-Missing	1.0/missing006/missing006.n1.xml	-	The schema is incomplete (a missing component or document); the suite accepts it, the validator reports src-resolve.
@@ -9792,23 +9764,8 @@ saxonMeta-XmlVersions	1.0/xv100noti/xv100noti.c.xml	#600	The own facets of a res
 saxonMeta-XmlVersions	1.0/xv100noti/xv100noti.i.xml	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
 sunMeta-AttrDecl	1.0/ad_type00102m/AD_type00102m1_n	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
 sunMeta-AttrDecl	1.0/ad_type00102m/AD_type00102m2_n	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
-sunMeta-ElemDecl	1.0/abstract00101m/abstract00101m1_p	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
-sunMeta-ElemDecl	1.0/disallowedsubst00102m1/Positive	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
-sunMeta-ElemDecl	1.0/disallowedsubst00106m1/Positive	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
-sunMeta-ElemDecl	1.0/disallowedsubst00301m1/Positive	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
-sunMeta-ElemDecl	1.0/disallowedsubst00401m1/Positive	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
-sunMeta-ElemDecl	1.0/disallowedsubst00501m1/Positive	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
-sunMeta-ElemDecl	1.0/disallowedsubst00502m1/Positive	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
-sunMeta-ElemDecl	1.0/disallowedsubst00502m2/Positive	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
-sunMeta-ElemDecl	1.0/disallowedsubst00503m1/Positive	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
-sunMeta-ElemDecl	1.0/disallowedsubst00503m2/Positive	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
 sunMeta-ElemDecl	1.0/idconstrdefs00403m/idConstrDefs00403m1_n	#908	The IDREFS items of a restriction of xs:IDREFS are not resolved, so a dangling reference is accepted.
-sunMeta-ElemDecl	1.0/substgrpaffil00101m/substGrpAffil00101m1_p	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
-sunMeta-ElemDecl	1.0/substgrpaffil00201m/substGrpAffil00201m1_p	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
-sunMeta-ElemDecl	1.0/substgrpexcl00202m1/Positive	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
 sunMeta-ElemDecl	1.0/typedef00201m/typeDef00201m1_n	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
-sunMeta-ElemDecl	1.0/typedef00204m/typeDef00204m1_n	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
-sunMeta-ElemDecl	1.0/typedef00205m/typeDef00205m1_p	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
 sunMeta-ElemDecl	1.0/typedef00802m1/Negative	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
 sunMeta-ElemDecl	1.0/typedef00901m1/Negative	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
 sunMeta-ElemDecl	1.0/valueconstraint00501m3/Negative	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
@@ -9882,8 +9839,6 @@ sunMeta-SType	1.0/st_variety00101m1/Negative	#600	The own facets of a restrictio
 sunMeta-SType	1.0/st_variety00101m2/Negative	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
 sunMeta-suntest	1.0/identitytestsuitetest002/test.2.v	#604	QName values are resolved without the namespace context, so an unbound prefix is accepted and two prefixes of one namespace give different key values.
 sunMeta-suntest	1.0/identitytestsuitetest002/test.3.n	#604	QName values are resolved without the namespace context, so an unbound prefix is accepted and two prefixes of one namespace give different key values.
-sunMeta-suntest	1.0/test006/test.1.v	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
-sunMeta-suntest	1.0/test006/test.2.v	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
 sunMeta-suntest	1.0/test009/test.8.n	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
 sunMeta-suntest	1.0/xsd001/xsd001.n02	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
 sunMeta-suntest	1.0/xsd001/xsd001.n03	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
@@ -9891,6 +9846,5 @@ sunMeta-suntest	1.0/xsd001/xsd001.n04	#600	The own facets of a restriction are n
 sunMeta-suntest	1.0/xsd001/xsd001.n05	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
 sunMeta-suntest	1.0/xsd001/xsd001.n06	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
 sunMeta-suntest	1.0/xsd003b/xsd003b.n01	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
-sunMeta-suntest	1.0/xsd008/xsd008.v00	#868	Substitution groups are not applied yet, so a member of a group is not accepted for its head.
 sunMeta-suntest	1.0/xsd011/xsd011.n03	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
 sunMeta-suntest	1.0/xsd022/xsd022.n00	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).

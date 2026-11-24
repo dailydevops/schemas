@@ -1,6 +1,6 @@
 [
-  { "name": "UblInvoiceValidationBenchmarks.ValidateStream", "meanNs": 17565536.5, "allocatedBytes": 507756, "baselineRatio": 83.4 },
-  { "name": "UblInvoiceValidationBenchmarks.ValidateMemory", "meanNs": 15703071.9, "allocatedBytes": 507651, "baselineRatio": 74.5 },
-  { "name": "CiiInvoiceValidationBenchmarks.ValidateStream", "meanNs": 10057929.2, "allocatedBytes": 394385, "baselineRatio": 73.6 },
-  { "name": "CiiInvoiceValidationBenchmarks.ValidateMemory", "meanNs": 8981837.9, "allocatedBytes": 394280, "baselineRatio": 65.7 }
+  { "name": "UblInvoiceValidationBenchmarks.ValidateStream", "meanNs": 17565536.5, "allocatedBytes": 507756, "baselineRatio": 115.7 },
+  { "name": "UblInvoiceValidationBenchmarks.ValidateMemory", "meanNs": 15703071.9, "allocatedBytes": 507651, "baselineRatio": 114.5 },
+  { "name": "CiiInvoiceValidationBenchmarks.ValidateStream", "meanNs": 10057929.2, "allocatedBytes": 394385, "baselineRatio": 114.7 },
+  { "name": "CiiInvoiceValidationBenchmarks.ValidateMemory", "meanNs": 8981837.9, "allocatedBytes": 394280, "baselineRatio": 110.9 }
 ]
