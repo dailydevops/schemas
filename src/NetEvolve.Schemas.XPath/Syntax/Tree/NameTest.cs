@@ -10,12 +10,20 @@ internal sealed class NameTest : NodeTest
     /// <param name="kind">Gets the kind.</param>
     /// <param name="prefix">Gets the prefix; set for a QName that has one and for <c>prefix:*</c>, <see langword="null"/> otherwise.</param>
     /// <param name="localName">Gets the local name; set for a QName and for <c>*:local</c>, <see langword="null"/> otherwise.</param>
-    public NameTest(SourceSpan location, NameTestKind kind, string? prefix, string? localName)
+    /// <param name="namespaceUri">Gets the namespace URI of a <c>Q{uri}local</c> name, otherwise <see langword="null"/>.</param>
+    public NameTest(
+        SourceSpan location,
+        NameTestKind kind,
+        string? prefix,
+        string? localName,
+        string? namespaceUri = null
+    )
         : base(location)
     {
         Kind = kind;
         Prefix = prefix;
         LocalName = localName;
+        NamespaceUri = namespaceUri;
     }
 
     /// <summary>Gets the kind.</summary>
@@ -26,6 +34,9 @@ internal sealed class NameTest : NodeTest
 
     /// <summary>Gets the local name; set for a QName and for <c>*:local</c>, <see langword="null"/> otherwise.</summary>
     public string? LocalName { get; }
+
+    /// <summary>Gets the namespace URI of a <c>Q{uri}local</c> name, otherwise <see langword="null"/>.</summary>
+    public string? NamespaceUri { get; }
 
     /// <inheritdoc />
     public override IReadOnlyList<SyntaxNode> Children => [];

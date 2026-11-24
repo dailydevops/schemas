@@ -72,6 +72,8 @@ internal ref partial struct ExpressionParser
                 or XPathTokenKind.StringLiteral
                 or XPathTokenKind.Name
                 or XPathTokenKind.QName
+                or XPathTokenKind.BracedName
+                or XPathTokenKind.Function
                 or XPathTokenKind.Wildcard
                 or XPathTokenKind.PrefixWildcard
                 or XPathTokenKind.LocalWildcard
@@ -94,8 +96,13 @@ internal ref partial struct ExpressionParser
             case XPathTokenKind.At:
                 _ = Advance();
                 return CreateAxisStep(start, Axis.Attribute, ParseNodeTest());
-            case XPathTokenKind.Name or XPathTokenKind.QName:
+            case XPathTokenKind.Name or XPathTokenKind.QName or XPathTokenKind.BracedName:
                 var next = PeekKind();
+                if (next == XPathTokenKind.Hash)
+                {
+                    return ParseFilter(start, ParseNamedFunctionReference());
+                }
+
                 if (_current.Kind == XPathTokenKind.Name && next == XPathTokenKind.ColonColon)
                 {
                     var axis = ParseAxisName();
@@ -176,7 +183,7 @@ internal ref partial struct ExpressionParser
                     null,
                     _text.Slice(token.Span.Offset + 2, token.Span.Length - 2).ToString()
                 );
-            case XPathTokenKind.Name or XPathTokenKind.QName:
+            case XPathTokenKind.Name or XPathTokenKind.QName or XPathTokenKind.BracedName:
                 if (PeekKind() == XPathTokenKind.LeftParen && IsKindTestName(token))
                 {
                     return ParseKindTest();
@@ -184,7 +191,13 @@ internal ref partial struct ExpressionParser
 
                 _ = Advance();
                 var name = CreateName(token);
-                return new NameTest(token.Span, NameTestKind.QualifiedName, name.Prefix, name.LocalName);
+                return new NameTest(
+                    token.Span,
+                    NameTestKind.QualifiedName,
+                    name.Prefix,
+                    name.LocalName,
+                    name.NamespaceUri
+                );
             default:
                 throw Unexpected();
         }
@@ -208,11 +221,112 @@ internal ref partial struct ExpressionParser
         return predicates;
     }
 
-    // [36] FilterExpr
+    // [36] FilterExpr; in 3.0 [PostfixExpr]: predicates and argument lists (dynamic function calls) in any order.
     private Expression ParseFilter(int start, Expression primary)
     {
-        var predicates = ParsePredicates();
-        return predicates.Count == 0 ? primary : new FilterExpression(Span(start), primary, predicates);
+        var expression = primary;
+        while (true)
+        {
+            if (_current.Kind == XPathTokenKind.LeftBracket)
+            {
+                expression = new FilterExpression(Span(start), expression, ParsePredicates());
+            }
+            else if (_v30 && _current.Kind == XPathTokenKind.LeftParen)
+            {
+                expression = new DynamicFunctionCall(Span(start), expression, ParseArguments());
+            }
+            else
+            {
+                return expression;
+            }
+        }
+    }
+
+    // XPath 3.0 [NamedFunctionRef]: an EQName, "#", and the arity; a reserved function name is not allowed.
+    private NamedFunctionReference ParseNamedFunctionReference()
+    {
+        var nameToken = _current;
+        if (nameToken.Kind == XPathTokenKind.Name && IsReservedFunctionName(TextOf(nameToken)))
+        {
+            throw Fail(nameToken);
+        }
+
+        _ = Advance();
+        var name = CreateName(nameToken);
+        Expect(XPathTokenKind.Hash);
+        var arity = _current;
+        if (
+            arity.Kind != XPathTokenKind.IntegerLiteral
+            || !int.TryParse(
+                TextOf(arity).ToString(),
+                System.Globalization.NumberStyles.None,
+                System.Globalization.CultureInfo.InvariantCulture,
+                out var value
+            )
+        )
+        {
+            throw Unexpected();
+        }
+
+        _ = Advance();
+        return new NamedFunctionReference(Span(nameToken.Span.Offset), name, value);
+    }
+
+    // XPath 3.0 [InlineFunctionExpr]: function($a as type, ...) as type { expr }
+    private InlineFunctionExpression ParseInlineFunction()
+    {
+        var start = Advance().Span.Offset;
+        Expect(XPathTokenKind.LeftParen);
+        List<FunctionParameter> parameters = [];
+        if (_current.Kind != XPathTokenKind.RightParen)
+        {
+            do
+            {
+                var parameterStart = _current.Span.Offset;
+                Expect(XPathTokenKind.Dollar);
+                var name = ParseVariableName();
+                var type = Accept(XPathTokenKind.As) ? ParseSequenceType() : null;
+                parameters.Add(new FunctionParameter(Span(parameterStart), name, type));
+            } while (Accept(XPathTokenKind.Comma));
+        }
+
+        Expect(XPathTokenKind.RightParen);
+        var returnType = Accept(XPathTokenKind.As) ? ParseSequenceType() : null;
+        Expect(XPathTokenKind.LeftBrace);
+        var body = ParseExpr();
+        Expect(XPathTokenKind.RightBrace);
+        return new InlineFunctionExpression(Span(start), parameters, returnType, body);
+    }
+
+    // [48] ArgumentList; in 3.0 an argument may be the placeholder "?".
+    private List<Expression> ParseArguments()
+    {
+        Expect(XPathTokenKind.LeftParen);
+        List<Expression> arguments = [];
+        if (_current.Kind != XPathTokenKind.RightParen)
+        {
+            do
+            {
+                arguments.Add(ParseArgument());
+            } while (Accept(XPathTokenKind.Comma));
+        }
+
+        Expect(XPathTokenKind.RightParen);
+        return arguments;
+    }
+
+    private Expression ParseArgument()
+    {
+        if (
+            _v30
+            && _current.Kind == XPathTokenKind.Question
+            && PeekKind() is XPathTokenKind.Comma or XPathTokenKind.RightParen
+        )
+        {
+            return new ArgumentPlaceholder(Advance().Span);
+        }
+
+        return ParseExprSingle();
     }
 
     // [40] PrimaryExpr
@@ -237,6 +351,8 @@ internal ref partial struct ExpressionParser
                 _ = Advance();
                 var variable = ParseVariableName();
                 return new VariableReference(Span(token.Span.Offset), variable);
+            case XPathTokenKind.Function:
+                return ParseInlineFunction();
             case XPathTokenKind.Dot:
                 _ = Advance();
                 return new ContextItemExpression(token.Span);
@@ -267,28 +383,20 @@ internal ref partial struct ExpressionParser
 
         _ = Advance();
         var name = CreateName(nameToken);
-        Expect(XPathTokenKind.LeftParen);
-        List<Expression> arguments = [];
-        if (_current.Kind != XPathTokenKind.RightParen)
-        {
-            do
-            {
-                arguments.Add(ParseExprSingle());
-            } while (Accept(XPathTokenKind.Comma));
-        }
-
-        Expect(XPathTokenKind.RightParen);
+        var arguments = ParseArguments();
         return new FunctionCall(Span(nameToken.Span.Offset), name, arguments);
     }
 
-    private static bool IsReservedFunctionName(ReadOnlySpan<char> name) =>
-        name is "typeswitch" or "item" or "empty-sequence";
+    // XPath 3.0 adds function, namespace-node, switch, and if to the reserved function names.
+    private readonly bool IsReservedFunctionName(ReadOnlySpan<char> name) =>
+        name is "typeswitch" or "item" or "empty-sequence"
+        || (_v30 && name is "function" or "namespace-node" or "switch" or "if");
 
     // [44] VarName: the name after "$".
     private QualifiedName ParseVariableName()
     {
         var token = _current;
-        if (token.Kind is not (XPathTokenKind.Name or XPathTokenKind.QName))
+        if (token.Kind is not (XPathTokenKind.Name or XPathTokenKind.QName or XPathTokenKind.BracedName))
         {
             throw Unexpected();
         }
@@ -300,6 +408,18 @@ internal ref partial struct ExpressionParser
     private readonly QualifiedName CreateName(XPathToken token)
     {
         var text = TextOf(token);
+        if (token.Kind == XPathTokenKind.BracedName)
+        {
+            // Q{uri}local: the lexer guarantees both braces and a local name.
+            var close = text.IndexOf('}');
+            return new QualifiedName(
+                token.Span,
+                null,
+                text.Slice(close + 1).ToString(),
+                text.Slice(2, close - 2).ToString()
+            );
+        }
+
         var colon = text.IndexOf(':');
         return colon < 0
             ? new QualifiedName(token.Span, null, text.ToString())

@@ -207,4 +207,31 @@ internal enum XPathTokenKind
 
     /// <summary>Keyword <see langword="is"/>.</summary>
     Is,
+
+    /// <summary>The keyword <see langword="let"/> before <c>$</c> (XPath 3.0 and later).</summary>
+    Let,
+
+    /// <summary>The keyword <see langword="function"/> before <c>(</c> (XPath 3.0 and later).</summary>
+    Function,
+
+    /// <summary><c>:=</c> (XPath 3.0 and later).</summary>
+    ColonEqual,
+
+    /// <summary><c>!</c>, the simple map operator (XPath 3.0 and later).</summary>
+    Bang,
+
+    /// <summary><c>||</c>, string concatenation (XPath 3.0 and later).</summary>
+    Concat,
+
+    /// <summary><c>#</c> of a named function reference (XPath 3.0 and later).</summary>
+    Hash,
+
+    /// <summary><c>{</c> (XPath 3.0 and later).</summary>
+    LeftBrace,
+
+    /// <summary><c>}</c> (XPath 3.0 and later).</summary>
+    RightBrace,
+
+    /// <summary>An EQName in the form <c>Q{uri}local</c>; the token covers the whole name (XPath 3.0 and later).</summary>
+    BracedName,
 }

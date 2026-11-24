@@ -101,4 +101,28 @@ internal sealed class CountingVisitor : SyntaxVisitor
     public override void VisitAnyItemType(AnyItemType node) => Count(node);
 
     public override void VisitKindItemType(KindItemType node) => Count(node);
+
+    public override void VisitLetExpression(LetExpression node) => Count(node);
+
+    public override void VisitSimpleMapExpression(SimpleMapExpression node) => Count(node);
+
+    public override void VisitStringConcatExpression(StringConcatExpression node) => Count(node);
+
+    public override void VisitArgumentPlaceholder(ArgumentPlaceholder node) => Count(node);
+
+    public override void VisitNamespaceNodeTest(NamespaceNodeTest node) => Count(node);
+
+    public override void VisitAnyFunctionTest(AnyFunctionTest node) => Count(node);
+
+    public override void VisitNamedFunctionReference(NamedFunctionReference node) => Count(node);
+
+    public override void VisitDynamicFunctionCall(DynamicFunctionCall node) => Count(node);
+
+    public override void VisitFunctionParameter(FunctionParameter node) => Count(node);
+
+    public override void VisitInlineFunctionExpression(InlineFunctionExpression node) => Count(node);
+
+    public override void VisitTypedFunctionTest(TypedFunctionTest node) => Count(node);
+
+    public override void VisitParenthesizedItemType(ParenthesizedItemType node) => Count(node);
 }

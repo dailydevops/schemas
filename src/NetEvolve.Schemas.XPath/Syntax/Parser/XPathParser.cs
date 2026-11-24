@@ -5,7 +5,7 @@ using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Syntax.Tree;
 
-/// <summary>Parses an XPath 2.0 expression into the syntax tree.</summary>
+/// <summary>Parses an XPath expression into the syntax tree; XPath 2.0 is the default, XPath 3.0 is selected by the version.</summary>
 /// <remarks>
 /// <para>
 /// The grammar is XPath 2.0 (Second Edition) appendix A: the productions of A.1, the precedence order of A.4, and the
@@ -30,21 +30,8 @@ internal static class XPathParser
     /// <param name="expression">The tree when the expression is valid, otherwise <see langword="null"/>.</param>
     /// <param name="diagnostic">The XPST0003 diagnostic when the expression is not valid.</param>
     /// <returns><see langword="true"/> when the expression is valid.</returns>
-    public static bool TryParse(ReadOnlySpan<char> text, out Expression? expression, out XPathDiagnostic diagnostic)
-    {
-        try
-        {
-            expression = new ExpressionParser(text).ParseExpression();
-            diagnostic = default;
-            return true;
-        }
-        catch (XPathException exception)
-        {
-            expression = null;
-            diagnostic = exception.Diagnostic;
-            return false;
-        }
-    }
+    public static bool TryParse(ReadOnlySpan<char> text, out Expression? expression, out XPathDiagnostic diagnostic) =>
+        TryParse(text, XPathVersion.V20, out expression, out diagnostic);
 
     /// <summary>Parses an expression of the given language version without throwing.</summary>
     /// <param name="text">The expression.</param>
@@ -59,7 +46,17 @@ internal static class XPathParser
         out XPathDiagnostic diagnostic
     )
     {
-        _ = version;
-        return TryParse(text, out expression, out diagnostic);
+        try
+        {
+            expression = new ExpressionParser(text, version).ParseExpression();
+            diagnostic = default;
+            return true;
+        }
+        catch (XPathException exception)
+        {
+            expression = null;
+            diagnostic = exception.Diagnostic;
+            return false;
+        }
     }
 }

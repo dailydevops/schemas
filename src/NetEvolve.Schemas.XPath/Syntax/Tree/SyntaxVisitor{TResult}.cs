@@ -213,4 +213,64 @@ internal abstract class SyntaxVisitor<TResult>
     /// <param name="node">The node.</param>
     /// <returns>The result.</returns>
     public virtual TResult? VisitKindItemType(KindItemType node) => default;
+
+    /// <summary>Visits a <see cref="LetExpression"/>.</summary>
+    /// <param name="node">The node.</param>
+    /// <returns>The result.</returns>
+    public virtual TResult? VisitLetExpression(LetExpression node) => default;
+
+    /// <summary>Visits a <see cref="SimpleMapExpression"/>.</summary>
+    /// <param name="node">The node.</param>
+    /// <returns>The result.</returns>
+    public virtual TResult? VisitSimpleMapExpression(SimpleMapExpression node) => default;
+
+    /// <summary>Visits a <see cref="StringConcatExpression"/>.</summary>
+    /// <param name="node">The node.</param>
+    /// <returns>The result.</returns>
+    public virtual TResult? VisitStringConcatExpression(StringConcatExpression node) => default;
+
+    /// <summary>Visits a <see cref="ArgumentPlaceholder"/>.</summary>
+    /// <param name="node">The node.</param>
+    /// <returns>The result.</returns>
+    public virtual TResult? VisitArgumentPlaceholder(ArgumentPlaceholder node) => default;
+
+    /// <summary>Visits a <see cref="NamespaceNodeTest"/>.</summary>
+    /// <param name="node">The node.</param>
+    /// <returns>The result.</returns>
+    public virtual TResult? VisitNamespaceNodeTest(NamespaceNodeTest node) => default;
+
+    /// <summary>Visits a <see cref="AnyFunctionTest"/>.</summary>
+    /// <param name="node">The node.</param>
+    /// <returns>The result.</returns>
+    public virtual TResult? VisitAnyFunctionTest(AnyFunctionTest node) => default;
+
+    /// <summary>Visits a <see cref="NamedFunctionReference"/>.</summary>
+    /// <param name="node">The node.</param>
+    /// <returns>The result.</returns>
+    public virtual TResult? VisitNamedFunctionReference(NamedFunctionReference node) => default;
+
+    /// <summary>Visits a <see cref="DynamicFunctionCall"/>.</summary>
+    /// <param name="node">The node.</param>
+    /// <returns>The result.</returns>
+    public virtual TResult? VisitDynamicFunctionCall(DynamicFunctionCall node) => default;
+
+    /// <summary>Visits a <see cref="FunctionParameter"/>.</summary>
+    /// <param name="node">The node.</param>
+    /// <returns>The result.</returns>
+    public virtual TResult? VisitFunctionParameter(FunctionParameter node) => default;
+
+    /// <summary>Visits a <see cref="InlineFunctionExpression"/>.</summary>
+    /// <param name="node">The node.</param>
+    /// <returns>The result.</returns>
+    public virtual TResult? VisitInlineFunctionExpression(InlineFunctionExpression node) => default;
+
+    /// <summary>Visits a <see cref="TypedFunctionTest"/>.</summary>
+    /// <param name="node">The node.</param>
+    /// <returns>The result.</returns>
+    public virtual TResult? VisitTypedFunctionTest(TypedFunctionTest node) => default;
+
+    /// <summary>Visits a <see cref="ParenthesizedItemType"/>.</summary>
+    /// <param name="node">The node.</param>
+    /// <returns>The result.</returns>
+    public virtual TResult? VisitParenthesizedItemType(ParenthesizedItemType node) => default;
 }
