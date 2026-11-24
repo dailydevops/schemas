@@ -82,7 +82,7 @@ public class DoctypeDeclarationTests
     public async Task OptIn_ParsesTheNameIdentifiersAndSubset_AndCompletesTheDocument()
     {
         const string xml =
-            "<!DOCTYPE note PUBLIC \"-//X//Y\" 'x.dtd' [<!ELEMENT note EMPTY> <!ATTLIST note id ID #IMPLIED>]>\r\n<note/>";
+            "<!DOCTYPE note PUBLIC \"-//X//Y\" 'x.dtd' [<!ELEMENT note EMPTY>\r\n<!ATTLIST note id ID #IMPLIED>]>\r\n<note/>";
         using var reader = XmlPipelineReader.Create(xml.AsSpan(), OptIn);
         var sink = new RecordingXmlSink(new SpanInterningNameTable(XmlReaderLimits.Default.MaxDistinctNames));
 
