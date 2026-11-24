@@ -1,0 +1,2 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"><xs:element name="root"><xs:complexType><xs:sequence>
+ <xs:element name="a" type="xs:int" minOccurs="4294967295" maxOccurs="4294967295"/></xs:sequence></xs:complexType></xs:element></xs:schema>
