@@ -79,6 +79,13 @@ public class BinaryAndUriCastTests
             ("xs:anyURI('http://a') cast as xs:hexBinary", "XPTY0004"),
             ("xs:hexBinary('0F') cast as xs:anyURI", "XPTY0004"),
             ("xs:anyURI('http://a') cast as xs:date", "XPTY0004"),
+            ("'%' cast as xs:anyURI", "FORG0001"),
+            ("'%gg' cast as xs:anyURI", "FORG0001"),
+            ("'http://www.example.com/file%GF.html' cast as xs:anyURI", "FORG0001"),
+            ("'%4' cast as xs:anyURI", "FORG0001"),
+            ("':/cut.jpg' cast as xs:anyURI", "FORG0001"),
+            ("':/' cast as xs:anyURI", "FORG0001"),
+            ("xs:untypedAtomic('%') cast as xs:anyURI", "FORG0001"),
             ("() cast as xs:hexBinary", "XPTY0004"),
             ("('0F', '0F') cast as xs:hexBinary", "XPTY0004"),
         ];
