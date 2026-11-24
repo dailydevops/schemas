@@ -33,6 +33,13 @@ public sealed class XPathHostSlots
     /// <summary>Gets or sets the provider that resolves a key by name and value.</summary>
     public IXPathKeyProvider? Keys { get; set; }
 
+    /// <summary>
+    /// Gets or sets the state of the current run, which a host function reaches through <c>invocation.Context.Host.HostState</c>. A
+    /// compiled expression is shared by concurrent runs, so a registered host function holds only immutable data and reads the state of
+    /// its run here. It is unset (<see langword="null"/>) by default.
+    /// </summary>
+    public object? HostState { get; set; }
+
     /// <summary>Gets or sets the sink of <c>fn:trace</c>: the label and the traced value. Internal until the host seam is decided (#884).</summary>
     internal Action<string, XdmSequence>? Trace { get; set; }
 
@@ -45,6 +52,7 @@ public sealed class XPathHostSlots
         RegexGroups = null;
         DecimalFormats = null;
         Keys = null;
+        HostState = null;
         Trace = null;
     }
 }
