@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.XPath.Syntax.Lexer;
 
 using System;
 using NetEvolve.Schemas.Xml.Text.CharClasses;
+using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Syntax.Tree;
 
 /// <summary>
@@ -34,6 +35,12 @@ internal ref struct XPathLexer
     private bool _expectOfOrAs;
     private bool _inType;
     private bool _failed;
+
+    /// <summary>Initializes a new instance of the <see cref="XPathLexer"/> struct for a language version.</summary>
+    /// <param name="text">The expression; it must outlive the lexer.</param>
+    /// <param name="version">The language version.</param>
+    public XPathLexer(ReadOnlySpan<char> text, XPathVersion version)
+        : this(text) => _ = version;
 
     /// <summary>Initializes a new instance of the <see cref="XPathLexer"/> struct.</summary>
     /// <param name="text">The expression; it must outlive the lexer.</param>

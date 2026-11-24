@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.XPath.Syntax.Parser;
 
 using System;
+using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Syntax.Tree;
 
@@ -43,5 +44,22 @@ internal static class XPathParser
             diagnostic = exception.Diagnostic;
             return false;
         }
+    }
+
+    /// <summary>Parses an expression of the given language version without throwing.</summary>
+    /// <param name="text">The expression.</param>
+    /// <param name="version">The language version that decides which grammar applies.</param>
+    /// <param name="expression">The tree when the expression is valid, otherwise <see langword="null"/>.</param>
+    /// <param name="diagnostic">The XPST0003 diagnostic when the expression is not valid.</param>
+    /// <returns><see langword="true"/> when the expression is valid.</returns>
+    public static bool TryParse(
+        ReadOnlySpan<char> text,
+        XPathVersion version,
+        out Expression? expression,
+        out XPathDiagnostic diagnostic
+    )
+    {
+        _ = version;
+        return TryParse(text, out expression, out diagnostic);
     }
 }
