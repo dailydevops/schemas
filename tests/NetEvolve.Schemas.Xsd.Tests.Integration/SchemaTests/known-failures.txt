@@ -258,7 +258,6 @@ msMeta-Regex_w3c	1.0/RegexTest_983/RegexTest_983	#858	The regex parser rejects t
 msMeta-Regex_w3c	1.0/RegexTest_984/RegexTest_984	#858	The regex parser rejects the anchors ^ and $ outside a character class.
 msMeta-Regex_w3c	1.0/RegexTest_985/RegexTest_985	#858	The regex parser rejects the anchors ^ and $ outside a character class.
 msMeta-Regex_w3c	1.0/RegexTest_986/RegexTest_986	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/reF56/reF56	#858	The regex parser rejects the anchors ^ and $ outside a character class.
 msMeta-Regex_w3c	1.0/reZ001/reZ001	#858	The regex parser rejects the anchors ^ and $ outside a character class.
 msMeta-Schema_w3c	1.0/schB8/schB8	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
 msMeta-Schema_w3c	1.0/schD7/schD7	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
