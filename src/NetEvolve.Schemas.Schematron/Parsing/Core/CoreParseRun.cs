@@ -12,6 +12,7 @@ using NetEvolve.Schemas.Xml.Model;
 internal sealed partial class CoreParseRun
 {
     private const string SchematronNamespace = "http://purl.oclc.org/dsdl/schematron";
+    private const string XmlNamespace = "http://www.w3.org/XML/1998/namespace";
     private const string XsltNamespace = "http://www.w3.org/1999/XSL/Transform";
 
     private static readonly string[] UnsupportedCopyOfAttributes = ["type", "validation"];
@@ -514,7 +515,28 @@ internal sealed partial class CoreParseRun
     }
 
     private SchematronMessage ParseMessage(XmlNode element, CoreInline allowed) =>
-        new(Location(element), ParseParts(element, allowed));
+        new(Location(element), ParseParts(element, allowed), InheritedLanguage(element));
+
+    // The nearest xml:lang of the element and its ancestors; an empty value resets the language, so it is returned as written.
+    private string? InheritedLanguage(XmlNode element)
+    {
+        for (var node = element; !node.IsEmpty; node = node.Parent)
+        {
+            for (var attribute = node.FirstAttribute; !attribute.IsEmpty; attribute = attribute.NextAttribute)
+            {
+                var name = attribute.Name;
+                if (
+                    string.Equals(_names.GetString(name.Local), "lang", StringComparison.Ordinal)
+                    && string.Equals(_names.GetString(name.NamespaceUri), XmlNamespace, StringComparison.Ordinal)
+                )
+                {
+                    return attribute.StringValue;
+                }
+            }
+        }
+
+        return null;
+    }
 
     private SchematronMessagePart[] ParseParts(XmlNode element, CoreInline allowed)
     {
