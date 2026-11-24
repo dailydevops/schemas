@@ -21,7 +21,8 @@ using NetEvolve.Schemas.Xml.Text.CharClasses;
 /// value is checked when its start tag arrives, so a duplicate is reported at the second occurrence. A reference to an ID
 /// that is already known is resolved at once; a reference to an unknown name may still match a later ID, so it waits and
 /// is decided at <see cref="EndDocument"/>, where an unmatched name is reported at the position of its attribute, one issue
-/// per occurrence in document order. A value that is not a Name is reported at once and is never stored. For IDREFS only the
+/// per occurrence in document order. Because the reader always processes namespaces, a Name must also be free of colons
+/// (an NCName, Namespaces in XML 1.0, erratum NE08). A value that is not such a Name is reported at once and is never stored. For IDREFS only the
 /// offending token is reported.
 /// </para>
 /// <para>
@@ -284,11 +285,13 @@ internal sealed class DtdIdentityStep : IDtdValidationStep
                 + attribute.Name.ToString()
                 + "' has the value '"
                 + value.ToString()
-                + "', which is not a name"
+                + "', which is not a name without a colon"
         );
 
+    // The reader always processes namespaces, so the value must be an NCName: a Name without a colon (Namespaces in XML 1.0,
+    // erratum NE08, "Colon in ID attribute name").
     private static bool IsName(ReadOnlySpan<char> value) =>
-        value.Length > 0 && XmlCharClass.NameLength(value) == value.Length;
+        value.Length > 0 && XmlCharClass.NameLength(value) == value.Length && value.IndexOf(':') < 0;
 
     [StructLayout(LayoutKind.Auto)]
     private readonly struct Pending

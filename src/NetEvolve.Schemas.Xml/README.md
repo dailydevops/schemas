@@ -354,7 +354,7 @@ dotnet test --project tests/NetEvolve.Schemas.Xml.Tests.Integration --configurat
 
 ### DTD validation conformance
 
-**Validation rate: 98.3%** (927 of 943 applicable cases). The run feeds the 957 valid and invalid cases of the selection to the DTD validation, for every value of the `ENTITIES` tag of the suite. A valid case passes when the run reports no validity error and no fatal status. An invalid case passes when it reports at least one validity error and no fatal status. The not-well-formed and error cases belong to the reader run above.
+**Validation rate: 98.5%** (929 of 943 applicable cases). The run feeds the 957 valid and invalid cases of the selection to the DTD validation, for every value of the `ENTITIES` tag of the suite. A valid case passes when the run reports no validity error and no fatal status. An invalid case passes when it reports at least one validity error and no fatal status. The not-well-formed and error cases belong to the reader run above.
 
 14 cases are not run, because the reader cannot read them; they are skipped, count neither as passed nor as failed, and stay in the reader baseline:
 
@@ -365,13 +365,12 @@ dotnet test --project tests/NetEvolve.Schemas.Xml.Tests.Integration --configurat
 | Name above the default limit | 2 | The document has a name longer than the default `MaxNameLength` and is rejected with XML1105. |
 | Version other than 1.0 | 1 | The document declares version 1.7, which the Fifth Edition allows; the reader accepts 1.0 only and reports XML0010. |
 
-16 cases fail, all of them invalid documents for which the run reports no validity error. They are the known gaps of the validation. Unlike the reader, the validation run has no baseline directory: the known gaps are the table `Known` in `tests/NetEvolve.Schemas.Xml.Tests.Integration/XmlConf/Validating/ValidatingXmlConfGaps.cs`, and the run fails on a new failure and on a listed case that passes.
+14 cases fail, all of them invalid documents for which the run reports no validity error. They are the known gaps of the validation. Unlike the reader, the validation run has no baseline directory: the known gaps are the table `Known` in `tests/NetEvolve.Schemas.Xml.Tests.Integration/XmlConf/Validating/ValidatingXmlConfGaps.cs`, and the run fails on a new failure and on a listed case that passes.
 
 | Failure class | Cases | Reason |
 | --- | --- | --- |
 | Parse-time anomaly not recorded | 10 | The declaration parser records no parse-time anomaly ([#608](https://github.com/dailydevops/schemas/issues/608)), so the nesting and uniqueness constraints are not reported. |
 | Skipped entity reference | 2 | The reader has no event for an entity reference ([#647](https://github.com/dailydevops/schemas/issues/647)), so the constraint is not reported. |
-| Colon in an ID value | 2 | ID values are checked against Name only ([#925](https://github.com/dailydevops/schemas/issues/925)): a colon is accepted. |
 | Standalone normalization clause | 2 | The clause skips enumerated and notation attributes ([#924](https://github.com/dailydevops/schemas/issues/924)), so Standalone Document Declaration is not reported. |
 
 ## Limitations
