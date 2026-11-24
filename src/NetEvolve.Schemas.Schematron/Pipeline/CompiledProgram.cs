@@ -71,7 +71,7 @@ internal sealed class CompiledProgram : CompiledSchema
 
     /// <summary>
     /// Gets the tables of the XSLT declarations (functions, globals, keys, and decimal formats) that the schema links, or
-    /// <see langword="null"/> when it links none. Limitation: a run reads the globals through the plan, but not the functions and keys.
+    /// <see langword="null"/> when it links none. Limitation: a run reads the globals through the plan and calls the functions, but not the keys.
     /// </summary>
     internal XsltModuleTables? XsltTables { get; }
 }

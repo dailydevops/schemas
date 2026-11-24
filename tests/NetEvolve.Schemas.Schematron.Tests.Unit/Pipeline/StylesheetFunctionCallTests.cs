@@ -111,6 +111,35 @@ public class StylesheetFunctionCallTests
     }
 
     [Test]
+    public async Task Call_OfAFunctionWhoseNamespaceOnlyTheSchemaDeclares_Resolves()
+    {
+        var schema = Wrap(
+            Ns
+                + $"<xsl:function name=\"f:twice\" {Xsl}><xsl:param name=\"x\"/><xsl:sequence select=\"$x * 2\"/></xsl:function>"
+                + Rule("f:twice(number(.)) = 10"),
+            " queryBinding=\"xslt2\" schematronEdition=\"2025\""
+        );
+
+        var validator = Build(schema);
+
+        await Assert.That(Validate(validator, "<a>5</a>").IsValid).IsTrue();
+        await Assert.That(Validate(validator, "<a>4</a>").IsValid).IsFalse();
+    }
+
+    [Test]
+    public async Task Declaration_WithoutAPrefix_IsReportedAndNoCallCompiles()
+    {
+        var failure = Capture(() =>
+            _ = Inline(
+                $"<xsl:function name=\"twice\"><xsl:param name=\"x\"/><xsl:sequence select=\"$x\"/></xsl:function>",
+                "f:twice(1) = 1"
+            )
+        );
+
+        await Assert.That(failure.Issues.Select(issue => issue.Constraint)).Contains("XTSE0740");
+    }
+
+    [Test]
     public async Task Call_OfAFunctionWithTwoArities_ResolvesByArity()
     {
         var validator = Inline(
