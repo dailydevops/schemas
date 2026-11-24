@@ -16,7 +16,7 @@ using NetEvolve.Schemas.Xml.Datatypes.Strings;
 /// <summary>
 /// The compiled validator of a <see cref="Definitions.SimpleTypeDefinition"/> that adds facets of its own to the built-in type it derives from
 /// (Datatypes section 4.3; design #146 DP-9). An atomic type is validated by a descriptor of the Xml package that restricts the
-/// built-in descriptor with the facets, so it allocates nothing per value; a list or union checks its own lexical facets over the
+/// built-in descriptor with the facets, so it allocates nothing per value; a list, a union, and a restriction of anyURI check their own lexical facets over the
 /// whole lexical form, after its items or members were assessed.
 /// </summary>
 /// <remarks>
@@ -88,9 +88,20 @@ internal sealed class SimpleTypeValidator
             }
 
             var atomic = Derive(name, datatype, whitespace, own);
-            return atomic is null ? null : new SimpleTypeValidator(atomic, [], false);
+            if (atomic is not null)
+            {
+                return new SimpleTypeValidator(atomic, [], false);
+            }
+
+            // The descriptor of anyURI cannot be restricted, so its facets run over the collapsed lexical form after the base was assessed.
+            return string.Equals(datatype?.Name, "anyURI", StringComparison.Ordinal) ? Lexical(own, true) : null;
         }
 
+        return Lexical(own, variety == DatatypeVariety.List);
+    }
+
+    private static SimpleTypeValidator? Lexical(List<IFacet> own, bool collapse)
+    {
         var lexical = new List<ILexicalFacet>(own.Count);
         foreach (var facet in own)
         {
@@ -100,8 +111,11 @@ internal sealed class SimpleTypeValidator
             }
         }
 
-        return lexical.Count == 0 ? null : new SimpleTypeValidator(null, [.. lexical], variety == DatatypeVariety.List);
+        return lexical.Count == 0 ? null : new SimpleTypeValidator(null, [.. lexical], collapse);
     }
+
+    /// <summary>Gets a value indicating whether the validator assesses the whole value, so the base type need not be assessed first.</summary>
+    internal bool IsComplete => _atomic is not null;
 
     /// <summary>Validates a lexical form: an atomic type completely, a list or union against its own facets only.</summary>
     /// <param name="lexical">The lexical form.</param>

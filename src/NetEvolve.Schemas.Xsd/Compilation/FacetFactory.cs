@@ -21,8 +21,8 @@ using NetEvolve.Schemas.Xsd.SimpleTypes.Checks;
 /// that the new simple type definition carries.
 /// </summary>
 /// <remarks>
-/// Limitations: the <c>enumeration</c> facet is carried for string-like bases and for the ordered families (decimal, integer, float,
-/// double, duration, date and time, boolean), not for the others (for example <c>anyURI</c>, binary, and <c>QName</c>); the
+/// Limitations: the <c>enumeration</c> facet is carried for string-like bases (including anyURI) and for the ordered families (decimal, integer, float,
+/// double, duration, date and time, boolean), not for the others (binary, <c>QName</c>, and <c>NOTATION</c>); the
 /// <c>explicitTimezone</c> and <c>assertion</c> facets (XSD 1.1, XSD-78) are not carried; a length of a binary type is carried
 /// by the binary length facet only when the base is a built-in type of that family. A facet that does not parse is left out, which
 /// can only follow an issue that the check has reported.
@@ -75,10 +75,9 @@ internal static class FacetFactory
 
         if (enumeration.Count > 0 && facts is { Variety: DatatypeVariety.Atomic })
         {
-            facets[enumerationSlot] =
-                facts.Primitive == PrimitiveKind.StringType
-                    ? new LexicalEnumerationFacet(enumeration)
-                    : Enumeration(enumeration, facts.Descriptor)!;
+            facets[enumerationSlot] = facts.Primitive is PrimitiveKind.StringType or PrimitiveKind.AnyUri
+                ? new LexicalEnumerationFacet(enumeration)
+                : Enumeration(enumeration, facts.Descriptor)!;
         }
 
         _ = facets.RemoveAll(static facet => facet is null);

@@ -73,22 +73,25 @@ internal sealed class DescriptorValueAssessor : ISimpleValueAssessor
                 memberIndex = own.IsValid ? memberIndex : -1;
                 return own;
             default:
-                if (definition.Validator is { } validator)
-                {
-                    return validator.Validate(lexical);
-                }
-
-                if (definition.BaseType is not null)
-                {
-                    return Assess(definition.BaseType, lexical, out memberIndex);
-                }
-
-                return
-                    string.Equals(definition.Name.NamespaceName, SchemaGrammar.Namespace, StringComparison.Ordinal)
-                    && _builtIns.TryGetValue(definition.Name.LocalName, out var descriptor)
-                    ? descriptor.Validate(lexical)
-                    : DatatypeResult.Valid;
+                return definition.Validator is { IsComplete: true } complete
+                    ? complete.Validate(lexical)
+                    : AssessOwn(definition, lexical, AssessBase(definition, lexical, out memberIndex));
         }
+    }
+
+    private DatatypeResult AssessBase(SimpleTypeDefinition definition, ReadOnlySpan<char> lexical, out int memberIndex)
+    {
+        if (definition.BaseType is not null)
+        {
+            return Assess(definition.BaseType, lexical, out memberIndex);
+        }
+
+        memberIndex = -1;
+        return
+            string.Equals(definition.Name.NamespaceName, SchemaGrammar.Namespace, StringComparison.Ordinal)
+            && _builtIns.TryGetValue(definition.Name.LocalName, out var descriptor)
+            ? descriptor.Validate(lexical)
+            : DatatypeResult.Valid;
     }
 
     private static DatatypeResult AssessOwn(
