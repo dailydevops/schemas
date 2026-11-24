@@ -4,19 +4,9 @@ using NetEvolve.Schemas.Conformance.Reporting;
 using NetEvolve.Schemas.XPath.Tests.Integration.Conformance;
 using NetEvolve.Schemas.XPath.Tests.Integration.Qt3.ParserOnly;
 
-/// <summary>The conformance workflow selects tests with <c>/*/*Conformance*/*/*</c>, which matches the namespace segment.</summary>
+/// <summary>The conformance workflow selects the explicit suite classes by their category, see <see cref="ConformanceCategory"/>.</summary>
 public class Qt3ConformanceFilterTests
 {
-    [Test]
-    public async Task ConformanceTests_SitInANamespaceTheWorkflowFilterSelects()
-    {
-        var type = typeof(Qt3ConformanceFilterTests)
-            .Assembly.GetTypes()
-            .Single(t => string.Equals(t.Name, "Qt3ConformanceTests", StringComparison.Ordinal));
-
-        await Assert.That(type.Namespace).Contains("Conformance");
-    }
-
     [Test]
     [Arguments(typeof(Qt3ConformanceTests))]
     [Arguments(typeof(Qt3BaselineTests))]
@@ -39,11 +29,27 @@ public class Qt3ConformanceFilterTests
         await Assert.That(suites).IsNotEmpty();
         foreach (var suite in suites)
         {
-            await Assert.That(suite.GetCustomAttributes(typeof(ExplicitAttribute), inherit: false)).IsNotEmpty();
+            // Methods marked explicit on their own (baseline regeneration) stay out of the category on purpose.
+            var methods = suite
+                .GetMethods()
+                .Where(m => m.GetCustomAttributes(typeof(TestAttribute), inherit: false).Length != 0)
+                .ToArray();
+            var classExplicit = suite.GetCustomAttributes(typeof(ExplicitAttribute), inherit: false).Length != 0;
+
+            await Assert
+                .That(
+                    methods.All(m =>
+                        classExplicit || m.GetCustomAttributes(typeof(ExplicitAttribute), inherit: false).Length != 0
+                    )
+                )
+                .IsTrue();
             await Assert
                 .That(
                     suite
                         .GetCustomAttributes(typeof(CategoryAttribute), inherit: false)
+                        .Concat(
+                            methods.SelectMany(m => m.GetCustomAttributes(typeof(CategoryAttribute), inherit: false))
+                        )
                         .Cast<CategoryAttribute>()
                         .Select(a => a.Category)
                 )

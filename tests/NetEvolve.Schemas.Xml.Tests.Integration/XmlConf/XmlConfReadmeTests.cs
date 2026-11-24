@@ -6,6 +6,8 @@ using NetEvolve.Schemas.Conformance.Results;
 using NetEvolve.Schemas.Testing.Readme;
 
 /// <summary>Pins the conformance section of src/NetEvolve.Schemas.Xml/README.md to the run of the reader over the pinned suite.</summary>
+[Explicit]
+[Category(ConformanceCategory.Name)]
 [ConformanceLeg]
 public class XmlConfReadmeTests
 {

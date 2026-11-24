@@ -15,6 +15,8 @@ public class XmlConfSuiteTests
     private const int ExcludedCaseCount = 584;
 
     [Test]
+    [Explicit]
+    [Category(ConformanceCategory.Name)]
     public async Task Suite_SelectedCaseCount_EqualsCommittedConstant(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -25,6 +27,8 @@ public class XmlConfSuiteTests
     }
 
     [Test]
+    [Explicit]
+    [Category(ConformanceCategory.Name)]
     public async Task Suite_SelectedCases_CarryEveryEntitiesTag(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -41,6 +45,8 @@ public class XmlConfSuiteTests
     }
 
     [Test]
+    [Explicit]
+    [Category(ConformanceCategory.Name)]
     public async Task Suite_ExcludedCases_AreOnlyXml11AndOldEditionCases(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -83,6 +89,8 @@ public class XmlConfSuiteTests
     }
 
     [Test]
+    [Explicit]
+    [Category(ConformanceCategory.Name)]
     public async Task Baseline_ListsOnlySelectedCases_InOneFilePerTestSet(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -102,6 +110,8 @@ public class XmlConfSuiteTests
     }
 
     [Test]
+    [Explicit]
+    [Category(ConformanceCategory.Name)]
     public async Task Baseline_MatchesPipelineReaderRun(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -121,6 +131,8 @@ public class XmlConfSuiteTests
     }
 
     [Test]
+    [Explicit]
+    [Category(ConformanceCategory.Name)]
     public async Task Pipeline_NamespaceCasesWithoutDoctype_GiveTheExpectedResultAndLeaveTheBaseline(
         CancellationToken cancellationToken
     )
@@ -166,6 +178,8 @@ public class XmlConfSuiteTests
     ];
 
     [Test]
+    [Explicit]
+    [Category(ConformanceCategory.Name)]
     public async Task Pipeline_NotWellFormedCasesWithoutDoctype_AreAllRejectedAndLeaveTheBaseline(
         CancellationToken cancellationToken
     )
@@ -229,6 +243,8 @@ public class XmlConfSuiteTests
     ];
 
     [Test]
+    [Explicit]
+    [Category(ConformanceCategory.Name)]
     public async Task Pipeline_NotWellFormedEntityCases_AreRejectedAndLeaveTheBaseline(
         CancellationToken cancellationToken
     )
@@ -267,6 +283,8 @@ public class XmlConfSuiteTests
     ];
 
     [Test]
+    [Explicit]
+    [Category(ConformanceCategory.Name)]
     public async Task Pipeline_NotWellFormedExternalSubsetCases_AreRejectedAndLeaveTheBaseline(
         CancellationToken cancellationToken
     )
@@ -295,6 +313,8 @@ public class XmlConfSuiteTests
     private static readonly string[] NamespaceProcessingOffCases = ["oasis/o-p04pass1", "oasis/o-p05pass1"];
 
     [Test]
+    [Explicit]
+    [Category(ConformanceCategory.Name)]
     public async Task Pipeline_ValidAndInvalidCasesWithoutDoctype_AreAcceptedAndLeaveTheBaseline(
         CancellationToken cancellationToken
     )
