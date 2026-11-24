@@ -4,6 +4,7 @@ using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -614,6 +615,26 @@ public class SchematronReadmeTests
         await Assert.That(readme).Contains($"{entries} baseline entries in {fileCount} files");
         await Assert.That(readme).Contains($"{entries} known failures");
     }
+
+    [Test]
+    public async Task Conformance_EveryKnownFailureHeadingAppearsOnce()
+    {
+        var headings = new List<string>();
+        foreach (var line in ReadmeSamples.ReadText(Readme).Split('\n'))
+        {
+            if (line.StartsWith("**[#", StringComparison.Ordinal))
+            {
+                headings.Add(line.TrimEnd());
+            }
+        }
+
+        await Assert.That(headings).IsNotEmpty();
+        await Assert.That(headings.Distinct().Count()).IsEqualTo(headings.Count);
+    }
+
+    [Test]
+    public async Task Readme_HasNoDoubleBlankLines() =>
+        await Assert.That(ReadmeSamples.ReadText(Readme).Replace("\r\n", "\n")).DoesNotContain("\n\n\n");
 
     [Test]
     public async Task Readme_FollowsTheSectionOrderOfTheProjectTemplate()
