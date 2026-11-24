@@ -85,7 +85,7 @@ internal sealed class CompilingBinding : IQueryBinding
                 i++;
             }
 
-            var first = text[start..i];
+            var first = text.Slice(start, i - start);
             if (i + 1 < text.Length && text[i] == ':' && IsStart(text[i + 1]))
             {
                 var localStart = ++i;
@@ -94,7 +94,7 @@ internal sealed class CompilingBinding : IQueryBinding
                     i++;
                 }
 
-                Add(text[localStart..i]);
+                Add(text.Slice(localStart, i - localStart));
                 foreach (var declaration in scope.Namespaces)
                 {
                     if (first.SequenceEqual(declaration.Prefix.AsSpan()))
