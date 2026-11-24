@@ -7,7 +7,7 @@ using NetEvolve.Schemas.XPath.Syntax.Tree;
 
 public class ChildCacheTests
 {
-    private const string Text = "for $x in (1, 2) return a/b[c = $x]/f(1, 'two', ?) + (if (1) then 2 else 3)";
+    private const string Text = "for $x in (1, 2) return a/b[c = $x]/f(1, 'two') + (if (1) then 2 else 3)";
 
     private static Expression Parse() =>
         XPathParser.TryParse(Text.AsSpan(), out var expression, out _)
