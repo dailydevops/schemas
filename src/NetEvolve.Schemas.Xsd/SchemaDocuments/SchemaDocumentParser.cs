@@ -1,4 +1,4 @@
-﻿namespace NetEvolve.Schemas.Xsd.SchemaDocuments;
+namespace NetEvolve.Schemas.Xsd.SchemaDocuments;
 
 using System;
 using System.IO;

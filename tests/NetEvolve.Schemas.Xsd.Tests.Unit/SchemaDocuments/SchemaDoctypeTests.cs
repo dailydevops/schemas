@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.Xsd.Tests.Unit.SchemaDocuments;
 
 using System;
+using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xsd.SchemaDocuments;
 using static NetEvolve.Schemas.Xsd.Tests.Unit.SchemaDocuments.SchemaFixture;
 
@@ -50,10 +51,9 @@ public class SchemaDoctypeTests
             + "<!ENTITY e '&d;&d;&d;&d;&d;&d;&d;&d;&d;&d;'> <!ENTITY f '&e;&e;&e;&e;&e;&e;&e;&e;&e;&e;'> "
             + "<!ENTITY g '&f;&f;&f;&f;&f;&f;&f;&f;&f;&f;'> <!ENTITY h '&g;&g;&g;&g;&g;&g;&g;&g;&g;&g;'> ]>\n"
             + "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><xs:annotation><xs:documentation>&h;&h;&h;&h;&h;&h;&h;&h;&h;&h;</xs:documentation></xs:annotation></xs:schema>";
-        var reporter = NewReporter(out _);
-
-        var document = SchemaDocumentParser.Parse(bomb.AsSpan(), SystemId, reporter);
+        var (document, _) = Parse(bomb);
 
         await Assert.That(document.IsComplete).IsFalse();
+        await Assert.That(document.ReadError!.Code).IsEqualTo(XmlErrorCodes.XML1109);
     }
 }
