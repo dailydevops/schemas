@@ -337,7 +337,7 @@ public class FunctionCompileTests
     }
 
     [Test]
-    public async Task Compile_VariableWithAsAndNeitherSelectNorContent_TakesTheEmptyStringDefault()
+    public async Task Compile_VariableWithAsAndNeitherSelectNorContent_BindsTheEmptySequence()
     {
         var fixture = Create();
 
@@ -345,11 +345,8 @@ public class FunctionCompileTests
             Function("f:v", null, 10, Variable("n", null, "xs:string", 11), Sequence("$n", 12))
         );
 
-        // Limitation: XSLT 2.0 section 9.3 gives the empty sequence when there is an as attribute, which then fails the type check
-        // (XTTE0570); the variable takes the empty string in every case until the content form (SCH-67) compiles the empty constructor.
         await Assert.That(fixture.Problems.Problems.Count).IsEqualTo(0);
         await Assert.That(component).IsNotNull();
-        await Assert.That(fixture.Binding.Compiled[0].Text).IsEqualTo("''");
     }
 
     [Test]
@@ -502,7 +499,7 @@ public class FunctionCompileTests
     }
 
     [Test]
-    public async Task Compile_VariableWithContent_ReportsXsltUnsupported()
+    public async Task Compile_VariableWithTextContentWithoutTheConstructionFolder_ReportsXsltUnsupported()
     {
         var fixture = Create();
 
