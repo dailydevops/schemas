@@ -20,10 +20,18 @@ source ──> Parse ──> Resolve ──> Expand ──> Compile ──> Comp
 | `SchematronSchemaCompiler.cs` | Stage Compile: binding, parameters, phase, scopes, rule sets.                                                |
 | `PipelineBindings.cs`         | The registry of a build: the bindings with the XSLT 2.0 functions for the XSLT family.                       |
 | `CompiledProgram.cs`          | The immutable result of the build; read by every run.                                                        |
+| `CompilingBinding.cs`         | The binding of a build: forwards, counts every compiled expression, and collects the names they mention.   |
+| `ValidationContextPool.cs`    | Pooled per-validation contexts: a name table that already holds the names of the schema (`ValidationContext.cs`). |
 | `ValidationRun.cs`            | One validation call: instance tree, run of the binding, evaluation, events.                                  |
 | `InstanceReader.cs`           | Reads an instance through the loader of the Xml package, for every input kind.                               |
 | `XmlIssues.cs`                | Reader options from `ValidationLimits`, and the issue of a failed read.                                      |
 | `BuildProblems.cs`            | The problems of a build as the issues of one `SchemaCompilationException`.                                   |
+
+A schema is compiled once, at `Build`: the compiled program is never written afterwards, so any number of threads validate with one validator.
+`CompiledProgram.CompileCount` counts the compiled expressions and does not move during a validation. What a validation changes lives in a
+context from `ValidationContextPool`: the name table the instance is read into, seeded with the names the expressions of the schema mention, so
+those names are the same string instances in every tree read through it. A context whose table grew by more than 4096 names is dropped instead of
+pooled.
 
 The instance is read only through the readers of the Xml package (an architecture test pins it), so there is no second parse path; a
 `Stream` is read into a pooled buffer by the base of the validator.
@@ -40,6 +48,6 @@ The instance is read only through the readers of the Xml package (an architectur
   a dynamic problem has no line and column.
 - **The schema is bounded by `MaxResourceSize`** (provisional, design #137 OQ-6; the alternative is `MaxInputSize`), and the Xml reader
   keeps its default limits for the schema; the nesting limit applies after inclusion.
-- **No compile-once cache and no thread-safety proof** (SCH-71, #340); every `Build` compiles the schema, and a test pins concurrent
-  validations on one validator.
+- **The names of a schema are read lexically.** The names pre-interned in a context come from a scan of the expression text, not from the parsed
+  expression, so a function or axis name is interned too; this costs a few names and nothing else.
 - **`last()` in a predicate without a known size** equals `position()`.
