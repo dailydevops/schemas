@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.XPath.Api;
 
 using System;
+using System.Collections.Concurrent;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Casting.Core;
 using NetEvolve.Schemas.XPath.Compatibility;
@@ -50,6 +51,9 @@ internal static class XPathEngine
     private static readonly ComparisonOperatorTable Comparison = CreateComparison();
     private static readonly LoweringRegistry DefaultRegistry = CreateRegistry(AllSlots);
 
+    // One registry per host flag combination instead of one per compilation: building it allocates a dictionary and a delegate per lowering.
+    private static readonly ConcurrentDictionary<XPathHostRequirements, LoweringRegistry> HostRegistries = new();
+
     /// <summary>Compiles an expression without throwing for static errors.</summary>
     /// <param name="text">The expression text.</param>
     /// <param name="source">The expression text as a string, kept by the compiled expression.</param>
@@ -88,7 +92,10 @@ internal static class XPathEngine
             return new XPathCompileResult(null, diagnostic);
         }
 
-        var registry = activeHost == AllSlots ? DefaultRegistry : CreateRegistry(activeHost);
+        var registry =
+            activeHost == AllSlots
+                ? DefaultRegistry
+                : HostRegistries.GetOrAdd(activeHost, static host => CreateRegistry(host));
         return ExpressionCompiler.TryCompile(
             syntax!,
             source,
