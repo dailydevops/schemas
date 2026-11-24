@@ -122,7 +122,7 @@ msMeta-Particles_w3c	1.0/particlesR013/particlesR013	#863	The particle restricti
 msMeta-Particles_w3c	1.0/particlesR016/particlesR016	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
 msMeta-Particles_w3c	1.0/particlesR022/particlesR022	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
 msMeta-Particles_w3c	1.0/particlesZ001/particlesZ001	#863	The particle restriction check reports a restriction that the suite accepts.
-msMeta-Regex_w3c	1.0/reF56/reF56	-	The class subtraction [a-z--[b-z]] needs a separate look; the anchors ^ and $ are no longer the cause.
+msMeta-Regex_w3c	1.0/reF56/reF56	#1056	The class subtraction after a trailing hyphen is rejected.
 msMeta-Schema_w3c	1.0/schB8/schB8	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
 msMeta-Schema_w3c	1.0/schD7/schD7	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
 msMeta-Schema_w3c	1.0/schD8/schD8	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
