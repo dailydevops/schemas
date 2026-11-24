@@ -21,8 +21,8 @@ using NetEvolve.Schemas.Xsd.SimpleTypes.Checks;
 /// that the new simple type definition carries.
 /// </summary>
 /// <remarks>
-/// Limitations: the <c>enumeration</c> facet is carried for string-like bases only, because the value of another family needs its
-/// own typed facet and the check of a later restriction compares the enumerations of the base through the datatype chain; the
+/// Limitations: the <c>enumeration</c> facet is carried for string-like bases and for the ordered families (decimal, integer, float,
+/// double, duration, date and time, boolean), not for the others (for example <c>anyURI</c>, binary, and <c>QName</c>); the
 /// <c>explicitTimezone</c> and <c>assertion</c> facets (XSD 1.1, XSD-78) are not carried; a length of a binary type is carried
 /// by the binary length facet only when the base is a built-in type of that family. A facet that does not parse is left out, which
 /// can only follow an issue that the check has reported.
@@ -73,9 +73,12 @@ internal static class FacetFactory
             facets[patternSlot] = pattern!;
         }
 
-        if (enumeration.Count > 0 && facts is { Variety: DatatypeVariety.Atomic, Primitive: PrimitiveKind.StringType })
+        if (enumeration.Count > 0 && facts is { Variety: DatatypeVariety.Atomic })
         {
-            facets[enumerationSlot] = new LexicalEnumerationFacet(enumeration);
+            facets[enumerationSlot] =
+                facts.Primitive == PrimitiveKind.StringType
+                    ? new LexicalEnumerationFacet(enumeration)
+                    : Enumeration(enumeration, facts.Descriptor)!;
         }
 
         _ = facets.RemoveAll(static facet => facet is null);
@@ -109,6 +112,35 @@ internal static class FacetFactory
         {
             facets.Add(facet);
         }
+    }
+
+    private static IFacet? Enumeration(List<string> values, IDatatypeDescriptor? type) =>
+        type switch
+        {
+            IDatatypeDescriptor<XsdDecimal> t => Enumeration(values, t),
+            IDatatypeDescriptor<XsdInteger> t => Enumeration(values, t),
+            IDatatypeDescriptor<float> t => Enumeration(values, t),
+            IDatatypeDescriptor<double> t => Enumeration(values, t),
+            IDatatypeDescriptor<XsdDuration> t => Enumeration(values, t),
+            IDatatypeDescriptor<XsdDateTime> t => Enumeration(values, t),
+            IDatatypeDescriptor<bool> t => Enumeration(values, t),
+            _ => null,
+        };
+
+    // A value that does not parse is left out; the facet check has reported it.
+    private static EnumerationFacet<TValue>? Enumeration<TValue>(List<string> values, IDatatypeDescriptor<TValue> type)
+    {
+        var parsed = new List<TValue>(values.Count);
+        foreach (var value in values)
+        {
+            var result = type.Parse(value.AsSpan());
+            if (result.Success)
+            {
+                parsed.Add(result.Value);
+            }
+        }
+
+        return parsed.Count == 0 ? null : new EnumerationFacet<TValue>(type, parsed);
     }
 
     private static WhiteSpaceFacet? WhiteSpace(string value) =>
