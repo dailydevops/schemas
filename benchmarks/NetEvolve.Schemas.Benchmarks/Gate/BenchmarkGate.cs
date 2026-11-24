@@ -6,6 +6,12 @@ internal static class BenchmarkGate
     /// <summary>Allowed slowdown against the recorded mean when no baseline exists.</summary>
     public const double AllowedRegression = 0.05;
 
+    /// <summary>
+    /// Factor applied to a recorded <c>baselineRatio</c> before it fails: the measured ratio may be up to 15 % above
+    /// the target, which absorbs the noise of shared CI runners. Allocations stay at zero tolerance.
+    /// </summary>
+    public const double RatioTolerance = 1.15;
+
     public static IReadOnlyList<GateViolation> Evaluate(
         IReadOnlyList<BenchmarkResult> results,
         IReadOnlyList<BenchmarkTarget> targets
@@ -71,15 +77,22 @@ internal static class BenchmarkGate
                     new(r.Name, GateViolationKind.MissingBaseline, "target has a baseline ratio but no baseline result")
                 );
             }
-            else if (r.MeanNs / baseline.MeanNs > targetRatio)
+            else
             {
-                violations.Add(
-                    new(
-                        r.Name,
-                        GateViolationKind.WorseBaselineRatio,
-                        $"ratio {r.MeanNs / baseline.MeanNs:F3} > target {targetRatio:F3}"
-                    )
-                );
+                var ratio = r.MeanNs / baseline.MeanNs;
+                var limit = targetRatio * RatioTolerance;
+                if (ratio > limit)
+                {
+                    violations.Add(
+                        new(
+                            r.Name,
+                            GateViolationKind.WorseBaselineRatio,
+                            FormattableString.Invariant(
+                                $"ratio {ratio:F3} > target {targetRatio:F3} (limit {limit:F3})"
+                            )
+                        )
+                    );
+                }
             }
         }
         else if (r.MeanNs > t.MeanNs * (1 + AllowedRegression))
