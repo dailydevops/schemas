@@ -39,6 +39,8 @@ public class XPathSeamTests
         SourceAssemblies.XPath + ".Tests.Integration",
         // The Schematron tests build an xs:integer beyond 64 bits, which no public cast produces yet (#719).
         SourceAssemblies.Schematron + ".Tests.Unit",
+        // The benchmarks measure the lexer, the parser, and the compiler separately, which the public API folds into one call (#316).
+        "NetEvolve.Schemas.Benchmarks",
     ];
 
     [Test]
