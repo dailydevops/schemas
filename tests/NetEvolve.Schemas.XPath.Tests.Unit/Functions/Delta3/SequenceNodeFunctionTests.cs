@@ -191,6 +191,24 @@ public class SequenceNodeFunctionTests
     }
 
     [Test]
+    public async Task Path_ForANamespaceNode_UsesTheNamespaceAxis(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var a = Delta3Harness.Child(Delta3Harness.Document("<a xmlns:p=\"urn:p\" xmlns=\"urn:d\"/>"), 0);
+        var paths = new System.Collections.Generic.List<string>();
+        for (var ns = a.Node.FirstNamespace; !ns.IsEmpty; ns = ns.NextNamespace)
+        {
+            paths.Add(Path(new XPathNode(ns)));
+        }
+
+        await Assert.That(paths).Contains("/Q{urn:d}a[1]/namespace::p");
+        await Assert
+            .That(paths)
+            .Contains("/Q{urn:d}a[1]/namespace::*[Q{http://www.w3.org/2005/xpath-functions}local-name()=\"\"]");
+    }
+
+    [Test]
     public async Task Path_ForNodesWithoutNamespace_UsesTheEmptyNamespaceInBraces(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
