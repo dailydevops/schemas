@@ -6,7 +6,7 @@ using NetEvolve.Schemas.Schematron.Model;
 
 /// <summary>
 /// Copies the content of an abstract pattern with the parameters substituted, and nowhere else than in the rule <c>context</c>,
-/// the <c>test</c> of an assertion, the <see langword="value"/> of a variable, and the <see langword="select"/> of a <c>value-of</c>. Unchanged nodes
+/// the <c>test</c> of an assertion, the <see langword="value"/> of a variable, the <see langword="select"/> of a <c>value-of</c>, and the <see langword="path"/> of a <c>name</c>. Unchanged nodes
 /// are shared, not cloned: the model is immutable and a copy keeps the location of its definition.
 /// </summary>
 internal sealed class PatternCopier
@@ -142,6 +142,9 @@ internal sealed class PatternCopier
             case SchematronValueOf valueOf:
                 var select = _table.Apply(valueOf.Select);
                 return ReferenceEquals(select, valueOf.Select) ? part : new SchematronValueOf(valueOf.Location, select);
+            case SchematronName { Path: { } path } name:
+                var substituted = _table.Apply(path);
+                return ReferenceEquals(substituted, path) ? part : new SchematronName(name.Location, substituted);
             case SchematronEmphasis emphasis:
                 var emphasized = Parts(emphasis.Parts);
                 return ReferenceEquals(emphasized, emphasis.Parts)

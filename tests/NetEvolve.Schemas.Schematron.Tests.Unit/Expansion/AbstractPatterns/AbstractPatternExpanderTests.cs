@@ -210,7 +210,7 @@ public class AbstractPatternExpanderTests
     // Every attribute and text the substitution must not touch holds $p; the instance supplies p.
     private static SchematronPatternBase HostilePattern()
     {
-        var message = new SchematronMessagePart[] { Text("$p"), new SchematronName(At(1), "$p") };
+        var message = new SchematronMessagePart[] { Text("$p") };
         var assertion = new SchematronAssert(
             At(30),
             "true()",
@@ -283,7 +283,6 @@ public class AbstractPatternExpanderTests
         await Assert.That(a.DiagnosticIds[0]).IsEqualTo("$p");
         await Assert.That(a.PropertyIds[0]).IsEqualTo("$p");
         await Assert.That(((SchematronText)a.Message.Parts[0]).Text).IsEqualTo("$p");
-        await Assert.That(((SchematronName)a.Message.Parts[1]).Path).IsEqualTo("$p");
     }
 
     [Test]
