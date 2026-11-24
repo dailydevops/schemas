@@ -9,6 +9,7 @@ using NetEvolve.Schemas.Schematron.Xslt.Construction;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.XPath.Abstractions;
 using NetEvolve.Schemas.XPath.Api;
+using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Xdm.Nodes;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
@@ -20,12 +21,13 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// thread-safe: one provider per run, as the run is.
 /// </summary>
 /// <remarks>
-/// Limitations: the lookup of the contract <see cref="IXPathKeyProvider"/> has neither a context node nor a top node, so the
-/// provider answers it for <see cref="Document"/> (#777). The function <c>key</c> itself is not in the XPath package yet (#776), so no
-/// expression reaches <see cref="TryLookup"/>; the tests drive it directly. The index holds every matching node, so its size is
-/// proportional to the matches, as the key tables of identity constraints are (design #146).
+/// The function <c>key</c> of the XPath package reaches the provider through <see cref="IXPathDocumentKeyProvider"/>, which names the
+/// context node or the top node (#776, #777); a problem of that lookup is an <see cref="XPathException"/>. Limitations: the lookup of
+/// the base contract <see cref="IXPathKeyProvider"/> has neither a context node nor a top node, so the provider answers it for
+/// <see cref="Document"/>. The index holds every matching node, so its size is proportional to the matches, as the key tables of
+/// identity constraints are (design #146).
 /// </remarks>
-internal sealed class XsltKeyProvider : IXPathKeyProvider
+internal sealed class XsltKeyProvider : IXPathDocumentKeyProvider
 {
     private readonly XsltKeyTable _table;
     private readonly IPatternMatcher _matcher;
@@ -90,6 +92,35 @@ internal sealed class XsltKeyProvider : IXPathKeyProvider
         }
 
         return TryLookup(in name, XdmSequence.Create(in value), Document, subtree: false, out nodes) == QueryStatus.Ok;
+    }
+
+    /// <inheritdoc />
+    /// <exception cref="XPathException">The lookup is a problem (<see cref="TryLookup(in XPathQName, in XdmSequence, in XPathNode, bool, out XdmSequence)"/>); the code is the constraint of the problem, such as XTDE1260 or XTDE1270.</exception>
+    bool IXPathDocumentKeyProvider.TryLookup(
+        in XPathQName name,
+        in XdmSequence values,
+        in XPathNode node,
+        bool subtree,
+        out XdmSequence nodes
+    )
+    {
+        if (TryLookup(in name, in values, in node, subtree, out nodes) == QueryStatus.Ok)
+        {
+            return true;
+        }
+
+        var problem = _problem;
+        throw problem.Constraint is null
+            ? new XPathException(problem.Message)
+            : new XPathException(
+                new XPathDiagnostic(
+                    new XPathErrorCode(problem.Constraint),
+                    XPathErrorKind.Dynamic,
+                    problem.Message,
+                    -1,
+                    0
+                )
+            );
     }
 
     /// <summary>
