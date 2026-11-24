@@ -18,7 +18,7 @@ using NetEvolve.Schemas.Xml.Regex.XPathDialect;
 /// </summary>
 /// <remarks>
 /// Limitations: a counted repeat is expanded into the program, so the program size is capped at <see cref="MaxProgramSize"/>
-/// and, for example, <c>a{1,1000000}</c> is rejected with <see cref="RegexError.LimitExceeded"/> (approved design AP-15 A); the
+/// and, for example, <c>a{1,1000000}</c> is rejected with <see cref="RegexError.LimitExceeded"/> (approved design AP-15 A), except that a repeat whose required length exceeds any input, such as <c>a{2147483647}</c>, compiles to a program that never matches; the
 /// tree nesting is capped at <see cref="MaxNesting"/>; a match that exceeds the step ceiling is
 /// <see cref="RegexMatchResult.Aborted"/> although the specification defines an answer; a lone surrogate in the input is
 /// matched as the code point of that surrogate. In the XPath dialect an alternation prefers its first matching alternative
