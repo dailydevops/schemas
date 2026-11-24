@@ -9,7 +9,8 @@ using NetEvolve.Schemas.XPath.Functions.Binding;
 /// catalog (#123, AP8, option B). Every function here is visible from XPath 3.0 on and unknown in XPath 2.0 mode.
 /// </summary>
 /// <remarks>
-/// Limitation: the delta leaves out the two-argument <c>fn:round</c>, which has its own work package (#727).
+/// Limitations: the delta leaves out the two-argument <c>fn:round</c>, which has its own work package (#727). The environment of the
+/// process is never exposed (<see cref="EnvironmentFunction"/>).
 /// </remarks>
 internal static class Registration
 {
@@ -37,5 +38,7 @@ internal static class Registration
         builder.Add(new ContainsTokenFunction());
         builder.Add(new ParseXmlFunction());
         builder.Add(new ParseXmlFragmentFunction());
+        builder.Add(new EnvironmentFunction(all: false));
+        builder.Add(new EnvironmentFunction(all: true));
     }
 }
