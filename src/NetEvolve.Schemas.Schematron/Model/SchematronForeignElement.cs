@@ -11,7 +11,8 @@ internal sealed class SchematronForeignElement : SchematronNode
         string namespaceUri,
         string localName,
         IReadOnlyList<KeyValuePair<string, string>> attributes,
-        IReadOnlyList<SchematronNode> children
+        IReadOnlyList<SchematronNode> children,
+        IReadOnlyList<KeyValuePair<string, string>>? namespaceDeclarations = null
     )
         : base(location)
     {
@@ -19,6 +20,7 @@ internal sealed class SchematronForeignElement : SchematronNode
         LocalName = localName;
         Attributes = attributes;
         Children = children;
+        NamespaceDeclarations = namespaceDeclarations ?? [];
     }
 
     internal string NamespaceUri { get; }
@@ -30,4 +32,8 @@ internal sealed class SchematronForeignElement : SchematronNode
 
     // Child elements (SchematronForeignElement) and character data (SchematronText) in document order.
     internal IReadOnlyList<SchematronNode> Children { get; }
+
+    // The prefixed namespace bindings in scope at the element that its parent does not already have, as (prefix, uri); only the parser
+    // of the children of schema and library fills it, because the XSLT modules need the in-scope bindings for the prefixes in values.
+    internal IReadOnlyList<KeyValuePair<string, string>> NamespaceDeclarations { get; }
 }

@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Schematron.Xslt.Modules;
+namespace NetEvolve.Schemas.Schematron.Seams;
 
 using System.Collections.Generic;
 using NetEvolve.Arguments;
@@ -6,7 +6,7 @@ using NetEvolve.Arguments;
 /// <summary>
 /// The declarations of a principal module and of every module it includes or imports, in the order of the walk (an include is spliced
 /// at its position, an import is placed before the level that imports it), each with its import precedence. The module set is the
-/// output of <see cref="XsltModuleLinker"/> and the input of <see cref="XsltModuleCompiler"/>.
+/// output of <c>XsltModuleLinker</c> and the input of <c>XsltModuleCompiler</c>.
 /// </summary>
 internal sealed class XsltModuleSet
 {

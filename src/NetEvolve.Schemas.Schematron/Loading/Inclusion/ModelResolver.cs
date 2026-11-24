@@ -1,7 +1,17 @@
 namespace NetEvolve.Schemas.Schematron.Loading.Inclusion;
 
+using System;
+using System.Collections.Generic;
 using NetEvolve.Arguments;
+using NetEvolve.Schemas.Schematron.Model;
+using NetEvolve.Schemas.Schematron.Parsing.Core;
 using NetEvolve.Schemas.Schematron.Seams;
+using NetEvolve.Schemas.Schematron.Xslt.Embedding;
+using NetEvolve.Schemas.Schematron.Xslt.Modules;
+using NetEvolve.Schemas.Schematron.Xslt.Registry;
+using NetEvolve.Schemas.Xml.Contracts;
+using NetEvolve.Schemas.Xml.Text.NameTable;
+using NetEvolve.Schemas.XPath.Xdm.Nodes;
 
 /// <summary>
 /// Stage Resolve: merges every <c>include</c> and every rule-level <c>extends</c> with <c>href</c> into the schema at the position
@@ -31,6 +41,8 @@ using NetEvolve.Schemas.Schematron.Seams;
 /// </remarks>
 internal sealed class ModelResolver : IModelResolver
 {
+    private const string SchematronNamespace = "http://purl.oclc.org/dsdl/schematron";
+
     public bool TryResolve(ParsedModule root, IModuleLoader loader, IProblemSink problems, out ResolvedModel model)
     {
         ArgumentNullException.ThrowIfNull(root);
@@ -38,7 +50,57 @@ internal sealed class ModelResolver : IModelResolver
         ArgumentNullException.ThrowIfNull(problems);
 
         var schema = new ResolveRun(root.Schema, loader, problems).Run();
-        model = new ResolvedModel(schema ?? root.Schema);
-        return schema is not null;
+        var modules = XsltModuleSet.Empty;
+        var ok = schema is not null && TryLink(schema, loader, problems, out modules);
+        model = new ResolvedModel(schema ?? root.Schema, modules);
+        return ok;
+    }
+
+    // The XSLT-namespace children of the schema, which include those of the included libraries, are the principal module. The tree of
+    // the module is built by the content writer of the construction folder, so the linker reads the same node model as the compiler.
+    private static bool TryLink(
+        SchematronSchema schema,
+        IModuleLoader loader,
+        IProblemSink problems,
+        out XsltModuleSet modules
+    )
+    {
+        modules = XsltModuleSet.Empty;
+        if (!CoreParseRun.IsXsltBinding(schema.QueryBinding))
+        {
+            return true;
+        }
+
+        var declarations = new List<SchematronNode>();
+        foreach (var element in schema.ForeignElements)
+        {
+            if (string.Equals(element.NamespaceUri, XsltInstructionRegistry.Namespace, StringComparison.Ordinal))
+            {
+                declarations.Add(element);
+            }
+        }
+
+        if (declarations.Count == 0)
+        {
+            return true;
+        }
+
+        // The declarations are children of a schema element, which is what makes a variable or a parameter of them a global one.
+        var holder = new SchematronForeignElement(schema.Location, SchematronNamespace, "schema", [], declarations);
+        var names = new SpanInterningNameTable(XmlReaderLimits.Default.MaxDistinctNames);
+        if (!LetContentTree.TryBuild(names, [holder], out var document, out var found))
+        {
+            problems.Add(new SchematronProblem(found.Code, found.Message, schema.Location, found.Constraint));
+            return false;
+        }
+
+        _ = document.TryGetNode(out var tree);
+        var top = new List<XPathNode>();
+        for (var child = tree.Node.FirstChild.FirstChild; !child.IsEmpty; child = child.NextSibling)
+        {
+            top.Add(new XPathNode(child));
+        }
+
+        return new XsltModuleLinker(loader, problems, default).TryLink(top, schema.Location.Source, out modules);
     }
 }
