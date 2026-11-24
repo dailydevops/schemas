@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Schematron.Pipeline;
+﻿namespace NetEvolve.Schemas.Schematron.Pipeline;
 
 using System;
 using System.Collections.Generic;
@@ -70,11 +70,13 @@ internal sealed class SchematronSchemaCompiler : ISchemaCompiler
         ArgumentNullException.ThrowIfNull(problems);
 
         compiled = null!;
-        if (!_bindings.TryResolve(effective, out var binding, out var unsupported))
+        if (!_bindings.TryResolve(effective, out var resolved, out var unsupported))
         {
             problems.Add(in unsupported);
             return false;
         }
+
+        var binding = new CompilingBinding(resolved);
 
         // Declarations that the resolver linked are compiled; without a module set the XSLT children of the schema are not supported.
         var linked = binding.AllowsXsltInstructions && modules.Declarations.Count > 0;
@@ -111,7 +113,7 @@ internal sealed class SchematronSchemaCompiler : ISchemaCompiler
             ok &= ScopePlanner.TryPlan(effective, selection, binding, problems, out plan);
         }
 
-        var matcher = new PatternMatcher(binding);
+        var matcher = new CompilingMatcher(new PatternMatcher(binding), binding);
         var sets = new List<CompiledRuleSet>(plan.Patterns.Count);
         foreach (var scope in plan.Patterns)
         {
@@ -142,7 +144,7 @@ internal sealed class SchematronSchemaCompiler : ISchemaCompiler
         return true;
     }
 
-    private static bool CheckDeclarations(SchematronSchema schema, IQueryBinding binding, IProblemSink problems)
+    private static bool CheckDeclarations(SchematronSchema schema, CompilingBinding binding, IProblemSink problems)
     {
         var ok = true;
         if (!binding.AllowsXsltInstructions)

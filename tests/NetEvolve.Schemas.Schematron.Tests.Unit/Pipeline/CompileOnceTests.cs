@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Schematron.Tests.Unit.Pipeline;
+﻿namespace NetEvolve.Schemas.Schematron.Tests.Unit.Pipeline;
 
 using System;
 using System.Collections.Generic;
@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using NetEvolve.Schemas.Schematron.Pipeline;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Xml.Contracts;
+using NetEvolve.Schemas.Xml.Model.Loading;
 using static NetEvolve.Schemas.Schematron.Tests.Unit.Pipeline.PipelineFixture;
 
 /// <summary>
@@ -21,11 +22,10 @@ public class CompileOnceTests
     [Test]
     public async Task Validate_CompilesEveryExpressionExactlyOnceAcrossManyValidations()
     {
-        var program = Program(Build(Schema));
+        var validator = Build(Schema);
+        var program = Program(validator);
         var atBuild = program.CompileCount;
         var texts = new HashSet<string>(program.CompiledTexts, StringComparer.Ordinal);
-        var validator = Build(Schema);
-        var again = Program(validator);
 
         for (var i = 0; i < 100; i++)
         {
@@ -34,8 +34,8 @@ public class CompileOnceTests
 
         await Assert.That(atBuild).IsEqualTo(5);
         await Assert.That(texts.Count).IsEqualTo(atBuild);
-        await Assert.That(again.CompileCount).IsEqualTo(atBuild);
-        await Assert.That(again.CompiledTexts.Count).IsEqualTo(atBuild);
+        await Assert.That(program.CompileCount).IsEqualTo(atBuild);
+        await Assert.That(program.CompiledTexts.Count).IsEqualTo(atBuild);
     }
 
     [Test]
@@ -44,7 +44,7 @@ public class CompileOnceTests
         var validator = Build(Schema);
         var program = Program(validator);
         var context = program.Contexts.Rent();
-        var seeded = context.Names.Count;
+        var initial = context.Names.Count;
         var options = XmlIssues.Options(ValidationLimits.Default).WithNameTable(context.Names);
         var tree = XmlDocumentLoader.Load(Utf8(Instance), options, null);
 
@@ -54,8 +54,17 @@ public class CompileOnceTests
         var root = tree.Document.FirstChild;
         var local = tree.Names.GetString(root.Name.Local);
         await Assert.That(ReferenceEquals(local, context.Names.Lookup("invoice".AsSpan()))).IsTrue();
-        await Assert.That(ReferenceEquals(tree.Names.GetString(root.Name.NamespaceUri), context.Names.Lookup("urn:invoice".AsSpan()))).IsTrue();
-        await Assert.That(context.Names.Count).IsEqualTo(seeded);
+        await Assert
+            .That(
+                ReferenceEquals(
+                    tree.Names.GetString(root.Name.NamespaceUri),
+                    context.Names.Lookup("urn:invoice".AsSpan())
+                )
+            )
+            .IsTrue();
+        await Assert.That(root.Name.Local.Value).IsLessThan(initial);
+        await Assert.That(root.Name.NamespaceUri.Value).IsLessThan(initial);
+        var seeded = context.Names.Count;
         program.Contexts.Return(context);
 
         _ = Validate(validator, Instance);
@@ -88,15 +97,23 @@ public class CompileOnceTests
     }
 
     [Test]
-    public async Task Validate_OnSixteenThreads_GivesTheResultsOfSequentialRuns()
+    public async Task Validate_OnSixteenThreads_GivesTheResultsOfSequentialRuns(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var validator = Build(Schema);
         var documents = new string[16];
         for (var i = 0; i < documents.Length; i++)
         {
             documents[i] =
                 i % 2 == 0
-                    ? "<invoice xmlns=\"urn:invoice\"><number>" + i + "</number><total>" + (i * 300) + "</total><buyer>b" + i + "</buyer></invoice>"
+                    ? "<invoice xmlns=\"urn:invoice\"><number>"
+                        + i
+                        + "</number><total>"
+                        + (i * 300)
+                        + "</total><buyer>b"
+                        + i
+                        + "</buyer></invoice>"
                     : "<invoice xmlns=\"urn:invoice\"><extra" + i + "/><total>" + (i * 300) + "</total></invoice>";
         }
 
@@ -125,7 +142,9 @@ public class CompileOnceTests
                         }
                     }
                 },
-                TaskCreationOptions.LongRunning
+                CancellationToken.None,
+                TaskCreationOptions.LongRunning,
+                TaskScheduler.Default
             );
         }
 
