@@ -1,0 +1,4 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+  <xs:include schemaLocation="a.xsd"/>
+  <xs:element name="root" type="aType"/>
+</xs:schema>
