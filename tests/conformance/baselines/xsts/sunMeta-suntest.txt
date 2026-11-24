@@ -1,7 +1,5 @@
 1.0/identitytestsuitetest002/test.2.v
 1.0/identitytestsuitetest002/test.3.n
-1.0/test006/test.1.v
-1.0/test006/test.2.v
 1.0/test009/test.8.n
 1.0/xsd001/xsd001.n02
 1.0/xsd001/xsd001.n03
@@ -9,9 +7,6 @@
 1.0/xsd001/xsd001.n05
 1.0/xsd001/xsd001.n06
 1.0/xsd003b/xsd003b.n01
-1.0/xsd008/xsd008.v00
-1.0/xsd009.e/xsd009.e
-1.0/xsd010.e/xsd010.e
 1.0/xsd011/xsd011.n03
 1.0/xsd022/xsd022.n00
 1.1/idc001.nogen/idc001.nogen

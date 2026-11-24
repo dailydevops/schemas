@@ -17,8 +17,6 @@ msMeta-Additional_w3c	1.0/addB078A/addB078A	#874	A schema constraint that the pi
 msMeta-Additional_w3c	1.0/addB078B/addB078B	#874	A schema constraint that the pipeline does not check; not analyzed yet.
 msMeta-Additional_w3c	1.0/addB110/addB110	#874	A schema constraint that the pipeline does not check; not analyzed yet.
 msMeta-Additional_w3c	1.0/addB111/addB111	#874	A schema constraint that the pipeline does not check; not analyzed yet.
-msMeta-Additional_w3c	1.0/addB141/addB141	#874	A schema constraint that the pipeline does not check; not analyzed yet.
-msMeta-Additional_w3c	1.0/addB180/addB180	#868	The element declaration has no substitution group affiliation yet.
 msMeta-Additional_w3c	1.0/addB183/addB183	#864	Fixed values are compared as strings, not in the value space.
 msMeta-Additional_w3c	1.0/addC001/addC001	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
 msMeta-Additional_w3c	1.0/isDefault060_2/isDefault060_2	#874	A schema constraint that the pipeline does not check; not analyzed yet.
@@ -87,23 +85,11 @@ msMeta-DataTypes_w3c	1.0/string_length006_5/string_length006_5	#862	length toget
 msMeta-DataTypes_w3c	1.0/string_length007_6/string_length007_6	#862	length together with minLength or maxLength in one step is accepted.
 msMeta-DataTypes_w3c	1.0/token_length006_350/token_length006_350	#862	length together with minLength or maxLength in one step is accepted.
 msMeta-DataTypes_w3c	1.0/token_length007_351/token_length007_351	#862	length together with minLength or maxLength in one step is accepted.
-msMeta-Element_w3c	1.0/elemS001/elemS001	#868	The element declaration has no substitution group affiliation yet.
-msMeta-Element_w3c	1.0/elemS004/elemS004	#868	The element declaration has no substitution group affiliation yet.
-msMeta-Element_w3c	1.0/elemS005/elemS005	#868	The element declaration has no substitution group affiliation yet.
-msMeta-Element_w3c	1.0/elemS006/elemS006	#868	The element declaration has no substitution group affiliation yet.
 msMeta-Element_w3c	1.0/elemZ006/elemZ006	#872	A component of a document that is not imported or included is visible.
 msMeta-Element_w3c	1.0/elemZ007/elemZ007	#872	A component of a document that is not imported or included is visible.
 msMeta-Element_w3c	1.0/elemZ021g/elemZ021g	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
 msMeta-Element_w3c	1.0/elemZ022b/elemZ022b	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
-msMeta-Element_w3c	1.0/elemZ027_a/elemZ027_a	#868	The element declaration has no substitution group affiliation yet.
-msMeta-Element_w3c	1.0/elemZ027_b/elemZ027_b	#868	The element declaration has no substitution group affiliation yet.
-msMeta-Element_w3c	1.0/elemZ027_e/elemZ027_e	#868	The element declaration has no substitution group affiliation yet.
-msMeta-Element_w3c	1.0/elemZ027_f/elemZ027_f	#868	The element declaration has no substitution group affiliation yet.
-msMeta-Element_w3c	1.0/elemZ028c/elemZ028c	#868	The element declaration has no substitution group affiliation yet.
-msMeta-Element_w3c	1.0/elemZ028d/elemZ028d	#868	The element declaration has no substitution group affiliation yet.
-msMeta-Element_w3c	1.0/elemZ028f1/elemZ028f1	#868	The element declaration has no substitution group affiliation yet.
-msMeta-Element_w3c	1.0/elemZ028f2/elemZ028f2	#868	The element declaration has no substitution group affiliation yet.
-msMeta-Element_w3c	1.0/elemZ028f3/elemZ028f3	#868	The element declaration has no substitution group affiliation yet.
+msMeta-Element_w3c	1.0/elemZ028c/elemZ028c	-	The unique particle attribution check does not cover an all group, so a member of a substitution group that is also listed is accepted.
 msMeta-Element_w3c	1.0/elemZ032a/elemZ032a	#871	A value constraint on a declaration of type ID is accepted.
 msMeta-Element_w3c	1.0/elemZ032b/elemZ032b	#871	A value constraint on a declaration of type ID is accepted.
 msMeta-Errata10_w3c	1.0/errC005/errC005	#865	A local element declaration with abstract or final is accepted.
@@ -127,7 +113,6 @@ msMeta-Particles_w3c	1.0/particlesHa008/particlesHa008	#874	A schema constraint 
 msMeta-Particles_w3c	1.0/particlesHa070/particlesHa070	#863	The particle restriction check reports a restriction that the suite accepts.
 msMeta-Particles_w3c	1.0/particlesHa080/particlesHa080	#863	The particle restriction check reports a restriction that the suite accepts.
 msMeta-Particles_w3c	1.0/particlesHa084/particlesHa084	#863	The particle restriction check reports a restriction that the suite accepts.
-msMeta-Particles_w3c	1.0/particlesIh001/particlesIh001	#868	The element declaration has no substitution group affiliation yet.
 msMeta-Particles_w3c	1.0/particlesJq010/particlesJq010	#863	The particle restriction check reports a restriction that the suite accepts.
 msMeta-Particles_w3c	1.0/particlesJs001/particlesJs001	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
 msMeta-Particles_w3c	1.0/particlesQ013/particlesQ013	#863	The particle restriction check reports a restriction that the suite accepts.
@@ -137,8 +122,6 @@ msMeta-Particles_w3c	1.0/particlesR013/particlesR013	#863	The particle restricti
 msMeta-Particles_w3c	1.0/particlesR016/particlesR016	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
 msMeta-Particles_w3c	1.0/particlesR022/particlesR022	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
 msMeta-Particles_w3c	1.0/particlesZ001/particlesZ001	#863	The particle restriction check reports a restriction that the suite accepts.
-msMeta-Particles_w3c	1.0/particlesZ008/particlesZ008	#868	The element declaration has no substitution group affiliation yet.
-msMeta-Particles_w3c	1.0/particlesZ014/particlesZ014	#874	A schema constraint that the pipeline does not check; not analyzed yet.
 msMeta-Regex_w3c	1.0/RegexTest_1005/RegexTest_1005	#858	The regex parser rejects the anchors ^ and $ outside a character class.
 msMeta-Regex_w3c	1.0/RegexTest_1048/RegexTest_1048	#858	The regex parser rejects the anchors ^ and $ outside a character class.
 msMeta-Regex_w3c	1.0/RegexTest_1049/RegexTest_1049	#858	The regex parser rejects the anchors ^ and $ outside a character class.
@@ -314,10 +297,7 @@ msMeta-SimpleType_w3c	1.0/stZ005/stZ005	#874	A schema constraint that the pipeli
 msMeta-SimpleType_w3c	1.0/stZ006/stZ006	#874	A schema constraint that the pipeline does not check; not analyzed yet.
 msMeta-SimpleType_w3c	1.0/stZ010/stZ010	#874	A schema constraint that the pipeline does not check; not analyzed yet.
 msMeta-SimpleType_w3c	1.0/stZ011/stZ011	#874	A schema constraint that the pipeline does not check; not analyzed yet.
-msMeta-SimpleType_w3c	1.0/stZ012/stZ012	#868	The element declaration has no substitution group affiliation yet.
 msMeta-SimpleType_w3c	1.0/stZ041/stZ041	#874	A schema constraint that the pipeline does not check; not analyzed yet.
-msMeta-SimpleType_w3c	1.0/stZ048/stZ048	#868	The element declaration has no substitution group affiliation yet.
-msMeta-SimpleType_w3c	1.0/stZ049/stZ049	#868	The element declaration has no substitution group affiliation yet.
 msMeta-SimpleType_w3c	1.0/stZ070/stZ070	#874	A schema constraint that the pipeline does not check; not analyzed yet.
 msMeta-Wildcards_w3c	1.0/wildG006/wildG006	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
 msMeta-Wildcards_w3c	1.0/wildG010/wildG010	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
@@ -331,6 +311,7 @@ msMeta-Wildcards_w3c	1.0/wildZ013f/wildZ013f	#859	The import check of the namesp
 saxonMeta-Complex	1.0/complex019/complex019.xsd	#874	A schema constraint that the pipeline does not check; not analyzed yet.
 saxonMeta-Complex	1.0/complex020/complex020.xsd	#874	A schema constraint that the pipeline does not check; not analyzed yet.
 saxonMeta-Missing	1.0/missing001/missing001.xsd	-	A reference to a type that no document declares is src-resolve here; the suite accepts incomplete schemas.
+saxonMeta-Missing	1.0/missing002/missing001.xsd	-	A reference to an element declaration that no document declares is src-resolve here; the suite accepts incomplete schemas.
 saxonMeta-Missing	1.0/missing003/missing003.xsd	-	A reference to a type that no document declares is src-resolve here; the suite accepts incomplete schemas.
 saxonMeta-Missing	1.0/missing006/missing006.xsd	-	A reference to a type that no document declares is src-resolve here; the suite accepts incomplete schemas.
 saxonMeta-VC	1.0/vc001/vc001.xsd	-	The test group has no version attribute but its schema uses an XSD 1.1 construct, which strict 1.0 mode rejects (design 146, DP-16).
@@ -346,8 +327,6 @@ saxonMeta-XmlVersions	1.0/xv006/xv006.xsd	#861	The reader does not accept a sche
 saxonMeta-XmlVersions	1.0/xv007/xv007.xsd	#861	The reader does not accept a schema document that declares XML 1.1.
 saxonMeta-XmlVersions	1.0/xv008/xv008.xsd	#861	The reader does not accept a schema document that declares XML 1.1.
 saxonMeta-XmlVersions	1.0/xv009/xv009.xsd	#861	The reader does not accept a schema document that declares XML 1.1.
-sunMeta-ElemDecl	1.0/substgrpexcl00202m2/substGrpExcl00202m2	#874	A schema constraint that the pipeline does not check; not analyzed yet.
-sunMeta-ElemDecl	1.0/substgrpexcl00303m2/substGrpExcl00303m2	#874	A schema constraint that the pipeline does not check; not analyzed yet.
 sunMeta-ElemDecl	1.0/valueconstraint00401m8/valueConstraint00401m8	#874	A schema constraint that the pipeline does not check; not analyzed yet.
 sunMeta-ElemDecl	1.0/valueconstraint00402m8/valueConstraint00402m8	#874	A schema constraint that the pipeline does not check; not analyzed yet.
 sunMeta-ElemDecl	1.0/valueconstraint01001m2/valueConstraint01001m2	#874	A schema constraint that the pipeline does not check; not analyzed yet.
@@ -356,5 +335,3 @@ sunMeta-ElemDecl	1.0/valueconstraint01001m5/valueConstraint01001m5	#874	A schema
 sunMeta-ElemDecl	1.0/valueconstraint01001m6/valueConstraint01001m6	#874	A schema constraint that the pipeline does not check; not analyzed yet.
 sunMeta-Notation	1.0/name00101m2/name00101m2	#870	Notation declarations are not components yet.
 sunMeta-Notation	1.0/publicid00201m1/publicId00201m1	#870	Notation declarations are not components yet.
-sunMeta-suntest	1.0/xsd009.e/xsd009.e	#874	A schema constraint that the pipeline does not check; not analyzed yet.
-sunMeta-suntest	1.0/xsd010.e/xsd010.e	#874	A schema constraint that the pipeline does not check; not analyzed yet.
