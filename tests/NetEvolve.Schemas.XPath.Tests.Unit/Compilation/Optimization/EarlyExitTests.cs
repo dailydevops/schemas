@@ -131,6 +131,17 @@ public class EarlyExitTests
     }
 
     [Test]
+    [Arguments("(//x) and (1 = 1)")]
+    [Arguments("1 and (//x)")]
+    [Arguments("(/r)[x]")]
+    [Arguments("(/r)[y]")]
+    [Arguments("3 < count(//x)")]
+    [Arguments("count(//x) > -1")]
+    [Arguments("count(//x) > 1.5")]
+    [Arguments("count(//x) = 10")]
+    [Arguments("exists(//x[2])")]
+    [Arguments("empty(//x[. ne 1])")]
+    [Arguments("/r[. ne 1]/x[1]")]
     [Arguments("exists(//x/string(.))")]
     [Arguments("empty(//x/ancestor::*)")]
     [Arguments("exists(//x/..)")]

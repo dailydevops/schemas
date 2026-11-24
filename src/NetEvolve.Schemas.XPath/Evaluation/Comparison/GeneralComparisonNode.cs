@@ -67,19 +67,6 @@ internal sealed class GeneralComparisonNode : ExecutableNode
         _table = table;
     }
 
-    private GeneralComparisonNode(
-        ComparisonRelation relation,
-        ExecutableNode left,
-        ExecutableNode right,
-        ComparisonOperatorTable table
-    )
-    {
-        _relation = relation;
-        _left = left;
-        _right = right;
-        _table = table;
-    }
-
     /// <summary>Gets the relation.</summary>
     public ComparisonRelation Relation => _relation;
 
@@ -88,18 +75,6 @@ internal sealed class GeneralComparisonNode : ExecutableNode
 
     /// <summary>Gets the right operand.</summary>
     public ExecutableNode Right => _right;
-
-    /// <summary>Creates the same comparison over other operands.</summary>
-    /// <param name="left">The left operand.</param>
-    /// <param name="right">The right operand.</param>
-    /// <returns>The comparison.</returns>
-    public GeneralComparisonNode WithOperands(ExecutableNode left, ExecutableNode right)
-    {
-        ArgumentNullException.ThrowIfNull(left);
-        ArgumentNullException.ThrowIfNull(right);
-
-        return new(_relation, left, right, _table);
-    }
 
     /// <inheritdoc />
     /// <exception cref="XPathException">An <c>xs:untypedAtomic</c> item is not a value of the type it is cast to (FORG0001), or the types of a pair have no operator (XPTY0004).</exception>

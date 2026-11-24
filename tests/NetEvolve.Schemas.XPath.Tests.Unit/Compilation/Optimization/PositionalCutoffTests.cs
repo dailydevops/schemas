@@ -84,6 +84,19 @@ public class PositionalCutoffTests
     [Arguments("(1 to 5)[last()]")]
     [Arguments("(1 to 5)[position() le 2]")]
     [Arguments("()[1]")]
+    [Arguments("(//x)[position() gt 2]")]
+    [Arguments("(//x)[position() ge 3]")]
+    [Arguments("(//x)[position() ge 0]")]
+    [Arguments("(//x)[position() gt -1]")]
+    [Arguments("(//x)[position() != 2]")]
+    [Arguments("(//x)[-1]")]
+    [Arguments("(//x)[2000000000]")]
+    [Arguments("(//x)[position() = 0]")]
+    [Arguments("(//x)[position() lt 0]")]
+    [Arguments("/r/x[position() gt 1]")]
+    [Arguments("(//x)[position() le 2.5]")]
+    [Arguments("(//x)[last()][1]")]
+    [Arguments("/r/x[position() ge 4][1]")]
     public async Task Rewrite_WithTheRewriteOnAndOff_GivesTheSameResult(string expression) =>
         await Assert
             .That(Run(expression, XPathOptimizations.All, new ChildrenTree(5)))

@@ -61,15 +61,7 @@ internal static class ConstantFolding
         }
     }
 
-    private static ExecutableNode Branch(IfNode node, ConstantNode condition)
-    {
-        try
-        {
-            return XPathAtomization.EffectiveBooleanValue(condition.Value) ? node.Then : node.Else;
-        }
-        catch (XPathException)
-        {
-            return node;
-        }
-    }
+    // A literal has an effective boolean value, so the branch is picked without a way to fail.
+    private static ExecutableNode Branch(IfNode node, ConstantNode condition) =>
+        XPathAtomization.EffectiveBooleanValue(condition.Value) ? node.Then : node.Else;
 }

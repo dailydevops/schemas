@@ -5,7 +5,6 @@ using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Evaluation.Comparison;
 using NetEvolve.Schemas.XPath.Evaluation.Flow;
 using NetEvolve.Schemas.XPath.Evaluation.Paths;
-using NetEvolve.Schemas.XPath.Functions.Nodes;
 
 /// <summary>
 /// Turns a positional predicate at the front of a predicate list into a <see cref="PositionalCutoff"/> (XPath 2.0, 3.2.2): <c>[N]</c>,
@@ -43,20 +42,14 @@ internal static class PositionalCutoffRewrite
             case ConstantNode constant when TryGetInteger(constant, out var number):
                 cutoff = number < 1 ? PositionalCutoff.Range(1, 0) : PositionalCutoff.Range((int)number, (int)number);
                 return true;
-            case CallNode { Function: LastFunction, Arguments.Count: 0 }:
+            case not null when BuiltInCall.Is(predicate, "last", 0):
                 cutoff = PositionalCutoff.LastItem();
                 return true;
-            case ValueComparisonNode
-            {
-                Left: CallNode { Function: PositionFunction } position,
-                Right: ConstantNode bound
-            } value when position.Arguments.Count == 0 && TryGetInteger(bound, out var number):
+            case ValueComparisonNode { Right: ConstantNode bound } value
+                when BuiltInCall.Is(value.Left, "position", 0) && TryGetInteger(bound, out var number):
                 return TryRelate(value.Relation, number, out cutoff);
-            case GeneralComparisonNode
-            {
-                Left: CallNode { Function: PositionFunction } position,
-                Right: ConstantNode bound,
-            } general when position.Arguments.Count == 0 && TryGetInteger(bound, out var number):
+            case GeneralComparisonNode { Right: ConstantNode bound } general
+                when BuiltInCall.Is(general.Left, "position", 0) && TryGetInteger(bound, out var number):
                 return TryRelate(general.Relation, number, out cutoff);
             default:
                 return false;
@@ -105,13 +98,12 @@ internal static class PositionalCutoffRewrite
         }
 
         // A bounded cutoff counts positions of the primary expression in its own order, so a path that can stop early reads that many nodes.
-        var primary = filter.Primary;
-        if (cutoff.Budget > 0 && primary is PathNode path && path.TryLimit(cutoff.Budget) is { } limited)
+        if (cutoff.Budget > 0 && filter.Primary is PathNode path)
         {
-            primary = limited;
+            _ = path.TryLimit(cutoff.Budget);
         }
 
-        return new FilterNode(primary, Skip(filter.Predicates), cutoff);
+        return new FilterNode(filter.Primary, Skip(filter.Predicates), cutoff);
     }
 
     private static PathNode RewritePath(PathNode path)
