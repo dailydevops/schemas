@@ -3,17 +3,17 @@
     "name": "RegexCompileBenchmarks.Compile",
     "meanNs": 7381.0,
     "allocatedBytes": 39528,
-    "baselineRatio": 0.24
+    "baselineRatio": 0.3
   },
   {
     "name": "RegexMatchBenchmarks.MatchCompiled",
     "meanNs": 2608.0,
     "allocatedBytes": 0,
-    "baselineRatio": 2.03
+    "baselineRatio": 2.3
   },
   {
     "name": "RegexStepLimitBenchmarks.MatchUntilStepLimit",
-    "meanNs": 612301.0,
+    "meanNs": 783746.0,
     "allocatedBytes": 0
   }
 ]
