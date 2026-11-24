@@ -5,5 +5,10 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../NetEvolve.Schemas.XPath/NetEvolve.Schemas.XPath.csproj" />
+    <ProjectReference Include="../NetEvolve.Schemas.DependencyInjection/NetEvolve.Schemas.DependencyInjection.csproj" />
+  </ItemGroup>
+  <!-- The format registration extensions (AddXxxValidator, namespace Microsoft.Extensions.DependencyInjection) live in this package (#1054). -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
   </ItemGroup>
 </Project>

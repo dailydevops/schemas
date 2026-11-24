@@ -2,7 +2,7 @@
 
 Registers schema validators of the NetEvolve schema libraries with `Microsoft.Extensions.DependencyInjection`, plain or keyed, as lazily built singletons.
 
-The package depends on `NetEvolve.Schemas.Schematron`, `NetEvolve.Schemas.Xsd` and `Microsoft.Extensions.DependencyInjection.Abstractions`. It adds two extension methods on `IServiceCollection`, declared in the namespace `Microsoft.Extensions.DependencyInjection`:
+The package is the generic registration core. It depends on `NetEvolve.Schemas` and `Microsoft.Extensions.DependencyInjection.Abstractions` only, and references no format package. It adds two extension methods on `IServiceCollection`, declared in the namespace `Microsoft.Extensions.DependencyInjection`:
 
 | Method | Registers |
 | --- | --- |
@@ -10,6 +10,8 @@ The package depends on `NetEvolve.Schemas.Schematron`, `NetEvolve.Schemas.Xsd` a
 | `AddKeyedSchemaValidator<TValidator>(serviceKey, factory)` | One validator of type `TValidator` per service key. |
 
 `TValidator` must be a class that implements `ISchemaValidator`, and it is also the registered service type. To resolve the interface, register it as `ISchemaValidator`. A keyed registration of a validator type other than `ISchemaValidator` also registers `ISchemaValidator` under the same key, and that registration forwards to the validator.
+
+The registrations of a format ship with the package of that format, in the same namespace and built on the core above: `AddXsdValidator` and `AddKeyedXsdValidator` in `NetEvolve.Schemas.Xsd`, `AddSchematronValidator` and `AddKeyedSchematronValidator` in `NetEvolve.Schemas.Schematron`, and `AddDtdValidator` and `AddKeyedDtdValidator` in `NetEvolve.Schemas.Xml`. Reference the format package together with this package and the calls resolve without a further using directive. Referencing one format never brings another format's assembly.
 
 The samples in this readme use `ForFake()`, a placeholder for the entry point of a real format. They need these namespaces:
 
