@@ -8,11 +8,6 @@ using NetEvolve.Schemas.XPath.Functions.Nodes;
 /// <c>fn:concat</c> (Functions and Operators 1.0, 7.2.1): the string values of two or more arguments joined; an empty sequence counts
 /// as the zero-length string. The declared parameter type of the last argument repeats for every further one (variadic).
 /// </summary>
-/// <remarks>
-/// Limitation: the string value of an argument comes from <c>AtomicString</c>, which has no value for an item without a value type yet
-/// (<c>xs:QName</c>, the binary and the Gregorian types, #545), so such an argument raises XPTY0004 where the specification casts it to a
-/// string; the casting table replaces <c>AtomicString</c> in #625.
-/// </remarks>
 internal sealed class ConcatFunction : TextFunction
 {
     private const int InitialBuffer = 256;
@@ -34,7 +29,7 @@ internal sealed class ConcatFunction : TextFunction
                 if (!argument.IsEmpty)
                 {
                     var item = argument[0];
-                    builder.Append(AtomicString.Of(in item).AsSpan());
+                    builder.Append(StringFunction.OfAtomic(in item).AsSpan());
                 }
             }
 

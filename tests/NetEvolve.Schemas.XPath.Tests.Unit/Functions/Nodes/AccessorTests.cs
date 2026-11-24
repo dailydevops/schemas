@@ -1,6 +1,9 @@
 namespace NetEvolve.Schemas.XPath.Tests.Unit.Functions.Nodes;
 
 using System.Threading.Tasks;
+using NetEvolve.Schemas.XPath.Errors;
+using NetEvolve.Schemas.XPath.Functions.Nodes;
+using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>
 /// <c>fn:string</c> and <c>fn:data</c> (Functions and Operators 1.0, 2.1 and 2.4): the string value of a node or an atomic value,
@@ -54,11 +57,14 @@ public class AccessorTests
     [Arguments("float:3.14", "string:3.14")]
     [Arguments("float:1E10", "string:1.0E10")]
     [Arguments("float:16777216", "string:1.6777216E7")]
+    [Arguments("float:0.000001", "string:0.000001")]
     [Arguments("float:NaN", "string:NaN")]
     [Arguments("date:2024-05-17Z", "string:2024-05-17Z")]
     [Arguments("dateTime:2024-05-17T13:45:30+02:00", "string:2024-05-17T13:45:30+02:00")]
     [Arguments("duration:PT1H", "string:PT1H")]
     [Arguments("yearMonthDuration:P1Y2M", "string:P1Y2M")]
+    [Arguments("hexBinary:0fb7", "string:0FB7")]
+    [Arguments("base64Binary:AQID", "string:AQID")]
     public async Task String_OfAnAtomicValue_IsItsCanonicalForm(string argument, string expected)
     {
         await Assert.That(NodesHarness.Run("string", argument)).IsEqualTo(expected);
@@ -101,4 +107,14 @@ public class AccessorTests
     [Test]
     public async Task Data_WithoutArgument_IsNotRegisteredInXPath20() =>
         await Assert.That(NodesHarness.Run("data")).IsEqualTo("error:not-registered");
+
+    [Test]
+    public async Task OfAtomic_OfAnItemWithoutAStringForm_ThrowsTheErrorOfTheCast()
+    {
+        var item = default(XdmItem);
+
+        var failure = Assert.Throws<XPathException>(() => StringFunction.OfAtomic(in item));
+
+        await Assert.That(failure.Diagnostic.Code).IsEqualTo("XPTY0004");
+    }
 }
