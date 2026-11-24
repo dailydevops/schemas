@@ -73,7 +73,7 @@ internal static class OptimizationFixture
 
     /// <summary>
     /// A document with one element <c>r</c> that has a number of children <c>x</c>; the nodes are numbered in document order, from 0 for
-    /// the document. Every read of the kind of a node is counted, which is what a name test does for each node it looks at.
+    /// the document. The farthest node whose kind was read is recorded, which is what a name test does for each node it looks at.
     /// </summary>
     internal sealed class ChildrenTree : XmlTree
     {
@@ -94,7 +94,8 @@ internal static class OptimizationFixture
             _x = new XmlName(default, _names.Intern("x"), default);
         }
 
-        public int KindReads { get; private set; }
+        /// <summary>Gets the highest index of a node whose kind was read, which is how far a name test looked.</summary>
+        public int FarthestRead { get; private set; }
 
         public override XmlNameTable Names => _names;
 
@@ -108,7 +109,7 @@ internal static class OptimizationFixture
 
         protected internal override XmlNodeKind GetKind(int index)
         {
-            KindReads++;
+            FarthestRead = Math.Max(FarthestRead, index);
             return index == 0 ? XmlNodeKind.Document : XmlNodeKind.Element;
         }
 

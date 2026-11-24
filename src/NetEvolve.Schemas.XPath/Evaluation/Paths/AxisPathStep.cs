@@ -86,7 +86,11 @@ internal sealed class AxisPathStep : PathStep
     public override bool CanLimit => _predicates.Length == 0 && _cutoff is null;
 
     /// <inheritdoc />
-    public override void EvaluateFromContext(XPathEvaluationContext context, ref XdmItemList results)
+    public override void EvaluateFromContext(XPathEvaluationContext context, ref XdmItemList results) =>
+        EvaluateFromContext(context, ref results, 0);
+
+    /// <inheritdoc />
+    public override void EvaluateFromContext(XPathEvaluationContext context, ref XdmItemList results, int limit)
     {
         ArgumentNullException.ThrowIfNull(context);
 
@@ -95,7 +99,7 @@ internal sealed class AxisPathStep : PathStep
         var delivered = default(XdmItemList);
         try
         {
-            Process(context, item, ref state, ref delivered, ref results);
+            Process(context, item, ref state, ref delivered, ref results, limit);
         }
         finally
         {
@@ -108,6 +112,14 @@ internal sealed class AxisPathStep : PathStep
         XPathEvaluationContext context,
         ReadOnlySpan<XdmItem> inputs,
         ref XdmItemList results
+    ) => EvaluateOver(context, inputs, ref results, 0);
+
+    /// <inheritdoc />
+    public override void EvaluateOver(
+        XPathEvaluationContext context,
+        ReadOnlySpan<XdmItem> inputs,
+        ref XdmItemList results,
+        int limit
     )
     {
         ArgumentNullException.ThrowIfNull(context);
@@ -118,7 +130,11 @@ internal sealed class AxisPathStep : PathStep
         {
             for (var i = 0; i < inputs.Length; i++)
             {
-                Process(context, inputs[i], ref state, ref delivered, ref results);
+                Process(context, inputs[i], ref state, ref delivered, ref results, limit);
+                if (limit > 0 && results.Count >= limit)
+                {
+                    break;
+                }
             }
         }
         finally
@@ -135,7 +151,8 @@ internal sealed class AxisPathStep : PathStep
         in XdmItem input,
         ref BindingState state,
         ref XdmItemList delivered,
-        ref XdmItemList results
+        ref XdmItemList results,
+        int limit
     )
     {
         if (!input.TryGetNode(out var node))
@@ -150,6 +167,11 @@ internal sealed class AxisPathStep : PathStep
             state.Matcher = _test.Bind(tree!.Names);
         }
 
+        // The walk stops once the cutoff or the limit has what it needs; the limit applies to a step without predicates only.
+        var stop =
+            _cutoff is { } cutoff ? cutoff.Budget
+            : limit > 0 ? limit - results.Count
+            : 0;
         delivered.Clear();
         var iterator = new XPathAxisIterator(node, _axis, state.Matcher);
         while (iterator.MoveNext())
@@ -166,9 +188,14 @@ internal sealed class AxisPathStep : PathStep
             )
             {
                 delivered.Add(current);
+                if (stop > 0 && delivered.Count >= stop)
+                {
+                    break;
+                }
             }
         }
 
+        _cutoff?.Apply(ref delivered);
         if (_predicates.Length > 0)
         {
             PredicateFilter.Apply(context, _predicates, ref delivered);

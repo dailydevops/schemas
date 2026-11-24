@@ -38,9 +38,9 @@ public class EarlyExitTests
         _ = Run("exists(//x)", XPathOptimizations.All, on);
         _ = Run("exists(//x)", XPathOptimizations.All & ~Existence, off);
 
-        // The document, the element r, and the first x.
-        await Assert.That(on.KindReads).IsLessThanOrEqualTo(3);
-        await Assert.That(off.KindReads).IsGreaterThan(1000);
+        // The first x is node 2.
+        await Assert.That(on.FarthestRead).IsLessThanOrEqualTo(2);
+        await Assert.That(off.FarthestRead).IsGreaterThan(1000);
     }
 
     [Test]
@@ -50,7 +50,7 @@ public class EarlyExitTests
 
         _ = Run("empty(//x)", XPathOptimizations.All, on);
 
-        await Assert.That(on.KindReads).IsLessThanOrEqualTo(3);
+        await Assert.That(on.FarthestRead).IsLessThanOrEqualTo(2);
     }
 
     [Test]
@@ -73,8 +73,8 @@ public class EarlyExitTests
         await Assert.That(result).IsEqualTo(expected);
         await Assert.That(CountedLimit(expression, XPathOptimizations.All)).IsEqualTo(limit);
 
-        // The document, the element r, and the children up to the limit.
-        await Assert.That(tree.KindReads).IsLessThanOrEqualTo(limit + 2);
+        // The children up to the limit are the nodes 2 and up.
+        await Assert.That(tree.FarthestRead).IsLessThanOrEqualTo(limit + 1);
     }
 
     [Test]
@@ -84,7 +84,7 @@ public class EarlyExitTests
 
         _ = Run("count(//x) > 0", XPathOptimizations.All, tree);
 
-        await Assert.That(tree.KindReads).IsLessThanOrEqualTo(3);
+        await Assert.That(tree.FarthestRead).IsLessThanOrEqualTo(2);
     }
 
     [Test]
@@ -108,7 +108,7 @@ public class EarlyExitTests
 
         _ = Run("if (//x) then 1 else 2", XPathOptimizations.All, tree);
 
-        await Assert.That(tree.KindReads).IsLessThanOrEqualTo(3);
+        await Assert.That(tree.FarthestRead).IsLessThanOrEqualTo(2);
         await Assert.That(CountedLimit("if (//x) then 1 else 2", XPathOptimizations.All)).IsEqualTo(1);
         await Assert.That(CountedLimit("if (//x) then 1 else 2", XPathOptimizations.All & ~Boolean)).IsEqualTo(0);
     }

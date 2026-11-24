@@ -60,6 +60,7 @@ internal sealed class FilterNode : ExecutableNode, IOrderedNodeSequence
         try
         {
             items.AddRange(value);
+            _cutoff?.Apply(ref items);
             PredicateFilter.Apply(context, _predicates, ref items);
             return items.ToSequence();
         }

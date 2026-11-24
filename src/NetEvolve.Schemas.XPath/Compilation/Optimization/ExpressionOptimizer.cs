@@ -17,6 +17,32 @@ internal static class ExpressionOptimizer
     {
         ArgumentNullException.ThrowIfNull(node);
 
-        return optimizations == XPathOptimizations.None ? node : node;
+        var rewritten = node;
+        if (optimizations.HasFlag(XPathOptimizations.ConstantFolding))
+        {
+            rewritten = ConstantFolding.Rewrite(rewritten);
+        }
+
+        if (optimizations.HasFlag(XPathOptimizations.PositionalCutoff))
+        {
+            rewritten = PositionalCutoffRewrite.Rewrite(rewritten);
+        }
+
+        if (optimizations.HasFlag(XPathOptimizations.ExistenceExit))
+        {
+            rewritten = EarlyExitRewrites.Existence(rewritten);
+        }
+
+        if (optimizations.HasFlag(XPathOptimizations.BooleanExit))
+        {
+            rewritten = EarlyExitRewrites.Boolean(rewritten);
+        }
+
+        if (optimizations.HasFlag(XPathOptimizations.CountComparisonExit))
+        {
+            rewritten = EarlyExitRewrites.CountComparison(rewritten);
+        }
+
+        return rewritten;
     }
 }

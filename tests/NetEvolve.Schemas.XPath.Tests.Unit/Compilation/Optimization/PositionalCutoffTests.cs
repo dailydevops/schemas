@@ -100,9 +100,9 @@ public class PositionalCutoffTests
 
         await Assert.That(first).IsEqualTo("#2");
 
-        // The document, the element r, and the first x; a node after the match would be a fourth read.
-        await Assert.That(on.KindReads).IsLessThanOrEqualTo(3);
-        await Assert.That(off.KindReads).IsGreaterThan(1000);
+        // The first x is node 2; a node after the match would be node 3.
+        await Assert.That(on.FarthestRead).IsLessThanOrEqualTo(2);
+        await Assert.That(off.FarthestRead).IsGreaterThan(1000);
     }
 
     [Test]
@@ -113,6 +113,6 @@ public class PositionalCutoffTests
         var result = Run("/r/x[1]", XPathOptimizations.All, on);
 
         await Assert.That(result).IsEqualTo("#2");
-        await Assert.That(on.KindReads).IsLessThan(10);
+        await Assert.That(on.FarthestRead).IsLessThanOrEqualTo(2);
     }
 }

@@ -61,6 +61,11 @@ internal sealed class PathNode : ExecutableNode, IOrderedNodeSequence
     /// <summary>Gets the steps.</summary>
     public IReadOnlyList<PathStep> Steps => _steps;
 
+    /// <summary>Creates the same path over other steps.</summary>
+    /// <param name="steps">The steps.</param>
+    /// <returns>The path.</returns>
+    public PathNode WithSteps(PathStep[] steps) => new(_root, steps, _location, _limit);
+
     /// <summary>Creates the same path, reading no more nodes than a prefix of the result needs.</summary>
     /// <param name="limit">The number of result nodes that is enough, at least one.</param>
     /// <returns>
@@ -105,7 +110,7 @@ internal sealed class PathNode : ExecutableNode, IOrderedNodeSequence
             var index = 0;
             if (_root == PathRoot.Relative)
             {
-                _steps[0].EvaluateFromContext(context, ref current);
+                _steps[0].EvaluateFromContext(context, ref current, _steps.Length == 1 ? _limit : 0);
                 Finish(ref current, 0);
                 index = 1;
             }
@@ -116,7 +121,7 @@ internal sealed class PathNode : ExecutableNode, IOrderedNodeSequence
 
             for (; index < _steps.Length; index++)
             {
-                _steps[index].EvaluateOver(context, current.Items, ref next);
+                _steps[index].EvaluateOver(context, current.Items, ref next, index == _steps.Length - 1 ? _limit : 0);
                 Finish(ref next, index);
                 (current, next) = (next, current);
                 next.Clear();

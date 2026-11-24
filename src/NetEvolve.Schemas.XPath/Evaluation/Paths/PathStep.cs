@@ -33,6 +33,25 @@ internal abstract class PathStep
         ref XdmItemList results
     );
 
+    /// <summary>Evaluates the step for the context item of the evaluation and stops once a number of results exist.</summary>
+    /// <param name="context">The evaluation context.</param>
+    /// <param name="results">The list that receives the results.</param>
+    /// <param name="limit">The number of results that is enough, as <see cref="CanLimit"/> allows.</param>
+    public virtual void EvaluateFromContext(XPathEvaluationContext context, ref XdmItemList results, int limit) =>
+        EvaluateFromContext(context, ref results);
+
+    /// <summary>Evaluates the step for each item of the previous step and stops once a number of results exist.</summary>
+    /// <param name="context">The evaluation context.</param>
+    /// <param name="inputs">The result of the previous step.</param>
+    /// <param name="results">The list that receives the results of the items, one item after the other.</param>
+    /// <param name="limit">The number of results that is enough, as <see cref="CanLimit"/> allows.</param>
+    public virtual void EvaluateOver(
+        XPathEvaluationContext context,
+        ReadOnlySpan<XdmItem> inputs,
+        ref XdmItemList results,
+        int limit
+    ) => EvaluateOver(context, inputs, ref results);
+
     /// <summary>Gets what is known about the combined results of this step, given what is known about its inputs.</summary>
     /// <param name="input">The properties of the sequence of inputs.</param>
     /// <returns>The properties of the combined results, before any sorting.</returns>
