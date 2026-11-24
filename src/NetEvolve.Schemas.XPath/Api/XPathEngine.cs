@@ -102,7 +102,10 @@ internal static class XPathEngine
             : new XPathCompileResult(null, diagnostic);
     }
 
-    private static LoweringRegistry CreateRegistry(XPathHostRequirements activeHost)
+    /// <summary>Creates the registry of the lowerings for the host slots that the host provides.</summary>
+    /// <param name="activeHost">The host slots and flags that the host provides.</param>
+    /// <returns>The registry.</returns>
+    internal static LoweringRegistry CreateRegistry(XPathHostRequirements activeHost)
     {
         var registry = new LoweringRegistry();
         FlowLowerings.Register(registry);
