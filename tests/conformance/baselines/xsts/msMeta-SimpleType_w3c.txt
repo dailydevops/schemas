@@ -16,7 +16,6 @@
 1.0/stZ006/stZ006
 1.0/stZ010/stZ010
 1.0/stZ011/stZ011
-1.0/stZ012/stZ012
 1.0/stZ032/stZ032.i
 1.0/stZ033/stZ033.i
 1.0/stZ034/stZ034.i
@@ -24,13 +23,6 @@
 1.0/stZ037/stZ037.i
 1.0/stZ039/stZ039.i
 1.0/stZ041/stZ041
-1.0/stZ043/stZ043.v
-1.0/stZ045/stZ045.v
-1.0/stZ046/stZ046.v
-1.0/stZ047/stZ047.v
-1.0/stZ048/stZ048
-1.0/stZ049/stZ049
-1.0/stZ050/stZ050.v
 1.0/stZ058/stZ058.v
 1.0/stZ059/stZ059.i
 1.0/stZ060/stZ060.i
