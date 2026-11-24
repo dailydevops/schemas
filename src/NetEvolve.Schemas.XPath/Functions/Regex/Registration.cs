@@ -11,7 +11,8 @@ using NetEvolve.Schemas.XPath.Functions.Binding;
 /// </summary>
 /// <remarks>
 /// Limitations: only the arities of XPath 2.0 are registered, so <c>fn:tokenize</c> has no one-argument form (XP-71, #334);
-/// <c>fn:analyze-string</c> is XP-64 and <c>xsl:analyze-string</c> SCH-69.
+/// <c>xsl:analyze-string</c> is SCH-69. <c>fn:analyze-string</c> is implemented (XP-64, #332; XPath 3.0 gated), with
+/// one limitation: an empty group at the end of an enclosing group is emitted as a sibling (#1022).
 /// </remarks>
 internal static class Registration
 {

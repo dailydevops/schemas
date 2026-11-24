@@ -37,6 +37,9 @@ internal sealed class UnaryArithmeticNode : ExecutableNode
         _table = table;
     }
 
+    /// <summary>Gets the operand.</summary>
+    public ExecutableNode Operand => _operand;
+
     /// <inheritdoc />
     /// <exception cref="XPathException">The operand is not a single number (XPTY0004), or an <c>xs:untypedAtomic</c> operand is not a double (FORG0001).</exception>
     public override XdmSequence Evaluate(XPathEvaluationContext context)

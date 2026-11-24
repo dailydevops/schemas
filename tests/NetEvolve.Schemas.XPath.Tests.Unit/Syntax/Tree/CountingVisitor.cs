@@ -125,4 +125,24 @@ internal sealed class CountingVisitor : SyntaxVisitor
     public override void VisitTypedFunctionTest(TypedFunctionTest node) => Count(node);
 
     public override void VisitParenthesizedItemType(ParenthesizedItemType node) => Count(node);
+
+    public override void VisitMapEntry(MapEntry node) => Count(node);
+
+    public override void VisitMapConstructor(MapConstructor node) => Count(node);
+
+    public override void VisitSquareArrayConstructor(SquareArrayConstructor node) => Count(node);
+
+    public override void VisitCurlyArrayConstructor(CurlyArrayConstructor node) => Count(node);
+
+    public override void VisitLookupExpression(LookupExpression node) => Count(node);
+
+    public override void VisitArrowExpression(ArrowExpression node) => Count(node);
+
+    public override void VisitAnyMapTest(AnyMapTest node) => Count(node);
+
+    public override void VisitTypedMapTest(TypedMapTest node) => Count(node);
+
+    public override void VisitAnyArrayTest(AnyArrayTest node) => Count(node);
+
+    public override void VisitTypedArrayTest(TypedArrayTest node) => Count(node);
 }

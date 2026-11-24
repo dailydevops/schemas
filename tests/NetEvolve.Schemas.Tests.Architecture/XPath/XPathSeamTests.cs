@@ -28,6 +28,8 @@ public class XPathSeamTests
         "NetEvolve.Schemas.XPath.Evaluation.Atomization",
         // The Schematron xsl:decimal-format merge checks the merged format with the decimal format model of the picture engine (XTSE1295, XTSE1300), instead of a second copy of its rules (SCH-83, #288, #272 D9).
         "NetEvolve.Schemas.XPath.Formatting.Numbers",
+        // The Schematron xsl:analyze-string walks its input with the match-segment iterator and the pattern cache of the regex functions, instead of a second regex traversal (SCH-69, #287, XP-24, #266).
+        "NetEvolve.Schemas.XPath.Functions.Regex",
     ];
 
     private static readonly string[] AllowedFriends =

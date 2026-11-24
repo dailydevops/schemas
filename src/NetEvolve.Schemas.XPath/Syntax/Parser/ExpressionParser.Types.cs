@@ -61,6 +61,14 @@ internal ref partial struct ExpressionParser
                     return new AnyItemType(Span(token.Span.Offset));
                 }
 
+                if (_v31 && (IsName(token, "map") || IsName(token, "array")))
+                {
+                    Enter();
+                    var test = IsName(token, "map") ? ParseMapTest() : ParseArrayTest();
+                    _depth--;
+                    return test;
+                }
+
                 if (IsKindTestName(token))
                 {
                     var test = ParseKindTest();
@@ -91,6 +99,41 @@ internal ref partial struct ExpressionParser
         }
 
         throw Unexpected();
+    }
+
+    // XPath 3.1 [AnyMapTest] and [TypedMapTest]: map(*), or map(atomic type, sequence type).
+    private ItemType ParseMapTest()
+    {
+        var start = Advance().Span.Offset;
+        Expect(XPathTokenKind.LeftParen);
+        if (Accept(XPathTokenKind.Wildcard))
+        {
+            Expect(XPathTokenKind.RightParen);
+            return new AnyMapTest(Span(start));
+        }
+
+        var keyToken = _current;
+        var key = new AtomicType(keyToken.Span, ParseTypeName());
+        Expect(XPathTokenKind.Comma);
+        var value = ParseSequenceType();
+        Expect(XPathTokenKind.RightParen);
+        return new TypedMapTest(Span(start), key, value);
+    }
+
+    // XPath 3.1 [AnyArrayTest] and [TypedArrayTest]: array(*), or array(sequence type).
+    private ItemType ParseArrayTest()
+    {
+        var start = Advance().Span.Offset;
+        Expect(XPathTokenKind.LeftParen);
+        if (Accept(XPathTokenKind.Wildcard))
+        {
+            Expect(XPathTokenKind.RightParen);
+            return new AnyArrayTest(Span(start));
+        }
+
+        var member = ParseSequenceType();
+        Expect(XPathTokenKind.RightParen);
+        return new TypedArrayTest(Span(start), member);
     }
 
     // XPath 3.0 [AnyFunctionTest] and [TypedFunctionTest]: function(*), or function(types) as type.

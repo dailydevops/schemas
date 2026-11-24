@@ -67,6 +67,15 @@ internal sealed class GeneralComparisonNode : ExecutableNode
         _table = table;
     }
 
+    /// <summary>Gets the relation.</summary>
+    public ComparisonRelation Relation => _relation;
+
+    /// <summary>Gets the left operand.</summary>
+    public ExecutableNode Left => _left;
+
+    /// <summary>Gets the right operand.</summary>
+    public ExecutableNode Right => _right;
+
     /// <inheritdoc />
     /// <exception cref="XPathException">An <c>xs:untypedAtomic</c> item is not a value of the type it is cast to (FORG0001), or the types of a pair have no operator (XPTY0004).</exception>
     public override XdmSequence Evaluate(XPathEvaluationContext context)

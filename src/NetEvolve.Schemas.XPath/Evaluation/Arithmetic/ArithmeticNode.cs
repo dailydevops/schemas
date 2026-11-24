@@ -51,6 +51,12 @@ internal sealed class ArithmeticNode : ExecutableNode
         _table = table;
     }
 
+    /// <summary>Gets the left operand.</summary>
+    public ExecutableNode Left => _left;
+
+    /// <summary>Gets the right operand.</summary>
+    public ExecutableNode Right => _right;
+
     /// <inheritdoc />
     /// <exception cref="XPathException">An operand is not a single number (XPTY0004), an <c>xs:untypedAtomic</c> operand is not a double (FORG0001), or the operator raises a dynamic error (FOAR0001, FOAR0002), or the operator of another type family raises its own (FODT0001, FODT0002, FOCA0005).</exception>
     public override XdmSequence Evaluate(XPathEvaluationContext context)
