@@ -10,6 +10,7 @@ using NetEvolve.Schemas.Schematron.Patterns;
 using NetEvolve.Schemas.Schematron.Phases;
 using NetEvolve.Schemas.Schematron.Scopes;
 using NetEvolve.Schemas.Schematron.Seams;
+using NetEvolve.Schemas.Schematron.Xslt.Modules;
 
 /// <summary>
 /// The stage Compile (design #137 AP-26): the binding is resolved, the phase selected, the parameters checked, the variables planned,
@@ -23,9 +24,16 @@ using NetEvolve.Schemas.Schematron.Seams;
 /// (design #137 AP-24), both at <c>Build</c>.
 /// </para>
 /// <para>
-/// Limitation: the XSLT declarations of a schema (<c>xsl:function</c>, <c>xsl:key</c>, <c>xsl:variable</c>, <c>xsl:include</c>, and the
-/// others) are reported as <see cref="SchematronDiagnosticCodes.XsltUnsupported"/> for a binding of the XSLT family, because the modules
-/// are not linked and compiled yet (#832); an element of another namespace is a data element and is ignored.
+/// The XSLT declarations of a schema (<c>xsl:function</c>, <c>xsl:key</c>, <c>xsl:variable</c>, <c>xsl:param</c>, and
+/// <c>xsl:decimal-format</c>) arrive as the module set of stage Resolve under an XSLT binding and compile in two passes, around the
+/// planner of the scopes (see <see cref="XsltDeclarations"/>); the tables are kept in <see cref="CompiledProgram"/>. An element that the
+/// registry does not know, such as <c>xsl:template</c>, is <see cref="SchematronDiagnosticCodes.XsltUnsupported"/> at the module that
+/// holds it, and an element of another namespace is a data element and is ignored.
+/// </para>
+/// <para>
+/// Limitations: the stylesheet functions and the keys are not callable from the XPath of a rule yet (#628 and the key host slot, #832
+/// stays open for that part); without a module set (the four-argument form) the XSLT children of the schema are
+/// <see cref="SchematronDiagnosticCodes.XsltUnsupported"/>.
 /// </para>
 /// </remarks>
 internal sealed class SchematronSchemaCompiler : ISchemaCompiler
@@ -46,10 +54,19 @@ internal sealed class SchematronSchemaCompiler : ISchemaCompiler
         BuildSettings settings,
         IProblemSink problems,
         out CompiledSchema compiled
+    ) => TryCompile(effective, settings, XsltModuleSet.Empty, problems, out compiled);
+
+    public bool TryCompile(
+        SchematronSchema effective,
+        BuildSettings settings,
+        XsltModuleSet modules,
+        IProblemSink problems,
+        out CompiledSchema compiled
     )
     {
         ArgumentNullException.ThrowIfNull(effective);
         ArgumentNullException.ThrowIfNull(settings);
+        ArgumentNullException.ThrowIfNull(modules);
         ArgumentNullException.ThrowIfNull(problems);
 
         compiled = null!;
@@ -59,10 +76,40 @@ internal sealed class SchematronSchemaCompiler : ISchemaCompiler
             return false;
         }
 
-        var ok = CheckDeclarations(effective, binding, problems);
+        // Declarations that the resolver linked are compiled; without a module set the XSLT children of the schema are not supported.
+        var linked = binding.AllowsXsltInstructions && modules.Declarations.Count > 0;
+        ScopePlan plan;
+        var ok = linked || CheckDeclarations(effective, binding, problems);
         ok &= CheckParameters(effective, settings, problems);
         ok &= PhaseSelector.TryResolve(effective, settings.Phase, problems, out var selection);
-        ok &= ScopePlanner.TryPlan(effective, selection, binding, problems, out var plan);
+        XsltModuleTables? tables = null;
+        if (linked)
+        {
+            ok &= XsltDeclarations.TryCompileGlobals(effective, modules, binding, problems, out var globals);
+            ok &= ScopePlanner.TryPlan(
+                effective,
+                selection,
+                globals.Globals.Declarations,
+                binding,
+                problems,
+                out var plannedGlobals
+            );
+            plan = plannedGlobals;
+            ok &= XsltDeclarations.TryCompileFunctions(
+                effective,
+                modules,
+                binding,
+                plan,
+                globals,
+                problems,
+                out var withFunctions
+            );
+            tables = withFunctions;
+        }
+        else
+        {
+            ok &= ScopePlanner.TryPlan(effective, selection, binding, problems, out plan);
+        }
 
         var matcher = new PatternMatcher(binding);
         var sets = new List<CompiledRuleSet>(plan.Patterns.Count);
@@ -89,7 +136,8 @@ internal sealed class SchematronSchemaCompiler : ISchemaCompiler
             matcher,
             new QueryResources(settings.Resolver),
             plan,
-            sets
+            sets,
+            tables
         );
         return true;
     }

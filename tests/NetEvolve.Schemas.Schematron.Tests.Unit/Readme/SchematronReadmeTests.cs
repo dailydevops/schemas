@@ -451,9 +451,8 @@ public class SchematronReadmeTests
 
     [Test]
     [Arguments("template")]
-    [Arguments("key")]
-    [Arguments("function")]
-    public async Task XsltDeclaration_InASchema_RaisesTheUnsupportedConstructError(
+    [Arguments("apply-templates")]
+    public async Task XsltElement_NotInTheRegistry_InASchema_RaisesTheUnsupportedConstructError(
         string element,
         CancellationToken cancellationToken
     )
