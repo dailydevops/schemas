@@ -87,7 +87,9 @@ internal static class BenchmarkGate
                         new(
                             r.Name,
                             GateViolationKind.WorseBaselineRatio,
-                            FormattableString.Invariant($"ratio {ratio:F3} > target {targetRatio:F3} (limit {limit:F3})")
+                            FormattableString.Invariant(
+                                $"ratio {ratio:F3} > target {targetRatio:F3} (limit {limit:F3})"
+                            )
                         )
                     );
                 }
