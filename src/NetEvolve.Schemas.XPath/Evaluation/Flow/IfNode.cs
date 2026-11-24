@@ -33,6 +33,15 @@ internal sealed class IfNode : ExecutableNode
         _else = @else;
     }
 
+    /// <summary>Gets the condition.</summary>
+    public ExecutableNode Condition => _condition;
+
+    /// <summary>Gets the branch taken when the condition is true.</summary>
+    public ExecutableNode Then => _then;
+
+    /// <summary>Gets the branch taken when the condition is false.</summary>
+    public ExecutableNode Else => _else;
+
     /// <inheritdoc />
     /// <exception cref="XPathException">The condition has no effective boolean value (FORG0006), or an evaluated operand raises an error.</exception>
     public override XdmSequence Evaluate(XPathEvaluationContext context)

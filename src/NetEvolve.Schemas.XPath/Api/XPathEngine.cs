@@ -5,6 +5,7 @@ using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Casting.Core;
 using NetEvolve.Schemas.XPath.Compatibility;
 using NetEvolve.Schemas.XPath.Compilation;
+using NetEvolve.Schemas.XPath.Compilation.Optimization;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Evaluation.Arithmetic;
@@ -53,13 +54,15 @@ internal static class XPathEngine
     /// <param name="source">The expression text as a string, kept by the compiled expression.</param>
     /// <param name="context">The static context, <see langword="null"/> for <see cref="XPathStaticContext.Default"/>.</param>
     /// <param name="activeHost">The host slots and flags that the host provides.</param>
+    /// <param name="optimizations">The rewrites of the optimization stage; every rewrite by default, a test switches some off.</param>
     /// <returns>The compiled expression, or the diagnostic.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
     internal static XPathCompileResult TryCompile(
         ReadOnlySpan<char> text,
         string source,
         XPathStaticContext? context,
-        XPathHostRequirements activeHost
+        XPathHostRequirements activeHost,
+        XPathOptimizations optimizations = XPathOptimizations.All
     )
     {
         ArgumentNullException.ThrowIfNull(source);
@@ -85,7 +88,16 @@ internal static class XPathEngine
         }
 
         var registry = activeHost == AllSlots ? DefaultRegistry : CreateRegistry(activeHost);
-        return ExpressionCompiler.TryCompile(syntax!, source, context, registry, out var compiled, out diagnostic)
+        return ExpressionCompiler.TryCompile(
+            syntax!,
+            source,
+            context,
+            registry,
+            out var compiled,
+            out diagnostic,
+            null,
+            optimizations
+        )
             ? new XPathCompileResult(new XPathExpression(compiled!), default)
             : new XPathCompileResult(null, diagnostic);
     }

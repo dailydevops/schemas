@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.XPath.Api;
 
 using System;
 using System.Buffers;
+using System.Collections.Generic;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Compilation;
 using NetEvolve.Schemas.XPath.Context;
@@ -40,6 +41,12 @@ internal sealed class CallNode : ExecutableNode
             _arguments[i] = arguments[i];
         }
     }
+
+    /// <summary>Gets the function.</summary>
+    public XPathFunction Function => _function;
+
+    /// <summary>Gets the argument expressions.</summary>
+    public IReadOnlyList<ExecutableNode> Arguments => _arguments;
 
     /// <inheritdoc />
     /// <exception cref="XPathException">An argument does not match its type (XPTY0004) or cannot be cast (FORG0001), or the function reports an error.</exception>

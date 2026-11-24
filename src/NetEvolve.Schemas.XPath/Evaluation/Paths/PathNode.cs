@@ -28,12 +28,14 @@ internal sealed class PathNode : ExecutableNode, IOrderedNodeSequence
     private readonly PathStep[] _steps;
     private readonly XPathOrderRequirement[] _requirements;
     private readonly SourceSpan _location;
+    private readonly int _limit;
 
     /// <summary>Initializes a new instance of the <see cref="PathNode"/> class.</summary>
     /// <param name="root">How the path starts; <see cref="PathRoot.RootDescendants"/> is handled by the lowering, which adds its step.</param>
     /// <param name="steps">The steps, at least one unless the path starts at the root.</param>
     /// <param name="location">The location of the path in the expression, reported when a result exceeds the sequence size limit; unknown when <see langword="null"/>.</param>
-    public PathNode(PathRoot root, PathStep[] steps, SourceSpan? location = null)
+    /// <param name="limit">The number of result nodes that is enough, zero for every node; see <see cref="TryLimit"/>.</param>
+    public PathNode(PathRoot root, PathStep[] steps, SourceSpan? location = null, int limit = 0)
     {
         ArgumentOutOfRangeException.ThrowIfLessThan((int)root, (int)PathRoot.Relative, nameof(root));
         ArgumentOutOfRangeException.ThrowIfGreaterThan((int)root, (int)PathRoot.RootDescendants, nameof(root));
@@ -47,6 +49,36 @@ internal sealed class PathNode : ExecutableNode, IOrderedNodeSequence
         _steps = steps;
         _requirements = Analyze(steps);
         _location = location ?? new SourceSpan(-1, 0);
+        _limit = limit;
+    }
+
+    /// <summary>Gets the number of result nodes that is enough, zero when the path delivers every node.</summary>
+    public int Limit => _limit;
+
+    /// <summary>Gets how the path starts.</summary>
+    public PathRoot Root => _root;
+
+    /// <summary>Gets the steps.</summary>
+    public IReadOnlyList<PathStep> Steps => _steps;
+
+    /// <summary>Creates the same path, reading no more nodes than a prefix of the result needs.</summary>
+    /// <param name="limit">The number of result nodes that is enough, at least one.</param>
+    /// <returns>
+    /// The path that delivers the first <paramref name="limit"/> nodes in document order; <see langword="this"/> when it is limited that far
+    /// already; <see langword="null"/> when the path cannot stop early, because its last step is not an axis step without predicates, or its
+    /// results need a sort.
+    /// </returns>
+    public PathNode? TryLimit(int limit)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(limit, 1);
+
+        var last = _steps.Length - 1;
+        if (last < 0 || !_steps[last].CanLimit || _requirements[last] != XPathOrderRequirement.None)
+        {
+            return null;
+        }
+
+        return _limit is > 0 && _limit <= limit ? this : new PathNode(_root, _steps, _location, limit);
     }
 
     /// <summary>Gets what each step needs after it ran: nothing, a reversal, duplicate removal, or a sort.</summary>

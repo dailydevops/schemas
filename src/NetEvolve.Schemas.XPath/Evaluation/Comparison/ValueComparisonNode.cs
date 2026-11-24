@@ -55,6 +55,40 @@ internal sealed class ValueComparisonNode : ExecutableNode
         _table = table;
     }
 
+    private ValueComparisonNode(
+        ComparisonRelation relation,
+        ExecutableNode left,
+        ExecutableNode right,
+        ComparisonOperatorTable table
+    )
+    {
+        _relation = relation;
+        _left = left;
+        _right = right;
+        _table = table;
+    }
+
+    /// <summary>Gets the relation.</summary>
+    public ComparisonRelation Relation => _relation;
+
+    /// <summary>Gets the left operand.</summary>
+    public ExecutableNode Left => _left;
+
+    /// <summary>Gets the right operand.</summary>
+    public ExecutableNode Right => _right;
+
+    /// <summary>Creates the same comparison over other operands.</summary>
+    /// <param name="left">The left operand.</param>
+    /// <param name="right">The right operand.</param>
+    /// <returns>The comparison.</returns>
+    public ValueComparisonNode WithOperands(ExecutableNode left, ExecutableNode right)
+    {
+        ArgumentNullException.ThrowIfNull(left);
+        ArgumentNullException.ThrowIfNull(right);
+
+        return new(_relation, left, right, _table);
+    }
+
     /// <inheritdoc />
     /// <exception cref="XPathException">An operand has more than one item, or the operand types have no operator (XPTY0004).</exception>
     public override XdmSequence Evaluate(XPathEvaluationContext context)

@@ -41,6 +41,19 @@ internal sealed class LogicalNode : ExecutableNode
         _right = right;
     }
 
+    /// <summary>Gets the first operand.</summary>
+    public ExecutableNode Left => _left;
+
+    /// <summary>Gets the second operand.</summary>
+    public ExecutableNode Right => _right;
+
+    /// <summary>Creates the same logical expression over other operands.</summary>
+    /// <param name="left">The first operand.</param>
+    /// <param name="right">The second operand.</param>
+    /// <returns>The logical expression.</returns>
+    public LogicalNode WithOperands(ExecutableNode left, ExecutableNode right) =>
+        new(_decisive ? LogicalOperator.Or : LogicalOperator.And, left, right);
+
     /// <inheritdoc />
     /// <exception cref="XPathException">An evaluated operand has no effective boolean value (FORG0006), or raises an error.</exception>
     public override XdmSequence Evaluate(XPathEvaluationContext context)
