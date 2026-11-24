@@ -3,183 +3,183 @@
     "name": "Base64ParseBenchmarks.ParseBase64(Size=Short)",
     "meanNs": 12.5,
     "allocatedBytes": 33,
-    "baselineRatio": 1.28
+    "baselineRatio": 1.5
   },
   {
     "name": "Base64ParseBenchmarks.ParseBase64(Size=Typical)",
     "meanNs": 148.2,
     "allocatedBytes": 73,
-    "baselineRatio": 2.48
+    "baselineRatio": 2.9
   },
   {
     "name": "Base64ParseBenchmarks.ParseBase64(Size=Long)",
     "meanNs": 10756.4,
     "allocatedBytes": 3127,
-    "baselineRatio": 3.66
+    "baselineRatio": 4.2
   },
   {
     "name": "DateTimeParseBenchmarks.ParseDateTime(Size=Short)",
     "meanNs": 68.2,
     "allocatedBytes": 0,
-    "baselineRatio": 4.02
+    "baselineRatio": 4.6
   },
   {
     "name": "DateTimeParseBenchmarks.ParseDateTime(Size=Typical)",
     "meanNs": 57.0,
     "allocatedBytes": 0,
-    "baselineRatio": 3.21
+    "baselineRatio": 3.7
   },
   {
     "name": "DateTimeParseBenchmarks.ParseDateTime(Size=Long)",
     "meanNs": 90.7,
     "allocatedBytes": 0,
-    "baselineRatio": 1.43
+    "baselineRatio": 1.7
   },
   {
     "name": "DecimalArithmeticBenchmarks.Add(Size=Short)",
-    "meanNs": 25.0,
+    "meanNs": 32.0,
     "allocatedBytes": 0
   },
   {
     "name": "DecimalArithmeticBenchmarks.Add(Size=Typical)",
-    "meanNs": 57.8,
+    "meanNs": 74.0,
     "allocatedBytes": 0
   },
   {
     "name": "DecimalArithmeticBenchmarks.Add(Size=Long)",
-    "meanNs": 697.7,
+    "meanNs": 894.0,
     "allocatedBytes": 534
   },
   {
     "name": "DecimalArithmeticBenchmarks.Compare(Size=Short)",
-    "meanNs": 11.5,
+    "meanNs": 15.0,
     "allocatedBytes": 0
   },
   {
     "name": "DecimalArithmeticBenchmarks.Compare(Size=Typical)",
-    "meanNs": 14.8,
+    "meanNs": 19.0,
     "allocatedBytes": 0
   },
   {
     "name": "DecimalArithmeticBenchmarks.Compare(Size=Long)",
-    "meanNs": 2243.1,
+    "meanNs": 2872.0,
     "allocatedBytes": 833
   },
   {
     "name": "DecimalArithmeticBenchmarks.Divide(Size=Short)",
-    "meanNs": 211.5,
+    "meanNs": 271.0,
     "allocatedBytes": 106
   },
   {
     "name": "DecimalArithmeticBenchmarks.Divide(Size=Typical)",
-    "meanNs": 461.1,
+    "meanNs": 591.0,
     "allocatedBytes": 518
   },
   {
     "name": "DecimalArithmeticBenchmarks.Divide(Size=Long)",
-    "meanNs": 1443.2,
+    "meanNs": 1848.0,
     "allocatedBytes": 905
   },
   {
     "name": "DecimalArithmeticBenchmarks.Multiply(Size=Short)",
-    "meanNs": 7.3,
+    "meanNs": 10.0,
     "allocatedBytes": 0
   },
   {
     "name": "DecimalArithmeticBenchmarks.Multiply(Size=Typical)",
-    "meanNs": 13.4,
+    "meanNs": 18.0,
     "allocatedBytes": 33
   },
   {
     "name": "DecimalArithmeticBenchmarks.Multiply(Size=Long)",
-    "meanNs": 339.9,
+    "meanNs": 436.0,
     "allocatedBytes": 388
   },
   {
     "name": "DecimalBeyondRangeBenchmarks.ParseWideDecimal(Size=Short)",
-    "meanNs": 208.8,
+    "meanNs": 268.0,
     "allocatedBytes": 243
   },
   {
     "name": "DecimalBeyondRangeBenchmarks.ParseWideDecimal(Size=Typical)",
-    "meanNs": 539.8,
+    "meanNs": 691.0,
     "allocatedBytes": 712
   },
   {
     "name": "DecimalBeyondRangeBenchmarks.ParseWideDecimal(Size=Long)",
-    "meanNs": 3484.3,
+    "meanNs": 4460.0,
     "allocatedBytes": 6820
   },
   {
     "name": "DecimalParseBenchmarks.ParseDecimal(Size=Short)",
     "meanNs": 9.8,
     "allocatedBytes": 0,
-    "baselineRatio": 0.5
+    "baselineRatio": 0.6
   },
   {
     "name": "DecimalParseBenchmarks.ParseDecimal(Size=Typical)",
     "meanNs": 19.7,
     "allocatedBytes": 0,
-    "baselineRatio": 0.57
+    "baselineRatio": 0.7
   },
   {
     "name": "DecimalParseBenchmarks.ParseDecimal(Size=Long)",
     "meanNs": 163.9,
     "allocatedBytes": 243,
-    "baselineRatio": 1.81
+    "baselineRatio": 2.1
   },
   {
     "name": "DoubleParseBenchmarks.ParseDouble(Size=Short)",
     "meanNs": 15.4,
     "allocatedBytes": 0,
-    "baselineRatio": 0.68
+    "baselineRatio": 0.8
   },
   {
     "name": "DoubleParseBenchmarks.ParseDouble(Size=Typical)",
     "meanNs": 87.0,
     "allocatedBytes": 0,
-    "baselineRatio": 2.53
+    "baselineRatio": 2.9
   },
   {
     "name": "DoubleParseBenchmarks.ParseDouble(Size=Long)",
     "meanNs": 1200.6,
     "allocatedBytes": 1463,
-    "baselineRatio": 17.68
+    "baselineRatio": 20
   },
   {
     "name": "DurationParseBenchmarks.ParseDuration(Size=Short)",
     "meanNs": 41.4,
     "allocatedBytes": 0,
-    "baselineRatio": 3.82
+    "baselineRatio": 4.4
   },
   {
     "name": "DurationParseBenchmarks.ParseDuration(Size=Typical)",
     "meanNs": 69.4,
     "allocatedBytes": 0,
-    "baselineRatio": 2.37
+    "baselineRatio": 2.7
   },
   {
     "name": "DurationParseBenchmarks.ParseDuration(Size=Long)",
     "meanNs": 267.9,
     "allocatedBytes": 65,
-    "baselineRatio": 7.68
+    "baselineRatio": 8.7
   },
   {
     "name": "IntegerParseBenchmarks.ParseInteger(Size=Short)",
     "meanNs": 106.1,
     "allocatedBytes": 0,
-    "baselineRatio": 26.93
+    "baselineRatio": 30.5
   },
   {
     "name": "IntegerParseBenchmarks.ParseInteger(Size=Typical)",
     "meanNs": 128.7,
     "allocatedBytes": 0,
-    "baselineRatio": 18.55
+    "baselineRatio": 21
   },
   {
     "name": "IntegerParseBenchmarks.ParseInteger(Size=Long)",
     "meanNs": 140.7,
     "allocatedBytes": 33,
-    "baselineRatio": 15.21
+    "baselineRatio": 17.2
   }
 ]
