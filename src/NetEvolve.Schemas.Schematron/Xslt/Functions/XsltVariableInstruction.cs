@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.Schematron.Xslt.Functions;
 
 using System;
+using System.Collections.Generic;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Scopes;
 using NetEvolve.Schemas.Schematron.Seams;
@@ -13,16 +14,17 @@ using NetEvolve.Schemas.XPath.Xdm.Nodes;
 /// <summary>
 /// A local <c>xsl:variable</c> in a sequence constructor (XSLT 2.0 section 9): a name, an optional <see langword="as"/> type, and a <see langword="select"/>
 /// expression. The variable takes the next slot of the scope it is compiled in, so the compile scope of the instruction names
-/// exactly the variables declared before it; the caller of the sequence constructor adds the name for the later siblings.
+/// exactly the variables declared before it; the caller of the sequence constructor adds the name for the later siblings. A sequence
+/// constructor in place of <see langword="select"/> builds a temporary tree with a document node, or, with <see langword="as"/>, the
+/// constructed sequence after the function conversion rules (<see cref="XsltVariableContentExecutable"/>, #629).
 /// </summary>
 /// <remarks>
-/// Limitations: the content form (a sequence constructor in place of <see langword="select"/>, which builds a temporary tree) is left out (#629, #794); the
+/// Limitations: the global form with content is left out (#794); with <see langword="select"/> the
 /// <see langword="as"/> type is limited to the types the scopes of the package check (<c>xs:string</c>, <c>xs:boolean</c>, <c>xs:double</c>, and
 /// <c>xs:integer</c>, #392) and is checked by the binding through the declared type of the scope. The entry is also the global
 /// <c>xsl:variable</c> (SCH-66, #252): a top-level element, which has the schema or a stylesheet module as its parent, is read by
-/// <see cref="XsltGlobalCompile"/> and compiled by the planner of the scopes. Without select and content the
-/// variable is the empty string whether or not <see langword="as"/> is present; XSLT 2.0 section 9.3 gives the empty sequence when
-/// <see langword="as"/> is present, so a variable such as <c>as="xs:string"</c> that should fail with XTTE0570 does not (#629).
+/// <see cref="XsltGlobalCompile"/> and compiled by the planner of the scopes. Without select and content a local
+/// variable is the empty string, or the empty sequence converted to <see langword="as"/> when that is present (XSLT 2.0 section 9.3).
 /// </remarks>
 internal sealed class XsltVariableInstruction : IXsltInstruction
 {
@@ -47,8 +49,13 @@ internal sealed class XsltVariableInstruction : IXsltInstruction
         var element = context.Element;
         var scope = context.Scope;
         var ok = XsltElementReader.TryReadVariableName(context.Problems, element, "xsl:variable", out var name);
-        ok &= TryReadDeclaredType(context, name, out var declared);
         var hasSelect = XsltElementReader.TryGetAttribute(element, "select", out var select);
+        if (!hasSelect && (HasContent(element) || XsltElementReader.TryGetAttribute(element, "as", out _)))
+        {
+            return TryCompileContent(context, name, ok, out executable);
+        }
+
+        ok &= TryReadDeclaredType(context, name, out var declared);
         ok &= CheckContent(context, hasSelect, "xsl:variable");
         if (!ok)
         {
@@ -74,6 +81,51 @@ internal sealed class XsltVariableInstruction : IXsltInstruction
         }
 
         executable = new XsltVariableExecutable(name, scope.VariableNames.Count, value);
+        return true;
+    }
+
+    // The content form: the sequence constructor is compiled with the slot of the variable named by an empty name, so that the
+    // locals of the content take the slots above it and the variable does not see itself.
+    private static bool TryCompileContent(
+        XsltCompileContext context,
+        string name,
+        bool ok,
+        out XsltExecutable executable
+    )
+    {
+        executable = null!;
+        var element = context.Element;
+        XsltSequenceType? type = null;
+        if (
+            XsltElementReader.TryGetAttribute(element, "as", out var typeText)
+            && !XsltSequenceType.TryParse(typeText, XsltElementReader.StaticContext(element), out type, out var found)
+        )
+        {
+            XsltProblems.Report(
+                context.Problems,
+                SchematronDiagnosticCodes.ExpressionInvalid,
+                $"The type '{typeText}' of the variable '{name}' is not valid: {found.Message}",
+                element,
+                found.Code
+            );
+            ok = false;
+        }
+
+        var names = new List<string>(context.Scope.VariableNames) { string.Empty };
+        ok &= XsltSequenceConstructor.TryCompile(context, element.Node.FirstChild, names, out var body);
+        if (!ok)
+        {
+            return false;
+        }
+
+        executable = new XsltVariableContentExecutable(
+            name,
+            context.Scope.VariableNames.Count,
+            type,
+            body,
+            XsltElementResolver.LocationOf(element, null),
+            names.Count
+        );
         return true;
     }
 

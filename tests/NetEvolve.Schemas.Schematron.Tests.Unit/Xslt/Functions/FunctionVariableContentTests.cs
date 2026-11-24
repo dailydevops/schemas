@@ -2,6 +2,7 @@
 
 using System.Threading.Tasks;
 using NetEvolve.Schemas.Schematron.Seams;
+using NetEvolve.Schemas.Schematron.Tests.Unit.Fakes;
 using NetEvolve.Schemas.Schematron.Tests.Unit.Parsing.Core;
 using NetEvolve.Schemas.Schematron.Xslt.Functions;
 using NetEvolve.Schemas.Xml.Contracts;
@@ -153,7 +154,7 @@ public class FunctionVariableContentTests
         var fixture = CreateWithConstruction();
 
         var component = fixture.CompileOne(
-            Function("f:f", null, 10, Content("xs:integer +", Sequence("1", 12)), Sequence("1", 13))
+            Function("f:f", null, 10, Content("xs:nosuchtype", Sequence("1", 12)), Sequence("1", 13))
         );
 
         await Assert.That(component).IsNull();
@@ -172,5 +173,52 @@ public class FunctionVariableContentTests
 
         await Assert.That(component).IsNull();
         await Assert.That(Codes(fixture.Problems)).IsEqualTo("NES3202/XPST0003");
+    }
+
+    [Test]
+    [Arguments("xs:string", false)]
+    [Arguments("xs:string?", true)]
+    [Arguments("xs:string*", true)]
+    public async Task Call_NeitherSelectNorContentWithAs_IsTheEmptySequenceConvertedToTheType(
+        string type,
+        bool accepted
+    )
+    {
+        var fixture = CreateWithConstruction();
+        _ = fixture.CompileAll(Function("f:f", null, 10, Content(type), Sequence("$v", 13)));
+
+        var status = Call(fixture, out var result, out var problem);
+
+        await Assert.That(status).IsEqualTo(accepted ? QueryStatus.Ok : QueryStatus.Problem);
+        await Assert
+            .That(accepted ? result.Count == 0 : problem.Message.Contains("XTTE0570", System.StringComparison.Ordinal))
+            .IsTrue();
+    }
+
+    [Test]
+    public async Task Call_NeitherSelectNorContentNorAs_IsTheEmptyString()
+    {
+        var fixture = CreateWithConstruction();
+        _ = fixture.CompileAll(Function("f:f", null, 10, Content(null), Sequence("$v", 13)));
+
+        var status = Call(fixture, out var result, out _);
+
+        await Assert.That(status).IsEqualTo(QueryStatus.Ok);
+        await Assert.That(MiniQuery.Text(result)).IsEqualTo(string.Empty);
+    }
+
+    [Test]
+    public async Task Execute_OnARunWithoutValueHooks_IsTheUnsupportedConstructError()
+    {
+        var fixture = CreateWithConstruction();
+        var node = ChildOfDeclaration(Function("f:f", null, 10, Content(null, Sequence("1", 12))));
+        var executable = fixture.Compile(node, fixture.FunctionScope, XsltPosition.Instruction);
+        using var run = new FakeQueryRun();
+        var frame = new XsltFrame(run);
+
+        var status = executable!.TryExecute(frame, new FakeSequenceSink());
+
+        await Assert.That(status).IsEqualTo(QueryStatus.Problem);
+        await Assert.That(frame.TakeProblem().Code).IsEqualTo(SchematronDiagnosticCodes.XsltUnsupported);
     }
 }

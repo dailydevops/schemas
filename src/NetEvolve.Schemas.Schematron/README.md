@@ -151,7 +151,7 @@ Every entry of the instruction registry, with the stage that delivered it. The p
 | --- | --- | --- | --- |
 | `xsl:function` | declaration | 1 | Overloads by arity. The `as` conversion of arguments and results does not cover derived atomic types and kind tests (#635). |
 | `xsl:param` | child of `xsl:function`, or declaration | 1, 4 | Stage 1: parameter of a function. Stage 4: global parameter, valued by `WithParameter`; `static` is not supported (DEF-28, #40). |
-| `xsl:variable` | instruction, or declaration | 1, 4 | Stage 1: local variable. Stage 4: global variable with lazy evaluation and circularity detection. The value is the `select` attribute (#629, #794); `as` is limited to `xs:string`, `xs:boolean`, `xs:double`, and `xs:integer` (`NES3007`, #392); `static` is not supported (DEF-28, #40). |
+| `xsl:variable` | instruction, or declaration | 1, 4 | Stage 1: local variable. Stage 4: global variable with lazy evaluation and circularity detection. The value is the `select` attribute or, for a local variable, a sequence constructor (a temporary tree with a document node, or the converted sequence with `as`); the global form with content is #794; with `select`, `as` is limited to `xs:string`, `xs:boolean`, `xs:double`, and `xs:integer` (`NES3007`, #392); `static` is not supported (DEF-28, #40). |
 | `xsl:sequence` | instruction | 1 | |
 | `xsl:value-of` | instruction | 1 | |
 | `xsl:text` | instruction | 1 | |
