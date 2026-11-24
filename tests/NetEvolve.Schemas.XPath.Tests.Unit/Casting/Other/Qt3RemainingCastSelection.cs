@@ -1,4 +1,4 @@
-﻿namespace NetEvolve.Schemas.XPath.Tests.Unit.Casting.Other;
+namespace NetEvolve.Schemas.XPath.Tests.Unit.Casting.Other;
 
 /// <summary>
 /// The selection of the QT3 test sets <c>prod-CastExpr</c> and <c>prod-CastableExpr</c> for the types that the casting table gained with the
@@ -21,8 +21,8 @@
 /// <see cref="Core.CastFixture"/> and not through the runner; the end-to-end run stays open until #295, as for the seven types (#265).
 /// <see cref="Excluded"/> lists every case of the same shape that is left out, with the reason: a comparison of dates, times, durations,
 /// Gregorian values, binary values, or QNames needs the operators of XP-26 (#300); a constructor function of a QName with a prefix needs the
-/// static context of the call, which the lowering of a function call has yet to hand over (#644); and a year of 17 digits is within the range of the datatype layer, where the case expects a smaller
-/// implementation-defined range.
+/// static context of the call, which the lowering of a function call has yet to hand over (#644); and a year of 17 digits is within the
+/// range of the datatype layer, where the case expects a smaller implementation-defined range.
 /// </para>
 /// <para>
 /// Every XPath 2.0 case of the two sets that names one of these types is accounted for: it is in <see cref="Cases"/>, in <see cref="Excluded"/>, or in

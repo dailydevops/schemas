@@ -1,4 +1,4 @@
-﻿namespace NetEvolve.Schemas.XPath.Casting.Other;
+namespace NetEvolve.Schemas.XPath.Casting.Other;
 
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.Binary;

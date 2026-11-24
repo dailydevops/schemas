@@ -1,4 +1,4 @@
-﻿namespace NetEvolve.Schemas.XPath.Tests.Unit.Casting.Other;
+namespace NetEvolve.Schemas.XPath.Tests.Unit.Casting.Other;
 
 using System;
 using System.Collections.Generic;
