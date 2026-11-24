@@ -405,7 +405,7 @@ public class SchematronReadmeTests
             await Assert.That(HasStage(row![2])).IsTrue().Because("xsl:" + local);
         }
 
-        await Assert.That(rows).IsEqualTo(24);
+        await Assert.That(rows).IsEqualTo(27);
     }
 
     [Test]

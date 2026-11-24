@@ -234,4 +234,16 @@ internal enum XPathTokenKind
 
     /// <summary>An EQName in the form <c>Q{uri}local</c>; the token covers the whole name (XPath 3.0 and later).</summary>
     BracedName,
+
+    /// <summary><c>=&gt;</c>, the arrow operator (XPath 3.1).</summary>
+    Arrow,
+
+    /// <summary><c>:</c>, the separator of a map entry (XPath 3.1).</summary>
+    Colon,
+
+    /// <summary>The keyword <c>map</c> before <c>{</c> (XPath 3.1).</summary>
+    Map,
+
+    /// <summary>The keyword <c>array</c> before <c>{</c> (XPath 3.1).</summary>
+    Array,
 }

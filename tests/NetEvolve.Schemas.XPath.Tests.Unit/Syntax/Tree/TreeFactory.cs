@@ -186,6 +186,22 @@ internal sealed class TreeFactory
             )),
             Make(s => new InstanceOfExpression(s, Var("x"), SeqType(Make(p => new ParenthesizedItemType(p, Item()))))),
             Make(s => new InstanceOfExpression(s, Var("x"), SeqType(KindItem(Make(p => new NamespaceNodeTest(p)))))),
-            Make(s => new InstanceOfExpression(s, Var("x"), SeqType(KindItem(AnyKind()))))
+            Make(s => new InstanceOfExpression(s, Var("x"), SeqType(KindItem(AnyKind())))),
+            Make(s => new MapConstructor(s, [Make(e => new MapEntry(e, Str(), Int()))])),
+            Make(s => new SquareArrayConstructor(s, [Int(), Int("2")])),
+            Make(s => new CurlyArrayConstructor(s, Int())),
+            Make(s => new LookupExpression(s, Var("m"), LookupKeyKind.Name, "a", null)),
+            Make(s => new LookupExpression(s, null, LookupKeyKind.Integer, null, Int())),
+            Make(s => new ArrowExpression(s, Var("x"), Q("f"), [Int()])),
+            Make(s => new InstanceOfExpression(s, Var("x"), SeqType(Make(p => new AnyMapTest(p))))),
+            Make(s => new InstanceOfExpression(
+                s,
+                Var("x"),
+                SeqType(
+                    Make(p => new TypedMapTest(p, Make(a => new AtomicType(a, Q("string", "xs"))), SeqType(Item())))
+                )
+            )),
+            Make(s => new InstanceOfExpression(s, Var("x"), SeqType(Make(p => new AnyArrayTest(p))))),
+            Make(s => new InstanceOfExpression(s, Var("x"), SeqType(Make(p => new TypedArrayTest(p, SeqType(Item()))))))
         );
 }
