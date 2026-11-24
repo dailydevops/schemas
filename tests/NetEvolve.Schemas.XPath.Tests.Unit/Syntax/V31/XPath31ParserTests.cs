@@ -164,6 +164,18 @@ public class XPath31ParserTests
         await Assert.That(Tree(text, XPathVersion.V31)).IsEqualTo(expected);
 
     [Test]
+    [Arguments("/[1]", "PathExpression<Root=Root>(SquareArrayConstructor(IntegerLiteral<Lexeme=1>))")]
+    [Arguments("/?a", "PathExpression<Root=Root>(LookupExpression<KeyKind=Name,KeyName=a>)")]
+    [Arguments("/map{}", "PathExpression<Root=Root>(MapConstructor)")]
+    [Arguments("array{ $x instance of xs:integer }?*", "LookupExpression<KeyKind=Wildcard>(CurlyArrayConstructor(")]
+    [Arguments(
+        "array{ $x instance of xs:integer }?div",
+        "LookupExpression<KeyKind=Name,KeyName=div>(CurlyArrayConstructor("
+    )]
+    public async Task Parse_LeadingSlashAndLookupAfterType_BuildsTheExpectedTree(string text, string expected) =>
+        await Assert.That(Tree(text, XPathVersion.V31)).StartsWith(expected);
+
+    [Test]
     [Arguments("$x => f()", "ArrowExpression(VariableReference(x) f)")]
     [Arguments(
         "$x => fn:f(1, 2)",
