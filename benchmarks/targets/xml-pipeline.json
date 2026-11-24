@@ -3,24 +3,24 @@
     "name": "DocumentLoadBenchmarks.LoadDocument",
     "meanNs": 488095.0,
     "allocatedBytes": 152784,
-    "baselineRatio": 3.4
+    "baselineRatio": 4.5
   },
   {
     "name": "StreamLoadBenchmarks.LoadStream",
     "meanNs": 484583.0,
     "allocatedBytes": 153040,
-    "baselineRatio": 2.5
+    "baselineRatio": 3.3
   },
   {
     "name": "StreamLoadBenchmarks.LoadSpan",
     "meanNs": 473601.0,
     "allocatedBytes": 152784,
-    "baselineRatio": 2.4
+    "baselineRatio": 3.2
   },
   {
     "name": "DocumentWriteBenchmarks.WriteDocument",
     "meanNs": 200199.0,
     "allocatedBytes": 3040,
-    "baselineRatio": 3.1
+    "baselineRatio": 4.1
   }
 ]
