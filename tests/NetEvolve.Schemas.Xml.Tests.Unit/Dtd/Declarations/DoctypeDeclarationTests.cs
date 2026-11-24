@@ -82,7 +82,7 @@ public class DoctypeDeclarationTests
     public async Task OptIn_ParsesTheNameIdentifiersAndSubset_AndCompletesTheDocument()
     {
         const string xml =
-            "<!DOCTYPE note PUBLIC \"-//X//Y\" 'x.dtd' [<!ELEMENT note EMPTY>\r\n<!ATTLIST note id ID #IMPLIED>]>\r\n<note/>";
+            "<!DOCTYPE note PUBLIC \"-//X//Y\" 'x.dtd' [<!ELEMENT note EMPTY> <!ATTLIST note id ID #IMPLIED>]>\r\n<note/>";
         using var reader = XmlPipelineReader.Create(xml.AsSpan(), OptIn);
         var sink = new RecordingXmlSink(new SpanInterningNameTable(XmlReaderLimits.Default.MaxDistinctNames));
 
@@ -105,6 +105,31 @@ public class DoctypeDeclarationTests
         await Assert.That(status).IsEqualTo(XmlReadStatus.Completed);
         await Assert.That(code).IsNull();
         await Assert.That(model).IsEqualTo(string.Empty);
+    }
+
+    [Test]
+    [Arguments("<!DOCTYPE doc PUBLIC \"[\" \"null.ent\"><doc></doc>")]
+    [Arguments("<!DOCTYPE doc PUBLIC '\"' 'null.ent'><doc></doc>")]
+    [Arguments("<!DOCTYPE doc PUBLIC \"a	b\" 'null.ent'><doc></doc>")]
+    public async Task OptIn_PublicIdWithACharacterOutsidePubidChar_ReportsXml0011(string xml)
+    {
+        ArgumentNullException.ThrowIfNull(xml);
+        var (status, code, _) = Read(xml, OptIn);
+
+        await Assert.That(status).IsEqualTo(XmlReadStatus.Error);
+        await Assert.That(code).IsSameReferenceAs(XmlErrorCodes.XML0011);
+    }
+
+    [Test]
+    [Arguments("<!DOCTYPE doc PUBLIC \"-//X//Y 1.0 (a)+,./:=?;!*#@$_%'\" \"null.ent\"><doc></doc>")]
+    [Arguments("<!DOCTYPE doc PUBLIC \"\" \"null.ent\"><doc></doc>")]
+    public async Task OptIn_PublicIdOfPubidCharOnly_IsAccepted(string xml)
+    {
+        ArgumentNullException.ThrowIfNull(xml);
+        var (status, code, _) = Read(xml, OptIn);
+
+        await Assert.That(status).IsEqualTo(XmlReadStatus.Completed);
+        await Assert.That(code).IsNull();
     }
 
     [Test]
