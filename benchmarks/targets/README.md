@@ -31,8 +31,8 @@ Mark the baseline method `[Benchmark(Baseline = true)]` and name it `<Method>Sys
 writes the full JSON report (memory diagnoser enabled); `... -- gate <report.json> [targetsDirectory]` then fails when
 
 - a benchmark has no target (an error, never skipped),
-- allocation per operation exceeds the target,
-- the ratio to the baseline is worse than `baselineRatio`, or
+- allocation per operation exceeds the target (no tolerance),
+- the ratio to the baseline is more than 15 % worse than `baselineRatio` (`BenchmarkGate.RatioTolerance` = 1.15, absorbs shared-runner noise; the message shows ratio, target and limit), or
 - without a `baselineRatio`, the mean is more than 5 % above `meanNs`.
 
 On `net11.0` BenchmarkDotNet 0.15.8 cannot drive its own out-of-process toolchain (the runtime moniker is unknown), so `Program.cs` runs in-process there (limitation; remove when BenchmarkDotNet knows net11.0).
