@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.XPath.Tests.Unit.Casting.Other;
+﻿namespace NetEvolve.Schemas.XPath.Tests.Unit.Casting.Other;
 
 using System;
 using System.Collections.Generic;
@@ -45,7 +45,7 @@ public class BinaryAndUriCastTests
     public async Task ToStringTypes_GivesTheCanonicalForm(string expression, string expected) =>
         await Assert.That(Show(expression)).IsEqualTo(expected);
 
-    // xs:anyURI: any string is a URI, whitespace collapses, and the value is the string.
+    // xs:anyURI: any string without a malformed percent escape or an empty scheme is a URI, whitespace collapses, and the value is the string.
     [Test]
     [Arguments("'example.com/' cast as xs:anyURI", "AnyUri:example.com/")]
     [Arguments("'' cast as xs:anyURI", "AnyUri:")]
@@ -55,6 +55,8 @@ public class BinaryAndUriCastTests
     [Arguments("xs:anyURI('http://example.com/a') cast as xs:string", "XsString:http://example.com/a")]
     [Arguments("xs:anyURI('http://example.com/a') cast as xs:untypedAtomic", "UntypedAtomic:http://example.com/a")]
     [Arguments("xs:anyURI('mailto:a%20b') cast as xs:string", "XsString:mailto:a%20b")]
+    [Arguments("'a%4Fb' cast as xs:anyURI", "AnyUri:a%4Fb")]
+    [Arguments("'/a:b' cast as xs:anyURI", "AnyUri:/a:b")]
     public async Task AnyUri_ProducesTheValue(string expression, string expected) =>
         await Assert.That(Show(expression)).IsEqualTo(expected);
 

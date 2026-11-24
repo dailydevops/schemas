@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.XPath.Tests.Unit.Casting.Other;
+﻿namespace NetEvolve.Schemas.XPath.Tests.Unit.Casting.Other;
 
 /// <summary>
 /// The selection of the QT3 test sets <c>prod-CastExpr</c> and <c>prod-CastableExpr</c> for the types that the casting table gained with the
@@ -21,8 +21,7 @@ namespace NetEvolve.Schemas.XPath.Tests.Unit.Casting.Other;
 /// <see cref="Core.CastFixture"/> and not through the runner; the end-to-end run stays open until #295, as for the seven types (#265).
 /// <see cref="Excluded"/> lists every case of the same shape that is left out, with the reason: a comparison of dates, times, durations,
 /// Gregorian values, binary values, or QNames needs the operators of XP-26 (#300); a constructor function of a QName with a prefix needs the
-/// static context of the call, which the lowering of a function call has yet to hand over (#644); the lexical check of <c>xs:anyURI</c> is lax
-/// until the strict checkers land (#411, #412); and a year of 17 digits is within the range of the datatype layer, where the case expects a smaller
+/// static context of the call, which the lowering of a function call has yet to hand over (#644); and a year of 17 digits is within the range of the datatype layer, where the case expects a smaller
 /// implementation-defined range.
 /// </para>
 /// <para>
@@ -2432,6 +2431,13 @@ internal static class Qt3RemainingCastSelection
             "S:http:\\\\invalid>URI\\someURI\tX:FORG0001"
         ),
         ("prod-CastExpr/K2-SeqExprCast-209", "xs:anyURI(\"\u301C\")", "S:\u301C"),
+        ("prod-CastExpr/K2-SeqExprCast-210", "xs:anyURI(\"http://www.example.com/file%GF.html\")", "X:FORG0001"),
+        ("prod-CastExpr/K2-SeqExprCast-422", "xs:anyURI(\"%gg\")", "X:FORG0001"),
+        ("prod-CastExpr/K2-SeqExprCast-423", "xs:anyURI(\":/cut.jpg\")", "X:FORG0001"),
+        ("prod-CastExpr/K2-SeqExprCast-424", "xs:anyURI(\":/images/cut.png\")", "X:FORG0001"),
+        ("prod-CastExpr/K2-SeqExprCast-505", "xs:anyURI(\":/\")", "X:FORG0001"),
+        ("prod-CastableExpr/K2-SeqExprCastable-6", "\"%\" castable as xs:anyURI", "F"),
+        ("prod-CastableExpr/K2-SeqExprCastable-7", "xs:untypedAtomic(\"%\") castable as xs:anyURI", "F"),
         (
             "prod-CastExpr/K2-SeqExprCast-420",
             "xs:anyURI(\" http://example.com/ foo.xml \")",
@@ -3406,34 +3412,6 @@ internal static class Qt3RemainingCastSelection
         ("prod-CastExpr/K-SeqExprCast-952", "The comparison of these types needs the operators of XP-26 (#300)."),
         ("prod-CastExpr/K-SeqExprCast-954", "The comparison of these types needs the operators of XP-26 (#300)."),
         ("prod-CastExpr/K-SeqExprCast-980", "The comparison of these types needs the operators of XP-26 (#300)."),
-        (
-            "prod-CastExpr/K2-SeqExprCast-210",
-            "The lexical check of xs:anyURI is lax until the strict checkers land (#411, #412)."
-        ),
-        (
-            "prod-CastExpr/K2-SeqExprCast-422",
-            "The lexical check of xs:anyURI is lax until the strict checkers land (#411, #412)."
-        ),
-        (
-            "prod-CastExpr/K2-SeqExprCast-423",
-            "The lexical check of xs:anyURI is lax until the strict checkers land (#411, #412)."
-        ),
-        (
-            "prod-CastExpr/K2-SeqExprCast-424",
-            "The lexical check of xs:anyURI is lax until the strict checkers land (#411, #412)."
-        ),
-        (
-            "prod-CastExpr/K2-SeqExprCast-505",
-            "The lexical check of xs:anyURI is lax until the strict checkers land (#411, #412)."
-        ),
-        (
-            "prod-CastableExpr/K2-SeqExprCastable-6",
-            "The lexical check of xs:anyURI is lax until the strict checkers land (#411, #412)."
-        ),
-        (
-            "prod-CastableExpr/K2-SeqExprCastable-7",
-            "The lexical check of xs:anyURI is lax until the strict checkers land (#411, #412)."
-        ),
         (
             "prod-CastableExpr/cbcl-castable-date-001",
             "A year of 17 digits is within the range of the datatype layer; the case expects a smaller implementation-defined range."
