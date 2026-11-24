@@ -17,4 +17,7 @@ internal enum XPathLexicalError
 
     /// <summary>A numeric literal is immediately followed by a name character.</summary>
     InvalidNumber,
+
+    /// <summary>A <c>Q{</c> name whose braces are not closed, nest, or are not followed by a local name.</summary>
+    InvalidBracedName,
 }
