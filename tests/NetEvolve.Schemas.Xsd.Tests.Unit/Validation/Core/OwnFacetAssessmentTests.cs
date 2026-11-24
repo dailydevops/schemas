@@ -5,6 +5,7 @@ using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xml.Datatypes.Facets.Core;
 using NetEvolve.Schemas.Xml.Datatypes.Facets.Pattern;
 using NetEvolve.Schemas.XPath.Api;
+using NetEvolve.Schemas.Xsd.Compilation;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.SimpleTypes.Definitions;
 using NetEvolve.Schemas.Xsd.Tests.Unit.SimpleTypes.Checks;
@@ -149,6 +150,21 @@ public class OwnFacetAssessmentTests
         await Assert.That(valid.IsValid).IsTrue();
         await Assert.That(member).IsEqualTo(0);
         await Assert.That(failed.FailedFacet).IsEqualTo(FacetKind.Pattern);
+    }
+
+    [Test]
+    public async Task Restriction_EvaluatesAnEnumerationInTheValueSpace()
+    {
+        var fixture = new FacetFixture();
+        var facets = FacetFactory.Create(
+            fixture.Wrapped("integer"),
+            [FacetFixture.Decl(FacetKind.Enumeration, "1"), FacetFixture.Decl(FacetKind.Enumeration, "2")],
+            XsdVersion.V11
+        );
+        var type = fixture.Derive(fixture.Wrapped("integer"), [.. facets]);
+
+        await Assert.That(fixture.Assessor.Assess(type, "+01", out _).IsValid).IsTrue();
+        await Assert.That(fixture.Assessor.Assess(type, "3", out _).FailedFacet).IsEqualTo(FacetKind.Enumeration);
     }
 
     [Test]
