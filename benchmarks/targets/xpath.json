@@ -19,13 +19,13 @@
   {
     "name": "XPathCompileBenchmarks.CompileCompatible",
     "meanNs": 15345.8,
-    "allocatedBytes": 20039,
+    "allocatedBytes": 20306,
     "baselineRatio": 3.7
   },
   {
     "name": "XPathCompileExtendedBenchmarks.CompileExtended",
     "meanNs": 22969.0,
-    "allocatedBytes": 17170
+    "allocatedBytes": 17413
   },
   {
     "name": "XPathLexBenchmarks.LexExpressions",
@@ -35,7 +35,7 @@
   {
     "name": "XPathParseBenchmarks.ParseExpressions",
     "meanNs": 26859.0,
-    "allocatedBytes": 19376
+    "allocatedBytes": 19885
   },
   {
     "name": "XPathPredicateBenchmarks.EvaluatePredicates",

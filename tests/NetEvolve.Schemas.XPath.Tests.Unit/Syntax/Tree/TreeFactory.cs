@@ -167,6 +167,25 @@ internal sealed class TreeFactory
                 Step(Axis.Parent, AnyKind()),
                 Filter(Var("x"), Int("1"))
             ),
+            Make(s => new LetExpression(s, [Bind("i")], Var())),
+            Make(s => new SimpleMapExpression(s, Var(), Var())),
+            Make(s => new StringConcatExpression(s, Var(), Var())),
+            Make(s => new InlineFunctionExpression(
+                s,
+                [Make(p => new FunctionParameter(p, Q("a"), SeqType(null)))],
+                SeqType(null),
+                Int()
+            )),
+            Make(s => new NamedFunctionReference(s, Q("f"), 1)),
+            Make(s => new DynamicFunctionCall(s, Var(), [Make(p => new ArgumentPlaceholder(p))])),
+            Make(s => new InstanceOfExpression(s, Var("x"), SeqType(Make(p => new AnyFunctionTest(p))))),
+            Make(s => new InstanceOfExpression(
+                s,
+                Var("x"),
+                SeqType(Make(p => new TypedFunctionTest(p, [SeqType(Item())], SeqType(null))))
+            )),
+            Make(s => new InstanceOfExpression(s, Var("x"), SeqType(Make(p => new ParenthesizedItemType(p, Item()))))),
+            Make(s => new InstanceOfExpression(s, Var("x"), SeqType(KindItem(Make(p => new NamespaceNodeTest(p)))))),
             Make(s => new InstanceOfExpression(s, Var("x"), SeqType(KindItem(AnyKind()))))
         );
 }

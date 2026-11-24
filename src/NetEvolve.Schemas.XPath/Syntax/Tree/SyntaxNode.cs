@@ -2,7 +2,7 @@ namespace NetEvolve.Schemas.XPath.Syntax.Tree;
 
 using System.Collections.Generic;
 
-/// <summary>Base of every XPath 2.0 syntax tree node: immutable, with the source location it was built from.</summary>
+/// <summary>Base of every XPath 2.0 and 3.0 syntax tree node: immutable, with the source location it was built from.</summary>
 internal abstract class SyntaxNode
 {
     private protected SyntaxNode(SourceSpan location) => Location = location;

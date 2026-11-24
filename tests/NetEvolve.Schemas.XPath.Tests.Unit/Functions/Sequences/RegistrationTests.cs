@@ -29,6 +29,8 @@ public class RegistrationTests
     [Arguments("zero-or-one", 1, 1)]
     [Arguments("one-or-more", 1, 1)]
     [Arguments("exactly-one", 1, 1)]
+    [Arguments("error", 0, 3)]
+    [Arguments("trace", 2, 2)]
     public async Task DefaultCatalog_ResolvesTheFunctionForItsArityRangeOnly(string local, int minArity, int maxArity)
     {
         for (var arity = 0; arity <= 4; arity++)

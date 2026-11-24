@@ -1,0 +1,4 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:a="urn:a" targetNamespace="urn:a" elementFormDefault="qualified">
+  <xs:import namespace="urn:b" schemaLocation="b.xsd"/>
+  <xs:element name="root"><xs:complexType><xs:sequence><xs:element name="n" type="xs:int"/></xs:sequence></xs:complexType></xs:element>
+</xs:schema>

@@ -11,7 +11,6 @@ fn-round/K2-RoundFunc-6
 fn-round/K2-RoundFunc-7
 fn-round/K2-RoundFunc-8
 fn-round/K2-RoundFunc-9
-fn-round/fn-round-1
 fn-round/fn-round-decimal-2
 fn-round/fn-round-decimal-3
 fn-round/fn-round-decimal-4

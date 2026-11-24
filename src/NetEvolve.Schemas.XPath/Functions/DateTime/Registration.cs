@@ -51,6 +51,7 @@ internal static class Registration
         builder.Add(new AdjustDateTimeToTimezoneFunction());
         builder.Add(new AdjustDateToTimezoneFunction());
         builder.Add(new AdjustTimeToTimezoneFunction());
+        builder.Add(new DateTimeConstructorFunction());
         builder.Add(new CurrentDateTimeFunction());
         builder.Add(new CurrentDateFunction());
         builder.Add(new CurrentTimeFunction());

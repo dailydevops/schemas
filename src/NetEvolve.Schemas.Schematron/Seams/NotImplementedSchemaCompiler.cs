@@ -12,4 +12,12 @@ internal sealed class NotImplementedSchemaCompiler : ISchemaCompiler
         IProblemSink problems,
         out CompiledSchema compiled
     ) => throw NotImplementedFailure.For("compile");
+
+    public bool TryCompile(
+        SchematronSchema effective,
+        BuildSettings settings,
+        XsltModuleSet modules,
+        IProblemSink problems,
+        out CompiledSchema compiled
+    ) => throw NotImplementedFailure.For("compile");
 }

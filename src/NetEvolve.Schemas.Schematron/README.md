@@ -137,11 +137,11 @@ Schematron lets a schema embed XSLT: stylesheet functions, keys, variables, and 
 
 ### What a schema reaches today
 
-The instruction engine (instruction registry, sequence sink, function table, key index, global table, module linker) is part of the package and covered by its unit tests, but the build of a schema does not hand any XSLT to it yet. A schema that declares `xsl:function`, `xsl:key`, `xsl:variable`, `xsl:param`, `xsl:decimal-format`, `xsl:include`, or any other `xsl:` element under the bindings `xslt`, `xslt1`, `xslt2`, or `xslt3` fails at `Build` with `NES3204`, the unsupported XSLT construct error, until the modules of a schema are linked and compiled (#832). A `let` with element content and a property with `xsl:copy-of` build, and the run reports `NES3204` where it needs them, because no embedded content is wired into the pipeline (#914); a `let` with element content binds a document node (maintainer decision of #856), which the suite case for it does not expect (#877).
+The instruction engine (instruction registry, sequence sink, function table, key index, global table, module linker) is part of the package and covered by its unit tests, and the build of a schema hands the XSLT declarations to it. Under the bindings `xslt`, `xslt1`, `xslt2`, and `xslt3` the resolve stage follows `xsl:include` and `xsl:import` through the resolver of the builder, and the compile stage compiles `xsl:function`, `xsl:key`, `xsl:variable`, `xsl:param`, and `xsl:decimal-format` with the import precedence applied; any other `xsl:` element, such as `xsl:template`, fails at `Build` with `NES3204`, the unsupported XSLT construct error. The compiled schema holds the tables; the global variables and parameters take part in a run, while stylesheet functions and keys are not callable from the XPath of a rule yet (#628, #832). Problems of a declaration that an included Schematron library holds are located at the principal schema, and without a line. A `let` with element content and a property with `xsl:copy-of` build, and the run reports `NES3204` where it needs them, because no embedded content is wired into the pipeline (#914); a `let` with element content binds a document node (maintainer decision of #856), which the suite case for it does not expect (#877).
 
 What does work are the XSLT functions in the expressions of a schema (`test`, `select`, `value`, `context`) under the bindings `xslt`, `xslt1`, `xslt2`, and `xslt3`: `current`, `system-property`, `function-available`, `format-number`, and `generate-id`. These functions do not exist under `xpath` and `xpath2`. A named decimal format is unknown, because no `xsl:decimal-format` is handed to the run (#882).
 
-These functions are not available yet: `key` (#776, #780), `document`, `doc`, and `unparsed-text` (#312, #302), `current-group` and `current-grouping-key` (#803), `regex-group` (#287), calls of stylesheet functions (#628), `element-available` (DEF-30, #42), `type-available` (DEF-31, #43), `unparsed-entity-uri` and `unparsed-entity-public-id` (DEF-32, #44), and `snapshot` (DEF-33, #45).
+These functions are not available yet: `key` (the function is in the XPath package, #776, but a run has no key provider until the stylesheet modules reach it, #832; as a rule context, #780), `document`, `doc`, and `unparsed-text` (#312, #302), `current-group` and `current-grouping-key` (#803), `regex-group` (#287), calls of stylesheet functions (#628), `element-available` (DEF-30, #42), `type-available` (DEF-31, #43), `unparsed-entity-uri` and `unparsed-entity-public-id` (DEF-32, #44), and `snapshot` (DEF-33, #45).
 
 ### Matrix of the registered constructs
 
@@ -176,7 +176,7 @@ Every entry of the instruction registry, with the stage that delivered it. The p
 | text node | instruction | 4 | Character data of a sequence constructor; the registry holds one entry for it. |
 | `xsl:for-each-group` | instruction | 5 | `group-by`, `group-adjacent`, `group-starting-with`, and `group-ending-with`. `composite` is not supported (DEF-54, #66); the collation is limited to the codepoint collation (DEF-43, #55). |
 
-The module linker (stage 3) is not an entry of the registry: it handles `xsl:include`, `xsl:import`, and the root elements `xsl:stylesheet` and `xsl:transform` of a module, with import precedence and cycle detection, and loads modules through the resolver of the builder. It is not wired into the build (#832).
+The module linker (stage 3) is not an entry of the registry: it handles `xsl:include`, `xsl:import`, and the root elements `xsl:stylesheet` and `xsl:transform` of a module, with import precedence and cycle detection, and loads modules through the resolver of the builder. The build runs it in the resolve stage, with the loader of the Schematron `include`, so the resource limits are shared (#832).
 
 ### The unsupported XSLT construct error
 
@@ -213,7 +213,7 @@ Every other element of the XSLT namespace is not registered. Compiling one raise
 | `xsl:context-item`, `xsl:global-context-item` | DEF-29 (#41) |
 | `xsl:analyze-string`, `xsl:matching-substring`, `xsl:non-matching-substring` | planned, stage 5: #287 |
 
-The module elements of stage 3 (`xsl:include`, `xsl:import`, `xsl:stylesheet`, `xsl:transform`) are not registry entries either, see above; in a schema they raise `NES3204` as declarations (#832). Further, a registered construct raises `NES3204` for an attribute or form that is left out:
+The module elements of stage 3 (`xsl:include`, `xsl:import`, `xsl:stylesheet`, `xsl:transform`) are not registry entries either, see above; the build handles them in the linker (#832). Further, a registered construct raises `NES3204` for an attribute or form that is left out:
 
 | Attribute or form | Tracking |
 | --- | --- |
@@ -245,7 +245,7 @@ The conformance run executes the official Schematron conformance suite, release 
 | `iso-rule-based-validation` | 14 | 10 | 71.4% |
 | `iso-schema-composition` | 11 | 5 | 45.4% |
 
-The acceptance of XSLT stage 4 (own test schemas and four cases of the suite, which are also among the 84) publishes its own row in the job summary, `NetEvolve.Schemas.Schematron (stage 4 goldens)`: 3 of 17 cases pass, a rate of 17.6%. The other 14 wait for #832 and #914.
+The acceptance of XSLT stage 4 (own test schemas and four cases of the suite, which are also among the 84) publishes its own row in the job summary, `NetEvolve.Schemas.Schematron (stage 4 goldens)`: 12 of 17 cases pass, a rate of 70.5%. The other 5 wait for #914 (a `let` with element content), for temporary trees in global declarations, and for builder parameters of a global `xsl:param` (#832).
 
 ### Excluded cases
 
@@ -268,7 +268,7 @@ The suite file of the binding `xslt-3-2025` lists three cases that no selected b
 
 - `iso-schema-composition/extends-recursive.xml`
 
-**#832** (3 cases): XSLT declarations of a schema are reported NES3204 until the modules are linked and compiled (#832).
+**#832** (3 cases): The functions and keys of a schema build, but the XPath of a rule cannot call them yet (#628, #832).
 
 - `iso-rule-based-validation/xsl-function.xml`
 - `iso-rule-based-validation/xsl-key-element-content.xml`
@@ -367,7 +367,7 @@ The edition is read from the `schematronEdition` attribute of the `schema` eleme
   ```
 
 - **No `ReadOnlyMemory<T>` overload.** With one, a `byte[]` or `char[]` argument is ambiguous for compilers older than C# 14; pass `memory.Span` instead.
-- **XSLT in a schema.** Declarations of XSLT fail the build (#832), and `let` with element content and `xsl:copy-of` in a property are reported at run time (#914); see [XSLT constructs](#xslt-constructs).
+- **XSLT in a schema.** Declarations of XSLT build, but stylesheet functions and keys are not callable from a rule yet (#628, #832), and `let` with element content and `xsl:copy-of` in a property are reported at run time (#914); see [XSLT constructs](#xslt-constructs).
 - **Attributes that are accepted and ignored.** The `documents` attribute of a pattern (#913, feature #388) and the `visit-each` attribute of a rule (#934, feature #387) neither fail the build nor take effect.
 - **Phase attributes.** A selected phase with `from` (#385) or `when` (#386) fails the build with `NES3007`.
 - **Include and extends.** An `href` with a fragment identifier is not supported (#575), and an `extends` of an abstract rule of another pattern builds without an error (#921).
