@@ -60,10 +60,20 @@ internal sealed class SimpleTypeValidator
             return null;
         }
 
-        var own = new IFacet[facets.Count - builtInCount];
-        for (var i = 0; i < own.Length; i++)
+        // The length facets are no-ops for QName and NOTATION (Datatypes 1.0 section 4.3.1), so they are not evaluated.
+        var lengthless = datatype?.Name is "QName" or "NOTATION";
+        var own = new List<IFacet>(facets.Count - builtInCount);
+        for (var i = builtInCount; i < facets.Count; i++)
         {
-            own[i] = facets[builtInCount + i];
+            if (!lengthless || facets[i].Kind is not (FacetKind.Length or FacetKind.MinLength or FacetKind.MaxLength))
+            {
+                own.Add(facets[i]);
+            }
+        }
+
+        if (own.Count == 0)
+        {
+            return null;
         }
 
         if (variety == DatatypeVariety.Atomic)
@@ -81,7 +91,7 @@ internal sealed class SimpleTypeValidator
             return atomic is null ? null : new SimpleTypeValidator(atomic, [], false);
         }
 
-        var lexical = new List<ILexicalFacet>(own.Length);
+        var lexical = new List<ILexicalFacet>(own.Count);
         foreach (var facet in own)
         {
             if (facet is ILexicalFacet lexicalFacet)
@@ -127,7 +137,7 @@ internal sealed class SimpleTypeValidator
         string name,
         IDatatypeDescriptor? datatype,
         WhitespaceMode? whitespace,
-        IFacet[] own
+        IReadOnlyList<IFacet> own
     ) =>
         datatype switch
         {
