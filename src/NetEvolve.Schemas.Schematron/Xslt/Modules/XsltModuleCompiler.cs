@@ -7,11 +7,12 @@ using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Schematron.Xslt.Functions;
 using NetEvolve.Schemas.Schematron.Xslt.Globals;
 using NetEvolve.Schemas.Schematron.Xslt.Keys;
+using NetEvolve.Schemas.Schematron.Xslt.Library.Formatting;
 using NetEvolve.Schemas.Schematron.Xslt.Registry;
 using NetEvolve.Schemas.XPath.Xdm.Nodes;
 
 /// <summary>
-/// Compiles the declarations of a <see cref="XsltModuleSet"/> and merges them into the function, global, and key tables with the
+/// Compiles the declarations of a <see cref="XsltModuleSet"/> and merges them into the function, global, key, and decimal format tables with the
 /// import precedence of their placement (XSLT 2.0 sections 3.10.2, 9.5, 10.3, and 16.3). The registry classifies every element as a
 /// declaration, so an XSLT element that is not registered, such as <c>xsl:template</c>, is the unsupported-construct error located
 /// in the module that holds it. A declaration that the registry knows but no table takes is reported the same way.
@@ -51,6 +52,7 @@ internal static class XsltModuleCompiler
         var functions = new XsltFunctionTableBuilder();
         var globals = new XsltGlobalTableBuilder();
         var keys = new List<XsltKeyComponent>();
+        var decimals = new XsltDecimalFormatTableBuilder();
         var compiled = new Dictionary<XPathNode, XsltExecutable?>();
         var winners = new Dictionary<string, Winner>(StringComparer.Ordinal);
         var ok = true;
@@ -65,10 +67,11 @@ internal static class XsltModuleCompiler
 
             ok &=
                 executable is not null
-                && Merge(declaration, executable, first, functions, globals, keys, winners, problems);
+                && Merge(declaration, executable, first, functions, globals, keys, decimals, winners, problems);
         }
 
-        tables = new XsltModuleTables(functions.Build(), globals.Build(), XsltKeyTable.Create(keys));
+        ok &= decimals.TryBuild(problems, out var formats);
+        tables = new XsltModuleTables(functions.Build(), globals.Build(), XsltKeyTable.Create(keys), formats);
         return ok;
     }
 
@@ -104,6 +107,7 @@ internal static class XsltModuleCompiler
         XsltFunctionTableBuilder functions,
         XsltGlobalTableBuilder globals,
         List<XsltKeyComponent> keys,
+        XsltDecimalFormatTableBuilder decimals,
         Dictionary<string, Winner> winners,
         IProblemSink problems
     )
@@ -138,6 +142,10 @@ internal static class XsltModuleCompiler
                     keys.Add(keyDeclaration.Component);
                 }
 
+                return true;
+            case XsltDecimalFormatDeclaration format:
+                // The formats of one name merge attribute by attribute with the precedence, so every placement is added.
+                decimals.Add(format, declaration.Precedence);
                 return true;
             default:
                 problems.Add(

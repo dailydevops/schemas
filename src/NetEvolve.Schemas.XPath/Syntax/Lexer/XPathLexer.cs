@@ -2,10 +2,11 @@ namespace NetEvolve.Schemas.XPath.Syntax.Lexer;
 
 using System;
 using NetEvolve.Schemas.Xml.Text.CharClasses;
+using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Syntax.Tree;
 
 /// <summary>
-/// Turns an XPath 2.0 expression into tokens without allocating; tokens are ranges into the input.
+/// Turns an XPath 2.0 or 3.0 expression into tokens without allocating; tokens are ranges into the input.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -21,12 +22,16 @@ using NetEvolve.Schemas.XPath.Syntax.Tree;
 /// Limitation: the lexer stops at the first error and reports the end of the input afterwards. After
 /// <c>instance of</c>, <c>treat as</c>, <c>cast as</c>, and <c>castable as</c> the characters <c>*</c>, <c>+</c>, and
 /// <c>?</c> are occurrence indicators until a keyword or a comma outside the type ends the sequence type, as the
-/// occurrence-indicators constraint requires. Terminals added by XPath 3.0 and 3.1 are not recognized.
+/// occurrence-indicators constraint requires. The terminals of XPath 3.0 (<see langword="let"/>, <c>:=</c>, <c>!</c>, <c>||</c>,
+/// <c>#</c>, braces, <c>function</c>, and <c>Q{uri}local</c>) are recognized only when the version is XPath 3.0 or
+/// later, so XPath 2.0 input is tokenized as before. Not supported: XPath 3.1 terminals and the <c>Q{uri}*</c>
+/// wildcard. The XPath 3.1 version is tokenized and parsed with the 3.0 grammar.
 /// </para>
 /// </remarks>
 internal ref struct XPathLexer
 {
     private readonly ReadOnlySpan<char> _text;
+    private readonly bool _v30;
     private int _position;
     private int _depth;
     private int _typeDepth;
@@ -37,9 +42,11 @@ internal ref struct XPathLexer
 
     /// <summary>Initializes a new instance of the <see cref="XPathLexer"/> struct.</summary>
     /// <param name="text">The expression; it must outlive the lexer.</param>
-    public XPathLexer(ReadOnlySpan<char> text)
+    /// <param name="version">The language version; the terminals of XPath 3.0 are recognized from <see cref="XPathVersion.V30"/> on.</param>
+    public XPathLexer(ReadOnlySpan<char> text, XPathVersion version = XPathVersion.V20)
     {
         _text = text;
+        _v30 = version >= XPathVersion.V30;
         _position = 0;
         _depth = 0;
         _typeDepth = 0;
@@ -205,6 +212,11 @@ internal ref struct XPathLexer
             }
         }
 
+        if (_v30 && length == 1 && _text[start] == 'Q' && Peek(end) == '{')
+        {
+            return BracedName(start);
+        }
+
         var word = _text.Slice(start, length);
         if (_expectOfOrAs)
         {
@@ -229,10 +241,46 @@ internal ref struct XPathLexer
             return Emit(kind, start, length, true);
         }
 
+        if (kind == XPathTokenKind.As)
+        {
+            // The "as" of a parameter or return type of an inline function: a sequence type follows.
+            _inType = true;
+            _typeDepth = _depth;
+            return Emit(kind, start, length, false);
+        }
+
+        if (kind == XPathTokenKind.Function)
+        {
+            // Inside a sequence type, "function" starts a function test and keeps the occurrence handling.
+            return Emit(kind, start, length, false);
+        }
+
         _inType = false;
         _expectOfOrAs =
             kind is XPathTokenKind.Instance or XPathTokenKind.Treat or XPathTokenKind.Cast or XPathTokenKind.Castable;
         return Emit(kind, start, length, false);
+    }
+
+    // Q{uri}local: the braces hold no braces, and an NCName follows.
+    private XPathToken BracedName(int start)
+    {
+        var close = _text.Slice(start + 2).IndexOfAny('{', '}');
+        if (close < 0)
+        {
+            return Fail(XPathLexicalError.InvalidBracedName, start, _text.Length);
+        }
+
+        var closeAt = start + 2 + close;
+        if (_text[closeAt] == '{')
+        {
+            return Fail(XPathLexicalError.InvalidBracedName, start, closeAt + 1);
+        }
+
+        var localStart = closeAt + 1;
+        var local = NcNameLength(localStart);
+        return local > 0
+            ? Emit(XPathTokenKind.BracedName, start, localStart + local - start, true)
+            : Fail(XPathLexicalError.InvalidBracedName, start, localStart);
     }
 
     private XPathToken Symbol(int start, char c)
@@ -274,7 +322,9 @@ internal ref struct XPathLexer
             case '@':
                 return Emit(XPathTokenKind.At, start, 1, false);
             case '|':
-                return Emit(XPathTokenKind.Pipe, start, 1, false);
+                return _v30 && Peek(start + 1) == '|'
+                    ? Emit(XPathTokenKind.Concat, start, 2, false)
+                    : Emit(XPathTokenKind.Pipe, start, 1, false);
             case '-':
                 return Emit(XPathTokenKind.Minus, start, 1, false);
             case '$':
@@ -314,6 +364,18 @@ internal ref struct XPathLexer
                 };
             case ':' when Peek(start + 1) == ':':
                 return Emit(XPathTokenKind.ColonColon, start, 2, false);
+            case ':' when _v30 && Peek(start + 1) == '=':
+                return Emit(XPathTokenKind.ColonEqual, start, 2, false);
+            case '!' when _v30:
+                return Emit(XPathTokenKind.Bang, start, 1, false);
+            case '#' when _v30:
+                return Emit(XPathTokenKind.Hash, start, 1, false);
+            case '{' when _v30:
+                // A sequence type never contains a brace, so this ends the return type of an inline function.
+                _inType = false;
+                return Emit(XPathTokenKind.LeftBrace, start, 1, false);
+            case '}' when _v30:
+                return Emit(XPathTokenKind.RightBrace, start, 1, true);
             default:
                 var width = char.IsHighSurrogate(c) && char.IsLowSurrogate(Peek(start + 1)) ? 2 : 1;
                 return Fail(XPathLexicalError.IllegalCharacter, start, start + width);
@@ -340,9 +402,10 @@ internal ref struct XPathLexer
         return Emit(XPathTokenKind.Wildcard, start, 1, true);
     }
 
-    private static XPathTokenKind OperatorKeyword(ReadOnlySpan<char> word) =>
+    private readonly XPathTokenKind OperatorKeyword(ReadOnlySpan<char> word) =>
         word switch
         {
+            "as" when _v30 => XPathTokenKind.As,
             "and" => XPathTokenKind.And,
             "or" => XPathTokenKind.Or,
             "div" => XPathTokenKind.Div,
@@ -382,6 +445,8 @@ internal ref struct XPathLexer
             "for" when following == '$' => XPathTokenKind.For,
             "some" when following == '$' => XPathTokenKind.Some,
             "every" when following == '$' => XPathTokenKind.Every,
+            "let" when _v30 && following == '$' => XPathTokenKind.Let,
+            "function" when _v30 && following == '(' => XPathTokenKind.Function,
             _ => XPathTokenKind.Name,
         };
     }

@@ -49,7 +49,7 @@ internal sealed class SchematronPipeline : ISchematronPipeline
 
         cancellationToken.ThrowIfCancellationRequested();
         var compiler = new SchematronSchemaCompiler(PipelineBindings.Registry);
-        ThrowIfFailed(compiler.TryCompile(effective, settings, problems, out var compiled), problems);
+        ThrowIfFailed(compiler.TryCompile(effective, settings, resolved.Modules, problems, out var compiled), problems);
 
         return compiled;
     }

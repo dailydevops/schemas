@@ -110,6 +110,11 @@ internal static class LetContentTree
                 element.LocalName,
                 element.NamespaceUri
             );
+            foreach (var declaration in element.NamespaceDeclarations)
+            {
+                _ = writer.TryAddNamespace(declaration.Key, declaration.Value);
+            }
+
             foreach (var attribute in element.Attributes)
             {
                 SplitName(attribute.Key, out var uri, out var local);

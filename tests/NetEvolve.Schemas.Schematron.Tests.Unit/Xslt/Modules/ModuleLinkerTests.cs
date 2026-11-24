@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using NetEvolve.Schemas.Resources;
 using NetEvolve.Schemas.Resources.Default;
 using NetEvolve.Schemas.Schematron.Loading.Inclusion;
+using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Schematron.Tests.Unit.Fakes;
 using NetEvolve.Schemas.Schematron.Tests.Unit.Loading.Inclusion;
 using NetEvolve.Schemas.Schematron.Xslt.Modules;

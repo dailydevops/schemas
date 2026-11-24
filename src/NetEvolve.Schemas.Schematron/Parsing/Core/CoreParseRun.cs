@@ -108,7 +108,7 @@ internal sealed partial class CoreParseRun
             switch (kind)
             {
                 case CoreElement.Foreign:
-                    parts.Foreign.Add(ParseForeign(child));
+                    parts.Foreign.Add(ParseForeign(child, null, true));
                     break;
                 case CoreElement.Title when parts.Title is null:
                     parts.Title = ParseTitle(child);
