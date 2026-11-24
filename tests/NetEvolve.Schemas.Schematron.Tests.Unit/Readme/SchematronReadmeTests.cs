@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Schematron.Tests.Unit.Readme;
+﻿namespace NetEvolve.Schemas.Schematron.Tests.Unit.Readme;
 
 using System;
 using System.Buffers;
