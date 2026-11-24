@@ -45,7 +45,7 @@ public class ErrorTests
 
         await Assert.That(standard.QName).IsEqualTo(new XPathErrorCode("FOAR0001"));
         await Assert.That(custom.QName).IsEqualTo(new XPathErrorCode("urn:x", "boom"));
-        await Assert.That(custom.Kind).IsEqualTo(XPathErrorKind.Engine);
+        await Assert.That(custom.Kind).IsEqualTo(XPathErrorKind.Function);
         await Assert.That(unqualified.QName).IsEqualTo(new XPathErrorCode(string.Empty, "boom"));
     }
 

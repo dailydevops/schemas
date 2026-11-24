@@ -29,11 +29,20 @@ internal sealed class ErrorFunction : SequenceFunction
             code = new XPathErrorCode(name!.Name.NamespaceName ?? string.Empty, name.Name.LocalName);
         }
 
-        if (arguments.Length > 1 && arguments[1][0].TryGetString(out var description))
-        {
-            throw new XPathException(new XPathDiagnostic(code, XPathErrorCodes.KindOf(code), description!, -1, 0));
-        }
-
-        throw XPathErrors.Exception(code);
+        // A code of the caller's own namespace is no engine condition: the function raised it, so it is a function error.
+        var kind = XPathErrorCodes.KindOf(code);
+        kind = kind == XPathErrorKind.Engine ? XPathErrorKind.Function : kind;
+        var message = arguments.Length > 1 && arguments[1][0].TryGetString(out var description) ? description! : null;
+        throw new XPathException(
+            message is null
+                ? new XPathDiagnostic(
+                    code,
+                    kind,
+                    XPathErrorCodes.TryGetMessage(code, out var known) ? known : code.ToString(),
+                    -1,
+                    0
+                )
+                : new XPathDiagnostic(code, kind, message, -1, 0)
+        );
     }
 }

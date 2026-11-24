@@ -1,10 +1,5 @@
 prod-ValueComp/K-ValCompTypeChecking-13
 prod-ValueComp/K-ValCompTypeChecking-14
 prod-ValueComp/K-ValCompTypeChecking-15
-prod-ValueComp/K-ValCompTypeChecking-35
-prod-ValueComp/K-ValCompTypeChecking-36
-prod-ValueComp/K-ValCompTypeChecking-37
-prod-ValueComp/K-ValCompTypeChecking-38
 prod-ValueComp/K-ValCompTypeChecking-39
-prod-ValueComp/K-ValCompTypeChecking-40
 prod-ValueComp/K-ValCompTypeChecking-41

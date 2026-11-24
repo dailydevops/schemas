@@ -10,7 +10,6 @@ fn-abs/K2-ABSFunc-43
 fn-abs/K2-ABSFunc-44
 fn-abs/K2-ABSFunc-45
 fn-abs/K2-ABSFunc-46
-fn-abs/fn-abs-1
 fn-abs/fn-abs-more-args-001
 fn-abs/fn-abs-more-args-002
 fn-abs/fn-abs-more-args-003

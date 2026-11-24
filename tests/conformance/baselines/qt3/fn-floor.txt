@@ -1,4 +1,3 @@
-fn-floor/fn-floor-1
 fn-floor/fn-floor-decimal-1
 fn-floor/fn-floor-decimal-2
 fn-floor/fn-floor-decimal-3

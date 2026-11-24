@@ -1,4 +1,3 @@
-fn-reverse/K-SeqReverseFunc-15
 fn-reverse/K-SeqReverseFunc-3
 fn-reverse/K-SeqReverseFunc-5
 fn-reverse/K-SeqReverseFunc-6

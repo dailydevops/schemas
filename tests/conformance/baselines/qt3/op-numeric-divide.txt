@@ -4,7 +4,6 @@ op-numeric-divide/K-NumericDivide-41
 op-numeric-divide/K-NumericDivide-42
 op-numeric-divide/K-NumericDivide-43
 op-numeric-divide/cbcl-numeric-divide-015
-op-numeric-divide/op-numeric-divide-1
 op-numeric-divide/op-numeric-divide-big-01
 op-numeric-divide/op-numeric-dividedec2args-2
 op-numeric-divide/op-numeric-dividedec2args-4

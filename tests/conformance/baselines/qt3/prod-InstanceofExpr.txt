@@ -4,7 +4,5 @@ prod-InstanceofExpr/K-SeqExprInstanceOf-56
 prod-InstanceofExpr/K-SeqExprInstanceOf-57
 prod-InstanceofExpr/K-SeqExprInstanceOf-58
 prod-InstanceofExpr/K-SeqExprInstanceOf-59
-prod-InstanceofExpr/K-SeqExprInstanceOf-60
-prod-InstanceofExpr/K-SeqExprInstanceOf-61
 prod-InstanceofExpr/K-SeqExprInstanceOf-62
 prod-InstanceofExpr/K-SeqExprInstanceOf-63

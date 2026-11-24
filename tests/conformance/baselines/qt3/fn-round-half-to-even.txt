@@ -10,7 +10,6 @@ fn-round-half-to-even/K2-RoundEvenFunc-25
 fn-round-half-to-even/K2-RoundEvenFunc-26
 fn-round-half-to-even/K2-RoundEvenFunc-27
 fn-round-half-to-even/K2-RoundEvenFunc-28
-fn-round-half-to-even/fn-round-half-to-even-1
 fn-round-half-to-even/fn-round-half-to-even-10
 fn-round-half-to-even/fn-round-half-to-even-11
 fn-round-half-to-even/fn-round-half-to-even-12
@@ -21,7 +20,6 @@ fn-round-half-to-even/fn-round-half-to-even-16
 fn-round-half-to-even/fn-round-half-to-even-17
 fn-round-half-to-even/fn-round-half-to-even-18
 fn-round-half-to-even/fn-round-half-to-even-19
-fn-round-half-to-even/fn-round-half-to-even-2
 fn-round-half-to-even/fn-round-half-to-even-20
 fn-round-half-to-even/fn-round-half-to-even-21
 fn-round-half-to-even/fn-round-half-to-even-22

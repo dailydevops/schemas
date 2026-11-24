@@ -1,4 +1,3 @@
-fn-ceiling/fn-ceiling-1
 fn-ceiling/fn-ceiling-decimal-1
 fn-ceiling/fn-ceiling-decimal-2
 fn-ceiling/fn-ceiling-decimal-3

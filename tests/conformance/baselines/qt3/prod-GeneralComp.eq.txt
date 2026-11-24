@@ -1,8 +1,4 @@
 prod-GeneralComp.eq/K-GenCompEq-10
-prod-GeneralComp.eq/K-GenCompEq-16
-prod-GeneralComp.eq/K-GenCompEq-17
-prod-GeneralComp.eq/K-GenCompEq-18
-prod-GeneralComp.eq/K-GenCompEq-19
 prod-GeneralComp.eq/K-GenCompEq-32
 prod-GeneralComp.eq/K-GenCompEq-33
 prod-GeneralComp.eq/K-GenCompEq-34
