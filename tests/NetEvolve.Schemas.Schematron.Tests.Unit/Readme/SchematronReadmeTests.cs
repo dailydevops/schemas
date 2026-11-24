@@ -21,6 +21,7 @@ using NetEvolve.Schemas.XPath.Api;
 public class SchematronReadmeTests
 {
     private const string Readme = "src/NetEvolve.Schemas.Schematron/README.md";
+    private const string Template = "templates/readme-project.md";
     private const string Samples = "tests/NetEvolve.Schemas.Schematron.Tests.Unit/Readme/SchematronReadmeTests.cs";
     private const string LegacySamples =
         "tests/NetEvolve.Schemas.Tests.LegacyCompiler/Readme/SchematronReadmeLegacyTests.cs";
@@ -578,7 +579,7 @@ public class SchematronReadmeTests
     {
         var readme = ReadmeSamples.ReadText(Readme);
 
-        await Assert.That(readme).Contains("## Edition detection");
+        await Assert.That(readme).Contains("### Edition detection");
         await Assert.That(readme).Contains("schematronEdition");
         await Assert.That(readme).Contains("NES3009");
         await Assert.That(readme).Contains("NES3008");
@@ -605,6 +606,79 @@ public class SchematronReadmeTests
     }
 
     [Test]
+    public async Task Conformance_StatedBaselineEntriesEqualTheCommittedBaselines()
+    {
+        var readme = ReadmeSamples.ReadText(Readme);
+        var (entries, fileCount) = CountEntries();
+
+        await Assert.That(readme).Contains($"{entries} baseline entries in {fileCount} files");
+        await Assert.That(readme).Contains($"{entries} known failures");
+    }
+
+    [Test]
+    public async Task Readme_FollowsTheSectionOrderOfTheProjectTemplate()
+    {
+        var template = Headings(ReadmeSamples.ReadText(Template));
+        var readme = Headings(ReadmeSamples.ReadText(Readme));
+        var position = 0;
+
+        foreach (var heading in template)
+        {
+            if (heading.StartsWith("# Project Name", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            var found = readme.IndexOf(heading, position);
+            await Assert.That(found).IsGreaterThanOrEqualTo(0).Because(heading);
+            position = found + 1;
+        }
+
+        await Assert.That(readme[0]).IsEqualTo("# NetEvolve.Schemas.Schematron");
+    }
+
+    [Test]
+    public async Task Readme_HasNoTemplatePlaceholdersAndNoComments()
+    {
+        var readme = ReadmeSamples.ReadText(Readme);
+
+        await Assert.That(readme).DoesNotContain("<!--");
+        await Assert.That(readme).DoesNotContain("YourPackageName");
+        await Assert.That(readme).DoesNotContain("YourRepo");
+        await Assert.That(readme).DoesNotContain("x.x.x");
+        await Assert.That(readme).Contains("https://www.nuget.org/packages/NetEvolve.Schemas.Schematron/");
+    }
+
+    [Test]
+    public async Task Readme_LinksToFilesThatExist()
+    {
+        var readme = ReadmeSamples.ReadText(Readme);
+        const string prefix = "https://github.com/dailydevops/schemas/blob/main/";
+        var checkedLinks = 0;
+
+        foreach (var line in readme.Split('\n'))
+        {
+            var from = 0;
+            while (true)
+            {
+                var start = line.IndexOf(prefix, from, StringComparison.Ordinal);
+                if (start < 0)
+                {
+                    break;
+                }
+
+                var end = line.IndexOfAny([')', ' ', '`', '>'], start);
+                var path = line.Substring(start + prefix.Length, (end < 0 ? line.Length : end) - start - prefix.Length);
+                await Assert.That(File.Exists(RepositoryPath(path))).IsTrue().Because(path);
+                checkedLinks++;
+                from = start + prefix.Length;
+            }
+        }
+
+        await Assert.That(checkedLinks).IsGreaterThan(0);
+    }
+
+    [Test]
     public async Task EveryReadmeCodeBlock_IsACompiledSample()
     {
         var compiled = new List<string>(ReadmeSamples.SamplesIn(Samples));
@@ -616,6 +690,61 @@ public class SchematronReadmeTests
         {
             await Assert.That(compiled).Contains(block);
         }
+    }
+
+    private static (int Entries, int Files) CountEntries()
+    {
+        var files = Directory.GetFiles(RepositoryPath("tests/conformance/baselines/schematron-conformance"), "*.txt");
+        var entries = 0;
+        foreach (var file in files)
+        {
+            foreach (var line in File.ReadAllLines(file))
+            {
+                if (line.Trim().Length > 0)
+                {
+                    entries++;
+                }
+            }
+        }
+
+        return (entries, files.Length);
+    }
+
+    private static string RepositoryPath(string relativePath)
+    {
+        var directory = new DirectoryInfo(AppContext.BaseDirectory);
+        while (directory is not null && !File.Exists(Path.Combine(directory.FullName, "Schemas.slnx")))
+        {
+            directory = directory.Parent;
+        }
+
+        return Path.Combine(
+            directory?.FullName ?? throw new InvalidOperationException("Schemas.slnx was not found."),
+            relativePath
+        );
+    }
+
+    private static List<string> Headings(string markdown)
+    {
+        var headings = new List<string>();
+        var inFence = false;
+        foreach (var raw in markdown.Split('\n'))
+        {
+            var line = raw.TrimEnd();
+            if (line.TrimStart().StartsWith("```", StringComparison.Ordinal))
+            {
+                inFence = !inFence;
+            }
+            else if (
+                !inFence
+                && (line.StartsWith("# ", StringComparison.Ordinal) || line.StartsWith("## ", StringComparison.Ordinal))
+            )
+            {
+                headings.Add(line);
+            }
+        }
+
+        return headings;
     }
 
     private static async Task<SchemaCompilationException> Failure(string schema, CancellationToken cancellationToken)
