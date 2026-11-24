@@ -218,4 +218,44 @@ internal abstract class SyntaxVisitor
     /// <summary>Visits a <see cref="ParenthesizedItemType"/>.</summary>
     /// <param name="node">The node.</param>
     public virtual void VisitParenthesizedItemType(ParenthesizedItemType node) { }
+
+    /// <summary>Visits a <see cref="MapEntry"/>.</summary>
+    /// <param name="node">The node.</param>
+    public virtual void VisitMapEntry(MapEntry node) { }
+
+    /// <summary>Visits a <see cref="MapConstructor"/>.</summary>
+    /// <param name="node">The node.</param>
+    public virtual void VisitMapConstructor(MapConstructor node) { }
+
+    /// <summary>Visits a <see cref="SquareArrayConstructor"/>.</summary>
+    /// <param name="node">The node.</param>
+    public virtual void VisitSquareArrayConstructor(SquareArrayConstructor node) { }
+
+    /// <summary>Visits a <see cref="CurlyArrayConstructor"/>.</summary>
+    /// <param name="node">The node.</param>
+    public virtual void VisitCurlyArrayConstructor(CurlyArrayConstructor node) { }
+
+    /// <summary>Visits a <see cref="LookupExpression"/>.</summary>
+    /// <param name="node">The node.</param>
+    public virtual void VisitLookupExpression(LookupExpression node) { }
+
+    /// <summary>Visits a <see cref="ArrowExpression"/>.</summary>
+    /// <param name="node">The node.</param>
+    public virtual void VisitArrowExpression(ArrowExpression node) { }
+
+    /// <summary>Visits a <see cref="AnyMapTest"/>.</summary>
+    /// <param name="node">The node.</param>
+    public virtual void VisitAnyMapTest(AnyMapTest node) { }
+
+    /// <summary>Visits a <see cref="TypedMapTest"/>.</summary>
+    /// <param name="node">The node.</param>
+    public virtual void VisitTypedMapTest(TypedMapTest node) { }
+
+    /// <summary>Visits a <see cref="AnyArrayTest"/>.</summary>
+    /// <param name="node">The node.</param>
+    public virtual void VisitAnyArrayTest(AnyArrayTest node) { }
+
+    /// <summary>Visits a <see cref="TypedArrayTest"/>.</summary>
+    /// <param name="node">The node.</param>
+    public virtual void VisitTypedArrayTest(TypedArrayTest node) { }
 }

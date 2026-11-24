@@ -3,13 +3,16 @@ namespace NetEvolve.Schemas.Xsd.Derivation.Particles10;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using NetEvolve.Arguments;
+using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;
 using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Derivation.Types;
 using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.Elements;
+using NetEvolve.Schemas.Xsd.Substitution;
 
 /// <summary>
 /// Particle Valid (Restriction) (<c>cos-particle-restrict</c>, Structures 1.0, 3.9.6): whether a particle is a valid restriction of
@@ -33,9 +36,9 @@ using NetEvolve.Schemas.Xsd.Elements;
 /// </para>
 /// <para>
 /// Limitations: a particle whose term is not resolved is not compared (the resolver reports it); a circular group definition is not
-/// compared (<c>mg-props-correct.2</c>); clause 2.1 of <c>cos-particle-restrict</c> (an element declaration that heads a
-/// substitution group stands for a choice of its members) is not applied, because an element declaration carries no
-/// substitution group affiliation yet, so it is compared as itself; clause 3.2.3 of <c>rcase-NameAndTypeOK</c> (the identity
+/// compared (<c>mg-props-correct.2</c>); an element declaration that heads a substitution group stands for a choice of its
+/// instance members when it is compared with an element of another name, but only when <see cref="Substitutions"/> is set, otherwise it is
+/// compared as itself; clause 3.2.3 of <c>rcase-NameAndTypeOK</c> (the identity
 /// constraints of the restriction are a subset of those of the base) is not checked, because an element declaration keeps no
 /// identity constraints yet; the fixed values of <c>rcase-NameAndTypeOK.3.2.2</c> are compared by their lexical form, not by
 /// the value of the type; a type that an element declaration does not know yet (an unresolved reference, or an anonymous type
@@ -49,6 +52,8 @@ internal sealed class ParticleRestriction
 {
     private static readonly IXsdComponent UrTypeWildcard = FindUrTypeWildcard();
 
+    private static readonly ConditionalWeakTable<Particle, object> SelfStanding = new();
+
     private readonly TypeDerivationOk _derivation;
 
     /// <summary>Initializes a new instance of the <see cref="ParticleRestriction"/> class.</summary>
@@ -59,6 +64,12 @@ internal sealed class ParticleRestriction
 
         _derivation = derivation;
     }
+
+    /// <summary>
+    /// Gets or sets the substitution groups of the schema, <see langword="null"/> when the element declarations are compared as themselves.
+    /// The pipeline sets it once before the particles are compared.
+    /// </summary>
+    internal SubstitutionGroups? Substitutions { get; set; }
 
     /// <summary>Checks a particle against the particle it restricts.</summary>
     /// <param name="restriction">The restricting particle, for example the content particle of a derived type.</param>
@@ -181,6 +192,11 @@ internal sealed class ParticleRestriction
 
         var r = ParticleStructure.Simplify(restriction);
         var b = ParticleStructure.Simplify(baseParticle);
+        if (r is not null && b is not null)
+        {
+            (r, b) = (Expand(r, b, isRestriction: true), Expand(b, r, isRestriction: false));
+        }
+
         if (r is null)
         {
             return b is null || ParticleRules.IsEmptiable(b)
@@ -221,6 +237,54 @@ internal sealed class ParticleRestriction
             (ModelGroup or ModelGroupDefinition, ModelGroup or ModelGroupDefinition) => Groups(r, b),
             _ => ParticleViolation.None,
         };
+    }
+
+    // An element declaration that heads a substitution group stands for a choice of its instance members, unless the other particle
+    // is the same element; a restriction is expanded only against another element, because a group or a wildcard of the base
+    // is compared with the element itself. The choice keeps the occurrence of the particle.
+    private Particle Expand(Particle particle, Particle other, bool isRestriction)
+    {
+        if (
+            Substitutions is null
+            || SelfStanding.TryGetValue(particle, out _)
+            || particle.Term is not ElementDeclaration { IsGlobal: true } head
+            || (other.Term is ElementDeclaration otherElement && head.Name == otherElement.Name)
+            || (isRestriction && other.Term is not ElementDeclaration)
+        )
+        {
+            return particle;
+        }
+
+        var instances = Substitutions.GetInstanceElements(head);
+        if (instances.Count == 1 && ReferenceEquals(instances[0], head))
+        {
+            return particle;
+        }
+
+        // The members stand for an unordered choice, so both sides list them in the same order: by name.
+        var ordered = new List<ISubstitutionElement>(instances);
+        ordered.Sort(static (x, y) => CompareNames(x.Name, y.Name));
+        var members = new List<Particle>(ordered.Count);
+        for (var i = 0; i < ordered.Count; i++)
+        {
+            // A member stands for itself; it is not expanded again.
+            var member = Particle.Create(particle.Location, 1, 1, (ElementDeclaration)ordered[i]);
+            SelfStanding.Add(member, member);
+            members.Add(member);
+        }
+
+        return Particle.Create(
+            particle.Location,
+            particle.MinOccurs,
+            particle.MaxOccurs,
+            ModelGroup.Create(ModelGroupCompositor.Choice, particle.Location, members)
+        );
+    }
+
+    private static int CompareNames(XPathQName x, XPathQName y)
+    {
+        var space = string.CompareOrdinal(x.NamespaceName, y.NamespaceName);
+        return space != 0 ? space : string.CompareOrdinal(x.LocalName, y.LocalName);
     }
 
     private ParticleViolation NameAndTypeOK(Particle r, Particle b)

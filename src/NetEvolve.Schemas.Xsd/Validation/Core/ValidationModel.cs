@@ -10,6 +10,7 @@ using NetEvolve.Schemas.Xsd.ContentModels.Automaton;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.Elements;
+using NetEvolve.Schemas.Xsd.Substitution;
 
 /// <summary>
 /// The immutable data the streaming validator runs on: the schema set for the global declarations, one dense schema name id per
@@ -51,18 +52,20 @@ internal sealed class ValidationModel
     /// <param name="schema">The frozen schema set.</param>
     /// <param name="components">The registered components; every complex type reachable from them gets its program.</param>
     /// <param name="reporter">The reporter for content models that exceed an internal ceiling.</param>
+    /// <param name="substitutions">The substitution groups: a position of a content model that holds the head of a group also matches the instance members of the group; <see langword="null"/> for none.</param>
     /// <returns>The model.</returns>
     internal static ValidationModel Build(
         XsdSchemaSet schema,
         IReadOnlyList<IXsdComponent> components,
-        XsdIssueReporter reporter
+        XsdIssueReporter reporter,
+        SubstitutionGroups? substitutions = null
     )
     {
         ArgumentNullException.ThrowIfNull(schema);
         ArgumentNullException.ThrowIfNull(components);
         ArgumentNullException.ThrowIfNull(reporter);
 
-        var builder = new Builder(reporter);
+        var builder = new Builder(reporter) { Substitutions = substitutions };
         for (var i = 0; i < components.Count; i++)
         {
             ArgumentNullException.ThrowIfNull(components[i]);
@@ -168,6 +171,8 @@ internal sealed class ValidationModel
             Programs = new Dictionary<ComplexTypeDefinition, ContentProgram>(programs);
         }
 
+        internal SubstitutionGroups? Substitutions { get; set; }
+
         internal Dictionary<XPathQName, int> Ids { get; }
 
         internal List<XPathQName> Names { get; }
@@ -245,7 +250,7 @@ internal sealed class ValidationModel
 
                 Push(element);
                 terms.Add(element);
-                nameIds.Add([IdOf(element.Name)]);
+                nameIds.Add(IdsOf(element));
                 optional.Add(member.MinOccurs == 0);
             }
 
@@ -271,7 +276,7 @@ internal sealed class ValidationModel
                 case ElementDeclaration element:
                     Push(element);
                     terms.Add(element);
-                    return AutomatonParticle.Element(particle.MinOccurs, particle.MaxOccurs, IdOf(element.Name));
+                    return AutomatonParticle.Element(particle.MinOccurs, particle.MaxOccurs, IdsOf(element));
                 case IWildcard wildcard:
                     terms.Add(wildcard);
                     return AutomatonParticle.Wildcard(particle.MinOccurs, particle.MaxOccurs, wildcard);
@@ -297,6 +302,27 @@ internal sealed class ValidationModel
 
         private static IXsdComponent? Unwrap(IXsdComponent? term) =>
             term is ModelGroupDefinition definition ? definition.ModelGroup : term;
+
+        // The name of the declaration first, then the names of the other instance members of the substitution group it heads.
+        private int[] IdsOf(ElementDeclaration element)
+        {
+            if (Substitutions is null || !element.IsGlobal)
+            {
+                return [IdOf(element.Name)];
+            }
+
+            var ids = new List<int> { IdOf(element.Name) };
+            var instances = Substitutions.GetInstanceElements(element);
+            for (var i = 0; i < instances.Count; i++)
+            {
+                if (!ReferenceEquals(instances[i], element))
+                {
+                    ids.Add(IdOf(instances[i].Name));
+                }
+            }
+
+            return ids.ToArray();
+        }
 
         private int IdOf(XPathQName name)
         {

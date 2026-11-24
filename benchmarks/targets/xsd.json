@@ -2,7 +2,7 @@
   {
     "name": "CiiCompilationBenchmarks.CompileCii",
     "meanNs": 6797437,
-    "allocatedBytes": 8022374,
+    "allocatedBytes": 8162093,
     "baselineRatio": 2.1
   },
   {
@@ -44,7 +44,7 @@
   {
     "name": "UblCompilationBenchmarks.CompileUbl",
     "meanNs": 71173436,
-    "allocatedBytes": 32580972,
+    "allocatedBytes": 33320041,
     "baselineRatio": 2.4
   },
   {

@@ -91,6 +91,22 @@ internal sealed class ElementDeclarationBuilder : IComponentBuilder
             : isGlobal || string.Equals(form, "qualified", StringComparison.Ordinal) ? _scope.Declare(name)
             : new XPathQName(string.Empty, name);
 
+        var head = default(XPathQName);
+        if (isGlobal && node.FindAttribute("substitutionGroup") is { } heads)
+        {
+            var first = heads.Split([' ', '\t', '\r', '\n'], StringSplitOptions.RemoveEmptyEntries);
+            if (first.Length > 0 && _scope.TryResolve(node, first[0], out var resolved))
+            {
+                head = resolved;
+            }
+        }
+
+        // Without a type, the declaration has the type of its head (Structures 3.3.2); it is not defaulted to anyType.
+        if (head != default && node.FindAttribute("type") is null && inlineType is null)
+        {
+            typeName = default;
+        }
+
         return ElementDeclaration.Create(
             qualifiedName,
             node.Location,
@@ -104,7 +120,8 @@ internal sealed class ElementDeclarationBuilder : IComponentBuilder
                 : default,
             IsTrue(node.FindAttribute("abstract")),
             ParseMethods(node.FindAttribute("block") ?? root.FindAttribute("blockDefault"), BlockMethods),
-            ParseMethods(node.FindAttribute("final") ?? root.FindAttribute("finalDefault"), FinalMethods)
+            ParseMethods(node.FindAttribute("final") ?? root.FindAttribute("finalDefault"), FinalMethods),
+            head
         );
     }
 
