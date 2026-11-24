@@ -441,8 +441,7 @@ dotnet test --project tests/NetEvolve.Schemas.Schematron.Tests.Integration --con
 - **Messages.** White space only text around `value-of` is kept in a message ([#920](https://github.com/dailydevops/schemas/issues/920)), `sch:name` with a path outputs the node name ([#919](https://github.com/dailydevops/schemas/issues/919)), and abstract pattern parameters are not substituted in name paths and in diagnostic and property content ([#915](https://github.com/dailydevops/schemas/issues/915)).
 - **Locations.** A problem of an expression is located by the base URI of the schema and by the line and column within the text of the expression, and a dynamic problem has no line and column ([#881](https://github.com/dailydevops/schemas/issues/881)). `last()` in a predicate without a known size equals `position()` ([#883](https://github.com/dailydevops/schemas/issues/883)).
 - **Thread safety.** A validator is immutable and thread-safe; a `WithReportSink` view and a builder are not.
-<<<<<<< HEAD
-- **Compile cost.** Every `Build` compiles the schema; there is no compile-once cache ([#340](https://github.com/dailydevops/schemas/issues/340)).
+- **Compile cost.** Every `Build` compiles the schema once; a validation compiles nothing.
 
 ## Requirements
 
@@ -480,6 +479,3 @@ This project is licensed under the MIT License - see the [LICENSE](https://githu
 > [!NOTE]
 > **Made with ❤️ by the NetEvolve Team**
 > Visit us at [https://www.daily-devops.net](https://www.daily-devops.net) for more information about our services and solutions.
-=======
-- **Compile cost.** Every `Build` compiles the schema once; a validation compiles nothing (#340).
->>>>>>> origin/main
