@@ -22,6 +22,14 @@ public class StringConcatTests
         await Assert.That(Run(expression)).IsEqualTo(expected);
 
     [Test]
+    public async Task AResultLongerThanTheScratchBuffer_IsJoinedInFull()
+    {
+        var left = new string('x', 300);
+
+        await Assert.That(Run($"'{left}' || 'yz' || 3")).IsEqualTo($"string:{left}yz3");
+    }
+
+    [Test]
     [Arguments("() || ()")]
     [Arguments("() || () || ()")]
     public async Task EmptyOperands_YieldTheZeroLengthString(string expression) =>

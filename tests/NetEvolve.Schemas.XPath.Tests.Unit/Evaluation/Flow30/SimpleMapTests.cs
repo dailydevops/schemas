@@ -33,7 +33,7 @@ public class SimpleMapTests
         "(1, 2) ! ((10, 20, 30) ! (. + 1))",
         "integer:11, integer:21, integer:31, integer:11, integer:21, integer:31"
     )]
-    [Arguments("(1, 2, 3) ! last() ! position()", "integer:1, integer:1, integer:1")]
+    [Arguments("(1, 2, 3) ! last() ! position()", "integer:1, integer:2, integer:3")]
     public async Task SetsPositionAndLast_ForEveryItem(string expression, string expected) =>
         await Assert.That(Run(expression)).IsEqualTo(expected);
 

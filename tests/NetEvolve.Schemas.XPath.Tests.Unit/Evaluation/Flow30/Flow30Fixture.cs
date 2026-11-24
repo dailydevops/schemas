@@ -8,6 +8,7 @@ using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Evaluation.Arithmetic;
 using NetEvolve.Schemas.XPath.Evaluation.Comparison;
 using NetEvolve.Schemas.XPath.Evaluation.Flow;
+using NetEvolve.Schemas.XPath.Evaluation.Flow30;
 using NetEvolve.Schemas.XPath.Evaluation.Paths;
 using NetEvolve.Schemas.XPath.Limits;
 using NetEvolve.Schemas.XPath.Syntax.Parser;
@@ -26,6 +27,7 @@ internal static class Flow30Fixture
     {
         var registry = new LoweringRegistry();
         FlowLowerings.Register(registry);
+        Flow30Lowerings.Register(registry);
         PathLowerings.Register(registry);
         ArithmeticLowerings.Register(registry, ArithmeticFixture.Table());
         ComparisonLowerings.Register(registry, ComparisonFixture.Table());
