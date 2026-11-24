@@ -28,6 +28,7 @@ internal sealed class PathNode : ExecutableNode, IOrderedNodeSequence
     private readonly PathStep[] _steps;
     private readonly XPathOrderRequirement[] _requirements;
     private readonly SourceSpan _location;
+    private int _limit;
 
     /// <summary>Initializes a new instance of the <see cref="PathNode"/> class.</summary>
     /// <param name="root">How the path starts; <see cref="PathRoot.RootDescendants"/> is handled by the lowering, which adds its step.</param>
@@ -47,6 +48,49 @@ internal sealed class PathNode : ExecutableNode, IOrderedNodeSequence
         _steps = steps;
         _requirements = Analyze(steps);
         _location = location ?? new SourceSpan(-1, 0);
+    }
+
+    /// <summary>Gets the number of result nodes that is enough, zero when the path delivers every node.</summary>
+    public int Limit => _limit;
+
+    /// <summary>Gets how the path starts.</summary>
+    public PathRoot Root => _root;
+
+    /// <summary>Gets the steps.</summary>
+    public IReadOnlyList<PathStep> Steps => _steps;
+
+    /// <summary>Creates the same path over other steps.</summary>
+    /// <param name="steps">The steps.</param>
+    /// <returns>The path.</returns>
+    public PathNode WithSteps(PathStep[] steps) => new(_root, steps, _location) { _limit = _limit };
+
+    /// <summary>Lets the path stop reading once it has delivered a prefix of its result.</summary>
+    /// <param name="limit">The number of result nodes that is needed, at least one.</param>
+    /// <returns>
+    /// <see langword="true"/> when the path delivers at least the first <paramref name="limit"/> nodes in document order and may stop soon after;
+    /// <see langword="false"/> when it cannot stop early, because its last step is not an axis step without predicates, or its results need a sort,
+    /// or when an earlier call limited it below <paramref name="limit"/>.
+    /// </returns>
+    /// <remarks>
+    /// Only the optimization stage calls this, while the expression is compiled and the tree has one owner; evaluation reads the limit and never
+    /// changes it, so a compiled tree stays safe for concurrent evaluation. Setting it in place keeps the stage from copying nodes.
+    /// </remarks>
+    public bool TryLimit(int limit)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(limit, 1);
+
+        var last = _steps.Length - 1;
+        if (last < 0 || !_steps[last].CanLimit || _requirements[last] != XPathOrderRequirement.None)
+        {
+            return false;
+        }
+
+        if (_limit == 0)
+        {
+            _limit = limit;
+        }
+
+        return _limit >= limit;
     }
 
     /// <summary>Gets what each step needs after it ran: nothing, a reversal, duplicate removal, or a sort.</summary>
@@ -73,7 +117,7 @@ internal sealed class PathNode : ExecutableNode, IOrderedNodeSequence
             var index = 0;
             if (_root == PathRoot.Relative)
             {
-                _steps[0].EvaluateFromContext(context, ref current);
+                _steps[0].EvaluateFromContext(context, ref current, _steps.Length == 1 ? _limit : 0);
                 Finish(ref current, 0);
                 index = 1;
             }
@@ -84,7 +128,7 @@ internal sealed class PathNode : ExecutableNode, IOrderedNodeSequence
 
             for (; index < _steps.Length; index++)
             {
-                _steps[index].EvaluateOver(context, current.Items, ref next);
+                _steps[index].EvaluateOver(context, current.Items, ref next, index == _steps.Length - 1 ? _limit : 0);
                 Finish(ref next, index);
                 (current, next) = (next, current);
                 next.Clear();

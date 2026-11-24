@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Api;
+using NetEvolve.Schemas.XPath.Compilation.Optimization;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Limits;
@@ -28,10 +29,17 @@ internal sealed class LoweringContext
     private readonly LoweringRegistry _registry;
     private readonly XPathLimits _limits;
     private readonly List<XPathQName> _scope = [];
+    private readonly XPathOptimizations _optimizations;
     private int _depth;
 
-    internal LoweringContext(XPathStaticContext staticContext, LoweringRegistry registry, XPathLimits? limits = null)
+    internal LoweringContext(
+        XPathStaticContext staticContext,
+        LoweringRegistry registry,
+        XPathLimits? limits = null,
+        XPathOptimizations optimizations = XPathOptimizations.None
+    )
     {
+        _optimizations = optimizations;
         StaticContext = staticContext;
         _registry = registry;
         _limits = limits ?? XPathLimits.Default;
@@ -71,7 +79,7 @@ internal sealed class LoweringContext
             );
         }
 
-        var lowered = lowering!(node, this);
+        var lowered = ExpressionOptimizer.Rewrite(lowering!(node, this), _optimizations);
         _depth--;
         return lowered;
     }

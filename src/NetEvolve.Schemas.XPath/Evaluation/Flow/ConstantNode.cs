@@ -14,6 +14,9 @@ internal sealed class ConstantNode : ExecutableNode
     /// <param name="value">The value.</param>
     public ConstantNode(XdmSequence value) => _value = value;
 
+    /// <summary>Gets the value.</summary>
+    public XdmSequence Value => _value;
+
     /// <inheritdoc />
     /// <exception cref="System.ArgumentNullException"><paramref name="context"/> is <see langword="null"/>.</exception>
     public override XdmSequence Evaluate(XPathEvaluationContext context)
