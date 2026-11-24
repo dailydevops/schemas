@@ -21,6 +21,8 @@ public class Qt3BaselineTests
     }
 
     [Test]
+    [Explicit]
+    [Category(ConformanceCategory.Name)]
     public async Task Baseline_ListsOnlySelectedCases_EachOnceInItsOwnFile(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -60,6 +62,8 @@ public class Qt3BaselineTests
     }
 
     [Test]
+    [Explicit]
+    [Category(ConformanceCategory.Name)]
     public async Task Baseline_MatchesEngineRun(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();

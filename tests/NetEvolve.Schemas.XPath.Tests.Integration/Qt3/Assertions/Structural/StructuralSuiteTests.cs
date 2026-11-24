@@ -5,6 +5,8 @@ using NetEvolve.Schemas.Conformance.Results;
 using NetEvolve.Schemas.XPath.Tests.Integration.Qt3.Engine;
 using NetEvolve.Schemas.XPath.Tests.Integration.Qt3.Runner;
 
+[Explicit]
+[Category(ConformanceCategory.Name)]
 [ConformanceLeg]
 public class StructuralSuiteTests
 {

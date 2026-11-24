@@ -15,6 +15,8 @@ using NetEvolve.Schemas.Testing.Readme;
 /// rate of the suite row and of its test sets, every failing and every excluded case with its issue and reason, and the stage 4 row.
 /// </summary>
 /// <remarks>Like the conformance suites, the class runs on the designated leg only, because the run needs the fetched suite.</remarks>
+[Explicit]
+[Category(ConformanceCategory.Name)]
 [ConformanceLeg]
 public class SchematronReadmeConformanceTests
 {

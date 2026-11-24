@@ -17,8 +17,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # net5.0 runs the netstandard2.0 build (forced via SetTargetFramework in the test project files), the other legs resolve their builds on their own.
-        tfm: [ net5.0, net10.0, net11.0 ]
+        # The suites run on the designated leg only (ConformanceLeg), so one leg is enough; net5.0 would run the netstandard2.0 build.
+        tfm: [ net10.0 ]
     env:
       SCHEMAS_CONFORMANCE_CACHE: ${{ github.workspace }}/.conformance-cache
     steps:
@@ -42,4 +42,4 @@ jobs:
       - name: Test ${{ matrix.tfm }}
         run: >
           dotnet test --solution ./Schemas.slnx --framework ${{ matrix.tfm }} --configuration Release
-          --treenode-filter "/*/*Conformance*/*/*" --ignore-exit-code 8
+          --treenode-filter "/*/*/*/*[Category=Conformance]" --ignore-exit-code 8
