@@ -141,7 +141,7 @@ The instruction engine (instruction registry, sequence sink, function table, key
 
 What does work are the XSLT functions in the expressions of a schema (`test`, `select`, `value`, `context`) under the bindings `xslt`, `xslt1`, `xslt2`, and `xslt3`: `current`, `system-property`, `function-available`, `format-number`, and `generate-id`. These functions do not exist under `xpath` and `xpath2`. A named decimal format is unknown, because no `xsl:decimal-format` is handed to the run (#882).
 
-These functions are not available yet: `key` (#776, #780), `document`, `doc`, and `unparsed-text` (#312, #302), `current-group` and `current-grouping-key` (#803), `regex-group` (#287), calls of stylesheet functions (#628), `element-available` (DEF-30, #42), `type-available` (DEF-31, #43), `unparsed-entity-uri` and `unparsed-entity-public-id` (DEF-32, #44), and `snapshot` (DEF-33, #45).
+These functions are not available yet: `key` (the function is in the XPath package, #776, but a run has no key provider until the stylesheet modules reach it, #832; as a rule context, #780), `document`, `doc`, and `unparsed-text` (#312, #302), `current-group` and `current-grouping-key` (#803), `regex-group` (#287), calls of stylesheet functions (#628), `element-available` (DEF-30, #42), `type-available` (DEF-31, #43), `unparsed-entity-uri` and `unparsed-entity-public-id` (DEF-32, #44), and `snapshot` (DEF-33, #45).
 
 ### Matrix of the registered constructs
 
