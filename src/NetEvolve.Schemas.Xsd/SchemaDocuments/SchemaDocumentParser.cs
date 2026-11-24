@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Xsd.SchemaDocuments;
+﻿namespace NetEvolve.Schemas.Xsd.SchemaDocuments;
 
 using System;
 using System.IO;
@@ -19,6 +19,11 @@ using NetEvolve.Schemas.Xsd.Diagnostics;
 /// </remarks>
 internal static class SchemaDocumentParser
 {
+    // A schema document may carry a document type declaration (the XML Signature schema bundled with UBL does): the internal
+    // subset is read and its internal entities are expanded under the default limits of the reader; the external subset is not
+    // loaded, because the default external access of the reader is denied.
+    private static readonly XmlReaderOptions ReaderOptions = XmlReaderOptions.Default.WithDtdProcessing(true);
+
     /// <summary>Parses a schema document given as characters.</summary>
     /// <param name="schema">The document.</param>
     /// <param name="baseUri">The document base URI, or <see langword="null"/>.</param>
@@ -28,7 +33,7 @@ internal static class SchemaDocumentParser
     {
         ArgumentNullException.ThrowIfNull(reporter);
 
-        using var reader = XmlPipelineReader.Create(schema);
+        using var reader = XmlPipelineReader.Create(schema, ReaderOptions);
         return Parse(reader, baseUri, reporter);
     }
 
@@ -41,7 +46,7 @@ internal static class SchemaDocumentParser
     {
         ArgumentNullException.ThrowIfNull(reporter);
 
-        using var reader = XmlPipelineReader.Create(schema);
+        using var reader = XmlPipelineReader.Create(schema, ReaderOptions);
         return Parse(reader, baseUri, reporter);
     }
 
