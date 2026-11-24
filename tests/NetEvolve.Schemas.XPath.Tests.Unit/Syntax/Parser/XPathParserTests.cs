@@ -1,7 +1,8 @@
-namespace NetEvolve.Schemas.XPath.Tests.Unit.Syntax.Parser;
+﻿namespace NetEvolve.Schemas.XPath.Tests.Unit.Syntax.Parser;
 
 using System;
 using System.Collections.Generic;
+using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Syntax.Parser;
 using NetEvolve.Schemas.XPath.Syntax.Tree;
@@ -161,6 +162,27 @@ public class XPathParserTests
 
         await Assert.That(XPathParser.TryParse(text.AsSpan(), out var expression, out _)).IsTrue();
         await Assert.That(expression).IsNotNull();
+    }
+
+    [Test]
+    [Arguments("$x instance of ", "(", "xs:integer", ")", 10_000)]
+    [Arguments("$x instance of ", "function(", "item()", ") as item()", 10_000)]
+    [Arguments("$x instance of ", "function(", "item()", ") as item()", 101)]
+    public async Task Parse_HostileTypeNesting_InVersion30_ReturnsADiagnosticInsteadOfOverflowingTheStack(
+        string prefix,
+        string open,
+        string core,
+        string close,
+        int depth
+    )
+    {
+        var text = prefix + string.Concat(Repeat(open, depth)) + core + string.Concat(Repeat(close, depth));
+
+        var ok = XPathParser.TryParse(text.AsSpan(), XPathVersion.V30, out var expression, out var diagnostic);
+
+        await Assert.That(ok).IsFalse();
+        await Assert.That(expression).IsNull();
+        await Assert.That(diagnostic.QName).IsEqualTo(XPathErrorCodes.XPST0003);
     }
 
     [Test]

@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.XPath.Syntax.Parser;
 
 using System;
+using System.Collections.Generic;
 using NetEvolve.Schemas.XPath.Syntax.Lexer;
 using NetEvolve.Schemas.XPath.Syntax.Tree;
 
@@ -48,7 +49,7 @@ internal ref partial struct ExpressionParser
     private ItemType ParseItemType()
     {
         var token = _current;
-        if (token.Kind is XPathTokenKind.Name or XPathTokenKind.QName)
+        if (token.Kind is XPathTokenKind.Name or XPathTokenKind.QName or XPathTokenKind.BracedName)
         {
             if (PeekKind() == XPathTokenKind.LeftParen)
             {
@@ -70,14 +71,58 @@ internal ref partial struct ExpressionParser
             return new AtomicType(token.Span, ParseTypeName());
         }
 
+        if (_v30 && token.Kind == XPathTokenKind.Function)
+        {
+            Enter();
+            var test = ParseFunctionTest();
+            _depth--;
+            return test;
+        }
+
+        if (_v30 && token.Kind == XPathTokenKind.LeftParen)
+        {
+            // XPath 3.0 [ParenthesizedItemType]
+            _ = Advance();
+            Enter();
+            var inner = ParseItemType();
+            _depth--;
+            Expect(XPathTokenKind.RightParen);
+            return new ParenthesizedItemType(Span(token.Span.Offset), inner);
+        }
+
         throw Unexpected();
+    }
+
+    // XPath 3.0 [AnyFunctionTest] and [TypedFunctionTest]: function(*), or function(types) as type.
+    private ItemType ParseFunctionTest()
+    {
+        var start = Advance().Span.Offset;
+        Expect(XPathTokenKind.LeftParen);
+        if (Accept(XPathTokenKind.Wildcard))
+        {
+            Expect(XPathTokenKind.RightParen);
+            return new AnyFunctionTest(Span(start));
+        }
+
+        List<SequenceType> parameterTypes = [];
+        if (_current.Kind != XPathTokenKind.RightParen)
+        {
+            do
+            {
+                parameterTypes.Add(ParseSequenceType());
+            } while (Accept(XPathTokenKind.Comma));
+        }
+
+        Expect(XPathTokenKind.RightParen);
+        Expect(XPathTokenKind.As);
+        return new TypedFunctionTest(Span(start), parameterTypes, ParseSequenceType());
     }
 
     // [54] to [58]: the name of a type; a prefix is resolved later.
     private QualifiedName ParseTypeName()
     {
         var token = _current;
-        if (token.Kind is not (XPathTokenKind.Name or XPathTokenKind.QName))
+        if (token.Kind is not (XPathTokenKind.Name or XPathTokenKind.QName or XPathTokenKind.BracedName))
         {
             throw Unexpected();
         }
@@ -121,6 +166,7 @@ internal ref partial struct ExpressionParser
                 {
                     "text" => new TextTest(Span(start)),
                     "comment" => new CommentTest(Span(start)),
+                    "namespace-node" => new NamespaceNodeTest(Span(start)),
                     _ => new AnyKindTest(Span(start)),
                 };
         }
@@ -206,14 +252,17 @@ internal ref partial struct ExpressionParser
     // The names of the kind tests of [54]; a prefixed name is never one.
     private readonly bool IsKindTestName(XPathToken token) =>
         token.Kind == XPathTokenKind.Name
-        && TextOf(token)
-            is "node"
-                or "text"
-                or "comment"
-                or "processing-instruction"
-                or "document-node"
-                or "element"
-                or "attribute"
-                or "schema-element"
-                or "schema-attribute";
+        && (
+            (_v30 && TextOf(token) is "namespace-node")
+            || TextOf(token)
+                is "node"
+                    or "text"
+                    or "comment"
+                    or "processing-instruction"
+                    or "document-node"
+                    or "element"
+                    or "attribute"
+                    or "schema-element"
+                    or "schema-attribute"
+        );
 }

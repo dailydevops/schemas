@@ -90,4 +90,29 @@ internal sealed class KindNameVisitor : SyntaxVisitor<string>
     public override string? VisitAnyItemType(AnyItemType node) => nameof(AnyItemType);
 
     public override string? VisitKindItemType(KindItemType node) => nameof(KindItemType);
+
+    public override string? VisitLetExpression(LetExpression node) => nameof(LetExpression);
+
+    public override string? VisitSimpleMapExpression(SimpleMapExpression node) => nameof(SimpleMapExpression);
+
+    public override string? VisitStringConcatExpression(StringConcatExpression node) => nameof(StringConcatExpression);
+
+    public override string? VisitArgumentPlaceholder(ArgumentPlaceholder node) => nameof(ArgumentPlaceholder);
+
+    public override string? VisitNamespaceNodeTest(NamespaceNodeTest node) => nameof(NamespaceNodeTest);
+
+    public override string? VisitAnyFunctionTest(AnyFunctionTest node) => nameof(AnyFunctionTest);
+
+    public override string? VisitNamedFunctionReference(NamedFunctionReference node) => nameof(NamedFunctionReference);
+
+    public override string? VisitDynamicFunctionCall(DynamicFunctionCall node) => nameof(DynamicFunctionCall);
+
+    public override string? VisitFunctionParameter(FunctionParameter node) => nameof(FunctionParameter);
+
+    public override string? VisitInlineFunctionExpression(InlineFunctionExpression node) =>
+        nameof(InlineFunctionExpression);
+
+    public override string? VisitTypedFunctionTest(TypedFunctionTest node) => nameof(TypedFunctionTest);
+
+    public override string? VisitParenthesizedItemType(ParenthesizedItemType node) => nameof(ParenthesizedItemType);
 }

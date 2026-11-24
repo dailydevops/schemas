@@ -170,4 +170,52 @@ internal abstract class SyntaxVisitor
     /// <summary>Visits a <see cref="KindItemType"/>.</summary>
     /// <param name="node">The node.</param>
     public virtual void VisitKindItemType(KindItemType node) { }
+
+    /// <summary>Visits a <see cref="LetExpression"/>.</summary>
+    /// <param name="node">The node.</param>
+    public virtual void VisitLetExpression(LetExpression node) { }
+
+    /// <summary>Visits a <see cref="SimpleMapExpression"/>.</summary>
+    /// <param name="node">The node.</param>
+    public virtual void VisitSimpleMapExpression(SimpleMapExpression node) { }
+
+    /// <summary>Visits a <see cref="StringConcatExpression"/>.</summary>
+    /// <param name="node">The node.</param>
+    public virtual void VisitStringConcatExpression(StringConcatExpression node) { }
+
+    /// <summary>Visits a <see cref="ArgumentPlaceholder"/>.</summary>
+    /// <param name="node">The node.</param>
+    public virtual void VisitArgumentPlaceholder(ArgumentPlaceholder node) { }
+
+    /// <summary>Visits a <see cref="NamespaceNodeTest"/>.</summary>
+    /// <param name="node">The node.</param>
+    public virtual void VisitNamespaceNodeTest(NamespaceNodeTest node) { }
+
+    /// <summary>Visits a <see cref="AnyFunctionTest"/>.</summary>
+    /// <param name="node">The node.</param>
+    public virtual void VisitAnyFunctionTest(AnyFunctionTest node) { }
+
+    /// <summary>Visits a <see cref="NamedFunctionReference"/>.</summary>
+    /// <param name="node">The node.</param>
+    public virtual void VisitNamedFunctionReference(NamedFunctionReference node) { }
+
+    /// <summary>Visits a <see cref="DynamicFunctionCall"/>.</summary>
+    /// <param name="node">The node.</param>
+    public virtual void VisitDynamicFunctionCall(DynamicFunctionCall node) { }
+
+    /// <summary>Visits a <see cref="FunctionParameter"/>.</summary>
+    /// <param name="node">The node.</param>
+    public virtual void VisitFunctionParameter(FunctionParameter node) { }
+
+    /// <summary>Visits a <see cref="InlineFunctionExpression"/>.</summary>
+    /// <param name="node">The node.</param>
+    public virtual void VisitInlineFunctionExpression(InlineFunctionExpression node) { }
+
+    /// <summary>Visits a <see cref="TypedFunctionTest"/>.</summary>
+    /// <param name="node">The node.</param>
+    public virtual void VisitTypedFunctionTest(TypedFunctionTest node) { }
+
+    /// <summary>Visits a <see cref="ParenthesizedItemType"/>.</summary>
+    /// <param name="node">The node.</param>
+    public virtual void VisitParenthesizedItemType(ParenthesizedItemType node) { }
 }
