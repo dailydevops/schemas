@@ -22,16 +22,22 @@ public class Qt3Xp3ConformanceTests
     public static IEnumerable<Func<string>> TestSetsXp31() => TestSets(Qt3SpecLevel.XPath31);
 
     [Test]
+    [Explicit]
+    [Category(ConformanceCategory.Name)]
     [MethodDataSource(nameof(TestSetsXp30))]
     public async Task Xp30_TestSet_MatchesBaseline(string testSet, CancellationToken cancellationToken) =>
         await AssertTestSetAsync(Qt3SpecLevel.XPath30, testSet, cancellationToken);
 
     [Test]
+    [Explicit]
+    [Category(ConformanceCategory.Name)]
     [MethodDataSource(nameof(TestSetsXp31))]
     public async Task Xp31_TestSet_MatchesBaseline(string testSet, CancellationToken cancellationToken) =>
         await AssertTestSetAsync(Qt3SpecLevel.XPath31, testSet, cancellationToken);
 
     [Test]
+    [Explicit]
+    [Category(ConformanceCategory.Name)]
     [Arguments(Qt3SpecLevel.XPath30)]
     [Arguments(Qt3SpecLevel.XPath31)]
     public async Task Tier_EveryNewCase_IsPassingOrABaselineEntry(

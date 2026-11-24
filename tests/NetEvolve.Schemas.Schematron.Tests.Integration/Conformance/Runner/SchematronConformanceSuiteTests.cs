@@ -2,6 +2,8 @@
 
 using NetEvolve.Schemas.Conformance.Reporting;
 
+[Explicit]
+[Category(ConformanceCategory.Name)]
 [ConformanceLeg]
 public class SchematronConformanceSuiteTests
 {
