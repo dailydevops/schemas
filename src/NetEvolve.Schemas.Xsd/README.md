@@ -319,7 +319,7 @@ The summary file then also holds the row `NetEvolve.Schemas.Xsd`, which counts t
 
 - XSD 1.1 is the default but incomplete: see [XSD 1.1 status](#xsd-11-status). The wiring of the 1.1 features is #360, and the assertions of complex types are #318.
 - Incomplete schemas are rejected: a schema with a reference to a component that is not there fails the build, instead of failing only where the component is used (#956).
-- The facets of a user-defined simple type are not evaluated when instance values are validated (#600). This is the largest group of known failures: 9686 cases of the instance tests.
+- The facets of a user-defined simple type are not evaluated when instance values are validated (#600). This is the largest group of known failures: 9670 cases of the instance tests.
 - Substitution groups are not supported yet (#868), notation declarations are not components yet (#870), and a redefinition is not checked against the redefined component (#869). `xs:include`, `xs:import`, and `xs:redefine` otherwise work through the resolver.
 - Some schema constraints are not checked yet (#874), and the datatype `xs:precisionDecimal` is not supported (#64).
 - `AddSchemaLocation` is not available on the builder (#897).
