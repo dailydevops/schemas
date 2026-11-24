@@ -6,7 +6,17 @@ using BenchmarkDotNet.Running;
 using BenchmarkDotNet.Toolchains.InProcess.NoEmit;
 using NetEvolve.Schemas.Benchmarks.Gate;
 
-// Usage: `gate <report.json> [targetsDirectory]` gates a report; anything else runs BenchmarkDotNet.
+// Usage: `gate <report.json> [targetsDirectory]` gates a report; `summary <report.json|resultsDirectory> [targetsDirectory]`
+// prints a markdown table; anything else runs BenchmarkDotNet.
+if (args is ["summary", var results, ..])
+{
+    return BenchmarkSummary.Run(
+        results,
+        args.Length > 2 ? args[2] : Path.Combine("benchmarks", "targets"),
+        Console.Out
+    );
+}
+
 if (args is ["gate", var report, ..])
 {
     return BenchmarkGate.Run(report, args.Length > 2 ? args[2] : Path.Combine("benchmarks", "targets"), Console.Out);

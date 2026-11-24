@@ -7,7 +7,7 @@ public class BenchmarkSummaryTests
     private const string Targets = """
         [
           { "name": "Parse.Fast", "meanNs": 100.0, "allocatedBytes": 0, "baselineRatio": 0.5 },
-          { "name": "Parse.Alone", "meanNs": 200.0, "allocatedBytes": 24 }
+          { "name": "Solo.Alone", "meanNs": 200.0, "allocatedBytes": 24 }
         ]
         """;
 
@@ -18,14 +18,14 @@ public class BenchmarkSummaryTests
               "Benchmarks": [
                 { "Type": "Parse", "Method": "FastSystemXml", "Parameters": "", "Statistics": { "Mean": 200 }, "Memory": { "BytesAllocatedPerOperation": 100 } },
                 { "Type": "Parse", "Method": "Fast", "Parameters": "", "Statistics": { "Mean": {{fast}} }, "Memory": { "BytesAllocatedPerOperation": {{fastBytes}} } },
-                { "Type": "Parse", "Method": "Alone", "Parameters": "{{parameters}}", "Statistics": { "Mean": 200 }, "Memory": { "BytesAllocatedPerOperation": 24 } }
+                { "Type": "Solo", "Method": "Alone", "Parameters": "{{parameters}}", "Statistics": { "Mean": 200 }, "Memory": { "BytesAllocatedPerOperation": 24 } }
               ]
             }
             """
         );
 
     private static string Render(string results, string targets = Targets) =>
-        BenchmarkSummary.Render(ResultReader.Read(results), TargetReader.Read(targets));
+        BenchmarkSummary.Render(ResultReader.Read(results, allowMissingMeasurement: true), TargetReader.Read(targets));
 
     [Test]
     public async Task Render_Always_WritesHeaderAndAllRows()
@@ -50,13 +50,13 @@ public class BenchmarkSummaryTests
     public async Task Render_RowWithoutBaseline_ShowsDashForRatio() =>
         await Assert
             .That(Render(Results(100, 0)))
-            .Contains("| Parse.Alone | 200 | 200 | +0.0% | 24 | 24 | +0.0% | - | - | ok |");
+            .Contains("| Solo.Alone | 200 | 200 | +0.0% | 24 | 24 | +0.0% | - | - | ok |");
 
     [Test]
     public async Task Render_RowWithoutTarget_ShowsNoTarget() =>
         await Assert
             .That(Render(Results(100, 0), "[]"))
-            .Contains("| Parse.Alone | 200 | - | - | 24 | - | - | - | - | no target |");
+            .Contains("| Solo.Alone | 200 | - | - | 24 | - | - | - | - | no target |");
 
     [Test]
     public async Task Render_BaselineRow_IsMarkedBaseline() =>
@@ -81,7 +81,33 @@ public class BenchmarkSummaryTests
 
     [Test]
     public async Task Render_PipeInName_IsEscaped() =>
-        await Assert.That(Render(Results(100, 0, "a|b"))).Contains(@"| Parse.Alone(a\|b) |");
+        await Assert.That(Render(Results(100, 0, "a|b"))).Contains(@"| Solo.Alone(a\|b) |");
+
+    [Test]
+    public async Task Render_BenchmarkWithoutStatistics_ShowsNotAvailable()
+    {
+        var json = Results(100, 0).Replace("{ \"Mean\": 100 }", "null", StringComparison.Ordinal);
+
+        await Assert.That(Render(json)).Contains("| Parse.Fast | n/a | 100 | - | n/a | 0 | - | - | 0.50 | n/a |");
+    }
+
+    [Test]
+    public async Task Render_BaselineWithoutMeasurementAfterMeasuredOne_KeepsRatio()
+    {
+        var failed = Results(100, 0).Replace("{ \"Mean\": 200 }", "null", StringComparison.Ordinal);
+
+        await Assert
+            .That(
+                BenchmarkSummary.Render(
+                    [
+                        .. ResultReader.Read(Results(100, 0)),
+                        .. ResultReader.Read(failed, allowMissingMeasurement: true),
+                    ],
+                    TargetReader.Read(Targets)
+                )
+            )
+            .Contains("| Parse.Fast | 100 | 100 | +0.0% | 0 | 0 | +0.0% | 0.50 | 0.50 | ok |");
+    }
 
     [Test]
     public async Task Run_ReportDirectory_WritesRowsOfAllReports(CancellationToken cancellationToken)
