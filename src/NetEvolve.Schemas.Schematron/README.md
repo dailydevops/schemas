@@ -375,4 +375,4 @@ The edition is read from the `schematronEdition` attribute of the `schema` eleme
 - **Messages.** White space only text around `value-of` is kept in a message (#920), `sch:name` with a path outputs the node name (#919), and abstract pattern parameters are not substituted in name paths and in diagnostic and property content (#915).
 - **Locations.** A problem of an expression is located by the base URI of the schema and by the line and column within the text of the expression, and a dynamic problem has no line and column (#881). `last()` in a predicate without a known size equals `position()` (#883).
 - **Thread safety.** A validator is immutable and thread-safe; a `WithReportSink` view and a builder are not.
-- **Compile cost.** Every `Build` compiles the schema; there is no compile-once cache (#340).
+- **Compile cost.** Every `Build` compiles the schema once; a validation compiles nothing (#340).
