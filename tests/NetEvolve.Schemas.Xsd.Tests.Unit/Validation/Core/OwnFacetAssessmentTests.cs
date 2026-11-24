@@ -152,6 +152,15 @@ public class OwnFacetAssessmentTests
     }
 
     [Test]
+    public async Task Restriction_OfQName_IgnoresTheLengthFacets()
+    {
+        var fixture = new FacetFixture();
+        var type = fixture.Base("QName", LengthFacet.MaxLength(1, LengthUnit.Characters));
+
+        await Assert.That(fixture.Assessor.Assess(type, "xs:string", out _).IsValid).IsTrue();
+    }
+
+    [Test]
     public async Task Restriction_OfAnUnknownDatatype_IsStillAccepted()
     {
         var fixture = new FacetFixture();
