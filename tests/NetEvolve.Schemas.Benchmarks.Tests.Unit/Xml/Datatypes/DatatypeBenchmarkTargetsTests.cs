@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Benchmarks.Tests.Unit.Datatypes;
+namespace NetEvolve.Schemas.Benchmarks.Tests.Unit.Xml.Datatypes;
 
 using NetEvolve.Schemas.Benchmarks.Gate;
 
@@ -10,7 +10,7 @@ using NetEvolve.Schemas.Benchmarks.Gate;
 /// </summary>
 public class DatatypeBenchmarkTargetsTests
 {
-    private const string BenchmarkFolder = "benchmarks/NetEvolve.Schemas.Benchmarks/Datatypes";
+    private const string BenchmarkFolder = "benchmarks/NetEvolve.Schemas.Benchmarks/Xml/Datatypes";
     private const string TargetFile = "benchmarks/targets/datatypes.json";
 
     private static readonly string[] Sizes = ["Short", "Typical", "Long"];

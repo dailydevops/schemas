@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Benchmarks.Datatypes;
+namespace NetEvolve.Schemas.Benchmarks.Xml.Datatypes;
 
 using BenchmarkDotNet.Attributes;
 using NetEvolve.Schemas.Xml.Datatypes.Decimals;

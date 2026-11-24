@@ -1,12 +1,11 @@
-namespace NetEvolve.Schemas.Benchmarks.Datatypes;
+namespace NetEvolve.Schemas.Benchmarks.Xml.Datatypes;
 
-using System.Xml;
 using BenchmarkDotNet.Attributes;
-using NetEvolve.Schemas.Xml.Datatypes.Decimals;
+using NetEvolve.Schemas.Xml.Datatypes.Binary;
 
-/// <summary>Parses <c>xs:decimal</c> forms inside the <see cref="decimal"/> range from a span, against <c>XmlConvert.ToDecimal</c> on the same text.</summary>
+/// <summary>Parses <c>xs:base64Binary</c> forms from a span, against <c>Convert.FromBase64String</c> on the same text.</summary>
 #pragma warning disable CA1515 // BenchmarkDotNet requires public benchmark classes
-public class DecimalParseBenchmarks
+public class Base64ParseBenchmarks
 #pragma warning restore CA1515
 {
     private string _lexical = "";
@@ -19,22 +18,22 @@ public class DecimalParseBenchmarks
     [GlobalSetup]
     public void Setup()
     {
-        _lexical = DatatypeBenchmarkInput.Decimal(Size);
-        if (!XsdDecimal.Parse(_lexical.AsSpan()).Success)
+        _lexical = DatatypeBenchmarkInput.Base64(Size);
+        if (!XsdBinary.Parse(_lexical.AsSpan(), BinaryKind.Base64Binary).Success)
         {
             throw new InvalidOperationException($"The library rejects '{_lexical}'.");
         }
 
-        _ = XmlConvert.ToDecimal(_lexical);
+        _ = Convert.FromBase64String(_lexical);
     }
 
-    /// <summary>Baseline: the <c>System.Xml</c> conversion of the same lexical form.</summary>
-    /// <returns>The parsed value.</returns>
+    /// <summary>Baseline: the BCL conversion that <c>System.Xml</c> uses for the same lexical form.</summary>
+    /// <returns>The decoded octets.</returns>
     [Benchmark(Baseline = true)]
-    public decimal ParseDecimalSystemXml() => XmlConvert.ToDecimal(_lexical);
+    public byte[] ParseBase64SystemXml() => Convert.FromBase64String(_lexical);
 
     /// <summary>Parses the lexical form from a span.</summary>
     /// <returns>The parse outcome.</returns>
     [Benchmark]
-    public bool ParseDecimal() => XsdDecimal.Parse(_lexical.AsSpan()).Success;
+    public bool ParseBase64() => XsdBinary.Parse(_lexical.AsSpan(), BinaryKind.Base64Binary).Success;
 }
