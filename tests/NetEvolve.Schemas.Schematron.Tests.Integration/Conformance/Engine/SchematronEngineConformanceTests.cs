@@ -14,6 +14,8 @@ using NetEvolve.Schemas.Schematron.Tests.Integration.Conformance.Runner;
 /// Like the other conformance suites, the class runs on the designated leg only (<see cref="ConformanceLegAttribute"/>), so the rate of the
 /// Schematron suite shows once in the job summary of the conformance workflow.
 /// </remarks>
+[Explicit]
+[Category(ConformanceCategory.Name)]
 [ConformanceLeg]
 public class SchematronEngineConformanceTests
 {
