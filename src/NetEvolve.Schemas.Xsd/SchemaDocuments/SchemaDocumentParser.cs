@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Xsd.SchemaDocuments;
+﻿namespace NetEvolve.Schemas.Xsd.SchemaDocuments;
 
 using System;
 using System.IO;
@@ -23,7 +23,8 @@ internal static class SchemaDocumentParser
     // subset is read and its internal entities are expanded under the default limits of the reader; the external subset is not
     // loaded, because the default external access of the reader is denied.
     // A schema document may also declare XML 1.1; it is read by the XML 1.0 rules (#861).
-    private static readonly XmlReaderOptions ReaderOptions = XmlReaderOptions.Default.WithDtdProcessing(true).WithAllowXml11Declaration(true);
+    private static readonly XmlReaderOptions ReaderOptions =
+        XmlReaderOptions.Default.WithDtdProcessing(true).WithAllowXml11Declaration(true);
 
     /// <summary>Parses a schema document given as characters.</summary>
     /// <param name="schema">The document.</param>
