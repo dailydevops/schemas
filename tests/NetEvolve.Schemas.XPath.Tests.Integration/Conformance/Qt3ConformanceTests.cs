@@ -7,6 +7,8 @@ using NetEvolve.Schemas.XPath.Tests.Integration.Qt3.Engine;
 using NetEvolve.Schemas.XPath.Tests.Integration.Qt3.Runner;
 
 /// <summary>One test per QT3 test set; it fails on any regression or unexpected pass against the set's baseline.</summary>
+[Explicit]
+[Category(ConformanceCategory.Name)]
 [ConformanceLeg]
 public class Qt3ConformanceTests
 {

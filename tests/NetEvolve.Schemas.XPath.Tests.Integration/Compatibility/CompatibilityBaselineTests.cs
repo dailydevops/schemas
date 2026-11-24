@@ -14,6 +14,8 @@ using NetEvolve.Schemas.Conformance.Reporting;
 public class CompatibilityBaselineTests
 {
     [Test]
+    [Explicit]
+    [Category(ConformanceCategory.Name)]
     public async Task Baseline_RunsOnTheRuntimeThatTheExpectationsNameAndStillGivesTheRecordedResults()
     {
         await Assert.That(RuntimeInformation.FrameworkDescription).StartsWith(".NET 10.0");
@@ -28,6 +30,8 @@ public class CompatibilityBaselineTests
     }
 
     [Test]
+    [Explicit]
+    [Category(ConformanceCategory.Name)]
     [MethodDataSource(typeof(CompatibilityDifferentialTests), nameof(CompatibilityDifferentialTests.Cases))]
     public async Task Expression_GivesTheSameResultAsTheBaselineUnlessListed(string document, string expression)
     {
