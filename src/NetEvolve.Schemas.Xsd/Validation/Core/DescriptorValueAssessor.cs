@@ -8,6 +8,7 @@ using NetEvolve.Schemas.Xml.Datatypes.Core;
 using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.SchemaDocuments;
+using NetEvolve.Schemas.Xsd.SimpleTypes.Checks;
 using NetEvolve.Schemas.Xsd.SimpleTypes.Definitions;
 using DatatypeResult = NetEvolve.Schemas.Xml.Datatypes.Contracts.ValidationResult;
 
@@ -15,9 +16,9 @@ using DatatypeResult = NetEvolve.Schemas.Xml.Datatypes.Contracts.ValidationResul
 /// The default <see cref="ISimpleValueAssessor"/>: it validates through the datatype descriptors of the Xml package.
 /// </summary>
 /// <remarks>
-/// Limitation: a <see cref="SimpleTypeDefinition"/> does not keep a datatype descriptor yet, so a restriction is assessed
-/// against its base type and the facets it adds are not evaluated, and a definition that wraps an unknown datatype is
-/// accepted; lists are assessed item by item and unions by their first accepting member. Evaluating own facets is #600.
+/// The facets a <see cref="SimpleTypeDefinition"/> adds are evaluated by its compiled validator; lists are assessed item by item
+/// and unions by their first accepting member, then against their own facets. Limitations: a definition that wraps an unknown
+/// datatype is accepted, and the facets that the validator cannot compile are not evaluated (see <see cref="SimpleTypeValidator"/>).
 /// </remarks>
 internal sealed class DescriptorValueAssessor : ISimpleValueAssessor
 {
@@ -65,10 +66,18 @@ internal sealed class DescriptorValueAssessor : ISimpleValueAssessor
         switch (definition.Variety)
         {
             case DatatypeVariety.List:
-                return AssessList(definition.ItemType, lexical);
+                return AssessOwn(definition, lexical, AssessList(definition.ItemType, lexical));
             case DatatypeVariety.Union:
-                return AssessUnion(definition, lexical, out memberIndex);
+                var union = AssessUnion(definition, lexical, out memberIndex);
+                var own = AssessOwn(definition, lexical, union);
+                memberIndex = own.IsValid ? memberIndex : -1;
+                return own;
             default:
+                if (definition.Validator is { } validator)
+                {
+                    return validator.Validate(lexical);
+                }
+
                 if (definition.BaseType is not null)
                 {
                     return Assess(definition.BaseType, lexical, out memberIndex);
@@ -81,6 +90,12 @@ internal sealed class DescriptorValueAssessor : ISimpleValueAssessor
                     : DatatypeResult.Valid;
         }
     }
+
+    private static DatatypeResult AssessOwn(
+        SimpleTypeDefinition definition,
+        ReadOnlySpan<char> lexical,
+        DatatypeResult assessed
+    ) => assessed.IsValid && definition.Validator is { } validator ? validator.Validate(lexical) : assessed;
 
     private DatatypeResult AssessList(SimpleTypeDefinition? itemType, ReadOnlySpan<char> lexical)
     {

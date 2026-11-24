@@ -119,7 +119,7 @@ public class OwnFacetAssessmentTests
             fixture.Facet("string", FacetKind.MaxLength, "3")
         );
 
-        await Assert.That(fixture.Assessor.Assess(type, "  ab \t c ", out _).FailedFacet).IsEqualTo(FacetKind.None);
+        await Assert.That(fixture.Assessor.Assess(type, "  a \t b ", out _).FailedFacet).IsEqualTo(FacetKind.None);
         await Assert.That(fixture.Assessor.Assess(type, "ab c d", out _).FailedFacet).IsEqualTo(FacetKind.MaxLength);
     }
 
