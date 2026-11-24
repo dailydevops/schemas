@@ -62,7 +62,7 @@ foreach ($package in $packages) {
             $allowed = ($depId -eq 'NetEvolve.Schemas') -or $depId.StartsWith('NetEvolve.Schemas.', [System.StringComparison]::Ordinal) `
                 -or ($depId -eq 'NetEvolve.Arguments') `
                 -or (($polyfills -contains $depId) -and $targetFramework -eq '.NETStandard2.0') `
-                -or ($depId -eq 'Microsoft.Extensions.DependencyInjection.Abstractions' -and $id -in @('NetEvolve.Schemas.DependencyInjection', 'NetEvolve.Schemas.Xml', 'NetEvolve.Schemas.Xsd', 'NetEvolve.Schemas.Schematron'))
+                -or ($depId -eq 'Microsoft.Extensions.DependencyInjection.Abstractions' -and $id -in @('NetEvolve.Schemas.DependencyInjection', 'NetEvolve.Schemas.Xml', 'NetEvolve.Schemas.XPath', 'NetEvolve.Schemas.Xsd', 'NetEvolve.Schemas.Schematron'))
             if (-not $allowed) { $errors.Add("disallowed dependency $depId in group '$targetFramework'") }
         }
 

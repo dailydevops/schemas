@@ -74,6 +74,7 @@ public sealed class VerifyPackageTests
 
     [Test]
     [Arguments("NetEvolve.Schemas.Xml")]
+    [Arguments("NetEvolve.Schemas.XPath")]
     [Arguments("NetEvolve.Schemas.Xsd")]
     [Arguments("NetEvolve.Schemas.Schematron")]
     public async Task Verify_DependencyInjectionAbstractionsOnFormatPackage_Passes(
