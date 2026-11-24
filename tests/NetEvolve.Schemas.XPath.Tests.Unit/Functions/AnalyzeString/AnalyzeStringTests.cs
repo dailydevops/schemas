@@ -61,6 +61,13 @@ public class AnalyzeStringTests
     )]
     [Arguments("", "a", "", ResultOpen + ResultClose)]
     [Arguments(
+        "ab",
+        "((a)|(b))+",
+        "",
+        ResultOpen + "<match>a<group nr=\"1\"><group nr=\"3\">b</group></group></match>" + ResultClose
+    )]
+    [Arguments("ba", "(?:(a)|(b))+", "", ResultOpen + "<match>b<group nr=\"1\">a</group></match>" + ResultClose)]
+    [Arguments(
         "aXb",
         "x",
         "i",
