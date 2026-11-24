@@ -41,5 +41,6 @@ internal static class Registration
         builder.Add(new DataFunction());
         builder.Add(new GenerateIdFunction());
         builder.Add(new Xslt20GenerateIdFunction());
+        builder.Add(new KeyFunction());
     }
 }
