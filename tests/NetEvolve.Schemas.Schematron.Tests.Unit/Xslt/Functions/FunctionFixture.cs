@@ -18,6 +18,7 @@ using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Xdm.Nodes;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 using static NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Functions.FunctionTree;
+using ConstructionRegistration = NetEvolve.Schemas.Schematron.Xslt.Instructions.Construction.Registration;
 using FlowRegistration = NetEvolve.Schemas.Schematron.Xslt.Instructions.Flow.Registration;
 
 /// <summary>
@@ -28,11 +29,16 @@ internal sealed class FunctionFixture
 {
     internal const string Module = "file:///stylesheets/functions.xsl";
 
-    private FunctionFixture(ScopePlan? plan, IReadOnlyList<string> globals)
+    private FunctionFixture(ScopePlan? plan, IReadOnlyList<string> globals, bool construction = false)
     {
         var builder = new XsltRegistryBuilder();
         Registration.Register(builder);
         FlowRegistration.Register(builder);
+        if (construction)
+        {
+            ConstructionRegistration.Register(builder);
+        }
+
         Registry = builder.Build();
         Plan = plan;
         var names = new List<string>(globals);
@@ -59,6 +65,9 @@ internal sealed class FunctionFixture
     internal XsltFunctionTable Table { get; private set; } = new XsltFunctionTableBuilder().Build();
 
     internal static FunctionFixture Create(params string[] globals) => new(null, globals);
+
+    /// <summary>Creates a fixture that also registers the construction instructions and the literal result element.</summary>
+    internal static FunctionFixture CreateWithConstruction() => new(null, [], true);
 
     /// <summary>Plans the scopes of a schema with the mini binding, so that the function scope is the real one.</summary>
     internal static FunctionFixture ForSchema(SchematronSchema schema)

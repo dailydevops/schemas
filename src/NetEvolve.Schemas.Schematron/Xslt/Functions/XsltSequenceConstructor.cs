@@ -104,6 +104,7 @@ internal static class XsltSequenceConstructor
 
         var outer = context.Scope;
         var scope = new QueryStaticScope(outer.Namespaces, names.ToArray(), outer.BaseUri, outer.Edition);
+        var slot = names.Count;
         var compiled = context.CompileChildIn(element, scope);
         if (compiled is not null)
         {
@@ -122,8 +123,17 @@ internal static class XsltSequenceConstructor
 
         if (XsltElementReader.IsXslt(node, VariableLocalName))
         {
-            // A failed variable still takes its slot, so the slots of the later ones stay where the compile expects them.
-            names.Add(XsltElementReader.NameOrEmpty(element));
+            // A failed variable still takes its slot, so the slots of the later ones stay where the compile expects them. A variable
+            // with content took its own slot before the locals of its content, which are already counted in the names.
+            var name = XsltElementReader.NameOrEmpty(element);
+            if (slot < names.Count)
+            {
+                names[slot] = name;
+            }
+            else
+            {
+                names.Add(name);
+            }
         }
 
         return compiled is not null;

@@ -4,9 +4,9 @@
   { "name": "SchemaCompilationBenchmarks.CompileLarge", "meanNs": 1665836.0, "allocatedBytes": 1508229 },
   { "name": "SmallRuleSetValidationBenchmarks.ValidateStream", "meanNs": 219207.7, "allocatedBytes": 59607, "baselineRatio": 3.6 },
   { "name": "SmallRuleSetValidationBenchmarks.ValidateMemory", "meanNs": 221806.0, "allocatedBytes": 59502, "baselineRatio": 3.7 },
-  { "name": "MediumRuleSetValidationBenchmarks.ValidateStream", "meanNs": 1067627.8, "allocatedBytes": 88695, "baselineRatio": 5.0 },
-  { "name": "MediumRuleSetValidationBenchmarks.ValidateMemory", "meanNs": 1059803.5, "allocatedBytes": 88590, "baselineRatio": 5.0 },
-  { "name": "LargeRuleSetValidationBenchmarks.ValidateStream", "meanNs": 9835009.4, "allocatedBytes": 379575, "baselineRatio": 5.4 },
-  { "name": "LargeRuleSetValidationBenchmarks.ValidateMemory", "meanNs": 9834742.1, "allocatedBytes": 379470, "baselineRatio": 5.3 },
+  { "name": "MediumRuleSetValidationBenchmarks.ValidateStream", "meanNs": 1067627.8, "allocatedBytes": 88695, "baselineRatio": 4.9 },
+  { "name": "MediumRuleSetValidationBenchmarks.ValidateMemory", "meanNs": 1059803.5, "allocatedBytes": 88590, "baselineRatio": 4.9 },
+  { "name": "LargeRuleSetValidationBenchmarks.ValidateStream", "meanNs": 9835009.4, "allocatedBytes": 379575, "baselineRatio": 4.4 },
+  { "name": "LargeRuleSetValidationBenchmarks.ValidateMemory", "meanNs": 9834742.1, "allocatedBytes": 379470, "baselineRatio": 4.4 },
   { "name": "SvrlWriteBenchmarks.WriteSvrl", "meanNs": 5613863.0, "allocatedBytes": 163620 }
 ]

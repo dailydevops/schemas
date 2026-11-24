@@ -8,6 +8,7 @@ using System.Threading;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Evaluation.Annotations;
 using NetEvolve.Schemas.Schematron.Evaluation.Assertions;
+using NetEvolve.Schemas.Schematron.Evaluation.Dispatch;
 using NetEvolve.Schemas.Schematron.Results.Mapping;
 using NetEvolve.Schemas.Schematron.Scopes;
 using NetEvolve.Schemas.Schematron.Seams;
@@ -28,7 +29,10 @@ using NetEvolve.Schemas.XPath.Xdm.Nodes;
 /// <para>
 /// Limitations: the events carry the static <c>role</c> and <c>flag</c> only, a dynamic value is resolved on the findings (see <see cref="AnnotationEvaluator"/>).
 /// <c>visit-each</c> and <c>documents</c> are SCH-14. Every rule whose node kinds can match is asked, in rule order; bucketing
-/// the rules by node name and the single-pass dispatch of all patterns are SCH-72. The run-wide evaluation budget (design #150
+/// the rules by node name is the <see cref="DispatchIndex"/>: with two or more patterns one traversal collects the candidate nodes of all
+/// of them (SCH-72), and every pattern then visits only its candidates in document order, so the fired rules and their order are those of a pass
+/// over the whole instance. A pattern whose rule contexts have no name test is a candidate of every node of its kinds. A variable that only a rule
+/// reads which no node can match is never bound, so its failure is not reported in that case. The run-wide evaluation budget (design #150
 /// EP-16, P-X5) does not exist yet, so only the issue limit and the token end a run. A context that reads a variable is bound
 /// before it is matched only when the compiled pattern reports the slot (<see cref="CompiledPattern.ReferencedSlots"/>).
 /// </para>
@@ -50,6 +54,7 @@ internal sealed class PatternEvaluator
     private readonly CancellationToken _cancellationToken;
     private readonly ContextErrorCounter _contextErrors = new();
     private int _visited;
+    private int _traversals;
 
     /// <summary>Initializes a new instance of the <see cref="PatternEvaluator"/> class.</summary>
     /// <param name="matcher">Matches the rule contexts.</param>
@@ -85,18 +90,39 @@ internal sealed class PatternEvaluator
         _cancellationToken = cancellationToken;
     }
 
+    /// <summary>Gets the number of walks over the whole instance: one per pattern for a single pattern, otherwise one for all patterns.</summary>
+    internal int Traversals => _traversals;
+
     private bool IssueLimitReached => _events.HasDroppedError || _problems.HasDroppedError;
 
     /// <summary>Evaluates every pattern in order, each in one pass over the instance.</summary>
     /// <param name="sets">The active patterns and groups in document order.</param>
     /// <param name="document">The document node of the instance.</param>
+    /// <param name="table">The rule index of <paramref name="sets"/>, or <see langword="null"/> to build it for this call; a caller that evaluates the same patterns repeatedly passes the same table.</param>
     /// <returns>The summary for <c>Finish</c>: truncated with <see cref="SchematronDiagnosticCodes.IssueLimitStop"/> when the issue limit ended the run.</returns>
     /// <exception cref="System.OperationCanceledException">The token was canceled; no event is delivered after that.</exception>
-    internal SchematronRunSummary Evaluate(IReadOnlyList<CompiledRuleSet> sets, in XPathNode document)
+    internal SchematronRunSummary Evaluate(
+        IReadOnlyList<CompiledRuleSet> sets,
+        in XPathNode document,
+        DispatchTable? table = null
+    )
     {
         ArgumentNullException.ThrowIfNull(sets);
         ArgumentNullException.ThrowIfNull(document.Tree);
 
+        _cancellationToken.ThrowIfCancellationRequested();
+        if (sets.Count < 2)
+        {
+            return Run(sets, document.Node, null);
+        }
+
+        using var index = DispatchIndex.Build(table ?? new DispatchTable(sets), document.Node, _cancellationToken);
+        _traversals++;
+        return Run(sets, document.Node, index);
+    }
+
+    private SchematronRunSummary Run(IReadOnlyList<CompiledRuleSet> sets, XmlNode root, DispatchIndex? index)
+    {
         for (var i = 0; i < sets.Count; i++)
         {
             _cancellationToken.ThrowIfCancellationRequested();
@@ -114,7 +140,7 @@ internal sealed class PatternEvaluator
             _assertions.Annotations.BeginPattern(set.Annotations);
             _contextErrors.Clear();
 
-            var stopped = IssueLimitReached || Pass(set, document.Node);
+            var stopped = IssueLimitReached || (index is null ? Pass(set, root) : Pass(set, i, index));
             ReportSuppressedContextErrors(set);
             if (stopped || IssueLimitReached)
             {
@@ -129,6 +155,7 @@ internal sealed class PatternEvaluator
     // of the instance is not limited by the stack.
     private bool Pass(CompiledRuleSet set, XmlNode root)
     {
+        _traversals++;
         for (var node = root; !node.IsEmpty; node = Next(node))
         {
             if (Visit(set, node))
@@ -140,7 +167,21 @@ internal sealed class PatternEvaluator
         return false;
     }
 
-    private static XmlNode Next(XmlNode node)
+    // The candidates of one pattern from the shared traversal, in document order.
+    private bool Pass(CompiledRuleSet set, int position, DispatchIndex index)
+    {
+        for (var entry = 0; entry < index.Count; entry++)
+        {
+            if (index.Includes(entry, position) && Visit(set, index.NodeAt(entry)))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    internal static XmlNode Next(XmlNode node)
     {
         var kind = node.Kind;
         if (kind == XmlNodeKind.Attribute)
@@ -306,7 +347,7 @@ internal sealed class PatternEvaluator
         }
     }
 
-    private static QueryNodeKinds KindOf(XmlNodeKind kind)
+    internal static QueryNodeKinds KindOf(XmlNodeKind kind)
     {
         Debug.Assert(kind != XmlNodeKind.Namespace, "A namespace node is never visited.");
 
