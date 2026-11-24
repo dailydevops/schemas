@@ -1,5 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Abstractions;
 
+using System;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>
@@ -32,6 +33,9 @@ public sealed class XPathHostSlots
     /// <summary>Gets or sets the provider that resolves a key by name and value.</summary>
     public IXPathKeyProvider? Keys { get; set; }
 
+    /// <summary>Gets or sets the sink of <c>fn:trace</c>: the label and the traced value. Internal until the host seam is decided (#884).</summary>
+    internal Action<string, XdmSequence>? Trace { get; set; }
+
     /// <summary>Empties every slot.</summary>
     public void Clear()
     {
@@ -41,5 +45,6 @@ public sealed class XPathHostSlots
         RegexGroups = null;
         DecimalFormats = null;
         Keys = null;
+        Trace = null;
     }
 }

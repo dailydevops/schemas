@@ -48,5 +48,7 @@ internal static class Registration
         builder.Add(new RemoveFunction());
         builder.Add(new ReverseFunction());
         builder.Add(new UnorderedFunction());
+        builder.Add(new ErrorFunction());
+        builder.Add(new TraceFunction());
     }
 }
