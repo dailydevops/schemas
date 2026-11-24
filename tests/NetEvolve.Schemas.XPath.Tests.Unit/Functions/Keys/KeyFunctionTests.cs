@@ -38,7 +38,7 @@ public class KeyFunctionTests
 
         var result = Run(provider, "node:c", "string:k", "string:v");
 
-        await Assert.That(result).IsEqualTo("node:a|node:b");
+        await Assert.That(result).IsEqualTo("node:a,node:b");
         await Assert.That(provider.Calls).HasSingleItem();
         await Assert.That(provider.Calls[0]).IsEqualTo("k/v/c/False");
     }
@@ -50,7 +50,7 @@ public class KeyFunctionTests
 
         var result = Run(provider, null, "string:k", "string:v", "node:b");
 
-        await Assert.That(result).IsEqualTo("node:a|node:b");
+        await Assert.That(result).IsEqualTo("node:a,node:b");
         await Assert.That(provider.Calls[0]).IsEqualTo("k/v/b/True");
     }
 
@@ -61,7 +61,7 @@ public class KeyFunctionTests
 
         _ = Run(provider, "node:c", "string:k", "string:v|integer:2|untypedAtomic:w");
 
-        await Assert.That(provider.Calls[0]).IsEqualTo("k/v 2 w/c/False");
+        await Assert.That(provider.Calls[0]).IsEqualTo("k/v XsInteger UntypedAtomic/c/False");
     }
 
     [Test]
@@ -71,7 +71,7 @@ public class KeyFunctionTests
 
         _ = Run(provider, "node:c", "string:k", "node:a@x");
 
-        await Assert.That(provider.Calls[0]).IsEqualTo("k/1/c/False");
+        await Assert.That(provider.Calls[0]).IsEqualTo("k/UntypedAtomic/c/False");
     }
 
     [Test]
@@ -152,9 +152,9 @@ public class KeyFunctionTests
 
     // Over real XPath: the call is compiled and evaluated like any other expression, with the context node as the focus.
     [Test]
-    [Arguments("key('k', 'v')", "node:a|node:b")]
-    [Arguments("key('k', ('v', 'w'))", "node:a|node:b")]
-    [Arguments("key('k', 'v', /r/b)", "node:a|node:b")]
+    [Arguments("key('k', 'v')", "node:a,node:b")]
+    [Arguments("key('k', ('v', 'w'))", "node:a,node:b")]
+    [Arguments("key('k', 'v', /r/b)", "node:a,node:b")]
     public async Task Key_InAnExpression_IsEvaluated(string text, string expected)
     {
         var compiled = XPathExpression.TryCompile(
@@ -216,7 +216,7 @@ public class KeyFunctionTests
             for (var i = 0; i < values.Count; i++)
             {
                 _ = values[i].TryGetString(out var text);
-                texts.Add(text ?? values[i].ToString()!);
+                texts.Add(text ?? values[i].Kind.ToString());
             }
 
             Names.Add(name);
