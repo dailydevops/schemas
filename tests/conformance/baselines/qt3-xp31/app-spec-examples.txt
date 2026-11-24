@@ -78,7 +78,6 @@ app-spec-examples/fo-test-fn-deep-equal-006
 app-spec-examples/fo-test-fn-deep-equal-007
 app-spec-examples/fo-test-fn-empty-003
 app-spec-examples/fo-test-fn-empty-004
-app-spec-examples/fo-test-fn-error-001
 app-spec-examples/fo-test-fn-escape-html-uri-001
 app-spec-examples/fo-test-fn-escape-html-uri-002
 app-spec-examples/fo-test-fn-exists-003

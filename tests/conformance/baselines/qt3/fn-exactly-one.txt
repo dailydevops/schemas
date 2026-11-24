@@ -1,3 +1,0 @@
-fn-exactly-one/K-SeqExactlyOneFunc-6
-fn-exactly-one/K-SeqExactlyOneFunc-7
-fn-exactly-one/K-SeqExactlyOneFunc-8
