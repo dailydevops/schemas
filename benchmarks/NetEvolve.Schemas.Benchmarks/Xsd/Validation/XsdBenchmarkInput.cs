@@ -105,8 +105,9 @@ internal static partial class XsdBenchmarkInput
         new(Host + Uri.EscapeDataString(entryName).Replace("%2F", "/", StringComparison.Ordinal));
 
     // Limitation: the only schema document with a document type declaration (the XML Signature schema bundled with UBL)
-    // is read without it, because the XSD engine of this library refuses a DTD in a schema document. The declaration only
-    // repeats the xmlns:ds binding of the root and defines entities that are never used; both engines read the same text.
+    // is read without it. The XSD engine of this library reads such a declaration now (#988), but the stripped text is kept so
+    // that the measured inputs do not change without CI-runner values. The declaration only repeats the xmlns:ds binding of
+    // the root and defines entities that are never used; both engines read the same text.
     private static byte[] ReadSchema(ZipArchiveEntry entry)
     {
         var bytes = Read(entry);
