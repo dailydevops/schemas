@@ -19,6 +19,9 @@ using NetEvolve.Schemas.Xsd.Diagnostics;
 /// </remarks>
 internal static class SchemaDocumentParser
 {
+    // A schema document may declare XML 1.1; it is read by the XML 1.0 rules (#861).
+    private static readonly XmlReaderOptions Options = XmlReaderOptions.Default.WithAllowXml11Declaration(true);
+
     /// <summary>Parses a schema document given as characters.</summary>
     /// <param name="schema">The document.</param>
     /// <param name="baseUri">The document base URI, or <see langword="null"/>.</param>
@@ -28,7 +31,7 @@ internal static class SchemaDocumentParser
     {
         ArgumentNullException.ThrowIfNull(reporter);
 
-        using var reader = XmlPipelineReader.Create(schema);
+        using var reader = XmlPipelineReader.Create(schema, Options);
         return Parse(reader, baseUri, reporter);
     }
 
@@ -41,7 +44,7 @@ internal static class SchemaDocumentParser
     {
         ArgumentNullException.ThrowIfNull(reporter);
 
-        using var reader = XmlPipelineReader.Create(schema);
+        using var reader = XmlPipelineReader.Create(schema, Options);
         return Parse(reader, baseUri, reporter);
     }
 
