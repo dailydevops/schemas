@@ -3,6 +3,7 @@ namespace NetEvolve.Schemas.XPath.Tests.Unit.Functions.Math;
 using System.Threading;
 using System.Threading.Tasks;
 using NetEvolve.Schemas.XPath.Api;
+using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>
@@ -44,6 +45,18 @@ public class MathFunctionTests
         await Assert.That(MathHarness.TryResolve(local, arity, out _, XPathVersion.V30)).IsTrue();
         await Assert.That(MathHarness.TryResolve(local, arity, out _, XPathVersion.V31)).IsTrue();
         await Assert.That(MathHarness.TryResolve(local, arity + 1, out _, XPathVersion.V31)).IsFalse();
+    }
+
+    [Test]
+    public async Task TryCompile_MathFunctionInXPath20_ReturnsXpst0017()
+    {
+        var statics = XPathStaticContext
+            .Default.ToBuilder()
+            .WithVersion(XPathVersion.V20)
+            .WithNamespace("math", MathHarness.MathNamespace)
+            .Build();
+
+        await Assert.That(XPathExpression.TryCompile("math:sin(0)", statics).Diagnostic.Code).IsEqualTo("XPST0017");
     }
 
     [Test]
