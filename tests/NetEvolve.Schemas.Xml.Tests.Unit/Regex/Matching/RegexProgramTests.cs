@@ -114,6 +114,29 @@ public class RegexProgramTests
     }
 
     [Test]
+    [Arguments(int.MaxValue, int.MaxValue)]
+    [Arguments(int.MaxValue, RegexNode.Unbounded)]
+    [Arguments(1_073_741_824, 1_073_741_824)]
+    public async Task Repeat_MinimumBeyondAnyInputLength_CompilesAndNeverMatches(int min, int max)
+    {
+        var t = new TreeBuilder();
+        t.WithRoot(t.Repeat(t.Char('a'), min, max));
+
+        await Assert.That(t.TryCompile()).IsEqualTo(RegexError.None);
+        await Assert.That(Run(t, "aaa")).IsEqualTo(RegexMatchResult.NoMatch);
+        await Assert.That(Run(t, string.Empty)).IsEqualTo(RegexMatchResult.NoMatch);
+    }
+
+    [Test]
+    public async Task Repeat_MinimumBeyondAnyInputLengthOfAnEmptyMatchingBody_StaysWithinTheLimitError()
+    {
+        var t = new TreeBuilder();
+        t.WithRoot(t.Repeat(t.Repeat(t.Char('a'), 0, 1), int.MaxValue, int.MaxValue));
+
+        await Assert.That(t.TryCompile()).IsEqualTo(RegexError.LimitExceeded);
+    }
+
+    [Test]
     public async Task Repeat_NestedCounts_AreCappedByTheProgramSize()
     {
         var t = new TreeBuilder();
