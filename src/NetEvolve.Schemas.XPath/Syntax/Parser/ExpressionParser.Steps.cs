@@ -81,7 +81,11 @@ internal ref partial struct ExpressionParser
                 or XPathTokenKind.LeftParen
                 or XPathTokenKind.Dot
                 or XPathTokenKind.DotDot
-                or XPathTokenKind.At;
+                or XPathTokenKind.At
+                or XPathTokenKind.Map
+                or XPathTokenKind.Array
+                or XPathTokenKind.LeftBracket
+                or XPathTokenKind.Question;
 
     // [23] StepExpr, [24] AxisStep: an abbreviated or explicit axis step, or a filter expression.
     private Expression ParseStep()

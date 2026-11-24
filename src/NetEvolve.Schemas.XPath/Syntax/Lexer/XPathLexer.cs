@@ -402,6 +402,8 @@ internal ref struct XPathLexer
                 _inType = false;
                 return Emit(XPathTokenKind.LeftBrace, start, 1, false);
             case '}' when _v30:
+                // A sequence type never contains a brace, so this closes the constructor that held the type.
+                _inType = false;
                 return Emit(XPathTokenKind.RightBrace, start, 1, true);
             default:
                 var width = char.IsHighSurrogate(c) && char.IsLowSurrogate(Peek(start + 1)) ? 2 : 1;
