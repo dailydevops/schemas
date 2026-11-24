@@ -69,16 +69,22 @@ public class XsdReadmeConformanceTests
         ReadmeSamples
             .ReadText(relativePath)
             .Split('\n', StringSplitOptions.RemoveEmptyEntries)
-            .Count(line => !line.StartsWith('#'));
+            .Count(line => line[0] != '#');
 
     // The rate as the job summary prints it: passed / applicable, truncated, never rounded up, to one decimal.
     private static string Row(string label, int applicable, int failed)
     {
         var passed = applicable - failed;
         var tenths = passed * 1000L / applicable;
-        return string.Create(
+        return string.Format(
             CultureInfo.InvariantCulture,
-            $"| {label} | {applicable} | {passed} | {failed} | {tenths / 10}.{tenths % 10}% |"
+            "| {0} | {1} | {2} | {3} | {4}.{5}% |",
+            label,
+            applicable,
+            passed,
+            failed,
+            tenths / 10,
+            tenths % 10
         );
     }
 }
