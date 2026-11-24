@@ -8,7 +8,8 @@ namespace NetEvolve.Schemas.Tests.Architecture.Schematron;
 /// a later work package adds is forbidden until a rule allows it.
 /// </summary>
 /// <remarks>
-/// Limitations: Patterns, Xslt, Scopes, Phases, and Diagnostics are not constrained, because no contract places them.
+/// Loading may use Xslt, because stage Resolve links the XSLT modules of a schema with the module linker and the content writer
+/// (design #150 EP-14, #832); the module set that it hands on is a type of the seams. Limitations: Patterns, Xslt, Scopes, Phases, and Diagnostics are not constrained, because no contract places them.
 /// Evaluation may use Results because the evaluator holds the issue mapper directly (design AP-27 has it talk to the event
 /// interface only, bug #840); the rule pins today's reach and not more.
 /// </remarks>
@@ -25,7 +26,8 @@ internal static class SchematronLayering
             "Parsing",
             "Model",
             "Seams",
-            "Diagnostics"
+            "Diagnostics",
+            "Xslt"
         ),
         LayerRules.Only("ExpansionDependsOnlyOnTheModelAndSeams", "Expansion", "Model", "Seams", "Diagnostics"),
         LayerRules.Only(

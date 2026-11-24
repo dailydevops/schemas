@@ -32,7 +32,7 @@ The instance is read only through the readers of the Xml package (an architectur
 
 - **XSLT declarations are compiled but not run.** `xsl:include` and `xsl:import` in a schema of the XSLT family are linked in the resolve
   stage, and `xsl:function`, `xsl:key`, `xsl:variable`, `xsl:param`, and `xsl:decimal-format` are compiled; the compiled program holds the
-  tables, and a run does not read them (#832, #628). Any other `xsl:` element is reported as `NES3204` at `Build`. The
+  tables, and stylesheet functions and keys are not callable from a rule (#832, #628). Any other `xsl:` element is reported as `NES3204` at `Build`. The
   functions `current`, `system-property`, `function-available`, `format-number`, and `generate-id` are available; `key`, `regex-group`, and
   stylesheet functions are not (#250, #287, #628). A run starts with an empty set of decimal formats, so a named format is unknown.
 - **Locations of expression problems are approximate.** The binding seam hands the binding the text of an expression but not the location of

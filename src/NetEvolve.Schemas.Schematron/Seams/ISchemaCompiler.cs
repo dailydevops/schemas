@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Schematron.Seams;
 
 using NetEvolve.Schemas.Schematron.Model;
-using NetEvolve.Schemas.Schematron.Xslt.Modules;
 
 /// <summary>Stage Compile.</summary>
 internal interface ISchemaCompiler
