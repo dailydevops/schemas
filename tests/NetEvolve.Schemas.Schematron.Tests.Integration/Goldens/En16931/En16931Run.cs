@@ -18,6 +18,9 @@ internal static class En16931Run
     public static readonly string[] Syntaxes = ["ubl", "cii"];
 
     private static readonly HttpClient Client = new() { Timeout = TimeSpan.FromMinutes(10) };
+
+    // Two UBL examples carry the extension .XML; match the casing the same way on every platform.
+    private static readonly EnumerationOptions XmlFiles = new() { MatchCasing = MatchCasing.CaseInsensitive };
     private static readonly SemaphoreSlim Gate = new(1, 1);
     private static Dictionary<string, IReadOnlyList<CaseResult>>? s_results;
     private static string? s_root;
@@ -71,7 +74,9 @@ internal static class En16931Run
         foreach (var directory in unitDirectories)
         {
             var path = Path.Combine(root, "test", directory);
-            foreach (var file in Directory.EnumerateFiles(path, "*.xml").OrderBy(f => f, StringComparer.Ordinal))
+            foreach (
+                var file in Directory.EnumerateFiles(path, "*.xml", XmlFiles).OrderBy(f => f, StringComparer.Ordinal)
+            )
             {
                 cases.AddRange(
                     En16931TestSet.Parse(syntax, $"{directory}/{Path.GetFileName(file)}", File.ReadAllText(file))
@@ -81,7 +86,7 @@ internal static class En16931Run
 
         foreach (
             var file in Directory
-                .EnumerateFiles(Path.Combine(root, syntax, "examples"), "*.xml")
+                .EnumerateFiles(Path.Combine(root, syntax, "examples"), "*.xml", XmlFiles)
                 .OrderBy(f => f, StringComparer.Ordinal)
         )
         {
