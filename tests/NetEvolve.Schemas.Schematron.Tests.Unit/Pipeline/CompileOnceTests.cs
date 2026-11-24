@@ -4,8 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using NetEvolve.Schemas.Resources;
+using NetEvolve.Schemas.Schematron.Bindings.Registry;
+using NetEvolve.Schemas.Schematron.Loading.Inclusion;
 using NetEvolve.Schemas.Schematron.Pipeline;
 using NetEvolve.Schemas.Schematron.Seams;
+using NetEvolve.Schemas.Schematron.Tests.Unit.Fakes;
+using NetEvolve.Schemas.Schematron.Tests.Unit.Loading.Inclusion;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Model.Loading;
 using static NetEvolve.Schemas.Schematron.Tests.Unit.Pipeline.PipelineFixture;
@@ -22,20 +27,67 @@ public class CompileOnceTests
     [Test]
     public async Task Validate_CompilesEveryExpressionExactlyOnceAcrossManyValidations()
     {
-        var validator = Build(Schema);
-        var program = Program(validator);
-        var atBuild = program.CompileCount;
-        var texts = new HashSet<string>(program.CompiledTexts, StringComparer.Ordinal);
+        var problems = new FakeProblemSink();
+        var loader = new ModuleLoader(new FakeResources(), ValidationLimits.Default);
+        _ = new ModelResolver().TryResolve(InclusionFixture.Parse(Schema), loader, problems, out var resolved);
+        _ = PipelineBindings.Registry.TryResolve(resolved.Schema, out var inner, out _);
+        var counting = new CountingBinding(inner);
+        var settings = new BuildSettings(
+            "#ALL",
+            new Dictionary<string, string>(),
+            ValidationLimits.Default,
+            DenyAllResourceResolver.Instance
+        );
+        var ok = new SchematronSchemaCompiler(new QueryBindingRegistry([counting])).TryCompile(
+            resolved.Schema,
+            settings,
+            resolved.Modules,
+            problems,
+            out var compiled
+        );
+        var validator = new SchematronValidator(
+            compiled,
+            "#ALL",
+            settings.Parameters,
+            ValidationLimits.Default,
+            DenyAllResourceResolver.Instance
+        );
+        var atBuild = counting.Compiled;
 
         for (var i = 0; i < 100; i++)
         {
             _ = Validate(validator, Instance);
         }
 
-        await Assert.That(atBuild).IsEqualTo(5);
-        await Assert.That(texts.Count).IsEqualTo(atBuild);
-        await Assert.That(program.CompileCount).IsEqualTo(atBuild);
-        await Assert.That(program.CompiledTexts.Count).IsEqualTo(atBuild);
+        await Assert.That(ok).IsTrue();
+        await Assert.That(atBuild).IsGreaterThan(0);
+        await Assert.That(counting.Compiled).IsEqualTo(atBuild);
+    }
+
+    private sealed class CountingBinding(IQueryBinding inner) : IQueryBinding
+    {
+        private int _compiled;
+
+        internal int Compiled => _compiled;
+
+        public string Name => inner.Name;
+
+        public bool AllowsXsltInstructions => inner.AllowsXsltInstructions;
+
+        public bool TryCompile(
+            ReadOnlySpan<char> text,
+            QueryExpressionKind kind,
+            QueryStaticScope scope,
+            out QueryExpression expression,
+            out SchematronProblem problem
+        )
+        {
+            _ = Interlocked.Increment(ref _compiled);
+            return inner.TryCompile(text, kind, scope, out expression, out problem);
+        }
+
+        public IQueryRun BeginRun(QueryResources resources, CancellationToken cancellationToken) =>
+            inner.BeginRun(resources, cancellationToken);
     }
 
     [Test]

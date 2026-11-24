@@ -28,7 +28,7 @@ source ──> Parse ──> Resolve ──> Expand ──> Compile ──> Comp
 | `BuildProblems.cs`            | The problems of a build as the issues of one `SchemaCompilationException`.                                   |
 
 A schema is compiled once, at `Build`: the compiled program is never written afterwards, so any number of threads validate with one validator.
-`CompiledProgram.CompileCount` counts the compiled expressions and does not move during a validation. What a validation changes lives in a
+No expression is compiled during a validation (a test counts the compile calls of the binding). What a validation changes lives in a
 context from `ValidationContextPool`: the name table the instance is read into, seeded with the names the expressions of the schema mention, so
 those names are the same string instances in every tree read through it. A context whose table grew by more than 4096 names is dropped instead of
 pooled.

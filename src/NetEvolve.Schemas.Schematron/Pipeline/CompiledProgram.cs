@@ -13,7 +13,7 @@ using NetEvolve.Schemas.Schematron.Xslt.Modules;
 /// variables, and the active patterns with their compiled rules. Immutable; every run of the validator reads it and writes nothing.
 /// </summary>
 /// <remarks>
-/// Every expression is compiled once, at build, by the binding (<see cref="CompileCount"/> counts them, and no run compiles one). What a
+/// Every expression is compiled once, at build, by the binding (no run compiles one). What a
 /// run changes lives in a context of <see cref="Contexts"/>, whose name table already holds the names of the schema; a test pins
 /// concurrent runs.
 /// </remarks>
@@ -46,16 +46,10 @@ internal sealed class CompiledProgram : CompiledSchema
         Plan = plan;
         Sets = sets;
         XsltTables = xsltTables;
-        var recorder = binding as CompilingBinding;
-        SchemaNames = recorder?.Names ?? [];
+        var recorder = (CompilingBinding)binding;
+        SchemaNames = recorder.Names;
         Contexts = new ValidationContextPool(SchemaNames);
     }
-
-    /// <summary>Gets the number of expressions that the build compiled; it does not change after the build.</summary>
-    internal int CompileCount => CompiledTexts.Count;
-
-    /// <summary>Gets the text of every expression that the build compiled.</summary>
-    internal IReadOnlyList<string> CompiledTexts => (Binding as CompilingBinding)?.Texts ?? [];
 
     /// <summary>Gets the element names and namespace URIs that the expressions mention; they are interned in every context.</summary>
     internal IReadOnlyList<string> SchemaNames { get; }
