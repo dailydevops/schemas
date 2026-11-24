@@ -273,4 +273,54 @@ internal abstract class SyntaxVisitor<TResult>
     /// <param name="node">The node.</param>
     /// <returns>The result.</returns>
     public virtual TResult? VisitParenthesizedItemType(ParenthesizedItemType node) => default;
+
+    /// <summary>Visits a <see cref="MapEntry"/>.</summary>
+    /// <param name="node">The node.</param>
+    /// <returns>The result.</returns>
+    public virtual TResult? VisitMapEntry(MapEntry node) => default;
+
+    /// <summary>Visits a <see cref="MapConstructor"/>.</summary>
+    /// <param name="node">The node.</param>
+    /// <returns>The result.</returns>
+    public virtual TResult? VisitMapConstructor(MapConstructor node) => default;
+
+    /// <summary>Visits a <see cref="SquareArrayConstructor"/>.</summary>
+    /// <param name="node">The node.</param>
+    /// <returns>The result.</returns>
+    public virtual TResult? VisitSquareArrayConstructor(SquareArrayConstructor node) => default;
+
+    /// <summary>Visits a <see cref="CurlyArrayConstructor"/>.</summary>
+    /// <param name="node">The node.</param>
+    /// <returns>The result.</returns>
+    public virtual TResult? VisitCurlyArrayConstructor(CurlyArrayConstructor node) => default;
+
+    /// <summary>Visits a <see cref="LookupExpression"/>.</summary>
+    /// <param name="node">The node.</param>
+    /// <returns>The result.</returns>
+    public virtual TResult? VisitLookupExpression(LookupExpression node) => default;
+
+    /// <summary>Visits a <see cref="ArrowExpression"/>.</summary>
+    /// <param name="node">The node.</param>
+    /// <returns>The result.</returns>
+    public virtual TResult? VisitArrowExpression(ArrowExpression node) => default;
+
+    /// <summary>Visits a <see cref="AnyMapTest"/>.</summary>
+    /// <param name="node">The node.</param>
+    /// <returns>The result.</returns>
+    public virtual TResult? VisitAnyMapTest(AnyMapTest node) => default;
+
+    /// <summary>Visits a <see cref="TypedMapTest"/>.</summary>
+    /// <param name="node">The node.</param>
+    /// <returns>The result.</returns>
+    public virtual TResult? VisitTypedMapTest(TypedMapTest node) => default;
+
+    /// <summary>Visits a <see cref="AnyArrayTest"/>.</summary>
+    /// <param name="node">The node.</param>
+    /// <returns>The result.</returns>
+    public virtual TResult? VisitAnyArrayTest(AnyArrayTest node) => default;
+
+    /// <summary>Visits a <see cref="TypedArrayTest"/>.</summary>
+    /// <param name="node">The node.</param>
+    /// <returns>The result.</returns>
+    public virtual TResult? VisitTypedArrayTest(TypedArrayTest node) => default;
 }
