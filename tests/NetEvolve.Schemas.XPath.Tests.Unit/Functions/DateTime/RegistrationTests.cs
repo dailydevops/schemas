@@ -33,6 +33,7 @@ public class RegistrationTests
     [Arguments("adjust-dateTime-to-timezone", 1, 2)]
     [Arguments("adjust-date-to-timezone", 1, 2)]
     [Arguments("adjust-time-to-timezone", 1, 2)]
+    [Arguments("dateTime", 2, 2)]
     [Arguments("current-dateTime", 0, 0)]
     [Arguments("current-date", 0, 0)]
     [Arguments("current-time", 0, 0)]

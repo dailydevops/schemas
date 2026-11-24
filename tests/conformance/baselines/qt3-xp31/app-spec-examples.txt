@@ -73,8 +73,6 @@ app-spec-examples/fo-test-fn-count-005
 app-spec-examples/fo-test-fn-count-006
 app-spec-examples/fo-test-fn-data-003
 app-spec-examples/fo-test-fn-data-006
-app-spec-examples/fo-test-fn-dateTime-001
-app-spec-examples/fo-test-fn-dateTime-002
 app-spec-examples/fo-test-fn-deep-equal-005
 app-spec-examples/fo-test-fn-deep-equal-006
 app-spec-examples/fo-test-fn-deep-equal-007
