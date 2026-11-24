@@ -1,7 +1,9 @@
 namespace NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Documents;
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
+using NetEvolve.Schemas.Xml.Model.Loading;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Xdm.Nodes;
 using NetEvolve.Schemas.XPath.Xdm.Values;
@@ -183,4 +185,93 @@ public class DocumentFunctionTests
 
         await Assert.That(Run("unparsed-text", context, Functions(), Sequence("t.txt"))).IsEqualTo("string:hello");
     }
+
+    [Test]
+    public async Task Document_WithANodeReference_ResolvesAgainstTheBaseOfThatNode(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var resolver = new Resolver().Add("http://node.example/dir/data.xml", "<d/>");
+        using var context = new XPathEvaluationContext { ResourceResolver = resolver };
+        var reference = Reference("http://node.example/dir/ref.xml");
+
+        await Assert.That(Run("document", context, Functions(), Sequence(reference))).IsEqualTo("nodes:1");
+        await Assert.That(resolver.Requests).IsEquivalentTo(["http://node.example/dir/data.xml"]);
+    }
+
+    [Test]
+    public async Task Document_WithANodeReferenceAndABaseNode_UsesTheExplicitBase(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var resolver = new Resolver().Add("http://explicit.example/data.xml", "<d/>");
+        using var context = new XPathEvaluationContext { ResourceResolver = resolver };
+        var reference = Reference("http://node.example/ref.xml");
+        var anchor = NodeWithBase("http://explicit.example/anchor.xml");
+
+        await Assert
+            .That(Run("document", context, Functions(), Sequence(reference), Sequence(anchor)))
+            .IsEqualTo("nodes:1");
+    }
+
+    [Test]
+    public async Task Document_WithANonStringItem_IsATypeError(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        using var context = new XPathEvaluationContext { ResourceResolver = Denying() };
+        var number = XdmSequence.Create(XdmItem.FromInteger(1));
+
+        await Assert.That(Run("document", context, Functions(), number)).IsEqualTo("error:XPTY0004");
+    }
+
+    [Test]
+    public async Task Document_WithAFragmentIdentifier_IsACodedError(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        using var context = new XPathEvaluationContext { ResourceResolver = new Resolver().Add(Codes, "<codes/>") };
+
+        await Assert.That(Run("document", context, Functions(), Sequence("codes.xml#a"))).IsEqualTo("error:XTRE1160");
+        await Assert.That(Run("doc", context, Functions(), Sequence("codes.xml#a"))).StartsWith("error:");
+    }
+
+    [Test]
+    public async Task Document_WithARelativeReferenceAndNoSchemaBase_IsACodedError(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        using var context = new XPathEvaluationContext { ResourceResolver = new Resolver().Add(Codes, "<codes/>") };
+        var functions = Functions(null);
+
+        await Assert.That(Run("document", context, functions, Sequence("codes.xml"))).IsEqualTo("error:XTRE1160");
+        await Assert.That(Run("doc", context, functions, Sequence("codes.xml"))).StartsWith("error:");
+        await Assert.That(Run("document", context, functions, Sequence(Codes))).IsEqualTo("nodes:1");
+    }
+
+    [Test]
+    public async Task Doc_WithAnEmptyArgument_IsEmpty(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        using var context = new XPathEvaluationContext { ResourceResolver = Denying() };
+
+        await Assert.That(Run("doc", context, Functions(), Sequence())).IsEqualTo("empty");
+    }
+
+    [Test]
+    public async Task UnparsedTextAvailable_WithARelativeReference_UsesTheSchemaBase(
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        using var context = new XPathEvaluationContext
+        {
+            ResourceResolver = new Resolver().Add("file:///schemas/rules/t.txt", "hello"),
+        };
+
+        await Assert
+            .That(Run("unparsed-text-available", context, Functions(), Sequence("t.txt")))
+            .IsEqualTo("boolean:true");
+        await Assert
+            .That(Run("unparsed-text-available", context, Functions(), Sequence("missing.txt")))
+            .IsEqualTo("boolean:false");
+    }
+
+    private static XPathNode Reference(string baseUri) =>
+        new(XmlDocumentLoader.Load("<r>data.xml</r>".AsSpan(), null, new Uri(baseUri)).Document);
 }
