@@ -23,7 +23,7 @@ internal sealed class RangeExpression : Expression
     public Expression To { get; }
 
     /// <inheritdoc />
-    public override IReadOnlyList<SyntaxNode> Children => [From, To];
+    private protected override IReadOnlyList<SyntaxNode> CreateChildren() => [From, To];
 
     /// <inheritdoc />
     public override void Accept(SyntaxVisitor visitor) => visitor.VisitRangeExpression(this);

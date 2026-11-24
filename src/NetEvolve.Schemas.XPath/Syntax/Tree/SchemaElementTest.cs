@@ -15,7 +15,7 @@ internal sealed class SchemaElementTest : KindTest
     public QualifiedName Name { get; }
 
     /// <inheritdoc />
-    public override IReadOnlyList<SyntaxNode> Children => [Name];
+    private protected override IReadOnlyList<SyntaxNode> CreateChildren() => [Name];
 
     /// <inheritdoc />
     public override void Accept(SyntaxVisitor visitor) => visitor.VisitSchemaElementTest(this);

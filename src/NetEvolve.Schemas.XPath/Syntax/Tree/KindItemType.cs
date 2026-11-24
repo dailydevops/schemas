@@ -15,7 +15,7 @@ internal sealed class KindItemType : ItemType
     public KindTest Test { get; }
 
     /// <inheritdoc />
-    public override IReadOnlyList<SyntaxNode> Children => [Test];
+    private protected override IReadOnlyList<SyntaxNode> CreateChildren() => [Test];
 
     /// <inheritdoc />
     public override void Accept(SyntaxVisitor visitor) => visitor.VisitKindItemType(this);

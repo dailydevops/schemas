@@ -33,15 +33,12 @@ internal sealed class QuantifiedExpression : Expression
     public Expression Satisfies { get; }
 
     /// <inheritdoc />
-    public override IReadOnlyList<SyntaxNode> Children
+    private protected override IReadOnlyList<SyntaxNode> CreateChildren()
     {
-        get
-        {
-            List<SyntaxNode> children = [];
-            children.AddRange(Bindings);
-            children.Add(Satisfies);
-            return children.AsReadOnly();
-        }
+        List<SyntaxNode> children = [];
+        children.AddRange(Bindings);
+        children.Add(Satisfies);
+        return children.AsReadOnly();
     }
 
     /// <inheritdoc />

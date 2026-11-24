@@ -23,7 +23,7 @@ internal sealed class UnaryExpression : Expression
     public Expression Operand { get; }
 
     /// <inheritdoc />
-    public override IReadOnlyList<SyntaxNode> Children => [Operand];
+    private protected override IReadOnlyList<SyntaxNode> CreateChildren() => [Operand];
 
     /// <inheritdoc />
     public override void Accept(SyntaxVisitor visitor) => visitor.VisitUnaryExpression(this);

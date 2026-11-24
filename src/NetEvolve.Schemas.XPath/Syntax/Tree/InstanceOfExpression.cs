@@ -23,7 +23,7 @@ internal sealed class InstanceOfExpression : Expression
     public SequenceType Type { get; }
 
     /// <inheritdoc />
-    public override IReadOnlyList<SyntaxNode> Children => [Operand, Type];
+    private protected override IReadOnlyList<SyntaxNode> CreateChildren() => [Operand, Type];
 
     /// <inheritdoc />
     public override void Accept(SyntaxVisitor visitor) => visitor.VisitInstanceOfExpression(this);

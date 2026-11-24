@@ -15,7 +15,7 @@ internal sealed class ParenthesizedItemType : ItemType
     public ItemType Inner { get; }
 
     /// <inheritdoc />
-    public override IReadOnlyList<SyntaxNode> Children => [Inner];
+    private protected override IReadOnlyList<SyntaxNode> CreateChildren() => [Inner];
 
     /// <inheritdoc />
     public override void Accept(SyntaxVisitor visitor) => visitor.VisitParenthesizedItemType(this);

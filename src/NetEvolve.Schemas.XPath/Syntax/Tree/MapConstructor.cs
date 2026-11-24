@@ -15,14 +15,11 @@ internal sealed class MapConstructor : Expression
     public IReadOnlyList<MapEntry> Entries { get; }
 
     /// <inheritdoc />
-    public override IReadOnlyList<SyntaxNode> Children
+    private protected override IReadOnlyList<SyntaxNode> CreateChildren()
     {
-        get
-        {
-            List<SyntaxNode> children = [];
-            children.AddRange(Entries);
-            return children.AsReadOnly();
-        }
+        List<SyntaxNode> children = [];
+        children.AddRange(Entries);
+        return children.AsReadOnly();
     }
 
     /// <inheritdoc />

@@ -11,7 +11,7 @@ internal sealed class TextTest : KindTest
         : base(location) { }
 
     /// <inheritdoc />
-    public override IReadOnlyList<SyntaxNode> Children => [];
+    private protected override IReadOnlyList<SyntaxNode> CreateChildren() => [];
 
     /// <inheritdoc />
     public override void Accept(SyntaxVisitor visitor) => visitor.VisitTextTest(this);

@@ -23,17 +23,14 @@ internal sealed class SequenceType : SyntaxNode
     public Occurrence Occurrence { get; }
 
     /// <inheritdoc />
-    public override IReadOnlyList<SyntaxNode> Children
+    private protected override IReadOnlyList<SyntaxNode> CreateChildren()
     {
-        get
+        List<SyntaxNode> children = [];
+        if (ItemType is not null)
         {
-            List<SyntaxNode> children = [];
-            if (ItemType is not null)
-            {
-                children.Add(ItemType);
-            }
-            return children.AsReadOnly();
+            children.Add(ItemType);
         }
+        return children.AsReadOnly();
     }
 
     /// <inheritdoc />

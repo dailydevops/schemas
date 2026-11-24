@@ -15,7 +15,7 @@ internal sealed class DoubleLiteral : Expression
     public string Lexeme { get; }
 
     /// <inheritdoc />
-    public override IReadOnlyList<SyntaxNode> Children => [];
+    private protected override IReadOnlyList<SyntaxNode> CreateChildren() => [];
 
     /// <inheritdoc />
     public override void Accept(SyntaxVisitor visitor) => visitor.VisitDoubleLiteral(this);

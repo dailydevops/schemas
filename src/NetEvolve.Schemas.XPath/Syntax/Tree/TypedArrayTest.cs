@@ -15,14 +15,11 @@ internal sealed class TypedArrayTest : ItemType
     public SequenceType MemberType { get; }
 
     /// <inheritdoc />
-    public override IReadOnlyList<SyntaxNode> Children
+    private protected override IReadOnlyList<SyntaxNode> CreateChildren()
     {
-        get
-        {
-            List<SyntaxNode> children = [];
-            children.Add(MemberType);
-            return children.AsReadOnly();
-        }
+        List<SyntaxNode> children = [];
+        children.Add(MemberType);
+        return children.AsReadOnly();
     }
 
     /// <inheritdoc />

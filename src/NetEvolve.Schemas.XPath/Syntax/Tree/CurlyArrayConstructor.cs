@@ -15,18 +15,15 @@ internal sealed class CurlyArrayConstructor : Expression
     public Expression? Content { get; }
 
     /// <inheritdoc />
-    public override IReadOnlyList<SyntaxNode> Children
+    private protected override IReadOnlyList<SyntaxNode> CreateChildren()
     {
-        get
+        List<SyntaxNode> children = [];
+        if (Content is not null)
         {
-            List<SyntaxNode> children = [];
-            if (Content is not null)
-            {
-                children.Add(Content);
-            }
-
-            return children.AsReadOnly();
+            children.Add(Content);
         }
+
+        return children.AsReadOnly();
     }
 
     /// <inheritdoc />

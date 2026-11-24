@@ -39,23 +39,20 @@ internal sealed class LookupExpression : Expression
     public Expression? Key { get; }
 
     /// <inheritdoc />
-    public override IReadOnlyList<SyntaxNode> Children
+    private protected override IReadOnlyList<SyntaxNode> CreateChildren()
     {
-        get
+        List<SyntaxNode> children = [];
+        if (Operand is not null)
         {
-            List<SyntaxNode> children = [];
-            if (Operand is not null)
-            {
-                children.Add(Operand);
-            }
-
-            if (Key is not null)
-            {
-                children.Add(Key);
-            }
-
-            return children.AsReadOnly();
+            children.Add(Operand);
         }
+
+        if (Key is not null)
+        {
+            children.Add(Key);
+        }
+
+        return children.AsReadOnly();
     }
 
     /// <inheritdoc />

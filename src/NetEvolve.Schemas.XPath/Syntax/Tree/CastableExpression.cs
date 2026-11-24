@@ -23,7 +23,7 @@ internal sealed class CastableExpression : Expression
     public SingleType Type { get; }
 
     /// <inheritdoc />
-    public override IReadOnlyList<SyntaxNode> Children => [Operand, Type];
+    private protected override IReadOnlyList<SyntaxNode> CreateChildren() => [Operand, Type];
 
     /// <inheritdoc />
     public override void Accept(SyntaxVisitor visitor) => visitor.VisitCastableExpression(this);

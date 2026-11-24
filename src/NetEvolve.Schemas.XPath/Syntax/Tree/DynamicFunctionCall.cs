@@ -23,14 +23,11 @@ internal sealed class DynamicFunctionCall : Expression
     public IReadOnlyList<Expression> Arguments { get; }
 
     /// <inheritdoc />
-    public override IReadOnlyList<SyntaxNode> Children
+    private protected override IReadOnlyList<SyntaxNode> CreateChildren()
     {
-        get
-        {
-            List<SyntaxNode> children = [Function];
-            children.AddRange(Arguments);
-            return children.AsReadOnly();
-        }
+        List<SyntaxNode> children = [Function];
+        children.AddRange(Arguments);
+        return children.AsReadOnly();
     }
 
     /// <inheritdoc />

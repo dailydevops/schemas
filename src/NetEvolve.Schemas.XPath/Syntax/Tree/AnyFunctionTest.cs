@@ -11,7 +11,7 @@ internal sealed class AnyFunctionTest : ItemType
         : base(location) { }
 
     /// <inheritdoc />
-    public override IReadOnlyList<SyntaxNode> Children => [];
+    private protected override IReadOnlyList<SyntaxNode> CreateChildren() => [];
 
     /// <inheritdoc />
     public override void Accept(SyntaxVisitor visitor) => visitor.VisitAnyFunctionTest(this);

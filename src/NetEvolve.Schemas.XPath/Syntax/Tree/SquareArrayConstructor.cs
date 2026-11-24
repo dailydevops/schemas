@@ -15,14 +15,11 @@ internal sealed class SquareArrayConstructor : Expression
     public IReadOnlyList<Expression> Members { get; }
 
     /// <inheritdoc />
-    public override IReadOnlyList<SyntaxNode> Children
+    private protected override IReadOnlyList<SyntaxNode> CreateChildren()
     {
-        get
-        {
-            List<SyntaxNode> children = [];
-            children.AddRange(Members);
-            return children.AsReadOnly();
-        }
+        List<SyntaxNode> children = [];
+        children.AddRange(Members);
+        return children.AsReadOnly();
     }
 
     /// <inheritdoc />

@@ -28,15 +28,12 @@ internal sealed class AxisStep : Expression
     public IReadOnlyList<Expression> Predicates { get; }
 
     /// <inheritdoc />
-    public override IReadOnlyList<SyntaxNode> Children
+    private protected override IReadOnlyList<SyntaxNode> CreateChildren()
     {
-        get
-        {
-            List<SyntaxNode> children = [];
-            children.Add(Test);
-            children.AddRange(Predicates);
-            return children.AsReadOnly();
-        }
+        List<SyntaxNode> children = [];
+        children.Add(Test);
+        children.AddRange(Predicates);
+        return children.AsReadOnly();
     }
 
     /// <inheritdoc />

@@ -23,18 +23,15 @@ internal sealed class FunctionParameter : SyntaxNode
     public SequenceType? Type { get; }
 
     /// <inheritdoc />
-    public override IReadOnlyList<SyntaxNode> Children
+    private protected override IReadOnlyList<SyntaxNode> CreateChildren()
     {
-        get
+        List<SyntaxNode> children = [Name];
+        if (Type is not null)
         {
-            List<SyntaxNode> children = [Name];
-            if (Type is not null)
-            {
-                children.Add(Type);
-            }
-
-            return children.AsReadOnly();
+            children.Add(Type);
         }
+
+        return children.AsReadOnly();
     }
 
     /// <inheritdoc />

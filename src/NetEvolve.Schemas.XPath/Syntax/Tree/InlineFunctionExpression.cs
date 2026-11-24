@@ -33,20 +33,17 @@ internal sealed class InlineFunctionExpression : Expression
     public Expression Body { get; }
 
     /// <inheritdoc />
-    public override IReadOnlyList<SyntaxNode> Children
+    private protected override IReadOnlyList<SyntaxNode> CreateChildren()
     {
-        get
+        List<SyntaxNode> children = [];
+        children.AddRange(Parameters);
+        if (ReturnType is not null)
         {
-            List<SyntaxNode> children = [];
-            children.AddRange(Parameters);
-            if (ReturnType is not null)
-            {
-                children.Add(ReturnType);
-            }
-
-            children.Add(Body);
-            return children.AsReadOnly();
+            children.Add(ReturnType);
         }
+
+        children.Add(Body);
+        return children.AsReadOnly();
     }
 
     /// <inheritdoc />

@@ -15,7 +15,7 @@ internal sealed class DecimalLiteral : Expression
     public string Lexeme { get; }
 
     /// <inheritdoc />
-    public override IReadOnlyList<SyntaxNode> Children => [];
+    private protected override IReadOnlyList<SyntaxNode> CreateChildren() => [];
 
     /// <inheritdoc />
     public override void Accept(SyntaxVisitor visitor) => visitor.VisitDecimalLiteral(this);

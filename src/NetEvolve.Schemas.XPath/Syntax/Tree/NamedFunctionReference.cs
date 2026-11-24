@@ -23,7 +23,7 @@ internal sealed class NamedFunctionReference : Expression
     public int Arity { get; }
 
     /// <inheritdoc />
-    public override IReadOnlyList<SyntaxNode> Children => [Name];
+    private protected override IReadOnlyList<SyntaxNode> CreateChildren() => [Name];
 
     /// <inheritdoc />
     public override void Accept(SyntaxVisitor visitor) => visitor.VisitNamedFunctionReference(this);

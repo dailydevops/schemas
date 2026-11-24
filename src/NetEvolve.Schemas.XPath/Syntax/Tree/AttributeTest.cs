@@ -23,21 +23,18 @@ internal sealed class AttributeTest : KindTest
     public QualifiedName? TypeName { get; }
 
     /// <inheritdoc />
-    public override IReadOnlyList<SyntaxNode> Children
+    private protected override IReadOnlyList<SyntaxNode> CreateChildren()
     {
-        get
+        List<SyntaxNode> children = [];
+        if (Name is not null)
         {
-            List<SyntaxNode> children = [];
-            if (Name is not null)
-            {
-                children.Add(Name);
-            }
-            if (TypeName is not null)
-            {
-                children.Add(TypeName);
-            }
-            return children.AsReadOnly();
+            children.Add(Name);
         }
+        if (TypeName is not null)
+        {
+            children.Add(TypeName);
+        }
+        return children.AsReadOnly();
     }
 
     /// <inheritdoc />

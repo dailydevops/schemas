@@ -28,7 +28,7 @@ internal sealed class IfExpression : Expression
     public Expression Else { get; }
 
     /// <inheritdoc />
-    public override IReadOnlyList<SyntaxNode> Children => [Condition, Then, Else];
+    private protected override IReadOnlyList<SyntaxNode> CreateChildren() => [Condition, Then, Else];
 
     /// <inheritdoc />
     public override void Accept(SyntaxVisitor visitor) => visitor.VisitIfExpression(this);

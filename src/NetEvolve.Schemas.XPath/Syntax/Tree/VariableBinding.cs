@@ -23,7 +23,7 @@ internal sealed class VariableBinding : SyntaxNode
     public Expression Source { get; }
 
     /// <inheritdoc />
-    public override IReadOnlyList<SyntaxNode> Children => [Name, Source];
+    private protected override IReadOnlyList<SyntaxNode> CreateChildren() => [Name, Source];
 
     /// <inheritdoc />
     public override void Accept(SyntaxVisitor visitor) => visitor.VisitVariableBinding(this);

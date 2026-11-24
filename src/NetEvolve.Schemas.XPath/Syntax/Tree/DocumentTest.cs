@@ -15,17 +15,14 @@ internal sealed class DocumentTest : KindTest
     public KindTest? Element { get; }
 
     /// <inheritdoc />
-    public override IReadOnlyList<SyntaxNode> Children
+    private protected override IReadOnlyList<SyntaxNode> CreateChildren()
     {
-        get
+        List<SyntaxNode> children = [];
+        if (Element is not null)
         {
-            List<SyntaxNode> children = [];
-            if (Element is not null)
-            {
-                children.Add(Element);
-            }
-            return children.AsReadOnly();
+            children.Add(Element);
         }
+        return children.AsReadOnly();
     }
 
     /// <inheritdoc />

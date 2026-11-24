@@ -15,17 +15,14 @@ internal sealed class ParenthesizedExpression : Expression
     public Expression? Inner { get; }
 
     /// <inheritdoc />
-    public override IReadOnlyList<SyntaxNode> Children
+    private protected override IReadOnlyList<SyntaxNode> CreateChildren()
     {
-        get
+        List<SyntaxNode> children = [];
+        if (Inner is not null)
         {
-            List<SyntaxNode> children = [];
-            if (Inner is not null)
-            {
-                children.Add(Inner);
-            }
-            return children.AsReadOnly();
+            children.Add(Inner);
         }
+        return children.AsReadOnly();
     }
 
     /// <inheritdoc />

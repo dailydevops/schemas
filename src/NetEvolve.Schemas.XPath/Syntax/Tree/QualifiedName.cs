@@ -28,7 +28,7 @@ internal sealed class QualifiedName : SyntaxNode
     public string? NamespaceUri { get; }
 
     /// <inheritdoc />
-    public override IReadOnlyList<SyntaxNode> Children => [];
+    private protected override IReadOnlyList<SyntaxNode> CreateChildren() => [];
 
     /// <inheritdoc />
     public override void Accept(SyntaxVisitor visitor) => visitor.VisitQualifiedName(this);

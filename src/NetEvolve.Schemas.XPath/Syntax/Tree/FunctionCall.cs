@@ -23,15 +23,12 @@ internal sealed class FunctionCall : Expression
     public IReadOnlyList<Expression> Arguments { get; }
 
     /// <inheritdoc />
-    public override IReadOnlyList<SyntaxNode> Children
+    private protected override IReadOnlyList<SyntaxNode> CreateChildren()
     {
-        get
-        {
-            List<SyntaxNode> children = [];
-            children.Add(Name);
-            children.AddRange(Arguments);
-            return children.AsReadOnly();
-        }
+        List<SyntaxNode> children = [];
+        children.Add(Name);
+        children.AddRange(Arguments);
+        return children.AsReadOnly();
     }
 
     /// <inheritdoc />

@@ -23,14 +23,11 @@ internal sealed class PathExpression : Expression
     public IReadOnlyList<Expression> Steps { get; }
 
     /// <inheritdoc />
-    public override IReadOnlyList<SyntaxNode> Children
+    private protected override IReadOnlyList<SyntaxNode> CreateChildren()
     {
-        get
-        {
-            List<SyntaxNode> children = [];
-            children.AddRange(Steps);
-            return children.AsReadOnly();
-        }
+        List<SyntaxNode> children = [];
+        children.AddRange(Steps);
+        return children.AsReadOnly();
     }
 
     /// <inheritdoc />

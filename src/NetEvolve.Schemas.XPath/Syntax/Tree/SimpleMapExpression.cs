@@ -23,7 +23,7 @@ internal sealed class SimpleMapExpression : Expression
     public Expression Right { get; }
 
     /// <inheritdoc />
-    public override IReadOnlyList<SyntaxNode> Children => [Left, Right];
+    private protected override IReadOnlyList<SyntaxNode> CreateChildren() => [Left, Right];
 
     /// <inheritdoc />
     public override void Accept(SyntaxVisitor visitor) => visitor.VisitSimpleMapExpression(this);

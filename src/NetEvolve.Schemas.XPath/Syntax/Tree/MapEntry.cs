@@ -23,15 +23,12 @@ internal sealed class MapEntry : SyntaxNode
     public Expression Value { get; }
 
     /// <inheritdoc />
-    public override IReadOnlyList<SyntaxNode> Children
+    private protected override IReadOnlyList<SyntaxNode> CreateChildren()
     {
-        get
-        {
-            List<SyntaxNode> children = [];
-            children.Add(Key);
-            children.Add(Value);
-            return children.AsReadOnly();
-        }
+        List<SyntaxNode> children = [];
+        children.Add(Key);
+        children.Add(Value);
+        return children.AsReadOnly();
     }
 
     /// <inheritdoc />

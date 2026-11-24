@@ -15,14 +15,11 @@ internal sealed class SequenceExpression : Expression
     public IReadOnlyList<Expression> Items { get; }
 
     /// <inheritdoc />
-    public override IReadOnlyList<SyntaxNode> Children
+    private protected override IReadOnlyList<SyntaxNode> CreateChildren()
     {
-        get
-        {
-            List<SyntaxNode> children = [];
-            children.AddRange(Items);
-            return children.AsReadOnly();
-        }
+        List<SyntaxNode> children = [];
+        children.AddRange(Items);
+        return children.AsReadOnly();
     }
 
     /// <inheritdoc />
