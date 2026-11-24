@@ -8,6 +8,8 @@ using NetEvolve.Schemas.Xsd.Tests.Integration.InstanceTests;
 using NetEvolve.Schemas.Xsd.Tests.Integration.SchemaTests;
 using NetEvolve.Schemas.Xsd.Tests.Integration.Xsts;
 
+[Explicit]
+[Category(ConformanceCategory.Name)]
 [ConformanceLeg]
 public class XstsConformanceTests
 {
