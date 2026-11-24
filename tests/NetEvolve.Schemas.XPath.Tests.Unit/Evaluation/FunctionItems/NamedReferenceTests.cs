@@ -79,7 +79,9 @@ public class NamedReferenceTests
         cancellationToken.ThrowIfCancellationRequested();
 
         await Assert.That(Run("local-name-from-QName(function-name(abs#1))")).IsEqualTo("string:abs");
-        await Assert.That(Run("namespace-uri-from-QName(function-name(abs#1))")).IsEqualTo("string:" + FnNamespace);
+        await Assert
+            .That(Run("string(namespace-uri-from-QName(function-name(abs#1)))"))
+            .IsEqualTo("string:" + FnNamespace);
         await Assert.That(Run("function-name(function() { 1 })")).IsEqualTo("()");
     }
 

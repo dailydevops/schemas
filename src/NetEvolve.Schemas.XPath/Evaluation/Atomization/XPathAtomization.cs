@@ -7,7 +7,7 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>Atomization (XPath 2.0, 2.4.2) and effective boolean value (2.4.3): the two operations every operator and function shares.</summary>
 /// <remarks>
-/// Singletons and the empty sequence take allocation-free fast paths. Limitations: a node yields exactly one typed value, so list
+/// A function item has no typed value (FOTY0013) and no effective boolean value (FORG0006). Singletons and the empty sequence take allocation-free fast paths. Limitations: a node yields exactly one typed value, so list
 /// types that atomize to several items await schema-aware processing (XSD-16); the effective boolean value covers the
 /// families the data model carries today, so a type without a rule (for example a date) raises FORG0006.
 /// </remarks>
@@ -36,13 +36,20 @@ internal static class XPathAtomization
         if (count == 1)
         {
             var only = sequence[0];
+            ThrowIfFunction(only);
             return only.IsNode ? XdmSequence.Create(AtomizeNode(only, source)) : sequence;
         }
 
-        var first = 0;
-        while (first < count && !sequence[first].IsNode)
+        // Every item is checked, because a function item has no typed value wherever it stands in the sequence.
+        var first = count;
+        for (var i = 0; i < count; i++)
         {
-            first++;
+            var item = sequence[i];
+            ThrowIfFunction(item);
+            if (first == count && item.IsNode)
+            {
+                first = i;
+            }
         }
 
         if (first == count)
@@ -125,6 +132,15 @@ internal static class XPathAtomization
         }
 
         throw XPathErrors.Exception(XPathErrorCodes.FORG0006);
+    }
+
+    // XPath 3.0, 2.4.2: a function item has no typed value, so atomizing one is an error.
+    private static void ThrowIfFunction(in XdmItem item)
+    {
+        if (item.Kind == XdmItemKind.Function)
+        {
+            throw XPathErrors.Exception(XPathErrorCodes.FOTY0013);
+        }
     }
 
     private static XdmItem AtomizeNode(in XdmItem item, IXdmTypeAnnotationSource source)

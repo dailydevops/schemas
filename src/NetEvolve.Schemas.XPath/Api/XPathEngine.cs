@@ -11,6 +11,7 @@ using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Evaluation.Arithmetic;
 using NetEvolve.Schemas.XPath.Evaluation.Comparison;
 using NetEvolve.Schemas.XPath.Evaluation.Flow;
+using NetEvolve.Schemas.XPath.Evaluation.FunctionItems;
 using NetEvolve.Schemas.XPath.Evaluation.Paths;
 using NetEvolve.Schemas.XPath.Evaluation.Temporal;
 using NetEvolve.Schemas.XPath.Functions.Binding;
@@ -114,6 +115,7 @@ internal static class XPathEngine
         CastingLowerings.Register(registry);
         ArithmeticLowerings.Register(registry, Arithmetic);
         ComparisonLowerings.Register(registry, Comparison);
+        FunctionItemLowerings.Register(registry, activeHost);
         registry.Register<FunctionCall>((node, context) => LowerCall(node, context, activeHost));
         return registry;
     }
@@ -142,25 +144,13 @@ internal static class XPathEngine
     )
     {
         var statics = context.StaticContext;
-        var name = node.Name;
-        var namespaceName = statics.DefaultFunctionNamespace;
-        if (name.Prefix is not null && !statics.TryResolveNamespace(name.Prefix, out namespaceName))
-        {
-            throw XPathErrors.Exception(XPathErrorCodes.XPST0081, name.Location.Offset, name.Location.Length);
-        }
-
         var arity = node.Arguments.Count;
-        if (
-            !FunctionCatalog.Default.Registry.TryResolve(
-                statics,
-                new XPathQName(namespaceName!, name.LocalName),
-                arity,
-                activeHost,
-                out var function
-            )
-        )
+        var function = FunctionItemLowerings.Resolve(node.Name, arity, node.Location, context, activeHost);
+
+        // A placeholder makes the call a partial function application: the result is a function item (XPath 3.0, 3.1.8).
+        if (FunctionItemLowerings.HasPlaceholder(node.Arguments))
         {
-            throw XPathErrors.Exception(XPathErrorCodes.XPST0017, node.Location.Offset, node.Location.Length);
+            return FunctionItemLowerings.LowerPartial(node, function, context);
         }
 
         var arguments = new ExecutableNode[arity];
@@ -171,7 +161,7 @@ internal static class XPathEngine
 
         // In XPath 1.0 compatibility mode the node of the mode converts the arguments first (XPath 2.0, 3.1.5).
         return statics.XPath10Compatibility
-            ? new CompatibilityCallNode(function!, arguments)
-            : new CallNode(function!, arguments);
+            ? new CompatibilityCallNode(function, arguments)
+            : new CallNode(function, arguments);
     }
 }

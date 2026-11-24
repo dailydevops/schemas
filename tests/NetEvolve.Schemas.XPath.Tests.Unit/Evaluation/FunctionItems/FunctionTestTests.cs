@@ -153,4 +153,125 @@ public class FunctionTestTests
 
         await Assert.That(Code(expression)).IsEqualTo("XPST0081");
     }
+
+    [Test]
+    [Arguments(
+        "(function($n as element(a)) as element(a) { $n }) instance of function(element(a)) as node()",
+        "boolean:True"
+    )]
+    [Arguments(
+        "(function($n as element(a)) as element(a) { $n }) instance of function(element(a)) as element(*)",
+        "boolean:True"
+    )]
+    [Arguments(
+        "(function($n as element(a)) as element(a) { $n }) instance of function(element(a)) as element(b)",
+        "boolean:False"
+    )]
+    [Arguments(
+        "(function($n as element(a)) as element(a) { $n }) instance of function(node()) as node()",
+        "boolean:False"
+    )]
+    [Arguments(
+        "(function($n as element(*)) as node() { $n }) instance of function(element(a)) as node()",
+        "boolean:True"
+    )]
+    [Arguments(
+        "(function($n as element(a)) as node() { $n }) instance of function(attribute(a)) as node()",
+        "boolean:False"
+    )]
+    [Arguments("(function($n as node()) as item()* { $n }) instance of function(text()) as item()*", "boolean:True")]
+    [Arguments("(function($n as text()) as item()* { $n }) instance of function(text()) as item()*", "boolean:True")]
+    [Arguments(
+        "(function($n as text()) as item()* { $n }) instance of function(comment()) as item()*",
+        "boolean:False"
+    )]
+    [Arguments(
+        "(function($n as document-node(element(a))) as item()* { $n }) instance of function(document-node(element(a))) as item()*",
+        "boolean:True"
+    )]
+    [Arguments(
+        "(function($n as processing-instruction(p)) as item()* { $n }) instance of function(processing-instruction(q)) as item()*",
+        "boolean:False"
+    )]
+    [Arguments(
+        "(function($n as xs:integer) as item()* { $n }) instance of function(element(a)) as item()*",
+        "boolean:False"
+    )]
+    [Arguments(
+        "(function($n as element(a)) as item()* { $n }) instance of function(xs:integer) as item()*",
+        "boolean:False"
+    )]
+    public async Task KindTestsInAFunctionTest_AreComparedByKindAndName(
+        string expression,
+        string expected,
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        await Assert.That(Run(expression)).IsEqualTo(expected);
+    }
+
+    [Test]
+    [Arguments(
+        "(function($a as xs:integer+) as item()* { $a }) instance of function(xs:integer) as item()*",
+        "boolean:True"
+    )]
+    [Arguments(
+        "(function($a as xs:integer+) as item()* { $a }) instance of function(xs:integer*) as item()*",
+        "boolean:False"
+    )]
+    [Arguments(
+        "(function($a as xs:integer*) as item()* { $a }) instance of function(xs:integer+) as item()*",
+        "boolean:True"
+    )]
+    [Arguments(
+        "(function($a as empty-sequence()) as empty-sequence() { () }) instance of function(empty-sequence()) as empty-sequence()",
+        "boolean:True"
+    )]
+    [Arguments(
+        "(function($a as empty-sequence()) as empty-sequence() { () }) instance of function(empty-sequence()) as xs:integer?",
+        "boolean:True"
+    )]
+    [Arguments(
+        "(function($a as empty-sequence()) as empty-sequence() { () }) instance of function(empty-sequence()) as xs:integer",
+        "boolean:False"
+    )]
+    [Arguments(
+        "(function($a as xs:integer) as item()* { $a }) instance of function(empty-sequence()) as item()*",
+        "boolean:False"
+    )]
+    [Arguments(
+        "(function($a as item()*) as xs:integer { 1 }) instance of function(xs:integer) as xs:anyAtomicType",
+        "boolean:True"
+    )]
+    public async Task TheOccurrence_AndTheEmptySequenceType_TakePartInSubtyping(
+        string expression,
+        string expected,
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        await Assert.That(Run(expression)).IsEqualTo(expected);
+    }
+
+    [Test]
+    [Arguments("concat#2 instance of function(xs:string, xs:string) as item()*", "boolean:True")]
+    [Arguments("count#1 instance of function(item()*) as xs:integer", "boolean:False")]
+    [Arguments("count#1 instance of function(item()*) as item()*", "boolean:True")]
+    [Arguments("name#1 instance of function(node()?) as item()*", "boolean:True")]
+    [Arguments("abs#1 instance of function(xs:anyAtomicType) as item()*", "boolean:False")]
+    [Arguments("abs#1 instance of function(xs:decimal?) as item()*", "boolean:True")]
+    [Arguments("abs#1 instance of function(function(*)) as item()*", "boolean:False")]
+    public async Task TheParametersOfABuiltInFunction_AreItsDeclaredTypes(
+        string expression,
+        string expected,
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        await Assert.That(Run(expression)).IsEqualTo(expected);
+    }
 }
