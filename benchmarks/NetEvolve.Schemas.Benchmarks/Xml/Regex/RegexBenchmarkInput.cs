@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Benchmarks.Regex;
+namespace NetEvolve.Schemas.Benchmarks.Xml.Regex;
 
 /// <summary>
 /// The pattern set of the regex benchmarks: pattern facets typical for e-invoicing rule sets and schemas (identifiers,

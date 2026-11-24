@@ -1,7 +1,7 @@
-namespace NetEvolve.Schemas.Benchmarks.Tests.Unit.Regex;
+﻿namespace NetEvolve.Schemas.Benchmarks.Tests.Unit.Xml.Regex;
 
-using System.Text.RegularExpressions;
 using NetEvolve.Schemas.Benchmarks.Gate;
+using SysRegex = System.Text.RegularExpressions.Regex;
 
 /// <summary>
 /// The regex benchmarks (DT-59) and their recorded targets. The benchmark project targets only the newest runtimes, so
@@ -11,7 +11,7 @@ using NetEvolve.Schemas.Benchmarks.Gate;
 /// </summary>
 public class RegexBenchmarkTargetsTests
 {
-    private const string BenchmarkFolder = "benchmarks/NetEvolve.Schemas.Benchmarks/Regex";
+    private const string BenchmarkFolder = "benchmarks/NetEvolve.Schemas.Benchmarks/Xml/Regex";
     private const string TargetFile = "benchmarks/targets/regex.json";
 
     [Test]
@@ -104,13 +104,13 @@ public class RegexBenchmarkTargetsTests
                 {
                     baseline = line.Contains("Baseline = true", StringComparison.Ordinal);
                 }
-                else if (Regex.Match(line, @"^(?:public|internal) (?:sealed )?class (\w+)") is { Success: true } c)
+                else if (SysRegex.Match(line, @"^(?:public|internal) (?:sealed )?class (\w+)") is { Success: true } c)
                 {
                     type = c.Groups[1].Value;
                 }
                 else if (
                     baseline is { } isBaseline
-                    && Regex.Match(line, @"^public [\w<>\[\]]+ (\w+)\(") is { Success: true } m
+                    && SysRegex.Match(line, @"^public [\w<>\[\]]+ (\w+)\(") is { Success: true } m
                 )
                 {
                     methods.Add(new BenchmarkMethod(type!, m.Groups[1].Value, isBaseline));

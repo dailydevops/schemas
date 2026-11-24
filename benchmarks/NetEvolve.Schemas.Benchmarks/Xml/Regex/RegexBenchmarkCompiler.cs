@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Benchmarks.Regex;
+namespace NetEvolve.Schemas.Benchmarks.Xml.Regex;
 
 using NetEvolve.Schemas.Xml.Regex.Contracts;
 using NetEvolve.Schemas.Xml.Regex.Matching;

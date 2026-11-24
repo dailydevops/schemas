@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Benchmarks.Regex;
+namespace NetEvolve.Schemas.Benchmarks.Xml.Regex;
 
 using System.Xml;
 using System.Xml.Schema;
