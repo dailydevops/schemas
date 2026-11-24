@@ -35,5 +35,7 @@ internal static class Registration
         builder.Add(new StringJoinItemsFunction());
         builder.Add(new TokenizeWhitespaceFunction());
         builder.Add(new ContainsTokenFunction());
+        builder.Add(new ParseXmlFunction());
+        builder.Add(new ParseXmlFragmentFunction());
     }
 }

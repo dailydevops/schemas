@@ -1,9 +1,11 @@
 namespace NetEvolve.Schemas.XPath.Tests.Unit.Functions.Delta3;
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Context;
+using NetEvolve.Schemas.XPath.Functions.Delta3;
 using NetEvolve.Schemas.XPath.Xdm.Nodes;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
@@ -151,5 +153,29 @@ public class ParseXmlFunctionTests
         await Assert
             .That(Delta3Harness.Show(Delta3Harness.Call("path", Delta3Harness.Nodes(Delta3Harness.Child(document, 1)))))
             .IsEqualTo("/Q{urn:x}a[1]");
+    }
+
+    [Test]
+    public async Task ParseXml_OfAFunctionThatHoldsAStaticBaseUri_GivesTheDocumentThatBaseUri(
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var baseUri = new Uri("http://example.com/base/");
+        var xml = Delta3Harness.Str("<a><b/></a>");
+        using var context = new XPathEvaluationContext();
+
+        var whole = new ParseXmlFunction(baseUri).Call(context, [xml]);
+        var fragment = new ParseXmlFragmentFunction(baseUri).Call(context, [xml]);
+        var relative = new ParseXmlFunction(new Uri("base.xml", UriKind.Relative)).Call(context, [xml]);
+
+        _ = whole[0].TryGetNode(out var wholeNode);
+        _ = fragment[0].TryGetNode(out var fragmentNode);
+        _ = relative[0].TryGetNode(out var relativeNode);
+        await Assert.That(wholeNode.BaseUri()).IsEqualTo(baseUri);
+        await Assert.That(Delta3Harness.Child(wholeNode, 0).BaseUri()).IsEqualTo(baseUri);
+        await Assert.That(fragmentNode.BaseUri()).IsEqualTo(baseUri);
+        await Assert.That(relativeNode.BaseUri()).IsNull();
     }
 }
