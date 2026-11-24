@@ -634,7 +634,9 @@ public class SchematronReadmeTests
 
     [Test]
     public async Task Readme_HasNoDoubleBlankLines() =>
-        await Assert.That(ReadmeSamples.ReadText(Readme).Replace("\r\n", "\n", StringComparison.Ordinal)).DoesNotContain("\n\n\n");
+        await Assert
+            .That(ReadmeSamples.ReadText(Readme).Replace("\r\n", "\n", StringComparison.Ordinal))
+            .DoesNotContain("\n\n\n");
 
     [Test]
     public async Task Readme_FollowsTheSectionOrderOfTheProjectTemplate()
