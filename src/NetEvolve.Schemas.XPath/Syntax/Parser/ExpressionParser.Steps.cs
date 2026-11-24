@@ -81,7 +81,11 @@ internal ref partial struct ExpressionParser
                 or XPathTokenKind.LeftParen
                 or XPathTokenKind.Dot
                 or XPathTokenKind.DotDot
-                or XPathTokenKind.At;
+                or XPathTokenKind.At
+                or XPathTokenKind.Map
+                or XPathTokenKind.Array
+                or XPathTokenKind.LeftBracket
+                or XPathTokenKind.Question;
 
     // [23] StepExpr, [24] AxisStep: an abbreviated or explicit axis step, or a filter expression.
     private Expression ParseStep()
@@ -235,6 +239,10 @@ internal ref partial struct ExpressionParser
             {
                 expression = new DynamicFunctionCall(Span(start), expression, ParseArguments());
             }
+            else if (_v31 && _current.Kind == XPathTokenKind.Question)
+            {
+                expression = ParseLookup(start, expression);
+            }
             else
             {
                 return expression;
@@ -270,6 +278,86 @@ internal ref partial struct ExpressionParser
 
         _ = Advance();
         return new NamedFunctionReference(Span(nameToken.Span.Offset), name, value);
+    }
+
+    // XPath 3.1 [Lookup] and [UnaryLookup]: "?" and a key specifier, which is a name, an integer, "*", or a
+    // parenthesized expression. The lexer reads the name after the "?" as a plain name, so "?div" is not an operator.
+    private LookupExpression ParseLookup(int start, Expression? operand)
+    {
+        _ = Advance();
+        var token = _current;
+        switch (token.Kind)
+        {
+            case XPathTokenKind.Name:
+                _ = Advance();
+                return new LookupExpression(Span(start), operand, LookupKeyKind.Name, TextOf(token).ToString(), null);
+            case XPathTokenKind.IntegerLiteral:
+                _ = Advance();
+                return new LookupExpression(
+                    Span(start),
+                    operand,
+                    LookupKeyKind.Integer,
+                    null,
+                    new IntegerLiteral(token.Span, TextOf(token).ToString())
+                );
+            case XPathTokenKind.Wildcard:
+                _ = Advance();
+                return new LookupExpression(Span(start), operand, LookupKeyKind.Wildcard, null, null);
+            case XPathTokenKind.LeftParen:
+                return new LookupExpression(Span(start), operand, LookupKeyKind.Expression, null, ParsePrimary());
+            default:
+                throw Unexpected();
+        }
+    }
+
+    // XPath 3.1 [MapConstructor]: map { key : value, ... }; the keys and values are ExprSingle, so they enter the depth
+    // bound through ParseExprSingle.
+    private MapConstructor ParseMapConstructor()
+    {
+        var start = Advance().Span.Offset;
+        Expect(XPathTokenKind.LeftBrace);
+        List<MapEntry> entries = [];
+        if (_current.Kind != XPathTokenKind.RightBrace)
+        {
+            do
+            {
+                var entryStart = _current.Span.Offset;
+                var key = ParseExprSingle();
+                Expect(XPathTokenKind.Colon);
+                entries.Add(new MapEntry(Span(entryStart), key, ParseExprSingle()));
+            } while (Accept(XPathTokenKind.Comma));
+        }
+
+        Expect(XPathTokenKind.RightBrace);
+        return new MapConstructor(Span(start), entries);
+    }
+
+    // XPath 3.1 [SquareArrayConstructor]: [ member, ... ] with ExprSingle members.
+    private SquareArrayConstructor ParseSquareArray()
+    {
+        var start = Advance().Span.Offset;
+        List<Expression> members = [];
+        if (!Accept(XPathTokenKind.RightBracket))
+        {
+            do
+            {
+                members.Add(ParseExprSingle());
+            } while (Accept(XPathTokenKind.Comma));
+
+            Expect(XPathTokenKind.RightBracket);
+        }
+
+        return new SquareArrayConstructor(Span(start), members);
+    }
+
+    // XPath 3.1 [CurlyArrayConstructor]: array { expr? }
+    private CurlyArrayConstructor ParseCurlyArray()
+    {
+        var start = Advance().Span.Offset;
+        Expect(XPathTokenKind.LeftBrace);
+        var content = _current.Kind == XPathTokenKind.RightBrace ? null : ParseExpr();
+        Expect(XPathTokenKind.RightBrace);
+        return new CurlyArrayConstructor(Span(start), content);
     }
 
     // XPath 3.0 [InlineFunctionExpr]: function($a as type, ...) as type { expr }
@@ -353,6 +441,14 @@ internal ref partial struct ExpressionParser
                 return new VariableReference(Span(token.Span.Offset), variable);
             case XPathTokenKind.Function:
                 return ParseInlineFunction();
+            case XPathTokenKind.Map when _v31:
+                return ParseMapConstructor();
+            case XPathTokenKind.Array when _v31:
+                return ParseCurlyArray();
+            case XPathTokenKind.LeftBracket when _v31:
+                return ParseSquareArray();
+            case XPathTokenKind.Question when _v31:
+                return ParseLookup(token.Span.Offset, null);
             case XPathTokenKind.Dot:
                 _ = Advance();
                 return new ContextItemExpression(token.Span);
@@ -387,10 +483,12 @@ internal ref partial struct ExpressionParser
         return new FunctionCall(Span(nameToken.Span.Offset), name, arguments);
     }
 
-    // XPath 3.0 adds function, namespace-node, switch, and if to the reserved function names.
+    // XPath 3.0 adds function, namespace-node, switch, and if to the reserved function names; XPath 3.1 adds map and
+    // array.
     private readonly bool IsReservedFunctionName(ReadOnlySpan<char> name) =>
         name is "typeswitch" or "item" or "empty-sequence"
-        || (_v30 && name is "function" or "namespace-node" or "switch" or "if");
+        || (_v30 && name is "function" or "namespace-node" or "switch" or "if")
+        || (_v31 && name is "map" or "array");
 
     // [44] VarName: the name after "$".
     private QualifiedName ParseVariableName()

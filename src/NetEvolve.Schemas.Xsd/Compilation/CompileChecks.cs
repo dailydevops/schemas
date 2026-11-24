@@ -11,6 +11,7 @@ using NetEvolve.Schemas.Xsd.Derivation.Types;
 using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.Elements;
 using NetEvolve.Schemas.Xsd.SimpleTypes.Checks;
+using NetEvolve.Schemas.Xsd.Substitution;
 using NetEvolve.Schemas.Xsd.Versioning.Rules10;
 
 /// <summary>
@@ -32,7 +33,8 @@ internal static class CompileChecks
     /// <param name="definitions">The model group definitions that were built.</param>
     /// <param name="version">The XSD version.</param>
     /// <param name="reporter">The reporter.</param>
-    internal static void Run(
+    /// <returns>The substitution groups of the global element declarations.</returns>
+    internal static SubstitutionGroups Run(
         BuildContext context,
         TypeDerivationCheck derivation,
         ParticleRestriction? particles,
@@ -48,6 +50,8 @@ internal static class CompileChecks
 
         derivation.ReportAll(context.BuiltComplexTypes, reporter);
         CheckValueConstraints(context, version, reporter);
+        var groups = CheckSubstitutionGroups(context, derivation, reporter);
+        particles?.Substitutions = groups;
         CheckContents(context, version, reporter);
         CheckRestrictions(context, particles, reporter);
         for (var i = 0; i < definitions.Count; i++)
@@ -59,6 +63,8 @@ internal static class CompileChecks
         {
             IdAttributeUses.CheckGroup(context.BuiltAttributeGroups[i].Uses, version, reporter);
         }
+
+        return groups;
     }
 
     private static void CheckValueConstraints(BuildContext context, XsdVersion version, XsdIssueReporter reporter)
@@ -81,6 +87,26 @@ internal static class CompileChecks
                 _ = ValueConstraintCheck.Check(context.BuiltUses[i], context.Assessor, version, reporter);
             }
         }
+    }
+
+    // Substitution Group OK (Transitive) of the global declarations that name a head; a head that is not resolved was reported by the resolver.
+    private static SubstitutionGroups CheckSubstitutionGroups(
+        BuildContext context,
+        TypeDerivationCheck derivation,
+        XsdIssueReporter reporter
+    )
+    {
+        var global = new List<ISubstitutionElement>();
+        for (var i = 0; i < context.FoundElements.Count; i++)
+        {
+            var element = context.FoundElements[i];
+            if (element.IsGlobal && (element.TypeDefinition is not null || element.InheritsType))
+            {
+                global.Add(element);
+            }
+        }
+
+        return SubstitutionGroups.Build(global, derivation, reporter);
     }
 
     private static void CheckContents(BuildContext context, XsdVersion version, XsdIssueReporter reporter)

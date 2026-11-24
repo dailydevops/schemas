@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Schematron.Pipeline;
+﻿namespace NetEvolve.Schemas.Schematron.Pipeline;
 
 using System;
 using System.Collections.Generic;
@@ -64,7 +64,31 @@ internal static class ValidationRun
         var events = new IssueMapper(collector, sink);
         var systemId = source.SystemId;
         Begin(program, events, systemId);
-        if (!InstanceReader.TryRead(in source, limits, out var tree, out var failure))
+        var context = program.Contexts.Rent();
+        try
+        {
+            return Run(program, context, collector, events, parameters, in source, limits, cancellationToken);
+        }
+        finally
+        {
+            program.Contexts.Return(context);
+        }
+    }
+
+    private static ValidationResult Run(
+        CompiledProgram program,
+        ValidationContext context,
+        ValidationIssueCollector collector,
+        IssueMapper events,
+        IReadOnlyDictionary<string, string> parameters,
+        in DocumentSource source,
+        ValidationLimits limits,
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var systemId = source.SystemId;
+        if (!InstanceReader.TryRead(in source, limits, context.Names, out var tree, out var failure))
         {
             Fail(collector, events, failure, systemId);
             return collector.ToResult();

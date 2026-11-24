@@ -1,14 +1,9 @@
 1.0/particlesDa011/particlesDa011
-1.0/particlesDc001/particlesDc001.v
-1.0/particlesDc002/particlesDc002.v
-1.0/particlesDc003/particlesDc003.v
-1.0/particlesDc007/particlesDc007.v
 1.0/particlesEc009/particlesEc009
 1.0/particlesHa008/particlesHa008
 1.0/particlesHa070/particlesHa070
 1.0/particlesHa080/particlesHa080
 1.0/particlesHa084/particlesHa084
-1.0/particlesIh001/particlesIh001
 1.0/particlesJq010/particlesJq010
 1.0/particlesJq010/particlesJq010.v
 1.0/particlesJs001/particlesJs001
@@ -27,10 +22,6 @@
 1.0/particlesR022/particlesR022.v
 1.0/particlesZ001/particlesZ001
 1.0/particlesZ001/particlesZ001.i
-1.0/particlesZ008/particlesZ008
-1.0/particlesZ008/particlesZ008.v
-1.0/particlesZ012/particlesZ012.v
-1.0/particlesZ014/particlesZ014
 1.0/particlesZ025/particlesZ025.v
 1.0/particlesZ034_a1/particlesZ034_a1.v
 1.0/particlesZ036_b1/particlesZ036_b1.i
