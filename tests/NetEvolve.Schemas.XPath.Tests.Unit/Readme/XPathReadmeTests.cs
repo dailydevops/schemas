@@ -169,6 +169,24 @@ public class XPathReadmeTests
     }
 
     [Test]
+    [Arguments("math:pi()")]
+    [Arguments("fn:format-integer(1, '1')")]
+    [Arguments("fn:analyze-string('a', 'a')")]
+    public async Task LaterVersionFunctions_AreNotCallableThroughTheVersion20Entry(string expression)
+    {
+        var statics = XPathStaticContext
+            .Default.ToBuilder()
+            .WithNamespace("fn", "http://www.w3.org/2005/xpath-functions")
+            .WithNamespace("math", "http://www.w3.org/2005/xpath-functions/math")
+            .Build();
+
+        var compiled = XPathExpression.TryCompile(expression, statics);
+
+        await Assert.That(compiled.Success).IsFalse();
+        await Assert.That(compiled.Diagnostic.Code).IsEqualTo("XPST0017");
+    }
+
+    [Test]
     public async Task EvaluationLimits_DocumentedDefaultsEqualTheDefaultsInCode()
     {
         var readme = ReadmeSamples.ReadText(Readme);
@@ -237,7 +255,7 @@ public class XPathReadmeTests
 
         foreach (var heading in template)
         {
-            if (heading == "# Project Name")
+            if (heading.StartsWith("# Project Name", StringComparison.Ordinal))
             {
                 continue;
             }
