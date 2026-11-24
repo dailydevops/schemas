@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Schematron.Tests.Unit.Loading.XInclude;
+﻿namespace NetEvolve.Schemas.Schematron.Tests.Unit.Loading.XInclude;
 
 using NetEvolve.Schemas.Resources;
 using NetEvolve.Schemas.Schematron.Loading.XInclude;
@@ -153,6 +153,16 @@ public class XIncludeErrorTests
         var outcome = Run(Doc(Inc("c1.xml")), Chain(250), limits);
 
         await Assert.That(outcome.Ok).IsTrue();
+    }
+
+    [Test]
+    public async Task Depth_ChainBeyondTheIncludeNestingCap_ReportsNes0002_EvenWithAHigherMaxDepth()
+    {
+        var limits = ValidationLimits.Default.WithMaxExternalResources(5_000).WithMaxDepth(5_000);
+
+        var outcome = Run(Doc(Inc("c1.xml")), Chain(300), limits);
+
+        await AssertSingle(outcome, CoreDiagnosticCodes.DepthLimitExceeded);
     }
 
     [Test]
