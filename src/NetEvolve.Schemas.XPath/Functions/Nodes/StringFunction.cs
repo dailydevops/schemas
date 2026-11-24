@@ -1,9 +1,11 @@
 namespace NetEvolve.Schemas.XPath.Functions.Nodes;
 
 using NetEvolve.Schemas.XPath.Api;
+using NetEvolve.Schemas.XPath.Casting.Core;
 using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Functions.Binding;
 using NetEvolve.Schemas.XPath.Syntax.Tree;
+using NetEvolve.Schemas.XPath.Types;
 using NetEvolve.Schemas.XPath.Xdm.Nodes;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
@@ -34,6 +36,21 @@ internal sealed class StringFunction : NodeFunction
         return XPathEvaluationStatus.Ok;
     }
 
-    private static string Of(in XdmItem item) =>
-        item.TryGetNode(out var node) ? node.StringValue() : AtomicString.Of(in item);
+    private static string Of(in XdmItem item) => item.TryGetNode(out var node) ? node.StringValue() : OfAtomic(in item);
+
+    /// <summary>Gets the string value of an atomic item through the casting table.</summary>
+    /// <param name="item">The item, not a node.</param>
+    /// <returns>The string value.</returns>
+    /// <exception cref="XPathException">The item has no string form in the casting table (XPTY0004 or the error of the cast).</exception>
+    internal static string OfAtomic(in XdmItem item)
+    {
+        var status = CastingCatalog.Default.Table.TryCast(in item, XdmTypeId.XsString, out var result);
+        if (status != CastStatus.Ok)
+        {
+            throw XPathErrors.Exception(status.ToErrorCode());
+        }
+
+        _ = result.TryGetString(out var text);
+        return text!;
+    }
 }

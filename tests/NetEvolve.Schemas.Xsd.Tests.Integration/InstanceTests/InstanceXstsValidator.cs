@@ -68,7 +68,7 @@ internal sealed class InstanceXstsValidator : IXstsValidator
     }
 
     // The build is shared by every case of the group; two cases that race for it build twice at worst and keep one result.
-    private Task<IXsdValidator?> ValidatorOf(XstsSelectedCase xstsCase) =>
+    internal Task<IXsdValidator?> ValidatorOf(XstsSelectedCase xstsCase) =>
         _validators.GetOrAdd(
             xstsCase.TestSet + "|" + xstsCase.Version + "|" + xstsCase.Case.Group,
             static (_, state) => state.Validator.BuildAsync(state.Documents, CancellationToken.None),

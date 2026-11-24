@@ -1,0 +1,62 @@
+[
+  {
+    "name": "CiiCompilationBenchmarks.CompileCii",
+    "meanNs": 6797437,
+    "allocatedBytes": 8022374,
+    "baselineRatio": 2.1
+  },
+  {
+    "name": "CiiValidationBenchmarks.ValidateSpan",
+    "meanNs": 537714,
+    "allocatedBytes": 31391,
+    "baselineRatio": 4.9
+  },
+  {
+    "name": "CiiValidationBenchmarks.ValidateStream",
+    "meanNs": 487913,
+    "allocatedBytes": 31496,
+    "baselineRatio": 4.5
+  },
+  {
+    "name": "LargeValidation10000Benchmarks.ValidateSpan",
+    "meanNs": 350190772,
+    "allocatedBytes": 46557,
+    "baselineRatio": 3.8
+  },
+  {
+    "name": "LargeValidation10000Benchmarks.ValidateStream",
+    "meanNs": 353623981,
+    "allocatedBytes": 46662,
+    "baselineRatio": 3.8
+  },
+  {
+    "name": "LargeValidation1000Benchmarks.ValidateSpan",
+    "meanNs": 34891684,
+    "allocatedBytes": 46557,
+    "baselineRatio": 3.9
+  },
+  {
+    "name": "LargeValidation1000Benchmarks.ValidateStream",
+    "meanNs": 36092690,
+    "allocatedBytes": 46665,
+    "baselineRatio": 4.1
+  },
+  {
+    "name": "UblCompilationBenchmarks.CompileUbl",
+    "meanNs": 71173436,
+    "allocatedBytes": 32580972,
+    "baselineRatio": 2.4
+  },
+  {
+    "name": "UblValidationBenchmarks.ValidateSpan",
+    "meanNs": 418328,
+    "allocatedBytes": 46557,
+    "baselineRatio": 3.8
+  },
+  {
+    "name": "UblValidationBenchmarks.ValidateStream",
+    "meanNs": 428728,
+    "allocatedBytes": 46662,
+    "baselineRatio": 3.9
+  }
+]

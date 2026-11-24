@@ -79,6 +79,9 @@ The W3C QT3 test suite is pinned by commit, not by branch. The archive is the Gi
   does not pass, failed or skipped, as `<test-set>/<case-name>`, one per line. A case that passes but is still
   listed fails the run, so a baseline only shrinks on purpose. Test sets without a selected case have no file.
   Regenerate the files with the explicit test `Qt3BaselineTests.Baseline_Regenerate` after a deliberate change.
+- **Tiers:** `qt3.json` also feeds the XPath 3.0 and 3.1 tiers (`qt3-xp30` and `qt3-xp31`). Their selections, counts, and baselines
+  (`tests/conformance/baselines/qt3-xp30` and `qt3-xp31`) are described in
+  `tests/NetEvolve.Schemas.XPath.Tests.Integration/Qt3/Selections/README.md`.
 
 ## Suites without releases
 

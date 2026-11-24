@@ -3,6 +3,8 @@
     public interface IXsdValidator : NetEvolve.Schemas.ISchemaValidator
     {
         NetEvolve.Schemas.Xml.Datatypes.Contracts.XsdVersion Version { get; }
+        NetEvolve.Schemas.Xsd.XsdAnnotatedResult ValidateTree(NetEvolve.Schemas.Xml.Contracts.XmlTree document, System.Threading.CancellationToken cancellationToken = default);
+        NetEvolve.Schemas.Xsd.XsdAnnotatedResult ValidateTree(NetEvolve.Schemas.Xml.Contracts.XmlTree document, NetEvolve.Schemas.Xml.Contracts.XmlNode element, System.Threading.CancellationToken cancellationToken = default);
     }
     public static class XsdSchemaValidatorExtensions
     {
@@ -31,6 +33,27 @@
 }
 namespace NetEvolve.Schemas.Xsd
 {
+    public sealed class XsdAnnotatedResult
+    {
+        public NetEvolve.Schemas.Xml.Model.XmlDocumentTree Document { get; }
+        public NetEvolve.Schemas.ValidationResult Result { get; }
+        public bool TryGetAnnotation(NetEvolve.Schemas.Xml.Contracts.XmlNode node, out NetEvolve.Schemas.Xsd.XsdAnnotation annotation) { }
+        public bool TryGetIssueNode(NetEvolve.Schemas.ValidationIssue issue, out NetEvolve.Schemas.Xml.Contracts.XmlNode node) { }
+    }
+    public readonly struct XsdAnnotation : System.IEquatable<NetEvolve.Schemas.Xsd.XsdAnnotation>
+    {
+        public bool IsNilled { get; }
+        public NetEvolve.Schemas.Xsd.XsdTypeName TypeName { get; }
+        public int TypedValueCount { get; }
+        public NetEvolve.Schemas.Xsd.XsdTypedValueKind TypedValueKind { get; }
+        public NetEvolve.Schemas.Xsd.XsdValidity Validity { get; }
+        public int CopyTypedValue(System.Span<NetEvolve.Schemas.XPath.Xdm.Values.XdmItem> destination) { }
+        public bool Equals(NetEvolve.Schemas.Xsd.XsdAnnotation other) { }
+        public override bool Equals(object? obj) { }
+        public override int GetHashCode() { }
+        public static bool operator !=(NetEvolve.Schemas.Xsd.XsdAnnotation left, NetEvolve.Schemas.Xsd.XsdAnnotation right) { }
+        public static bool operator ==(NetEvolve.Schemas.Xsd.XsdAnnotation left, NetEvolve.Schemas.Xsd.XsdAnnotation right) { }
+    }
     public sealed class XsdRule
     {
         public NetEvolve.Schemas.DiagnosticCode Code { get; }
@@ -238,6 +261,30 @@ namespace NetEvolve.Schemas.Xsd
         SchemaRepresentation = 3,
         SchemaComponent = 4,
         Validation = 5,
+    }
+    public readonly struct XsdTypeName : System.IEquatable<NetEvolve.Schemas.Xsd.XsdTypeName>
+    {
+        public bool IsAnonymous { get; }
+        public string LocalName { get; }
+        public string NamespaceName { get; }
+        public bool Equals(NetEvolve.Schemas.Xsd.XsdTypeName other) { }
+        public override bool Equals(object? obj) { }
+        public override int GetHashCode() { }
+        public static bool operator !=(NetEvolve.Schemas.Xsd.XsdTypeName left, NetEvolve.Schemas.Xsd.XsdTypeName right) { }
+        public static bool operator ==(NetEvolve.Schemas.Xsd.XsdTypeName left, NetEvolve.Schemas.Xsd.XsdTypeName right) { }
+    }
+    public enum XsdTypedValueKind
+    {
+        None = 0,
+        Empty = 1,
+        Atomic = 2,
+        Untyped = 3,
+    }
+    public enum XsdValidity
+    {
+        NotKnown = 0,
+        Invalid = 1,
+        Valid = 2,
     }
     [System.Flags]
     public enum XsdVersionMask

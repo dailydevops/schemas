@@ -232,4 +232,22 @@ public class SchemaLocationErrorTests
         await Assert.That(valid.IsValid).IsTrue();
         await Assert.That(undeclared.IsValid).IsFalse();
     }
+
+    [Test]
+    [Arguments("ht!tp://x/h.xsd")]
+    [Arguments("1http://x/h.xsd")]
+    public async Task ALocationThatIsNoUriReference_IsReportedWithTheReferenceCodeAndNoRequest(string location)
+    {
+        var resolver = new MapResolver();
+        var validator = HintFixture.Build(resolver);
+
+        var result = HintFixture.Run(
+            validator,
+            HintFixture.BaseRoot("xsi:schemaLocation=\"urn:h " + location + "\"", "<h:root/>")
+        );
+
+        var issue = await Assert.That(HintFixture.Errors(result)).HasSingleItem();
+        await Assert.That(issue!.Code).IsEqualTo(CoreDiagnosticCodes.ResourceReferenceInvalid);
+        await Assert.That(resolver.Requests.Count).IsEqualTo(0);
+    }
 }

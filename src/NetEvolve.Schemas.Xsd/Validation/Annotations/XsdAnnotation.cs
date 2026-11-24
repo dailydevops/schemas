@@ -1,4 +1,6 @@
-namespace NetEvolve.Schemas.Xsd.Validation.Annotations;
+#pragma warning disable NE0002 // Approved public namespace NetEvolve.Schemas.Xsd for the annotated result and its annotations (design #146 DP-1, DP-18)
+
+namespace NetEvolve.Schemas.Xsd;
 
 using System;
 using System.Collections.Generic;
@@ -9,6 +11,7 @@ using NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;
 using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.SchemaDocuments;
+using NetEvolve.Schemas.Xsd.Validation.Annotations;
 
 /// <summary>
 /// The annotation of one node: validity, type name, nilled state, and typed value (design #146 DP-18). It holds the source and the node,
@@ -22,7 +25,7 @@ using NetEvolve.Schemas.Xsd.SchemaDocuments;
 /// of the XPath package has no row for it, while <see cref="TypeName"/> and the data model type are those of the type. The white space facet
 /// of a user-defined type is not applied.
 /// </remarks>
-internal readonly struct XsdAnnotation : IEquatable<XsdAnnotation>
+public readonly struct XsdAnnotation : IEquatable<XsdAnnotation>
 {
     private static readonly XsdTypeName AnyType = Schema("anyType");
     private static readonly XsdTypeName AnySimpleType = Schema("anySimpleType");

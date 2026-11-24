@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using NetEvolve.Schemas.Xml.Contracts;
+using NetEvolve.Schemas.Xml.Datatypes.Binary;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xml.Datatypes.DateTime;
 using NetEvolve.Schemas.Xml.Datatypes.Decimals;
@@ -142,6 +143,14 @@ internal static class NodesHarness
             "yearMonthDuration" => XdmItem.FromDuration(
                 XsdDuration.Parse(payload, DurationKind.YearMonth).Value,
                 DurationKind.YearMonth
+            ),
+            "hexBinary" => XdmItem.FromBinary(
+                XsdBinary.Parse(payload, BinaryKind.HexBinary).Value,
+                BinaryKind.HexBinary
+            ),
+            "base64Binary" => XdmItem.FromBinary(
+                XsdBinary.Parse(payload, BinaryKind.Base64Binary).Value,
+                BinaryKind.Base64Binary
             ),
             _ => throw new ArgumentException("Unknown item kind " + kind, nameof(text)),
         };

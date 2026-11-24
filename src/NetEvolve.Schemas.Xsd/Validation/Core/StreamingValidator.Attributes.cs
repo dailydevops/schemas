@@ -338,7 +338,7 @@ internal sealed partial class StreamingValidator
     private ReadOnlySpan<char> ValueOf(AttributeEntry entry) => _attributeChars.AsSpan(entry.Start, entry.Length);
 
     // The attributes of the schema instance namespace that control assessment itself are not assessed as attributes: xsi:type and
-    // xsi:nil are decided in BeginContent, the schema location hints are XSD-77.
+    // xsi:nil are decided in BeginContent, the schema location hints are read by SchemaLocationHints.
     private bool IsXsiControl(XmlName name, out XPathQName qname)
     {
         qname = new XPathQName(Names.GetString(name.NamespaceUri), Names.GetString(name.Local));

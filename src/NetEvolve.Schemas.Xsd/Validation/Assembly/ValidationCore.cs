@@ -9,6 +9,8 @@ using NetEvolve.Schemas.Resources;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xml.Input.Sequence;
+using NetEvolve.Schemas.Xml.Model;
+using NetEvolve.Schemas.Xml.Model.Traversal;
 using NetEvolve.Schemas.Xml.Reader.Pipeline;
 using NetEvolve.Schemas.Xsd.Compilation;
 using NetEvolve.Schemas.Xsd.Contracts;
@@ -16,10 +18,12 @@ using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.Elements;
 using NetEvolve.Schemas.Xsd.IdentityConstraints.Definitions;
 using NetEvolve.Schemas.Xsd.IdentityConstraints.Evaluation;
+using NetEvolve.Schemas.Xsd.Validation.Annotations;
 using NetEvolve.Schemas.Xsd.Validation.Core;
 using NetEvolve.Schemas.Xsd.Validation.Entities;
 using NetEvolve.Schemas.Xsd.Validation.Ids;
 using NetEvolve.Schemas.Xsd.Validation.SchemaLocation;
+using NetEvolve.Schemas.Xsd.Validation.Tree;
 using ValidationResult = NetEvolve.Schemas.ValidationResult;
 
 /// <summary>
@@ -34,10 +38,16 @@ using ValidationResult = NetEvolve.Schemas.ValidationResult;
 /// that a core limit names stops the run with the core code (NES0002 to NES0005), every other error is reported with its Xml code.
 /// </para>
 /// <para>
+/// A tree run (XSD-79, #361) pumps a node of the document model into the same sink instead of a reader, and appends the annotation
+/// listener last; it adds the document events that the pump does not emit for an element, so a subtree run begins and ends like a document.
+/// The locations of its issues take the positions that the tree keeps, and their source is the document URI of the tree.
+/// </para>
+/// <para>
 /// Limitations: DTD processing reads the internal subset only (design #146 DP-21); the assessment is strict and declaration driven
 /// (DP-23); a violation that a listener finds does not mark the element invalid yet (#605); the ID and the entity listener exist
 /// only when the schema names a type of their check (<see cref="ListenerDemand"/>), so an <c>xsi:type</c> that names such a built-in
-/// type for a schema that never names it is not checked.
+/// type for a schema that never names it is not checked. A tree run does not see the document type declaration, which the model does not
+/// keep (#731).
 /// </para>
 /// </remarks>
 internal sealed class ValidationCore : IValidationCore
@@ -87,6 +97,32 @@ internal sealed class ValidationCore : IValidationCore
     }
 
     /// <inheritdoc />
+    public ISimpleValueAssessor Assessor => _assessor;
+
+    /// <inheritdoc />
+    public ValidationResult ValidateTree(
+        XmlNode node,
+        IAnnotationSink annotations,
+        TreeIssueLog issues,
+        out XmlDocumentTree copy,
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        Argument.ThrowIfNull(node.Tree, nameof(node));
+        Argument.ThrowIfGreaterThan((int)node.Kind, (int)XmlNodeKind.Element, nameof(node));
+        Argument.ThrowIfNull(annotations);
+        Argument.ThrowIfNull(issues);
+
+        var collector = new ValidationIssueCollector(_limits);
+        var defaults = new TreeDefaults(annotations);
+        var run = new Run(this, collector, node.DocumentUri?.OriginalString, cancellationToken, defaults);
+        copy = run.PumpTree(node, issues, defaults);
+
+        return collector.ToResult();
+    }
+
+    /// <inheritdoc />
     public ValidationResult Validate(in DocumentSource source, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -127,12 +163,14 @@ internal sealed class ValidationCore : IValidationCore
         private readonly ValidationIssueCollector _collector;
         private readonly string? _systemId;
         private readonly CancellationToken _cancellationToken;
+        private readonly IAnnotationSink? _annotations;
 
         internal Run(
             ValidationCore core,
             ValidationIssueCollector collector,
             string? systemId,
-            CancellationToken cancellationToken
+            CancellationToken cancellationToken,
+            IAnnotationSink? annotations = null
         )
         {
             ArgumentNullException.ThrowIfNull(core);
@@ -142,6 +180,7 @@ internal sealed class ValidationCore : IValidationCore
             _collector = collector;
             _systemId = systemId;
             _cancellationToken = cancellationToken;
+            _annotations = annotations;
         }
 
         internal void Pump<TReader>(TReader reader)
@@ -149,6 +188,44 @@ internal sealed class ValidationCore : IValidationCore
         {
             ArgumentNullException.ThrowIfNull(reader);
 
+            var sink = CreateSink();
+            if (reader.Pump(ref sink) != XmlReadStatus.Completed)
+            {
+                Report(reader.Diagnostic);
+            }
+        }
+
+        // The model-to-sink pump drives the same sink as a reader does, so a tree run has no validator of its own (design #146 DP-11).
+        // The pump emits no document events for an element, so a subtree run adds them: the listeners need the begin of the run.
+        internal XmlDocumentTree PumpTree(XmlNode node, TreeIssueLog issues, TreeDefaults defaults)
+        {
+            var inner = CreateSink();
+            var builder = new XmlTreeBuilder(inner.Names, node.DocumentUri);
+            try
+            {
+                var sink = new TreeRunSink(inner, builder, _collector, issues, defaults);
+                var isElement = node.Kind == XmlNodeKind.Element;
+                if (isElement)
+                {
+                    sink.StartDocument(default);
+                }
+
+                XmlTreePump.Pump(node, sink);
+                if (isElement)
+                {
+                    sink.EndDocument();
+                }
+
+                return builder.Complete();
+            }
+            finally
+            {
+                builder.Dispose();
+            }
+        }
+
+        private SessionSink CreateSink()
+        {
             var entities = _core._needsEntities ? new EntityListener(_core._assessor, _core._options.Limits) : null;
             var reporter = new XsdIssueReporter(_collector);
             var validator = new StreamingValidator(
@@ -170,18 +247,15 @@ internal sealed class ValidationCore : IValidationCore
                         _cancellationToken
                     )
             );
-            var sink = new SessionSink(validator, entities, _cancellationToken);
 
-            if (reader.Pump(ref sink) != XmlReadStatus.Completed)
-            {
-                Report(reader.Diagnostic);
-            }
+            return new SessionSink(validator, entities, _cancellationToken);
         }
 
         // The fixed order of the listeners: ID, entity, identity constraint; each exists only when the schema needs it (design #146 DP-12).
+        // The annotation listener comes last and exists only when the run has a sink, because it reads the validity that the others settle.
         private List<ValidationListener> Listeners(EntityListener? entities)
         {
-            var listeners = new List<ValidationListener>(3);
+            var listeners = new List<ValidationListener>(4);
             if (_core._needsIds)
             {
                 listeners.Add(new IdListener(_core._assessor, _core._model.Schema));
@@ -202,6 +276,11 @@ internal sealed class ValidationCore : IValidationCore
                             : null
                     )
                 );
+            }
+
+            if (_annotations is not null)
+            {
+                listeners.Add(new AnnotationListener(_annotations));
             }
 
             return listeners;
