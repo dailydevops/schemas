@@ -112,6 +112,20 @@ public class RegexParserTests
     }
 
     [Test]
+    [Arguments("^abc$", "cat(c5E c61 c62 c63 c24)")]
+    [Arguments("a^b", "cat(c61 c5E c62)")]
+    [Arguments("(^|x)", "alt(c5E c78)")]
+    public async Task Parse_CaretAndDollarOutsideAClass_AreLiteralCharactersInTheXsdDialect(
+        string pattern,
+        string expected
+    )
+    {
+        var tree = Tree(pattern);
+
+        await Assert.That(RegexTreeDump.Of(tree)).IsEqualTo(expected);
+    }
+
+    [Test]
     public async Task Parse_Group_DoesNotCaptureInTheXsdDialect()
     {
         var tree = Tree("(a)");

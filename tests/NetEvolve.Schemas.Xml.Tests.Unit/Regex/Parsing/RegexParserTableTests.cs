@@ -122,8 +122,6 @@ public class RegexParserTableTests
         ("[a-z-[aeiou]-[b]]", RegexError.InvalidCharacterClass, 12),
         ("[a-z-[aeiou]", RegexError.UnexpectedEnd, 12),
         ("[a-z-[a", RegexError.UnexpectedEnd, 7),
-        ("^a", RegexError.ConstructNotAllowed, 0),
-        ("a$", RegexError.ConstructNotAllowed, 1),
         ("(a)\\1", RegexError.ConstructNotAllowed, 3),
         ("a*?", RegexError.ConstructNotAllowed, 2),
         ("a{2,3}?", RegexError.ConstructNotAllowed, 6),
