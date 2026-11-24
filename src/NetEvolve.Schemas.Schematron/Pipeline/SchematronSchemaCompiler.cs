@@ -113,10 +113,16 @@ internal sealed class SchematronSchemaCompiler : ISchemaCompiler
             ok &= ScopePlanner.TryPlan(effective, selection, binding, problems, out plan);
         }
 
-        var matcher = new CompilingMatcher(new PatternMatcher(binding), binding);
+        var matcher = new PatternMatcher(binding);
         var sets = new List<CompiledRuleSet>(plan.Patterns.Count);
         foreach (var scope in plan.Patterns)
         {
+            // The pattern matcher is a seam with one implementation, so the contexts are recorded here.
+            foreach (var rule in scope.Rules)
+            {
+                binding.Record((rule.Rule.Context ?? string.Empty).AsSpan(), rule.Scope);
+            }
+
             var compiledSet = RuleSetCompiler.TryCompile(effective, scope, matcher, binding, problems, out var set);
             ok &= compiledSet;
             if (compiledSet)
