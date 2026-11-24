@@ -6,6 +6,7 @@ using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Model;
+using NetEvolve.Schemas.XPath.Casting.Core;
 using NetEvolve.Schemas.XPath.Xdm.Nodes;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
@@ -15,14 +16,11 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// node resets that adjacency, as in a tree sink.
 /// </summary>
 /// <remarks>
-/// Limitation: only string, boolean, integer, and decimal values have a text form here. Untyped atomic and URI values would
-/// convert as their string, but the XPath package keeps both kinds internal, so no test of this package can build one and an
-/// arm for them would stay uncovered; they wait with double, float, and the remaining kinds for the XPath casting rules, which
-/// the XPath package does not offer yet (#624). All of them record a <see cref="Failure"/> instead of a guessed lexical form. The date, time, and duration kinds
-/// already convert in the XSLT <c>AtomicText</c> converter (#562) and wait for a neutral home of that converter (#632); this sink has its own conversion only because the Assertions namespace must not depend
-/// on <c>Xslt.Construction</c> (design #137 AP-14, #150 EP-8), so those kinds record a <see cref="Failure"/> here until the
-/// converter moves to a neutral location. A cut at the maximum length keeps a surrogate pair whole only when both halves arrive in
-/// one append; a pair split across two appends at the cap can still leave a lone high surrogate at the end. Not thread-safe.
+/// String, boolean, integer, and decimal values are written without an intermediate string. Every other atomic kind converts through
+/// the casting table of the XPath package to <c>xs:string</c> (the canonical form), which allocates one string per value because the table
+/// returns a string item; a value without a cast to <c>xs:string</c> records a <see cref="Failure"/>. A cut at the maximum length keeps a
+/// surrogate pair whole only when both halves arrive in one append; a pair split across two appends at the cap can still leave a lone
+/// high surrogate at the end. Not thread-safe.
 /// </remarks>
 internal sealed class TextSink : ISequenceSink, IDisposable
 {
@@ -71,9 +69,10 @@ internal sealed class TextSink : ISequenceSink, IDisposable
             return;
         }
 
-        if (!HasTextForm(in item))
+        var converted = string.Empty;
+        if (!HasDirectForm(in item) && !TryConvert(in item, out converted))
         {
-            Failure ??= $"A value of kind {item.Kind} has no text form yet (limitation).";
+            Failure ??= $"A value of kind {item.Kind} has no text form (no cast to xs:string).";
             return;
         }
 
@@ -83,7 +82,7 @@ internal sealed class TextSink : ISequenceSink, IDisposable
         }
 
         _lastAtomic = true;
-        AppendAtomic(in item);
+        AppendAtomic(in item, converted);
     }
 
     /// <inheritdoc />
@@ -148,10 +147,23 @@ internal sealed class TextSink : ISequenceSink, IDisposable
         }
     }
 
-    private static bool HasTextForm(in XdmItem item) =>
+    private static bool HasDirectForm(in XdmItem item) =>
         item.Kind is XdmItemKind.XsString or XdmItemKind.Boolean or XdmItemKind.XsInteger or XdmItemKind.XsDecimal;
 
-    private void AppendAtomic(in XdmItem item)
+    private static bool TryConvert(in XdmItem item, out string text)
+    {
+        text = string.Empty;
+        if (CastingCatalog.Default.Table.TryCast(in item, XdmTypeId.XsString, out var result) != CastStatus.Ok)
+        {
+            return false;
+        }
+
+        _ = result.TryGetString(out var converted);
+        text = converted!;
+        return true;
+    }
+
+    private void AppendAtomic(in XdmItem item, string converted)
     {
         switch (item.Kind)
         {
@@ -167,9 +179,12 @@ internal sealed class TextSink : ISequenceSink, IDisposable
                 _ = item.TryGetInteger(out var integer);
                 AppendInteger(integer);
                 break;
-            default:
+            case XdmItemKind.XsDecimal:
                 _ = item.TryGetDecimal(out var number);
                 Append(number.ToString().AsSpan());
+                break;
+            default:
+                Append(converted.AsSpan());
                 break;
         }
     }

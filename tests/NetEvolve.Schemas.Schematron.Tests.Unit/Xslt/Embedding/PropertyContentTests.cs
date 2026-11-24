@@ -319,7 +319,7 @@ public class PropertyContentTests
     public async Task CopyOf_WithAValueThatHasNoTextForm_DropsThePropertyAndReportsOnce()
     {
         using var h = new Harness(PropertyOf(CopyOf("sel")));
-        h.Binding.Items["sel"] = [XdmItem.FromDouble(1.5)];
+        h.Binding.Items["sel"] = [default(XdmItem)];
 
         h.Fire();
 

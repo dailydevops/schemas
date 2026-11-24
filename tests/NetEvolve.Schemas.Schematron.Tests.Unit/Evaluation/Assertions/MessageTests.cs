@@ -317,7 +317,7 @@ public class MessageTests
     public async Task Message_AtomicValueWithoutATextForm_ReportsALimitation_AndEndsTheText()
     {
         using var h = new AssertionHarness();
-        h.Binding.Items["d"] = [XdmItem.FromDouble(1.5)];
+        h.Binding.Items["d"] = [default(XdmItem)];
 
         var message = MessageOf(h, Message(Text("d="), ValueOf("d"), Text(" end")));
 
@@ -344,7 +344,7 @@ public class MessageTests
     public async Task Message_ValueOf_UnconvertibleItemMidSequence_LeavesNoPartialText()
     {
         using var h = new AssertionHarness();
-        h.Binding.Items["mixed"] = [XdmItem.FromString("a"), XdmItem.FromDouble(1.5), XdmItem.FromString("b")];
+        h.Binding.Items["mixed"] = [XdmItem.FromString("a"), default(XdmItem), XdmItem.FromString("b")];
 
         var message = MessageOf(h, Message(Text("d="), ValueOf("mixed"), Text(" end")));
 
