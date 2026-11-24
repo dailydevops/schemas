@@ -21,14 +21,29 @@ internal static class HostileRunner
 
         var resolver = new RecordingResolver(hostileCase.Documents);
         var stopwatch = Stopwatch.StartNew();
-        var work = Task.Run(() => RunCoreAsync(hostileCase, input, resolver, cancellationToken), cancellationToken);
-        if (await Task.WhenAny(work, Task.Delay(TimeBound, cancellationToken)) != work)
+        using var bound = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        var work = Task.Run(() => RunCoreAsync(hostileCase, input, resolver, bound.Token), bound.Token);
+        var delay = Task.Delay(TimeBound, bound.Token);
+        if (await Task.WhenAny(work, delay) != work)
         {
+            // Stop the leftover work so a hostile case cannot bleed into the next one.
+            await CancelAsync(bound);
             throw new TimeoutException($"Case '{hostileCase.Id}' ({input}) exceeded the time bound of {TimeBound}.");
         }
 
+        await CancelAsync(bound); // releases the pending delay timer
         var codes = await work;
         return new HostileOutcome(codes, stopwatch.Elapsed, resolver);
+    }
+
+    private static Task CancelAsync(CancellationTokenSource source)
+    {
+#if NET8_0_OR_GREATER
+        return source.CancelAsync();
+#else
+        source.Cancel();
+        return Task.CompletedTask;
+#endif
     }
 
     /// <summary>Builds the validator of the case without validating an instance.</summary>
