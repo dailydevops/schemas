@@ -1,0 +1,38 @@
+[
+  {
+    "name": "InvoiceCharsReaderBenchmarks.Read",
+    "meanNs": 402963.7,
+    "allocatedBytes": 4162,
+    "baselineRatio": 5.7
+  },
+  {
+    "name": "InvoiceUtf8ReaderBenchmarks.Read",
+    "meanNs": 545195.6,
+    "allocatedBytes": 4251,
+    "baselineRatio": 7.2
+  },
+  {
+    "name": "LargeCharsReaderBenchmarks.Read",
+    "meanNs": 37072089.8,
+    "allocatedBytes": 4162,
+    "baselineRatio": 6.0
+  },
+  {
+    "name": "LargeUtf8ReaderBenchmarks.Read",
+    "meanNs": 52097135.0,
+    "allocatedBytes": 4251,
+    "baselineRatio": 7.3
+  },
+  {
+    "name": "SmallCharsReaderBenchmarks.Read",
+    "meanNs": 1865.9,
+    "allocatedBytes": 3758,
+    "baselineRatio": 1.9
+  },
+  {
+    "name": "SmallUtf8ReaderBenchmarks.Read",
+    "meanNs": 2392.7,
+    "allocatedBytes": 3847,
+    "baselineRatio": 2.5
+  }
+]
