@@ -8,9 +8,10 @@ using NetEvolve.Schemas.XPath.Syntax.Tree;
 /// <summary>Parses an XPath expression into the syntax tree; XPath 2.0 is the default, XPath 3.0 is selected by the version.</summary>
 /// <remarks>
 /// <para>
-/// The grammar is XPath 2.0 (Second Edition) appendix A: the productions of A.1, the precedence order of A.4, and the
-/// extra-grammatical constraints (leading lone slash, reserved function names, occurrence indicators). Every syntax
-/// error, including a lexical one, is reported as XPST0003 with the offset and length of the offending token.
+/// The grammar is XPath 2.0 (Second Edition) appendix A, extended by XPath 3.0 when that version is selected: the
+/// productions of A.1, the precedence order of A.4, and the extra-grammatical constraints (leading lone slash,
+/// reserved function names, occurrence indicators). Every syntax error, including a lexical one, is reported as XPST0003 with the offset and length of
+/// the offending token.
 /// </para>
 /// <para>
 /// Limitation: expressions nested deeper than <see cref="MaxNestingDepth"/> (parentheses, predicates, function

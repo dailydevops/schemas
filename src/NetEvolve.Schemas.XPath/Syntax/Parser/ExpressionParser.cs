@@ -9,7 +9,7 @@ using NetEvolve.Schemas.XPath.Syntax.Tree;
 
 /// <summary>
 /// Recursive descent over the lexer tokens for the expression productions of XPath 2.0 (Second Edition) A.1, [2] to
-/// [19]. The binary levels share one precedence-climbing loop that follows the precedence order of A.4; the paths,
+/// [19], plus the XPath 3.0 additions. The binary levels share one precedence-climbing loop that follows the precedence order of A.4; the paths,
 /// steps, and primaries are in <c>ExpressionParser.Steps.cs</c>, the types and kind tests in
 /// <c>ExpressionParser.Types.cs</c>.
 /// </summary>

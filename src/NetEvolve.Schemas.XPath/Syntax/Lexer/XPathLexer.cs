@@ -6,7 +6,7 @@ using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Syntax.Tree;
 
 /// <summary>
-/// Turns an XPath 2.0 expression into tokens without allocating; tokens are ranges into the input.
+/// Turns an XPath 2.0 or 3.0 expression into tokens without allocating; tokens are ranges into the input.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -24,7 +24,8 @@ using NetEvolve.Schemas.XPath.Syntax.Tree;
 /// <c>?</c> are occurrence indicators until a keyword or a comma outside the type ends the sequence type, as the
 /// occurrence-indicators constraint requires. The terminals of XPath 3.0 (<c>let</c>, <c>:=</c>, <c>!</c>, <c>||</c>,
 /// <c>#</c>, braces, <c>function</c>, and <c>Q{uri}local</c>) are recognized only when the version is XPath 3.0 or
-/// later, so XPath 2.0 input is tokenized as before; XPath 3.1 terminals are not recognized.
+/// later, so XPath 2.0 input is tokenized as before. Not supported: XPath 3.1 terminals and the <c>Q{uri}*</c>
+/// wildcard. The XPath 3.1 version is tokenized and parsed with the 3.0 grammar.
 /// </para>
 /// </remarks>
 internal ref struct XPathLexer

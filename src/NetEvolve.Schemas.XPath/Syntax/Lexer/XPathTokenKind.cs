@@ -1,8 +1,8 @@
 namespace NetEvolve.Schemas.XPath.Syntax.Lexer;
 
-/// <summary>The terminal symbols of XPath 2.0 (section A.2) as the lexer reports them.</summary>
+/// <summary>The terminal symbols of XPath 2.0 and 3.0 (section A.2) as the lexer reports them.</summary>
 /// <remarks>
-/// Limitation: terminals added by XPath 3.0 and 3.1 are not part of the enumeration.
+/// Limitation: terminals added by XPath 3.1 are not part of the enumeration.
 /// Reserved words are reported as keywords only where the grammar allows them, otherwise as <see cref="Name"/>.
 /// </remarks>
 internal enum XPathTokenKind
