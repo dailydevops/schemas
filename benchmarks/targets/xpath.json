@@ -1,0 +1,46 @@
+[
+  {
+    "name": "XPathAxisWalkBenchmarks.WalkDescendants",
+    "meanNs": 16092.4,
+    "allocatedBytes": 0,
+    "baselineRatio": 1.1
+  },
+  {
+    "name": "XPathComparisonBenchmarks.EvaluateComparisons",
+    "meanNs": 116743.5,
+    "allocatedBytes": 18786,
+    "baselineRatio": 4.6
+  },
+  {
+    "name": "XPathComparisonExtendedBenchmarks.EvaluateExtended",
+    "meanNs": 608565.0,
+    "allocatedBytes": 30446
+  },
+  {
+    "name": "XPathCompileBenchmarks.CompileCompatible",
+    "meanNs": 15345.8,
+    "allocatedBytes": 20039,
+    "baselineRatio": 3.7
+  },
+  {
+    "name": "XPathCompileExtendedBenchmarks.CompileExtended",
+    "meanNs": 22969.0,
+    "allocatedBytes": 17170
+  },
+  {
+    "name": "XPathLexBenchmarks.LexExpressions",
+    "meanNs": 6166.0,
+    "allocatedBytes": 0
+  },
+  {
+    "name": "XPathParseBenchmarks.ParseExpressions",
+    "meanNs": 26859.0,
+    "allocatedBytes": 19376
+  },
+  {
+    "name": "XPathPredicateBenchmarks.EvaluatePredicates",
+    "meanNs": 356024.4,
+    "allocatedBytes": 8226,
+    "baselineRatio": 8.3
+  }
+]
