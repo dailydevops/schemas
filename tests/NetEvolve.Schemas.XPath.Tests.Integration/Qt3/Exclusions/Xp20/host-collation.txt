@@ -1,0 +1,5 @@
+fn-compare/compare-010	feature non_unicode_codepoint_collation	a host collation of the test catalog other than the codepoint collation	
+fn-deep-equal/K-SeqDeepEqualFunc-56	feature non_unicode_codepoint_collation	a host collation of the test catalog other than the codepoint collation	
+fn-deep-equal/K-SeqDeepEqualFunc-57	feature non_unicode_codepoint_collation	a host collation of the test catalog other than the codepoint collation	
+fn-substring-after/fn-substring-after-24	feature non_unicode_codepoint_collation	a host collation of the test catalog other than the codepoint collation	
+fn-substring-before/fn-substring-before-24	feature non_unicode_codepoint_collation	a host collation of the test catalog other than the codepoint collation	
