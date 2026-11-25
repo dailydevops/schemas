@@ -1,12 +1,3 @@
-1.0/particlesHa070/particlesHa070
-1.0/particlesHa080/particlesHa080
-1.0/particlesHa084/particlesHa084
-1.0/particlesJq010/particlesJq010
-1.0/particlesJq010/particlesJq010.v
-1.0/particlesQ013/particlesQ013
-1.0/particlesQ013/particlesQ013.v
-1.0/particlesR013/particlesR013
-1.0/particlesR013/particlesR013.v
 1.0/particlesZ001/particlesZ001
 1.0/particlesZ001/particlesZ001.i
 1.0/particlesZ025/particlesZ025.v

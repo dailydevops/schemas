@@ -80,11 +80,7 @@ msMeta-DataTypes_w3c	1.0/hexBinary_enumeration001_1305/hexBinary_enumeration001_
 msMeta-DataTypes_w3c	1.0/hexBinary_enumeration003_1307/hexBinary_enumeration003_1307.i	#1079	The enumeration of a binary type is not evaluated and the case expects it to reject the value.
 msMeta-Element_w3c	1.0/elemZ017/elemZ017.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-Element_w3c	1.0/elemZ033b/elemZ033b.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-ModelGroups_w3c	1.0/mgH014/mgH014.v	#863	The schema does not build: the particle restriction check rejects a restriction that the suite accepts.
-msMeta-Particles_w3c	1.0/particlesJq010/particlesJq010.v	#863	The schema does not build: the particle restriction check rejects a restriction that the suite accepts.
-msMeta-Particles_w3c	1.0/particlesQ013/particlesQ013.v	#863	The schema does not build: the particle restriction check rejects a restriction that the suite accepts.
-msMeta-Particles_w3c	1.0/particlesR013/particlesR013.v	#863	The schema does not build: the particle restriction check rejects a restriction that the suite accepts.
-msMeta-Particles_w3c	1.0/particlesZ001/particlesZ001.i	#863	The schema does not build: the particle restriction check rejects a restriction that the suite accepts.
+msMeta-Particles_w3c	1.0/particlesZ001/particlesZ001.i	#863	The schema does not build: see the schema test of the same case.
 msMeta-Particles_w3c	1.0/particlesZ025/particlesZ025.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-Regex_w3c	1.0/reZ006i/reZ006i.i	#1080	The pattern escape for name characters rejects a name character that the case expects to be valid.
 msMeta-Schema_w3c	1.0/schA4/schA4.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
