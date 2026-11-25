@@ -17,7 +17,6 @@ using NetEvolve.Schemas.Testing.Readme;
 /// <remarks>Like the conformance suites, the class runs on the designated leg only, because the run needs the fetched suite.</remarks>
 [Explicit]
 [Category(ConformanceCategory.Name)]
-[ConformanceLeg]
 public class SchematronReadmeConformanceTests
 {
     private const string Readme = "src/NetEvolve.Schemas.Schematron/README.md";
