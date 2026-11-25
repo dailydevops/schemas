@@ -471,10 +471,12 @@ internal sealed class ParticleRestriction
 
     private ParticleViolation NSRecurseCheckCardinality(Particle r, Particle b)
     {
+        // The occurrence of a member is not compared with that of the wildcard: the effective total range of the group is, below.
+        var open = Particle.Create(b.Location, 0, Particle.Unbounded, b.Term!);
         var members = ParticleStructure.Members(ParticleStructure.GroupOf(r)!);
         for (var i = 0; i < members.Count; i++)
         {
-            var member = Valid(members[i], b);
+            var member = Valid(members[i], open);
             if (member.IsViolation)
             {
                 return Fail(

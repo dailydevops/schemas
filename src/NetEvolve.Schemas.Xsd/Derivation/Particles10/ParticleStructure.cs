@@ -58,26 +58,47 @@ internal static class ParticleStructure
         ArgumentNullException.ThrowIfNull(particle);
 
         var current = particle;
-        while (GroupOf(current) is { } group)
+        while (true)
         {
-            var members = group.Particles;
-            if (members.Count == 0)
+            // A member that never occurs corresponds to no component (3.9.2), so it is ignored like an empty group. The particle
+            // itself is not: the owner of a content particle that never occurs decides what that means.
+            if (current.MaxOccurs == 0 && !ReferenceEquals(current, particle))
+            {
+                return null;
+            }
+
+            if (GroupOf(current) is not { } group)
+            {
+                return current;
+            }
+
+            Particle? only = null;
+            var live = 0;
+            for (var i = 0; i < group.Particles.Count; i++)
+            {
+                if (group.Particles[i].MaxOccurs != 0)
+                {
+                    only = group.Particles[i];
+                    live++;
+                }
+            }
+
+            if (live == 0)
             {
                 // An empty choice that must occur matches nothing and is not pointless.
                 return group.Compositor == ModelGroupCompositor.Choice && current.MinOccurs > 0 ? current : null;
             }
 
-            if (members.Count > 1)
+            if (live > 1)
             {
                 return current;
             }
 
-            var only = members[0];
             if (current.MinOccurs == 1 && current.MaxOccurs == 1)
             {
-                current = only;
+                current = only!;
             }
-            else if (group.Compositor == ModelGroupCompositor.All && only.Term is { } term)
+            else if (group.Compositor == ModelGroupCompositor.All && only!.Term is { } term)
             {
                 current = Particle.Create(
                     only.Location,
@@ -91,8 +112,6 @@ internal static class ParticleStructure
                 return current;
             }
         }
-
-        return current;
     }
 
     /// <summary>Lists the members of a group after the pointless ones are removed and nested groups of the same kind are spliced in.</summary>
@@ -111,7 +130,7 @@ internal static class ParticleStructure
     {
         for (var i = 0; i < group.Particles.Count; i++)
         {
-            var member = Simplify(group.Particles[i]);
+            var member = group.Particles[i].MaxOccurs == 0 ? null : Simplify(group.Particles[i]);
             if (member is null)
             {
                 continue;

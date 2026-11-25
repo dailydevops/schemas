@@ -59,12 +59,20 @@ internal static class OccurrenceRange
         var isChoice = group.Compositor == ModelGroupCompositor.Choice;
         long innerMin = 0;
         long innerMax = 0;
+        var first = true;
         for (var i = 0; i < group.Particles.Count; i++)
         {
+            // A member that never occurs corresponds to no particle (3.9.2).
+            if (group.Particles[i].MaxOccurs == 0)
+            {
+                continue;
+            }
+
             EffectiveTotalRange(group.Particles[i], out var memberMin, out var memberMax);
             if (isChoice)
             {
-                innerMin = i == 0 ? memberMin : Math.Min(innerMin, memberMin);
+                innerMin = first ? memberMin : Math.Min(innerMin, memberMin);
+                first = false;
                 innerMax = Math.Max(innerMax, memberMax);
             }
             else

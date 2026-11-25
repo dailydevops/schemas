@@ -43,19 +43,12 @@ msMeta-Element_w3c	1.0/elemZ032a/elemZ032a	#871	A value constraint on a declarat
 msMeta-Element_w3c	1.0/elemZ032b/elemZ032b	#871	A value constraint on a declaration of type ID is accepted.
 msMeta-IdentityConstraint_w3c	1.0/idC019/idC019	#874	A schema constraint that the pipeline does not check; not analyzed yet.
 msMeta-IdentityConstraint_w3c	1.0/idZ011/idZ011	#871	A value constraint on a declaration of type ID is accepted.
-msMeta-ModelGroups_w3c	1.0/mgH014/mgH014	#863	The particle restriction check reports a restriction that the suite accepts.
 msMeta-ModelGroups_w3c	1.0/mgO013/mgO013	#869	A redefinition is not checked against the redefined component.
 msMeta-Notations_w3c	1.0/notatB001/notatB001	#870	Notation declarations are not components yet.
 msMeta-Notations_w3c	1.0/notatB005/notatB005	#870	Notation declarations are not components yet.
 msMeta-Notations_w3c	1.0/notatG001/notatG001	#870	Notation declarations are not components yet.
 msMeta-Notations_w3c	1.0/notatG003/notatG003	#870	Notation declarations are not components yet.
-msMeta-Particles_w3c	1.0/particlesHa070/particlesHa070	#863	The particle restriction check reports a restriction that the suite accepts.
-msMeta-Particles_w3c	1.0/particlesHa080/particlesHa080	#863	The particle restriction check reports a restriction that the suite accepts.
-msMeta-Particles_w3c	1.0/particlesHa084/particlesHa084	#863	The particle restriction check reports a restriction that the suite accepts.
-msMeta-Particles_w3c	1.0/particlesJq010/particlesJq010	#863	The particle restriction check reports a restriction that the suite accepts.
-msMeta-Particles_w3c	1.0/particlesQ013/particlesQ013	#863	The particle restriction check reports a restriction that the suite accepts.
-msMeta-Particles_w3c	1.0/particlesR013/particlesR013	#863	The particle restriction check reports a restriction that the suite accepts.
-msMeta-Particles_w3c	1.0/particlesZ001/particlesZ001	#863	The particle restriction check reports a restriction that the suite accepts.
+msMeta-Particles_w3c	1.0/particlesZ001/particlesZ001	#863	The restriction is invalid under the table of Particle Valid (Restriction) of XSD 1.0 (RecurseAsIfGroup compares the unbounded element with a base element that occurs once) and valid in XSD 1.1; the suite marks the rule as ambiguous.
 msMeta-Schema_w3c	1.0/schB8/schB8	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
 msMeta-Schema_w3c	1.0/schD7/schD7	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
 msMeta-Schema_w3c	1.0/schD8/schD8	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
