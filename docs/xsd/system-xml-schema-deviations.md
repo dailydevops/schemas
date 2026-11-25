@@ -7,7 +7,7 @@ This document lists every difference that the differential run over the W3C XML 
 | Baseline | `System.Xml.Schema` of the .NET runtime 10.0, compared on the `net10.0` test leg only (`baseline-runtime: 10.0`) |
 | Corpus | XSTS cases of XSD 1.0 (schema tests and instance tests), pinned in `tests/conformance/suites/xsts.json` |
 | Data file | `tests/NetEvolve.Schemas.Xsd.Tests.Integration/DifferentialData/xsts-1.0-deviations.txt`, one entry per difference: case id, difference kind, observed difference, specification reference, reason |
-| Entries | 14531 entries for 14494 cases |
+| Entries | 14533 entries for 14496 cases |
 
 The list is valid for the recorded baseline runtime version only. A run on another runtime version fails until the list is compared again. System.Xml.Schema implements XSD 1.0 only, so cases of XSD 1.1 are not compared.
 
@@ -29,8 +29,8 @@ No builder option, switch, or code path in the library reproduces System.Xml.Sch
 |---|---:|---:|
 | Verdict differences: this library follows the specification | 1692 | 1660 |
 | Verdict differences: documented limitations of this library | 26 | 21 |
-| Position differences: equivalent | 12813 | 12813 |
-| Differences on cases that a bug issue tracks (no entry) | 1212 | |
+| Position differences: equivalent | 12815 | 12815 |
+| Differences on cases that a bug issue tracks (no entry) | 1210 | |
 
 ## Differences on cases that a bug issue tracks
 
@@ -59,7 +59,6 @@ The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTe
 | #1080 | 4 | fix(xml): match every XML name character with the multi-character escape c in the pattern facet |
 | #1079 | 3 | feat(xsd): evaluate the enumeration facet of hexBinary and base64Binary restrictions |
 | #604 | 2 | feat(xsd): resolve QName and NOTATION instance values with the namespace context |
-| #904 | 2 | bug(xsd): an element with two ID-typed attributes through a wildcard is accepted |
 | #410 | 1 | feat(xml): support caller-selectable xml 1.1 name productions |
 | #864 | 1 | bug(xsd): fixed values of attribute uses are compared as strings in the derivation check |
 | #903 | 1 | bug(xsd): a strict wildcard rejects an element that has no declaration but a valid xsi:type |
@@ -2157,9 +2156,9 @@ msMeta-AttributeGroup_w3c/1.0/attgD003/attgD003.v
 
 Both engines reject the document with the same number of issues on the same lines, and the verdicts agree. They anchor an issue at different columns of the same construct. Issue positions are not part of the specification, so the difference is equivalent.
 
-- Difference: IssuePositions `issue positions` (3793)
+- Difference: IssuePositions `issue positions` (3795)
 - Specification: XSD 1.0 Part 1, 5.2 and C.1 (the assessment outcome is the validity property; positions and number of reports are not specified)
-- Cases: 3793
+- Cases: 3795
 
 ```text
 ibmMeta-anyAttribute/1.0/s3_10_6ii01/s3_10_6v01i
@@ -2434,6 +2433,8 @@ msMeta-Attribute_w3c/1.0/attQ018/attQ018
 msMeta-Attribute_w3c/1.0/attZ001/attZ001.i
 msMeta-Attribute_w3c/1.0/attZ007i/attZ007i.i
 msMeta-Attribute_w3c/1.0/attZ009/attZ009.i
+msMeta-Attribute_w3c/1.0/attZ014a/attZ014a.i
+msMeta-Attribute_w3c/1.0/attZ014b/attZ014b.i
 msMeta-ComplexType_w3c/1.0/ctA004/ctA004
 msMeta-ComplexType_w3c/1.0/ctA006/ctA006
 msMeta-ComplexType_w3c/1.0/ctA007/ctA007

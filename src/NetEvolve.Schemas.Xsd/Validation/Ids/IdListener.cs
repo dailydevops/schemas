@@ -37,7 +37,7 @@ using NetEvolve.Schemas.Xsd.Validation.Core;
 /// prefix is not assessed. No builder creates notation declaration components yet (#751), so a compiled schema holds no
 /// notation and every NOTATION value reports as naming no declared notation until it exists. An element or attribute that the
 /// validator does not hand to the listeners (a skipped or rejected subtree) takes no part, and a violation found here does not
-/// mark the element invalid (#605). Every ID attribute after the first on one element is reported (#904). ENTITY values (XSD-83) and ID
+/// mark the element invalid (#605). Under XSD 1.0, every ID attribute after the first on one element is reported (#904). ENTITY values (XSD-83) and ID
 /// typing of <c>xml:id</c> (#79) are not handled.
 /// </para>
 /// <para>Not thread-safe; one instance serves one run at a time and may be reused for the next.</para>
@@ -52,6 +52,7 @@ internal sealed class IdListener : ValidationListener
 
     private readonly ISimpleValueAssessor _assessor;
     private readonly XsdSchemaSet _schema;
+    private readonly bool _oneIdAttribute;
     private readonly DtdIdTable _ids = new();
     private readonly DtdNameStore _pendingNames = new();
     private Pending[] _pending = new Pending[16];
@@ -72,6 +73,7 @@ internal sealed class IdListener : ValidationListener
 
         _assessor = assessor;
         _schema = schema;
+        _oneIdAttribute = schema.Version == XsdVersion.V10;
     }
 
     /// <inheritdoc />
@@ -247,8 +249,8 @@ internal sealed class IdListener : ValidationListener
 
     private void Register(ReadOnlySpan<char> token, DocumentLocation location, bool defaulted)
     {
-        // An element has at most one ID attribute, declared or matched by a wildcard (cvc-complex-type, clause 5.2).
-        if (_inAttribute && !defaulted && ++_idAttributes > 1)
+        // XSD 1.0 allows one ID attribute per element, declared or matched by a wildcard (cvc-complex-type, clause 5.2); XSD 1.1 allows several.
+        if (_oneIdAttribute && _inAttribute && !defaulted && ++_idAttributes > 1)
         {
             _reporter!.Report(
                 ComplexTypeRule,

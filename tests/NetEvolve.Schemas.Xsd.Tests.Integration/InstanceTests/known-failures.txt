@@ -53,8 +53,6 @@ msMeta-Attribute_w3c	1.0/attMd011/attMd011.i	#963	The group has no schema docume
 msMeta-Attribute_w3c	1.0/attO006/attO006.v	#896	Fixed values are compared lexically, not in the value space, so a fixed value that differs from the instance value only in white space or lexical form rejects a valid instance.
 msMeta-Attribute_w3c	1.0/attO009/attO009.v	#896	Fixed values are compared lexically, not in the value space, so a fixed value that differs from the instance value only in white space or lexical form rejects a valid instance.
 msMeta-Attribute_w3c	1.0/attO011/attO011.v	#896	Fixed values are compared lexically, not in the value space, so a fixed value that differs from the instance value only in white space or lexical form rejects a valid instance.
-msMeta-Attribute_w3c	1.0/attZ014a/attZ014a.i	#904	An element with two ID-typed attributes that a wildcard matches is accepted; an element has at most one ID attribute.
-msMeta-Attribute_w3c	1.0/attZ014b/attZ014b.i	#904	An element with two ID-typed attributes that a wildcard matches is accepted; an element has at most one ID attribute.
 msMeta-ComplexType_w3c	1.0/ctZ011_a/ctZ011_a.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-ComplexType_w3c	1.0/ctZ013c/ctZ013c.i	#602	The fixed value of an element with mixed content is not enforced; the element value constraint covers simple content only.
 msMeta-ComplexType_w3c	1.0/ctZ013d/ctZ013d.i	#602	The fixed value of an element with mixed content is not enforced; the element value constraint covers simple content only.
