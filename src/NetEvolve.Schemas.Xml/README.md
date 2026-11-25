@@ -339,9 +339,9 @@ dotnet test --project tests/NetEvolve.Schemas.Xml.Tests.Integration --configurat
 
 ### Reader
 
-**Rate: 98.8%** (1,977 of 2,001 applicable cases). A not-well-formed case passes when the reader reports a fatal error. A valid or invalid case passes when the reader accepts the document, because the reader does not validate. The run reads with DTD processing on, which the public options allow, and with the external access that the public options do not expose.
+**Rate: 98.8%** (1,978 of 2,001 applicable cases). A not-well-formed case passes when the reader reports a fatal error. A valid or invalid case passes when the reader accepts the document, because the reader does not validate. The run reads with DTD processing on, which the public options allow, and with the external access that the public options do not expose.
 
-24 cases fail. They are listed in the committed baseline `tests/conformance/baselines/xmlconf` (one file per test set), and a change that adds a failure fails the build:
+23 cases fail. They are listed in the committed baseline `tests/conformance/baselines/xmlconf` (one file per test set), and a change that adds a failure fails the build:
 
 | Failure class | Cases | Reason |
 | --- | --- | --- |
@@ -350,7 +350,6 @@ dotnet test --project tests/NetEvolve.Schemas.Xml.Tests.Integration --configurat
 | Name above the default limit | 2 | The document has a name longer than the default `MaxNameLength` and is rejected with XML1105. |
 | Version other than 1.0 | 1 | The document declares version 1.7, which the Fifth Edition allows; the reader accepts 1.0 only and reports XML0010. |
 | Entity used before its declaration | 2 | A default value refers to an entity that is declared later and is accepted ([#878](https://github.com/dailydevops/schemas/issues/878)). |
-| Invalid public identifier | 1 | A public identifier with a character outside `PubidChar` is accepted ([#931](https://github.com/dailydevops/schemas/issues/931)). |
 
 ### DTD validation conformance
 

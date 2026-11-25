@@ -12,9 +12,9 @@ using NetEvolve.Schemas.XPath.Xdm.Nodes;
 /// <summary>
 /// A binding that evaluates only the predicate texts the pattern tests use: <c>@name</c>, <c>@name = 'value'</c>,
 /// <c>position() = N</c>, <c>position() = last()</c>, <c>true()</c>, and <c>bad</c> (an evaluation problem). A text that
-/// contains <c>invalid</c> does not compile. Every compiled text is recorded, so a test sees what the matcher handed over.
+/// contains <c>invalid</c> does not compile. With <c>allowsXsltInstructions</c> it stands for an XSLT binding. Every compiled text is recorded, so a test sees what the matcher handed over.
 /// </summary>
-internal sealed class PatternTestBinding : IQueryBinding
+internal sealed class PatternTestBinding(bool allowsXsltInstructions = false) : IQueryBinding
 {
     internal List<string> Compiled { get; } = [];
 
@@ -22,7 +22,7 @@ internal sealed class PatternTestBinding : IQueryBinding
 
     public string Name => "pattern-test";
 
-    public bool AllowsXsltInstructions => false;
+    public bool AllowsXsltInstructions => allowsXsltInstructions;
 
     public bool TryCompile(
         ReadOnlySpan<char> text,

@@ -5,6 +5,7 @@ using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Evaluation.Axes;
+using NetEvolve.Schemas.XPath.Evaluation.FunctionItems;
 using NetEvolve.Schemas.XPath.Syntax.Tree;
 using NetEvolve.Schemas.XPath.Xdm.Nodes;
 using NetEvolve.Schemas.XPath.Xdm.Values;
@@ -48,6 +49,37 @@ internal sealed class SequenceTypeMatcher
     /// <returns><see langword="true"/> when the value matches the sequence type.</returns>
     public bool Matches(in XdmSequence value) => Matches(value, UntypedAnnotationSource.Instance);
 
+    /// <summary>Applies function coercion (XPath 3.0, 3.1.5.2): a value that is a sequence of function items of the arity of a typed function test is converted to the test.</summary>
+    /// <param name="value">The value.</param>
+    /// <param name="coerced">The value with each function item wrapped to the signature of the test; <see langword="default"/> when the value cannot be coerced.</param>
+    /// <returns><see langword="true"/> when the matcher is a typed function test, the number of items is allowed, and every item is a function item of the arity of the test.</returns>
+    public bool TryCoerce(in XdmSequence value, out XdmSequence coerced)
+    {
+        coerced = default;
+        var signature = _item.FunctionSignature;
+        var count = value.Count;
+        if (signature is null || _emptySequence || !CountMatches(count))
+        {
+            return false;
+        }
+
+        var items = new XdmItem[count];
+        for (var i = 0; i < count; i++)
+        {
+            if (!value[i].TryGetFunction(out var function) || function!.Arity != signature.Arity)
+            {
+                return false;
+            }
+
+            items[i] = function.Signature.IsSubtypeOf(signature)
+                ? value[i]
+                : XdmItem.FromFunction(new CoercedFunction(function, signature));
+        }
+
+        coerced = XdmSequence.Create(items);
+        return true;
+    }
+
     /// <summary>Determines whether a value matches.</summary>
     /// <param name="value">The value.</param>
     /// <param name="annotations">The slot that supplies the type annotation of a node.</param>
@@ -62,14 +94,7 @@ internal sealed class SequenceTypeMatcher
             return count == 0;
         }
 
-        var countMatches = _occurrence switch
-        {
-            Occurrence.ExactlyOne => count == 1,
-            Occurrence.ZeroOrOne => count <= 1,
-            Occurrence.OneOrMore => count >= 1,
-            _ => true,
-        };
-        if (!countMatches)
+        if (!CountMatches(count))
         {
             return false;
         }
@@ -92,4 +117,13 @@ internal sealed class SequenceTypeMatcher
 
         return true;
     }
+
+    private bool CountMatches(int count) =>
+        _occurrence switch
+        {
+            Occurrence.ExactlyOne => count == 1,
+            Occurrence.ZeroOrOne => count <= 1,
+            Occurrence.OneOrMore => count >= 1,
+            _ => true,
+        };
 }

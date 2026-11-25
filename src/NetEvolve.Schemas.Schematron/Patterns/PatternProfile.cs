@@ -11,7 +11,9 @@ using NetEvolve.Schemas.XPath.Syntax.Tree;
 /// <remarks>
 /// Limitations: <c>id()</c> and <c>key()</c> as pattern start (DEF-55), the XSLT 3.0 forms (predicate patterns,
 /// <c>intersect</c>, <c>except</c>, variable-rooted and parenthesized patterns; DEF-60), <c>schema-element()</c>,
-/// <c>schema-attribute()</c>, and type names in <c>element()</c> and <c>attribute()</c> are reported as unsupported.
+/// <c>schema-attribute()</c>, and type names in <c>element()</c> and <c>attribute()</c> are reported as unsupported. This
+/// profile judges the XSLT 2.0 subset; under an XSLT binding the pattern builder accepts the XSLT 3.0 forms around paths
+/// that this profile accepts (DEF-60), and variable-rooted patterns stay unsupported.
 /// </remarks>
 internal static class PatternProfile
 {

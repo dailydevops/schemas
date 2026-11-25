@@ -11,6 +11,7 @@ public sealed class XmlReaderOptions
     private XmlReaderLimits _limits = XmlReaderLimits.Default;
     private DtdValidationOptions? _externalAccess;
     private string? _baseUri;
+    private bool _allowXml11Declaration;
 
     private XmlReaderOptions() { }
 
@@ -53,6 +54,24 @@ public sealed class XmlReaderOptions
 
     /// <summary>Gets the absolute base URI of the document, against which a relative system identifier of the document type declaration resolves; <see langword="null"/> when unknown.</summary>
     internal string? BaseUri => _baseUri;
+
+    /// <summary>Gets a value indicating whether the version <c>1.1</c> in the XML declaration is accepted; <see langword="false"/> by default, which rejects it with <see cref="XmlErrorCodes.XML0010"/>.</summary>
+    /// <remarks>
+    /// Internal, for schema documents (#861): the document is read by the XML 1.0 rules, so a document that uses XML 1.1
+    /// only through its declaration reads. XML 1.1 itself (#62) is not supported. Honored by <see cref="Reader.Pipeline.XmlPipelineReader"/>.
+    /// </remarks>
+    internal bool AllowXml11Declaration => _allowXml11Declaration;
+
+    /// <summary>Returns a copy with another <see cref="AllowXml11Declaration"/>.</summary>
+    /// <param name="value"><see langword="true"/> to accept the version <c>1.1</c>.</param>
+    /// <returns>The new options.</returns>
+    internal XmlReaderOptions WithAllowXml11Declaration(bool value)
+    {
+        var copy = (XmlReaderOptions)MemberwiseClone();
+        copy._allowXml11Declaration = value;
+
+        return copy;
+    }
 
     /// <summary>Returns a copy with other <see cref="ExternalAccess"/>.</summary>
     /// <param name="value">The options, <see langword="null"/> to leave the external subset unread.</param>

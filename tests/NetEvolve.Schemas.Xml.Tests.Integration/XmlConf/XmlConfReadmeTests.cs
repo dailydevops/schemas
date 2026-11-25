@@ -73,11 +73,6 @@ public class XmlConfReadmeTests
             "A default value refers to an entity that is declared later and is accepted ([#878](https://github.com/dailydevops/schemas/issues/878)).",
             ["ibm/ibm-not-wf-P68-ibm68n07.xml", "xmltest/not-wf-sa-180"]
         ),
-        (
-            "Invalid public identifier",
-            "A public identifier with a character outside `PubidChar` is accepted ([#931](https://github.com/dailydevops/schemas/issues/931)).",
-            ["xmltest/not-wf-sa-085"]
-        ),
     ];
 
     /// <summary>The cases the validation run does not run, by class: the label and the reason of the readme and the case ids.</summary>
