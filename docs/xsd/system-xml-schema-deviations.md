@@ -30,11 +30,11 @@ No builder option, switch, or code path in the library reproduces System.Xml.Sch
 | Verdict differences: this library follows the specification | 1696 | 1664 |
 | Verdict differences: documented limitations of this library | 26 | 21 |
 | Position differences: equivalent | 12868 | 12868 |
-| Differences on cases that a bug issue tracks (no entry) | 970 | |
+| Differences on cases that a bug issue tracks (no entry) | 955 | |
 
 ## Differences on cases that a bug issue tracks
 
-The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTests/known-failures.txt` and `tests/NetEvolve.Schemas.Xsd.Tests.Integration/InstanceTests/known-failures.txt` record every case of XSD 1.0 that this library does not pass yet, each with its bug issue. At the time of this triage the run found 9990 differences on these cases:
+The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTests/known-failures.txt` and `tests/NetEvolve.Schemas.Xsd.Tests.Integration/InstanceTests/known-failures.txt` record every case of XSD 1.0 that this library does not pass yet, each with its bug issue. At the time of this triage the run found 955 differences on these cases:
 
 | Issue | Differences | Title |
 |---|---:|---|
@@ -46,7 +46,6 @@ The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTe
 | #874 | 22 | bug(xsd): schema constraints that the pipeline does not check yet |
 | #62 | 19 | feat(xml): support xml 1.1 |
 | #1127 | 18 | bug(xsd): a derived attribute wildcard is rejected against the intersection of the attribute group wildcards |
-| #863 | 17 | bug(xsd): particle restriction reports errors for restrictions that the XSTS accepts |
 | #870 | 11 | feat(xsd): add notation declarations as components |
 | #896 | 7 | feat(xsd): compare fixed values in the value space when validating instances |
 | #602 | 6 | feat(xsd): apply default values to elements with mixed content |
@@ -54,6 +53,7 @@ The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTe
 | #1080 | 4 | fix(xml): match every XML name character with the multi-character escape c in the pattern facet |
 | #1079 | 3 | feat(xsd): evaluate the enumeration facet of hexBinary and base64Binary restrictions |
 | #604 | 2 | feat(xsd): resolve QName and NOTATION instance values with the namespace context |
+| #863 | 2 | bug(xsd): particle restriction reports errors for restrictions that the XSTS accepts |
 | #1129 | 2 | bug(xsd): an import of a document with the namespace of the importing schema reports duplicate declarations |
 | #410 | 1 | feat(xml): support caller-selectable xml 1.1 name productions |
 | #1128 | 1 | bug(xsd): an import whose schema location cannot be resolved is reported as an error |
