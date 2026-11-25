@@ -238,4 +238,31 @@ public class CompilationFailureTests
 
         await Assert.That(result.Issues.Single().Message).IsEqualTo("A b.");
     }
+
+    [Test]
+    public async Task VisitEachOnAnEvaluatedRule_IsUnsupported()
+    {
+        var schema = Wrap(
+            "<pattern id=\"p\"><rule context=\"@a\" visit-each=\"tokenize(.)\"><assert test=\"true()\">m</assert></rule></pattern>",
+            " schematronEdition=\"2025\""
+        );
+
+        var failure = BuildFailure(schema);
+
+        await Assert.That(failure.Issues.Single().Code).IsEqualTo(SchematronDiagnosticCodes.Unsupported);
+        await Assert.That(failure.Issues.Single().Message).Contains("visit-each");
+    }
+
+    [Test]
+    public async Task DocumentsOnAnEvaluatedPattern_IsDocumentDenied()
+    {
+        var schema = Wrap(
+            "<pattern id=\"p\" documents=\"'other.xml'\"><rule context=\"a\"><assert test=\"true()\">m</assert></rule></pattern>",
+            " schematronEdition=\"2025\""
+        );
+
+        var failure = BuildFailure(schema);
+
+        await Assert.That(failure.Issues.Single().Code).IsEqualTo(SchematronDiagnosticCodes.DocumentDenied);
+    }
 }
