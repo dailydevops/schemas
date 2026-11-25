@@ -45,8 +45,8 @@
   "knownFailures": [
     {
       "id": "iso-rule-based-validation/let-value-element-content.xml",
-      "issue": 914,
-      "reason": "A let with element content is reported NES3204 because no embedded content is wired into the pipeline (#914); after that the documented exception of #877 applies, because the let binds a document node."
+      "issue": 877,
+      "reason": "A let with element content binds a document node (maintainer decision of #856), and the case fails on a document node versus a sequence only."
     },
     {
       "id": "global-param/raised-minimum.xml",

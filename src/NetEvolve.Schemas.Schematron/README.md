@@ -174,7 +174,7 @@ Schematron lets a schema embed XSLT: stylesheet functions, keys, variables, and 
 
 ### What a schema reaches today
 
-The instruction engine (instruction registry, sequence sink, function table, key index, global table, module linker) is part of the package and covered by its unit tests, and the build of a schema hands the XSLT declarations to it. Under the bindings `xslt`, `xslt1`, `xslt2`, and `xslt3` the resolve stage follows `xsl:include` and `xsl:import` through the resolver of the builder, and the compile stage compiles `xsl:function`, `xsl:key`, `xsl:variable`, `xsl:param`, and `xsl:decimal-format` with the import precedence applied; any other `xsl:` element, such as `xsl:template`, fails at `Build` with `NES3204`, the unsupported XSLT construct error. The compiled schema holds the tables; the global variables and parameters take part in a run, and a rule, a variable, or another function body calls a stylesheet function through an XPath expression ([#628](https://github.com/dailydevops/schemas/issues/628)), while keys are not callable from the XPath of a rule yet ([#832](https://github.com/dailydevops/schemas/issues/832)). Problems of a declaration that an included Schematron library holds are located at the principal schema, and without a line. A `let` with element content and a property with `xsl:copy-of` build, and the run reports `NES3204` where it needs them, because no embedded content is wired into the pipeline ([#914](https://github.com/dailydevops/schemas/issues/914)); a `let` with element content binds a document node (maintainer decision of [#856](https://github.com/dailydevops/schemas/issues/856)), which the suite case for it does not expect ([#877](https://github.com/dailydevops/schemas/issues/877)).
+The instruction engine (instruction registry, sequence sink, function table, key index, global table, module linker) is part of the package and covered by its unit tests, and the build of a schema hands the XSLT declarations to it. Under the bindings `xslt`, `xslt1`, `xslt2`, and `xslt3` the resolve stage follows `xsl:include` and `xsl:import` through the resolver of the builder, and the compile stage compiles `xsl:function`, `xsl:key`, `xsl:variable`, `xsl:param`, and `xsl:decimal-format` with the import precedence applied; any other `xsl:` element, such as `xsl:template`, fails at `Build` with `NES3204`, the unsupported XSLT construct error. The compiled schema holds the tables; the global variables and parameters take part in a run, and a rule, a variable, or another function body calls a stylesheet function through an XPath expression ([#628](https://github.com/dailydevops/schemas/issues/628)), while keys are not callable from the XPath of a rule yet ([#832](https://github.com/dailydevops/schemas/issues/832)). Problems of a declaration that an included Schematron library holds are located at the principal schema, and without a line. A `let` with element content and a property with `xsl:copy-of` are built and take part in a run; a `let` with element content binds a document node (maintainer decision of [#856](https://github.com/dailydevops/schemas/issues/856)), which the suite case for it does not expect ([#877](https://github.com/dailydevops/schemas/issues/877)).
 
 What does work are the XSLT functions in the expressions of a schema (`test`, `select`, `value`, `context`) under the bindings `xslt`, `xslt1`, `xslt2`, and `xslt3`: `current`, `system-property`, `function-available`, `format-number`, and `generate-id`. These functions do not exist under `xpath` and `xpath2`. A named decimal format is unknown, because no `xsl:decimal-format` is handed to the run ([#882](https://github.com/dailydevops/schemas/issues/882)).
 
@@ -306,7 +306,7 @@ The package is measured against the official Schematron conformance suite, relea
 
 ### Schematron conformance suite
 
-**64 of 84 applicable cases pass, a rate of 76.1%** on `net10.0`, the leg that runs the suites. The other cases are the 20 known failures below, and 3 excluded cases do not count. Every known failure is a case of the committed baseline in `tests/conformance/baselines/schematron-conformance/` (20 baseline entries in 5 files, one file per test set), linked to an issue; a regression and an unexpected pass fail the run.
+**66 of 84 applicable cases pass, a rate of 78.5%** on `net10.0`, the leg that runs the suites. The other cases are the 18 known failures below, and 3 excluded cases do not count. Every known failure is a case of the committed baseline in `tests/conformance/baselines/schematron-conformance/` (18 baseline entries in 5 files, one file per test set), linked to an issue; a regression and an unexpected pass fail the run.
 
 Reproduce the numbers on a clone: set `GITHUB_STEP_SUMMARY` to a file and run the conformance tests; the table of the rate per test set is appended to that file.
 
@@ -318,11 +318,11 @@ dotnet test --project tests/NetEvolve.Schemas.Schematron.Tests.Integration --con
 | --- | --- | --- | --- |
 | `iso-instance-document-selection` | 2 | 0 | 0.0% |
 | `iso-pattern-templating` | 12 | 8 | 66.6% |
-| `iso-reporting` | 45 | 39 | 86.6% |
+| `iso-reporting` | 45 | 41 | 91.1% |
 | `iso-rule-based-validation` | 14 | 11 | 78.5% |
 | `iso-schema-composition` | 11 | 6 | 54.5% |
 
-The acceptance of XSLT stage 4 (own test schemas and four cases of the suite, which are also among the 84) publishes its own row in the job summary, `NetEvolve.Schemas.Schematron (stage 4 goldens)`: 12 of 17 cases pass, a rate of 70.5%. The other 5 wait for [#914](https://github.com/dailydevops/schemas/issues/914) (a `let` with element content), for temporary trees in global declarations, and for builder parameters of a global `xsl:param` ([#832](https://github.com/dailydevops/schemas/issues/832)).
+The acceptance of XSLT stage 4 (own test schemas and four cases of the suite, which are also among the 84) publishes its own row in the job summary, `NetEvolve.Schemas.Schematron (stage 4 goldens)`: 12 of 17 cases pass, a rate of 70.5%. The other 5 wait for [#877](https://github.com/dailydevops/schemas/issues/877) (a `let` with element content binds a document node), for temporary trees in global declarations, and for builder parameters of a global `xsl:param` ([#832](https://github.com/dailydevops/schemas/issues/832)).
 
 #### Excluded cases
 
@@ -350,7 +350,7 @@ The suite file of the binding `xslt-3-2025` lists three cases that no selected b
 - `iso-rule-based-validation/xsl-key-element-content.xml`
 - `iso-rule-based-validation/xsl-key.xml`
 
-**[#877](https://github.com/dailydevops/schemas/issues/877)** (1 case): A let with element content binds a document node (maintainer decision of #856), and the run reports NES3204 until the embedded content is wired (#914).
+**[#877](https://github.com/dailydevops/schemas/issues/877)** (1 case): A let with element content binds a document node (maintainer decision of #856), and the case fails on a document node versus a sequence only.
 
 - `iso-rule-based-validation/let-value-element-content.xml`
 
@@ -363,11 +363,6 @@ The suite file of the binding `xslt-3-2025` lists three cases that no selected b
 - `iso-reporting/svrl-active-pattern-documents.xml`
 - `iso-reporting/svrl-fired-rule-document-primary.xml`
 - `iso-reporting/svrl-fired-rule-document.xml`
-
-**[#914](https://github.com/dailydevops/schemas/issues/914)** (2 cases): A property with xsl:copy-of is reported NES3204 because no embedded content is wired into the pipeline.
-
-- `iso-reporting/svrl-property-copy-of.xml`
-- `iso-reporting/svrl-property-variable-copy-of-rule.xml`
 
 **[#915](https://github.com/dailydevops/schemas/issues/915)** (3 cases): Abstract pattern parameters are substituted in the pattern only; diagnostics and properties belong to the schema and are shared by every instance, so their content keeps the parameter reference (NES3300), a recorded deviation.
 
@@ -394,7 +389,7 @@ dotnet test --project tests/NetEvolve.Schemas.Schematron.Tests.Integration --con
   ```
 
 - **No `ReadOnlyMemory<T>` overload.** With one, a `byte[]` or `char[]` argument is ambiguous for compilers older than C# 14; pass `memory.Span` instead.
-- **XSLT in a schema.** Declarations of XSLT build and stylesheet functions are callable from XPath, but keys are not callable from a rule yet ([#832](https://github.com/dailydevops/schemas/issues/832)), and `let` with element content and `xsl:copy-of` in a property are reported at run time ([#914](https://github.com/dailydevops/schemas/issues/914)); see [XSLT constructs](#xslt-constructs).
+- **XSLT in a schema.** Declarations of XSLT build and stylesheet functions are callable from XPath, but keys are not callable from a rule yet ([#832](https://github.com/dailydevops/schemas/issues/832)), and a `let` with element content binds a document node, which one suite case does not expect ([#877](https://github.com/dailydevops/schemas/issues/877)); see [XSLT constructs](#xslt-constructs).
 - **Attributes that are accepted and ignored.** The `documents` attribute of a pattern ([#913](https://github.com/dailydevops/schemas/issues/913), feature [#388](https://github.com/dailydevops/schemas/issues/388)) and the `visit-each` attribute of a rule ([#934](https://github.com/dailydevops/schemas/issues/934), feature [#387](https://github.com/dailydevops/schemas/issues/387)) neither fail the build nor take effect.
 - **Phase attributes.** A selected phase with `from` ([#385](https://github.com/dailydevops/schemas/issues/385)) or `when` ([#386](https://github.com/dailydevops/schemas/issues/386)) fails the build with `NES3007`.
 - **Include and extends.** An `href` with a fragment identifier is not supported ([#575](https://github.com/dailydevops/schemas/issues/575)).

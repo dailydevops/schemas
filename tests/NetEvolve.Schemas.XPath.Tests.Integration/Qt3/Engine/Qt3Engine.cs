@@ -92,7 +92,10 @@ internal sealed class Qt3Engine : IQt3Engine
             return Failure(compiled.Diagnostic);
         }
 
-        using var context = new XPathEvaluationContext();
+        using var context = new XPathEvaluationContext
+        {
+            ResourceResolver = new Qt3SourceResolver(environment.Sources),
+        };
         var variables = Bind(environment, context);
         if (testCase.ResultVariable is { } items)
         {
