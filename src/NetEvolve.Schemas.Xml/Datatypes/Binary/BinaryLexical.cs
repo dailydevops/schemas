@@ -31,6 +31,18 @@ internal static class BinaryLexical
             return result;
         }
 
+#if !NETSTANDARD2_0
+        // A form without spaces is plain base64 that Scan has already validated; the runtime decodes it vectorized.
+        if (
+            lexical.IndexOf(' ') < 0
+            && Convert.TryFromBase64Chars(lexical, result, out var decoded)
+            && decoded == octets
+        )
+        {
+            return result;
+        }
+#endif
+
         var written = 0;
         var accumulator = 0;
         var bits = 0;
@@ -184,13 +196,26 @@ internal static class BinaryLexical
     }
 
     // The Base64 alphabet: A-Z, a-z, 0-9, '+', '/'; -1 for every other character.
-    private static int Base64Index(char c) =>
-        c >= 'A' && c <= 'Z' ? c - 'A'
-        : c >= 'a' && c <= 'z' ? c - 'a' + 26
-        : c >= '0' && c <= '9' ? c - '0' + 52
-        : c == '+' ? 62
-        : c == '/' ? 63
-        : -1;
+    private static int Base64Index(char c) => c < Base64Indexes.Length ? Base64Indexes[c] : -1;
+
+    private static readonly sbyte[] Base64Indexes = CreateBase64Indexes();
+
+    private static sbyte[] CreateBase64Indexes()
+    {
+        var table = new sbyte[128];
+        for (var i = 0; i < table.Length; i++)
+        {
+            table[i] = -1;
+        }
+
+        const string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+        for (var i = 0; i < alphabet.Length; i++)
+        {
+            table[alphabet[i]] = (sbyte)i;
+        }
+
+        return table;
+    }
 
     private static int Hex(char c) =>
         c >= '0' && c <= '9' ? c - '0'
