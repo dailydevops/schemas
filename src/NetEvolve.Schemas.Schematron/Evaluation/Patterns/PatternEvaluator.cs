@@ -9,7 +9,6 @@ using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Evaluation.Annotations;
 using NetEvolve.Schemas.Schematron.Evaluation.Assertions;
 using NetEvolve.Schemas.Schematron.Evaluation.Dispatch;
-using NetEvolve.Schemas.Schematron.Results.Mapping;
 using NetEvolve.Schemas.Schematron.Scopes;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Xml.Contracts;
@@ -49,7 +48,7 @@ internal sealed class PatternEvaluator
     private readonly IQueryRun _run;
     private readonly SlotBinder _binder;
     private readonly AssertionEvaluator _assertions;
-    private readonly IssueMapper _events;
+    private readonly IEvaluationEvents _events;
     private readonly EvaluationProblems _problems;
     private readonly CancellationToken _cancellationToken;
     private readonly ContextErrorCounter _contextErrors = new();
@@ -69,7 +68,7 @@ internal sealed class PatternEvaluator
         IQueryRun run,
         SlotBinder binder,
         AssertionEvaluator assertions,
-        IssueMapper events,
+        IEvaluationEvents events,
         EvaluationProblems problems,
         CancellationToken cancellationToken
     )

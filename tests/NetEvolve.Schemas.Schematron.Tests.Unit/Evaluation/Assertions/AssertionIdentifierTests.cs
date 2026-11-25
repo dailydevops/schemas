@@ -1,8 +1,8 @@
-namespace NetEvolve.Schemas.Schematron.Tests.Unit.Results.Mapping;
+namespace NetEvolve.Schemas.Schematron.Tests.Unit.Evaluation.Assertions;
 
 using System;
 using System.Globalization;
-using NetEvolve.Schemas.Schematron.Results.Mapping;
+using NetEvolve.Schemas.Schematron.Evaluation.Assertions;
 
 public class AssertionIdentifierTests
 {
