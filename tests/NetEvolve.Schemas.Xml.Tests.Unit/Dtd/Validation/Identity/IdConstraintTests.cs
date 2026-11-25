@@ -73,6 +73,10 @@ public class IdConstraintTests
     [Arguments("a#")]
     [Arguments(" a")]
     [Arguments("a ")]
+    [Arguments(":")]
+    [Arguments("a:b")]
+    [Arguments(":a")]
+    [Arguments("a:")]
     public async Task Id_ThatIsNotAName_ReportsXml5009AtTheAttribute(string value)
     {
         var run = Run("<r ~id=\"" + value + "\"/>");
@@ -88,10 +92,8 @@ public class IdConstraintTests
     [Test]
     [Arguments("a")]
     [Arguments("_")]
-    [Arguments(":")]
     [Arguments("a1")]
     [Arguments("a-b.c")]
-    [Arguments("a:b")]
     [Arguments("é")]
     [Arguments("名前")]
     [Arguments("\U00010000x")]

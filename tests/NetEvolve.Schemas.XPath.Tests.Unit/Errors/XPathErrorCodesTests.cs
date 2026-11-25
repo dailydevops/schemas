@@ -73,8 +73,8 @@ public class XPathErrorCodesTests
     // XML Path Language (XPath) 3.0, appendix G, and XQuery and XPath Functions and Operators 3.0, appendix D: the conditions that function items add.
     private static readonly string[] XPath30Codes = ["XQST0039", "FOTY0013"];
 
-    // XML Path Language (XPath) 3.1, appendix F, and XQuery and XPath Functions and Operators 3.1, appendix D: the conditions that maps add.
-    private static readonly string[] XPath31Codes = ["XQDY0137", "FOJS0003", "FOJS0005"];
+    // XML Path Language (XPath) 3.1, appendix F, and XQuery and XPath Functions and Operators 3.1, appendix D: the conditions that maps and arrays add.
+    private static readonly string[] XPath31Codes = ["XQDY0137", "FOJS0003", "FOJS0005", "FOAY0001", "FOAY0002"];
 
     public static IEnumerable<string> AllCodes() =>
         [.. XPath20Codes, .. FunctionsCodes, .. XPath30Codes, .. XPath31Codes];
@@ -107,8 +107,8 @@ public class XPathErrorCodesTests
     {
         var table = TableCodes("FO");
 
-        await Assert.That(table.SetEquals([.. FunctionsCodes, "FOTY0013", "FOJS0003", "FOJS0005"])).IsTrue();
-        await Assert.That(table.Count).IsEqualTo(FunctionsCodes.Length + 3);
+        await Assert.That(table.SetEquals([.. FunctionsCodes, "FOTY0013", .. XPath31Codes])).IsTrue();
+        await Assert.That(table.Count).IsEqualTo(FunctionsCodes.Length + 1 + XPath31Codes.Length);
     }
 
     [Test]

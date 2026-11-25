@@ -167,6 +167,9 @@ internal static class XPathErrorCodes
     );
     internal static readonly XPathErrorCode FOJS0005 = Define("FOJS0005", "An option has an invalid value.");
 
+    internal static readonly XPathErrorCode FOAY0001 = Define("FOAY0001", "Array index out of bounds.");
+    internal static readonly XPathErrorCode FOAY0002 = Define("FOAY0002", "Negative array length.");
+
     /// <summary>Gets every code of the table.</summary>
     internal static IReadOnlyCollection<XPathErrorCode> All => Messages.Keys;
 
