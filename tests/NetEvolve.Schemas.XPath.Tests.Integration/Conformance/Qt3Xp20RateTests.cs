@@ -47,21 +47,20 @@ public class Qt3Xp20RateTests
             .IsEqualTo(expected);
 
     [Test]
-    public async Task Flush_AppendsOneRowForTheCollectedCounts(CancellationToken cancellationToken)
+    public async Task Flush_AppendsOneRowAndSkipsEmptyCounts(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         var path = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N") + ".md");
         try
         {
-            Qt3Xp20Rate.Collect(new TestSetCounts(3, 1, 0));
-            Qt3Xp20Rate.Collect(new TestSetCounts(1, 0, 2));
+            var counts = new TestSetCounts(4, 1, 2);
 
-            Qt3Xp20Rate.Flush(path, excluded: 4);
+            Qt3Xp20Rate.Flush(path, counts, excluded: 4);
 
             await Assert
                 .That(await File.ReadAllTextAsync(path, cancellationToken))
                 .Contains("| XPath 2.0 (QT3) | 4 | 1 | 2 | 4 | 5 | 80.0% |");
-            Qt3Xp20Rate.Flush(path, excluded: 4);
+            Qt3Xp20Rate.Flush(path, default, excluded: 4);
             await Assert
                 .That((await File.ReadAllTextAsync(path, cancellationToken)).Split("XPath 2.0 (QT3)").Length)
                 .IsEqualTo(2);

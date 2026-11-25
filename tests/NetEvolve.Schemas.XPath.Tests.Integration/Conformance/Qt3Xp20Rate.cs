@@ -27,16 +27,20 @@ internal static class Qt3Xp20Rate
         }
     }
 
-    /// <summary>Appends the total row for the collected counts; writes nothing when the path is empty or nothing was collected.</summary>
-    public static void Flush(string? summaryPath, int excluded)
+    /// <summary>Takes the collected counts and resets the total.</summary>
+    public static TestSetCounts Take()
     {
-        TestSetCounts counts;
         lock (Gate)
         {
-            counts = s_collected;
+            var counts = s_collected;
             s_collected = default;
+            return counts;
         }
+    }
 
+    /// <summary>Appends the total row for the given counts; writes nothing when the path is empty or no case ran.</summary>
+    public static void Flush(string? summaryPath, TestSetCounts counts, int excluded)
+    {
         if (string.IsNullOrEmpty(summaryPath) || counts.Total == 0)
         {
             return;
@@ -56,7 +60,7 @@ internal static class Qt3Xp20Rate
         }
 
         var selection = await Qt3Suite.GetSelectionAsync(cancellationToken);
-        Flush(path, selection.Excluded.Count);
+        Flush(path, Take(), selection.Excluded.Count);
     }
 
     /// <summary>Renders the table with the total row.</summary>
