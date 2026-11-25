@@ -165,7 +165,7 @@ internal readonly struct ItemTypeMatcher
         switch (test)
         {
             case SchemaElementTest or SchemaAttributeTest:
-                throw XPathErrors.Exception(XPathErrorCodes.XPST0008, test.Location.Offset, test.Location.Length);
+                throw UndeclaredSchemaTest(test, context);
             case DocumentTest { Element: { } element }:
                 var (documentElement, type) = BindNamedTest(element, context);
                 return new(ItemTypeKind.DocumentElement, documentElement, type);
@@ -186,7 +186,7 @@ internal readonly struct ItemTypeMatcher
         switch (test)
         {
             case SchemaElementTest or SchemaAttributeTest:
-                throw XPathErrors.Exception(XPathErrorCodes.XPST0008, test.Location.Offset, test.Location.Length);
+                throw UndeclaredSchemaTest(test, context);
             case ElementTest element:
                 var elementType = element.TypeName is null ? default : ResolveAny(element.TypeName, context);
                 var withoutType = new ElementTest(element.Location, element.Name, null, false);
@@ -198,6 +198,18 @@ internal readonly struct ItemTypeMatcher
             default:
                 return (ToNodeTest(test, context), default);
         }
+    }
+
+    // The name is expanded before the declaration lookup, so an unbound prefix (XPST0081) wins over XPST0008.
+    private static XPathException UndeclaredSchemaTest(KindTest test, XPathStaticContext context)
+    {
+        var name = test is SchemaElementTest element ? element.Name : ((SchemaAttributeTest)test).Name;
+        if (name.Prefix is not null && !context.TryResolveNamespace(name.Prefix, out _))
+        {
+            return XPathErrors.Exception(XPathErrorCodes.XPST0081, name.Location.Offset, name.Location.Length);
+        }
+
+        return XPathErrors.Exception(XPathErrorCodes.XPST0008, test.Location.Offset, test.Location.Length);
     }
 
     private static XPathNodeTest ToNodeTest(NodeTest test, XPathStaticContext context) =>

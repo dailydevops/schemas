@@ -14,8 +14,11 @@ using NetEvolve.Schemas.XPath.Xdm.Nodes;
 /// matched right to left; predicates are compiled and evaluated through the <see cref="IQueryBinding"/>.
 /// </summary>
 /// <remarks>
-/// Limitations: only the XSLT 2.0 pattern subset is supported, also under the <c>xslt3</c> binding (DEF-60);
-/// <c>id()</c> and <c>key()</c> patterns raise the unsupported-pattern error (DEF-55). The pattern use makes no
+/// Limitations: the XSLT 3.0 forms <c>intersect</c>, <c>except</c>, parentheses, and predicates on a parenthesized
+/// pattern are accepted under every XSLT binding (<c>xslt</c>, <c>xslt2</c>, <c>xslt3</c>), so also where the version
+/// predates them, which makes the matcher a superset there; the <c>xpath</c> family keeps the XSLT 2.0 subset and reports
+/// them as unsupported. No binding version reaches the matcher. Patterns rooted at a variable reference, and
+/// <c>id()</c> and <c>key()</c> patterns raise the unsupported-pattern error (DEF-60, DEF-55). The pattern use makes no
 /// difference yet. A predicate is judged numeric by its syntax (see <see cref="PatternPredicates"/>).
 /// </remarks>
 internal sealed class PatternMatcher : IPatternMatcher
@@ -63,7 +66,9 @@ internal sealed class PatternMatcher : IPatternMatcher
             return false;
         }
 
-        if (!PatternProfile.Checker.Accepts(tree!, out var violation))
+        // Under an XSLT binding the builder checks the paths itself, because the XSLT 3.0 forms wrap them (DEF-60).
+        var extended = _binding.AllowsXsltInstructions;
+        if (!extended && !PatternProfile.Checker.Accepts(tree!, out var violation))
         {
             problem = new SchematronProblem(
                 SchematronDiagnosticCodes.PatternUnsupported,
@@ -74,7 +79,7 @@ internal sealed class PatternMatcher : IPatternMatcher
             return false;
         }
 
-        var builder = new PatternBuilder(_binding, scope, StaticContext(scope), text, locator);
+        var builder = new PatternBuilder(_binding, scope, StaticContext(scope), text, locator, extended);
         if (!builder.TryBuild(tree!, out var plan, out problem))
         {
             return false;
