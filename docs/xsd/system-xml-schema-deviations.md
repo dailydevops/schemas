@@ -29,8 +29,8 @@ No builder option, switch, or code path in the library reproduces System.Xml.Sch
 |---|---:|---:|
 | Verdict differences: this library follows the specification | 1694 | 1662 |
 | Verdict differences: documented limitations of this library | 26 | 21 |
-| Position differences: equivalent | 12825 | 12825 |
-| Differences on cases that a bug issue tracks (no entry) | 1196 | |
+| Position differences: equivalent | 12853 | 12853 |
+| Differences on cases that a bug issue tracks (no entry) | 1168 | |
 
 ## Differences on cases that a bug issue tracks
 
@@ -44,7 +44,6 @@ The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTe
 | #859 | 63 | bug(xsd): the import check of the namespace attribute is inverted |
 | #860 | 38 | bug(xsd): a restriction of NOTATION without an enumeration is rejected where the type is not used |
 | #963 | 35 | test(conformance): run the xsts instance tests of groups without a schema document through schema location hints |
-| #862 | 28 | bug(xsd): length together with minLength or maxLength in one restriction step is accepted |
 | #874 | 23 | bug(xsd): schema constraints that the pipeline does not check yet |
 | #869 | 23 | feat(xsd): check redefinitions against the redefined component |
 | #62 | 19 | feat(xml): support xml 1.1 |
@@ -5988,9 +5987,9 @@ sunMeta-suntest/1.0/xsd023.e/xsd023.e
 
 Both engines reject the document with the same number of issues, and the verdicts agree. They attribute the issues to different constructs of the document. Issue positions are not part of the specification, so the difference is equivalent.
 
-- Difference: IssuePositions `issue positions` (8530)
+- Difference: IssuePositions `issue positions` (8556)
 - Specification: XSD 1.0 Part 1, 5.2 and C.1 (the assessment outcome is the validity property; positions and number of reports are not specified)
-- Cases: 8530
+- Cases: 8556
 
 ```text
 ibmMeta-identityConstraint/1.0/s2_2_4si06/s2_2_4si06s
@@ -6169,17 +6168,33 @@ msMeta-ComplexType_w3c/1.0/ctM004/ctM004
 msMeta-ComplexType_w3c/1.0/ctO004/ctO004
 msMeta-ComplexType_w3c/1.0/ctZ005/ctZ005.i
 msMeta-ComplexType_w3c/1.0/ctZ009_c/ctZ009_c.i
+msMeta-DataTypes_w3c/1.0/IDREFS_length007_396/IDREFS_length007_396
 msMeta-DataTypes_w3c/1.0/IDREFS_minLength006_402/IDREFS_minLength006_402
+msMeta-DataTypes_w3c/1.0/IDREF_length006_525/IDREF_length006_525
+msMeta-DataTypes_w3c/1.0/IDREF_length007_526/IDREF_length007_526
 msMeta-DataTypes_w3c/1.0/IDREF_minLength006_532/IDREF_minLength006_532
+msMeta-DataTypes_w3c/1.0/ID_length006_503/ID_length006_503
+msMeta-DataTypes_w3c/1.0/ID_length007_504/ID_length007_504
 msMeta-DataTypes_w3c/1.0/ID_minLength006_510/ID_minLength006_510
+msMeta-DataTypes_w3c/1.0/NCName_length006_481/NCName_length006_481
+msMeta-DataTypes_w3c/1.0/NCName_length007_482/NCName_length007_482
 msMeta-DataTypes_w3c/1.0/NCName_minLength006_488/NCName_minLength006_488
+msMeta-DataTypes_w3c/1.0/NMTOKENS_length007_439/NMTOKENS_length007_439
 msMeta-DataTypes_w3c/1.0/NMTOKENS_minLength006_445/NMTOKENS_minLength006_445
+msMeta-DataTypes_w3c/1.0/NMTOKEN_length006_416/NMTOKEN_length006_416
+msMeta-DataTypes_w3c/1.0/NMTOKEN_length007_417/NMTOKEN_length007_417
 msMeta-DataTypes_w3c/1.0/NMTOKEN_minLength006_423/NMTOKEN_minLength006_423
-msMeta-DataTypes_w3c/1.0/NOTATION_length006_305/NOTATION_length006_305
-msMeta-DataTypes_w3c/1.0/NOTATION_length007_306/NOTATION_length007_306
+msMeta-DataTypes_w3c/1.0/Name_length006_459/Name_length006_459
+msMeta-DataTypes_w3c/1.0/Name_length007_460/Name_length007_460
 msMeta-DataTypes_w3c/1.0/Name_minLength006_466/Name_minLength006_466
+msMeta-DataTypes_w3c/1.0/QName_length006_283/QName_length006_283
+msMeta-DataTypes_w3c/1.0/QName_length007_284/QName_length007_284
 msMeta-DataTypes_w3c/1.0/QName_minLength006_290/QName_minLength006_290
+msMeta-DataTypes_w3c/1.0/anyURI_length006_262/anyURI_length006_262
+msMeta-DataTypes_w3c/1.0/anyURI_length007_263/anyURI_length007_263
 msMeta-DataTypes_w3c/1.0/anyURI_minLength006_269/anyURI_minLength006_269
+msMeta-DataTypes_w3c/1.0/base64Binary_length006_241/base64Binary_length006_241
+msMeta-DataTypes_w3c/1.0/base64Binary_length007_242/base64Binary_length007_242
 msMeta-DataTypes_w3c/1.0/base64Binary_minLength006_248/base64Binary_minLength006_248
 msMeta-DataTypes_w3c/1.0/byte_maxInclusive005_782/byte_maxInclusive005_782
 msMeta-DataTypes_w3c/1.0/byte_minExclusive005_796/byte_minExclusive005_796
@@ -6217,6 +6232,8 @@ msMeta-DataTypes_w3c/1.0/gYearMonth_minInclusive003_155/gYearMonth_minInclusive0
 msMeta-DataTypes_w3c/1.0/gYear_maxInclusive003_164/gYear_maxInclusive003_164
 msMeta-DataTypes_w3c/1.0/gYear_minExclusive003_172/gYear_minExclusive003_172
 msMeta-DataTypes_w3c/1.0/gYear_minInclusive003_169/gYear_minInclusive003_169
+msMeta-DataTypes_w3c/1.0/hexBinary_length006_220/hexBinary_length006_220
+msMeta-DataTypes_w3c/1.0/hexBinary_length007_221/hexBinary_length007_221
 msMeta-DataTypes_w3c/1.0/hexBinary_minLength006_227/hexBinary_minLength006_227
 msMeta-DataTypes_w3c/1.0/int_maxInclusive005_688/int_maxInclusive005_688
 msMeta-DataTypes_w3c/1.0/int_minExclusive005_716/int_minExclusive005_716
@@ -6226,6 +6243,8 @@ msMeta-DataTypes_w3c/1.0/integer_minExclusive003_556/integer_minExclusive003_556
 msMeta-DataTypes_w3c/1.0/integer_minExclusive004_557/integer_minExclusive004_557
 msMeta-DataTypes_w3c/1.0/integer_minInclusive003_552/integer_minInclusive003_552
 msMeta-DataTypes_w3c/1.0/integer_minInclusive004_553/integer_minInclusive004_553
+msMeta-DataTypes_w3c/1.0/language_length006_373/language_length006_373
+msMeta-DataTypes_w3c/1.0/language_length007_374/language_length007_374
 msMeta-DataTypes_w3c/1.0/language_minLength006_380/language_minLength006_380
 msMeta-DataTypes_w3c/1.0/long_maxInclusive005_643/long_maxInclusive005_643
 msMeta-DataTypes_w3c/1.0/long_minExclusive005_657/long_minExclusive005_657
@@ -6239,6 +6258,8 @@ msMeta-DataTypes_w3c/1.0/nonNegativeInteger_minInclusive004_824/nonNegativeInteg
 msMeta-DataTypes_w3c/1.0/nonPositiveInteger_maxInclusive004_578/nonPositiveInteger_maxInclusive004_578
 msMeta-DataTypes_w3c/1.0/nonPositiveInteger_minExclusive004_589/nonPositiveInteger_minExclusive004_589
 msMeta-DataTypes_w3c/1.0/nonPositiveInteger_minInclusive004_585/nonPositiveInteger_minInclusive004_585
+msMeta-DataTypes_w3c/1.0/normalizedString_length006_327/normalizedString_length006_327
+msMeta-DataTypes_w3c/1.0/normalizedString_length007_328/normalizedString_length007_328
 msMeta-DataTypes_w3c/1.0/normalizedString_minLength006_334/normalizedString_minLength006_334
 msMeta-DataTypes_w3c/1.0/positiveInteger_maxInclusive004_993/positiveInteger_maxInclusive004_993
 msMeta-DataTypes_w3c/1.0/positiveInteger_minExclusive004_1004/positiveInteger_minExclusive004_1004
@@ -6246,11 +6267,15 @@ msMeta-DataTypes_w3c/1.0/positiveInteger_minInclusive004_1000/positiveInteger_mi
 msMeta-DataTypes_w3c/1.0/short_maxInclusive005_746/short_maxInclusive005_746
 msMeta-DataTypes_w3c/1.0/short_minExclusive005_760/short_minExclusive005_760
 msMeta-DataTypes_w3c/1.0/short_minInclusive005_755/short_minInclusive005_755
+msMeta-DataTypes_w3c/1.0/string_length006_5/string_length006_5
+msMeta-DataTypes_w3c/1.0/string_length007_6/string_length007_6
 msMeta-DataTypes_w3c/1.0/string_minLength006_12/string_minLength006_12
 msMeta-DataTypes_w3c/1.0/time_maxInclusive003_118/time_maxInclusive003_118
 msMeta-DataTypes_w3c/1.0/time_maxInclusive007_119/time_maxInclusive007_119
 msMeta-DataTypes_w3c/1.0/time_minExclusive003_127/time_minExclusive003_127
 msMeta-DataTypes_w3c/1.0/time_minInclusive003_124/time_minInclusive003_124
+msMeta-DataTypes_w3c/1.0/token_length006_350/token_length006_350
+msMeta-DataTypes_w3c/1.0/token_length007_351/token_length007_351
 msMeta-DataTypes_w3c/1.0/token_minLength006_357/token_minLength006_357
 msMeta-DataTypes_w3c/1.0/unsignedByte_maxInclusive005_958/unsignedByte_maxInclusive005_958
 msMeta-DataTypes_w3c/1.0/unsignedByte_minExclusive005_972/unsignedByte_minExclusive005_972
@@ -14529,9 +14554,9 @@ sunMeta-suntest/1.0/xsd022/xsd022.n00
 
 Both engines reject the document and the verdicts agree. This library reports more issues than System.Xml.Schema for the same document; the engines group and follow up violations differently. The number and the positions of reported issues are not part of the specification, so the difference is equivalent.
 
-- Difference: IssuePositions `issue positions` (354)
+- Difference: IssuePositions `issue positions` (356)
 - Specification: XSD 1.0 Part 1, 5.2 and C.1 (the assessment outcome is the validity property; positions and number of reports are not specified)
-- Cases: 354
+- Cases: 356
 
 ```text
 ibmMeta-cyclicRedefineIncludeImportOverride/1.0/s4_2_4si02/s4_2_4si02s
@@ -14617,6 +14642,8 @@ msMeta-DataTypes_w3c/1.0/NOTATION_length001_300/NOTATION_length001_300
 msMeta-DataTypes_w3c/1.0/NOTATION_length002_301/NOTATION_length002_301
 msMeta-DataTypes_w3c/1.0/NOTATION_length004_303/NOTATION_length004_303
 msMeta-DataTypes_w3c/1.0/NOTATION_length005_304/NOTATION_length005_304
+msMeta-DataTypes_w3c/1.0/NOTATION_length006_305/NOTATION_length006_305
+msMeta-DataTypes_w3c/1.0/NOTATION_length007_306/NOTATION_length007_306
 msMeta-DataTypes_w3c/1.0/NOTATION_maxLength001_314/NOTATION_maxLength001_314
 msMeta-DataTypes_w3c/1.0/NOTATION_maxLength002_315/NOTATION_maxLength002_315
 msMeta-DataTypes_w3c/1.0/NOTATION_maxLength004_317/NOTATION_maxLength004_317

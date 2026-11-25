@@ -30,16 +30,6 @@ msMeta-AttributeGroup_w3c	1.0/attgZ002/attgZ002	#869	A redefinition is not check
 msMeta-AttributeGroup_w3c	1.0/attgZ003/attgZ003	#869	A redefinition is not checked against the redefined component.
 msMeta-Attribute_w3c	1.0/attZ013a/attZ013a	#871	A value constraint on a declaration of type ID is accepted.
 msMeta-Attribute_w3c	1.0/attZ013b/attZ013b	#871	A value constraint on a declaration of type ID is accepted.
-msMeta-DataTypes_w3c	1.0/IDREFS_length007_396/IDREFS_length007_396	#862	length together with minLength or maxLength in one step is accepted.
-msMeta-DataTypes_w3c	1.0/IDREF_length006_525/IDREF_length006_525	#862	length together with minLength or maxLength in one step is accepted.
-msMeta-DataTypes_w3c	1.0/IDREF_length007_526/IDREF_length007_526	#862	length together with minLength or maxLength in one step is accepted.
-msMeta-DataTypes_w3c	1.0/ID_length006_503/ID_length006_503	#862	length together with minLength or maxLength in one step is accepted.
-msMeta-DataTypes_w3c	1.0/ID_length007_504/ID_length007_504	#862	length together with minLength or maxLength in one step is accepted.
-msMeta-DataTypes_w3c	1.0/NCName_length006_481/NCName_length006_481	#862	length together with minLength or maxLength in one step is accepted.
-msMeta-DataTypes_w3c	1.0/NCName_length007_482/NCName_length007_482	#862	length together with minLength or maxLength in one step is accepted.
-msMeta-DataTypes_w3c	1.0/NMTOKENS_length007_439/NMTOKENS_length007_439	#862	length together with minLength or maxLength in one step is accepted.
-msMeta-DataTypes_w3c	1.0/NMTOKEN_length006_416/NMTOKEN_length006_416	#862	length together with minLength or maxLength in one step is accepted.
-msMeta-DataTypes_w3c	1.0/NMTOKEN_length007_417/NMTOKEN_length007_417	#862	length together with minLength or maxLength in one step is accepted.
 msMeta-DataTypes_w3c	1.0/NOTATION_length001_1372/NOTATION_length001_1372	#860	A restriction step of NOTATION needs no enumeration; only the type that a declaration uses does.
 msMeta-DataTypes_w3c	1.0/NOTATION_length002_1373/NOTATION_length002_1373	#860	A restriction step of NOTATION needs no enumeration; only the type that a declaration uses does.
 msMeta-DataTypes_w3c	1.0/NOTATION_length003_1374/NOTATION_length003_1374	#860	A restriction step of NOTATION needs no enumeration; only the type that a declaration uses does.
@@ -56,10 +46,6 @@ msMeta-DataTypes_w3c	1.0/NOTATION_minLength004_1378/NOTATION_minLength004_1378	#
 msMeta-DataTypes_w3c	1.0/NOTATION_minLength007_313/NOTATION_minLength007_313	#860	A restriction step of NOTATION needs no enumeration; only the type that a declaration uses does.
 msMeta-DataTypes_w3c	1.0/NOTATION_pattern001_1382/NOTATION_pattern001_1382	#860	A restriction step of NOTATION needs no enumeration; only the type that a declaration uses does.
 msMeta-DataTypes_w3c	1.0/NOTATION_pattern001_319/NOTATION_pattern001_319	#860	A restriction step of NOTATION needs no enumeration; only the type that a declaration uses does.
-msMeta-DataTypes_w3c	1.0/Name_length006_459/Name_length006_459	#862	length together with minLength or maxLength in one step is accepted.
-msMeta-DataTypes_w3c	1.0/Name_length007_460/Name_length007_460	#862	length together with minLength or maxLength in one step is accepted.
-msMeta-DataTypes_w3c	1.0/QName_length006_283/QName_length006_283	#862	length together with minLength or maxLength in one step is accepted.
-msMeta-DataTypes_w3c	1.0/QName_length007_284/QName_length007_284	#862	length together with minLength or maxLength in one step is accepted.
 msMeta-DataTypes_w3c	1.0/anyURI_a002_1337/anyURI_a002_1337	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
 msMeta-DataTypes_w3c	1.0/anyURI_a003_1338/anyURI_a003_1338	#874	A schema constraint that the pipeline does not check; not analyzed yet.
 msMeta-DataTypes_w3c	1.0/anyURI_a004_1339/anyURI_a004_1339	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
@@ -68,21 +54,7 @@ msMeta-DataTypes_w3c	1.0/anyURI_a008_1343/anyURI_a008_1343	-	A schema location t
 msMeta-DataTypes_w3c	1.0/anyURI_a009_1344/anyURI_a009_1344	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
 msMeta-DataTypes_w3c	1.0/anyURI_b004_1354/anyURI_b004_1354	#874	A schema constraint that the pipeline does not check; not analyzed yet.
 msMeta-DataTypes_w3c	1.0/anyURI_b006_1356/anyURI_b006_1356	#874	A schema constraint that the pipeline does not check; not analyzed yet.
-msMeta-DataTypes_w3c	1.0/anyURI_length006_262/anyURI_length006_262	#862	length together with minLength or maxLength in one step is accepted.
-msMeta-DataTypes_w3c	1.0/anyURI_length007_263/anyURI_length007_263	#862	length together with minLength or maxLength in one step is accepted.
-msMeta-DataTypes_w3c	1.0/base64Binary_length006_241/base64Binary_length006_241	#862	length together with minLength or maxLength in one step is accepted.
-msMeta-DataTypes_w3c	1.0/base64Binary_length007_242/base64Binary_length007_242	#862	length together with minLength or maxLength in one step is accepted.
 msMeta-DataTypes_w3c	1.0/dtZ107447_a_2245/dtZ107447_a_2245	#874	A schema constraint that the pipeline does not check; not analyzed yet.
-msMeta-DataTypes_w3c	1.0/hexBinary_length006_220/hexBinary_length006_220	#862	length together with minLength or maxLength in one step is accepted.
-msMeta-DataTypes_w3c	1.0/hexBinary_length007_221/hexBinary_length007_221	#862	length together with minLength or maxLength in one step is accepted.
-msMeta-DataTypes_w3c	1.0/language_length006_373/language_length006_373	#862	length together with minLength or maxLength in one step is accepted.
-msMeta-DataTypes_w3c	1.0/language_length007_374/language_length007_374	#862	length together with minLength or maxLength in one step is accepted.
-msMeta-DataTypes_w3c	1.0/normalizedString_length006_327/normalizedString_length006_327	#862	length together with minLength or maxLength in one step is accepted.
-msMeta-DataTypes_w3c	1.0/normalizedString_length007_328/normalizedString_length007_328	#862	length together with minLength or maxLength in one step is accepted.
-msMeta-DataTypes_w3c	1.0/string_length006_5/string_length006_5	#862	length together with minLength or maxLength in one step is accepted.
-msMeta-DataTypes_w3c	1.0/string_length007_6/string_length007_6	#862	length together with minLength or maxLength in one step is accepted.
-msMeta-DataTypes_w3c	1.0/token_length006_350/token_length006_350	#862	length together with minLength or maxLength in one step is accepted.
-msMeta-DataTypes_w3c	1.0/token_length007_351/token_length007_351	#862	length together with minLength or maxLength in one step is accepted.
 msMeta-Element_w3c	1.0/elemZ006/elemZ006	#872	A component of a document that is not imported or included is visible.
 msMeta-Element_w3c	1.0/elemZ007/elemZ007	#872	A component of a document that is not imported or included is visible.
 msMeta-Element_w3c	1.0/elemZ021g/elemZ021g	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
