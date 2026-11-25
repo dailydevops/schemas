@@ -2,20 +2,21 @@ namespace NetEvolve.Schemas.Xml.Tests.Integration.XmlConf;
 
 using NetEvolve.Schemas.Conformance.Reporting;
 
-public class XmlConfLegTests
+public class XmlConfSuiteGuardTests
 {
-    [Test]
-    public async Task SuiteRuns_AreSelectedByTheConformanceLeg() =>
-        await Assert
-            .That(typeof(XmlConfSuiteTests).GetCustomAttributes(typeof(ConformanceLegAttribute), inherit: false))
-            .IsNotEmpty();
-
     [Test]
     public async Task SuiteClasses_AreExplicitAndInTheConformanceCategory()
     {
         var suites = typeof(XmlConfSuiteTests)
             .Assembly.GetTypes()
-            .Where(t => t.GetCustomAttributes(typeof(ConformanceLegAttribute), inherit: false).Length != 0)
+            .Where(t =>
+                t.GetCustomAttributes(typeof(CategoryAttribute), inherit: false)
+                    .Concat(
+                        t.GetMethods().SelectMany(m => m.GetCustomAttributes(typeof(CategoryAttribute), inherit: false))
+                    )
+                    .Cast<CategoryAttribute>()
+                    .Any(a => a.Category == ConformanceCategory.Name)
+            )
             .ToArray();
 
         await Assert.That(suites).IsNotEmpty();
