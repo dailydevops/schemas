@@ -71,7 +71,7 @@ public class Qt3Xp20RateTests
         }
     }
 
-    /// <summary>Runs the whole selection once; the applicable and skipped cases are the selected cases, which are the catalog minus the excluded ones. The catalog size is not read independently here (the total reduces to the selected count); an exclusion list that drifted from the catalog is caught by Qt3Xp20SelectionTests, which pins the catalog total. The test only runs under the conformance filter.</summary>
+    /// <summary>Runs the whole selection once; the applicable and skipped cases are the selected cases, which are the catalog minus the excluded ones. The total is the catalog size pinned by Qt3Xp20SelectionTests, so catalog or exclusion drift makes this fail. The test only runs under the conformance filter.</summary>
     [Test]
     [Explicit]
     [Category(ConformanceCategory.Name)]
@@ -85,8 +85,12 @@ public class Qt3Xp20RateTests
             new Dictionary<string, KnownFailureBaseline>(StringComparer.Ordinal)
         );
 
-        var totalCases = selection.Selected.Count + selection.Excluded.Count;
+        var consistent = Qt3Xp20Rate.IsConsistent(
+            report.Counts,
+            selection.Excluded.Count,
+            Qt3Xp20SelectionTests.TotalCases
+        );
 
-        await Assert.That(Qt3Xp20Rate.IsConsistent(report.Counts, selection.Excluded.Count, totalCases)).IsTrue();
+        await Assert.That(consistent).IsTrue();
     }
 }
