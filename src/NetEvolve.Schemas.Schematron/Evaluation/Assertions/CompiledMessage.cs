@@ -14,7 +14,10 @@ internal sealed class CompiledMessage
         MessagePart[] parts,
         string? language = null,
         string? role = null,
-        string? scheme = null
+        string? scheme = null,
+        string? fpi = null,
+        string? icon = null,
+        string? see = null
     )
     {
         ArgumentNullException.ThrowIfNull(id);
@@ -26,6 +29,9 @@ internal sealed class CompiledMessage
         Language = language ?? string.Empty;
         Role = role ?? string.Empty;
         Scheme = scheme ?? string.Empty;
+        Fpi = fpi ?? string.Empty;
+        Icon = icon ?? string.Empty;
+        See = see ?? string.Empty;
         for (var i = 0; i < parts.Length; i++)
         {
             HasCopyOf |= parts[i].Kind == MessagePartKind.CopyOf;
@@ -47,6 +53,15 @@ internal sealed class CompiledMessage
 
     /// <summary>Gets the <c>scheme</c> of the property, empty when it has none.</summary>
     internal string Scheme { get; }
+
+    /// <summary>Gets the <c>fpi</c> of the diagnostic or property, empty when it has none (and for an assertion).</summary>
+    internal string Fpi { get; }
+
+    /// <summary>Gets the <c>icon</c> of the diagnostic or property, empty when it has none.</summary>
+    internal string Icon { get; }
+
+    /// <summary>Gets the <c>see</c> of the diagnostic or property, empty when it has none.</summary>
+    internal string See { get; }
 
     /// <summary>Gets a value indicating whether a part is an <c>xsl:copy-of</c>, so the property has structured content besides its text.</summary>
     internal bool HasCopyOf { get; }

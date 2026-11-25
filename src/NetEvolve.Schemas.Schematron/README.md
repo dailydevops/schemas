@@ -306,7 +306,7 @@ The package is measured against the official Schematron conformance suite, relea
 
 ### Schematron conformance suite
 
-**60 of 84 applicable cases pass, a rate of 71.4%** on `net10.0`, the leg that runs the suites. The other cases are the 24 known failures below, and 3 excluded cases do not count. Every known failure is a case of the committed baseline in `tests/conformance/baselines/schematron-conformance/` (24 baseline entries in 5 files, one file per test set), linked to an issue; a regression and an unexpected pass fail the run.
+**66 of 84 applicable cases pass, a rate of 78.5%** on `net10.0`, the leg that runs the suites. The other cases are the 18 known failures below, and 3 excluded cases do not count. Every known failure is a case of the committed baseline in `tests/conformance/baselines/schematron-conformance/` (18 baseline entries in 5 files, one file per test set), linked to an issue; a regression and an unexpected pass fail the run.
 
 Reproduce the numbers on a clone: set `GITHUB_STEP_SUMMARY` to a file and run the conformance tests; the table of the rate per test set is appended to that file.
 
@@ -318,7 +318,7 @@ dotnet test --project tests/NetEvolve.Schemas.Schematron.Tests.Integration --con
 | --- | --- | --- | --- |
 | `iso-instance-document-selection` | 2 | 0 | 0.0% |
 | `iso-pattern-templating` | 12 | 8 | 66.6% |
-| `iso-reporting` | 45 | 35 | 77.7% |
+| `iso-reporting` | 45 | 41 | 91.1% |
 | `iso-rule-based-validation` | 14 | 11 | 78.5% |
 | `iso-schema-composition` | 11 | 6 | 54.5% |
 
@@ -370,15 +370,6 @@ The suite file of the binding `xslt-3-2025` lists three cases that no selected b
 - `iso-pattern-templating/pattern-abstract-property-copy-of.xml`
 - `iso-pattern-templating/pattern-abstract-property-value-of.xml`
 
-**[#916](https://github.com/dailydevops/schemas/issues/916)** (6 cases): The SVRL text of a diagnostic or property reference lacks fpi, icon, and see.
-
-- `iso-reporting/svrl-diagnostic-fpi.xml`
-- `iso-reporting/svrl-diagnostic-icon.xml`
-- `iso-reporting/svrl-diagnostic-see.xml`
-- `iso-reporting/svrl-property-fpi.xml`
-- `iso-reporting/svrl-property-icon.xml`
-- `iso-reporting/svrl-property-see.xml`
-
 ### EN 16931 golden tests
 
 The CEN EN 16931 validation artefacts, release 1.3.17, are a real rule set. The archive is pinned by checksum in [`tests/conformance/suites/cen-en16931.json`](https://github.com/dailydevops/schemas/blob/main/tests/conformance/suites/cen-en16931.json) and is fetched, never committed. The cases are every `test` of the unit-test corpus and every official example of the UBL and CII syntaxes, and each case compares the rules that fire with the expected ones.
@@ -402,7 +393,7 @@ dotnet test --project tests/NetEvolve.Schemas.Schematron.Tests.Integration --con
 - **Attributes that are accepted and ignored.** The `documents` attribute of a pattern ([#913](https://github.com/dailydevops/schemas/issues/913), feature [#388](https://github.com/dailydevops/schemas/issues/388)) and the `visit-each` attribute of a rule ([#934](https://github.com/dailydevops/schemas/issues/934), feature [#387](https://github.com/dailydevops/schemas/issues/387)) neither fail the build nor take effect.
 - **Phase attributes.** A selected phase with `from` ([#385](https://github.com/dailydevops/schemas/issues/385)) or `when` ([#386](https://github.com/dailydevops/schemas/issues/386)) fails the build with `NES3007`.
 - **Include and extends.** An `href` with a fragment identifier is not supported ([#575](https://github.com/dailydevops/schemas/issues/575)).
-- **SVRL.** The attributes `fpi`, `icon`, and `see` of a diagnostic or property reference ([#916](https://github.com/dailydevops/schemas/issues/916)). An SVRL `id` is written only for an author id, and a `svrl:error` in the output is not a failure of the run.
+- **SVRL.** An SVRL `id` is written only for an author id, and a `svrl:error` in the output is not a failure of the run.
 - **Messages.** White space only text around `value-of` is kept in a message ([#920](https://github.com/dailydevops/schemas/issues/920)), and abstract pattern parameters are not substituted in diagnostic and property content, a recorded deviation ([#915](https://github.com/dailydevops/schemas/issues/915)).
 - **Locations.** A problem of an expression is located by the base URI of the schema and by the line and column within the text of the expression, and a dynamic problem has no line and column ([#881](https://github.com/dailydevops/schemas/issues/881)). `last()` in a predicate without a known size equals `position()` ([#883](https://github.com/dailydevops/schemas/issues/883)).
 - **Thread safety.** A validator is immutable and thread-safe; a `WithReportSink` view and a builder are not.

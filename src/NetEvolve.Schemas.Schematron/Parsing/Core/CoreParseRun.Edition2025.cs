@@ -201,7 +201,16 @@ internal sealed partial class CoreParseRun
         var id = Required(element, "id");
         var role = Attribute(element, "role");
         var scheme = Attribute(element, "scheme");
-        return new SchematronProperty(Location(element), id, role, scheme, ParseMessage(element, CoreInline.Property));
+        return new SchematronProperty(
+            Location(element),
+            id,
+            role,
+            scheme,
+            Attribute(element, "fpi"),
+            Attribute(element, "icon"),
+            Attribute(element, "see"),
+            ParseMessage(element, CoreInline.Property)
+        );
     }
 
     private SchematronForeignElement ParseForeign(
