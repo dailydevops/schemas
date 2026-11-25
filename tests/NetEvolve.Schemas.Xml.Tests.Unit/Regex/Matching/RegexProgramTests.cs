@@ -1,4 +1,4 @@
-﻿namespace NetEvolve.Schemas.Xml.Tests.Unit.Regex.Matching;
+namespace NetEvolve.Schemas.Xml.Tests.Unit.Regex.Matching;
 
 using NetEvolve.Schemas.Testing.Allocations;
 using NetEvolve.Schemas.Xml.Regex.Contracts;
@@ -164,6 +164,7 @@ public class RegexProgramTests
     [Arguments(0)]
     [Arguments(1)]
     [Arguments(2)]
+    [Arguments(3)]
     public async Task Repeat_HugeCountOfAnEmptyBody_CompilesAndMatchesTheEmptyString(int kind)
     {
         var t = new TreeBuilder();
@@ -171,7 +172,8 @@ public class RegexProgramTests
         {
             0 => t.Alt(),
             1 => t.Concat(),
-            _ => t.Group(t.Concat()),
+            2 => t.Group(t.Concat()),
+            _ => t.Group(RegexNode.NoNode),
         };
         t.WithRoot(t.Repeat(body, int.MaxValue, int.MaxValue));
 
