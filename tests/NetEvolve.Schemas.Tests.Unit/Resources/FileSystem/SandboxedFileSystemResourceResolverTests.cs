@@ -75,6 +75,28 @@ internal sealed class SandboxedFileSystemResourceResolverTests : IDisposable
     }
 
     [Test]
+    public async Task Resolve_ReferenceInOtherLetterCase_ReturnsOnDiskCasingAsSystemId(
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        _ = Directory.CreateDirectory(Path.Combine(_root, "MixedDir"));
+        await File.WriteAllTextAsync(Path.Combine(_root, "MixedDir", "MixedFile.xml"), "<m/>", cancellationToken);
+        var caseInsensitive = File.Exists(Path.Combine(_root, "mixeddir", "MIXEDFILE.XML"));
+
+        using var result = Resolve("mixeddir/MIXEDFILE.XML");
+
+        if (!caseInsensitive)
+        {
+            await Assert.That(result.Status).IsEqualTo(ResourceStatus.NotFound);
+            return;
+        }
+
+        await Assert.That(result.Status).IsEqualTo(ResourceStatus.Found);
+        await Assert.That(result.SystemId!).EndsWith("/MixedDir/MixedFile.xml");
+    }
+
+    [Test]
     public async Task Resolve_ResolvedUriInsideRoot_ReturnsFileContent(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
