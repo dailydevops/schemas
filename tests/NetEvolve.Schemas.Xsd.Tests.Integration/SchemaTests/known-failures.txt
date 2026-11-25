@@ -27,22 +27,6 @@ msMeta-AttributeGroup_w3c	1.0/attgZ002/attgZ002	#869	A redefinition is not check
 msMeta-AttributeGroup_w3c	1.0/attgZ003/attgZ003	#869	A redefinition is not checked against the redefined component.
 msMeta-Attribute_w3c	1.0/attZ013a/attZ013a	#871	A value constraint on a declaration of type ID is accepted.
 msMeta-Attribute_w3c	1.0/attZ013b/attZ013b	#871	A value constraint on a declaration of type ID is accepted.
-msMeta-DataTypes_w3c	1.0/NOTATION_length001_1372/NOTATION_length001_1372	#860	A restriction step of NOTATION needs no enumeration; only the type that a declaration uses does.
-msMeta-DataTypes_w3c	1.0/NOTATION_length002_1373/NOTATION_length002_1373	#860	A restriction step of NOTATION needs no enumeration; only the type that a declaration uses does.
-msMeta-DataTypes_w3c	1.0/NOTATION_length003_1374/NOTATION_length003_1374	#860	A restriction step of NOTATION needs no enumeration; only the type that a declaration uses does.
-msMeta-DataTypes_w3c	1.0/NOTATION_length003_302/NOTATION_length003_302	#860	A restriction step of NOTATION needs no enumeration; only the type that a declaration uses does.
-msMeta-DataTypes_w3c	1.0/NOTATION_maxLength001_1379/NOTATION_maxLength001_1379	#860	A restriction step of NOTATION needs no enumeration; only the type that a declaration uses does.
-msMeta-DataTypes_w3c	1.0/NOTATION_maxLength002_1380/NOTATION_maxLength002_1380	#860	A restriction step of NOTATION needs no enumeration; only the type that a declaration uses does.
-msMeta-DataTypes_w3c	1.0/NOTATION_maxLength003_1381/NOTATION_maxLength003_1381	#860	A restriction step of NOTATION needs no enumeration; only the type that a declaration uses does.
-msMeta-DataTypes_w3c	1.0/NOTATION_maxLength003_316/NOTATION_maxLength003_316	#860	A restriction step of NOTATION needs no enumeration; only the type that a declaration uses does.
-msMeta-DataTypes_w3c	1.0/NOTATION_minLength001_1375/NOTATION_minLength001_1375	#860	A restriction step of NOTATION needs no enumeration; only the type that a declaration uses does.
-msMeta-DataTypes_w3c	1.0/NOTATION_minLength002_1376/NOTATION_minLength002_1376	#860	A restriction step of NOTATION needs no enumeration; only the type that a declaration uses does.
-msMeta-DataTypes_w3c	1.0/NOTATION_minLength003_1377/NOTATION_minLength003_1377	#860	A restriction step of NOTATION needs no enumeration; only the type that a declaration uses does.
-msMeta-DataTypes_w3c	1.0/NOTATION_minLength003_309/NOTATION_minLength003_309	#860	A restriction step of NOTATION needs no enumeration; only the type that a declaration uses does.
-msMeta-DataTypes_w3c	1.0/NOTATION_minLength004_1378/NOTATION_minLength004_1378	#860	A restriction step of NOTATION needs no enumeration; only the type that a declaration uses does.
-msMeta-DataTypes_w3c	1.0/NOTATION_minLength007_313/NOTATION_minLength007_313	#860	A restriction step of NOTATION needs no enumeration; only the type that a declaration uses does.
-msMeta-DataTypes_w3c	1.0/NOTATION_pattern001_1382/NOTATION_pattern001_1382	#860	A restriction step of NOTATION needs no enumeration; only the type that a declaration uses does.
-msMeta-DataTypes_w3c	1.0/NOTATION_pattern001_319/NOTATION_pattern001_319	#860	A restriction step of NOTATION needs no enumeration; only the type that a declaration uses does.
 msMeta-DataTypes_w3c	1.0/anyURI_a002_1337/anyURI_a002_1337	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
 msMeta-DataTypes_w3c	1.0/anyURI_a003_1338/anyURI_a003_1338	#874	A schema constraint that the pipeline does not check; not analyzed yet.
 msMeta-DataTypes_w3c	1.0/anyURI_a004_1339/anyURI_a004_1339	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
