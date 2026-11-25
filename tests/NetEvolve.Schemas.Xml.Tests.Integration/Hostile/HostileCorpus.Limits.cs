@@ -361,6 +361,12 @@ public static partial class HostileCorpus
             () => "<!DOCTYPE r [" + Repeat("x", 2_000_000)
         );
         yield return new HostileCase(
+            "malformed-xml-declaration-of-5000-characters",
+            HostileCategory.OtherLimit,
+            XmlErrorCodes.XML0003,
+            () => "<?xml version=\"1.0\"" + Repeat("x", 5_000)
+        );
+        yield return new HostileCase(
             "unterminated-xml-declaration-of-whitespace",
             HostileCategory.OtherLimit,
             XmlErrorCodes.XML1114,
