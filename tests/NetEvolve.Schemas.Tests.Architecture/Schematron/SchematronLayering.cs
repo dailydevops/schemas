@@ -10,8 +10,7 @@ namespace NetEvolve.Schemas.Tests.Architecture.Schematron;
 /// <remarks>
 /// Loading may use Xslt: stage Resolve links the XSLT modules of a schema (design #150 EP-14, #832).
 /// Limitations: Patterns, Xslt, Scopes, Phases, and Diagnostics are not constrained, because no contract places them.
-/// Evaluation may use Results because the evaluator holds the issue mapper directly (design AP-27 has it talk to the event
-/// interface only, bug #840); the rule pins today's reach and not more.
+/// Evaluation talks to the event interface in Seams only (design AP-27) and does not reach into Results.
 /// </remarks>
 internal static class SchematronLayering
 {
@@ -36,8 +35,7 @@ internal static class SchematronLayering
             "Model",
             "Seams",
             "Diagnostics",
-            "Scopes",
-            "Results"
+            "Scopes"
         ),
         LayerRules.Only("MapperDependsOnlyOnTheModelAndSeams", "Results", "Model", "Seams", "Diagnostics"),
         LayerRules.Only("WriterDependsOnlyOnTheModelAndSeams", "Svrl", "Model", "Seams", "Diagnostics"),
