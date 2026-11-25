@@ -28,6 +28,22 @@ public class HamtMapTests
     }
 
     [Test]
+    public async Task TryGet_AbsentKeyInOccupiedSlot_ReturnsNotFoundAndEmptyValue(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var map = Build(3000, Key);
+
+        for (var i = 3000; i < 6000; i++)
+        {
+            var found = map.TryGet(Key(i), out var value);
+
+            await Assert.That(found).IsFalse();
+            await Assert.That(value.Length).IsEqualTo(0);
+        }
+    }
+
+    [Test]
     public async Task Empty_HasNoEntries(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
