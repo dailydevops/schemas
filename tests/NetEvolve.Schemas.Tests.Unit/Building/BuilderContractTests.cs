@@ -212,7 +212,7 @@ public class BuilderContractTests
     {
         var builder = new RecordingBuilder().WithResolver(new InMemoryResourceResolver());
         using var source = new CancellationTokenSource();
-#if NET10_0_OR_GREATER
+#if NET8_0_OR_GREATER
         await source.CancelAsync();
 #else
         source.Cancel();
@@ -231,7 +231,7 @@ public class BuilderContractTests
         using var source = new CancellationTokenSource();
         builder.AsyncBehavior = async token =>
         {
-#if NET10_0_OR_GREATER
+#if NET8_0_OR_GREATER
             await source.CancelAsync();
 #else
             source.Cancel();
@@ -293,7 +293,7 @@ public class BuilderContractTests
         using var source = new CancellationTokenSource();
         builder.AsyncBehavior = token =>
         {
-#if NET10_0_OR_GREATER
+#if NET8_0_OR_GREATER
             _ = source.CancelAsync();
 #else
             source.Cancel();
@@ -315,7 +315,7 @@ public class BuilderContractTests
         builder.AsyncBehavior = _ => new(completion.Task);
 
         var task = builder.BuildAsync(source.Token).AsTask();
-#if NET10_0_OR_GREATER
+#if NET8_0_OR_GREATER
         await source.CancelAsync();
 #else
         source.Cancel();

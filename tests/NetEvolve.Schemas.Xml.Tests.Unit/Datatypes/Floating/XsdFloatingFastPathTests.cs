@@ -44,7 +44,7 @@ public class XsdFloatingFastPathTests
     public async Task Parse_OfRandomLexicalForms_EqualsTheRuntimeParser()
     {
 #if !NET6_0_OR_GREATER
-        Skip.Test("The net5.0 runtime parser is not correctly rounded, so it is no oracle.");
+        Skip.Test("The pre-.NET 6 runtime parser is not correctly rounded, so it is no oracle.");
 #endif
         var random = new Sequence(591);
         for (var i = 0; i < 20000; i++)

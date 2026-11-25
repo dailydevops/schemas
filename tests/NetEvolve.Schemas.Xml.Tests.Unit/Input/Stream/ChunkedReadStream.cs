@@ -86,7 +86,7 @@ internal sealed class ChunkedReadStream : System.IO.Stream
 
         if (call == CancelOnRead)
         {
-#if NET10_0_OR_GREATER
+#if NET8_0_OR_GREATER
             await Source!.CancelAsync();
 #else
             Source!.Cancel();

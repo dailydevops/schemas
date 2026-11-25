@@ -36,7 +36,7 @@ public class FailureContractTests
         cancellationToken.ThrowIfCancellationRequested();
         ArgumentNullException.ThrowIfNull(overload);
         using var source = new CancellationTokenSource();
-#if NET10_0_OR_GREATER
+#if NET8_0_OR_GREATER
         await source.CancelAsync().ConfigureAwait(false);
 #else
         source.Cancel();
@@ -115,7 +115,7 @@ public class FailureContractTests
     {
         cancellationToken.ThrowIfCancellationRequested();
         using var source = new CancellationTokenSource();
-#if NET10_0_OR_GREATER
+#if NET8_0_OR_GREATER
         await source.CancelAsync().ConfigureAwait(false);
 #else
         source.Cancel();

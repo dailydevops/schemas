@@ -420,7 +420,7 @@ public class XPathQueryBindingTests
         using var source = new CancellationTokenSource();
         using var run = BeginWith(source.Token);
         var expression = Compile(Xpath2(), "1 = 1");
-#if NET10_0_OR_GREATER
+#if NET8_0_OR_GREATER
         await source.CancelAsync();
 #else
         source.Cancel();

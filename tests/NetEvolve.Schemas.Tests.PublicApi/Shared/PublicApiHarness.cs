@@ -15,7 +15,7 @@ using VerifyTUnit;
 /// <see cref="VerifyAsync"/> with its assembly, its assembly name, and its namespace prefixes. The verified files
 /// <c>{AssemblyName}.{targetFramework}.verified.txt</c> are stored next to that test class, so every assembly owns
 /// exactly one folder. Limitation: the target framework is the one of the core library build the leg loads
-/// (<c>net5.0</c> loads <c>netstandard2.0</c>, <c>net10.0</c> and <c>net11.0</c>
+/// (<c>net9.0</c> loads <c>netstandard2.0</c>, <c>net10.0</c> and <c>net11.0</c>
 /// load their own build); all libraries share that matrix.
 /// </remarks>
 internal static class PublicApiHarness

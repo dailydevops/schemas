@@ -152,7 +152,7 @@ public class BuildTests
     public async Task BuildAsync_Cancelled_Cancels()
     {
         using var source = new CancellationTokenSource();
-#if NET10_0_OR_GREATER
+#if NET8_0_OR_GREATER
         await source.CancelAsync();
 #else
         source.Cancel();
@@ -286,7 +286,7 @@ public class BuildTests
             AsyncReads++;
             if (_cancel is not null)
             {
-#if NET10_0_OR_GREATER
+#if NET8_0_OR_GREATER
                 await _cancel.CancelAsync();
 #else
                 _cancel.Cancel();

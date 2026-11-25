@@ -230,7 +230,7 @@ public class SvrlReportSinkTests
         using var sink = new SvrlReportSink(stream);
         SvrlRuns.Fixed(sink);
         using var cts = new CancellationTokenSource();
-#if NET10_0_OR_GREATER
+#if NET8_0_OR_GREATER
         await cts.CancelAsync();
 #else
         cts.Cancel();

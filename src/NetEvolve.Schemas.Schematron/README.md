@@ -424,7 +424,7 @@ dotnet test --project tests/NetEvolve.Schemas.Schematron.Tests.Integration --con
 
 ## Requirements
 
-- .NET 10 or higher, or any runtime that implements .NET Standard 2.0 (the package targets `netstandard2.0`, `net10.0`, and `net11.0`; the tests run on `net5.0`, `net10.0`, and `net11.0`, and `net5.0` runs the `netstandard2.0` build)
+- .NET 10 or higher, or any runtime that implements .NET Standard 2.0 (the package targets `netstandard2.0`, `net10.0`, and `net11.0`; the tests run on `net9.0`, `net10.0`, and `net11.0`, and `net9.0` runs the `netstandard2.0` build)
 - `NetEvolve.Schemas.XPath`, `NetEvolve.Schemas.Xml`, `NetEvolve.Schemas`, and `NetEvolve.Arguments` as dependencies; on `netstandard2.0` also `Microsoft.Bcl.AsyncInterfaces`, `System.Memory`, and `System.Threading.Tasks.Extensions`
 - The call `SchemaValidator.ForSchematron(...)` needs C# 14; older compilers use the named class, see [Limitations](#limitations)
 

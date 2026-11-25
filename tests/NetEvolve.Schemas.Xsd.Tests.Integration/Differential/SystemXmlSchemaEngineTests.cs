@@ -161,7 +161,7 @@ public class SystemXmlSchemaEngineTests
 
     private static int FreeLoopbackPort()
     {
-#if NET10_0_OR_GREATER
+#if NET9_0_OR_GREATER
         using
 #endif
         var probe = new TcpListener(IPAddress.Loopback, 0);

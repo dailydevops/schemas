@@ -17,7 +17,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # The suites run on one leg only (the suites do not depend on the target framework), so one leg is enough; net5.0 would run the netstandard2.0 build.
+        # The suites run on one leg only (the suites do not depend on the target framework), so one leg is enough; net9.0 would run the netstandard2.0 build.
         tfm: [ net10.0 ]
     env:
       SCHEMAS_CONFORMANCE_CACHE: ${{ github.workspace }}/.conformance-cache
@@ -26,13 +26,6 @@ jobs:
       - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6
         with:
           dotnet-version: ${{ vars.NE_DOTNET_TARGETFRAMEWORKS }}
-      # .NET 5 loads OpenSSL 1.1 only; ubuntu-latest ships OpenSSL 3, so the net5.0 test host aborts with "No usable version of libssl was found".
-      - name: Install libssl1.1 (net5.0 only)
-        if: matrix.tfm == 'net5.0'
-        run: |
-          curl -fsSLo libssl1.1.deb http://security.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2.24_amd64.deb
-          echo "7cf39d70a639017d1dd7c8d36daa2258063608688e449fddf40ffdd46f992a78  libssl1.1.deb" | sha256sum --check
-          sudo dpkg -i libssl1.1.deb
       - name: Restore suites
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:

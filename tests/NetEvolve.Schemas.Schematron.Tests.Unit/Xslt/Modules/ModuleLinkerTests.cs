@@ -575,7 +575,7 @@ public class ModuleLinkerTests
         var harness = new ModuleHarness();
         _ = harness.Files.Add("file:///m/lib.xsl", Sheet(Decl("l")));
         using var source = new CancellationTokenSource();
-#if NET10_0_OR_GREATER
+#if NET8_0_OR_GREATER
         await source.CancelAsync();
 #else
         source.Cancel();
