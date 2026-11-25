@@ -4,13 +4,9 @@
     {
         bool TryGetDecimalFormat(NetEvolve.Schemas.XPath.Api.XPathQName name, out NetEvolve.Schemas.XPath.Abstractions.XPathDecimalFormat? format);
     }
-    public interface IXPathDocumentKeyProvider : NetEvolve.Schemas.XPath.Abstractions.IXPathKeyProvider
-    {
-        bool TryLookup(in NetEvolve.Schemas.XPath.Api.XPathQName name, in NetEvolve.Schemas.XPath.Xdm.Values.XdmSequence values, in NetEvolve.Schemas.XPath.Xdm.Nodes.XPathNode node, bool subtree, out NetEvolve.Schemas.XPath.Xdm.Values.XdmSequence nodes);
-    }
     public interface IXPathKeyProvider
     {
-        bool TryGetNodes(NetEvolve.Schemas.XPath.Api.XPathQName name, in NetEvolve.Schemas.XPath.Xdm.Values.XdmItem value, out NetEvolve.Schemas.XPath.Xdm.Values.XdmSequence nodes);
+        bool TryLookup(in NetEvolve.Schemas.XPath.Api.XPathQName name, in NetEvolve.Schemas.XPath.Xdm.Values.XdmSequence values, in NetEvolve.Schemas.XPath.Xdm.Nodes.XPathNode node, bool subtree, out NetEvolve.Schemas.XPath.Xdm.Values.XdmSequence nodes);
     }
     public interface IXPathResourceResolver : NetEvolve.Schemas.Resources.IResourceResolver { }
     public sealed class XPathDecimalFormat

@@ -3,6 +3,7 @@ namespace NetEvolve.Schemas.XPath.Tests.Unit.Contracts;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.XPath.Abstractions;
 using NetEvolve.Schemas.XPath.Api;
+using NetEvolve.Schemas.XPath.Xdm.Nodes;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
 public class HostSlotContractTests
@@ -59,9 +60,21 @@ public class HostSlotContractTests
 
         await Assert.That(slots.DecimalFormats!.TryGetDecimalFormat(name, out var found)).IsTrue();
         await Assert.That(found).IsSameReferenceAs(format);
-        await Assert.That(slots.Keys!.TryGetNodes(name, XdmItem.FromString("v"), out var nodes)).IsTrue();
+        var node = default(XPathNode);
+        await Assert
+            .That(slots.Keys!.TryLookup(name, XdmSequence.Create(XdmItem.FromString("v")), node, false, out var nodes))
+            .IsTrue();
         await Assert.That(nodes.IsEmpty).IsTrue();
         await Assert.That(new XPathDecimalFormat().DecimalSeparator).IsEqualTo('.');
+    }
+
+    [Test]
+    public async Task KeyProvider_TryLookupIsTheOnlyMember()
+    {
+        var members = typeof(IXPathKeyProvider).GetMethods();
+
+        await Assert.That(members).HasSingleItem();
+        await Assert.That(members[0].Name).IsEqualTo("TryLookup");
     }
 
     [Test]
@@ -92,7 +105,13 @@ public class HostSlotContractTests
 
     private sealed class FakeKeys : IXPathKeyProvider
     {
-        public bool TryGetNodes(XPathQName name, in XdmItem value, out XdmSequence nodes)
+        public bool TryLookup(
+            in XPathQName name,
+            in XdmSequence values,
+            in XPathNode node,
+            bool subtree,
+            out XdmSequence nodes
+        )
         {
             nodes = XdmSequence.Empty;
             return true;

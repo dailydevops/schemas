@@ -14,17 +14,17 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 using static NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Keys.KeyFixture;
 
 /// <summary>
-/// The provider as the key provider of the XPath package (<see cref="IXPathDocumentKeyProvider"/>, #777): the lookup names the node
+/// The provider as the key provider of the XPath package (<see cref="IXPathKeyProvider"/>, #777): the lookup names the node
 /// from which the document is reached, a problem of the lookup is an <see cref="XPathException"/> with the code of the problem, and
 /// the function <c>key</c> (#776) reaches the provider through the slot of the evaluation context.
 /// </summary>
 public class KeyDocumentProviderTests
 {
-    private static (IXPathDocumentKeyProvider? Contract, KeyDocument Document) Create()
+    private static (IXPathKeyProvider? Contract, KeyDocument Document) Create()
     {
         var fixture = new KeyFixture();
         var (_, provider) = fixture.CreateProvider(Kx.Key("k", "*", "@code", 10));
-        return (((object)provider) as IXPathDocumentKeyProvider, new KeyDocument());
+        return (((object)provider) as IXPathKeyProvider, new KeyDocument());
     }
 
     [Test]
@@ -84,7 +84,7 @@ public class KeyDocumentProviderTests
         var document = new KeyDocument();
         var (_, provider) = fixture.CreateProvider(Kx.Key("k", "*", "@code", 10));
         fixture.Binder.Fail = true;
-        var contract = (IXPathDocumentKeyProvider)(object)provider;
+        var contract = (IXPathKeyProvider)(object)provider;
 
         var failure = await Assert
             .That(() => contract.TryLookup(Key("k"), Str("a"), document["doc"], false, out _))
@@ -117,5 +117,43 @@ public class KeyDocumentProviderTests
 
         await Assert.That(result.Status).IsEqualTo(XPathEvaluationStatus.Ok).Because(result.Diagnostic.Message);
         await Assert.That(document.Keys(Nodes(result.Value))).IsEqualTo(expected);
+    }
+
+    // One run, two documents, the same key name: each node gets the nodes of its own document, and an index is built once per document.
+    [Test]
+    public async Task Lookup_TwoDocuments_UseTheirOwnIndex()
+    {
+        var fixture = new KeyFixture();
+        var (_, provider) = fixture.CreateProvider(Kx.Key("k", "*", "@code", 10));
+        var contract = (IXPathKeyProvider)(object)provider;
+        var first = new KeyDocument();
+        var second = new KeyDocument();
+
+        _ = contract.TryLookup(Key("k"), Str("a"), first["i3"], false, out var fromFirst);
+        _ = contract.TryLookup(Key("k"), Str("a"), second["i3"], false, out var fromSecond);
+        _ = contract.TryLookup(Key("k"), Str("a"), first["i2"], false, out var again);
+
+        await Assert.That(first.Keys(Nodes(fromFirst))).IsEqualTo("i1 o1");
+        await Assert.That(first.Keys(Nodes(fromSecond))).IsEqualTo("? ?");
+        await Assert.That(second.Keys(Nodes(fromSecond))).IsEqualTo("i1 o1");
+        await Assert.That(first.Keys(Nodes(again))).IsEqualTo("i1 o1");
+        await Assert.That(provider.IndexBuilds).IsEqualTo(2);
+    }
+
+    // The top node restricts to its subtree, itself included; a top in another document uses the index of that document.
+    [Test]
+    public async Task Lookup_ThreeArgumentForm_IncludesTopItselfAndUsesTheDocumentOfTop()
+    {
+        var fixture = new KeyFixture();
+        var (_, provider) = fixture.CreateProvider(Kx.Key("k", "*", "@code", 10));
+        var contract = (IXPathKeyProvider)(object)provider;
+        var first = new KeyDocument();
+        var second = new KeyDocument();
+
+        _ = contract.TryLookup(Key("k"), Str("A"), first["i3"], true, out var withTop);
+        _ = contract.TryLookup(Key("k"), Str("x"), second["i3"], true, out var inSecond);
+
+        await Assert.That(first.Keys(Nodes(withTop))).IsEqualTo("i3");
+        await Assert.That(second.Keys(Nodes(inSecond))).IsEqualTo("s1");
     }
 }
