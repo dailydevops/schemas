@@ -11,17 +11,25 @@ public readonly ref struct SchematronReferenceList
     private readonly ReadOnlySpan<string> _ids;
     private readonly ReadOnlySpan<string> _texts;
     private readonly ReadOnlySpan<IFindingContent?> _contents;
+    private readonly ReadOnlySpan<string> _languages;
 
     internal SchematronReferenceList(
         ReadOnlySpan<string> ids,
         ReadOnlySpan<string> texts,
-        ReadOnlySpan<IFindingContent?> contents = default
+        ReadOnlySpan<IFindingContent?> contents = default,
+        ReadOnlySpan<string> languages = default
     )
     {
         _ids = ids;
         _texts = texts;
         _contents = contents;
+        _languages = languages;
     }
+
+    /// <summary>Gets the language in effect for a reference (the nearest <c>xml:lang</c>), or an empty string when it has none.</summary>
+    /// <param name="index">The zero-based index.</param>
+    /// <returns>The language.</returns>
+    internal string LanguageAt(int index) => (uint)index < (uint)_languages.Length ? _languages[index] : string.Empty;
 
     /// <summary>
     /// Gets the structured content of a reference, which a property with <c>xsl:copy-of</c> has besides its text, or <see langword="null"/>
