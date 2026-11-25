@@ -115,6 +115,12 @@ internal sealed class ComplexTypeDefinition : IReferencingComponent, IBlockedTyp
     /// <summary>Gets the particle of an element-only or mixed content type, <see langword="null"/> otherwise.</summary>
     public Particle? ContentParticle { get; }
 
+    /// <summary>
+    /// Gets the explicit content particle that may not occur (<c>maxOccurs</c> 0), <see langword="null"/> otherwise. The content type
+    /// is empty then and holds no particle, so this keeps the particle for the checks that apply to the schema document.
+    /// </summary>
+    internal Particle? NeverOccurringContent { get; init; }
+
     /// <summary>Gets the simple type of a simple content type, <see langword="null"/> otherwise.</summary>
     public SimpleTypeDefinition? SimpleContentType { get; }
 
@@ -369,7 +375,10 @@ internal sealed class ComplexTypeDefinition : IReferencingComponent, IBlockedTyp
             CombineUses(inheritFrom, extension, ownUses, reporter),
             CombineWildcards(inheritFrom, extension, ownWildcard, header.Location, reporter),
             sites.Count == 0 ? NoSites : sites.ToArray()
-        );
+        )
+        {
+            NeverOccurringContent = explicitContent is { MaxOccurs: 0 } ? explicitContent : null,
+        };
     }
 
     // Anything the specification calls empty content: no particle, a particle that may not occur, or a group without

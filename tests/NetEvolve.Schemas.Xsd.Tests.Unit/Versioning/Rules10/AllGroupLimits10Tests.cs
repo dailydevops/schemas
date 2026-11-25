@@ -172,7 +172,7 @@ public class AllGroupLimits10Tests
     {
         var fixture = Build(
             "<xs:element name=\"e\" type=\"xs:int\"/>"
-                + "<xs:group name=\"g\"><xs:all minOccurs=\"0\">"
+                + "<xs:group name=\"g\"><xs:all>"
                 + "<xs:element name=\"a\" type=\"xs:int\"/>"
                 + "<xs:element name=\"b\" type=\"xs:int\" minOccurs=\"0\" maxOccurs=\"1\"/>"
                 + "<xs:element name=\"c\" type=\"xs:int\" minOccurs=\"0\" maxOccurs=\"0\"/>"
@@ -253,7 +253,7 @@ public class AllGroupLimits10Tests
     public async Task AllGroupWithTwoElementsOfTheSameName_ReportsTheSecondOne()
     {
         var fixture = Build(
-            "<xs:element name=\"e \" type=\"xs:int\"/><xs:group name=\"g\"><xs:all>\n"
+            "<xs:element name=\"e\" type=\"xs:int\"/><xs:group name=\"g\"><xs:all>\n"
                 + "<xs:element ref=\"t:e\"/>\n<xs:element name=\"x\" type=\"xs:int\"/>\n<xs:element ref=\"t:e\"/>\n</xs:all></xs:group>"
         );
 
