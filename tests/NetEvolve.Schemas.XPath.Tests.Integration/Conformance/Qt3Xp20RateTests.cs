@@ -47,8 +47,9 @@ public class Qt3Xp20RateTests
             .IsEqualTo(expected);
 
     [Test]
-    public async Task Flush_AppendsOneRowForTheCollectedCounts()
+    public async Task Flush_AppendsOneRowForTheCollectedCounts(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         var path = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N") + ".md");
         try
         {
@@ -57,9 +58,13 @@ public class Qt3Xp20RateTests
 
             Qt3Xp20Rate.Flush(path, excluded: 4);
 
-            await Assert.That(File.ReadAllText(path)).Contains("| XPath 2.0 (QT3) | 4 | 1 | 2 | 4 | 5 | 80.0% |");
+            await Assert
+                .That(await File.ReadAllTextAsync(path, cancellationToken))
+                .Contains("| XPath 2.0 (QT3) | 4 | 1 | 2 | 4 | 5 | 80.0% |");
             Qt3Xp20Rate.Flush(path, excluded: 4);
-            await Assert.That(File.ReadAllText(path).Split("XPath 2.0 (QT3)").Length).IsEqualTo(2);
+            await Assert
+                .That((await File.ReadAllTextAsync(path, cancellationToken)).Split("XPath 2.0 (QT3)").Length)
+                .IsEqualTo(2);
         }
         finally
         {
@@ -81,9 +86,7 @@ public class Qt3Xp20RateTests
             new Dictionary<string, KnownFailureBaseline>(StringComparer.Ordinal)
         );
 
-        await Assert
-            .That(Qt3Xp20Rate.IsConsistent(report.Counts, selection.Excluded.Count, 31821))
-            .IsTrue();
+        await Assert.That(Qt3Xp20Rate.IsConsistent(report.Counts, selection.Excluded.Count, 31821)).IsTrue();
         await Assert.That(report.Counts.Total).IsEqualTo(selection.Selected.Count);
     }
 }
