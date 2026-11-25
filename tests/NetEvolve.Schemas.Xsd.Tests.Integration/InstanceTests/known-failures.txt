@@ -11,7 +11,6 @@ msMeta-Additional_w3c	1.0/addA006/addA006.v	#963	The group has no schema documen
 msMeta-Additional_w3c	1.0/addA008/addA008.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-Additional_w3c	1.0/addB063/addB063.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-Additional_w3c	1.0/addB104/addB104.v	#896	Fixed values are compared lexically, not in the value space, so a fixed value that differs from the instance value only in white space or lexical form rejects a valid instance.
-msMeta-Additional_w3c	1.0/addB116/addB116.v	#903	A strict wildcard rejects an element that has no declaration but a valid xsi:type, which the specification assesses against that type.
 msMeta-Additional_w3c	1.0/addB120/addB120.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-Additional_w3c	1.0/addB124/addB124.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-Additional_w3c	1.0/addB134/addB134.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
