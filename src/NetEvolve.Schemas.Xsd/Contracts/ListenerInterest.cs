@@ -11,5 +11,6 @@ internal enum ListenerInterest
     Attribute = 2,
     SimpleValue = 4,
     EndElement = 8,
+    XsiAttribute = 16,
     All = StartElement | Attribute | SimpleValue | EndElement,
 }

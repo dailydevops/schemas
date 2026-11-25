@@ -18,7 +18,7 @@ public class ListenerEdgeTests
         listener.EndElement(default);
         listener.EndRun();
 
-        await Assert.That(listener.Interest).IsEqualTo(ListenerInterest.All);
+        await Assert.That(listener.Interest).IsEqualTo(ListenerInterest.All | ListenerInterest.XsiAttribute);
     }
 
     [Test]

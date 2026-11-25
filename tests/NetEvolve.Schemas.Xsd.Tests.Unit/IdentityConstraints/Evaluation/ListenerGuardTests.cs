@@ -31,6 +31,6 @@ public class ListenerGuardTests
     {
         var listener = new IdentityConstraintListener(new ScriptedAssessor(), XsdVersion.V11, static _ => null);
 
-        await Assert.That(listener.Interest).IsEqualTo(ListenerInterest.All);
+        await Assert.That(listener.Interest).IsEqualTo(ListenerInterest.All | ListenerInterest.XsiAttribute);
     }
 }

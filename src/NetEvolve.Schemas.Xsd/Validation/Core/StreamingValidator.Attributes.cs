@@ -76,10 +76,45 @@ internal sealed partial class StreamingValidator
                 break;
         }
 
+        FireXsiAttributes(frame);
+
         // The attributes of a nilled element are assessed against its type; from here on only its absent content counts.
         if (frame.IsNilled)
         {
             frame.Content = FrameContent.Nilled;
+        }
+    }
+
+    // The xsi attributes are attributes of the element too (an @* identity field selects them), but they are not assessed as such.
+    private void FireXsiAttributes(ElementFrame frame)
+    {
+        if (_onXsiAttribute.Length == 0)
+        {
+            return;
+        }
+
+        for (var i = 0; i < _attributeCount; i++)
+        {
+            var entry = _attributes[i];
+            if (!IsXsiControl(entry.Name, out _))
+            {
+                continue;
+            }
+
+            var info = new AttributeInfo(
+                frame.Ordinal,
+                entry.Name,
+                frame.Location,
+                null,
+                ValueOf(entry),
+                null,
+                true,
+                false
+            );
+            for (var l = 0; l < _onXsiAttribute.Length; l++)
+            {
+                _onXsiAttribute[l].Attribute(info);
+            }
         }
     }
 

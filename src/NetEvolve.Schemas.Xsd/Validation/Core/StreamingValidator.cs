@@ -61,6 +61,7 @@ internal sealed partial class StreamingValidator : IXmlSink
     private readonly ValidationListener[] _listeners;
     private readonly ValidationListener[] _onStart;
     private readonly ValidationListener[] _onAttribute;
+    private readonly ValidationListener[] _onXsiAttribute;
     private readonly ValidationListener[] _onValue;
     private readonly ValidationListener[] _onEnd;
 
@@ -135,6 +136,7 @@ internal sealed partial class StreamingValidator : IXmlSink
         _listeners = all.ToArray();
         _onStart = Interested(all, ListenerInterest.StartElement);
         _onAttribute = Interested(all, ListenerInterest.Attribute);
+        _onXsiAttribute = Interested(all, ListenerInterest.XsiAttribute);
         _onValue = Interested(all, ListenerInterest.SimpleValue);
         _onEnd = Interested(all, ListenerInterest.EndElement);
     }
