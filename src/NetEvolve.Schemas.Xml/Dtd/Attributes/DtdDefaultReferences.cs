@@ -14,8 +14,7 @@ using NetEvolve.Schemas.Xml.Dtd.Model;
 /// The constraints hold for the declaration, so they are checked whether or not an element ever uses the default.
 /// </summary>
 /// <remarks>
-/// Limitations: the declaration order (a default value may refer only to an entity that an earlier declaration binds, section
-/// 4.1, #878) is not checked, because the declaration model keeps no order; <c>standalone="yes"</c> is not known here, so an
+/// Limitations: the declaration order (section 4.1) is checked by the declaration parser; <c>standalone="yes"</c> is not known here, so an
 /// undeclared entity is fatal only where no other declaration can exist, and the expansion applies the flag where a default is
 /// used. The replacement text is not scanned here: a <c>&lt;</c> in it and a recursion are found when the default is applied.
 /// </remarks>
@@ -77,7 +76,7 @@ internal static class DtdDefaultReferences
         }
     }
 
-    private static bool IsPredefined(ReadOnlySpan<char> name) =>
+    internal static bool IsPredefined(ReadOnlySpan<char> name) =>
         name.SequenceEqual("amp".AsSpan())
         || name.SequenceEqual("lt".AsSpan())
         || name.SequenceEqual("gt".AsSpan())

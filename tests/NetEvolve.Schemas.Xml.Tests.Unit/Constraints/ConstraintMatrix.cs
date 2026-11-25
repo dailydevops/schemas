@@ -178,7 +178,7 @@ internal static class ConstraintMatrix
             "XML5003",
             [Vc + "StandaloneDocumentDeclaration_ExternallyDeclaredDefaultSpecified_IsValid"],
             [Vc + "StandaloneDocumentDeclaration_ExternallyDeclaredDefaultApplied_ReportsXml5003"],
-            "One code for the four clauses of the constraint; the first clause is the one tested here, the others are tested by the document step. Bug #924: the third clause misses enumerated and notation attributes."
+            "One code for the four clauses of the constraint; the first clause is the one tested here, the others are tested by the document step."
         ),
         Valid(
             "Element Valid",
