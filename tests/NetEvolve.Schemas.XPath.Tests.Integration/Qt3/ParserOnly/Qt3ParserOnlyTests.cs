@@ -7,7 +7,6 @@ using NetEvolve.Schemas.XPath.Tests.Integration.Qt3.Runner;
 
 [Explicit]
 [Category(ConformanceCategory.Name)]
-[ConformanceLeg]
 public class Qt3ParserOnlyTests
 {
     // The assertion kinds that expect a value; any other kind may expect an error or is a compound assertion.
