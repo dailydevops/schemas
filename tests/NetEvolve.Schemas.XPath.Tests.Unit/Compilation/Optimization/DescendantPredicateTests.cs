@@ -28,6 +28,13 @@ public class DescendantPredicateTests
     [Arguments("//x[@id = '2' or @id = '7']")]
     [Arguments("//x[string-length(.) > 0]")]
     [Arguments("//x[exists(x)][@id]")]
+    [Arguments("//x[@id + 1 = 3]")]
+    [Arguments("//x[-@id = -1]")]
+    [Arguments("//x[. = ()]")]
+    [Arguments("//x[y/@id = '3']")]
+    [Arguments("//x[contains(@id, '1')]")]
+    [Arguments("//x[(y)]")]
+    [Arguments("//x[@id = '1' and (. = 'a' or not(@id = '9'))]")]
     public async Task Compile_PredicateThatNeverSelectsByPosition_IsOneDescendantStep(string expression)
     {
         var root = Compile(expression, XPathOptimizations.All).Root as PathNode;
@@ -55,6 +62,9 @@ public class DescendantPredicateTests
     [Arguments("//x[y/string-length(@id)]")]
     [Arguments("//x[@id][2]")]
     [Arguments("//x[(position())]")]
+    [Arguments("//x[@id = position()]")]
+    [Arguments("//x[contains(@id, string(last()))]")]
+    [Arguments("//x[y/position()]")]
     public async Task Compile_PredicateThatMaySelectByPosition_KeepsTheExpandedForm(string expression)
     {
         var root = Compile(expression, XPathOptimizations.All).Root as PathNode;
@@ -79,6 +89,15 @@ public class DescendantPredicateTests
     [Arguments("count(y)")]
     [Arguments("@id][2")]
     [Arguments("(position())")]
+    [Arguments("@id + 1 = 3")]
+    [Arguments("-@id = -1")]
+    [Arguments(". = ()")]
+    [Arguments("y/@id = '3'")]
+    [Arguments("contains(@id, '1')")]
+    [Arguments("(y)")]
+    [Arguments("@id = position()")]
+    [Arguments("contains(@id, string(last()))")]
+    [Arguments("y/position()")]
     public async Task Evaluate_DescendantStep_SelectsWhatTheExpandedFormSelects(string predicate)
     {
         var tree = XmlDocumentLoader.Load(Xml.AsSpan());
