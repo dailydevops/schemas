@@ -332,8 +332,8 @@ public class XPathParserTests
         await Assert.That(XPathTreeDump.Of(RegexParser.Parse("(a)", xsd).Tree!)).IsEqualTo("ng(c61)");
         await Assert.That(RegexParser.Parse("(?:a)", xsd).Error).IsEqualTo(RegexError.InvalidQuantifier);
         await Assert.That(RegexParser.Parse("\\$", xsd).Error).IsEqualTo(RegexError.InvalidEscape);
-        await Assert.That(RegexParser.Parse("^", xsd).Error).IsEqualTo(RegexError.ConstructNotAllowed);
-        await Assert.That(RegexParser.Parse("$", xsd).Error).IsEqualTo(RegexError.ConstructNotAllowed);
+        await Assert.That(RegexParser.Parse("^", xsd).Error).IsEqualTo(RegexError.None);
+        await Assert.That(RegexParser.Parse("$", xsd).Error).IsEqualTo(RegexError.None);
         await Assert.That(RegexParser.Parse("a*?", xsd).Error).IsEqualTo(RegexError.ConstructNotAllowed);
         await Assert.That(RegexParser.Parse("(a)\\1", xsd).Error).IsEqualTo(RegexError.ConstructNotAllowed);
     }

@@ -118,6 +118,20 @@ public class RegexParserTests
     }
 
     [Test]
+    [Arguments("^abc$", "cat(c5E c61 c62 c63 c24)")]
+    [Arguments("a^b", "cat(c61 c5E c62)")]
+    [Arguments("(^a)", "grp(cat(c5E c61))")]
+    public async Task Parse_CaretAndDollarOutsideAClass_AreLiteralCharactersInTheXsdDialect(
+        string pattern,
+        string expected
+    )
+    {
+        var tree = Tree(pattern);
+
+        await Assert.That(RegexTreeDump.Of(tree)).IsEqualTo(expected);
+    }
+
+    [Test]
     public async Task Parse_Group_DoesNotCaptureInTheXsdDialect()
     {
         var tree = Tree("(a)");
@@ -369,18 +383,6 @@ public class RegexParserTests
     {
         await Assert.That(SetOf("\\c", Xsd10).Contains(codePoint)).IsEqualTo(second);
         await Assert.That(SetOf("\\c", Xsd11).Contains(codePoint)).IsEqualTo(fifth);
-    }
-
-    [Test]
-    [Arguments("^a", 0)]
-    [Arguments("a$", 1)]
-    [Arguments("(^a)", 1)]
-    public async Task Parse_Anchor_IsRejectedInTheXsdDialect(string pattern, int position)
-    {
-        var result = RegexParser.Parse(pattern, Xsd10);
-
-        await Assert.That(result.Error).IsEqualTo(RegexError.ConstructNotAllowed);
-        await Assert.That(result.Position).IsEqualTo(position);
     }
 
     [Test]
