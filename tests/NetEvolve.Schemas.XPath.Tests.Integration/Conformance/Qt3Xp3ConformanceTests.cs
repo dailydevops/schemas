@@ -14,7 +14,6 @@ using NetEvolve.Schemas.XPath.Tests.Integration.Qt3.Selections;
 /// enabled), so a case that needs 3.x syntax or a 3.x function is a known failure until the package that adds it removes the case
 /// from the baseline. The rates of the two selections are reported by XP-73 and not collected here.
 /// </summary>
-[ConformanceLeg]
 public class Qt3Xp3ConformanceTests
 {
     public static IEnumerable<Func<string>> TestSetsXp30() => TestSets(Qt3SpecLevel.XPath30);
