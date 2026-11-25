@@ -17,6 +17,8 @@ using NetEvolve.Schemas.Schematron.Tests.Integration.Goldens.En16931;
 /// sets <c>PEPPOL-EN16931-UBL.sch</c> and <c>PEPPOL-EN16931-CII.sch</c>. No case is excluded. Out of scope: the national unit-test
 /// folders, the envelope rules, the example invoices, and the CEN base rules (tested in the EN 16931 goldens).
 /// </remarks>
+[Explicit]
+[Category(ConformanceCategory.Name)]
 public class PeppolBis3GoldenTests
 {
     private const string Invoice = """
