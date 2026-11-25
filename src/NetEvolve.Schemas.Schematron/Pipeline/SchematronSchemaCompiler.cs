@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Bindings.Registry;
 using NetEvolve.Schemas.Schematron.Evaluation.Patterns;
+using NetEvolve.Schemas.Schematron.Evaluation.Subordinate;
 using NetEvolve.Schemas.Schematron.Model;
 using NetEvolve.Schemas.Schematron.Patterns;
 using NetEvolve.Schemas.Schematron.Phases;
@@ -87,6 +88,7 @@ internal sealed class SchematronSchemaCompiler : ISchemaCompiler
         var ok = linked || CheckDeclarations(effective, binding, problems);
         ok &= CheckParameters(effective, settings, problems);
         ok &= PhaseSelector.TryResolve(effective, settings.Phase, problems, out var selection);
+        ok &= SubordinateConstructs.TryCheck(effective.Patterns, settings.Resolver, problems);
         XsltModuleTables? tables = null;
         if (linked)
         {
