@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.Xsd.Attributes.Declarations;
+using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Contracts;
 
 internal sealed partial class StreamingValidator
@@ -107,7 +108,7 @@ internal sealed partial class StreamingValidator
                 frame.Location,
                 null,
                 ValueOf(entry),
-                null,
+                XsiAttributeType(entry.Name),
                 true,
                 false
             );
@@ -116,6 +117,22 @@ internal sealed partial class StreamingValidator
                 _onXsiAttribute[l].Attribute(info);
             }
         }
+    }
+
+    // The xsi attributes have the types of the XSI schema: xs:boolean for xsi:nil; the others are compared as strings.
+    private XsdBuiltInType XsiAttributeType(XmlName name)
+    {
+        var wanted = Names.GetString(name.Local) == "nil" ? "boolean" : "string";
+        var types = XsdBuiltInTypes.For(_model.Schema.Version);
+        for (var i = 0; i < types.Count; i++)
+        {
+            if (types[i] is XsdBuiltInType t && t.Name.LocalName == wanted)
+            {
+                return t;
+            }
+        }
+
+        throw new InvalidOperationException("The built-in type '" + wanted + "' is not registered.");
     }
 
     // An element that is not assessed (no declaration) assesses an attribute only when a global declaration names it.
