@@ -16,7 +16,7 @@ operand turns the other operand into its effective boolean value.
 ## Limitations
 
 - **Evaluation is the one of `XPathQueryBinding`** (SCH-55, #311): the binding compiles and runs on the public API of the XPath package with
-  the mode on. The stylesheet functions, keys, and decimal formats of an XSLT stylesheet are not wired (#832, #628, #250).
+  the mode on. The keys and decimal formats of an XSLT stylesheet are not wired (#832, #250).
 - **`xslt1` is XPath 1.0 compatibility mode, not XSLT 1.0.** The binding runs on the XPath 2.0 engine; the XSLT 1.0 differences to XSLT 2.0
   (for example the first-item rule of `xsl:value-of`) are not applied (design #150).
 - **The namespace axis is not supported** in any mode (`XPST0010`, DEF-42, #54).

@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.DependencyInjection.Tests.Unit.Schematron;
+namespace NetEvolve.Schemas.Xsd.Tests.Unit.DependencyInjection;
 
 internal sealed class DisposeTrackingStream : MemoryStream
 {

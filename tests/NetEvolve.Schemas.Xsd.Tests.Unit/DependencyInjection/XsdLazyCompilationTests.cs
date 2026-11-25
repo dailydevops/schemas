@@ -1,9 +1,8 @@
-namespace NetEvolve.Schemas.DependencyInjection.Tests.Unit.Xsd;
+namespace NetEvolve.Schemas.Xsd.Tests.Unit.DependencyInjection;
 
 using Microsoft.Extensions.DependencyInjection;
-using NetEvolve.Schemas.DependencyInjection.Tests.Unit.Schematron;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
-using static NetEvolve.Schemas.DependencyInjection.Tests.Unit.Xsd.XsdRegistrationTestSupport;
+using static NetEvolve.Schemas.Xsd.Tests.Unit.DependencyInjection.XsdRegistrationTestSupport;
 
 public class XsdLazyCompilationTests
 {

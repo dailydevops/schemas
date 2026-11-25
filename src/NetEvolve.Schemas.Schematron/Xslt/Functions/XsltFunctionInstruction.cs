@@ -3,6 +3,7 @@ namespace NetEvolve.Schemas.Schematron.Xslt.Functions;
 using System;
 using System.Collections.Generic;
 using NetEvolve.Arguments;
+using NetEvolve.Schemas.Schematron.Model;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Schematron.Xslt.Registry;
 using NetEvolve.Schemas.Xml.Contracts;
@@ -70,6 +71,50 @@ internal sealed class XsltFunctionInstruction : IXsltInstruction
             XsltElementResolver.LocationOf(context.Element, null)
         );
         executable = new XsltFunctionDeclaration(component);
+        return true;
+    }
+
+    /// <summary>
+    /// Reads the expanded name and the arity of an <c>xsl:function</c> element without compiling it, so the signatures are known before
+    /// any body is compiled and a function body, a variable, or a rule can call every function, itself included.
+    /// </summary>
+    /// <param name="element">The <c>xsl:function</c> element.</param>
+    /// <param name="namespaces">The namespaces of the schema, which bind a prefix that the element does not.</param>
+    /// <param name="name">The expanded name when the result is <see langword="true"/>.</param>
+    /// <param name="arity">The number of <c>xsl:param</c> children at the start of the content.</param>
+    /// <returns><see langword="false"/> when the name is missing or invalid; the compile of the element reports it.</returns>
+    internal static bool TryReadSignature(
+        XPathNode element,
+        IReadOnlyList<SchematronNamespace> namespaces,
+        out XPathQName name,
+        out int arity
+    )
+    {
+        name = default;
+        arity = 0;
+        if (
+            !XsltElementReader.TryGetAttribute(element, "name", out var written)
+            || !TryExpand(element, written, namespaces, out name, out _, out _)
+        )
+        {
+            return false;
+        }
+
+        for (var child = element.Node.FirstChild; !child.IsEmpty; child = child.NextSibling)
+        {
+            if (child.Kind == XmlNodeKind.Element && XsltElementReader.IsXslt(child, ParamLocalName))
+            {
+                arity++;
+            }
+            else if (
+                child.Kind == XmlNodeKind.Element
+                || (child.Kind == XmlNodeKind.Text && !XsltElementReader.IsWhitespace(child.StringValue))
+            )
+            {
+                break;
+            }
+        }
+
         return true;
     }
 
@@ -226,7 +271,9 @@ internal sealed class XsltFunctionInstruction : IXsltInstruction
             return false;
         }
 
-        if (!TryExpand(element, written, out var expanded, out var constraint, out var reason))
+        if (
+            !TryExpand(element, written, context.Scope.Namespaces, out var expanded, out var constraint, out var reason)
+        )
         {
             XsltProblems.Report(
                 context.Problems,
@@ -246,6 +293,7 @@ internal sealed class XsltFunctionInstruction : IXsltInstruction
     private static bool TryExpand(
         XPathNode element,
         string written,
+        IReadOnlyList<SchematronNamespace> namespaces,
         out XPathQName name,
         out string? constraint,
         out string? reason
@@ -265,7 +313,7 @@ internal sealed class XsltFunctionInstruction : IXsltInstruction
             reason =
                 "has no prefix, which a stylesheet function needs to stay apart from the functions of the default namespace";
         }
-        else if (!XsltElementReader.TryResolvePrefix(element, prefix, out var uri))
+        else if (!TryResolve(element, prefix, namespaces, out var uri))
         {
             constraint = "XTSE0280";
             reason = $"uses the prefix '{prefix}', which is not bound to a namespace";
@@ -281,6 +329,32 @@ internal sealed class XsltFunctionInstruction : IXsltInstruction
         }
 
         return reason is null;
+    }
+
+    // The in-scope namespaces of the element first, then the prefixes that the schema declares with ns: a rule calls the function by
+    // that prefix, and the name of the declaration must mean the same namespace.
+    private static bool TryResolve(
+        XPathNode element,
+        string prefix,
+        IReadOnlyList<SchematronNamespace> namespaces,
+        out string namespaceName
+    )
+    {
+        if (XsltElementReader.TryResolvePrefix(element, prefix, out namespaceName))
+        {
+            return true;
+        }
+
+        for (var i = namespaces.Count - 1; i >= 0; i--)
+        {
+            if (string.Equals(namespaces[i].Prefix, prefix, StringComparison.Ordinal))
+            {
+                namespaceName = namespaces[i].NamespaceName;
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static bool IsReserved(string namespaceName) =>

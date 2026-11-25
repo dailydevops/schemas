@@ -95,9 +95,11 @@ public sealed class XPathExpression
     /// <param name="context">The evaluation context.</param>
     /// <returns>The result, valid until the next evaluation on, or disposal of, the context.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="context"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ObjectDisposedException">The context is disposed.</exception>
     public XPathResult TryEvaluate(XPathEvaluationContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
+        context.ThrowIfDisposed();
 
         try
         {
@@ -113,10 +115,12 @@ public sealed class XPathExpression
     /// <param name="context">The evaluation context.</param>
     /// <returns>The value, valid until the next evaluation on, or disposal of, the context.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="context"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ObjectDisposedException">The context is disposed.</exception>
     /// <exception cref="XPathException">The evaluation fails.</exception>
     public XdmSequence Evaluate(XPathEvaluationContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
+        context.ThrowIfDisposed();
 
         return _compiled.Evaluate(context);
     }

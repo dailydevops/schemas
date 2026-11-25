@@ -4,7 +4,7 @@
 [![NuGet Downloads](https://img.shields.io/nuget/dt/NetEvolve.Schemas.DependencyInjection.svg)](https://www.nuget.org/packages/NetEvolve.Schemas.DependencyInjection/)
 [![License](https://img.shields.io/github/license/dailydevops/schemas.svg)](https://github.com/dailydevops/schemas/blob/main/LICENSE)
 
-Registers the schema validators of the NetEvolve schema libraries (XSD, Schematron, DTD, or your own) with `Microsoft.Extensions.DependencyInjection`, plain or keyed, as lazily built singletons. The package adds extension methods on `IServiceCollection`; it contains no validation logic of its own.
+Registers the schema validators of the NetEvolve schema libraries (XSD, Schematron, DTD, or your own) with `Microsoft.Extensions.DependencyInjection`, plain or keyed, as lazily built singletons. The package is the generic registration core: it depends on `NetEvolve.Schemas` and `Microsoft.Extensions.DependencyInjection.Abstractions` only, references no format package, and contains no validation logic of its own. It adds `AddSchemaValidator<TValidator>` and `AddKeyedSchemaValidator<TValidator>` on `IServiceCollection`. The registrations of a format ship with the package of that format, in the same namespace and built on this core: `AddXsdValidator` and `AddKeyedXsdValidator` in `NetEvolve.Schemas.Xsd`, `AddSchematronValidator` and `AddKeyedSchematronValidator` in `NetEvolve.Schemas.Schematron`, and `AddDtdValidator` and `AddKeyedDtdValidator` in `NetEvolve.Schemas.Xml`. Referencing one format never brings another format's assembly.
 
 ## Features
 
@@ -42,7 +42,7 @@ No package has been released yet; the lines apply from the first release, and `x
 
 `AddXsdValidator` takes a callback that opens the schema stream. The callback runs on the first resolve, and the registration disposes the stream right after the build. The validator is registered as `IXsdValidator`.
 
-The samples in this readme use `cancellationToken` for the token of the caller and need these namespaces:
+The samples that register a format need the package of that format next to this package; the calls resolve without a further using directive. The samples in this readme use `cancellationToken` for the token of the caller and need these namespaces:
 
 ```
 using System;
@@ -77,16 +77,16 @@ Here `valid` is `true` and `invalid` is `false`. A second resolve of `IXsdValida
 
 ### Registration methods
 
-| Method | Registers | Callbacks |
-| --- | --- | --- |
-| `AddXsdValidator(schema, configure, systemId)` | `IXsdValidator` | `schema` opens the schema stream; `configure` receives the provider and an `XsdValidatorBuilder` |
-| `AddKeyedXsdValidator(serviceKey, schema, configure, systemId)` | `IXsdValidator` per key | the callbacks also receive the key |
-| `AddSchematronValidator(schema, configure, systemId)` | `ISchematronValidator` | `schema` opens the schema stream; `configure` receives the provider and a `SchematronValidatorBuilder` |
-| `AddKeyedSchematronValidator(serviceKey, schema, configure, systemId)` | `ISchematronValidator` per key | the callbacks also receive the key |
-| `AddDtdValidator(configure)` | `IDtdValidator` | `configure` receives the provider and a `DtdValidatorBuilder`; no schema, because a DTD is part of the document |
-| `AddKeyedDtdValidator(serviceKey, configure)` | `IDtdValidator` per key | `configure` also receives the key |
-| `AddSchemaValidator<TValidator>(factory)` | `TValidator` | `factory` receives the provider and returns the validator |
-| `AddKeyedSchemaValidator<TValidator>(serviceKey, factory)` | `TValidator` per key, and `ISchemaValidator` under the same key | `factory` receives the provider and the key |
+| Method | Package | Registers | Callbacks |
+| --- | --- | --- | --- |
+| `AddXsdValidator(schema, configure, systemId)` | `NetEvolve.Schemas.Xsd` | `IXsdValidator` | `schema` opens the schema stream; `configure` receives the provider and an `XsdValidatorBuilder` |
+| `AddKeyedXsdValidator(serviceKey, schema, configure, systemId)` | `NetEvolve.Schemas.Xsd` | `IXsdValidator` per key | the callbacks also receive the key |
+| `AddSchematronValidator(schema, configure, systemId)` | `NetEvolve.Schemas.Schematron` | `ISchematronValidator` | `schema` opens the schema stream; `configure` receives the provider and a `SchematronValidatorBuilder` |
+| `AddKeyedSchematronValidator(serviceKey, schema, configure, systemId)` | `NetEvolve.Schemas.Schematron` | `ISchematronValidator` per key | the callbacks also receive the key |
+| `AddDtdValidator(configure)` | `NetEvolve.Schemas.Xml` | `IDtdValidator` | `configure` receives the provider and a `DtdValidatorBuilder`; no schema, because a DTD is part of the document |
+| `AddKeyedDtdValidator(serviceKey, configure)` | `NetEvolve.Schemas.Xml` | `IDtdValidator` per key | `configure` also receives the key |
+| `AddSchemaValidator<TValidator>(factory)` | `NetEvolve.Schemas.DependencyInjection` | `TValidator` | `factory` receives the provider and returns the validator |
+| `AddKeyedSchemaValidator<TValidator>(serviceKey, factory)` | `NetEvolve.Schemas.DependencyInjection` | `TValidator` per key, and `ISchemaValidator` under the same key | `factory` receives the provider and the key |
 
 All methods are declared in the namespace `Microsoft.Extensions.DependencyInjection` and return the same `IServiceCollection`. Every `configure` callback is optional. The optional `systemId` is the base URI of the schema for relative references.
 
@@ -219,7 +219,7 @@ The `configure` callbacks are the only configuration surface. They run once, on 
 ## Requirements
 
 - .NET Standard 2.0, .NET 10, or .NET 11 (the package targets `netstandard2.0`, `net10.0`, and `net11.0`; the tests run on `net5.0`, `net10.0`, and `net11.0`, and `net5.0` runs the `netstandard2.0` build)
-- `NetEvolve.Schemas.Xsd`, `NetEvolve.Schemas.Schematron`, `Microsoft.Extensions.DependencyInjection.Abstractions`, and `NetEvolve.Arguments` as dependencies; the XSD, Schematron, and DTD validators come with the first two; on `netstandard2.0` also `Microsoft.Bcl.AsyncInterfaces`, `System.Memory`, and `System.Threading.Tasks.Extensions`
+- `NetEvolve.Schemas`, `Microsoft.Extensions.DependencyInjection.Abstractions`, and `NetEvolve.Arguments` as dependencies; the XSD, Schematron, and DTD registrations come with `NetEvolve.Schemas.Xsd`, `NetEvolve.Schemas.Schematron`, and `NetEvolve.Schemas.Xml`; on `netstandard2.0` also `Microsoft.Bcl.AsyncInterfaces`, `System.Memory`, and `System.Threading.Tasks.Extensions`
 - A container that implements `IKeyedServiceProvider` for the keyed methods, for example `Microsoft.Extensions.DependencyInjection` 8.0 or later
 
 ## Related Packages

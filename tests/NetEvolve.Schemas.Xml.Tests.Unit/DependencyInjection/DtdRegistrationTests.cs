@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.DependencyInjection.Tests.Unit.Dtd;
+namespace NetEvolve.Schemas.Xml.Tests.Unit.DependencyInjection;
 
 using System.Text;
 using Microsoft.Extensions.DependencyInjection;

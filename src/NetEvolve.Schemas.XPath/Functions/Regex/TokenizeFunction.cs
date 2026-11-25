@@ -10,7 +10,7 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// <c>fn:tokenize</c> (Functions and Operators 1.0, 7.6.4): the parts of the input between the matches of the pattern. A match at the
 /// start of the input gives an empty first token, a match at the end an empty last token, and adjacent matches an empty token between
 /// them; the empty input, and the empty sequence, give the empty sequence. A pattern that matches the zero-length string is FORX0003,
-/// also for the empty input. Only the two- and three-argument forms of XPath 2.0 exist; the one-argument form is XP-71 (#334).
+/// also for the empty input. This function has the two- and three-argument forms of XPath 2.0; the one-argument form is a function of its own in <c>Functions/Delta3</c>.
 /// </summary>
 /// <remarks>The tokens are read from the bounds of the matches, not from the non-matching segments, which leave the empty parts out. The number of tokens is bounded by the sequence size limit of the context.</remarks>
 internal sealed class TokenizeFunction : RegexFunction
