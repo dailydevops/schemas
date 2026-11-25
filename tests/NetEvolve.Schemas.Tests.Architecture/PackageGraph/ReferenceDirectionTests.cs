@@ -25,7 +25,11 @@ public class ReferenceDirectionTests
     [Arguments(SourceAssemblies.XPath, SourceAssemblies.Xsd)]
     [Arguments(SourceAssemblies.Xsd, SourceAssemblies.Schematron)]
     [Arguments(SourceAssemblies.Schematron, SourceAssemblies.Xsd)]
-    [Arguments(SourceAssemblies.Schematron, SourceAssemblies.DependencyInjection)]
+    [Arguments(SourceAssemblies.DependencyInjection, SourceAssemblies.Xml)]
+    [Arguments(SourceAssemblies.DependencyInjection, SourceAssemblies.XPath)]
+    [Arguments(SourceAssemblies.DependencyInjection, SourceAssemblies.Schematron)]
+    [Arguments(SourceAssemblies.DependencyInjection, SourceAssemblies.Xsd)]
+    [Arguments(SourceAssemblies.XPath, SourceAssemblies.DependencyInjection)]
     public async Task FixtureReferencingHigherOrSiblingLayer_IsReported(string name, string other)
     {
         var violations = ArchitectureRules.FindDisallowedReferences(name, [new AssemblyName(other)]);

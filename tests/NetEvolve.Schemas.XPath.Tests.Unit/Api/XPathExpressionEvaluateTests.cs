@@ -170,4 +170,15 @@ public class XPathExpressionEvaluateTests
     [Test]
     public async Task Run_SyntaxError_IsReportedByTheHelperAsTheCode() =>
         await Assert.That(ApiFixture.Run("1 +")).IsEqualTo("error:XPST0003");
+
+    [Test]
+    public async Task Evaluate_DisposedContext_ThrowsObjectDisposedException()
+    {
+        var expression = XPathExpression.Compile("1 + 2");
+        var context = new XPathEvaluationContext();
+        context.Dispose();
+
+        await Assert.That(() => expression.Evaluate(context)).Throws<ObjectDisposedException>();
+        await Assert.That(() => expression.TryEvaluate(context)).Throws<ObjectDisposedException>();
+    }
 }

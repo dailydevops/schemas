@@ -73,6 +73,19 @@ public sealed class VerifyPackageTests
             .IsEqualTo(0);
 
     [Test]
+    [Arguments("NetEvolve.Schemas.Xml")]
+    [Arguments("NetEvolve.Schemas.XPath")]
+    [Arguments("NetEvolve.Schemas.Xsd")]
+    [Arguments("NetEvolve.Schemas.Schematron")]
+    public async Task Verify_DependencyInjectionAbstractionsOnFormatPackage_Passes(
+        string id,
+        CancellationToken cancellationToken
+    ) =>
+        await Assert
+            .That(await ExitCode(Package(id: id, dependencies: [DependencyInjectionAbstractions]), cancellationToken))
+            .IsEqualTo(0);
+
+    [Test]
     public async Task Verify_PolyfillOnNetStandard20_Passes(CancellationToken cancellationToken) =>
         await Assert
             .That(

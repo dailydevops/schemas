@@ -6,7 +6,7 @@ using NetEvolve.Schemas.XPath.Api;
 /// <summary>
 /// <c>fn:string-join</c> (Functions and Operators 1.0, 7.2.2): the strings of the first argument joined with the separator of the second.
 /// </summary>
-/// <remarks>Limitation: the one-argument form belongs to XPath 3.0 and is left to XP-71 (#334).</remarks>
+/// <remarks>The one-argument form of XPath 3.0 is a function of its own in <c>Functions/Delta3</c>.</remarks>
 internal sealed class StringJoinFunction : TextFunction
 {
     private const int InitialBuffer = 256;

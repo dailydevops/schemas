@@ -70,17 +70,24 @@ internal sealed partial class XmlParser : IXmlReader, IDisposable
     /// <param name="limits">The limits.</param>
     /// <param name="doctypeHandler">The doctype seam, or <see langword="null"/> to reject a document type declaration.</param>
     /// <param name="entityStack">The entity input stack seam, or <see langword="null"/> to reject other entity references.</param>
+    /// <param name="allowXml11Declaration">Whether the version <c>1.1</c> in the XML declaration is accepted.</param>
     internal XmlParser(
         XmlReaderLimits limits,
         IXmlDoctypeHandler? doctypeHandler = null,
-        IXmlEntityInputStack? entityStack = null
+        IXmlEntityInputStack? entityStack = null,
+        bool allowXml11Declaration = false
     )
     {
         _limits = limits;
         _doctypeHandler = doctypeHandler;
         _attributeDeclarations = doctypeHandler as IXmlAttributeDeclarations;
         _entityStack = entityStack;
-        _tokenizer = new XmlTokenizer(limits, doctypeHandler is not null, entityStack is not null);
+        _tokenizer = new XmlTokenizer(
+            limits,
+            doctypeHandler is not null,
+            entityStack is not null,
+            allowXml11Declaration
+        );
         _replacementTokenizer = XmlTokenizer.ForReplacementText(limits);
         _nodes = new XmlBudget(limits.MaxNodeCount, XmlErrorCodes.XML1108);
         _text = XmlBudget.TextLength(limits);

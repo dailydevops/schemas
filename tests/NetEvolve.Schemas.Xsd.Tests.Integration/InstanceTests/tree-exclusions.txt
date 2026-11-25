@@ -4,6 +4,27 @@
 # Kind doctype: the instance has a document type declaration, and the tree holds no unparsed entities or notations (#731), so the issues differ.
 # The test TreeValidationEquivalenceTests keeps this list equal to the cases it observes: a case that starts to agree leaves the list.
 msMeta-AttributeGroup_w3c	1.0/attgD003/attgD003.v	unloadable	-	The element has 2000 attributes, which exceeds the reader limit of 1024 attributes per element; the streaming path reports the limit as an issue, and no tree exists to validate.
+saxonMeta-XmlVersions	1.0/xv001/xv001.v01.xml	unloadable	#62	The instance declares XML 1.1, which the reader does not accept, so no tree exists for it; XML 1.1 is not supported.
+saxonMeta-XmlVersions	1.0/xv002/xv002.v01.xml	unloadable	#62	The instance declares XML 1.1, which the reader does not accept, so no tree exists for it; XML 1.1 is not supported.
+saxonMeta-XmlVersions	1.0/xv003/xv003.v01.xml	unloadable	#62	The instance declares XML 1.1, which the reader does not accept, so no tree exists for it; XML 1.1 is not supported.
+saxonMeta-XmlVersions	1.0/xv005/xv005.n01.xml	unloadable	#62	The instance declares XML 1.1, which the reader does not accept, so no tree exists for it; XML 1.1 is not supported.
+saxonMeta-XmlVersions	1.0/xv005/xv005.n02.xml	unloadable	#62	The instance declares XML 1.1, which the reader does not accept, so no tree exists for it; XML 1.1 is not supported.
+saxonMeta-XmlVersions	1.0/xv005/xv005.v01.xml	unloadable	#62	The instance declares XML 1.1, which the reader does not accept, so no tree exists for it; XML 1.1 is not supported.
+saxonMeta-XmlVersions	1.0/xv006/xv006.n01.xml	unloadable	#62	The instance declares XML 1.1, which the reader does not accept, so no tree exists for it; XML 1.1 is not supported.
+saxonMeta-XmlVersions	1.0/xv006/xv006.n02.xml	unloadable	#62	The instance declares XML 1.1, which the reader does not accept, so no tree exists for it; XML 1.1 is not supported.
+saxonMeta-XmlVersions	1.0/xv006/xv006.n03.xml	unloadable	#62	The instance declares XML 1.1, which the reader does not accept, so no tree exists for it; XML 1.1 is not supported.
+saxonMeta-XmlVersions	1.0/xv006/xv006.v01.xml	unloadable	#62	The instance declares XML 1.1, which the reader does not accept, so no tree exists for it; XML 1.1 is not supported.
+saxonMeta-XmlVersions	1.0/xv007/xv007.n01.xml	unloadable	#62	The instance declares XML 1.1, which the reader does not accept, so no tree exists for it; XML 1.1 is not supported.
+saxonMeta-XmlVersions	1.0/xv007/xv007.n02.xml	unloadable	#62	The instance declares XML 1.1, which the reader does not accept, so no tree exists for it; XML 1.1 is not supported.
+saxonMeta-XmlVersions	1.0/xv007/xv007.v01.xml	unloadable	#62	The instance declares XML 1.1, which the reader does not accept, so no tree exists for it; XML 1.1 is not supported.
+saxonMeta-XmlVersions	1.0/xv008/xv008.n01.xml	unloadable	#62	The instance declares XML 1.1, which the reader does not accept, so no tree exists for it; XML 1.1 is not supported.
+saxonMeta-XmlVersions	1.0/xv008/xv008.n02.xml	unloadable	#62	The instance declares XML 1.1, which the reader does not accept, so no tree exists for it; XML 1.1 is not supported.
+saxonMeta-XmlVersions	1.0/xv008/xv008.v01.xml	unloadable	#62	The instance declares XML 1.1, which the reader does not accept, so no tree exists for it; XML 1.1 is not supported.
+saxonMeta-XmlVersions	1.0/xv009/xv009.n01.xml	unloadable	#62	The instance declares XML 1.1, which the reader does not accept, so no tree exists for it; XML 1.1 is not supported.
+saxonMeta-XmlVersions	1.0/xv009/xv009.n02.xml	unloadable	#62	The instance declares XML 1.1, which the reader does not accept, so no tree exists for it; XML 1.1 is not supported.
+saxonMeta-XmlVersions	1.0/xv009/xv009.n03.xml	unloadable	#62	The instance declares XML 1.1, which the reader does not accept, so no tree exists for it; XML 1.1 is not supported.
+saxonMeta-XmlVersions	1.0/xv009/xv009.v01.xml	unloadable	#62	The instance declares XML 1.1, which the reader does not accept, so no tree exists for it; XML 1.1 is not supported.
+saxonMeta-XmlVersions	1.0/xv009/xv009.v02.xml	unloadable	#62	The instance declares XML 1.1, which the reader does not accept, so no tree exists for it; XML 1.1 is not supported.
 sunMeta-Wildcard	1.0/pscontents00201m1/Negative	unloadable	-	The instance is not well formed (the end tag of the date element does not match its start tag), so no tree exists for it.
 sunMeta-Wildcard	1.0/pscontents00301m2/Negative	unloadable	-	The instance is not well formed (the end tag of the test:date element has no prefix), so no tree exists for it.
 sunMeta-Wildcard	1.0/pscontents00302m2/Negative	unloadable	-	The instance is not well formed (an attribute value is not delimited correctly), so no tree exists for it.
