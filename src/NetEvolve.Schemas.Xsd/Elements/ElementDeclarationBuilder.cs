@@ -15,7 +15,7 @@ using NetEvolve.Schemas.Xsd.SchemaDocuments;
 /// </summary>
 /// <remarks>
 /// The syntax must come from <see cref="SchemaDocumentParser"/>, whose grammar already restricted the attribute values. The
-/// constraints that depend on several attributes (<c>src-element.1</c>, <c>.2.1</c>, <c>.3</c>) are checked here. A declaration
+/// constraints that depend on several attributes (<c>src-element.1</c>, <c>.2.1</c>, <c>.3</c>) and the global-only attributes of a local declaration are checked here. A declaration
 /// that violates one is still built, so later phases see no missing component; the schema error is reported once.
 /// </remarks>
 internal sealed class ElementDeclarationBuilder : IComponentBuilder
@@ -67,6 +67,23 @@ internal sealed class ElementDeclarationBuilder : IComponentBuilder
                 node,
                 "src-element.2.1",
                 "A global element declaration must have a name and no ref."
+            );
+        }
+
+        if (
+            !isGlobal
+            && (
+                node.FindAttribute("abstract") is not null
+                || node.FindAttribute("final") is not null
+                || node.FindAttribute("substitutionGroup") is not null
+            )
+        )
+        {
+            ReportElement(
+                reporter,
+                node,
+                "src-element",
+                "A local element declaration must not have abstract, final or substitutionGroup."
             );
         }
 

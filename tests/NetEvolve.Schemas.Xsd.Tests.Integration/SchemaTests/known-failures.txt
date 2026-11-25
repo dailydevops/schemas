@@ -62,8 +62,6 @@ msMeta-Element_w3c	1.0/elemZ022b/elemZ022b	#859	The import check of the namespac
 msMeta-Element_w3c	1.0/elemZ028c/elemZ028c	-	The unique particle attribution check does not cover an all group, so a member of a substitution group that is also listed is accepted.
 msMeta-Element_w3c	1.0/elemZ032a/elemZ032a	#871	A value constraint on a declaration of type ID is accepted.
 msMeta-Element_w3c	1.0/elemZ032b/elemZ032b	#871	A value constraint on a declaration of type ID is accepted.
-msMeta-Errata10_w3c	1.0/errC005/errC005	#865	A local element declaration with abstract or final is accepted.
-msMeta-Errata10_w3c	1.0/errC006/errC006	#865	A local element declaration with abstract or final is accepted.
 msMeta-Group_w3c	1.0/groupA008/groupA008	#874	A schema constraint that the pipeline does not check; not analyzed yet.
 msMeta-IdentityConstraint_w3c	1.0/idC019/idC019	#874	A schema constraint that the pipeline does not check; not analyzed yet.
 msMeta-IdentityConstraint_w3c	1.0/idZ011/idZ011	#871	A value constraint on a declaration of type ID is accepted.
@@ -73,7 +71,6 @@ msMeta-Notations_w3c	1.0/notatB001/notatB001	#870	Notation declarations are not 
 msMeta-Notations_w3c	1.0/notatB005/notatB005	#870	Notation declarations are not components yet.
 msMeta-Notations_w3c	1.0/notatG001/notatG001	#870	Notation declarations are not components yet.
 msMeta-Notations_w3c	1.0/notatG003/notatG003	#870	Notation declarations are not components yet.
-msMeta-Particles_w3c	1.0/particlesDa011/particlesDa011	#865	A local element declaration with abstract or final is accepted.
 msMeta-Particles_w3c	1.0/particlesHa070/particlesHa070	#863	The particle restriction check reports a restriction that the suite accepts.
 msMeta-Particles_w3c	1.0/particlesHa080/particlesHa080	#863	The particle restriction check reports a restriction that the suite accepts.
 msMeta-Particles_w3c	1.0/particlesHa084/particlesHa084	#863	The particle restriction check reports a restriction that the suite accepts.
@@ -86,143 +83,6 @@ msMeta-Particles_w3c	1.0/particlesR013/particlesR013	#863	The particle restricti
 msMeta-Particles_w3c	1.0/particlesR016/particlesR016	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
 msMeta-Particles_w3c	1.0/particlesR022/particlesR022	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
 msMeta-Particles_w3c	1.0/particlesZ001/particlesZ001	#863	The particle restriction check reports a restriction that the suite accepts.
-msMeta-Regex_w3c	1.0/RegexTest_1005/RegexTest_1005	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1048/RegexTest_1048	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1049/RegexTest_1049	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1050/RegexTest_1050	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1051/RegexTest_1051	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1052/RegexTest_1052	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1053/RegexTest_1053	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1054/RegexTest_1054	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1055/RegexTest_1055	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1119/RegexTest_1119	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1152/RegexTest_1152	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1165/RegexTest_1165	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1166/RegexTest_1166	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1167/RegexTest_1167	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1168/RegexTest_1168	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1169/RegexTest_1169	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1170/RegexTest_1170	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1218/RegexTest_1218	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1219/RegexTest_1219	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1220/RegexTest_1220	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1221/RegexTest_1221	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1222/RegexTest_1222	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1223/RegexTest_1223	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1224/RegexTest_1224	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1252/RegexTest_1252	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1288/RegexTest_1288	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1301/RegexTest_1301	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1302/RegexTest_1302	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1303/RegexTest_1303	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1304/RegexTest_1304	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1305/RegexTest_1305	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1306/RegexTest_1306	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1342/RegexTest_1342	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1343/RegexTest_1343	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1366/RegexTest_1366	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1367/RegexTest_1367	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1368/RegexTest_1368	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1369/RegexTest_1369	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1431/RegexTest_1431	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1432/RegexTest_1432	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1462/RegexTest_1462	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1463/RegexTest_1463	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1464/RegexTest_1464	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1465/RegexTest_1465	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1467/RegexTest_1467	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1468/RegexTest_1468	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1469/RegexTest_1469	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1470/RegexTest_1470	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1489/RegexTest_1489	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1505/RegexTest_1505	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1506/RegexTest_1506	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1507/RegexTest_1507	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1508/RegexTest_1508	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1509/RegexTest_1509	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1510/RegexTest_1510	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1511/RegexTest_1511	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1512/RegexTest_1512	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1513/RegexTest_1513	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1514/RegexTest_1514	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1515/RegexTest_1515	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1516/RegexTest_1516	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1517/RegexTest_1517	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1518/RegexTest_1518	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1519/RegexTest_1519	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1520/RegexTest_1520	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1521/RegexTest_1521	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1523/RegexTest_1523	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1525/RegexTest_1525	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1526/RegexTest_1526	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1527/RegexTest_1527	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1528/RegexTest_1528	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1529/RegexTest_1529	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1530/RegexTest_1530	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1531/RegexTest_1531	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1532/RegexTest_1532	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1533/RegexTest_1533	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1534/RegexTest_1534	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1535/RegexTest_1535	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1536/RegexTest_1536	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1537/RegexTest_1537	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1538/RegexTest_1538	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1539/RegexTest_1539	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1540/RegexTest_1540	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_1541/RegexTest_1541	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_488/RegexTest_488	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_489/RegexTest_489	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_506/RegexTest_506	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_508/RegexTest_508	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_529/RegexTest_529	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_564/RegexTest_564	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_565/RegexTest_565	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_566/RegexTest_566	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_567/RegexTest_567	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_568/RegexTest_568	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_569/RegexTest_569	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_570/RegexTest_570	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_571/RegexTest_571	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_635/RegexTest_635	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_668/RegexTest_668	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_681/RegexTest_681	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_682/RegexTest_682	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_683/RegexTest_683	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_684/RegexTest_684	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_685/RegexTest_685	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_686/RegexTest_686	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_734/RegexTest_734	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_735/RegexTest_735	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_736/RegexTest_736	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_737/RegexTest_737	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_738/RegexTest_738	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_739/RegexTest_739	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_740/RegexTest_740	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_768/RegexTest_768	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_804/RegexTest_804	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_817/RegexTest_817	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_818/RegexTest_818	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_819/RegexTest_819	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_820/RegexTest_820	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_821/RegexTest_821	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_822/RegexTest_822	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_858/RegexTest_858	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_859/RegexTest_859	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_882/RegexTest_882	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_883/RegexTest_883	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_884/RegexTest_884	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_885/RegexTest_885	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_947/RegexTest_947	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_948/RegexTest_948	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_978/RegexTest_978	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_979/RegexTest_979	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_980/RegexTest_980	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_981/RegexTest_981	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_983/RegexTest_983	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_984/RegexTest_984	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_985/RegexTest_985	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/RegexTest_986/RegexTest_986	#858	The regex parser rejects the anchors ^ and $ outside a character class.
-msMeta-Regex_w3c	1.0/reZ001/reZ001	#858	The regex parser rejects the anchors ^ and $ outside a character class.
 msMeta-Schema_w3c	1.0/schB8/schB8	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
 msMeta-Schema_w3c	1.0/schD7/schD7	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
 msMeta-Schema_w3c	1.0/schD8/schD8	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
@@ -248,8 +108,6 @@ msMeta-Schema_w3c	1.0/schN12/schN12	#869	A redefinition is not checked against t
 msMeta-Schema_w3c	1.0/schN6/schN6	#869	A redefinition is not checked against the redefined component.
 msMeta-Schema_w3c	1.0/schO2/schO2	#869	A redefinition is not checked against the redefined component.
 msMeta-Schema_w3c	1.0/schR5/schR5	#869	A redefinition is not checked against the redefined component.
-msMeta-Schema_w3c	1.0/schZ001_78029-a/schZ001_78029-a	#865	A local element declaration with abstract or final is accepted.
-msMeta-Schema_w3c	1.0/schZ002_78029-b/schZ002_78029-b	#865	A local element declaration with abstract or final is accepted.
 msMeta-Schema_w3c	1.0/schZ004/schZ004	#872	A component of a document that is not imported or included is visible.
 msMeta-Schema_w3c	1.0/schZ005/schZ005	#872	A component of a document that is not imported or included is visible.
 msMeta-Schema_w3c	1.0/schZ006/schZ006	#869	A redefinition is not checked against the redefined component.

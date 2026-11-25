@@ -364,7 +364,7 @@ The suite file of the binding `xslt-3-2025` lists three cases that no selected b
 - `iso-reporting/svrl-fired-rule-document-primary.xml`
 - `iso-reporting/svrl-fired-rule-document.xml`
 
-**[#915](https://github.com/dailydevops/schemas/issues/915)** (3 cases): Abstract pattern parameters are substituted in the pattern only; diagnostics and properties belong to the schema and are shared by every instance, so their content keeps the parameter reference (NES3300), a recorded deviation.
+**[#1072](https://github.com/dailydevops/schemas/issues/1072)** (3 cases): Abstract pattern parameters are substituted in the pattern only; diagnostics and properties belong to the schema and are shared by every instance, so their content keeps the parameter reference (NES3300), a recorded deviation.
 
 - `iso-pattern-templating/pattern-abstract-diagnostic-value-of.xml`
 - `iso-pattern-templating/pattern-abstract-property-copy-of.xml`
@@ -394,7 +394,7 @@ dotnet test --project tests/NetEvolve.Schemas.Schematron.Tests.Integration --con
 - **Phase attributes.** A selected phase with `from` ([#385](https://github.com/dailydevops/schemas/issues/385)) or `when` ([#386](https://github.com/dailydevops/schemas/issues/386)) fails the build with `NES3007`.
 - **Include and extends.** An `href` with a fragment identifier is not supported ([#575](https://github.com/dailydevops/schemas/issues/575)).
 - **SVRL.** An SVRL `id` is written only for an author id, and a `svrl:error` in the output is not a failure of the run.
-- **Messages.** White space only text around `value-of` is kept in a message ([#920](https://github.com/dailydevops/schemas/issues/920)), and abstract pattern parameters are not substituted in diagnostic and property content, a recorded deviation ([#915](https://github.com/dailydevops/schemas/issues/915)).
+- **Messages.** White space only text around `value-of` is kept in a message ([#920](https://github.com/dailydevops/schemas/issues/920)), and abstract pattern parameters are not substituted in diagnostic and property content, a recorded deviation ([#1072](https://github.com/dailydevops/schemas/issues/1072)).
 - **Locations.** A problem of an expression is located by the base URI of the schema and by the line and column within the text of the expression, and a dynamic problem has no line and column ([#881](https://github.com/dailydevops/schemas/issues/881)). `last()` in a predicate without a known size equals `position()` ([#883](https://github.com/dailydevops/schemas/issues/883)).
 - **Thread safety.** A validator is immutable and thread-safe; a `WithReportSink` view and a builder are not.
 - **Compile cost.** Every `Build` compiles the schema once; a validation compiles nothing.

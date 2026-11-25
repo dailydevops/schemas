@@ -1,4 +1,3 @@
-1.0/particlesDa011/particlesDa011
 1.0/particlesHa070/particlesHa070
 1.0/particlesHa080/particlesHa080
 1.0/particlesHa084/particlesHa084
