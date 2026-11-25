@@ -306,7 +306,7 @@ The package is measured against the official Schematron conformance suite, relea
 
 ### Schematron conformance suite
 
-**58 of 84 applicable cases pass, a rate of 69.0%** on `net10.0`, the leg that runs the suites. The other cases are the 26 known failures below, and 3 excluded cases do not count. Every known failure is a case of the committed baseline in `tests/conformance/baselines/schematron-conformance/` (26 baseline entries in 5 files, one file per test set), linked to an issue; a regression and an unexpected pass fail the run.
+**60 of 84 applicable cases pass, a rate of 71.4%** on `net10.0`, the leg that runs the suites. The other cases are the 24 known failures below, and 3 excluded cases do not count. Every known failure is a case of the committed baseline in `tests/conformance/baselines/schematron-conformance/` (24 baseline entries in 5 files, one file per test set), linked to an issue; a regression and an unexpected pass fail the run.
 
 Reproduce the numbers on a clone: set `GITHUB_STEP_SUMMARY` to a file and run the conformance tests; the table of the rate per test set is appended to that file.
 
@@ -318,7 +318,7 @@ dotnet test --project tests/NetEvolve.Schemas.Schematron.Tests.Integration --con
 | --- | --- | --- | --- |
 | `iso-instance-document-selection` | 2 | 0 | 0.0% |
 | `iso-pattern-templating` | 12 | 8 | 66.6% |
-| `iso-reporting` | 45 | 33 | 73.3% |
+| `iso-reporting` | 45 | 35 | 77.7% |
 | `iso-rule-based-validation` | 14 | 11 | 78.5% |
 | `iso-schema-composition` | 11 | 6 | 54.5% |
 
@@ -363,11 +363,6 @@ The suite file of the binding `xslt-3-2025` lists three cases that no selected b
 - `iso-reporting/svrl-active-pattern-documents.xml`
 - `iso-reporting/svrl-fired-rule-document-primary.xml`
 - `iso-reporting/svrl-fired-rule-document.xml`
-
-**[#914](https://github.com/dailydevops/schemas/issues/914)** (2 cases): A property with xsl:copy-of is reported NES3204 because no embedded content is wired into the pipeline.
-
-- `iso-reporting/svrl-property-copy-of.xml`
-- `iso-reporting/svrl-property-variable-copy-of-rule.xml`
 
 **[#915](https://github.com/dailydevops/schemas/issues/915)** (3 cases): Abstract pattern parameters are substituted in the pattern only; diagnostics and properties belong to the schema and are shared by every instance, so their content keeps the parameter reference (NES3300), a recorded deviation.
 
