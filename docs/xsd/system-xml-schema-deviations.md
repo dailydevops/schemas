@@ -7,7 +7,7 @@ This document lists every difference that the differential run over the W3C XML 
 | Baseline | `System.Xml.Schema` of the .NET runtime 10.0, compared on the `net10.0` test leg only (`baseline-runtime: 10.0`) |
 | Corpus | XSTS cases of XSD 1.0 (schema tests and instance tests), pinned in `tests/conformance/suites/xsts.json` |
 | Data file | `tests/NetEvolve.Schemas.Xsd.Tests.Integration/DifferentialData/xsts-1.0-deviations.txt`, one entry per difference: case id, difference kind, observed difference, specification reference, reason |
-| Entries | 14585 entries for 14548 cases |
+| Entries | 14589 entries for 14552 cases |
 
 The list is valid for the recorded baseline runtime version only. A run on another runtime version fails until the list is compared again. System.Xml.Schema implements XSD 1.0 only, so cases of XSD 1.1 are not compared.
 
@@ -29,7 +29,7 @@ No builder option, switch, or code path in the library reproduces System.Xml.Sch
 |---|---:|---:|
 | Verdict differences: this library follows the specification | 1696 | 1664 |
 | Verdict differences: documented limitations of this library | 26 | 21 |
-| Position differences: equivalent | 12868 | 12868 |
+| Position differences: equivalent | 12872 | 12872 |
 | Differences on cases that a bug issue tracks (no entry) | 952 | |
 
 ## Differences on cases that a bug issue tracks
@@ -5472,6 +5472,10 @@ msMeta-Wildcards_w3c/1.0/wildZ001/wildZ001.i
 msMeta-Wildcards_w3c/1.0/wildZ005/wildZ005.i
 msMeta-Wildcards_w3c/1.0/wildZ006/wildZ006.i
 msMeta-Wildcards_w3c/1.0/wildZ011/wildZ011.i
+msMeta-Wildcards_w3c/1.0/wildZ013a/wildZ013a.i
+msMeta-Wildcards_w3c/1.0/wildZ013d/wildZ013d.i
+msMeta-Wildcards_w3c/1.0/wildZ013e/wildZ013e.i
+msMeta-Wildcards_w3c/1.0/wildZ013f/wildZ013f.i
 nistMeta-NISTXMLSchemaDatatypes/1.0/atomic-ID-length-5/NISTXML-SV-II-atomic-ID-length-1-1
 nistMeta-NISTXMLSchemaDatatypes/1.0/atomic-ID-length-5/NISTXML-SV-II-atomic-ID-length-1-2
 nistMeta-NISTXMLSchemaDatatypes/1.0/atomic-ID-length-5/NISTXML-SV-II-atomic-ID-length-1-3
