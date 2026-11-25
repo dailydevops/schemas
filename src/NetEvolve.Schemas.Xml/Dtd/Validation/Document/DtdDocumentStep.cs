@@ -29,7 +29,7 @@ using NetEvolve.Schemas.Xml.Dtd.Model;
 /// yet (#608); declaration-time reports use <see cref="DtdValidationContext.DocumentTypeLocation"/> until per-declaration
 /// locations exist (#608). The third clause of Standalone Document Declaration reads
 /// <see cref="ValidationAttributeInfo.IsChangedByNormalization"/>, which the attribute normalization (XML-16) sets, and it
-/// applies to the tokenized types only (ID, IDREF, IDREFS, ENTITY, ENTITIES, NMTOKEN, NMTOKENS), as section 2.9 words it. The
+/// applies to every type except CDATA (the tokenized, notation and enumerated types), as sections 2.9 and 3.3.3 word it. The
 /// second clause sees references in content only, because the entity reference event is not raised in attribute values; with
 /// <c>standalone="yes"</c> the reader already refuses such a reference as a well-formedness error (WFC Entity Declared), so
 /// the clause is reached only when a pipeline passes the event on. Entities declared in the replacement text of an internal
@@ -342,7 +342,7 @@ internal sealed class DtdDocumentStep : IDtdValidationStep
     }
 
     // Clauses 1 and 3: an attribute with a default value declared externally is absent from the document (it arrives
-    // unspecified), and an attribute of a tokenized type declared externally whose value normalization changed.
+    // unspecified), and an attribute of a non-CDATA type declared externally whose value normalization changed.
     private static void CheckAttributes(
         DtdValidationContext context,
         string element,
@@ -366,7 +366,7 @@ internal sealed class DtdDocumentStep : IDtdValidationStep
                     "attribute '" + definition.Name + "' of '" + element + "'"
                 );
             }
-            else if (attribute.IsSpecified && attribute.IsChangedByNormalization && IsTokenized(definition.Type))
+            else if (attribute.IsSpecified && attribute.IsChangedByNormalization && IsNormalized(definition.Type))
             {
                 context.ReportStandalone(
                     XmlStandaloneClause.Normalization,
@@ -393,16 +393,8 @@ internal sealed class DtdDocumentStep : IDtdValidationStep
         return null;
     }
 
-    // The tokenized types of production 56; the enumerated types are a kind of their own (section 3.3.1).
-    private static bool IsTokenized(DtdAttributeType type) =>
-        type
-            is DtdAttributeType.Id
-                or DtdAttributeType.IdRef
-                or DtdAttributeType.IdRefs
-                or DtdAttributeType.Entity
-                or DtdAttributeType.Entities
-                or DtdAttributeType.NmToken
-                or DtdAttributeType.NmTokens;
+    // Section 3.3.3 normalizes every declared type except CDATA: the tokenized, notation and enumerated types.
+    private static bool IsNormalized(DtdAttributeType type) => type != DtdAttributeType.Cdata;
 
     private static bool IsPredefined(string name) => name is "amp" or "lt" or "gt" or "apos" or "quot";
 

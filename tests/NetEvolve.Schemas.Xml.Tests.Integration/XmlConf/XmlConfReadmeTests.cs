@@ -134,11 +134,6 @@ public class XmlConfReadmeTests
             "The reader has no event for an entity reference ([#647](https://github.com/dailydevops/schemas/issues/647)), so the constraint is not reported.",
             ["eduni-errata-2e/rmt-e2e-15a", "eduni-errata-3e/rmt-e3e-13"]
         ),
-        (
-            "Standalone normalization clause",
-            "The clause skips enumerated and notation attributes ([#924](https://github.com/dailydevops/schemas/issues/924)), so Standalone Document Declaration is not reported.",
-            ["sun/inv-not-sa05", "sun/inv-not-sa06"]
-        ),
     ];
 
     [Test]

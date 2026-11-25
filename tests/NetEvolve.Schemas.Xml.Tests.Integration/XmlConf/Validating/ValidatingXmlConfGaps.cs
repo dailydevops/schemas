@@ -61,10 +61,6 @@ internal static class ValidatingXmlConfGaps
             ["ibm/ibm-invalid-P50-ibm50i01.xml"] = Anomalies("Proper Group/PE Nesting"),
             ["ibm/ibm-invalid-P51-ibm51i01.xml"] = Anomalies("Proper Group/PE Nesting"),
             ["sun/el04"] = Anomalies("Unique Element Type Declaration"),
-            ["sun/inv-not-sa05"] =
-                "The standalone normalization clause skips enumerated attributes (#924), so Standalone Document Declaration is not reported.",
-            ["sun/inv-not-sa06"] =
-                "The standalone normalization clause skips notation attributes (#924), so Standalone Document Declaration is not reported.",
             ["xmltest/invalid--002"] = Anomalies("Proper Group/PE Nesting"),
             ["xmltest/invalid--005"] = Anomalies("Proper Declaration/PE Nesting"),
             ["xmltest/invalid--006"] = Anomalies("Proper Declaration/PE Nesting"),
