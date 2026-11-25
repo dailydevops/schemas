@@ -27,7 +27,7 @@ No builder option, switch, or code path in the library reproduces System.Xml.Sch
 
 | Class | Entries | Cases |
 |---|---:|---:|
-| Verdict differences: this library follows the specification | 1627 | 1625 |
+| Verdict differences: this library follows the specification | 1659 | 1645 |
 | Verdict differences: documented limitations of this library | 26 | 21 |
 | Position differences: equivalent | 3916 | 3916 |
 | Differences on cases that a bug issue tracks (no entry) | 10150 | |
@@ -1827,6 +1827,38 @@ msMeta-Regex_w3c/1.0/reZ006i/reZ006i.i
 saxonMeta-XmlVersions/1.0/xv100c/xv100c.c.xml
 saxonMeta-XmlVersions/1.0/xv100c/xv100c.i.xml
 saxonMeta-XmlVersions/1.0/xv100i/xv100i.i.xml
+```
+
+### A schema document that declares XML 1.1
+
+The schema document declares XML 1.1 and uses only content that XML 1.0 allows, so the schema is valid, and the instances of the cases that expect them to be invalid are rejected. System.Xml.Schema rejects the XML 1.1 declaration, so it reports the schema as invalid and runs no instance.
+
+- Difference: SchemaVerdict `schema verdict: ours=Valid, baseline=Invalid` (20)
+- Difference: InstanceVerdict `instance verdict: ours=Invalid, baseline=NotRun` (12)
+- Specification: XML 1.0 Fifth Edition, 2.8 (VersionInfo) and XSD 1.0 Part 1, 3.15.2 (XML Representation of Schema Components)
+- Cases: 20
+
+```text
+saxonMeta-XmlVersions/1.0/xv001/xv001.xsd
+saxonMeta-XmlVersions/1.0/xv002/xv002.xsd
+saxonMeta-XmlVersions/1.0/xv003/xv003.xsd
+saxonMeta-XmlVersions/1.0/xv005/xv005.n01.xml
+saxonMeta-XmlVersions/1.0/xv005/xv005.n02.xml
+saxonMeta-XmlVersions/1.0/xv005/xv005.xsd
+saxonMeta-XmlVersions/1.0/xv006/xv006.n01.xml
+saxonMeta-XmlVersions/1.0/xv006/xv006.n02.xml
+saxonMeta-XmlVersions/1.0/xv006/xv006.n03.xml
+saxonMeta-XmlVersions/1.0/xv006/xv006.xsd
+saxonMeta-XmlVersions/1.0/xv007/xv007.n01.xml
+saxonMeta-XmlVersions/1.0/xv007/xv007.n02.xml
+saxonMeta-XmlVersions/1.0/xv007/xv007.xsd
+saxonMeta-XmlVersions/1.0/xv008/xv008.n01.xml
+saxonMeta-XmlVersions/1.0/xv008/xv008.n02.xml
+saxonMeta-XmlVersions/1.0/xv008/xv008.xsd
+saxonMeta-XmlVersions/1.0/xv009/xv009.n01.xml
+saxonMeta-XmlVersions/1.0/xv009/xv009.n02.xml
+saxonMeta-XmlVersions/1.0/xv009/xv009.n03.xml
+saxonMeta-XmlVersions/1.0/xv009/xv009.xsd
 ```
 
 ### A keyref whose values are matched by keys

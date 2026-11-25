@@ -434,7 +434,10 @@ internal partial struct XmlTokenizer
         }
 
         var versionStart = pos + (int)result.VersionPosition!.Value.CharOffset;
-        if (!result.Version.SequenceEqual("1.0".AsSpan()))
+        if (
+            !result.Version.SequenceEqual("1.0".AsSpan())
+            && !(_allowXml11Declaration && result.Version.SequenceEqual("1.1".AsSpan()))
+        )
         {
             return Fail(input, versionStart, XmlErrorCodes.XML0010);
         }
