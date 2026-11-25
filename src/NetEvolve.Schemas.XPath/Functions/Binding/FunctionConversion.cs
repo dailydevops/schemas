@@ -41,7 +41,10 @@ internal static class FunctionConversion
         // A kind test or empty-sequence(): the matcher decides, nothing is atomized.
         if (type.Matcher is { } matcher)
         {
-            return matcher.Matches(argument) ? argument : throw XPathErrors.Exception(XPathErrorCodes.XPTY0004);
+            // A function item that is no instance of a function test is coerced to it when the arity agrees (XPath 3.0, 3.1.5.2).
+            return matcher.Matches(argument) ? argument
+                : matcher.TryCoerce(argument, out var coerced) ? coerced
+                : throw XPathErrors.Exception(XPathErrorCodes.XPTY0004);
         }
 
         var count = argument.Count;
