@@ -11,8 +11,9 @@ using NetEvolve.Schemas.Xsd.Tests.Integration.Xsts;
 /// schema tests and the instance tests of XSD 1.0 come from the pinned suite, the known failures from the committed lists that the run
 /// keeps equal to the baseline, and the excluded cases from the selection.
 /// </summary>
-/// <remarks>Like the conformance suites, the class runs on the designated leg only, because the selection needs the fetched suite.</remarks>
-[ConformanceLeg]
+/// <remarks>Like the conformance suites, the class is explicit and selected by its category, because the selection needs the fetched suite.</remarks>
+[Explicit]
+[Category(ConformanceCategory.Name)]
 public class XsdReadmeConformanceTests
 {
     private const string Readme = "src/NetEvolve.Schemas.Xsd/README.md";

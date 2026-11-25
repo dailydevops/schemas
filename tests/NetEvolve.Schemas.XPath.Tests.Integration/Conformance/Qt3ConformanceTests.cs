@@ -9,7 +9,6 @@ using NetEvolve.Schemas.XPath.Tests.Integration.Qt3.Runner;
 /// <summary>One test per QT3 test set; it fails on any regression or unexpected pass against the set's baseline.</summary>
 [Explicit]
 [Category(ConformanceCategory.Name)]
-[ConformanceLeg]
 public class Qt3ConformanceTests
 {
     /// <summary>The test sets are the baseline files, so discovery needs no download; a missing file fails the baseline test.</summary>
