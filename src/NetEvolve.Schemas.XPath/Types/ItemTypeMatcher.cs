@@ -10,6 +10,7 @@ using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Evaluation.Axes;
 using NetEvolve.Schemas.XPath.Syntax.Tree;
 using NetEvolve.Schemas.XPath.Xdm.Arrays;
+using NetEvolve.Schemas.XPath.Xdm.Maps;
 using NetEvolve.Schemas.XPath.Xdm.Nodes;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
@@ -20,7 +21,7 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// <remarks>
 /// Limitations: <c>schema-element()</c> and <c>schema-attribute()</c> and types that are not built in need schema import (DEF-40, #52);
 /// the nillable marker of <c>element(N, T?)</c> is accepted but has no effect because nodes are never nilled until the nilled
-/// property exists; map tests belong to XP-32. An array test matches an array item by the types of its members (XPath 3.1, 2.5.5.6), and an array also matches the function tests by its signature. A function test matches a function item by the signature of the item (see <see cref="FunctionSignature"/>).
+/// property exists. A map test matches a map item by the types of its keys and values, an array test matches an array item by the types of its members (XPath 3.1, 2.5.5.6), and an array or a map also matches the function tests by its signature. A function test matches a function item by the signature of the item (see <see cref="FunctionSignature"/>).
 /// </remarks>
 [StructLayout(LayoutKind.Auto)]
 internal readonly struct ItemTypeMatcher
@@ -82,6 +83,15 @@ internal readonly struct ItemTypeMatcher
                 return new(ItemTypeKind.Function, default, default);
             case TypedFunctionTest typed:
                 return new(ItemTypeKind.Function, default, default, BindSignature(typed, context));
+            case AnyMapTest:
+                return new(ItemTypeKind.Map, default, default);
+            case TypedMapTest map:
+                return new(
+                    ItemTypeKind.Map,
+                    default,
+                    ResolveAtomic(map.KeyType.Name, context),
+                    SequenceTypeMatcher.Create(map.ValueType, context)
+                );
             default:
                 throw XPathErrors.Exception(
                     XPathErrorCodes.XPST0003,
@@ -117,6 +127,10 @@ internal readonly struct ItemTypeMatcher
             case ItemTypeKind.Function:
                 return item.TryGetFunction(out var function)
                     && (_detail is not FunctionSignature signature || function!.Signature.IsSubtypeOf(signature));
+            case ItemTypeKind.Map:
+                return item.TryGetFunction(out var candidate)
+                    && candidate is XdmMap map
+                    && (_detail is not SequenceTypeMatcher value || map.AllMatch(_type, value, annotations));
             default:
                 break;
         }
@@ -314,5 +328,6 @@ internal readonly struct ItemTypeMatcher
         DocumentElement = 4,
         Function = 5,
         Array = 6,
+        Map = 7,
     }
 }

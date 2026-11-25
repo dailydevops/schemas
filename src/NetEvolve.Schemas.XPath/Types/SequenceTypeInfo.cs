@@ -25,6 +25,7 @@ internal sealed class SequenceTypeInfo
     private readonly XdmTypeId _atomic;
     private readonly string? _node;
     private readonly bool _emptySequence;
+    private readonly SequenceTypeInfo? _mapValue;
 
     private SequenceTypeInfo(
         ItemKind kind,
@@ -33,9 +34,11 @@ internal sealed class SequenceTypeInfo
         FunctionSignature? function,
         Occurrence occurrence,
         bool emptySequence,
-        XPathParameterType conversion
+        XPathParameterType conversion,
+        SequenceTypeInfo? mapValue = null
     )
     {
+        _mapValue = mapValue;
         _kind = kind;
         _atomic = atomic;
         _node = node;
@@ -108,6 +111,20 @@ internal sealed class SequenceTypeInfo
 
                 var signature = new FunctionSignature(parameters, Bind(typed.ReturnType, context));
                 return new(ItemKind.Function, default, null, signature, syntax.Occurrence, false, conversion);
+            case AnyMapTest:
+                return new(ItemKind.Map, default, null, null, syntax.Occurrence, false, conversion);
+            case TypedMapTest map:
+                var key = ItemTypeMatcher.Bind(map.KeyType, context).Type;
+                return new(
+                    ItemKind.Map,
+                    key,
+                    null,
+                    null,
+                    syntax.Occurrence,
+                    false,
+                    conversion,
+                    Bind(map.ValueType, context)
+                );
             default:
                 return new(ItemKind.Any, default, null, null, syntax.Occurrence, false, conversion);
         }
@@ -189,6 +206,18 @@ internal sealed class SequenceTypeInfo
             case ItemKind.Function:
                 return other._kind == ItemKind.Function
                     && (other.Function is null || (Function is not null && Function.IsSubtypeOf(other.Function)));
+            case ItemKind.Map:
+                return other._kind switch
+                {
+                    ItemKind.Map => other._mapValue is null
+                        || (
+                            _mapValue is not null
+                            && XdmTypes.IsDerivedFrom(_atomic, other._atomic)
+                            && _mapValue.IsSubtypeOf(other._mapValue)
+                        ),
+                    ItemKind.Function => other.Function is null,
+                    _ => false,
+                };
             default:
                 return false;
         }
@@ -244,5 +273,6 @@ internal sealed class SequenceTypeInfo
         Numeric = 2,
         Node = 3,
         Function = 4,
+        Map = 5,
     }
 }
