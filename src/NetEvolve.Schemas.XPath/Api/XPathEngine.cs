@@ -12,6 +12,7 @@ using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Evaluation.Arithmetic;
 using NetEvolve.Schemas.XPath.Evaluation.Comparison;
 using NetEvolve.Schemas.XPath.Evaluation.Flow;
+using NetEvolve.Schemas.XPath.Evaluation.Flow30;
 using NetEvolve.Schemas.XPath.Evaluation.FunctionItems;
 using NetEvolve.Schemas.XPath.Evaluation.Paths;
 using NetEvolve.Schemas.XPath.Evaluation.Temporal;
@@ -117,6 +118,7 @@ internal static class XPathEngine
     {
         var registry = new LoweringRegistry();
         FlowLowerings.Register(registry);
+        Flow30Lowerings.Register(registry);
         PathLowerings.Register(registry);
         SequenceTypeLowerings.Register(registry);
         CastingLowerings.Register(registry);
