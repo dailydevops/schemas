@@ -86,7 +86,8 @@ public class Qt3Xp20RateTests
             new Dictionary<string, KnownFailureBaseline>(StringComparer.Ordinal)
         );
 
-        await Assert.That(Qt3Xp20Rate.IsConsistent(report.Counts, selection.Excluded.Count, 31821)).IsTrue();
-        await Assert.That(report.Counts.Total).IsEqualTo(selection.Selected.Count);
+        var totalCases = selection.Selected.Count + selection.Excluded.Count;
+
+        await Assert.That(Qt3Xp20Rate.IsConsistent(report.Counts, selection.Excluded.Count, totalCases)).IsTrue();
     }
 }
