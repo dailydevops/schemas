@@ -102,14 +102,14 @@ public class MessageTests
     }
 
     [Test]
-    public async Task Name_WithPath_UsesThePathResult_NotTheContextNode()
+    public async Task Name_WithPath_InsertsTheValueOfThePathResult()
     {
         using var h = new AssertionHarness();
-        h.Binding.Items["../px"] = [AssertionHarness.NodeItem("px")];
+        h.Binding.Items["../px"] = [AssertionHarness.NodeItem("item1")];
 
         var message = MessageOf(h, Message(Text("see "), Name("../px")), "order1");
 
-        await Assert.That(message).IsEqualTo("see p:x");
+        await Assert.That(message).IsEqualTo("see 1");
     }
 
     [Test]
@@ -124,29 +124,27 @@ public class MessageTests
     }
 
     [Test]
-    public async Task Name_WithPath_MoreThanOneNode_ReportsAProblem_AndEndsTheText()
+    public async Task Name_WithPath_MoreThanOneNode_JoinsTheValuesBySingleSpaces()
     {
         using var h = new AssertionHarness();
         h.Binding.Items["items"] = [AssertionHarness.NodeItem("item1"), AssertionHarness.NodeItem("item2")];
 
         var message = MessageOf(h, Message(Text("n="), Name("items"), Text(" end")));
 
-        await Assert.That(message).IsEqualTo("n=");
-        await Assert.That(h.Problems.Problems.Count).IsEqualTo(1);
-        await Assert.That(h.Problems.Problems[0].Code).IsEqualTo(SchematronDiagnosticCodes.EvaluationFailed);
-        await Assert.That(h.Sink.Findings.Count).IsEqualTo(1);
+        await Assert.That(message).IsEqualTo("n=1 2 end");
+        await Assert.That(h.Problems.Problems.Count).IsEqualTo(0);
     }
 
     [Test]
-    public async Task Name_WithPath_NonNodeResult_ReportsAProblem_AndEndsTheText()
+    public async Task Name_WithPath_NonNodeResult_InsertsItsString()
     {
         using var h = new AssertionHarness();
         h.Binding.Items["text"] = [XdmItem.FromString("x")];
 
         var message = MessageOf(h, Message(Text("n="), Name("text"), Text(" end")));
 
-        await Assert.That(message).IsEqualTo("n=");
-        await Assert.That(h.Problems.Problems.Count).IsEqualTo(1);
+        await Assert.That(message).IsEqualTo("n=x end");
+        await Assert.That(h.Problems.Problems.Count).IsEqualTo(0);
     }
 
     [Test]
@@ -177,15 +175,15 @@ public class MessageTests
     }
 
     [Test]
-    public async Task Name_WithPath_TextResult_ReportsAProblem_AndEndsTheText()
+    public async Task Name_WithPath_TextResult_InsertsTheText()
     {
         using var h = new AssertionHarness();
         h.Binding.Texts["text"] = "x";
 
         var message = MessageOf(h, Message(Text("n="), Name("text"), Text(" end")));
 
-        await Assert.That(message).IsEqualTo("n=");
-        await Assert.That(h.Problems.Problems.Count).IsEqualTo(1);
+        await Assert.That(message).IsEqualTo("n=x end");
+        await Assert.That(h.Problems.Problems.Count).IsEqualTo(0);
     }
 
     [Test]
