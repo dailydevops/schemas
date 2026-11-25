@@ -313,6 +313,7 @@ internal sealed class ComplexTypeBuilder : IComponentBuilder
         if (type is not null)
         {
             _context.SetFixed(type, check.Fixed);
+            _context.NoteEnumeration(type, restricted, step);
         }
 
         return type;

@@ -7,7 +7,7 @@ This document lists every difference that the differential run over the W3C XML 
 | Baseline | `System.Xml.Schema` of the .NET runtime 10.0, compared on the `net10.0` test leg only (`baseline-runtime: 10.0`) |
 | Corpus | XSTS cases of XSD 1.0 (schema tests and instance tests), pinned in `tests/conformance/suites/xsts.json` |
 | Data file | `tests/NetEvolve.Schemas.Xsd.Tests.Integration/DifferentialData/xsts-1.0-deviations.txt`, one entry per difference: case id, difference kind, observed difference, specification reference, reason |
-| Entries | 14589 entries for 14552 cases |
+| Entries | 14585 entries for 14548 cases |
 
 The list is valid for the recorded baseline runtime version only. A run on another runtime version fails until the list is compared again. System.Xml.Schema implements XSD 1.0 only, so cases of XSD 1.1 are not compared.
 
@@ -30,7 +30,7 @@ No builder option, switch, or code path in the library reproduces System.Xml.Sch
 | Verdict differences: this library follows the specification | 1696 | 1664 |
 | Verdict differences: documented limitations of this library | 26 | 21 |
 | Position differences: equivalent | 12872 | 12872 |
-| Differences on cases that a bug issue tracks (no entry) | 952 | |
+| Differences on cases that a bug issue tracks (no entry) | 925 | |
 
 ## Differences on cases that a bug issue tracks
 
@@ -40,13 +40,12 @@ The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTe
 |---|---:|---|
 | #1077 | 654 | feat(xsd): evaluate the enumeration facet of list simple types in the value space |
 | #1078 | 101 | feat(xsd): evaluate the enumeration facet of union simple types in the value space |
-| #860 | 38 | bug(xsd): a restriction of NOTATION without an enumeration is rejected where the type is not used |
 | #963 | 35 | test(conformance): run the xsts instance tests of groups without a schema document through schema location hints |
 | #869 | 23 | feat(xsd): check redefinitions against the redefined component |
+| #870 | 22 | feat(xsd): add notation declarations as components |
 | #874 | 22 | bug(xsd): schema constraints that the pipeline does not check yet |
 | #62 | 19 | feat(xml): support xml 1.1 |
 | #863 | 17 | bug(xsd): particle restriction reports errors for restrictions that the XSTS accepts |
-| #870 | 11 | feat(xsd): add notation declarations as components |
 | #896 | 7 | feat(xsd): compare fixed values in the value space when validating instances |
 | #602 | 6 | feat(xsd): apply default values to elements with mixed content |
 | #871 | 5 | feat(xsd): reject a value constraint on an attribute or element of type ID |
@@ -2187,9 +2186,9 @@ msMeta-AttributeGroup_w3c/1.0/attgD003/attgD003.v
 
 Both engines reject the document with the same number of issues on the same lines, and the verdicts agree. They anchor an issue at different columns of the same construct. Issue positions are not part of the specification, so the difference is equivalent.
 
-- Difference: IssuePositions `issue positions` (3814)
+- Difference: IssuePositions `issue positions` (3826)
 - Specification: XSD 1.0 Part 1, 5.2 and C.1 (the assessment outcome is the validity property; positions and number of reports are not specified)
-- Cases: 3814
+- Cases: 3826
 
 ```text
 ibmMeta-anyAttribute/1.0/s3_10_6ii01/s3_10_6v01i
@@ -2695,6 +2694,18 @@ msMeta-DataTypes_w3c/1.0/NMTOKEN_minLength005_422/NMTOKEN_minLength005_422
 msMeta-DataTypes_w3c/1.0/NOTATION_enumeration001_1383/NOTATION_enumeration001_1383.i
 msMeta-DataTypes_w3c/1.0/NOTATION_enumeration001_320/NOTATION_enumeration001_320
 msMeta-DataTypes_w3c/1.0/NOTATION_enumeration003_1385/NOTATION_enumeration003_1385.i
+msMeta-DataTypes_w3c/1.0/NOTATION_length001_300/NOTATION_length001_300
+msMeta-DataTypes_w3c/1.0/NOTATION_length002_301/NOTATION_length002_301
+msMeta-DataTypes_w3c/1.0/NOTATION_length004_303/NOTATION_length004_303
+msMeta-DataTypes_w3c/1.0/NOTATION_length005_304/NOTATION_length005_304
+msMeta-DataTypes_w3c/1.0/NOTATION_maxLength001_314/NOTATION_maxLength001_314
+msMeta-DataTypes_w3c/1.0/NOTATION_maxLength002_315/NOTATION_maxLength002_315
+msMeta-DataTypes_w3c/1.0/NOTATION_maxLength004_317/NOTATION_maxLength004_317
+msMeta-DataTypes_w3c/1.0/NOTATION_maxLength005_318/NOTATION_maxLength005_318
+msMeta-DataTypes_w3c/1.0/NOTATION_minLength001_307/NOTATION_minLength001_307
+msMeta-DataTypes_w3c/1.0/NOTATION_minLength002_308/NOTATION_minLength002_308
+msMeta-DataTypes_w3c/1.0/NOTATION_minLength004_310/NOTATION_minLength004_310
+msMeta-DataTypes_w3c/1.0/NOTATION_minLength005_311/NOTATION_minLength005_311
 msMeta-DataTypes_w3c/1.0/Name001_2112/Name001_2112.i
 msMeta-DataTypes_w3c/1.0/Name004_2115/Name004_2115.i
 msMeta-DataTypes_w3c/1.0/Name005_2116/Name005_2116.i
@@ -5472,10 +5483,6 @@ msMeta-Wildcards_w3c/1.0/wildZ001/wildZ001.i
 msMeta-Wildcards_w3c/1.0/wildZ005/wildZ005.i
 msMeta-Wildcards_w3c/1.0/wildZ006/wildZ006.i
 msMeta-Wildcards_w3c/1.0/wildZ011/wildZ011.i
-msMeta-Wildcards_w3c/1.0/wildZ013a/wildZ013a.i
-msMeta-Wildcards_w3c/1.0/wildZ013d/wildZ013d.i
-msMeta-Wildcards_w3c/1.0/wildZ013e/wildZ013e.i
-msMeta-Wildcards_w3c/1.0/wildZ013f/wildZ013f.i
 nistMeta-NISTXMLSchemaDatatypes/1.0/atomic-ID-length-5/NISTXML-SV-II-atomic-ID-length-1-1
 nistMeta-NISTXMLSchemaDatatypes/1.0/atomic-ID-length-5/NISTXML-SV-II-atomic-ID-length-1-2
 nistMeta-NISTXMLSchemaDatatypes/1.0/atomic-ID-length-5/NISTXML-SV-II-atomic-ID-length-1-3
@@ -6016,9 +6023,9 @@ sunMeta-suntest/1.0/xsd023.e/xsd023.e
 
 Both engines reject the document with the same number of issues, and the verdicts agree. They attribute the issues to different constructs of the document. Issue positions are not part of the specification, so the difference is equivalent.
 
-- Difference: IssuePositions `issue positions` (8561)
+- Difference: IssuePositions `issue positions` (8568)
 - Specification: XSD 1.0 Part 1, 5.2 and C.1 (the assessment outcome is the validity property; positions and number of reports are not specified)
-- Cases: 8561
+- Cases: 8568
 
 ```text
 ibmMeta-identityConstraint/1.0/s2_2_4si06/s2_2_4si06s
@@ -6213,6 +6220,9 @@ msMeta-DataTypes_w3c/1.0/NMTOKENS_minLength006_445/NMTOKENS_minLength006_445
 msMeta-DataTypes_w3c/1.0/NMTOKEN_length006_416/NMTOKEN_length006_416
 msMeta-DataTypes_w3c/1.0/NMTOKEN_length007_417/NMTOKEN_length007_417
 msMeta-DataTypes_w3c/1.0/NMTOKEN_minLength006_423/NMTOKEN_minLength006_423
+msMeta-DataTypes_w3c/1.0/NOTATION_length006_305/NOTATION_length006_305
+msMeta-DataTypes_w3c/1.0/NOTATION_length007_306/NOTATION_length007_306
+msMeta-DataTypes_w3c/1.0/NOTATION_minLength006_312/NOTATION_minLength006_312
 msMeta-DataTypes_w3c/1.0/Name_length006_459/Name_length006_459
 msMeta-DataTypes_w3c/1.0/Name_length007_460/Name_length007_460
 msMeta-DataTypes_w3c/1.0/Name_minLength006_466/Name_minLength006_466
@@ -6738,6 +6748,10 @@ msMeta-Wildcards_w3c/1.0/wildO003/wildO003.i
 msMeta-Wildcards_w3c/1.0/wildQ001/wildQ001
 msMeta-Wildcards_w3c/1.0/wildZ008/wildZ008
 msMeta-Wildcards_w3c/1.0/wildZ009/wildZ009
+msMeta-Wildcards_w3c/1.0/wildZ013a/wildZ013a.i
+msMeta-Wildcards_w3c/1.0/wildZ013d/wildZ013d.i
+msMeta-Wildcards_w3c/1.0/wildZ013e/wildZ013e.i
+msMeta-Wildcards_w3c/1.0/wildZ013f/wildZ013f.i
 nistMeta-NISTXMLSchemaDatatypes/1.0/atomic-NCName-length-5/NISTXML-SV-II-atomic-NCName-length-1-1
 nistMeta-NISTXMLSchemaDatatypes/1.0/atomic-NCName-length-5/NISTXML-SV-II-atomic-NCName-length-1-2
 nistMeta-NISTXMLSchemaDatatypes/1.0/atomic-NCName-length-5/NISTXML-SV-II-atomic-NCName-length-1-3
@@ -14588,9 +14602,9 @@ sunMeta-suntest/1.0/xsd022/xsd022.n00
 
 Both engines reject the document and the verdicts agree. This library reports more issues than System.Xml.Schema for the same document; the engines group and follow up violations differently. The number and the positions of reported issues are not part of the specification, so the difference is equivalent.
 
-- Difference: IssuePositions `issue positions` (350)
+- Difference: IssuePositions `issue positions` (335)
 - Specification: XSD 1.0 Part 1, 5.2 and C.1 (the assessment outcome is the validity property; positions and number of reports are not specified)
-- Cases: 350
+- Cases: 335
 
 ```text
 ibmMeta-cyclicRedefineIncludeImportOverride/1.0/s4_2_4si02/s4_2_4si02s
@@ -14673,21 +14687,6 @@ msMeta-ComplexType_w3c/1.0/ctI035/ctI035.i
 msMeta-ComplexType_w3c/1.0/ctI039/ctI039.i
 msMeta-ComplexType_w3c/1.0/ctI045/ctI045.i
 msMeta-ComplexType_w3c/1.0/ctK002/ctK002
-msMeta-DataTypes_w3c/1.0/NOTATION_length001_300/NOTATION_length001_300
-msMeta-DataTypes_w3c/1.0/NOTATION_length002_301/NOTATION_length002_301
-msMeta-DataTypes_w3c/1.0/NOTATION_length004_303/NOTATION_length004_303
-msMeta-DataTypes_w3c/1.0/NOTATION_length005_304/NOTATION_length005_304
-msMeta-DataTypes_w3c/1.0/NOTATION_length006_305/NOTATION_length006_305
-msMeta-DataTypes_w3c/1.0/NOTATION_length007_306/NOTATION_length007_306
-msMeta-DataTypes_w3c/1.0/NOTATION_maxLength001_314/NOTATION_maxLength001_314
-msMeta-DataTypes_w3c/1.0/NOTATION_maxLength002_315/NOTATION_maxLength002_315
-msMeta-DataTypes_w3c/1.0/NOTATION_maxLength004_317/NOTATION_maxLength004_317
-msMeta-DataTypes_w3c/1.0/NOTATION_maxLength005_318/NOTATION_maxLength005_318
-msMeta-DataTypes_w3c/1.0/NOTATION_minLength001_307/NOTATION_minLength001_307
-msMeta-DataTypes_w3c/1.0/NOTATION_minLength002_308/NOTATION_minLength002_308
-msMeta-DataTypes_w3c/1.0/NOTATION_minLength004_310/NOTATION_minLength004_310
-msMeta-DataTypes_w3c/1.0/NOTATION_minLength005_311/NOTATION_minLength005_311
-msMeta-DataTypes_w3c/1.0/NOTATION_minLength006_312/NOTATION_minLength006_312
 msMeta-DataTypes_w3c/1.0/dtZ100507_2242/dtZ100507_2242.i
 msMeta-DataTypes_w3c/1.0/gMonth_maxInclusive003_206/gMonth_maxInclusive003_206
 msMeta-DataTypes_w3c/1.0/gMonth_minExclusive003_214/gMonth_minExclusive003_214

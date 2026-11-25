@@ -12,6 +12,7 @@ using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.Elements;
 using NetEvolve.Schemas.Xsd.SchemaDocuments;
+using NetEvolve.Schemas.Xsd.SimpleTypes.Checks;
 using NetEvolve.Schemas.Xsd.SimpleTypes.Definitions;
 using NetEvolve.Schemas.Xsd.Validation.Core;
 
@@ -40,6 +41,7 @@ internal sealed class BuildContext
     private readonly Dictionary<XPathQName, Definition> _attributeGroups = [];
     private readonly Dictionary<XsdBuiltInType, SimpleTypeDefinition> _wrappers = [];
     private readonly Dictionary<IXsdComponent, FacetKindSet> _fixed = [];
+    private readonly HashSet<IXsdComponent> _enumeratedTypes = [];
     private readonly XsdBuiltInType _anySimpleType;
 
     internal BuildContext(XsdVersion version, ComponentRegistry registry, XsdIssueReporter reporter)
@@ -231,6 +233,38 @@ internal sealed class BuildContext
         ArgumentNullException.ThrowIfNull(type);
 
         _fixed[type] = facets;
+    }
+
+    /// <summary>Records whether a type that a restriction step built carries an enumeration, which the facet objects do not model for NOTATION.</summary>
+    /// <param name="type">The type that the step built.</param>
+    /// <param name="baseType">The base type of the step.</param>
+    /// <param name="step">The facets of the step.</param>
+    internal void NoteEnumeration(IXsdComponent type, IXsdComponent baseType, IReadOnlyList<FacetDeclaration> step)
+    {
+        ArgumentNullException.ThrowIfNull(type);
+        ArgumentNullException.ThrowIfNull(baseType);
+        ArgumentNullException.ThrowIfNull(step);
+
+        var enumerated = _enumeratedTypes.Contains(baseType);
+        for (var i = 0; i < step.Count && !enumerated; i++)
+        {
+            enumerated = step[i].Kind == FacetKind.Enumeration;
+        }
+
+        if (enumerated)
+        {
+            _ = _enumeratedTypes.Add(type);
+        }
+    }
+
+    /// <summary>Gets a value indicating whether a type that was built by restriction carries an enumeration.</summary>
+    /// <param name="type">The type.</param>
+    /// <returns><see langword="true"/> when the type or one of its bases states an enumeration.</returns>
+    internal bool HasEnumeration(IXsdComponent type)
+    {
+        ArgumentNullException.ThrowIfNull(type);
+
+        return _enumeratedTypes.Contains(type);
     }
 
     /// <summary>Resolves a type reference of a <c>type</c>, <see langword="base"/>, <c>itemType</c>, or <c>memberTypes</c> value.</summary>

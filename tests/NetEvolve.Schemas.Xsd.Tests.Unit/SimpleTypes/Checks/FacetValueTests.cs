@@ -215,7 +215,7 @@ public class FacetValueTests
     }
 
     [Test]
-    public async Task NotationRequiresAnEnumeration()
+    public async Task ARestrictionStepOfNotation_NeedsNoEnumeration()
     {
         var fixture = new FacetFixture();
         var baseType = fixture.Base("NOTATION");
@@ -224,13 +224,10 @@ public class FacetValueTests
         var withLength = fixture.Check(baseType, FacetFixture.Decl(FacetKind.MaxLength, "5"));
         var with = fixture.Check(baseType, FacetFixture.Decl(FacetKind.Enumeration, "png"));
 
-        await Assert.That(without.IsValid).IsFalse();
-        await Assert.That(withLength.IsValid).IsFalse();
+        await Assert.That(without.IsValid).IsTrue();
+        await Assert.That(withLength.IsValid).IsTrue();
         await Assert.That(with.IsValid).IsTrue();
-        await Assert.That(fixture.Issues.Count).IsEqualTo(2);
-        await Assert.That(fixture.Issues[0].Code).IsEqualTo(FacetFixture.CodeOf("enumeration-required-notation"));
-        await Assert.That(fixture.Issues[0].Location.Line).IsEqualTo(3);
-        await Assert.That(fixture.Issues[1].Code).IsEqualTo(FacetFixture.CodeOf("enumeration-required-notation"));
+        await Assert.That(fixture.Issues.Count).IsEqualTo(0);
     }
 
     [Test]

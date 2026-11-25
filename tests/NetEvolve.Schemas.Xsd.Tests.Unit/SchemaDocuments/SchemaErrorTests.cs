@@ -87,6 +87,11 @@ public class SchemaErrorTests
         "src-simple-type"
     )]
     [Arguments(Open + "  <xs:complexType name=\"c\">^<xs:openContent mode=\"first\"/></xs:complexType>", "src-ct")]
+    [Arguments(
+        Open + "  <xs:complexType name=\"c\">^<xs:openContent mode=\"interleaved\"/></xs:complexType>",
+        "src-ct"
+    )]
+    [Arguments(Open + "  ^<xs:defaultOpenContent mode=\"interleaved\"><xs:any/></xs:defaultOpenContent>", "src-ct")]
     [Arguments(Open + "  ^<xs:complexType name=\"c\" mixed=\"2\"/>", "src-ct")]
     [Arguments(Open + "  <xs:simpleType name=\"t\">^<xs:union memberTypes=\"1x\"/></xs:simpleType>", "src-simple-type")]
     [Arguments("^<xs:schema " + Xmlns + " elementFormDefault=\"both\"/>", "sch-props-correct")]
