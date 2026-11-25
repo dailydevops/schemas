@@ -207,6 +207,39 @@ public class AbstractPatternExpanderTests
         await Assert.That(((SchematronName)parts[2]).Path).IsNull();
     }
 
+    [Test]
+    public async Task Substitution_InNamePath_AppliesInSpanAndDirection()
+    {
+        var message = new SchematronMessagePart[]
+        {
+            new SchematronSpan(At(1), null, [new SchematronName(At(1), "$p/@id")]),
+            new SchematronDirection(At(1), null, [new SchematronName(At(1), "name($p)")]),
+        };
+        var abs = Abstract("abs", null, null, Rule("x", null, null, null, Assert1("true()", null, null, message)));
+        var instance = Instance("inst", "abs", 40, Param("p", "y", 41));
+
+        var (_, patterns, _) = Run(abs, instance);
+
+        var parts = FirstAssertion(patterns[0]).Message.Parts;
+        var span = (SchematronSpan)parts[0];
+        await Assert.That(((SchematronName)span.Parts[0]).Path).IsEqualTo("y/@id");
+        var direction = (SchematronDirection)parts[1];
+        await Assert.That(((SchematronName)direction.Parts[0]).Path).IsEqualTo("name(y)");
+    }
+
+    [Test]
+    public async Task Substitution_InNamePath_WithoutParameterReference_KeepsTheSameInstance()
+    {
+        var name = new SchematronName(At(1), "@id");
+        var message = new SchematronMessagePart[] { name };
+        var abs = Abstract("abs", null, null, Rule("x", null, null, null, Assert1("true()", null, null, message)));
+        var instance = Instance("inst", "abs", 40, Param("p", "y", 41));
+
+        var (_, patterns, _) = Run(abs, instance);
+
+        await Assert.That(FirstAssertion(patterns[0]).Message.Parts[0]).IsSameReferenceAs(name);
+    }
+
     // Every attribute and text the substitution must not touch holds $p; the instance supplies p.
     private static SchematronPatternBase HostilePattern()
     {
