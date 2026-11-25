@@ -41,6 +41,26 @@ internal sealed partial class StreamingValidator
 
         if (type is null)
         {
+            if (frame.UndeclaredStrict)
+            {
+                // The parent is the frame below this one; its wildcard matched the element.
+                var parent = _frames[_depth - 2];
+                parent.IsValid = false;
+                frame.IsValid = false;
+                frame.ContentFailed = true;
+                Report(
+                    ValidationRules.Wildcard,
+                    frame.Location,
+                    "The wildcard of element "
+                        + Display(parent.QName)
+                        + " is strict, but no declaration was found for the element "
+                        + Display(frame.QName)
+                        + ".",
+                    "cvc-wildcard.2"
+                );
+                return;
+            }
+
             if (frame.UndeclaredRoot)
             {
                 frame.IsValid = false;
