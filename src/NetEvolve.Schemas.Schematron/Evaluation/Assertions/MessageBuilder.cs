@@ -19,7 +19,6 @@ internal sealed class MessageBuilder
     private readonly ISlotBinder _binder;
     private readonly IProblemSink _problems;
     private readonly ValueOfSink _values = new();
-    private readonly NodeSink _nodes = new();
     private readonly CopyOfSink _copies = new();
     private readonly IEmbeddedContent? _embedded;
 
@@ -296,40 +295,17 @@ internal sealed class MessageBuilder
         return QueryStatus.Ok;
     }
 
+    // Without a path the message holds the name of the context node; with a path it holds the value of the expression, as value-of does.
     private QueryStatus AppendName(MessagePart part, in QueryFocus focus, TextSink into)
     {
-        if (part.Expression is not { } path)
+        if (part.Expression is null)
         {
             var context = focus.Node;
             AppendName(in context, into);
             return QueryStatus.Ok;
         }
 
-        if (_binder.EnsureBound(path.ReferencedSlots) != QueryStatus.Ok)
-        {
-            return QueryStatus.Problem;
-        }
-
-        _nodes.Reset();
-        if (_run.TryEvaluate(path, in focus, _nodes) != QueryStatus.Ok)
-        {
-            ReportRun();
-            return QueryStatus.Problem;
-        }
-
-        if (_nodes.Count == 0)
-        {
-            return QueryStatus.Ok;
-        }
-
-        if (_nodes.Count > 1 || !_nodes.FirstIsNode)
-        {
-            Report("The path of a name element must select at most one node.", part, "XPTY0004");
-            return QueryStatus.Problem;
-        }
-
-        AppendName(_nodes.First, into);
-        return QueryStatus.Ok;
+        return AppendValue(part, in focus, into);
     }
 
     private void ReportRun()
