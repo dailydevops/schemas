@@ -37,8 +37,8 @@ using NetEvolve.Schemas.Xsd.Validation.Core;
 /// prefix is not assessed. No builder creates notation declaration components yet (#751), so a compiled schema holds no
 /// notation and every NOTATION value reports as naming no declared notation until it exists. An element or attribute that the
 /// validator does not hand to the listeners (a skipped or rejected subtree) takes no part, and a violation found here does not
-/// mark the element invalid (#605). Several ID attributes on one element (XSD 1.1, XSD-71), ENTITY values (XSD-83), and ID typing of
-/// <c>xml:id</c> (#79) are not handled.
+/// mark the element invalid (#605). Every ID attribute after the first on one element is reported (#904). ENTITY values (XSD-83) and ID
+/// typing of <c>xml:id</c> (#79) are not handled.
 /// </para>
 /// <para>Not thread-safe; one instance serves one run at a time and may be reused for the next.</para>
 /// </remarks>
@@ -48,6 +48,7 @@ internal sealed class IdListener : ValidationListener
 
     private static readonly XsdRule IdRule = XsdRuleLookup.Find(XsdRuleCodes.CvcId);
     private static readonly XsdRule DatatypeRule = XsdRuleLookup.Find(XsdRuleCodes.CvcDatatypeValid);
+    private static readonly XsdRule ComplexTypeRule = XsdRuleLookup.Find(XsdRuleCodes.CvcComplexType);
 
     private readonly ISimpleValueAssessor _assessor;
     private readonly XsdSchemaSet _schema;
@@ -55,6 +56,8 @@ internal sealed class IdListener : ValidationListener
     private readonly DtdNameStore _pendingNames = new();
     private Pending[] _pending = new Pending[16];
     private int _pendingCount;
+    private int _idAttributes;
+    private bool _inAttribute;
     private XsdIssueReporter? _reporter;
     private int _startOrdinal;
     private DocumentLocation _startLocation;
@@ -84,6 +87,7 @@ internal sealed class IdListener : ValidationListener
         _pendingCount = 0;
         _startOrdinal = 0;
         _startLocation = default;
+        _idAttributes = 0;
     }
 
     /// <inheritdoc />
@@ -92,6 +96,7 @@ internal sealed class IdListener : ValidationListener
         // The simple value of an element carries no location; its element is the last one that started, because the
         // children of an element with simple content are rejected and never reach a listener.
         _startOrdinal = info.Ordinal;
+        _idAttributes = 0;
         _startLocation = info.Location;
     }
 
@@ -100,7 +105,9 @@ internal sealed class IdListener : ValidationListener
     {
         if (_reporter is not null && info.IsValid && info.Type is not null)
         {
+            _inAttribute = true;
             Visit(info.Type, info.Value, info.Location, info.IsDefaulted);
+            _inAttribute = false;
         }
     }
 
@@ -240,6 +247,17 @@ internal sealed class IdListener : ValidationListener
 
     private void Register(ReadOnlySpan<char> token, DocumentLocation location, bool defaulted)
     {
+        // An element has at most one ID attribute, declared or matched by a wildcard (cvc-complex-type, clause 5.2).
+        if (_inAttribute && !defaulted && ++_idAttributes > 1)
+        {
+            _reporter!.Report(
+                ComplexTypeRule,
+                location,
+                "The element has a further attribute of type ID: '" + Shorten(token) + "'.",
+                "cvc-complex-type.5.2"
+            );
+        }
+
         if (!defaulted && _ids.TryAdd(token, int.MaxValue) == DtdIdAddResult.Duplicate)
         {
             _reporter!.Report(
