@@ -14,7 +14,6 @@ public class CompositionTests
 {
     [Test]
     [Arguments("<xs:include schemaLocation=\"a.xsd\"/>")]
-    [Arguments("<xs:import schemaLocation=\"a.xsd\" namespace=\"urn:a\"/>")]
     [Arguments("<xs:redefine schemaLocation=\"a.xsd\"/>")]
     public async Task DefaultResolver_RefusesEveryLocation_WithACodedLocatedError(string directive)
     {
@@ -28,6 +27,19 @@ public class CompositionTests
         await Assert.That(issues[0].Location.Source).IsEqualTo(RootUri);
         await Assert.That(issues[0].Location.Line).IsEqualTo(3);
         await Assert.That(issues[0].Location.Column).IsEqualTo(3);
+    }
+
+    [Test]
+    [Arguments(false)]
+    [Arguments(true)]
+    public async Task Import_WhoseLocationCannotBeResolved_IsIgnored(bool denied)
+    {
+        var resolver = denied ? (IResourceResolver)DenyAllResourceResolver.Instance : new MapResolver();
+
+        var (set, issues) = Load(Schema("\n  <xs:import namespace=\"urn:b\" schemaLocation=\"gone.xsd\"/>"), resolver);
+
+        await Assert.That(set.Units.Count).IsEqualTo(1);
+        await Assert.That(issues.Count).IsEqualTo(0);
     }
 
     [Test]
@@ -119,17 +131,12 @@ public class CompositionTests
 
     [Test]
     [Arguments("include")]
-    [Arguments("import")]
     [Arguments("redefine")]
     public async Task MissingDocument_IsALocatedSchemaError(string directive)
     {
         ArgumentNullException.ThrowIfNull(directive);
 
-        var ns = string.Equals(directive, "import", StringComparison.Ordinal) ? " namespace=\"urn:b\"" : string.Empty;
-        var (set, issues) = Load(
-            Schema("\n  <xs:" + directive + ns + " schemaLocation=\"gone.xsd\"/>"),
-            new MapResolver()
-        );
+        var (set, issues) = Load(Schema("\n  <xs:" + directive + " schemaLocation=\"gone.xsd\"/>"), new MapResolver());
 
         await Assert.That(set.Units.Count).IsEqualTo(1);
         await Assert.That(issues.Count).IsEqualTo(1);
