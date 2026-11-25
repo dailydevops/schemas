@@ -263,7 +263,7 @@ The selection rules, the exclusion list of the later tiers, and the regeneration
 
 ## Requirements
 
-- .NET Standard 2.0, .NET 10, or .NET 11 (the package targets `netstandard2.0`, `net10.0`, and `net11.0`; the tests run on `net5.0`, `net10.0`, and `net11.0`, and `net5.0` runs the `netstandard2.0` build)
+- .NET Standard 2.0, .NET 10, or .NET 11 (the package targets `netstandard2.0`, `net10.0`, and `net11.0`; the tests run on `net9.0`, `net10.0`, and `net11.0`, and `net9.0` runs the `netstandard2.0` build)
 - `NetEvolve.Schemas.Xml` and `NetEvolve.Arguments` as dependencies; on `netstandard2.0` also `Microsoft.Bcl.AsyncInterfaces`, `System.Memory`, and `System.Threading.Tasks.Extensions`
 
 ## Related Packages

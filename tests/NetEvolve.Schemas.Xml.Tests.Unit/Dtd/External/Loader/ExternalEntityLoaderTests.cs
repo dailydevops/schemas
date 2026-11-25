@@ -412,7 +412,7 @@ public class ExternalEntityLoaderTests
         var resolver = new RecordingResolver().Add("http://example.org/doc/a.ent", Utf8("a"));
         var loader = Loader(resolver);
         using var source = new CancellationTokenSource();
-#if NET10_0_OR_GREATER
+#if NET8_0_OR_GREATER
         await source.CancelAsync();
 #else
         source.Cancel();

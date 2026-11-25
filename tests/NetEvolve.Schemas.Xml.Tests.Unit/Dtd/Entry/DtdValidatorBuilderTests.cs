@@ -62,7 +62,7 @@ public class DtdValidatorBuilderTests
     public async Task BuildAsync_WithACanceledToken_IsCanceled()
     {
         using var source = new CancellationTokenSource();
-#if NET10_0_OR_GREATER
+#if NET8_0_OR_GREATER
         await source.CancelAsync();
 #else
         source.Cancel();
@@ -77,7 +77,7 @@ public class DtdValidatorBuilderTests
     public async Task Validate_WithACanceledToken_ThrowsBeforeTheRun()
     {
         using var source = new CancellationTokenSource();
-#if NET10_0_OR_GREATER
+#if NET8_0_OR_GREATER
         await source.CancelAsync();
 #else
         source.Cancel();

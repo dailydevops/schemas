@@ -136,7 +136,7 @@ dotnet test --solution Schemas.slnx --configuration Release
 dotnet test --project tests/NetEvolve.Schemas.Tests.Unit --configuration Release --framework net10.0
 ```
 
-The test projects run on three legs: `net5.0` (runs the `netstandard2.0` build of the libraries), `net10.0`, and `net11.0`. Every behavior change starts with a failing TUnit test; see the [development workflow](docs/development/workflow.md).
+The test projects run on three legs: `net9.0` (runs the `netstandard2.0` build of the libraries), `net10.0`, and `net11.0`. Every behavior change starts with a failing TUnit test; see the [development workflow](docs/development/workflow.md).
 
 ### Code Formatting
 

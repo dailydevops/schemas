@@ -380,7 +380,7 @@ public class FunctionCallTests
         var function = Find(fixture, "down", 1);
 
         var before = caller.TryCall(function, [Int(1)], out _);
-#if NET10_0_OR_GREATER
+#if NET8_0_OR_GREATER
         await source.CancelAsync();
 #else
         source.Cancel();

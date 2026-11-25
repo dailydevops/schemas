@@ -275,7 +275,7 @@ A document type declaration in an instance ends the run with a reader error by d
 
 ## Requirements
 
-- .NET 10.0 or higher, or any runtime that implements .NET Standard 2.0 (the tests also run the `netstandard2.0` build on .NET 5.0)
+- .NET 10.0 or higher, or any runtime that implements .NET Standard 2.0 (the tests also run the `netstandard2.0` build on .NET 9)
 - The package targets `netstandard2.0`, `net10.0`, and `net11.0`
 - Depends on `NetEvolve.Schemas`, `NetEvolve.Schemas.Xml`, `NetEvolve.Schemas.XPath`, and `NetEvolve.Arguments`; on `netstandard2.0` it also depends on `Microsoft.Bcl.AsyncInterfaces`, `System.Memory`, and `System.Threading.Tasks.Extensions`
 - The call `SchemaValidator.ForXsd()` needs C# 14; older compilers use the named class (see [Compilers older than C# 14](#compilers-older-than-c-14))

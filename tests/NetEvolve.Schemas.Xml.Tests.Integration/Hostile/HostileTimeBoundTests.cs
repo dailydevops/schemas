@@ -45,7 +45,7 @@ public class HostileTimeBoundTests
             TimeSpan.FromMilliseconds(300),
             cancellationToken
         );
-#if NET10_0_OR_GREATER
+#if NET8_0_OR_GREATER
         await stop.CancelAsync();
 #else
         stop.Cancel();
@@ -68,7 +68,7 @@ public class HostileTimeBoundTests
             TimeSpan.FromMilliseconds(30),
             cancellationToken
         );
-#if NET10_0_OR_GREATER
+#if NET8_0_OR_GREATER
         await stop.CancelAsync();
 #else
         stop.Cancel();

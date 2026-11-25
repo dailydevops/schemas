@@ -173,7 +173,7 @@ public class SinglePassDispatchTests
         using var source = new CancellationTokenSource();
         var schema = Schema(Pattern("p1", Rule("r1", "a")), Pattern("p2", Rule("r2", "b")));
         using var h = new PatternHarness(schema, E("r", E("a")), cancellationToken: source.Token);
-#if NET10_0_OR_GREATER
+#if NET8_0_OR_GREATER
         await source.CancelAsync();
 #else
         source.Cancel();
@@ -189,7 +189,7 @@ public class SinglePassDispatchTests
         using var source = new CancellationTokenSource();
         var schema = Schema(Pattern("p1", Rule("r1", "a")), Pattern("p2", Rule("r2", "b")));
         using var h = new PatternHarness(schema, E("r", E("a")));
-#if NET10_0_OR_GREATER
+#if NET8_0_OR_GREATER
         await source.CancelAsync();
 #else
         source.Cancel();

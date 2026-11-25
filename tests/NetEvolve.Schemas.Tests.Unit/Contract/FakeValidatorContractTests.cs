@@ -163,7 +163,7 @@ public class FakeValidatorContractTests
         var fake = new FakeValidator();
         using var canceled = new CancellationTokenSource();
 
-#if NET10_0_OR_GREATER
+#if NET8_0_OR_GREATER
         await canceled.CancelAsync();
 #else
         canceled.Cancel();
@@ -182,7 +182,7 @@ public class FakeValidatorContractTests
         var fake = new FakeValidator();
         using var canceled = new CancellationTokenSource();
 
-#if NET10_0_OR_GREATER
+#if NET8_0_OR_GREATER
         await canceled.CancelAsync();
 #else
         canceled.Cancel();

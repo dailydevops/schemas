@@ -6,7 +6,7 @@ public class DifferentialLegTests
 {
     [Test]
     [Arguments("net10.0", true)]
-    [Arguments("net5.0", false)]
+    [Arguments("net9.0", false)]
     [Arguments("net6.0", false)]
     [Arguments("net11.0", false)]
     [Arguments("netstandard2.0", false)]

@@ -222,7 +222,7 @@ public class SchemaCompilerTests
     public async Task Compile_ACanceledToken_Throws()
     {
         using var source = new CancellationTokenSource();
-#if NET10_0_OR_GREATER
+#if NET8_0_OR_GREATER
         await source.CancelAsync();
 #else
         source.Cancel();
