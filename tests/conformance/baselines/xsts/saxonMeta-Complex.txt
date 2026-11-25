@@ -1,5 +1,3 @@
-1.0/complex019/complex019.xsd
-1.0/complex020/complex020.xsd
 1.1/complex001/complex001.xsd
 1.1/complex002/complex002.xsd
 1.1/complex003/complex003.n1.xml

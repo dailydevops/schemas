@@ -9,7 +9,8 @@ using NetEvolve.Schemas.Xsd.Tests.Integration.Xsts;
 /// Every instance test of XSD 1.0 that the validator still fails is listed one by one with a reason and the issue that tracks it, so
 /// no failure stays in the baseline without an explanation.
 /// </summary>
-[ConformanceLeg]
+[Explicit]
+[Category(ConformanceCategory.Name)]
 public class InstanceKnownFailuresTests
 {
     private static readonly string ListPath = Path.Combine(

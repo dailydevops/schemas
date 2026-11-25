@@ -157,6 +157,13 @@ internal sealed class EntityListener : ValidationListener
                     switch (definition.Variety)
                     {
                         case DatatypeVariety.List:
+                            // A restriction copies the item type of its base; the built-in IDREFS and ENTITIES have none, so walk to the base.
+                            if (definition.ItemType is null)
+                            {
+                                type = definition.BaseType;
+                                break;
+                            }
+
                             VisitItems(definition.ItemType, value, location);
                             return;
                         case DatatypeVariety.Union:

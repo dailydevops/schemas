@@ -361,6 +361,9 @@ internal partial struct XmlTokenizer
         return Scan.Token;
     }
 
+    // "standalone", the longest pseudo-attribute name.
+    private const int LongestPseudoAttributeName = 10;
+
     // Whether the text so far is, or may become, an XML declaration: "<?xml" followed by white space, "?", or nothing yet.
     private static bool MaybeDeclaration(ReadOnlySpan<char> rest)
     {
@@ -398,16 +401,31 @@ internal partial struct XmlTokenizer
         token = default;
         var rest = input.Slice(pos);
 
-        // The scanner cannot tell a truncated pseudo-attribute from a bad one, so it only sees whole declarations.
+        // The scanner cannot tell a truncated pseudo-attribute from a bad one, so it only sees whole declarations. Beyond the
+        // limit the buffered prefix is scanned anyway: an error that is not within the last characters, where a cut name could
+        // still become a valid one, is the code of span input, whatever was buffered.
         if (
             !isFinal
             && MaybeDeclaration(rest)
             && rest.Slice(0, Math.Min(rest.Length, _limits.MaxXmlDeclarationLength + 2)).IndexOf("?>".AsSpan()) < 0
         )
         {
-            return rest.Length > _limits.MaxXmlDeclarationLength
-                ? Fail(input, pos, XmlErrorCodes.XML1114)
-                : Scan.NeedMore;
+            if (rest.Length <= _limits.MaxXmlDeclarationLength)
+            {
+                return Scan.NeedMore;
+            }
+
+            var prefix = XmlDeclarationParser.Parse(rest, XmlDeclarationKind.Xml);
+            if (
+                prefix.Error is { } malformed
+                && !ReferenceEquals(malformed, XmlErrorCodes.XML0001)
+                && prefix.ErrorOffset + LongestPseudoAttributeName < rest.Length
+            )
+            {
+                return Fail(input, pos + prefix.ErrorOffset, malformed);
+            }
+
+            return Fail(input, pos, XmlErrorCodes.XML1114);
         }
 
         var result = XmlDeclarationParser.Parse(rest, XmlDeclarationKind.Xml);
@@ -434,7 +452,10 @@ internal partial struct XmlTokenizer
         }
 
         var versionStart = pos + (int)result.VersionPosition!.Value.CharOffset;
-        if (!result.Version.SequenceEqual("1.0".AsSpan()))
+        if (
+            !result.Version.SequenceEqual("1.0".AsSpan())
+            && !(_allowXml11Declaration && result.Version.SequenceEqual("1.1".AsSpan()))
+        )
         {
             return Fail(input, versionStart, XmlErrorCodes.XML0010);
         }

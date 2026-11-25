@@ -2,7 +2,10 @@ name: Benchmarks
 
 on:
   workflow_dispatch:
-  pull_request:
+  schedule:
+    - cron: '17 2 * * *'
+  push:
+    branches: [main]
     paths:
       - 'benchmarks/**'
       - 'src/**'
@@ -17,11 +20,6 @@ concurrency:
 
 env:
   BENCH_PROJECT: benchmarks/NetEvolve.Schemas.Benchmarks
-  # Per-benchmark table (throughput, allocation, ratio to the System.Xml baseline of the same class) from BenchmarkDotNet's full JSON reports, because the gate prints no rows.
-  SUMMARY_JQ: |
-    [.Benchmarks[] | {n: (.Type + "." + .Method + (if (.Parameters // "") == "" then "" else "(" + .Parameters + ")" end)), g: (.Type + "|" + (.Parameters // "")), m: .Statistics.Mean, a: .Memory.BytesAllocatedPerOperation, b: (.Method | endswith("SystemXml"))}] as $r
-    | $r[] | . as $x | ($r | map(select(.g == $x.g and .b)) | .[0].m) as $bm
-    | "| \($x.n) | \($x.m * 100 | round / 100) | \(1e9 / $x.m | floor) | \($x.a) | \(if $bm != null and ($x.b | not) then ($x.m / $bm * 1000 | round / 1000 | tostring) else "n/a" end) |"
 
 jobs:
   selftest:
@@ -46,9 +44,7 @@ jobs:
           {
             echo "### Sample benchmarks (${{ matrix.tfm }})"
             echo
-            echo "| Benchmark | Mean (ns) | Ops/s | Allocated (B) | Ratio to System.Xml |"
-            echo "| --- | ---: | ---: | ---: | ---: |"
-            for f in "$RUNNER_TEMP"/bdn/results/*-report-full.json; do jq -r "$SUMMARY_JQ" "$f"; done
+            dotnet run -c Release -f ${{ matrix.tfm }} --no-build --project "$BENCH_PROJECT" -- summary "$RUNNER_TEMP/bdn/results" benchmarks/targets
           } >> "$GITHUB_STEP_SUMMARY"
       - name: Assert gate verdicts
         run: |
@@ -103,9 +99,7 @@ jobs:
           {
             echo "### Benchmarks"
             echo
-            echo "| Benchmark | Mean (ns) | Ops/s | Allocated (B) | Ratio to System.Xml |"
-            echo "| --- | ---: | ---: | ---: | ---: |"
-            for f in "$RUNNER_TEMP"/bdn/results/*-report-full.json; do jq -r "$SUMMARY_JQ" "$f"; done
+            dotnet run -c Release -f net10.0 --no-build --project "$BENCH_PROJECT" -- summary "$RUNNER_TEMP/bdn/results" benchmarks/targets
           } >> "$GITHUB_STEP_SUMMARY"
       - name: Gate
         if: steps.targets.outputs.found == 'true'

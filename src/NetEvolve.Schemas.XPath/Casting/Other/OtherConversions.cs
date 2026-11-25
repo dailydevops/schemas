@@ -20,8 +20,9 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// </para>
 /// <para>
 /// Limitation: the cell of a string to <c>xs:anyURI</c> is value dependent, but the lexical check of the datatype layer is lax until the strict
-/// checkers land (#411, #412): every string of XML characters is a URI, and the value is the string with its whitespace collapsed; only a string with a
-/// character outside the XML <c>Char</c> production is rejected (FORG0001).
+/// checkers land (#411, #412), so the cast adds a minimal check of its own: a percent sign needs two hexadecimal digits, and a colon that ends a
+/// scheme needs a scheme before it. Every other string of XML characters is a URI, and the value is the string with its whitespace collapsed; a
+/// string with a character outside the XML <c>Char</c> production or one of the two malformed forms is rejected (FORG0001).
 /// </para>
 /// </remarks>
 internal static class OtherConversions
@@ -48,6 +49,39 @@ internal static class OtherConversions
     public static CastStatus ToBase64Binary(in XdmItem source, out XdmItem result) =>
         ToBinary(in source, BinaryKind.Base64Binary, Base64BinaryType, out result);
 
+    // The lexical check of Functions and Operators 17.1.2 is implementation-defined: a percent sign needs two hexadecimal digits, and a colon that
+    // ends a scheme (before the first '/', '?', or '#') needs a scheme before it.
+    private static bool IsUriReference(string text)
+    {
+        var schemeEnds = true;
+        for (var i = 0; i < text.Length; i++)
+        {
+            var c = text[i];
+            if (c == '%')
+            {
+                if (i + 2 >= text.Length || !Uri.IsHexDigit(text[i + 1]) || !Uri.IsHexDigit(text[i + 2]))
+                {
+                    return false;
+                }
+            }
+            else if (schemeEnds && c == ':')
+            {
+                if (i == 0)
+                {
+                    return false;
+                }
+
+                schemeEnds = false;
+            }
+            else if (c is '/' or '?' or '#')
+            {
+                schemeEnds = false;
+            }
+        }
+
+        return true;
+    }
+
     /// <summary>Converts to <c>xs:anyURI</c>.</summary>
     /// <param name="source">The source value.</param>
     /// <param name="result">The result.</param>
@@ -62,7 +96,13 @@ internal static class OtherConversions
                 return CastStatus.InvalidLexical;
             }
 
-            result = XdmItem.FromAnyUri(WhitespaceText.Apply(lexical!, WhitespaceMode.Collapse));
+            var collapsed = WhitespaceText.Apply(lexical!, WhitespaceMode.Collapse);
+            if (!IsUriReference(collapsed))
+            {
+                return CastStatus.InvalidLexical;
+            }
+
+            result = XdmItem.FromAnyUri(collapsed);
             return CastStatus.Ok;
         }
 

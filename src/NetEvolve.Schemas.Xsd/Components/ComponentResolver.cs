@@ -13,7 +13,7 @@ using NetEvolve.Schemas.Xsd.Diagnostics;
 /// </summary>
 /// <remarks>
 /// Every component is registered before this runs, so forward references resolve. Circular attribute group references are
-/// a schema error in XSD 1.0 only (<c>ag-props-correct.3</c>); XSD 1.1 allows them (Structures 1.1, appendix G.1.11, design #146 DP-15).
+/// a schema error in XSD 1.0 only (<c>src-attribute_group.3</c>); XSD 1.1 allows them (Structures 1.1, appendix G.1.11, design #146 DP-15).
 /// </remarks>
 internal sealed class ComponentResolver : IComponentResolver
 {
@@ -133,7 +133,7 @@ internal sealed class ComponentResolver : IComponentResolver
             XsdComponentKind.SimpleType => (XsdRuleLookup.StPropsCorrect, "st-props-correct.2"),
             XsdComponentKind.ComplexType => (XsdRuleLookup.CtPropsCorrect, "ct-props-correct.3"),
             XsdComponentKind.ModelGroupDefinition => (XsdRuleLookup.MgPropsCorrect, "mg-props-correct.2"),
-            XsdComponentKind.AttributeGroup => (XsdRuleLookup.AgPropsCorrect, "ag-props-correct.3"),
+            XsdComponentKind.AttributeGroup => (XsdRuleLookup.SrcAttributeGroup, "src-attribute_group.3"),
             _ => (XsdRuleLookup.SchPropsCorrect, "sch-props-correct"),
         };
         reporter.Report(

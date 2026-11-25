@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.Schematron.Bindings.Registry;
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Seams;
@@ -23,29 +24,32 @@ using NetEvolve.Schemas.XPath.Errors;
 /// <para>
 /// Limitations: the seam does not hand the binding the location of the construct that holds the expression, so a problem is located by
 /// the base URI of the scope and by the line and column within the expression text (the convention of the pattern matcher), and the
-/// location of a dynamic problem has no line and column. The stylesheet functions, the keys, and the decimal formats of an XSLT
-/// stylesheet are not wired (#832, #628, #250): a run starts with an empty set of decimal formats, so a named format is unknown. Without
+/// location of a dynamic problem has no line and column. The keys and the decimal formats of an XSLT
+/// stylesheet are not wired (#832, #250): a run starts with an empty set of decimal formats, so a named format is unknown. The stylesheet functions are host functions of a derived binding (<see cref="WithFunctions"/>). Without
 /// an extension the binding has the functions of XPath 2.0 only.
 /// </para>
 /// </remarks>
-internal sealed class XPathQueryBinding : IQueryBinding
+internal sealed class XPathQueryBinding : IFunctionHostBinding
 {
     // The public code type, not the internal table of the XPath package, which the seam rule keeps out of reach.
     private static readonly XPathErrorCode UndeclaredVariable = new("XPST0008");
 
     private readonly bool _xpath10Compatibility;
     private readonly StaticContextExtension? _extension;
+    private readonly IReadOnlyList<XPathHostFunction>? _functions;
 
     /// <summary>Initializes a new instance of the <see cref="XPathQueryBinding"/> class.</summary>
     /// <param name="name">The canonical lower-case name.</param>
     /// <param name="allowsXsltInstructions">Whether XSLT instructions are allowed; <see langword="false"/> for the <c>xpath</c> family.</param>
     /// <param name="xpath10Compatibility">Whether XPath 1.0 compatibility mode is on.</param>
     /// <param name="extension">Adds the host functions to every static context, or <see langword="null"/> for none.</param>
+    /// <param name="functions">The host functions of one schema (the stylesheet functions), or <see langword="null"/> for none.</param>
     internal XPathQueryBinding(
         string name,
         bool allowsXsltInstructions,
         bool xpath10Compatibility = false,
-        StaticContextExtension? extension = null
+        StaticContextExtension? extension = null,
+        IReadOnlyList<XPathHostFunction>? functions = null
     )
     {
         ArgumentNullException.ThrowIfNull(name);
@@ -54,6 +58,7 @@ internal sealed class XPathQueryBinding : IQueryBinding
         AllowsXsltInstructions = allowsXsltInstructions;
         _xpath10Compatibility = xpath10Compatibility;
         _extension = extension;
+        _functions = functions;
     }
 
     /// <summary>
@@ -73,6 +78,14 @@ internal sealed class XPathQueryBinding : IQueryBinding
     public string Name { get; }
 
     public bool AllowsXsltInstructions { get; }
+
+    /// <inheritdoc />
+    public IQueryBinding WithFunctions(IReadOnlyList<XPathHostFunction> functions)
+    {
+        ArgumentNullException.ThrowIfNull(functions);
+
+        return new XPathQueryBinding(Name, AllowsXsltInstructions, _xpath10Compatibility, _extension, functions);
+    }
 
     /// <summary>
     /// Creates the static context of the expressions in <paramref name="scope"/>: the prefixed namespace declarations, the visible
@@ -130,6 +143,14 @@ internal sealed class XPathQueryBinding : IQueryBinding
         if (_extension is not null)
         {
             statics = _extension(this, statics, out activeHost);
+        }
+
+        if (_functions is { Count: > 0 })
+        {
+            statics = statics
+                .ToBuilder()
+                .WithLibrary(new XPathFunctionLibrary("stylesheet-functions", _functions))
+                .Build();
         }
 
         var result = XPathExpression.TryCompile(text, statics, activeHost);

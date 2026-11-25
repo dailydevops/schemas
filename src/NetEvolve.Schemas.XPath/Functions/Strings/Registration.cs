@@ -12,8 +12,8 @@ using NetEvolve.Schemas.XPath.Functions.Binding;
 /// <remarks>
 /// Limitations: the design names the folder <c>Functions/String</c>; the work package owns <c>Functions/Strings</c>. The functions that
 /// use regular expressions live in <c>Functions/Regex</c>. <c>fn:compare</c>, <c>fn:codepoint-equal</c>, and the collation registry are left to XP-25 (#267),
-/// <c>fn:encode-for-uri</c> and <c>fn:iri-to-uri</c> to XP-28 (#270), <c>fn:escape-html-uri</c> to DEF-84 (#96), the one-argument
-/// <c>fn:string-join</c> and the 3.0 and 3.1 additions to XP-71 (#334), and the fully-normalized form of <c>fn:normalize-unicode</c> to
+/// <c>fn:encode-for-uri</c> and <c>fn:iri-to-uri</c> to XP-28 (#270), <c>fn:escape-html-uri</c> to DEF-84 (#96), the 3.0
+/// and 3.1 additions (the one-argument <c>fn:string-join</c> among them) to <c>Functions/Delta3</c> (XP-71, #334), and the fully-normalized form of <c>fn:normalize-unicode</c> to
 /// DEF-75 (#87). The collation arguments accept the codepoint collation only (DEF-43 (#55), DEF-76 (#88)).
 /// </remarks>
 internal static class Registration

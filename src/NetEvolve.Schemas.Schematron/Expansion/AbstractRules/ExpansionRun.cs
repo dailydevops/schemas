@@ -8,13 +8,18 @@ using NetEvolve.Schemas.Schematron.Seams;
 /// <summary>The state of one expansion: the rule catalog, the memoized abstract bodies, and the failure flag.</summary>
 internal sealed class ExpansionRun
 {
-    private readonly Dictionary<string, SchematronRule> _catalog = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, (SchematronRule Rule, SchematronPatternBase? Owner)> _catalog = new(
+        StringComparer.Ordinal
+    );
 
     // A null body is a failed abstract rule: its problem was reported once, later uses stay silent.
     private readonly Dictionary<string, RuleBody?> _bodies = new(StringComparer.Ordinal);
 
     private readonly HashSet<string> _visiting = new(StringComparer.Ordinal);
     private readonly IProblemSink _problems;
+
+    // The pattern whose rules are being expanded: an abstract rule of a pattern is visible only inside that pattern.
+    private SchematronPatternBase? _scope;
 
     internal ExpansionRun(
         IReadOnlyList<SchematronRules> containers,
@@ -25,12 +30,12 @@ internal sealed class ExpansionRun
         _problems = problems;
         foreach (var container in containers)
         {
-            Catalog(container.Rules);
+            Catalog(container.Rules, null);
         }
 
         foreach (var pattern in patterns)
         {
-            Catalog(pattern.Rules);
+            Catalog(pattern.Rules, pattern);
         }
     }
 
@@ -38,6 +43,7 @@ internal sealed class ExpansionRun
 
     internal SchematronPatternBase ExpandPattern(SchematronPatternBase pattern)
     {
+        _scope = pattern;
         var changed = false;
         var rules = new List<SchematronRule>(pattern.Rules.Count);
         foreach (var rule in pattern.Rules)
@@ -89,13 +95,13 @@ internal sealed class ExpansionRun
             );
     }
 
-    private void Catalog(IReadOnlyList<SchematronRule> rules)
+    private void Catalog(IReadOnlyList<SchematronRule> rules, SchematronPatternBase? owner)
     {
         foreach (var rule in rules)
         {
             if (rule.Id is { } id && !_catalog.ContainsKey(id))
             {
-                _catalog.Add(id, rule);
+                _catalog.Add(id, (rule, owner));
             }
         }
     }
@@ -164,7 +170,7 @@ internal sealed class ExpansionRun
 
     private RuleBody? Target(string id, SchematronExtends extends)
     {
-        if (!_catalog.TryGetValue(id, out var target))
+        if (!_catalog.TryGetValue(id, out var entry))
         {
             Report(
                 SchematronDiagnosticCodes.IdrefUnresolved,
@@ -174,11 +180,22 @@ internal sealed class ExpansionRun
             return null;
         }
 
+        var target = entry.Rule;
         if (!target.IsAbstract)
         {
             Report(
                 SchematronDiagnosticCodes.AbstractTargetInvalid,
                 $"The extends element names the rule '{id}', which is not abstract.",
+                extends
+            );
+            return null;
+        }
+
+        if (entry.Owner is not null && !ReferenceEquals(entry.Owner, _scope))
+        {
+            Report(
+                SchematronDiagnosticCodes.AbstractTargetInvalid,
+                $"The extends element names the abstract rule '{id}' of another pattern, which is visible only inside its own pattern.",
                 extends
             );
             return null;

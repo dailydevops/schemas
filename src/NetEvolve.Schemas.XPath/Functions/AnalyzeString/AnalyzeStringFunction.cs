@@ -19,20 +19,21 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// sequence, give an element without children; a pattern that matches the zero-length string is FORX0003, also for the empty input.
 /// </summary>
 /// <remarks>
-/// Limitations: the result elements are untyped (DEF-40, #52); the namespace nodes of the result are the default namespace only; an
-/// empty group that lies at the end of an enclosing group is a sibling after it, because the bounds alone do not tell the two apart;
-/// the node count of the result is bounded by the input length, not by a limit of the context. The tree is built by the
+/// Limitations: the result elements are untyped (DEF-40, #52); the namespace nodes of the result are the default namespace only; the
+/// node count of the result is bounded by the input length, not by a limit of the context. The tree is built by the
 /// <see cref="XmlTreeBuilder"/> from the segments of the <see cref="MatchSegmentEnumerator"/>.
 /// </remarks>
 internal sealed class AnalyzeStringFunction : RegexFunction
 {
     private const string Namespace = "http://www.w3.org/2005/xpath-functions";
 
+    private readonly PatternCache _patterns;
+
     /// <summary>Initializes a new instance of the <see cref="AnalyzeStringFunction"/> class.</summary>
     /// <param name="cache">The cache of the compiled patterns.</param>
     /// <exception cref="ArgumentNullException"><paramref name="cache"/> is <see langword="null"/>.</exception>
     public AnalyzeStringFunction(PatternCache cache)
-        : base("analyze-string", 2, 3, [OptionalString, OneString, OneString], cache) { }
+        : base("analyze-string", 2, 3, [OptionalString, OneString, OneString], cache) => _patterns = cache;
 
     /// <inheritdoc />
     public override XPathVersionMask Versions => XPathVersionMask.V30 | XPathVersionMask.V31;
@@ -46,6 +47,7 @@ internal sealed class AnalyzeStringFunction : RegexFunction
             throw XPathErrors.Exception(XPathErrorCodes.FORX0003);
         }
 
+        var parents = _patterns.GroupParents(operations);
         var input = Text(invocation.Arguments[0]);
         using var builder = new XmlTreeBuilder(trackPositions: false);
         var names = new Names(builder.Names);
@@ -62,7 +64,7 @@ internal sealed class AnalyzeStringFunction : RegexFunction
                 var segment = segments.Current;
                 if (segment.Kind == MatchSegmentKind.Match)
                 {
-                    WriteMatch(builder, names, segment);
+                    WriteMatch(builder, names, segment, parents);
                 }
                 else
                 {
@@ -88,13 +90,13 @@ internal sealed class AnalyzeStringFunction : RegexFunction
         return XPathEvaluationStatus.Ok;
     }
 
-    private static void WriteMatch(XmlTreeBuilder builder, Names names, in MatchSegment segment)
+    private static void WriteMatch(XmlTreeBuilder builder, Names names, in MatchSegment segment, int[] parents)
     {
         var match = names.Name("match");
         builder.StartElement(match, default);
 
         // Groups are numbered by their opening parenthesis, so reading them in order opens enclosing groups first.
-        var open = new Stack<(XmlName Name, int End)>();
+        var open = new Stack<(XmlName Name, int End, int Number)>();
         var position = 0;
         var text = segment.Text;
         for (var number = 1; number <= segment.GroupCount; number++)
@@ -105,9 +107,19 @@ internal sealed class AnalyzeStringFunction : RegexFunction
             }
 
             var start = range.Offset - segment.Index;
-            while (open.Count > 0 && open.Peek().End <= start)
+
+            // The enclosing group of the pattern decides the nesting, not the bounds: an empty group at the end of
+            // an enclosing group has the same bounds as a following sibling.
+            var parent = parents[number];
+            while (open.Count > 0 && open.Peek().Number != parent && (parent == 0 || Contains(open, parent)))
             {
                 position = Close(builder, open, text, position);
+            }
+
+            // The enclosing group took no part in the match, so a capture of this group is stale.
+            if (parent != 0 && (open.Count == 0 || open.Peek().Number != parent))
+            {
+                continue;
             }
 
             // A quantified group can keep a capture from an earlier iteration that lies before the current position
@@ -123,7 +135,7 @@ internal sealed class AnalyzeStringFunction : RegexFunction
             builder.StartElement(group, default);
             builder.Attribute(names.Name("nr", false), number.ToString(CultureInfo.InvariantCulture).AsSpan());
             builder.EndAttributes();
-            open.Push((group, start + range.Length));
+            open.Push((group, start + range.Length, number));
         }
 
         while (open.Count > 0)
@@ -135,14 +147,27 @@ internal sealed class AnalyzeStringFunction : RegexFunction
         builder.EndElement(match);
     }
 
+    private static bool Contains(Stack<(XmlName Name, int End, int Number)> open, int number)
+    {
+        foreach (var (_, _, candidate) in open)
+        {
+            if (candidate == number)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private static int Close(
         XmlTreeBuilder builder,
-        Stack<(XmlName Name, int End)> open,
+        Stack<(XmlName Name, int End, int Number)> open,
         ReadOnlySpan<char> text,
         int position
     )
     {
-        var (name, end) = open.Pop();
+        var (name, end, _) = open.Pop();
         builder.Text(text.Slice(position, end - position), XmlTextKind.Text);
         builder.EndElement(name);
         return end;

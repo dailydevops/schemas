@@ -42,11 +42,16 @@ public class ResolutionTests
     }
 
     [Test]
-    [Arguments("SimpleType", "Types", "st-props-correct")]
-    [Arguments("ComplexType", "Types", "ct-props-correct")]
-    [Arguments("ModelGroupDefinition", "Groups", "mg-props-correct")]
-    [Arguments("AttributeGroup", "AttributeGroups", "ag-props-correct")]
-    public async Task CircularDefinition_IsALocatedSchemaError(string kindName, string spaceName, string rule)
+    [Arguments("SimpleType", "Types", "st-props-correct", "st-props-correct.2")]
+    [Arguments("ComplexType", "Types", "ct-props-correct", "ct-props-correct.3")]
+    [Arguments("ModelGroupDefinition", "Groups", "mg-props-correct", "mg-props-correct.2")]
+    [Arguments("AttributeGroup", "AttributeGroups", "src-attribute_group", "src-attribute_group.3")]
+    public async Task CircularDefinition_IsALocatedSchemaError(
+        string kindName,
+        string spaceName,
+        string rule,
+        string clause
+    )
     {
         var kind = Enum.Parse<XsdComponentKind>(kindName);
         var space = Enum.Parse<XsdSymbolSpace>(spaceName);
@@ -59,6 +64,7 @@ public class ResolutionTests
 
         await Assert.That(issues.Count).IsEqualTo(1);
         await Assert.That(issues[0].Code).IsEqualTo(CodeOf(rule));
+        await Assert.That(issues[0].Constraint).IsEqualTo(clause);
         await Assert.That(issues[0].Location.Line).IsEqualTo(3);
         await Assert.That(issues[0].Location.Source).IsEqualTo("file:///a.xsd");
     }

@@ -6,14 +6,15 @@ using NetEvolve.Schemas.Conformance.Reporting;
 
 /// <summary>
 /// The corpus against the live baseline, System.Xml.XPath of the runtime that <see cref="CompatibilityExpectations.BaselineRuntime"/> names.
-/// It runs on the designated leg only (<c>net10.0</c>; see <see cref="ConformanceLeg"/>), where the library and the baseline must give
+/// It is explicit and runs in the conformance workflow, where the library and the baseline must give
 /// the same result for every case that <see cref="ListedDifferences"/> does not list. Set <c>SCHEMAS_XPATH_COMPAT_RECORD</c> to a file path and
 /// run <see cref="Record"/> to write the recorded results again after a change of the corpus.
 /// </summary>
-[ConformanceLeg]
 public class CompatibilityBaselineTests
 {
     [Test]
+    [Explicit]
+    [Category(ConformanceCategory.Name)]
     public async Task Baseline_RunsOnTheRuntimeThatTheExpectationsNameAndStillGivesTheRecordedResults()
     {
         await Assert.That(RuntimeInformation.FrameworkDescription).StartsWith(".NET 10.0");
@@ -28,6 +29,8 @@ public class CompatibilityBaselineTests
     }
 
     [Test]
+    [Explicit]
+    [Category(ConformanceCategory.Name)]
     [MethodDataSource(typeof(CompatibilityDifferentialTests), nameof(CompatibilityDifferentialTests.Cases))]
     public async Task Expression_GivesTheSameResultAsTheBaselineUnlessListed(string document, string expression)
     {

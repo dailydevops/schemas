@@ -661,6 +661,14 @@ public static class RegexParser
                         return ParseSubtraction(level, out subtrahend);
                     }
 
+                    // A trailing hyphen that precedes the subtraction: [a-z--[b]] is [a-z-] minus [b].
+                    if (next == '-' && !builder.IsEmpty && IsSubtractionAt(_pos + 1))
+                    {
+                        builder.Add('-', '-');
+                        _pos++;
+                        continue;
+                    }
+
                     if (!builder.IsEmpty && next != ']')
                     {
                         SetError(RegexError.InvalidCharacterClass, _pos);
@@ -682,6 +690,9 @@ public static class RegexParser
                 }
             }
         }
+
+        private readonly bool IsSubtractionAt(int index) =>
+            index + 1 < _p.Length && _p[index] == '-' && _p[index + 1] == '[';
 
         // _pos is at the '-' of '-['; the subtrahend must be the last thing in the class.
         private bool ParseSubtraction(int level, out int[]? subtrahend)
@@ -723,7 +734,12 @@ public static class RegexParser
                 return true;
             }
 
-            if (_pos + 1 < _p.Length && _p[_pos] == '-' && _p[_pos + 1] is not (']' or '['))
+            if (
+                _pos + 1 < _p.Length
+                && _p[_pos] == '-'
+                && _p[_pos + 1] is not (']' or '[')
+                && !IsSubtractionAt(_pos + 1)
+            )
             {
                 return ParseRange(builder, first, itemStart);
             }

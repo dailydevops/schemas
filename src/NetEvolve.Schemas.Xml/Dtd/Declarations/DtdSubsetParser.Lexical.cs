@@ -4,6 +4,7 @@ using System;
 using System.Text;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Datatypes.Core;
+using NetEvolve.Schemas.Xml.Dtd.Attributes;
 using NetEvolve.Schemas.Xml.Text.CharClasses;
 
 internal sealed partial class DtdSubsetParser
@@ -153,7 +154,7 @@ internal sealed partial class DtdSubsetParser
 
         foreach (var c in value)
         {
-            if (!IsPubidChar(c))
+            if (!XmlCharClass.IsPubidChar(c))
             {
                 return Fail(XmlErrorCodes.XML0011);
             }
@@ -161,34 +162,6 @@ internal sealed partial class DtdSubsetParser
 
         return true;
     }
-
-    private static bool IsPubidChar(char c) =>
-        c
-            is ' '
-                or '\r'
-                or '\n'
-                or (>= 'a' and <= 'z')
-                or (>= 'A' and <= 'Z')
-                or (>= '0' and <= '9')
-                or '-'
-                or '\''
-                or '('
-                or ')'
-                or '+'
-                or ','
-                or '.'
-                or '/'
-                or ':'
-                or '='
-                or '?'
-                or ';'
-                or '!'
-                or '*'
-                or '#'
-                or '@'
-                or '$'
-                or '_'
-                or '%';
 
     // Production 75 (and 83 when `publicOnly`): SYSTEM literal, or PUBLIC literal and an optional or required literal.
     private bool ScanExternalId(bool publicOnly, out string? publicId, out string? systemId)
@@ -400,7 +373,7 @@ internal sealed partial class DtdSubsetParser
 
             if (value[i] == '&')
             {
-                if (!ReadReference(value, i, out var next, out _))
+                if (!ReadReference(value, i, out var next, out _) || !IsDeclaredBefore(value, i, next))
                 {
                     return false;
                 }
@@ -410,5 +383,25 @@ internal sealed partial class DtdSubsetParser
         }
 
         return true;
+    }
+
+    // Section 4.1, Entity Declared: a default value may refer only to a general entity that an earlier declaration binds, where
+    // no other declaration can exist (no external subset, no parameter-entity reference so far).
+    private bool IsDeclaredBefore(string value, int amp, int next)
+    {
+        var name = value.AsSpan(amp + 1, next - amp - 2);
+        if (
+            name[0] == '#'
+            || DtdDefaultReferences.IsPredefined(name)
+            || _inExternal
+            || _builder.HasExternalSubset
+            || _builder.HasParameterEntityReferences
+            || _builder.IsGeneralEntityDeclared(name.ToString())
+        )
+        {
+            return true;
+        }
+
+        return Fail(XmlErrorCodes.XML0008);
     }
 }

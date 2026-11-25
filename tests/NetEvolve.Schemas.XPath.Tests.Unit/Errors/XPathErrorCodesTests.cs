@@ -70,7 +70,14 @@ public class XPathErrorCodesTests
         "FOTY0012",
     ];
 
-    public static IEnumerable<string> AllCodes() => [.. XPath20Codes, .. FunctionsCodes];
+    // XML Path Language (XPath) 3.0, appendix G, and XQuery and XPath Functions and Operators 3.0, appendix D: the conditions that function items add.
+    private static readonly string[] XPath30Codes = ["XQST0039", "FOTY0013"];
+
+    // XML Path Language (XPath) 3.1, appendix F, and XQuery and XPath Functions and Operators 3.1, appendix D: the conditions that maps and arrays add.
+    private static readonly string[] XPath31Codes = ["XQDY0137", "FOJS0003", "FOJS0005", "FOAY0001", "FOAY0002"];
+
+    public static IEnumerable<string> AllCodes() =>
+        [.. XPath20Codes, .. FunctionsCodes, .. XPath30Codes, .. XPath31Codes];
 
     private static HashSet<string> TableCodes(string prefix)
     {
@@ -100,13 +107,17 @@ public class XPathErrorCodesTests
     {
         var table = TableCodes("FO");
 
-        await Assert.That(table.SetEquals(FunctionsCodes)).IsTrue();
-        await Assert.That(table.Count).IsEqualTo(FunctionsCodes.Length);
+        string[] foCodes = [.. XPath31Codes.Where(static c => c.StartsWith("FO", StringComparison.Ordinal))];
+
+        await Assert.That(table.SetEquals([.. FunctionsCodes, "FOTY0013", .. foCodes])).IsTrue();
+        await Assert.That(table.Count).IsEqualTo(FunctionsCodes.Length + 1 + foCodes.Length);
     }
 
     [Test]
     public async Task Table_HasNoDuplicatesAndNoOtherPrefixes() =>
-        await Assert.That(XPathErrorCodes.All.Count).IsEqualTo(XPath20Codes.Length + FunctionsCodes.Length);
+        await Assert
+            .That(XPathErrorCodes.All.Count)
+            .IsEqualTo(XPath20Codes.Length + FunctionsCodes.Length + XPath30Codes.Length + XPath31Codes.Length);
 
     [Test]
     [MethodDataSource(nameof(AllCodes))]
@@ -125,6 +136,9 @@ public class XPathErrorCodesTests
 
     [Test]
     [Arguments("XPST0003", XPathErrorKind.Static)]
+    [Arguments("XQST0039", XPathErrorKind.Static)]
+    [Arguments("XQDY0137", XPathErrorKind.Dynamic)]
+    [Arguments("FOJS0003", XPathErrorKind.Function)]
     [Arguments("XPTY0004", XPathErrorKind.Type)]
     [Arguments("XPDY0002", XPathErrorKind.Dynamic)]
     [Arguments("FOAR0001", XPathErrorKind.Function)]

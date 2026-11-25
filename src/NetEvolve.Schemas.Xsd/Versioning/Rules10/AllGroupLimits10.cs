@@ -117,9 +117,9 @@ internal static class AllGroupLimits10
                 "An all group must be the whole content of a complex type or of a group definition."
             );
         }
-        else if (particle.MaxOccurs > 1)
+        else if (particle.MaxOccurs != 1)
         {
-            Report(reporter, particle, "An all group as the content of a complex type must not occur more than once.");
+            Report(reporter, particle, "An all group as the content of a complex type must occur exactly once.");
         }
     }
 
@@ -135,6 +135,18 @@ internal static class AllGroupLimits10
 
             switch (member.Term)
             {
+                case ElementDeclaration element:
+                    // An all group is no automaton, so two members of one name are checked here; groups are small, so no set.
+                    for (var j = 0; j < i; j++)
+                    {
+                        if (group.Particles[j].Term is ElementDeclaration earlier && earlier.Name == element.Name)
+                        {
+                            Report(reporter, member, "An all group must not contain two elements of the same name.");
+                            break;
+                        }
+                    }
+
+                    break;
                 case IWildcard:
                     Report(reporter, member, "An all group must not contain a wildcard in strict 1.0 mode.");
                     break;

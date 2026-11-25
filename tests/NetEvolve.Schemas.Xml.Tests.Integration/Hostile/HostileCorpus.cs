@@ -7,9 +7,8 @@ using System.Text;
 /// A file is a generated document, because a bomb is better described by its recipe than by megabytes of text and the
 /// owned path of the corpus holds no resource files. Every file loads with document type declaration processing on, so the
 /// bombs reach the entity code; the library default options, which reject the declaration, are checked on their own.
-/// Limitation: files that expose a defect are not part of the corpus until it is fixed; they are filed as #829 (a
-/// multi-segment sequence ignores the external access options) and #830 (a malformed oversized XML declaration gives
-/// another code for span input).
+/// Limitation: files that expose a defect are not part of the corpus until it is fixed; #829 (a multi-segment sequence
+/// ignores the external access options) is filed.
 /// </remarks>
 public static partial class HostileCorpus
 {

@@ -88,6 +88,12 @@ public class RegexParserTests
     [Arguments("[^-a]", "[0-2C,2E-60,62-10FFFF]")]
     [Arguments("[a\\-z]", "[2D,61,7A]")]
     [Arguments("[a-z-]", "[2D,61-7A]")]
+    [Arguments("[a-z--[b-z]]", "[2D,61]")]
+    [Arguments("[a-z--[m]]", "[2D,61-6C,6E-7A]")]
+    [Arguments("[a--[b]]", "[2D,61]")]
+    [Arguments("[--[a]]", "[2D]")]
+    [Arguments("[^a--[b]]", "[0-2C,2E-60,63-10FFFF]")]
+    [Arguments("[a-z--[m-z--[p]]]", "[61-6C,70]")]
     public async Task Parse_Production_ProducesTheExpectedTree(string pattern, string expected)
     {
         var tree = Tree(pattern);

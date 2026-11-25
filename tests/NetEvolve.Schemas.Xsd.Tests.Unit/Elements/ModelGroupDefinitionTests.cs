@@ -53,6 +53,20 @@ public class ModelGroupDefinitionTests
     }
 
     [Test]
+    [Arguments("minOccurs=\"0\"")]
+    [Arguments("maxOccurs=\"0\"")]
+    [Arguments("minOccurs=\"1\" maxOccurs=\"1\"")]
+    public async Task CompositorWithOccurrenceAttribute_IsASchemaError(string attributes)
+    {
+        var fixture = ElementFixture.Build(
+            "<xs:group name=\"g\"><xs:all " + attributes + "><xs:element name=\"a\"/></xs:all></xs:group>"
+        );
+
+        await Assert.That(fixture.Issues.Count).IsEqualTo(1);
+        await Assert.That(fixture.Issues[0].Code).IsEqualTo(fixture.CodeOf("src-model_group_defn"));
+    }
+
+    [Test]
     public async Task MinOccursAboveMaxOccurs_IsASchemaError()
     {
         var fixture = ElementFixture.Build(

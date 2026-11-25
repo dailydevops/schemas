@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Schematron.Pipeline;
+﻿namespace NetEvolve.Schemas.Schematron.Pipeline;
 
 using System;
 using NetEvolve.Arguments;
@@ -21,19 +21,22 @@ internal static class InstanceReader
     /// <summary>Reads the instance.</summary>
     /// <param name="source">The instance.</param>
     /// <param name="limits">The limits of the validator.</param>
+    /// <param name="names">The name table of the validation context; the tree shares it.</param>
     /// <param name="tree">The tree of the instance when the read succeeded.</param>
     /// <param name="issue">The issue of the failure when the read failed.</param>
     /// <returns><see langword="true"/> when the instance is a tree.</returns>
     internal static bool TryRead(
         in DocumentSource source,
         ValidationLimits limits,
+        XmlNameTable names,
         out XmlDocumentTree tree,
         out ValidationIssue issue
     )
     {
         ArgumentNullException.ThrowIfNull(limits);
+        ArgumentNullException.ThrowIfNull(names);
 
-        var options = XmlIssues.Options(limits);
+        var options = XmlIssues.Options(limits).WithNameTable(names);
         var baseUri = Uri.TryCreate(source.SystemId, UriKind.Absolute, out var absolute) ? absolute : null;
         try
         {

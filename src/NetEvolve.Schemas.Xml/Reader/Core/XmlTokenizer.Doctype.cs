@@ -195,6 +195,15 @@ internal partial struct XmlTokenizer
 
             if (isPublic && literal == 0)
             {
+                // Production 12: only PubidChar is allowed.
+                for (var k = 0; k < value.Length; k++)
+                {
+                    if (!XmlCharClass.IsPubidChar(input[value.Start + k]))
+                    {
+                        return Failed(value.Start + k, XmlErrorCodes.XML0011);
+                    }
+                }
+
                 publicId = value;
             }
             else

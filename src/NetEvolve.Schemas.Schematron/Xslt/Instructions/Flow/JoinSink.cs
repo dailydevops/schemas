@@ -39,8 +39,9 @@ internal sealed class JoinSink : ISequenceSink, IDisposable
         _separator = separator;
     }
 
-    /// <inheritdoc />
-    public SequenceSinkKind Kind => SequenceSinkKind.Items;
+    /// <summary>Gets <see cref="SequenceSinkKind.Text"/> over a text sink, which has no tree to begin; otherwise <see cref="SequenceSinkKind.Items"/>.</summary>
+    public SequenceSinkKind Kind =>
+        _into.Kind == SequenceSinkKind.Text ? SequenceSinkKind.Text : SequenceSinkKind.Items;
 
     /// <inheritdoc />
     public IXmlSink Content => throw new InvalidOperationException("Only a tree sink has content.");

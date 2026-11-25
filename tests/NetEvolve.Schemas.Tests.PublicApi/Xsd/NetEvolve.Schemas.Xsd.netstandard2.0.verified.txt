@@ -1,4 +1,12 @@
-﻿namespace NetEvolve.Schemas
+﻿namespace Microsoft.Extensions.DependencyInjection
+{
+    public static class XsdValidatorServiceCollectionExtensions
+    {
+        public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddKeyedXsdValidator(this Microsoft.Extensions.DependencyInjection.IServiceCollection services, object serviceKey, System.Func<System.IServiceProvider, object?, System.IO.Stream> schema, System.Action<System.IServiceProvider, object?, NetEvolve.Schemas.XsdValidatorBuilder>? configure = null, string? systemId = null) { }
+        public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddXsdValidator(this Microsoft.Extensions.DependencyInjection.IServiceCollection services, System.Func<System.IServiceProvider, System.IO.Stream> schema, System.Action<System.IServiceProvider, NetEvolve.Schemas.XsdValidatorBuilder>? configure = null, string? systemId = null) { }
+    }
+}
+namespace NetEvolve.Schemas
 {
     public interface IXsdValidator : NetEvolve.Schemas.ISchemaValidator
     {

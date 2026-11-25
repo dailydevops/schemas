@@ -14,7 +14,6 @@ using NetEvolve.Schemas.XPath.Tests.Integration.Qt3.Selections;
 /// enabled), so a case that needs 3.x syntax or a 3.x function is a known failure until the package that adds it removes the case
 /// from the baseline. The rates of the two selections are reported by XP-73 and not collected here.
 /// </summary>
-[ConformanceLeg]
 public class Qt3Xp3ConformanceTests
 {
     public static IEnumerable<Func<string>> TestSetsXp30() => TestSets(Qt3SpecLevel.XPath30);
@@ -22,16 +21,22 @@ public class Qt3Xp3ConformanceTests
     public static IEnumerable<Func<string>> TestSetsXp31() => TestSets(Qt3SpecLevel.XPath31);
 
     [Test]
+    [Explicit]
+    [Category(ConformanceCategory.Name)]
     [MethodDataSource(nameof(TestSetsXp30))]
     public async Task Xp30_TestSet_MatchesBaseline(string testSet, CancellationToken cancellationToken) =>
         await AssertTestSetAsync(Qt3SpecLevel.XPath30, testSet, cancellationToken);
 
     [Test]
+    [Explicit]
+    [Category(ConformanceCategory.Name)]
     [MethodDataSource(nameof(TestSetsXp31))]
     public async Task Xp31_TestSet_MatchesBaseline(string testSet, CancellationToken cancellationToken) =>
         await AssertTestSetAsync(Qt3SpecLevel.XPath31, testSet, cancellationToken);
 
     [Test]
+    [Explicit]
+    [Category(ConformanceCategory.Name)]
     [Arguments(Qt3SpecLevel.XPath30)]
     [Arguments(Qt3SpecLevel.XPath31)]
     public async Task Tier_EveryNewCase_IsPassingOrABaselineEntry(

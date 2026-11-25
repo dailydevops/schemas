@@ -61,7 +61,10 @@ internal static class IdFixture
     public static IReadOnlyList<ValidationIssue> Run(SchemaFixture schema, string xml, params string[] notations) =>
         ValidationHarness.Run(schema, xml, null, Listener(new ScriptedAssessor(), notations));
 
-    public static IdListener Listener(ISimpleValueAssessor assessor, params string[] notations)
+    public static IdListener Listener(ISimpleValueAssessor assessor, params string[] notations) =>
+        Listener(assessor, XsdVersion.V11, notations);
+
+    public static IdListener Listener(ISimpleValueAssessor assessor, XsdVersion version, params string[] notations)
     {
         var registry = new ComponentRegistry(
             new XsdIssueReporter(new ValidationIssueCollector(ValidationLimits.Default))
@@ -71,7 +74,7 @@ internal static class IdFixture
             registry.Add(new NotationFake(notation));
         }
 
-        return new IdListener(assessor, registry.Freeze(XsdVersion.V11));
+        return new IdListener(assessor, registry.Freeze(version));
     }
 
     public static SimpleTypeDefinition Restriction(SimpleTypeDefinition baseType, SchemaFixture schema) =>

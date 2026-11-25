@@ -52,6 +52,9 @@ public sealed class XPathEvaluationContext : IDisposable
 
     internal XPathFocus Focus { get; private set; }
 
+    /// <summary>Gets or sets the number of function items that are being called; a call of a function item recurses, so the depth is bounded by <see cref="XPathLimits.MaxRecursionDepth"/>.</summary>
+    internal int CallDepth { get; set; }
+
     internal XdmItem? ContextItem => Focus.Item;
 
     internal int Position => Focus.Position;
@@ -117,6 +120,7 @@ public sealed class XPathEvaluationContext : IDisposable
         ThrowIfDisposed();
 
         Focus = default;
+        CallDepth = 0;
         _currentDateTime = null;
         Variables.Clear();
         Host.Clear();
@@ -130,7 +134,7 @@ public sealed class XPathEvaluationContext : IDisposable
 
     // Decision (#449): ThrowIfDisposed has no NetEvolve.Arguments.Argument equivalent and ObjectDisposedException.ThrowIf does not exist on netstandard; it stays the single explicit throw.
 #pragma warning disable CA1513
-    private void ThrowIfDisposed()
+    internal void ThrowIfDisposed()
     {
         if (_disposed)
         {

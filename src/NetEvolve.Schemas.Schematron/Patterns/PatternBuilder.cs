@@ -10,16 +10,26 @@ using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Evaluation.Axes;
 using NetEvolve.Schemas.XPath.Syntax.Tree;
 
-/// <summary>Builds the plan of one pattern text from its syntax tree, which the pattern profile has accepted.</summary>
+/// <summary>
+/// Builds the plan of one pattern text from its syntax tree. The tree is accepted by the pattern profile before, except
+/// for an extended pattern (XSLT binding): there the XSLT 3.0 forms are built here and every path is checked here.
+/// </summary>
+/// <remarks>
+/// Limitation (DEF-60): the XSLT 3.0 forms <c>intersect</c>, <c>except</c>, parentheses, and predicates on a parenthesized
+/// pattern are accepted under every XSLT binding, so also under <c>xslt</c> and <c>xslt2</c>, which is a superset of
+/// those versions. Patterns rooted at a variable reference are not supported.
+/// </remarks>
 internal sealed class PatternBuilder(
     IQueryBinding binding,
     QueryStaticScope scope,
     XPathStaticContext context,
     string text,
-    PatternLocator locator
+    PatternLocator locator,
+    bool extended
 )
 {
     private const string UnsupportedRule = "node-test";
+    private const string PredicateRule = "predicate";
 
     // The slots the predicates of every alternative read, for CompiledPattern.ReferencedSlots.
     private readonly SlotSet _slots = new();
@@ -32,22 +42,18 @@ internal sealed class PatternBuilder(
 
         var alternatives = new PatternAlternative[expressions.Count];
         var priorities = new decimal[expressions.Count];
-        var kinds = QueryNodeKinds.None;
-        var names = new List<XPathQName>();
-        var anyName = false;
+        var prefilter = new Prefilter();
         try
         {
             for (var i = 0; i < alternatives.Length; i++)
             {
-                if (!TryBuildAlternative(expressions[i], out var alternative, out var last, out problem))
+                if (!TryBuildNode(expressions[i], prefilter, out var alternative, out problem))
                 {
                     return false;
                 }
 
                 alternatives[i] = alternative;
                 priorities[i] = alternative.Priority;
-                kinds |= KindsOf(last);
-                anyName |= !TryAddName(last, names);
             }
         }
         catch (XPathException exception)
@@ -56,14 +62,20 @@ internal sealed class PatternBuilder(
             return false;
         }
 
-        plan = new PatternPlan(kinds, anyName ? [] : names.ToArray(), alternatives, priorities, _slots.ToArray());
+        plan = new PatternPlan(
+            prefilter.Kinds,
+            prefilter.AnyName ? [] : prefilter.Names.ToArray(),
+            alternatives,
+            priorities,
+            _slots.ToArray()
+        );
         problem = default;
         return true;
     }
 
     private static void Collect(Expression expression, List<Expression> alternatives)
     {
-        if (expression is SetExpression set)
+        if (expression is SetExpression { Operator: SetOperator.Union } set)
         {
             Collect(set.Left, alternatives);
             Collect(set.Right, alternatives);
@@ -74,15 +86,135 @@ internal sealed class PatternBuilder(
         }
     }
 
-    private bool TryBuildAlternative(
+    // The prefilter data of the pattern: a node must have one of these kinds and names to match at all.
+    private sealed class Prefilter
+    {
+        internal QueryNodeKinds Kinds { get; set; }
+
+        internal List<XPathQName> Names { get; } = [];
+
+        internal bool AnyName { get; set; }
+    }
+
+    private bool TryBuildNode(
         Expression expression,
+        Prefilter prefilter,
         out PatternAlternative alternative,
-        out AxisStep? last,
         out SchematronProblem problem
     )
     {
         alternative = null!;
-        last = null;
+        problem = default;
+        switch (expression)
+        {
+            case SetExpression set when extended:
+            {
+                // A node of the right side alone never matches, so only a union adds its kinds and names.
+                var rightFilter = set.Operator == SetOperator.Union ? prefilter : new Prefilter();
+                if (
+                    !TryBuildNode(set.Left, prefilter, out var left, out problem)
+                    || !TryBuildNode(set.Right, rightFilter, out var right, out problem)
+                )
+                {
+                    return false;
+                }
+
+                alternative = new SetPatternAlternative(set.Operator, left, right);
+                return true;
+            }
+            case ParenthesizedExpression { Inner: { } inner } when extended:
+                return TryBuildNode(inner, prefilter, out alternative, out problem);
+            case FilterExpression { Primary: ParenthesizedExpression { Inner: not null } } filter when extended:
+                return TryBuildFiltered(filter, prefilter, out alternative, out problem);
+            default:
+                if (extended && !PatternProfile.Checker.Accepts(expression, out var violation))
+                {
+                    problem = new SchematronProblem(
+                        SchematronDiagnosticCodes.PatternUnsupported,
+                        violation.Message,
+                        locator.Locate(violation.Offset),
+                        violation.QName.LocalName
+                    );
+                    return false;
+                }
+
+                return TryBuildPath(expression, prefilter, out alternative, out problem);
+        }
+    }
+
+    private bool TryBuildFiltered(
+        FilterExpression filter,
+        Prefilter prefilter,
+        out PatternAlternative alternative,
+        out SchematronProblem problem
+    )
+    {
+        alternative = null!;
+        var predicates = new QueryExpression[filter.Predicates.Count];
+        for (var i = 0; i < predicates.Length; i++)
+        {
+            var predicate = filter.Predicates[i];
+            if (
+                PatternPredicates.IsNumeric(predicate)
+                || PatternPredicates.Calls(predicate, "last")
+                || PatternPredicates.Calls(predicate, "position")
+            )
+            {
+                problem = new SchematronProblem(
+                    SchematronDiagnosticCodes.PatternUnsupported,
+                    "A predicate of a parenthesized pattern must not read a position or the size.",
+                    locator.Locate(predicate.Location.Offset),
+                    PredicateRule
+                );
+                return false;
+            }
+
+            if (!TryCompilePredicate(predicate, false, out predicates[i], out problem))
+            {
+                return false;
+            }
+        }
+
+        if (!TryBuildNode(filter.Primary, prefilter, out var inner, out problem))
+        {
+            return false;
+        }
+
+        alternative = new FilteredPatternAlternative(inner, predicates);
+        return true;
+    }
+
+    private bool TryCompilePredicate(
+        Expression predicate,
+        bool numeric,
+        out QueryExpression compiled,
+        out SchematronProblem problem
+    )
+    {
+        // A numeric predicate is the position test it stands for; every other one is a boolean test.
+        var source = text.Substring(predicate.Location.Offset, predicate.Location.Length);
+        if (numeric)
+        {
+            source = "position() = (" + source + ")";
+        }
+
+        if (!binding.TryCompile(source.AsSpan(), QueryExpressionKind.Boolean, scope, out compiled, out problem))
+        {
+            return false;
+        }
+
+        _ = _slots.Add(compiled);
+        return true;
+    }
+
+    private bool TryBuildPath(
+        Expression expression,
+        Prefilter prefilter,
+        out PatternAlternative alternative,
+        out SchematronProblem problem
+    )
+    {
+        alternative = null!;
         problem = default;
         var path = expression as PathExpression;
         var root = path?.Root ?? PathRoot.Relative;
@@ -110,8 +242,10 @@ internal sealed class PatternBuilder(
             descendant = false;
         }
 
-        last = axisSteps.Count == 0 ? null : axisSteps[axisSteps.Count - 1];
-        alternative = new PatternAlternative(root, steps.ToArray(), PatternPriority.Of(root, axisSteps));
+        var last = axisSteps.Count == 0 ? null : axisSteps[axisSteps.Count - 1];
+        prefilter.Kinds |= KindsOf(last);
+        prefilter.AnyName |= !TryAddName(last, prefilter.Names);
+        alternative = new PathAlternative(root, steps.ToArray(), PatternPriority.Of(root, axisSteps));
         return true;
     }
 
@@ -150,20 +284,10 @@ internal sealed class PatternBuilder(
             usesLast[i] = PatternPredicates.Calls(predicate, "last");
             positional[i] = numeric || usesLast[i] || PatternPredicates.Calls(predicate, "position");
 
-            // A numeric predicate is the position test it stands for; every other one is a boolean test.
-            var source = text.Substring(predicate.Location.Offset, predicate.Location.Length);
-            if (numeric)
-            {
-                source = "position() = (" + source + ")";
-            }
-
-            if (!binding.TryCompile(source.AsSpan(), QueryExpressionKind.Boolean, scope, out var compiled, out problem))
+            if (!TryCompilePredicate(predicate, numeric, out predicates[i], out problem))
             {
                 return false;
             }
-
-            predicates[i] = compiled;
-            _ = _slots.Add(compiled);
         }
 
         patternStep = new PatternStep(

@@ -7,23 +7,30 @@ using NetArchTest.Rules;
 /// <summary>Rules shared by the architecture tests. Each method returns the violations found.</summary>
 internal static partial class ArchitectureRules
 {
+    private const string DependencyInjectionAbstractions = "Microsoft.Extensions.DependencyInjection.Abstractions";
     private const string InteropNamespacePattern = @"(^|\.)Interop(\.|$)";
 
-    // Direct references allowed per assembly: Schemas <- Xml <- XPath <- {Schematron, Xsd}, DependencyInjection on top.
+    // Direct references allowed per assembly: Schemas <- DependencyInjection (generic core only) <- Xml <- XPath <- {Schematron, Xsd}.
+    // The format packages carry their own registration extensions, so DependencyInjection references no format package (#1054).
     private static readonly Dictionary<string, string[]> AllowedLibraryReferences = new(StringComparer.Ordinal)
     {
         [SourceAssemblies.Schemas] = [],
-        [SourceAssemblies.Xml] = [SourceAssemblies.Schemas],
+        [SourceAssemblies.DependencyInjection] = [SourceAssemblies.Schemas],
+        [SourceAssemblies.Xml] = [SourceAssemblies.Schemas, SourceAssemblies.DependencyInjection],
         [SourceAssemblies.XPath] = [SourceAssemblies.Schemas, SourceAssemblies.Xml],
-        [SourceAssemblies.Schematron] = [SourceAssemblies.Schemas, SourceAssemblies.Xml, SourceAssemblies.XPath],
-        [SourceAssemblies.Xsd] = [SourceAssemblies.Schemas, SourceAssemblies.Xml, SourceAssemblies.XPath],
-        [SourceAssemblies.DependencyInjection] =
+        [SourceAssemblies.Schematron] =
         [
             SourceAssemblies.Schemas,
+            SourceAssemblies.DependencyInjection,
             SourceAssemblies.Xml,
             SourceAssemblies.XPath,
-            SourceAssemblies.Schematron,
-            SourceAssemblies.Xsd,
+        ],
+        [SourceAssemblies.Xsd] =
+        [
+            SourceAssemblies.Schemas,
+            SourceAssemblies.DependencyInjection,
+            SourceAssemblies.Xml,
+            SourceAssemblies.XPath,
         ],
     };
 
@@ -32,7 +39,10 @@ internal static partial class ArchitectureRules
     // A new non-System polyfill package must be added to that switch explicitly.
     private static readonly Dictionary<string, string[]> AllowedExternalReferences = new(StringComparer.Ordinal)
     {
-        [SourceAssemblies.DependencyInjection] = ["Microsoft.Extensions.DependencyInjection.Abstractions"],
+        [SourceAssemblies.DependencyInjection] = [DependencyInjectionAbstractions],
+        [SourceAssemblies.Xml] = [DependencyInjectionAbstractions],
+        [SourceAssemblies.Schematron] = [DependencyInjectionAbstractions],
+        [SourceAssemblies.Xsd] = [DependencyInjectionAbstractions],
     };
 
     internal static IReadOnlyList<string> FindDisallowedReferences(

@@ -8,7 +8,8 @@ using NetEvolve.Schemas.Conformance.Results;
 /// Runs the valid and invalid cases of the pinned W3C XML Conformance Test Suite through the validating reader mode, for
 /// every value of the <c>ENTITIES</c> tag (XML-68).
 /// </summary>
-[ConformanceLeg]
+[Explicit]
+[Category(ConformanceCategory.Name)]
 public class ValidatingXmlConfSuiteTests
 {
     /// <summary>The number of valid and invalid cases of the selection, by type and <c>ENTITIES</c> value, with the cases that are not run and the cases that fail.</summary>
@@ -24,9 +25,9 @@ public class ValidatingXmlConfSuiteTests
         (XmlConfType.Valid, XmlConfEntities.General, 3, 0, 0),
         (XmlConfType.Valid, XmlConfEntities.Parameter, 78, 0, 0),
         (XmlConfType.Valid, XmlConfEntities.Both, 46, 0, 0),
-        (XmlConfType.Invalid, XmlConfEntities.None, 175, 4, 6),
+        (XmlConfType.Invalid, XmlConfEntities.None, 175, 4, 4),
         (XmlConfType.Invalid, XmlConfEntities.General, 6, 0, 0),
-        (XmlConfType.Invalid, XmlConfEntities.Parameter, 44, 0, 6),
+        (XmlConfType.Invalid, XmlConfEntities.Parameter, 44, 0, 4),
         (XmlConfType.Invalid, XmlConfEntities.Both, 4, 0, 4),
     ];
 

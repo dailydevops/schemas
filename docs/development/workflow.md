@@ -63,8 +63,25 @@ Do not add ADR files, a `docs/adr` directory, or a `decisions` directory. A devi
 
 ## Target framework leg of the conformance suites
 
-A conformance result does not depend on the target framework, so each suite runs on one leg, `net10.0`, and not on every leg of the test projects. The shared pipeline runs every test of `Schemas.slnx` on every leg and takes no test filter, so the suite classes select the leg themselves: they carry `ConformanceLegAttribute` (in `tests/NetEvolve.Schemas.Conformance`), and on every other leg their tests report as skipped, not as failed. A skipped leg adds nothing to the job summary, so the rate table appears once per package.
+A conformance result does not depend on the target framework, so the conformance workflow runs each suite on one leg, `net10.0`, and not on every leg of the test projects. The suites are explicit (see below), so no other leg runs them, and the rate table appears once per package in the job summary.
 
-- The environment variable `SCHEMAS_CONFORMANCE_LEGS` replaces the designated leg with a comma separated list of target framework monikers, for example `net5.0` or `net5.0,net10.0`. Use it to compare a leg locally.
-- A new suite class that runs a pinned suite against a baseline carries `[ConformanceLeg]`.
-- `net5.0` runs the `netstandard2.0` build of the libraries. A run with `SCHEMAS_CONFORMANCE_LEGS=net5.0` passes every baseline gate of QT3, XSTS, XML Conformance and Schematron, so the failure sets equal those of `net10.0`. A second leg is added only when a conformance result is shown to differ between builds.
+- To compare another leg locally, run the category filter with `--framework`, for example `--framework net5.0`.
+- `net5.0` runs the `netstandard2.0` build of the libraries. A run on `net5.0` passes every baseline gate of QT3, XSTS, XML Conformance and Schematron, so the failure sets equal those of `net10.0`. A second leg is added only when a conformance result is shown to differ between builds.
+
+### Explicit conformance suites
+
+The suite classes also carry `[Explicit]` and `[Category(ConformanceCategory.Name)]` (category `Conformance`, defined once in `tests/NetEvolve.Schemas.Conformance`). TUnit excludes explicit tests from a run that selects any non-explicit test, so the main CI test run, which takes no filter, executes none of the suites, and `conformance.yml` is the only place that runs them. See <https://tunit.dev/docs/writing-tests/explicit/#combining-explicit-with-category>.
+
+- The conformance workflow selects the suites by category: `--treenode-filter "/*/*/*/*[Category=Conformance]"`. A filter such as `/*/*Conformance*/*/*` also selects non-explicit tests, so TUnit would drop the explicit ones from that run. Do not use a namespace or class-name filter for the suites.
+- Because a conformance result does not depend on the target framework, the workflow matrix runs the `net10.0` leg only.
+- A new suite class carries `[Explicit]` and `[Category(ConformanceCategory.Name)]`.
+
+## Benchmarks run after the merge
+
+The Benchmarks workflow (`.github/workflows/benchmarks.yml`) does not run on pull requests. A run takes about 50 minutes, and with many open pull requests it saturates the hosted CI runners and delays every other check. The benchmark gate is not a required status check of the `main` ruleset, so it does not need to finish before the merge.
+
+- It runs on every push to `main` that touches `benchmarks/**`, `src/**`, or the workflow file.
+- It runs nightly (`schedule`) and on demand (`workflow_dispatch`).
+- To benchmark a pull request that changes benchmarks or hot paths, start the workflow manually with `workflow_dispatch` on the branch of the pull request. There is no label for this.
+- The concurrency group is per ref, so a newer run on `main` cancels an older one, and runs of other refs are not affected.
+- A red run on `main` stays visible as a failed workflow run. A follow-up pull request fixes it.
