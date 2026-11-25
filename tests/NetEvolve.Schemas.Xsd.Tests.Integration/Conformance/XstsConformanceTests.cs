@@ -18,6 +18,17 @@ public class XstsConformanceTests
 
     private static readonly ConcurrentBag<string> InstanceCaseKeys = [];
 
+    /// <summary>
+    /// Cases whose import names a document in another letter case (Schz012_b.xsd for schZ012_b.xsd). A case-insensitive
+    /// file system resolves it to the document that is already loaded, which fails (#1129); a case-sensitive one finds no
+    /// document, the import location is ignored, and the case passes. The baseline records the Windows outcome.
+    /// </summary>
+    private static readonly string[] CaseSensitiveFileSystemPasses =
+    [
+        "1.0/schZ012_b/schZ012_b",
+        "1.0/schZ012_c/schZ012_c",
+    ];
+
     /// <summary>The number of cases the pinned suite selects for XSD 1.0; a new pin changes it on purpose.</summary>
     private const int SelectedCaseCount10 = 39271;
 
@@ -174,13 +185,23 @@ public class XstsConformanceTests
             results,
             new Dictionary<string, KnownFailureBaseline>(StringComparer.Ordinal)
             {
-                [testSet] = BaselineFiles.Load(XstsSuite.BaselineDirectory, testSet),
+                [testSet] = PlatformBaseline(BaselineFiles.Load(XstsSuite.BaselineDirectory, testSet)),
             }
         );
 
         await Assert.That(cases).IsNotEmpty();
         await Assert.That(report.IsSuccess).IsTrue();
     }
+
+    private static KnownFailureBaseline PlatformBaseline(KnownFailureBaseline baseline) =>
+        OperatingSystem.IsWindows() || OperatingSystem.IsMacOS()
+            ? baseline
+            : KnownFailureBaseline.Parse(
+                string.Join(
+                    '\n',
+                    baseline.Ids.Where(id => !CaseSensitiveFileSystemPasses.Contains(id, StringComparer.Ordinal))
+                )
+            );
 
     /// <summary>Appends one aggregated rate row per test set after all chunks ran.</summary>
     [After(Class)]

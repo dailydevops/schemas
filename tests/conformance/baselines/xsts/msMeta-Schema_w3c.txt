@@ -4,9 +4,6 @@
 1.0/schD7/schD7
 1.0/schD7/schD7.v
 1.0/schD8/schD8
-1.0/schE9/schE9
-1.0/schG8/schG8
-1.0/schG8/schG8.v
 1.0/schG9/schG9
 1.0/schH9/schH9
 1.0/schL1/schL1
