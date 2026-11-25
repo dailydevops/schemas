@@ -9,7 +9,6 @@ using NetEvolve.Schemas.Xml.Tests.Integration.XmlConf.Validating;
 /// <summary>Pins the conformance section of src/NetEvolve.Schemas.Xml/README.md to the run of the reader over the pinned suite.</summary>
 [Explicit]
 [Category(ConformanceCategory.Name)]
-[ConformanceLeg]
 public class XmlConfReadmeTests
 {
     private const string Readme = "src/NetEvolve.Schemas.Xml/README.md";
