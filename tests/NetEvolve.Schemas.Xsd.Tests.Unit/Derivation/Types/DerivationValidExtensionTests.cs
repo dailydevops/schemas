@@ -4,6 +4,7 @@ using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Elements;
 using NetEvolve.Schemas.Xsd.Tests.Unit.Fakes;
+using NetEvolve.Schemas.Xsd.Wildcards.Core;
 
 public class DerivationValidExtensionTests
 {
@@ -233,6 +234,37 @@ public class DerivationValidExtensionTests
             false,
             null,
             TypeFixture.Wild(TypeFixture.Namespaces("urn:a"))
+        );
+
+        TypeFixture.Checker().Report(type, other, _f.Reporter);
+
+        await AssertSingle("cos-ct-extends", "cos-ct-extends.1.3");
+    }
+
+    [Test]
+    public async Task Extension_OfANegationWildcard_ToTheUnionWithASetNamingIt_IsValid()
+    {
+        // XSTS wildZ013a: not(urn:a) united with {urn:a, urn:b} is not(absent), which allows every name of not(urn:a).
+        var other = _f.Root("o", null, false, null, TypeFixture.Wild(NamespaceConstraint.Not("urn:a")));
+        var type = _f.Complex("d", Ext, _f.Root("a"), null, false, null, TypeFixture.Wild(NamespaceConstraint.Not("")));
+
+        TypeFixture.Checker().Report(type, other, _f.Reporter);
+
+        await Assert.That(_f.Issues).Count().IsEqualTo(0);
+    }
+
+    [Test]
+    public async Task Extension_OfANegationWildcard_ToAnotherNamedNegation_IsAnError()
+    {
+        var other = _f.Root("o", null, false, null, TypeFixture.Wild(NamespaceConstraint.Not("urn:a")));
+        var type = _f.Complex(
+            "d",
+            Ext,
+            _f.Root("a"),
+            null,
+            false,
+            null,
+            TypeFixture.Wild(NamespaceConstraint.Not("urn:b"))
         );
 
         TypeFixture.Checker().Report(type, other, _f.Reporter);

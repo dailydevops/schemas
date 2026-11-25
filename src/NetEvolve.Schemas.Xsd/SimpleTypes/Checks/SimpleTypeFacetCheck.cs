@@ -261,10 +261,9 @@ internal static class SimpleTypeFacetCheck
             }
         }
 
-        // Datatypes 4.3.5.5 (enumeration-valid-restriction) and 3.2.19 (enumeration-required-notation).
+        // Datatypes 4.3.5.5 (enumeration-valid-restriction).
         private void CheckEnumerations()
         {
-            var enumerates = _facts.HasEnumeration;
             for (var i = 0; i < _step.Count; i++)
             {
                 if (_skipped[i] || _step[i].Kind != FacetKind.Enumeration)
@@ -272,7 +271,6 @@ internal static class SimpleTypeFacetCheck
                     continue;
                 }
 
-                enumerates = true;
                 if (!_assessor.Assess(_baseType, _step[i].Value.AsSpan(), out _).IsValid)
                 {
                     Report(
@@ -281,15 +279,6 @@ internal static class SimpleTypeFacetCheck
                         "The enumeration value is not in the value space of the base type."
                     );
                 }
-            }
-
-            if (!enumerates && _facts.Primitive == PrimitiveKind.Notation)
-            {
-                Report(
-                    XsdRuleCodes.EnumerationRequiredNotation,
-                    _location,
-                    "A type derived from NOTATION must specify an enumeration."
-                );
             }
         }
 

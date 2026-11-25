@@ -66,7 +66,7 @@ internal static class ExtensionValidity
 
         if (
             baseType.AttributeWildcard is { } baseWildcard
-            && (type.AttributeWildcard is not { } wildcard || !baseWildcard.IsSubsetOf(wildcard))
+            && (type.AttributeWildcard is not { } wildcard || !AllowsEverythingOf(baseWildcard, wildcard))
         )
         {
             return Violation(
@@ -77,6 +77,11 @@ internal static class ExtensionValidity
 
         return CheckContent(type, baseType);
     }
+
+    // The wildcard of an extension is the union with that of the base (Errata E1-10), so a union that the wildcard equals
+    // counts as a superset although the intensional subset test rejects not(a) against not(absent).
+    private static bool AllowsEverythingOf(IWildcard baseWildcard, IWildcard wildcard) =>
+        baseWildcard.IsSubsetOf(wildcard) || baseWildcard.Union(wildcard)?.IsSubsetOf(wildcard) == true;
 
     private static TypeViolation CheckContent(ComplexTypeDefinition type, ComplexTypeDefinition baseType)
     {

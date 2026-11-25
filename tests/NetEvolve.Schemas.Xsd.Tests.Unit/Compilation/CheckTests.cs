@@ -136,6 +136,35 @@ public class CheckTests
     }
 
     [Test]
+    [Arguments("<xs:notation name=\"n\" public=\"p\"/>")]
+    [Arguments(
+        "<xs:simpleType name=\"b\"><xs:restriction base=\"xs:NOTATION\"><xs:length value=\"3\"/></xs:restriction></xs:simpleType>"
+    )]
+    [Arguments(
+        "<xs:simpleType name=\"b\"><xs:restriction base=\"xs:NOTATION\"><xs:enumeration value=\"t:n\"/></xs:restriction></xs:simpleType>"
+            + "<xs:simpleType name=\"d\"><xs:restriction base=\"t:b\"><xs:maxLength value=\"5\"/></xs:restriction></xs:simpleType>"
+            + "<xs:element name=\"e\" type=\"t:d\"/>"
+    )]
+    public async Task Notation_RestrictionStepWithoutEnumerationOrEnumeratedType_IsNotReported(string body)
+    {
+        var compilation = Compile(Schema(body));
+
+        await Assert.That(Codes(compilation).Count).IsEqualTo(0);
+    }
+
+    [Test]
+    [Arguments(
+        "<xs:simpleType name=\"b\"><xs:restriction base=\"xs:NOTATION\"><xs:length value=\"3\"/></xs:restriction></xs:simpleType>"
+            + "<xs:complexType name=\"c\"><xs:attribute name=\"a\" type=\"t:b\"/></xs:complexType>"
+    )]
+    public async Task Notation_DeclarationOfATypeWithoutEnumeration_IsReported(string body)
+    {
+        var compilation = Compile(Schema(body));
+
+        await Assert.That(Codes(compilation)).IsEquivalentTo([XsdRuleCodes.EnumerationRequiredNotation]);
+    }
+
+    [Test]
     [Arguments("<xs:attribute name=\"a\" type=\"xs:int\" fixed=\"abc\"/>")]
     [Arguments(
         "<xs:complexType name=\"c\"><xs:attribute name=\"a\" type=\"xs:int\" default=\"abc\"/></xs:complexType>"
