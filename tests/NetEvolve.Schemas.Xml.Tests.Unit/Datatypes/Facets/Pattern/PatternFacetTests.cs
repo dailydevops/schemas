@@ -41,6 +41,12 @@ public class PatternFacetTests
         await Assert.That(Create("[a-z]+").IsSatisfiedBy("abc1".AsSpan())).IsFalse();
 
     [Test]
+    [Arguments("^abc$", true)]
+    [Arguments("abc", false)]
+    public async Task CaretAndDollarOutsideAClass_AreLiteralCharacters(string lexical, bool expected) =>
+        await Assert.That(Create("^abc$").IsSatisfiedBy(lexical.AsSpan())).IsEqualTo(expected);
+
+    [Test]
     public async Task PatternsOfEveryDerivationStep_AllApply()
     {
         var token = (AtomicDescriptor<XsdString>)BuiltInDatatypes.For(XsdVersion.V11).Get("token");

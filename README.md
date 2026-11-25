@@ -186,9 +186,9 @@ The rates were measured on `main` at commit `a2d4119` with `net10.0`. The `Confo
 | W3C XML Conformance Test Suite (xmlconf), non-validating reader | `NetEvolve.Schemas.Xml` | 2,001 | 1,980 | 98.9% | [Xml package readme](src/NetEvolve.Schemas.Xml/README.md#conformance); 21 baselined cases in `tests/conformance/baselines/xmlconf` |
 | xmlconf, DTD validation | `NetEvolve.Schemas.Xml` | 943 | 931 | 98.7% | `NetEvolve.Schemas.Xml.Tests.Integration`, filter `/*/*/*Xml*Conf*SuiteTests/*`; 12 baselined, 14 skipped |
 | W3C QT3 test suite, XPath 2.0 selection | `NetEvolve.Schemas.XPath` | 14,550 | 14,325 | 98.5% | `NetEvolve.Schemas.XPath.Tests.Integration`, filter `/*/*Conformance*/*/*`; 225 baselined cases in `tests/conformance/baselines/qt3`, 738 skipped |
-| W3C XML Schema Test Suite (XSTS) 1.0, schema tests | `NetEvolve.Schemas.Xsd` | 14,357 | 14,046 | 97.8% | `NetEvolve.Schemas.Xsd.Tests.Integration`, filter `/*/*Conformance*/*/*`; 311 baselined cases |
-| XSTS 1.0, instance tests | `NetEvolve.Schemas.Xsd` | 24,914 | 23,993 | 96.3% | same run; 921 baselined cases |
-| XSTS 1.1, schema and instance tests | `NetEvolve.Schemas.Xsd` | 41,389 | 0 | 0.0% | derived from the same run: the row for all of XSTS (80,660 applicable, 38,039 passed, 47.1%) minus both XSTS 1.0 rows |
+| W3C XML Schema Test Suite (XSTS) 1.0, schema tests | `NetEvolve.Schemas.Xsd` | 14,357 | 14,183 | 98.7% | `NetEvolve.Schemas.Xsd.Tests.Integration`, filter `/*/*Conformance*/*/*`; 174 baselined cases |
+| XSTS 1.0, instance tests | `NetEvolve.Schemas.Xsd` | 24,914 | 24,005 | 96.3% | same run; 909 baselined cases |
+| XSTS 1.1, schema and instance tests | `NetEvolve.Schemas.Xsd` | 41,389 | 0 | 0.0% | derived from the same run: the row for all of XSTS (80,660 applicable, 38,188 passed, 47.3%) minus both XSTS 1.0 rows |
 | Schematron conformance suite 2.0, bindings `xslt-1` and `xslt-2` | `NetEvolve.Schemas.Schematron` | 84 | 55 | 65.4% | `NetEvolve.Schemas.Schematron.Tests.Integration`, filter `/*/*Conformance*/*/*`; 29 baselined cases in `tests/conformance/baselines/schematron-conformance`, 3 excluded |
 | EN 16931 (CEN) validation artefacts 1.3.17, golden tests | `NetEvolve.Schemas.Schematron` | 1,174 | 1,174 | 100.0% | `NetEvolve.Schemas.Schematron.Tests.Integration`, filter `/*/*/En16931GoldenTests/*`; no baselined cases |
 

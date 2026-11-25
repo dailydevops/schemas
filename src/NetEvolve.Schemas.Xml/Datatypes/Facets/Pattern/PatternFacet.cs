@@ -20,7 +20,7 @@ using NetEvolve.Schemas.Xml.Text.CharClasses;
 /// A match that reaches the step ceiling of the <see cref="RegexStepLimits"/> is reported as <see cref="PatternDiagnosticCode.StepLimitExceeded"/>
 /// and the value is treated as not validated, although the specification defines an answer for it; <see cref="IsSatisfiedBy"/> is then
 /// <see langword="false"/>. The syntax is the XSD dialect of the regex parser, so its limits apply (pattern length, nesting, program size,
-/// and no anchors, back references, or reluctant quantifiers). The XSD 1.0 mode reads <c>\i \I \c \C</c> with the Second Edition name
+/// and no back references or reluctant quantifiers; <c>^</c> and <c>$</c> are literal characters). The XSD 1.0 mode reads <c>\i \I \c \C</c> with the Second Edition name
 /// characters and the 1.1 mode with the Fifth Edition. Whether a pattern is a valid restriction of the pattern of the base type is not
 /// checked, as the specification does not define it either.
 /// </remarks>
