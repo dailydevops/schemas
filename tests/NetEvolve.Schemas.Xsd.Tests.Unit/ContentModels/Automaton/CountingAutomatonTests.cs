@@ -326,17 +326,66 @@ public class CountingAutomatonTests
     [Test]
     public async Task ConfigurationCeiling_StopsARunWithoutCorruptingIt()
     {
-        // (a{1,70}){1,70} keeps well over 1,024 counter configurations alive after about 46 a.
-        var m = Compile(Seq(1, 70, El(A, 1, 70)));
+        // (((a{12,100}){12,100}){12,100}): counts below a minimum are never pruned, so about 13^3 configurations are live.
+        var m = Compile(Seq(12, 100, Seq(12, 100, El(A, 12, 100))));
         var run = m.CreateRun();
         var accepted = 0;
-        while (accepted < 70 && run.TryStep(A, out _))
+        while (accepted < 20_000 && run.TryStep(A, out _))
         {
             accepted++;
         }
 
         await Assert.That(run.CeilingExceeded).IsTrue();
-        await Assert.That(accepted).IsLessThan(70);
+        await Assert.That(accepted).IsLessThan(20_000);
+    }
+
+    [Test]
+    public async Task Run_StaleCountersOfLeftCountedSequences_DoNotMultiply()
+    {
+        // XSTS particlesZ034_a1: (a+){1,100}, b, (a+){1,100} over 2,080 a.
+        var m = Compile(Seq(Seq(1, 100, El(A, 1, Unbounded)), El(B), Seq(1, 100, El(A, 1, Unbounded))));
+        var ids = new int[2080];
+        Array.Fill(ids, A, 0, 1000);
+        ids[1000] = B;
+        Array.Fill(ids, A, 1001, 1079);
+
+        await Assert.That(Accepts(m, ids)).IsTrue();
+    }
+
+    [Test]
+    public async Task Run_NestedCountersWithMinimumOne_StayBelowTheConfigurationCeiling()
+    {
+        // XSTS particlesZ036_c: ((a{1,100000000}){1,100000000} | b)* over 1,540 a and one b.
+        var m = Compile(Cho(0, Unbounded, Seq(1, 100_000_000, El(A, 1, 100_000_000)), El(B)));
+        var ids = new int[1541];
+        Array.Fill(ids, A);
+        ids[700] = B;
+
+        await Assert.That(Accepts(m, ids)).IsTrue();
+    }
+
+    [Test]
+    public async Task Run_CountedChoiceOverAnUnboundedElement_StaysBelowTheConfigurationCeiling()
+    {
+        // XSTS particlesZ036_b: ((a+){1,100000000} | b){1,100000} over 3,000 a, b, 3,000 a.
+        var m = Compile(Cho(1, 100_000, Seq(1, 100_000_000, El(A, 1, Unbounded)), El(B)));
+        var ids = new int[6001];
+        Array.Fill(ids, A);
+        ids[3000] = B;
+
+        await Assert.That(Accepts(m, ids)).IsTrue();
+    }
+
+    [Test]
+    public async Task Run_PrunedCounterConfigurations_KeepTheMaximumAndTheMinimum()
+    {
+        // (a{1,3}){2,2}: 1 a is too few, 2 to 6 are fine, 7 are too many.
+        var m = Compile(Seq(2, 2, El(A, 1, 3)));
+
+        await Assert.That(Accepts(m, Rep(A, 1))).IsFalse();
+        await Assert.That(Accepts(m, Rep(A, 2))).IsTrue();
+        await Assert.That(Accepts(m, Rep(A, 6))).IsTrue();
+        await Assert.That(Accepts(m, Rep(A, 7))).IsFalse();
     }
 
     [Test]

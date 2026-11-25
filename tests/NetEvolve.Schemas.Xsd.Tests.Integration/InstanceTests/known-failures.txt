@@ -94,10 +94,6 @@ msMeta-Particles_w3c	1.0/particlesR016/particlesR016.v	#859	The schema does not 
 msMeta-Particles_w3c	1.0/particlesR022/particlesR022.v	#859	The schema does not build: the import check of the namespace attribute is inverted.
 msMeta-Particles_w3c	1.0/particlesZ001/particlesZ001.i	#863	The schema does not build: the particle restriction check rejects a restriction that the suite accepts.
 msMeta-Particles_w3c	1.0/particlesZ025/particlesZ025.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-Particles_w3c	1.0/particlesZ034_a1/particlesZ034_a1.v	#894	The validator model cannot be built: the content model transition ceiling is exceeded.
-msMeta-Particles_w3c	1.0/particlesZ036_b1/particlesZ036_b1.i	#894	The validator model cannot be built: the content model transition ceiling is exceeded.
-msMeta-Particles_w3c	1.0/particlesZ036_b2/particlesZ036_b2.i	#894	The validator model cannot be built: the content model transition ceiling is exceeded.
-msMeta-Particles_w3c	1.0/particlesZ036_c/particlesZ036_c.v	#894	The validator model cannot be built: the content model transition ceiling is exceeded.
 msMeta-Regex_w3c	1.0/RegexTest_488/RegexTest_488.i	#858	The schema does not build: the regular expression parser rejects the anchors ^ and $.
 msMeta-Regex_w3c	1.0/RegexTest_489/RegexTest_489.i	#858	The schema does not build: the regular expression parser rejects the anchors ^ and $.
 msMeta-Regex_w3c	1.0/RegexTest_506/RegexTest_506.i	#858	The schema does not build: the regular expression parser rejects the anchors ^ and $.

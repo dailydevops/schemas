@@ -110,10 +110,12 @@ public class OpenContentRunTests
     public async Task RunBeyondTheConfigurationCeiling_IsNotHiddenByOpenContent(bool suffix)
     {
         var mode = suffix ? OpenContentMode.Suffix : OpenContentMode.Interleave;
-        // (a{1,70}){1,70} keeps well over 1,024 counter configurations alive after about 46 a.
-        var counting = AutomatonTestKit.Compile(AutomatonTestKit.Seq(1, 70, AutomatonTestKit.El(A, 1, 70))).CreateRun();
+        // ((a{12,100}){12,100}){12,100} keeps well over 1,024 counter configurations alive: counts below a minimum are never pruned.
+        var counting = AutomatonTestKit
+            .Compile(AutomatonTestKit.Seq(12, 100, AutomatonTestKit.Seq(12, 100, AutomatonTestKit.El(A, 12, 100))))
+            .CreateRun();
         var accepted = 0;
-        while (accepted < 70 && counting.TryStep(A, out _))
+        while (accepted < 20_000 && counting.TryStep(A, out _))
         {
             accepted++;
         }
