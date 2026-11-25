@@ -37,6 +37,44 @@ public class FacetCombinationTests
     }
 
     [Test]
+    public async Task LengthWithMinLengthInOneStep_Xsd10_IsAnErrorOnTheMinLength()
+    {
+        var fixture = new FacetFixture(XsdVersion.V10);
+
+        var result = fixture.Check(
+            fixture.Base("string"),
+            FacetFixture.Decl(FacetKind.Length, "5", line: 51),
+            FacetFixture.Decl(FacetKind.MinLength, "1", line: 52)
+        );
+
+        await AssertInvalid(fixture, result, "length-minLength-maxLength", 52);
+    }
+
+    [Test]
+    public async Task LengthWithMaxLengthInOneStep_Xsd10_IsAnErrorOnTheMaxLength()
+    {
+        var fixture = new FacetFixture(XsdVersion.V10);
+
+        var result = fixture.Check(
+            fixture.Base("string"),
+            FacetFixture.Decl(FacetKind.MaxLength, "9", line: 51),
+            FacetFixture.Decl(FacetKind.Length, "5", line: 52)
+        );
+
+        await AssertInvalid(fixture, result, "length-minLength-maxLength", 51);
+    }
+
+    [Test]
+    public async Task LengthAlone_Xsd10_Valid()
+    {
+        var fixture = new FacetFixture(XsdVersion.V10);
+
+        var result = fixture.Check(fixture.Base("string"), FacetFixture.Decl(FacetKind.Length, "5"));
+
+        await AssertValid(fixture, result);
+    }
+
+    [Test]
     public async Task LengthBelowMinLength_IsAnErrorOnTheMinLength()
     {
         var fixture = new FacetFixture();
