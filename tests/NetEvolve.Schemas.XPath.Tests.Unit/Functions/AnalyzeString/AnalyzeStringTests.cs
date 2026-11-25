@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.XPath.Tests.Unit.Functions.AnalyzeString;
+﻿namespace NetEvolve.Schemas.XPath.Tests.Unit.Functions.AnalyzeString;
 
 using System.Text;
 using System.Threading;
@@ -87,6 +87,13 @@ public class AnalyzeStringTests
         ResultOpen + "<match>a<group nr=\"1\"><group nr=\"3\">b</group></group></match>" + ResultClose
     )]
     [Arguments("ba", "(?:(a)|(b))+", "", ResultOpen + "<match>b<group nr=\"1\">a</group></match>" + ResultClose)]
+    [Arguments("ab", "(?:(b)|((a)))+", "", ResultOpen + "<match>a<group nr=\"1\">b</group></match>" + ResultClose)]
+    [Arguments(
+        "ab",
+        "((?:(b)|((a)))+)",
+        "",
+        ResultOpen + "<match><group nr=\"1\">a<group nr=\"2\">b</group></group></match>" + ResultClose
+    )]
     [Arguments(
         "aXb",
         "x",

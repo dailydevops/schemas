@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.XPath.Functions.Regex;
+﻿namespace NetEvolve.Schemas.XPath.Functions.Regex;
 
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -80,8 +80,12 @@ internal sealed class PatternCache
     /// <summary>Gets the enclosing capture group of each capture group of a pattern that this cache compiled.</summary>
     /// <param name="operations">The operations, as <see cref="Get"/> returned them.</param>
     /// <returns>An array indexed by group number whose entry is the number of the innermost capture group around that group, zero for none.</returns>
-    internal int[] GroupParents(RegexOperations operations) =>
-        _parents.TryGetValue(operations, out var parents) ? parents : [];
+    internal int[] GroupParents(RegexOperations operations)
+    {
+        // Every operations instance Get returns is registered by Compile, so the lookup cannot miss.
+        _ = _parents.TryGetValue(operations, out var parents);
+        return parents!;
+    }
 
     private RegexOperations Compile(string pattern, RegexOptions options)
     {
