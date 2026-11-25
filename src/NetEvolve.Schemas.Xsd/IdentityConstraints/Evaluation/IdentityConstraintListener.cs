@@ -257,15 +257,7 @@ internal sealed class IdentityConstraintListener : ValidationListener
 
         if (!HasSimpleContent(info.Type))
         {
-            Report(
-                info.Location,
-                "The field '"
-                    + target.Scope.Definition.Fields[field]
-                    + "' of the identity constraint '"
-                    + target.Scope.Definition.Name.LocalName
-                    + "' selects an element whose type has no simple content.",
-                "cvc-identity-constraint.3"
-            );
+            ReportNoSimpleType(target, field, info.Location, "an element whose type has no simple content");
             target.Failed = true;
             return;
         }
@@ -290,9 +282,28 @@ internal sealed class IdentityConstraintListener : ValidationListener
         }
         else
         {
+            // A valid attribute without a type matched a skipped (or unresolved lax) wildcard; an invalid one was reported already.
+            if (info.IsValid)
+            {
+                ReportNoSimpleType(target, field, info.Location, "an attribute that has no type definition");
+            }
+
             target.Failed = true;
         }
     }
+
+    private void ReportNoSimpleType(Target target, int field, DocumentLocation location, string selected) =>
+        Report(
+            location,
+            "The field '"
+                + target.Scope.Definition.Fields[field]
+                + "' of the identity constraint '"
+                + target.Scope.Definition.Name.LocalName
+                + "' selects "
+                + selected
+                + ".",
+            "cvc-identity-constraint.3"
+        );
 
     private void ReportMultiple(Target target, int field, DocumentLocation location)
     {
