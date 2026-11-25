@@ -454,6 +454,12 @@ internal sealed class SchemaDocumentLoader
         using var result = _resolver.Resolve(in request, _cancellationToken);
         if (result.Status != ResourceStatus.Found)
         {
+            // The location of an import is only a hint (Structures 4.2.3): an unresolvable one is not an error.
+            if (ReferenceEquals(rule, SrcImport))
+            {
+                return null;
+            }
+
             var found = result.Status == ResourceStatus.NotFound;
             Core(
                 found ? CoreDiagnosticCodes.ResourceNotFound : CoreDiagnosticCodes.ResourceDenied,

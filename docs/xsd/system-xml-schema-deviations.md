@@ -7,7 +7,7 @@ This document lists every difference that the differential run over the W3C XML 
 | Baseline | `System.Xml.Schema` of the .NET runtime 10.0, compared on the `net10.0` test leg only (`baseline-runtime: 10.0`) |
 | Corpus | XSTS cases of XSD 1.0 (schema tests and instance tests), pinned in `tests/conformance/suites/xsts.json` |
 | Data file | `tests/NetEvolve.Schemas.Xsd.Tests.Integration/DifferentialData/xsts-1.0-deviations.txt`, one entry per difference: case id, difference kind, observed difference, specification reference, reason |
-| Entries | 14594 entries for 14557 cases |
+| Entries | 14589 entries for 14553 cases |
 
 The list is valid for the recorded baseline runtime version only. A run on another runtime version fails until the list is compared again. System.Xml.Schema implements XSD 1.0 only, so cases of XSD 1.1 are not compared.
 
@@ -28,9 +28,9 @@ No builder option, switch, or code path in the library reproduces System.Xml.Sch
 | Class | Entries | Cases |
 |---|---:|---:|
 | Verdict differences: this library follows the specification | 1696 | 1664 |
-| Verdict differences: documented limitations of this library | 26 | 21 |
+| Verdict differences: documented limitations of this library | 21 | 17 |
 | Position differences: equivalent | 12872 | 12872 |
-| Differences on cases that a bug issue tracks (no entry) | 910 | |
+| Differences on cases that a bug issue tracks (no entry) | 909 | |
 
 ## Differences on cases that a bug issue tracks
 
@@ -54,7 +54,6 @@ The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTe
 | #863 | 2 | bug(xsd): particle restriction reports errors for restrictions that the XSTS accepts |
 | #1129 | 2 | bug(xsd): an import of a document with the namespace of the importing schema reports duplicate declarations |
 | #410 | 1 | feat(xml): support caller-selectable xml 1.1 name productions |
-| #1128 | 1 | bug(xsd): an import whose schema location cannot be resolved is reported as an error |
 | #1130 | 1 | bug(xsd): a targetNamespace attribute with an empty value is accepted |
 
 ## Verdict differences: this library follows the specification
@@ -2130,41 +2129,37 @@ sunMeta-SType/1.0/st_targetns00101m/ST_targetNS00101m2_n
 
 Documented limitation: a reference to a component that no document declares is reported as src-resolve, whereas the suite accepts the incomplete schema and fails only where the missing component is used. The left-out function is tracked by #956.
 
-- Difference: InstanceVerdict `instance verdict: ours=NotRun, baseline=Valid` (5); SchemaVerdict `schema verdict: ours=Invalid, baseline=Valid` (5)
+- Difference: InstanceVerdict `instance verdict: ours=NotRun, baseline=Valid` (4); SchemaVerdict `schema verdict: ours=Invalid, baseline=Valid` (4)
 - Specification: XSD 1.0 Part 1, 5.3 (Missing Sub-components) and 3.15.3 (src-resolve)
-- Cases: 5
+- Cases: 4
 
 ```text
 msMeta-Additional_w3c/1.0/addC001/addC001.v
 msMeta-Additional_w3c/1.0/isDefault078/isDefault078.v
 msMeta-DataTypes_w3c/1.0/anyURI_a002_1337/anyURI_a002_1337.v
 msMeta-Schema_w3c/1.0/schD7/schD7.v
-msMeta-Schema_w3c/1.0/schG8/schG8.v
 ```
 
 ### A schema location that cannot be resolved
 
 Documented limitation (design 146, DP-3): a schema location that the resolver refuses or cannot find is an error at the directive, whereas the suite ignores it.
 
-- Difference: SchemaVerdict `schema verdict: ours=Invalid, baseline=Valid` (15)
+- Difference: SchemaVerdict `schema verdict: ours=Invalid, baseline=Valid` (12)
 - Specification: XSD 1.0 Part 1, 4.2.1 (src-include), 4.2.2 (src-redefine), and 4.2.3 (src-import: schemaLocation is a hint)
-- Cases: 15
+- Cases: 12
 
 ```text
 msMeta-Additional_w3c/1.0/addC001/addC001
 msMeta-Additional_w3c/1.0/isDefault078/isDefault078
-msMeta-Annotations_w3c/1.0/annotA013/annotA013
 msMeta-Annotations_w3c/1.0/annotA014/annotA014
 msMeta-Annotations_w3c/1.0/annotB025/annotB025
 msMeta-DataTypes_w3c/1.0/anyURI_a002_1337/anyURI_a002_1337
 msMeta-DataTypes_w3c/1.0/anyURI_a004_1339/anyURI_a004_1339
 msMeta-DataTypes_w3c/1.0/anyURI_a006_1341/anyURI_a006_1341
-msMeta-DataTypes_w3c/1.0/anyURI_a008_1343/anyURI_a008_1343
 msMeta-DataTypes_w3c/1.0/anyURI_a009_1344/anyURI_a009_1344
 msMeta-Schema_w3c/1.0/schB8/schB8
 msMeta-Schema_w3c/1.0/schD7/schD7
 msMeta-Schema_w3c/1.0/schD8/schD8
-msMeta-Schema_w3c/1.0/schG8/schG8
 msMeta-Schema_w3c/1.0/schH9/schH9
 ```
 
