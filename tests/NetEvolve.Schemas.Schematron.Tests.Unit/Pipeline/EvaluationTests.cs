@@ -113,6 +113,23 @@ public class EvaluationTests
     }
 
     [Test]
+    public async Task Name_WithPath_InsertsTheValueOfTheExpression()
+    {
+        var schema = Wrap(
+            """
+            <pattern id="plain"><rule context="a"><report test="true()"><name path="@attribute"/></report></rule></pattern>
+            <pattern abstract="true" id="abstract"><rule context="*"><assert test="false()"><name path="$expression"/></assert></rule></pattern>
+            <pattern is-a="abstract" id="named"><param name="expression" value="name()"/></pattern>
+            """
+        );
+        var validator = Build(schema);
+
+        var result = Validate(validator, "<a attribute=\"value\"/>");
+
+        await Assert.That(Messages(result)).IsEqualTo("value|a");
+    }
+
+    [Test]
     public async Task AbstractRule_IsExtended()
     {
         var schema = Wrap(

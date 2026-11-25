@@ -5,7 +5,6 @@ iso-reporting/svrl-diagnostic-icon.xml
 iso-reporting/svrl-diagnostic-see.xml
 iso-reporting/svrl-fired-rule-document-primary.xml
 iso-reporting/svrl-fired-rule-document.xml
-iso-reporting/svrl-name-path.xml
 iso-reporting/svrl-property-copy-of.xml
 iso-reporting/svrl-property-fpi.xml
 iso-reporting/svrl-property-icon.xml
