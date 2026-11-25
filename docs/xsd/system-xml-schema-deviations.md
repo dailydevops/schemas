@@ -1989,6 +1989,18 @@ msMeta-DataTypes_w3c/1.0/gMonth_pattern001_1274/gMonth_pattern001_1274.v
 msMeta-DataTypes_w3c/1.0/hexBinary003_2069/hexBinary003_2069.v
 ```
 
+### An identity constraint field that selects more than one attribute
+
+An `@*` field selects every attribute of the element, and the xsi attributes are attributes too, so the field selects more than one node and the instance is invalid. System.Xml.Schema does not count the xsi attributes and accepts the instance.
+
+- Difference: InstanceVerdict `instance verdict: ours=Invalid, baseline=Valid` (1)
+- Specification: XSD 1.0 Part 1, 3.11.4 (Identity-constraint Definition: the field evaluates to at most one node) and 3.2.2 (the attributes of an element include the xsi attributes)
+- Cases: 1
+
+```text
+msMeta-IdentityConstraint_w3c/1.0/idL100/idL100.v
+```
+
 ### An xsi:type that is not validly derived from the declared type
 
 The type named by xsi:type is not validly derived from the type of the declaration, or it is unknown, so the instance is invalid. System.Xml.Schema accepts it.

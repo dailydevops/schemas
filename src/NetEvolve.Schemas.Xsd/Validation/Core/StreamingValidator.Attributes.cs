@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.Xsd.Attributes.Declarations;
+using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Contracts;
 
 internal sealed partial class StreamingValidator
@@ -76,11 +77,62 @@ internal sealed partial class StreamingValidator
                 break;
         }
 
+        FireXsiAttributes(frame);
+
         // The attributes of a nilled element are assessed against its type; from here on only its absent content counts.
         if (frame.IsNilled)
         {
             frame.Content = FrameContent.Nilled;
         }
+    }
+
+    // The xsi attributes are attributes of the element too (an @* identity field selects them), but they are not assessed as such.
+    private void FireXsiAttributes(ElementFrame frame)
+    {
+        if (_onXsiAttribute.Length == 0)
+        {
+            return;
+        }
+
+        for (var i = 0; i < _attributeCount; i++)
+        {
+            var entry = _attributes[i];
+            if (!IsXsiControl(entry.Name, out _))
+            {
+                continue;
+            }
+
+            var info = new AttributeInfo(
+                frame.Ordinal,
+                entry.Name,
+                frame.Location,
+                null,
+                ValueOf(entry),
+                XsiAttributeType(entry.Name),
+                true,
+                false
+            );
+            for (var l = 0; l < _onXsiAttribute.Length; l++)
+            {
+                _onXsiAttribute[l].Attribute(info);
+            }
+        }
+    }
+
+    // The xsi attributes have the types of the XSI schema: xs:boolean for xsi:nil; the others are compared as strings.
+    private XsdBuiltInType XsiAttributeType(XmlName name)
+    {
+        var wanted = Names.GetString(name.Local) == "nil" ? "boolean" : "string";
+        var types = XsdBuiltInTypes.For(_model.Schema.Version);
+        for (var i = 0; i < types.Count; i++)
+        {
+            if (types[i] is XsdBuiltInType t && t.Name.LocalName == wanted)
+            {
+                return t;
+            }
+        }
+
+        throw new InvalidOperationException("The built-in type '" + wanted + "' is not registered.");
     }
 
     // An element that is not assessed (no declaration) assesses an attribute only when a global declaration names it.

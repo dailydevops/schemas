@@ -82,7 +82,6 @@ msMeta-Element_w3c	1.0/elemZ017/elemZ017.v	#963	The group has no schema document
 msMeta-Element_w3c	1.0/elemZ021g/elemZ021g.i	#859	The schema does not build: the import check of the namespace attribute is inverted.
 msMeta-Element_w3c	1.0/elemZ022b/elemZ022b.v	#859	The schema does not build: the import check of the namespace attribute is inverted.
 msMeta-Element_w3c	1.0/elemZ033b/elemZ033b.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-IdentityConstraint_w3c	1.0/idL100/idL100.v	#906	A key field of @* on an element with xsi:nil is accepted; the field selects more than one attribute, so the key is not satisfied.
 msMeta-ModelGroups_w3c	1.0/mgH014/mgH014.v	#863	The schema does not build: the particle restriction check rejects a restriction that the suite accepts.
 msMeta-Particles_w3c	1.0/particlesJq010/particlesJq010.v	#863	The schema does not build: the particle restriction check rejects a restriction that the suite accepts.
 msMeta-Particles_w3c	1.0/particlesJs001/particlesJs001.v	#859	The schema does not build: the import check of the namespace attribute is inverted.
