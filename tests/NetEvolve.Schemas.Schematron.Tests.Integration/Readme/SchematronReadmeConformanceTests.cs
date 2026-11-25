@@ -6,6 +6,7 @@ using NetEvolve.Schemas.Conformance.Reporting;
 using NetEvolve.Schemas.Conformance.Results;
 using NetEvolve.Schemas.Schematron.Tests.Integration.Conformance.Engine;
 using NetEvolve.Schemas.Schematron.Tests.Integration.Conformance.Runner;
+using NetEvolve.Schemas.Schematron.Tests.Integration.Goldens.En16931;
 using NetEvolve.Schemas.Schematron.Tests.Integration.Goldens.Stage4Globals;
 using NetEvolve.Schemas.Testing.Readme;
 
@@ -14,7 +15,8 @@ using NetEvolve.Schemas.Testing.Readme;
 /// rate of the suite row and of its test sets, every failing and every excluded case with its issue and reason, and the stage 4 row.
 /// </summary>
 /// <remarks>Like the conformance suites, the class runs on the designated leg only, because the run needs the fetched suite.</remarks>
-[ConformanceLeg]
+[Explicit]
+[Category(ConformanceCategory.Name)]
 public class SchematronReadmeConformanceTests
 {
     private const string Readme = "src/NetEvolve.Schemas.Schematron/README.md";
@@ -109,6 +111,24 @@ public class SchematronReadmeConformanceTests
 
         await Assert.That(readme).Contains($"{passed} of {results.Count} cases");
         await Assert.That(readme).Contains(Rate(new TestSetCounts(passed, results.Count - passed, 0)));
+    }
+
+    [Test]
+    public async Task Readme_StatesTheCountsAndTheRateOfTheEn16931Goldens(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var results = (await En16931Run.GetResultsAsync(cancellationToken)).Values.SelectMany(r => r).ToList();
+        var passed = results.Count(r => r.Outcome == CaseOutcome.Pass);
+        var readme = ReadmeSamples.ReadText(Readme);
+
+        await Assert.That(results).IsNotEmpty();
+        var rate = Rate(new TestSetCounts(passed, results.Count - passed, 0));
+        var statement = string.Create(
+            CultureInfo.InvariantCulture,
+            $"**{passed:N0} of {results.Count:N0} cases pass, a rate of {rate}**"
+        );
+
+        await Assert.That(readme).Contains(statement);
     }
 
     private static async Task<ConformanceReport> Report(CancellationToken cancellationToken)

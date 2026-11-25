@@ -18,6 +18,7 @@ using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.Elements;
 using NetEvolve.Schemas.Xsd.IdentityConstraints.Definitions;
 using NetEvolve.Schemas.Xsd.SchemaDocuments;
+using NetEvolve.Schemas.Xsd.Substitution;
 using NetEvolve.Schemas.Xsd.Validation.Assembly;
 using NetEvolve.Schemas.Xsd.Validation.Core;
 using NetEvolve.Schemas.Xsd.Versioning.Constructs;
@@ -38,7 +39,7 @@ using NetEvolve.Schemas.Xsd.Versioning.Constructs;
 /// Limitations: the strict XSD 1.0 gate and the not-yet-supported gate of XSD 1.1 stop the run before any component is built
 /// (design #146 DP-16); conditional inclusion
 /// (<c>vc:</c> attributes) is not applied in this run, because it is part of the XSD 1.1 pipeline (XSD-78, #360); substitution group
-/// affiliation (<c>substitutionGroup</c>, XSD-12), notation declarations, <c>openContent</c>, assertions, type alternatives, and the
+/// affiliation of several heads (XSD-71), notation declarations, <c>openContent</c>, assertions, type alternatives, and the
 /// subsumption check of XSD 1.1 are not built or checked; the limit of external resources applies to each root document alone.
 /// </para>
 /// </remarks>
@@ -59,6 +60,7 @@ internal sealed class CompilationRun
     private readonly ParticleRestriction? _particleRestriction;
     private readonly List<ModelGroupDefinition> _definitions = [];
     private ListenerKinds _listeners;
+    private SubstitutionGroups? _substitutions;
     private readonly List<IdentityConstraintDefinition> _constraints = [];
     private readonly List<ConstraintOwner> _owners = [];
 
@@ -151,7 +153,14 @@ internal sealed class CompilationRun
             _listeners = ScanListeners(units);
             cancellationToken.ThrowIfCancellationRequested();
             Resolve();
-            CompileChecks.Run(_context, _derivation, _particleRestriction, _definitions, _version, _reporter);
+            _substitutions = CompileChecks.Run(
+                _context,
+                _derivation,
+                _particleRestriction,
+                _definitions,
+                _version,
+                _reporter
+            );
         }
 
         cancellationToken.ThrowIfCancellationRequested();
@@ -422,7 +431,7 @@ internal sealed class CompilationRun
     private SchemaCompilation Finish()
     {
         var set = _registry.Freeze(_version);
-        var model = ValidationModel.Build(set, _registry.Components, _reporter);
+        var model = ValidationModel.Build(set, _registry.Components, _reporter, _substitutions);
         foreach (var type in _context.BuiltComplexTypes)
         {
             if (model.GetProgram(type) is { Automaton: { } automaton } program)

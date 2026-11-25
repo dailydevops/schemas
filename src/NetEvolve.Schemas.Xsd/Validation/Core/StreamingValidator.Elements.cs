@@ -259,7 +259,13 @@ internal sealed partial class StreamingValidator
         var term = program.Terms[matched.ParticleIndex];
         if (term is ElementDeclaration element)
         {
-            Open(name, qname, location, element);
+            // A member of the substitution group of the declaration at this position has a declaration of its own.
+            Open(
+                name,
+                qname,
+                location,
+                element.Name != qname && TryGetGlobalElement(qname, out var member) ? member : element
+            );
         }
         else
         {

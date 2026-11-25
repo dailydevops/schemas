@@ -32,6 +32,7 @@ internal ref partial struct ExpressionParser
 
     private readonly ReadOnlySpan<char> _text;
     private readonly bool _v30;
+    private readonly bool _v31;
     private XPathLexer _lexer;
     private XPathToken _current;
     private int _lastEnd;
@@ -46,6 +47,7 @@ internal ref partial struct ExpressionParser
     {
         _text = text;
         _v30 = version >= XPathVersion.V30;
+        _v31 = version >= XPathVersion.V31;
         _lexer = new XPathLexer(text, version);
         _current = _lexer.Next();
         _lastEnd = 0;
@@ -191,7 +193,7 @@ internal ref partial struct ExpressionParser
     private Expression ParseTypeOperators()
     {
         var start = _current.Span.Offset;
-        var expression = ParseUnary();
+        var expression = ParseArrow();
         if (_current.Kind == XPathTokenKind.Cast)
         {
             _ = Advance();
@@ -221,6 +223,47 @@ internal ref partial struct ExpressionParser
         }
 
         return expression;
+    }
+
+    // XPath 3.1 [ArrowExpr]: a unary expression followed by any number of "=> target(arguments)"; it binds tighter than
+    // the type operators and looser than the unary signs and "!". The chain is a loop, so it is not a recursion; the
+    // arguments and a parenthesized target pass through ParseExprSingle.
+    private Expression ParseArrow()
+    {
+        var start = _current.Span.Offset;
+        var expression = ParseUnary();
+        while (_v31 && _current.Kind == XPathTokenKind.Arrow)
+        {
+            _ = Advance();
+            var target = ParseArrowTarget();
+            expression = new ArrowExpression(Span(start), expression, target, ParseArguments());
+        }
+
+        return expression;
+    }
+
+    // XPath 3.1 [ArrowFunctionSpecifier]: an EQName, a variable reference, or a parenthesized expression.
+    private SyntaxNode ParseArrowTarget()
+    {
+        var token = _current;
+        switch (token.Kind)
+        {
+            case XPathTokenKind.Name or XPathTokenKind.QName or XPathTokenKind.BracedName:
+                if (token.Kind == XPathTokenKind.Name && IsReservedFunctionName(TextOf(token)))
+                {
+                    throw Fail(token);
+                }
+
+                _ = Advance();
+                return CreateName(token);
+            case XPathTokenKind.Dollar:
+                _ = Advance();
+                return new VariableReference(Span(token.Span.Offset), ParseVariableName());
+            case XPathTokenKind.LeftParen:
+                return ParsePrimary();
+            default:
+                throw Unexpected();
+        }
     }
 
     // [20] UnaryExpr

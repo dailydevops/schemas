@@ -12,7 +12,7 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// </summary>
 /// <remarks>
 /// Limitation: XSLT 2.0 names XTDE1360 for an undefined context item; the approved design pins XPDY0002 and this function follows
-/// the design. Nothing writes the slot yet: the run of the XPath binding copies the focus into it (#297, #628).
+/// the design. The run of the XPath binding copies the focus into the slot, and clears it in a function body (#628).
 /// </remarks>
 internal sealed class CurrentFunction : XPathFunction
 {

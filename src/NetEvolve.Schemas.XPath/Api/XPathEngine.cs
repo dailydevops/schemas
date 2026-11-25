@@ -1,15 +1,18 @@
 namespace NetEvolve.Schemas.XPath.Api;
 
 using System;
+using System.Collections.Concurrent;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Casting.Core;
 using NetEvolve.Schemas.XPath.Compatibility;
 using NetEvolve.Schemas.XPath.Compilation;
+using NetEvolve.Schemas.XPath.Compilation.Optimization;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Evaluation.Arithmetic;
 using NetEvolve.Schemas.XPath.Evaluation.Comparison;
 using NetEvolve.Schemas.XPath.Evaluation.Flow;
+using NetEvolve.Schemas.XPath.Evaluation.Flow30;
 using NetEvolve.Schemas.XPath.Evaluation.Paths;
 using NetEvolve.Schemas.XPath.Evaluation.Temporal;
 using NetEvolve.Schemas.XPath.Functions.Binding;
@@ -48,18 +51,23 @@ internal static class XPathEngine
     private static readonly ComparisonOperatorTable Comparison = CreateComparison();
     private static readonly LoweringRegistry DefaultRegistry = CreateRegistry(AllSlots);
 
+    // One registry per host flag combination instead of one per compilation: building it allocates a dictionary and a delegate per lowering.
+    private static readonly ConcurrentDictionary<XPathHostRequirements, LoweringRegistry> HostRegistries = new();
+
     /// <summary>Compiles an expression without throwing for static errors.</summary>
     /// <param name="text">The expression text.</param>
     /// <param name="source">The expression text as a string, kept by the compiled expression.</param>
     /// <param name="context">The static context, <see langword="null"/> for <see cref="XPathStaticContext.Default"/>.</param>
     /// <param name="activeHost">The host slots and flags that the host provides.</param>
+    /// <param name="optimizations">The rewrites of the optimization stage; every rewrite by default, a test switches some off.</param>
     /// <returns>The compiled expression, or the diagnostic.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
     internal static XPathCompileResult TryCompile(
         ReadOnlySpan<char> text,
         string source,
         XPathStaticContext? context,
-        XPathHostRequirements activeHost
+        XPathHostRequirements activeHost,
+        XPathOptimizations optimizations = XPathOptimizations.All
     )
     {
         ArgumentNullException.ThrowIfNull(source);
@@ -84,8 +92,20 @@ internal static class XPathEngine
             return new XPathCompileResult(null, diagnostic);
         }
 
-        var registry = activeHost == AllSlots ? DefaultRegistry : CreateRegistry(activeHost);
-        return ExpressionCompiler.TryCompile(syntax!, source, context, registry, out var compiled, out diagnostic)
+        var registry =
+            activeHost == AllSlots
+                ? DefaultRegistry
+                : HostRegistries.GetOrAdd(activeHost, static host => CreateRegistry(host));
+        return ExpressionCompiler.TryCompile(
+            syntax!,
+            source,
+            context,
+            registry,
+            out var compiled,
+            out diagnostic,
+            null,
+            optimizations
+        )
             ? new XPathCompileResult(new XPathExpression(compiled!), default)
             : new XPathCompileResult(null, diagnostic);
     }
@@ -94,6 +114,7 @@ internal static class XPathEngine
     {
         var registry = new LoweringRegistry();
         FlowLowerings.Register(registry);
+        Flow30Lowerings.Register(registry);
         PathLowerings.Register(registry);
         SequenceTypeLowerings.Register(registry);
         CastingLowerings.Register(registry);

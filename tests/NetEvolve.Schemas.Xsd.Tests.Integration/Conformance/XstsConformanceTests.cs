@@ -8,7 +8,8 @@ using NetEvolve.Schemas.Xsd.Tests.Integration.InstanceTests;
 using NetEvolve.Schemas.Xsd.Tests.Integration.SchemaTests;
 using NetEvolve.Schemas.Xsd.Tests.Integration.Xsts;
 
-[ConformanceLeg]
+[Explicit]
+[Category(ConformanceCategory.Name)]
 public class XstsConformanceTests
 {
     private static readonly ConcurrentBag<CaseResult> ChunkResults = [];

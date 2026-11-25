@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Schematron.Pipeline;
+﻿namespace NetEvolve.Schemas.Schematron.Pipeline;
 
 using System;
 using System.Collections.Generic;
@@ -31,8 +31,8 @@ using NetEvolve.Schemas.Schematron.Xslt.Modules;
 /// holds it, and an element of another namespace is a data element and is ignored.
 /// </para>
 /// <para>
-/// Limitations: the stylesheet functions and the keys are not callable from the XPath of a rule yet (#628 and the key host slot, #832
-/// stays open for that part); without a module set (the four-argument form) the XSLT children of the schema are
+/// Limitations: the keys are not callable from the XPath of a rule yet (the key host slot, #832 stays open for that part); the
+/// stylesheet functions are, through the binding that <see cref="XsltDeclarations.WithSignatures"/> derives before any body compiles; without a module set (the four-argument form) the XSLT children of the schema are
 /// <see cref="SchematronDiagnosticCodes.XsltUnsupported"/>.
 /// </para>
 /// </remarks>
@@ -70,14 +70,19 @@ internal sealed class SchematronSchemaCompiler : ISchemaCompiler
         ArgumentNullException.ThrowIfNull(problems);
 
         compiled = null!;
-        if (!_bindings.TryResolve(effective, out var binding, out var unsupported))
+        if (!_bindings.TryResolve(effective, out var resolved, out var unsupported))
         {
             problems.Add(in unsupported);
             return false;
         }
 
         // Declarations that the resolver linked are compiled; without a module set the XSLT children of the schema are not supported.
-        var linked = binding.AllowsXsltInstructions && modules.Declarations.Count > 0;
+        // The per-schema derivation (stylesheet function signatures) wraps the resolved binding first, so the recorder stays the outer layer.
+        var linked = resolved.AllowsXsltInstructions && modules.Declarations.Count > 0;
+        var binding = new CompilingBinding(
+            linked ? XsltDeclarations.WithSignatures(resolved, effective, modules) : resolved
+        );
+
         ScopePlan plan;
         var ok = linked || CheckDeclarations(effective, binding, problems);
         ok &= CheckParameters(effective, settings, problems);
@@ -115,6 +120,12 @@ internal sealed class SchematronSchemaCompiler : ISchemaCompiler
         var sets = new List<CompiledRuleSet>(plan.Patterns.Count);
         foreach (var scope in plan.Patterns)
         {
+            // The pattern matcher is a seam with one implementation, so the contexts are recorded here.
+            foreach (var rule in scope.Rules)
+            {
+                binding.Record((rule.Rule.Context ?? string.Empty).AsSpan(), rule.Scope);
+            }
+
             var compiledSet = RuleSetCompiler.TryCompile(effective, scope, matcher, binding, problems, out var set);
             ok &= compiledSet;
             if (compiledSet)
@@ -142,7 +153,7 @@ internal sealed class SchematronSchemaCompiler : ISchemaCompiler
         return true;
     }
 
-    private static bool CheckDeclarations(SchematronSchema schema, IQueryBinding binding, IProblemSink problems)
+    private static bool CheckDeclarations(SchematronSchema schema, CompilingBinding binding, IProblemSink problems)
     {
         var ok = true;
         if (!binding.AllowsXsltInstructions)

@@ -1,29 +1,37 @@
 namespace NetEvolve.Schemas.Xsd.Elements;
 
+using System.Collections.Generic;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Api;
+using NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;
 using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Contracts;
+using NetEvolve.Schemas.Xsd.Substitution;
 
 /// <summary>
 /// An element declaration (Structures section 3.3). Its type is a by-name reference that the resolver binds; an anonymous type
 /// stays as syntax until the type builders construct it.
 /// </summary>
 /// <remarks>
-/// Limitations: substitution group affiliation is XSD-12 (#239), identity constraints are XSD-17 (#241), type alternatives are
+/// Limitations: only the first head of the <c>substitutionGroup</c> of a global declaration is read (several heads are XSD-71 #322), identity constraints are XSD-17 (#241), type alternatives are
 /// XSD 1.1 (#319), and a local <c>targetNamespace</c> is XSD-71 (#322); checking the value constraint against the type
 /// (cos-valid-default) is XSD-54 (#307). <see langword="abstract"/>, <c>final</c> and <c>substitutionGroup</c> on a local declaration
 /// are not rejected.
 /// </remarks>
-internal sealed class ElementDeclaration : IReferencingComponent
+internal sealed class ElementDeclaration : IReferencingComponent, ISubstitutionElement
 {
     private readonly XsdReference[] _references;
+    private readonly int _headIndex;
+    private readonly bool _inheritsType;
+    private IXsdComponent? _type;
 
     private ElementDeclaration(
         XPathQName name,
         DocumentLocation location,
         bool isGlobal,
         XsdReference[] references,
+        int headIndex,
+        bool inheritsType,
         ISchemaSyntaxElement? inlineTypeSyntax,
         bool isNillable,
         ElementValueConstraint valueConstraint,
@@ -36,6 +44,8 @@ internal sealed class ElementDeclaration : IReferencingComponent
         Location = location;
         IsGlobal = isGlobal;
         _references = references;
+        _headIndex = headIndex;
+        _inheritsType = inheritsType;
         InlineTypeSyntax = inlineTypeSyntax;
         IsNillable = isNillable;
         ValueConstraint = valueConstraint;
@@ -59,8 +69,24 @@ internal sealed class ElementDeclaration : IReferencingComponent
     /// <summary>Gets a value indicating whether the declaration is a child of the schema element.</summary>
     public bool IsGlobal { get; }
 
-    /// <summary>Gets the type definition once it is bound, <see langword="null"/> while it is unresolved or anonymous and not yet constructed.</summary>
-    public IXsdComponent? TypeDefinition { get; private set; }
+    /// <summary>
+    /// Gets the type definition once it is bound, <see langword="null"/> while it is unresolved or anonymous and not yet constructed. A
+    /// declaration that states no type and names a head has the type of the head (Structures 3.3.2, clause 1.2 of the type definition).
+    /// </summary>
+    public IXsdComponent? TypeDefinition => _type ?? InheritedType();
+
+    /// <summary>Gets the head of the substitution group, <see langword="null"/> for none or while it is unresolved.</summary>
+    internal ElementDeclaration? Head { get; private set; }
+
+    /// <inheritdoc />
+    ISubstitutionElement? ISubstitutionElement.SubstitutionGroup =>
+        Head is { TypeDefinition: null, InheritsType: false } ? null : Head;
+
+    /// <inheritdoc />
+    IXsdComponent ISubstitutionElement.Type => TypeDefinition ?? ComplexTypeDefinition.AnyType;
+
+    /// <summary>Gets a value indicating whether the declaration states no type and takes the type of its head.</summary>
+    internal bool InheritsType => _inheritsType;
 
     /// <summary>Gets the syntax of the anonymous type, <see langword="null"/> when the type is named or defaulted.</summary>
     public ISchemaSyntaxElement? InlineTypeSyntax { get; }
@@ -91,7 +117,14 @@ internal sealed class ElementDeclaration : IReferencingComponent
     {
         ArgumentNullException.ThrowIfNull(target);
 
-        TypeDefinition = target;
+        if (index == _headIndex)
+        {
+            Head = target as ElementDeclaration;
+        }
+        else
+        {
+            _type = target;
+        }
     }
 
     /// <summary>Receives the type that the type builders constructed from <see cref="InlineTypeSyntax"/>.</summary>
@@ -100,7 +133,19 @@ internal sealed class ElementDeclaration : IReferencingComponent
     {
         ArgumentNullException.ThrowIfNull(type);
 
-        TypeDefinition = type;
+        _type = type;
+    }
+
+    // ponytail: a chain of affiliations that is longer than the limit, or circular, has no inherited type; the cycle itself is reported by the substitution group check.
+    private IXsdComponent? InheritedType()
+    {
+        var current = this;
+        for (var steps = 0; steps < 4096 && current is { _inheritsType: true, _type: null }; steps++)
+        {
+            current = current.Head;
+        }
+
+        return current?._type;
     }
 
     /// <summary>Creates a declaration whose references are unresolved.</summary>
@@ -114,6 +159,7 @@ internal sealed class ElementDeclaration : IReferencingComponent
     /// <param name="isAbstract">Whether the declaration is abstract.</param>
     /// <param name="block">The disallowed substitutions.</param>
     /// <param name="final">The substitution group exclusions.</param>
+    /// <param name="substitutionGroup">The expanded name of the substitution group head, <see langword="default"/> for none.</param>
     /// <returns>The declaration.</returns>
     internal static ElementDeclaration Create(
         XPathQName name,
@@ -125,13 +171,31 @@ internal sealed class ElementDeclaration : IReferencingComponent
         ElementValueConstraint valueConstraint,
         bool isAbstract,
         XsdDerivationMethod block,
-        XsdDerivationMethod final
-    ) =>
-        new(
+        XsdDerivationMethod final,
+        XPathQName substitutionGroup = default
+    )
+    {
+        var references = new List<XsdReference>(2);
+        if (typeName != default)
+        {
+            references.Add(new XsdReference(XsdSymbolSpace.Types, typeName, location, false));
+        }
+
+        var headIndex = -1;
+        var inheritsType = typeName == default && inlineTypeSyntax is null && substitutionGroup != default;
+        if (substitutionGroup != default)
+        {
+            headIndex = references.Count;
+            references.Add(new XsdReference(XsdSymbolSpace.Elements, substitutionGroup, location, false));
+        }
+
+        return new(
             name,
             location,
             isGlobal,
-            typeName == default ? [] : [new XsdReference(XsdSymbolSpace.Types, typeName, location, false)],
+            [.. references],
+            headIndex,
+            inheritsType,
             inlineTypeSyntax,
             isNillable,
             valueConstraint,
@@ -139,4 +203,5 @@ internal sealed class ElementDeclaration : IReferencingComponent
             block,
             final
         );
+    }
 }

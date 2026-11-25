@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.XPath.Compilation;
 
 using NetEvolve.Arguments;
+using NetEvolve.Schemas.XPath.Compilation.Optimization;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Limits;
@@ -20,6 +21,7 @@ internal static class ExpressionCompiler
     /// <param name="compiled">The compiled expression, <see langword="null"/> on failure.</param>
     /// <param name="diagnostic">The diagnostic, <see langword="default"/> on success.</param>
     /// <param name="limits">The limits the lowering recurses under; <see langword="null"/> for <see cref="XPathLimits.Default"/>.</param>
+    /// <param name="optimizations">The rewrites applied to each lowered node; none by default.</param>
     /// <returns><see langword="true"/> when the tree compiled; a tree deeper than <see cref="XPathLimits.MaxRecursionDepth"/> does not.</returns>
     public static bool TryCompile(
         Expression syntax,
@@ -28,7 +30,8 @@ internal static class ExpressionCompiler
         LoweringRegistry registry,
         out CompiledExpression? compiled,
         out XPathDiagnostic diagnostic,
-        XPathLimits? limits = null
+        XPathLimits? limits = null,
+        XPathOptimizations optimizations = XPathOptimizations.None
     )
     {
         ArgumentNullException.ThrowIfNull(syntax);
@@ -38,7 +41,7 @@ internal static class ExpressionCompiler
 
         try
         {
-            var lowering = new LoweringContext(context, registry, limits);
+            var lowering = new LoweringContext(context, registry, limits, optimizations);
             var root = lowering.Lower(syntax);
             compiled = new CompiledExpression(source, context.Version, root, lowering.MaxDepth, syntax.Location);
             diagnostic = default;

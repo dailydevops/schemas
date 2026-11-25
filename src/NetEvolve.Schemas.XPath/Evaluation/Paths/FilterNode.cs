@@ -1,5 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Evaluation.Paths;
 
+using System.Collections.Generic;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Compilation;
 using NetEvolve.Schemas.XPath.Context;
@@ -14,18 +15,30 @@ internal sealed class FilterNode : ExecutableNode, IOrderedNodeSequence
 {
     private readonly ExecutableNode _primary;
     private readonly ExecutableNode[] _predicates;
+    private readonly PositionalCutoff? _cutoff;
 
     /// <summary>Initializes a new instance of the <see cref="FilterNode"/> class.</summary>
     /// <param name="primary">The primary expression.</param>
     /// <param name="predicates">The predicates.</param>
-    public FilterNode(ExecutableNode primary, ExecutableNode[] predicates)
+    /// <param name="cutoff">The positional predicate that was split off the front of the predicates, <see langword="null"/> for none.</param>
+    public FilterNode(ExecutableNode primary, ExecutableNode[] predicates, PositionalCutoff? cutoff = null)
     {
         ArgumentNullException.ThrowIfNull(primary);
         ArgumentNullException.ThrowIfNull(predicates);
 
         _primary = primary;
         _predicates = predicates;
+        _cutoff = cutoff;
     }
+
+    /// <summary>Gets the primary expression.</summary>
+    public ExecutableNode Primary => _primary;
+
+    /// <summary>Gets the predicates that are evaluated per item, after the cutoff.</summary>
+    public IReadOnlyList<ExecutableNode> Predicates => _predicates;
+
+    /// <summary>Gets the positional predicate that was split off the front of the predicates, <see langword="null"/> for none.</summary>
+    public PositionalCutoff? Cutoff => _cutoff;
 
     /// <inheritdoc />
     /// <remarks>A filter keeps a subsequence of its primary expression in the same order, so it is ordered when the primary expression is.</remarks>
@@ -47,6 +60,7 @@ internal sealed class FilterNode : ExecutableNode, IOrderedNodeSequence
         try
         {
             items.AddRange(value);
+            _cutoff?.Apply(ref items);
             PredicateFilter.Apply(context, _predicates, ref items);
             return items.ToSequence();
         }

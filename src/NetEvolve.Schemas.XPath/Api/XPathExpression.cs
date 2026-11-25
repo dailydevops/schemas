@@ -34,6 +34,9 @@ public sealed class XPathExpression
         _compiled = compiled;
     }
 
+    /// <summary>Gets the compiled expression; tests read the executable tree through it.</summary>
+    internal CompiledExpression Compiled => _compiled;
+
     /// <summary>Gets the source text.</summary>
     public string Source => _compiled.Source;
 

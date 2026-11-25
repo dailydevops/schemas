@@ -14,7 +14,8 @@ using NetEvolve.Schemas.Xsd.Tests.Integration.Xsts;
 /// into a tree, and a document type declaration is not part of the tree (#731); both are listed one by one in
 /// <c>tree-exclusions.txt</c>, and any other difference is a defect and fails the test.
 /// </summary>
-[ConformanceLeg]
+[Explicit]
+[Category(ConformanceCategory.Name)]
 public class TreeValidationEquivalenceTests
 {
     private const string Unloadable = "unloadable";
