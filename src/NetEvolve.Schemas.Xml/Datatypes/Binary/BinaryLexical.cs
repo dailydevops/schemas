@@ -6,6 +6,11 @@ using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 /// <summary>The lexical scan and the decoding of <c>hexBinary</c> and <c>base64Binary</c>, on spans.</summary>
 internal static class BinaryLexical
 {
+#if !NETSTANDARD2_0
+    // Below this length the call into the runtime decoder costs more than the loop.
+    private const int RuntimeDecoderLength = 32;
+#endif
+
     /// <summary>Checks a lexical form and counts its octets.</summary>
     /// <param name="lexical">The lexical form; whitespace is not handled here, only the single spaces that base64Binary allows.</param>
     /// <param name="kind">The lexical space.</param>
@@ -34,7 +39,8 @@ internal static class BinaryLexical
 #if !NETSTANDARD2_0
         // A form without spaces is plain base64 that Scan has already validated; the runtime decodes it vectorized.
         if (
-            lexical.IndexOf(' ') < 0
+            lexical.Length >= RuntimeDecoderLength
+            && lexical.IndexOf(' ') < 0
             && Convert.TryFromBase64Chars(lexical, result, out var decoded)
             && decoded == octets
         )
@@ -108,11 +114,19 @@ internal static class BinaryLexical
     {
         octets = 0;
         offset = 0;
-        var data = 0;
+
+        // The leading run of alphabet characters needs none of the space and padding rules.
+        var run = 0;
+        while (run < lexical.Length && Base64Index(lexical[run]) >= 0)
+        {
+            run++;
+        }
+
+        var data = run;
         var padding = 0;
-        var lastDataOffset = 0;
+        var lastDataOffset = run > 0 ? run - 1 : 0;
         var lastWasSpace = false;
-        for (var i = 0; i < lexical.Length; i++)
+        for (var i = run; i < lexical.Length; i++)
         {
             var c = lexical[i];
             if (c == ' ')

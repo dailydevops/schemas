@@ -17,6 +17,8 @@ public sealed class AtomicDescriptor<TValue> : IDatatypeDescriptor<TValue>
 
     private readonly ILexicalMapping<TValue> _mapping;
     private readonly bool _hasValueFacets;
+    private readonly ILexicalFacet[] _lexicalFacets;
+    private readonly IValueFacet<TValue>[] _valueFacets;
 
     /// <summary>Initializes a primitive type.</summary>
     /// <param name="name">The name of the type.</param>
@@ -31,6 +33,8 @@ public sealed class AtomicDescriptor<TValue> : IDatatypeDescriptor<TValue>
         _mapping = mapping;
         Whitespace = mapping.Whitespace;
         Facets = [];
+        _lexicalFacets = [];
+        _valueFacets = [];
     }
 
     /// <summary>Initializes a restriction of an atomic type.</summary>
@@ -54,6 +58,8 @@ public sealed class AtomicDescriptor<TValue> : IDatatypeDescriptor<TValue>
         _mapping = baseType._mapping;
         Whitespace = whitespace ?? baseType.Whitespace;
         Facets = Combine(baseType.Facets, facets, out _hasValueFacets);
+        _lexicalFacets = Select<ILexicalFacet>(Facets);
+        _valueFacets = Select<IValueFacet<TValue>>(Facets);
     }
 
     /// <summary>Initializes a restriction of an atomic type whose value type differs from the value type of this descriptor, for example integer on <see cref="System.Numerics.BigInteger"/> derived from decimal.</summary>
@@ -81,6 +87,8 @@ public sealed class AtomicDescriptor<TValue> : IDatatypeDescriptor<TValue>
         _mapping = mapping;
         Whitespace = whitespace ?? mapping.Whitespace;
         Facets = Combine(baseType.Facets, facets, out _hasValueFacets);
+        _lexicalFacets = Select<ILexicalFacet>(Facets);
+        _valueFacets = Select<IValueFacet<TValue>>(Facets);
     }
 
     /// <inheritdoc />
@@ -129,6 +137,22 @@ public sealed class AtomicDescriptor<TValue> : IDatatypeDescriptor<TValue>
 
     /// <inheritdoc />
     public bool IsIdentical(in TValue a, in TValue b) => _mapping.IsIdentical(in a, in b, LexicalMode);
+
+    // The facets of one kind in their order, so the validation loops need no type test per facet.
+    private static T[] Select<T>(IReadOnlyList<IFacet> facets)
+        where T : class
+    {
+        var selected = new List<T>(facets.Count);
+        for (var i = 0; i < facets.Count; i++)
+        {
+            if (facets[i] is T facet)
+            {
+                selected.Add(facet);
+            }
+        }
+
+        return [.. selected];
+    }
 
     private static IFacet[] Combine(
         IReadOnlyList<IFacet> inherited,
@@ -210,9 +234,9 @@ public sealed class AtomicDescriptor<TValue> : IDatatypeDescriptor<TValue>
         }
 
         // Facets in the fixed order of the design: lexical facets first, then the value-space facets.
-        for (var i = 0; i < Facets.Count; i++)
+        foreach (var lexicalFacet in _lexicalFacets)
         {
-            if (Facets[i] is ILexicalFacet lexicalFacet && !lexicalFacet.IsSatisfiedBy(normalized))
+            if (!lexicalFacet.IsSatisfiedBy(normalized))
             {
                 failedFacet = lexicalFacet.Kind;
                 return DatatypeError.FacetViolation;
@@ -222,9 +246,9 @@ public sealed class AtomicDescriptor<TValue> : IDatatypeDescriptor<TValue>
         if (wantValue || _hasValueFacets)
         {
             value = _mapping.Map(normalized, Whitespace, LexicalMode);
-            for (var i = 0; i < Facets.Count; i++)
+            foreach (var valueFacet in _valueFacets)
             {
-                if (Facets[i] is IValueFacet<TValue> valueFacet && !valueFacet.IsSatisfiedBy(in value))
+                if (!valueFacet.IsSatisfiedBy(in value))
                 {
                     failedFacet = valueFacet.Kind;
                     return DatatypeError.FacetViolation;
