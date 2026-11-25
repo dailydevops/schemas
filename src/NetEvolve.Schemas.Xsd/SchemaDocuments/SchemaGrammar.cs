@@ -124,9 +124,9 @@ internal static class SchemaGrammar
             "defaultOpenContent",
             XsdRuleCodes.SrcCt,
             "annotation any",
-            Id + " appliesToEmpty:bool mode:set=interleaved|suffix"
+            Id + " appliesToEmpty:bool mode:set=interleave|suffix"
         );
-        Add(rules, "openContent", XsdRuleCodes.SrcCt, "annotation any", Id + " mode:set=none|interleaved|suffix");
+        Add(rules, "openContent", XsdRuleCodes.SrcCt, "annotation any", Id + " mode:set=none|interleave|suffix");
     }
 
     private static void AddSimpleTypeElements(Dictionary<string, SchemaElementRule> rules)
