@@ -16,16 +16,16 @@ namespace NetEvolve.Schemas.XPath.Tests.Unit.Functions.Sequences;
 /// </para>
 /// <para>
 /// Cases per test set, as three numbers: selected by the XPath 2.0 rule; of those, the ones without a further dependency or environment
-/// and with an assertion that the fixture checks; and the ones in this selection: count 74, 60, 56; sum 221, 220, 196; avg 237, 235, 200; min 180, 180, 165; max 181, 181, 165;
+/// and with an assertion that the fixture checks; and the ones in this selection: count 74, 60, 56; sum 221, 220, 196; avg 237, 235, 200; min 180, 180, 167; max 181, 181, 167;
 /// distinct-values 91, 82, 77; deep-equal 161, 159, 117; index-of 53, 51, 44; subsequence 98, 98, 68; exists 56, 56, 49; empty 52, 52, 43.
 /// </para>
 /// <para>
-/// Cases of the sets that are left out of the selection, with the reason (194 of 1374). The first selection left out 688, counted by the
-/// reasons that follow; since the casting to the derived types exists (XP-23, #299), 494 of them are selected: the cases whose expression
+/// Cases of the sets that are left out of the selection, with the reason (190 of 1374). The first selection left out 688, counted by the
+/// reasons that follow; since the casting to the derived types exists (XP-23, #299), 498 of them are selected: the cases whose expression
 /// builds an <c>xs:int</c>, <c>xs:long</c>, <c>xs:short</c>, <c>xs:byte</c>, an unsigned or a signed integer subtype, or a derived string
 /// type, and that no other reason keeps out. The four cases <c>fn-max/fn-max-13</c>, <c>fn-max/fn-max-18</c>, <c>fn-min/fn-min-13</c>, and
-/// <c>fn-min/fn-min-18</c> stay out because <c>fn:min</c> and <c>fn:max</c> give an <c>xs:string</c> where they expect the derived string
-/// type (#767). The reasons of the first selection: a constructor function of a type outside the casting table of the seven types
+/// <c>fn-min/fn-min-18</c> are selected too, since <c>fn:min</c> and <c>fn:max</c> keep the derived string type of the selected item
+/// (#767). The reasons of the first selection: a constructor function of a type outside the casting table of the seven types
 /// (<c>xs:int</c>, <c>xs:long</c>, <c>xs:short</c>, the unsigned and the signed integer subtypes, <c>xs:anyURI</c>, <c>xs:date</c>,
 /// <c>xs:dateTime</c>, <c>xs:time</c>, the duration types, <c>xs:hexBinary</c>), 575 cases (XP-23 and XP-59 add the rows); a function that belongs to another work package (<c>fn:not</c>, <c>fn:true</c>, <c>fn:false</c>,
 /// <c>fn:boolean</c>, <c>fn:QName</c>, <c>fn:concat</c>, <c>fn:string-length</c>, <c>fn:error</c>, and others), 52 cases; an expression
@@ -1408,6 +1408,8 @@ internal static class Qt3SequenceSelection
         ("fn-min/fn-min-1", "fn:min((3,4,\"Zero\"))", "X:FORG0006"),
         ("fn-min/fn-min-2", "fn:min((xs:integer(5000000),xs:double(3e8)))", "E:5.0E6"),
         ("fn-min/fn-min-11", "min((\"a\", \"b\", \"c\", \"d\"))", "S:a"),
+        ("fn-min/fn-min-13", "min((xs:NCName('a'), xs:ID('b'), xs:token('c')))", "E:\"a\"Y:xs:NCName"),
+        ("fn-min/fn-min-18", "min((xs:token(\"http\"), xs:anyURI(\"http://b.com\")))", "E:\"http\"Y:xs:token"),
         (
             "fn-min/fn-min-14",
             "min((xs:positiveInteger(123), xs:unsignedShort(124)))",
@@ -1769,6 +1771,8 @@ internal static class Qt3SequenceSelection
         ("fn-max/fn-max-1", "fn:max((3,4,\"Zero\"))", "X:FORG0006"),
         ("fn-max/fn-max-2", "fn:max((xs:integer(5000000000),xs:double(3e0)))", "E:5.0E9"),
         ("fn-max/fn-max-11", "max((\"a\", \"b\", \"c\", \"d\"))", "S:d"),
+        ("fn-max/fn-max-13", "max((xs:NCName('c'), xs:ID('b'), xs:token('a')))", "E:\"c\"Y:xs:NCName"),
+        ("fn-max/fn-max-18", "max((xs:token(\"zither\"), xs:anyURI(\"http://b.com\")))", "E:\"zither\"Y:xs:token"),
         (
             "fn-max/fn-max-14",
             "max((xs:positiveInteger(123), xs:unsignedShort(124)))",
