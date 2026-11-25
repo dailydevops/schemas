@@ -30,7 +30,7 @@ No builder option, switch, or code path in the library reproduces System.Xml.Sch
 | Verdict differences: this library follows the specification | 1696 | 1664 |
 | Verdict differences: documented limitations of this library | 26 | 21 |
 | Position differences: equivalent | 12868 | 12868 |
-| Differences on cases that a bug issue tracks (no entry) | 970 | |
+| Differences on cases that a bug issue tracks (no entry) | 952 | |
 
 ## Differences on cases that a bug issue tracks
 
@@ -45,7 +45,6 @@ The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTe
 | #869 | 23 | feat(xsd): check redefinitions against the redefined component |
 | #874 | 22 | bug(xsd): schema constraints that the pipeline does not check yet |
 | #62 | 19 | feat(xml): support xml 1.1 |
-| #1127 | 18 | bug(xsd): a derived attribute wildcard is rejected against the intersection of the attribute group wildcards |
 | #863 | 17 | bug(xsd): particle restriction reports errors for restrictions that the XSTS accepts |
 | #870 | 11 | feat(xsd): add notation declarations as components |
 | #896 | 7 | feat(xsd): compare fixed values in the value space when validating instances |
