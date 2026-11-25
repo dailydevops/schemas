@@ -245,6 +245,7 @@ public class CompositionTests
     )
     {
         ArgumentNullException.ThrowIfNull(directive);
+        ArgumentNullException.ThrowIfNull(targetNamespace);
 
         var (_, issues) = Load(
             targetNamespace.Length == 0 ? Schema(directive) : Schema(directive, targetNamespace),
