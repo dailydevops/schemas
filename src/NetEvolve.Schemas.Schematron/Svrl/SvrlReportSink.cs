@@ -198,6 +198,7 @@ public sealed class SvrlReportSink : ISchematronReportSink, IAsyncDisposable, ID
         _body.PutText(finding.Flags);
         _body.PutText(finding.Severity);
         _body.PutText(finding.Message);
+        _body.PutText(finding.Language);
         PutReferences(finding.Diagnostics);
         PutReferences(finding.Properties);
         CheckBuffer();
@@ -376,6 +377,7 @@ public sealed class SvrlReportSink : ISchematronReportSink, IAsyncDisposable, ID
         {
             _body.PutText(references.IdAt(i));
             _body.PutText(references.TextAt(i));
+            _body.PutText(references.LanguageAt(i));
             _body.PutNumber(Keep(references.ContentAt(i)));
         }
     }
@@ -508,6 +510,7 @@ public sealed class SvrlReportSink : ISchematronReportSink, IAsyncDisposable, ID
         Attribute(_names.Flag, reader.ReadText());
         Attribute(_names.Severity, reader.ReadText());
         var message = reader.ReadText();
+        Language(reader.ReadText());
         _xml.EndAttributes();
         WriteReferences(_names.DiagnosticReference, _names.Diagnostic, ref reader);
         WriteReferences(_names.PropertyReference, _names.Property, ref reader);
@@ -523,15 +526,21 @@ public sealed class SvrlReportSink : ISchematronReportSink, IAsyncDisposable, ID
             _xml.Attribute(attribute, reader.ReadText());
             _xml.EndAttributes();
             var text = reader.ReadText();
+            var language = reader.ReadText();
             var kept = reader.ReadNumber();
-            WriteText(text, kept == 0 ? null : _contents[kept - 1]);
+            WriteText(text, kept == 0 ? null : _contents[kept - 1], language);
             Close(element);
         }
     }
 
-    private void WriteText(ReadOnlySpan<char> text, IFindingContent? content = null)
+    private void WriteText(
+        ReadOnlySpan<char> text,
+        IFindingContent? content = null,
+        ReadOnlySpan<char> language = default
+    )
     {
         Open(_names.Text);
+        Language(language);
 
         // The attributes that xsl:copy-of copied belong to this element, so they precede the end of its start tag.
         content?.WriteAttributes(_xml);
@@ -572,6 +581,9 @@ public sealed class SvrlReportSink : ISchematronReportSink, IAsyncDisposable, ID
             _xml.Attribute(_names.Id, id);
         }
     }
+
+    // The language in effect, written as xml:lang so that lang() finds it; empty means none.
+    private void Language(ReadOnlySpan<char> language) => Attribute(_names.Lang, language);
 
     private void Attribute(XmlName name, ReadOnlySpan<char> value)
     {
