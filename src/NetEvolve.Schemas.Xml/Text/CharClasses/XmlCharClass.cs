@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 
 /// <summary>
 /// Single implementation of the XML 1.0 (Fifth Edition) character classes <c>Char</c> (production 2),
-/// <c>NameStartChar</c> (production 4), and <c>NameChar</c> (production 4a).
+/// <c>NameStartChar</c> (production 4), <c>NameChar</c> (production 4a), and <c>PubidChar</c> (production 13).
 /// </summary>
 /// <remarks>
 /// Limitation: XML 1.1 character classes and restricted characters are not covered.
@@ -23,6 +23,35 @@ internal static class XmlCharClass
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static bool IsChar(int codePoint) =>
         codePoint <= 0xFFFF ? codePoint >= 0 && IsChar((char)codePoint) : codePoint <= 0x10FFFF;
+
+    /// <summary>Production 13 (<c>PubidChar</c>) for a UTF-16 code unit.</summary>
+    internal static bool IsPubidChar(char c) =>
+        c
+            is ' '
+                or '\r'
+                or '\n'
+                or (>= 'a' and <= 'z')
+                or (>= 'A' and <= 'Z')
+                or (>= '0' and <= '9')
+                or '-'
+                or '\''
+                or '('
+                or ')'
+                or '+'
+                or ','
+                or '.'
+                or '/'
+                or ':'
+                or '='
+                or '?'
+                or ';'
+                or '!'
+                or '*'
+                or '#'
+                or '@'
+                or '$'
+                or '_'
+                or '%';
 
     /// <summary>Production 4 for a UTF-16 code unit. Surrogates are rejected.</summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

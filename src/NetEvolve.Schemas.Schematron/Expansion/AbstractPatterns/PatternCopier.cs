@@ -109,7 +109,9 @@ internal sealed class PatternCopier
     private SchematronMessage Message(SchematronMessage message)
     {
         var parts = Parts(message.Parts);
-        return ReferenceEquals(parts, message.Parts) ? message : new SchematronMessage(message.Location, parts);
+        return ReferenceEquals(parts, message.Parts)
+            ? message
+            : new SchematronMessage(message.Location, parts, message.Language);
     }
 
     // The same list when no part changed, so an assertion without a value-of shares its message.

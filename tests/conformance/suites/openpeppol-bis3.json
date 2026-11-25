@@ -1,0 +1,7 @@
+{
+  "key": "openpeppol-bis3",
+  "url": "https://github.com/OpenPeppol/peppol-bis-invoice-3/archive/refs/tags/3.0.22.zip",
+  "sha256": "c95e22fdf511fd908617568326f7b024f435f08510d953ee4ede4f1aef5be216",
+  "archive": "zip",
+  "subPath": "peppol-bis-invoice-3-3.0.22/rules"
+}

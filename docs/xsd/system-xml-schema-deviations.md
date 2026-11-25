@@ -7,7 +7,7 @@ This document lists every difference that the differential run over the W3C XML 
 | Baseline | `System.Xml.Schema` of the .NET runtime 10.0, compared on the `net10.0` test leg only (`baseline-runtime: 10.0`) |
 | Corpus | XSTS cases of XSD 1.0 (schema tests and instance tests), pinned in `tests/conformance/suites/xsts.json` |
 | Data file | `tests/NetEvolve.Schemas.Xsd.Tests.Integration/DifferentialData/xsts-1.0-deviations.txt`, one entry per difference: case id, difference kind, observed difference, specification reference, reason |
-| Entries | 14497 entries for 14472 cases |
+| Entries | 14530 entries for 14493 cases |
 
 The list is valid for the recorded baseline runtime version only. A run on another runtime version fails until the list is compared again. System.Xml.Schema implements XSD 1.0 only, so cases of XSD 1.1 are not compared.
 
@@ -27,19 +27,19 @@ No builder option, switch, or code path in the library reproduces System.Xml.Sch
 
 | Class | Entries | Cases |
 |---|---:|---:|
-| Verdict differences: this library follows the specification | 1659 | 1639 |
+| Verdict differences: this library follows the specification | 1692 | 1660 |
 | Verdict differences: documented limitations of this library | 26 | 21 |
 | Position differences: equivalent | 12812 | 12812 |
-| Differences on cases that a bug issue tracks (no entry) | 1196 | |
+| Differences on cases that a bug issue tracks (no entry) | 1213 | |
 
 ## Differences on cases that a bug issue tracks
 
-The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTests/known-failures.txt` and `tests/NetEvolve.Schemas.Xsd.Tests.Integration/InstanceTests/known-failures.txt` record every case of XSD 1.0 that this library does not pass yet, each with its bug issue. At the time of this triage the run found 10152 differences on these cases:
+The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTests/known-failures.txt` and `tests/NetEvolve.Schemas.Xsd.Tests.Integration/InstanceTests/known-failures.txt` record every case of XSD 1.0 that this library does not pass yet, each with its bug issue. At the time of this triage the run found 10150 differences on these cases:
 
 | Issue | Differences | Title |
 |---|---:|---|
 | #1077 | 654 | feat(xsd): evaluate the enumeration facet of list simple types in the value space |
-| #858 | 150 | bug(datatypes): the xsd regex parser rejects the anchors ^ and $ outside a character class |
+| #858 | 149 | bug(datatypes): the xsd regex parser rejects the anchors ^ and $ outside a character class |
 | #1078 | 101 | feat(xsd): evaluate the enumeration facet of union simple types in the value space |
 | #859 | 63 | bug(xsd): the import check of the namespace attribute is inverted |
 | #860 | 38 | bug(xsd): a restriction of NOTATION without an enumeration is rejected where the type is not used |
@@ -47,6 +47,7 @@ The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTe
 | #862 | 28 | bug(xsd): length together with minLength or maxLength in one restriction step is accepted |
 | #874 | 28 | bug(xsd): schema constraints that the pipeline does not check yet |
 | #869 | 22 | feat(xsd): check redefinitions against the redefined component |
+| #62 | 19 | feat(xml): support xml 1.1 |
 | #863 | 17 | bug(xsd): particle restriction reports errors for restrictions that the XSTS accepts |
 | #870 | 11 | feat(xsd): add notation declarations as components |
 | #896 | 7 | feat(xsd): compare fixed values in the value space when validating instances |
@@ -59,7 +60,7 @@ The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTe
 | #1079 | 3 | feat(xsd): evaluate the enumeration facet of hexBinary and base64Binary restrictions |
 | #604 | 2 | feat(xsd): resolve QName and NOTATION instance values with the namespace context |
 | #904 | 2 | bug(xsd): an element with two ID-typed attributes through a wildcard is accepted |
-| #905 | 2 | bug(xsd): use=prohibited on an attribute is treated with the XSD 1.1 meaning in a 1.0 schema |
+| #410 | 1 | feat(xml): support caller-selectable xml 1.1 name productions |
 | #864 | 1 | bug(xsd): fixed values of attribute uses are compared as strings in the derivation check |
 | #903 | 1 | bug(xsd): a strict wildcard rejects an element that has no declaration but a valid xsi:type |
 | #907 | 1 | bug(xsd): an identity constraint field that selects a skipped attribute is accepted |
@@ -1847,6 +1848,38 @@ The value matches the pattern when characters are Unicode code points and the ch
 msMeta-Regex_w3c/1.0/reG50/reG50.i
 ```
 
+### A schema document that declares XML 1.1
+
+The schema document declares XML 1.1 and uses only content that XML 1.0 allows, so the schema is valid, and the instances of the cases that expect them to be invalid are rejected. System.Xml.Schema rejects the XML 1.1 declaration, so it reports the schema as invalid and runs no instance.
+
+- Difference: SchemaVerdict `schema verdict: ours=Valid, baseline=Invalid` (20)
+- Difference: InstanceVerdict `instance verdict: ours=Invalid, baseline=NotRun` (12)
+- Specification: XML 1.0 Fifth Edition, 2.8 (VersionInfo) and XSD 1.0 Part 1, 3.15.2 (XML Representation of Schema Components)
+- Cases: 20
+
+```text
+saxonMeta-XmlVersions/1.0/xv001/xv001.xsd
+saxonMeta-XmlVersions/1.0/xv002/xv002.xsd
+saxonMeta-XmlVersions/1.0/xv003/xv003.xsd
+saxonMeta-XmlVersions/1.0/xv005/xv005.n01.xml
+saxonMeta-XmlVersions/1.0/xv005/xv005.n02.xml
+saxonMeta-XmlVersions/1.0/xv005/xv005.xsd
+saxonMeta-XmlVersions/1.0/xv006/xv006.n01.xml
+saxonMeta-XmlVersions/1.0/xv006/xv006.n02.xml
+saxonMeta-XmlVersions/1.0/xv006/xv006.n03.xml
+saxonMeta-XmlVersions/1.0/xv006/xv006.xsd
+saxonMeta-XmlVersions/1.0/xv007/xv007.n01.xml
+saxonMeta-XmlVersions/1.0/xv007/xv007.n02.xml
+saxonMeta-XmlVersions/1.0/xv007/xv007.xsd
+saxonMeta-XmlVersions/1.0/xv008/xv008.n01.xml
+saxonMeta-XmlVersions/1.0/xv008/xv008.n02.xml
+saxonMeta-XmlVersions/1.0/xv008/xv008.xsd
+saxonMeta-XmlVersions/1.0/xv009/xv009.n01.xml
+saxonMeta-XmlVersions/1.0/xv009/xv009.n02.xml
+saxonMeta-XmlVersions/1.0/xv009/xv009.n03.xml
+saxonMeta-XmlVersions/1.0/xv009/xv009.xsd
+```
+
 ### A keyref whose values are matched by keys
 
 Every keyref value is matched by a key value of the referenced key, so the instance is valid. System.Xml.Schema reports that the keyref fails to refer to some key.
@@ -2022,6 +2055,18 @@ A key reference has a value that no key of the referenced constraint has, so the
 
 ```text
 msMeta-Additional_w3c/1.0/addB049/addB049.v
+```
+
+### A prohibited attribute use with a fixed value
+
+The type has no use for the prohibited attribute, which carries a fixed value, so the attribute is not forbidden and the instance is valid. System.Xml.Schema applies the XSD 1.1 meaning and rejects the attribute.
+
+- Difference: InstanceVerdict `instance verdict: ours=Valid, baseline=Invalid` (1)
+- Specification: XSD 1.0 Part 1, 3.4.2 (Complex Type Definition with complex content: the prohibited attribute uses of the XML representation are not part of the {attribute uses}) and 3.4.4
+- Cases: 1
+
+```text
+msMeta-Attribute_w3c/1.0/attP031/attP031.i
 ```
 
 ### A schema document that only an xsi:schemaLocation hint names

@@ -11,7 +11,11 @@ public class XmlPublicApiTests
     // The whole assembly: the DTD entry point lives in NetEvolve.Schemas (design #103, AP-2 and AP-3), so no narrower prefix selects it.
     [Test]
     public async Task PublicApi_MatchesVerifiedFile() =>
-        await PublicApiHarness.VerifyAsync(typeof(XmlSymbol).Assembly, AssemblyName, ["NetEvolve.Schemas"]);
+        await PublicApiHarness.VerifyAsync(
+            typeof(XmlSymbol).Assembly,
+            AssemblyName,
+            ["NetEvolve.Schemas", "Microsoft.Extensions.DependencyInjection"]
+        );
 
     [Test]
     public async Task Entry_Builder_Validator_LiveInXmlAssembly()

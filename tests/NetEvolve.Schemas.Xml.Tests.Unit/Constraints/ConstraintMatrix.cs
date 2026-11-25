@@ -237,8 +237,7 @@ internal static class ConstraintMatrix
             "3.3.1",
             "XML5009",
             [At + "Id_UniqueNameValue_IsValid"],
-            [At + "Id_ValueThatIsNotAName_ReportsXml5009", At + "Id_ValueUsedTwice_ReportsXml5009"],
-            "Bug #925: a value with a colon is accepted although the suite classifies it as invalid."
+            [At + "Id_ValueThatIsNotAName_ReportsXml5009", At + "Id_ValueUsedTwice_ReportsXml5009"]
         ),
         Valid(
             "One ID per Element Type",
@@ -259,8 +258,7 @@ internal static class ConstraintMatrix
             "3.3.1",
             "XML5012",
             [At + "IdRef_ValueOfAnId_IsValid"],
-            [At + "IdRef_ValueWithoutAnId_ReportsXml5012"],
-            "Bug #925: a value with a colon is accepted although the suite classifies it as invalid."
+            [At + "IdRef_ValueWithoutAnId_ReportsXml5012"]
         ),
         Valid(
             "Entity Name",

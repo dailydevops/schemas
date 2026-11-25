@@ -109,6 +109,8 @@ public class IdRefConstraintTests
     [Arguments("")]
     [Arguments("-")]
     [Arguments(" a")]
+    [Arguments("a:b")]
+    [Arguments(":")]
     public async Task Idref_ThatIsNotAName_ReportsXml5012AtOnceWithTheAttributePosition(string value)
     {
         var run = Run("<r id=\"a\" ~ref=\"" + value + "\"/>");
@@ -184,6 +186,16 @@ public class IdRefConstraintTests
         await Assert.That(run.Issues[0].Location).IsEqualTo(run.Expected[0]);
         await Assert.That(run.Issues[0].Message).Contains("'9x'");
         await Assert.That(run.Issues[0].Message).DoesNotContain("'first'");
+    }
+
+    [Test]
+    public async Task Idrefs_WithATokenThatHasAColon_ReportsOnlyThatToken_AtOnce()
+    {
+        var run = Run("<r id=\"first\"><b ~refs=\"first a:b first\"/></r>");
+
+        await Assert.That(run.Issues.Count).IsEqualTo(1);
+        await Assert.That(run.Issues[0].Code).IsEqualTo(DtdValidityCodes.XML5012.Code);
+        await Assert.That(run.Issues[0].Message).Contains("'a:b'");
     }
 
     [Test]

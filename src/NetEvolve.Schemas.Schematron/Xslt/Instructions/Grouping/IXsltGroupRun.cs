@@ -14,7 +14,7 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// Limitation: an <see cref="IQueryRun"/> has no member for the slots, so the run of a binding implements this interface too; the run
 /// of the XPath binding does not exist yet (XP-19, #297, #628), so only the test run does. This is the same deviation from the EP-13
 /// table as the focus of <c>xsl:for-each</c> (decision 14 of #255): the instruction does not write the XPath host slots itself, and
-/// the run copies the two values into them when it starts an evaluation. A function body clears both (<see cref="Functions.IXsltFunctionRun.EnterFunction"/>).
+/// the run copies the two values into them when it starts an evaluation. A function body clears both (<see cref="Seams.IXsltFunctionRun.EnterFunction"/>).
 /// </remarks>
 internal interface IXsltGroupRun : IQueryRun
 {

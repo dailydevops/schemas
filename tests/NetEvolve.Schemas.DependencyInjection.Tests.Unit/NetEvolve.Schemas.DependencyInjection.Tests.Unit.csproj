@@ -10,7 +10,11 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
   </ItemGroup>
+  <!-- The readme samples register the formats, whose registrations ship with the format packages (#1054). -->
   <ItemGroup>
     <ProjectReference Include="../../src/NetEvolve.Schemas.DependencyInjection/NetEvolve.Schemas.DependencyInjection.csproj" SetTargetFramework="$(LibraryLegTargetFramework)" />
+    <ProjectReference Include="../../src/NetEvolve.Schemas.Xml/NetEvolve.Schemas.Xml.csproj" SetTargetFramework="$(LibraryLegTargetFramework)" />
+    <ProjectReference Include="../../src/NetEvolve.Schemas.Xsd/NetEvolve.Schemas.Xsd.csproj" SetTargetFramework="$(LibraryLegTargetFramework)" />
+    <ProjectReference Include="../../src/NetEvolve.Schemas.Schematron/NetEvolve.Schemas.Schematron.csproj" SetTargetFramework="$(LibraryLegTargetFramework)" />
   </ItemGroup>
 </Project>

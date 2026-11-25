@@ -9,7 +9,6 @@ using NetEvolve.Schemas.Xml.Tests.Integration.XmlConf.Validating;
 /// <summary>Pins the conformance section of src/NetEvolve.Schemas.Xml/README.md to the run of the reader over the pinned suite.</summary>
 [Explicit]
 [Category(ConformanceCategory.Name)]
-[ConformanceLeg]
 public class XmlConfReadmeTests
 {
     private const string Readme = "src/NetEvolve.Schemas.Xml/README.md";
@@ -74,11 +73,6 @@ public class XmlConfReadmeTests
             "A default value refers to an entity that is declared later and is accepted ([#878](https://github.com/dailydevops/schemas/issues/878)).",
             ["ibm/ibm-not-wf-P68-ibm68n07.xml", "xmltest/not-wf-sa-180"]
         ),
-        (
-            "Invalid public identifier",
-            "A public identifier with a character outside `PubidChar` is accepted ([#931](https://github.com/dailydevops/schemas/issues/931)).",
-            ["xmltest/not-wf-sa-085"]
-        ),
     ];
 
     /// <summary>The cases the validation run does not run, by class: the label and the reason of the readme and the case ids.</summary>
@@ -139,11 +133,6 @@ public class XmlConfReadmeTests
             "Skipped entity reference",
             "The reader has no event for an entity reference ([#647](https://github.com/dailydevops/schemas/issues/647)), so the constraint is not reported.",
             ["eduni-errata-2e/rmt-e2e-15a", "eduni-errata-3e/rmt-e3e-13"]
-        ),
-        (
-            "Colon in an ID value",
-            "ID values are checked against Name only ([#925](https://github.com/dailydevops/schemas/issues/925)): a colon is accepted.",
-            ["eduni-namespaces-1.0/rmt-ns10-045", "eduni-namespaces-1.0/rmt-ns10-046"]
         ),
         (
             "Standalone normalization clause",

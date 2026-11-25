@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.XPath.Api;
 
 using System;
+using System.Collections.Concurrent;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Casting.Core;
 using NetEvolve.Schemas.XPath.Compatibility;
@@ -9,8 +10,12 @@ using NetEvolve.Schemas.XPath.Compilation.Optimization;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Evaluation.Arithmetic;
+using NetEvolve.Schemas.XPath.Evaluation.Arrays;
+using NetEvolve.Schemas.XPath.Evaluation.Arrow;
 using NetEvolve.Schemas.XPath.Evaluation.Comparison;
 using NetEvolve.Schemas.XPath.Evaluation.Flow;
+using NetEvolve.Schemas.XPath.Evaluation.Flow30;
+using NetEvolve.Schemas.XPath.Evaluation.FunctionItems;
 using NetEvolve.Schemas.XPath.Evaluation.Paths;
 using NetEvolve.Schemas.XPath.Evaluation.Temporal;
 using NetEvolve.Schemas.XPath.Functions.Binding;
@@ -46,8 +51,11 @@ internal static class XPathEngine
         | XPathHostRequirements.Keys;
 
     private static readonly ArithmeticOperatorTable Arithmetic = CreateArithmetic();
-    private static readonly ComparisonOperatorTable Comparison = CreateComparison();
+    internal static readonly ComparisonOperatorTable Comparison = CreateComparison();
     private static readonly LoweringRegistry DefaultRegistry = CreateRegistry(AllSlots);
+
+    // One registry per host flag combination instead of one per compilation: building it allocates a dictionary and a delegate per lowering.
+    private static readonly ConcurrentDictionary<XPathHostRequirements, LoweringRegistry> HostRegistries = new();
 
     /// <summary>Compiles an expression without throwing for static errors.</summary>
     /// <param name="text">The expression text.</param>
@@ -87,7 +95,10 @@ internal static class XPathEngine
             return new XPathCompileResult(null, diagnostic);
         }
 
-        var registry = activeHost == AllSlots ? DefaultRegistry : CreateRegistry(activeHost);
+        var registry =
+            activeHost == AllSlots
+                ? DefaultRegistry
+                : HostRegistries.GetOrAdd(activeHost, static host => CreateRegistry(host));
         return ExpressionCompiler.TryCompile(
             syntax!,
             source,
@@ -102,15 +113,22 @@ internal static class XPathEngine
             : new XPathCompileResult(null, diagnostic);
     }
 
-    private static LoweringRegistry CreateRegistry(XPathHostRequirements activeHost)
+    /// <summary>Creates the registry of the lowerings for the host slots that the host provides.</summary>
+    /// <param name="activeHost">The host slots and flags that the host provides.</param>
+    /// <returns>The registry.</returns>
+    internal static LoweringRegistry CreateRegistry(XPathHostRequirements activeHost)
     {
         var registry = new LoweringRegistry();
         FlowLowerings.Register(registry);
+        Flow30Lowerings.Register(registry);
+        ArrowLowerings.Register(registry);
         PathLowerings.Register(registry);
         SequenceTypeLowerings.Register(registry);
         CastingLowerings.Register(registry);
         ArithmeticLowerings.Register(registry, Arithmetic);
         ComparisonLowerings.Register(registry, Comparison);
+        FunctionItemLowerings.Register(registry, activeHost);
+        ArrayLowerings.Register(registry);
         registry.Register<FunctionCall>((node, context) => LowerCall(node, context, activeHost));
         return registry;
     }
@@ -139,25 +157,13 @@ internal static class XPathEngine
     )
     {
         var statics = context.StaticContext;
-        var name = node.Name;
-        var namespaceName = statics.DefaultFunctionNamespace;
-        if (name.Prefix is not null && !statics.TryResolveNamespace(name.Prefix, out namespaceName))
-        {
-            throw XPathErrors.Exception(XPathErrorCodes.XPST0081, name.Location.Offset, name.Location.Length);
-        }
-
         var arity = node.Arguments.Count;
-        if (
-            !FunctionCatalog.Default.Registry.TryResolve(
-                statics,
-                new XPathQName(namespaceName!, name.LocalName),
-                arity,
-                activeHost,
-                out var function
-            )
-        )
+        var function = FunctionItemLowerings.Resolve(node.Name, arity, node.Location, context, activeHost);
+
+        // A placeholder makes the call a partial function application: the result is a function item (XPath 3.0, 3.1.8).
+        if (FunctionItemLowerings.HasPlaceholder(node.Arguments))
         {
-            throw XPathErrors.Exception(XPathErrorCodes.XPST0017, node.Location.Offset, node.Location.Length);
+            return FunctionItemLowerings.LowerPartial(node, function, context);
         }
 
         var arguments = new ExecutableNode[arity];
@@ -168,7 +174,7 @@ internal static class XPathEngine
 
         // In XPath 1.0 compatibility mode the node of the mode converts the arguments first (XPath 2.0, 3.1.5).
         return statics.XPath10Compatibility
-            ? new CompatibilityCallNode(function!, arguments)
-            : new CallNode(function!, arguments);
+            ? new CompatibilityCallNode(function, arguments)
+            : new CallNode(function, arguments);
     }
 }
