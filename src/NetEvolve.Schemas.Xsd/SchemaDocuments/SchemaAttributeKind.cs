@@ -6,6 +6,9 @@ internal enum SchemaAttributeKind
     /// <summary>Any string.</summary>
     Any = 0,
 
+    /// <summary>A non-empty <c>xs:anyURI</c>, after white space collapse.</summary>
+    NonEmpty,
+
     /// <summary><c>xs:boolean</c>.</summary>
     Boolean,
 

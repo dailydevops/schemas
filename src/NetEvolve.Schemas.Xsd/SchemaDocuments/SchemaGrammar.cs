@@ -93,7 +93,7 @@ internal static class SchemaGrammar
             XsdRuleCodes.SchPropsCorrect,
             "include import redefine override annotation defaultOpenContent simpleType complexType group attributeGroup element attribute notation",
             Id
-                + " targetNamespace version attributeFormDefault:set=qualified|unqualified elementFormDefault:set=qualified|unqualified"
+                + " targetNamespace:nonempty version attributeFormDefault:set=qualified|unqualified elementFormDefault:set=qualified|unqualified"
                 + " blockDefault:list=extension|restriction|substitution finalDefault:list=extension|restriction|list|union"
                 + " defaultAttributes:qname xpathDefaultNamespace",
             repeatable: true
