@@ -10,4 +10,8 @@
   <ItemGroup>
     <ProjectReference Include="../../src/NetEvolve.Schemas.Xsd/NetEvolve.Schemas.Xsd.csproj" SetTargetFramework="$(LibraryLegTargetFramework)" />
   </ItemGroup>
+  <!-- The registration tests build a real container (#1054). -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+  </ItemGroup>
 </Project>
