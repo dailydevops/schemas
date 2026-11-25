@@ -4,7 +4,6 @@ using NetEvolve.Schemas.Conformance.Reporting;
 
 [Explicit]
 [Category(ConformanceCategory.Name)]
-[ConformanceLeg]
 public class SchematronConformanceSuiteTests
 {
     /// <summary>The number of cases the pinned suite release selects; a new release changes it on purpose.</summary>
