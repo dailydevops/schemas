@@ -376,6 +376,8 @@ public sealed class SvrlReportSink : ISchematronReportSink, IAsyncDisposable, ID
         for (var i = 0; i < references.Count; i++)
         {
             _body.PutText(references.IdAt(i));
+            _body.PutText(references.RoleAt(i));
+            _body.PutText(references.SchemeAt(i));
             _body.PutText(references.TextAt(i));
             _body.PutText(references.LanguageAt(i));
             _body.PutNumber(Keep(references.ContentAt(i)));
@@ -524,6 +526,8 @@ public sealed class SvrlReportSink : ISchematronReportSink, IAsyncDisposable, ID
         {
             Open(element);
             _xml.Attribute(attribute, reader.ReadText());
+            Attribute(_names.Role, reader.ReadText());
+            Attribute(_names.Scheme, reader.ReadText());
             _xml.EndAttributes();
             var text = reader.ReadText();
             var language = reader.ReadText();

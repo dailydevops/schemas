@@ -12,9 +12,9 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// <summary>
 /// The base of <c>fn:min</c> and <c>fn:max</c> (Functions and Operators 1.0, 15.4.3 and 15.4.4): the least or the greatest value of the
 /// argument. <c>xs:untypedAtomic</c> values are cast to <c>xs:double</c>; numbers are promoted to the type of the widest number in the
-/// sequence and so is the result; a NaN makes the result NaN; strings and URIs compare by codepoint and the result is an
-/// <c>xs:string</c>; booleans compare as booleans; dates, times, dateTimes, and the two duration subtypes compare through the entries
-/// of the comparison operator table (<see cref="TemporalAggregation"/>), with the implicit timezone of the dynamic context for a value
+/// sequence and so is the result; a NaN makes the result NaN; strings and URIs compare by codepoint and the result is the selected
+/// string with its own type (a derived string type survives), or an <c>xs:string</c> for a URI; booleans compare as booleans; dates,
+/// times, dateTimes, and the two duration subtypes compare through the entries of the comparison operator table (<see cref="TemporalAggregation"/>), with the implicit timezone of the dynamic context for a value
 /// without a timezone; and values that cannot be ordered together are FORG0006.
 /// </summary>
 /// <remarks>
@@ -152,20 +152,22 @@ internal abstract class ExtremumFunction : SequenceFunction
 
     private XdmItem PickText(in XdmSequence items)
     {
-        string? best = null;
+        var best = items[0];
         var count = items.Count;
-        for (var i = 0; i < count; i++)
+        for (var i = 1; i < count; i++)
         {
             var item = items[i];
-            var text = item.TryGetString(out var value) ? value! : AnyUriOf(in item);
-            if (best is null || ComparisonRelations.Holds(_better, CodepointComparison.Compare(text, best)))
+            if (ComparisonRelations.Holds(_better, CodepointComparison.Compare(TextOf(in item), TextOf(in best))))
             {
-                best = text;
+                best = item;
             }
         }
 
-        return XdmItem.FromString(best!);
+        // The selected item keeps its own type, a derived string type included; an xs:anyURI is promoted to xs:string.
+        return best.Kind == XdmItemKind.XsString ? best : XdmItem.FromString(TextOf(in best));
     }
+
+    private static string TextOf(in XdmItem item) => item.TryGetString(out var value) ? value! : AnyUriOf(in item);
 
     private static string AnyUriOf(in XdmItem item)
     {
