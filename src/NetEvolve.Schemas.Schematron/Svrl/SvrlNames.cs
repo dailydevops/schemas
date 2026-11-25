@@ -35,6 +35,7 @@ internal sealed class SvrlNames
         Documents = Attribute(table, "documents");
         Name = Attribute(table, "name");
         Role = Attribute(table, "role");
+        Scheme = Attribute(table, "scheme");
         Context = Attribute(table, "context");
         Flag = Attribute(table, "flag");
         Document = Attribute(table, "document");
@@ -92,6 +93,8 @@ internal sealed class SvrlNames
     internal XmlName Name { get; }
 
     internal XmlName Role { get; }
+
+    internal XmlName Scheme { get; }
 
     internal XmlName Context { get; }
 

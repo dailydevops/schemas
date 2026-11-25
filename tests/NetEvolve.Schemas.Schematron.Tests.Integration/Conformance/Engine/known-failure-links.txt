@@ -15,8 +15,6 @@ iso-reporting/svrl-fired-rule-document.xml	#913	The documents attribute is ignor
 iso-reporting/svrl-property-copy-of.xml	#914	A property with xsl:copy-of is reported NES3204 because no embedded content is wired into the pipeline.
 iso-reporting/svrl-property-fpi.xml	#916	The SVRL text of a diagnostic or property reference lacks fpi, icon, and see.
 iso-reporting/svrl-property-icon.xml	#916	The SVRL text of a diagnostic or property reference lacks fpi, icon, and see.
-iso-reporting/svrl-property-role.xml	#918	The SVRL property-reference lacks role and scheme.
-iso-reporting/svrl-property-scheme.xml	#918	The SVRL property-reference lacks role and scheme.
 iso-reporting/svrl-property-see.xml	#916	The SVRL text of a diagnostic or property reference lacks fpi, icon, and see.
 iso-reporting/svrl-property-variable-copy-of-rule.xml	#914	A property with xsl:copy-of is reported NES3204 because no embedded content is wired into the pipeline.
 iso-rule-based-validation/let-value-element-content.xml	#877	A let with element content binds a document node (maintainer decision of #856), and the run reports NES3204 until the embedded content is wired (#914).

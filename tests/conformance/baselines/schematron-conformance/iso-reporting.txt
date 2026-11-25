@@ -8,7 +8,5 @@ iso-reporting/svrl-fired-rule-document.xml
 iso-reporting/svrl-property-copy-of.xml
 iso-reporting/svrl-property-fpi.xml
 iso-reporting/svrl-property-icon.xml
-iso-reporting/svrl-property-role.xml
-iso-reporting/svrl-property-scheme.xml
 iso-reporting/svrl-property-see.xml
 iso-reporting/svrl-property-variable-copy-of-rule.xml

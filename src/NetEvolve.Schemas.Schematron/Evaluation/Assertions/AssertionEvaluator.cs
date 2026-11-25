@@ -36,6 +36,8 @@ internal sealed class AssertionEvaluator : IDisposable
     private string[] _propertyIds = [];
     private string[] _propertyTexts = [];
     private string[] _propertyLanguages = [];
+    private string[] _propertyRoles = [];
+    private string[] _propertySchemes = [];
     private IFindingContent?[] _propertyContents = [];
 
     /// <summary>Initializes a new instance of the <see cref="AssertionEvaluator"/> class.</summary>
@@ -130,7 +132,9 @@ internal sealed class AssertionEvaluator : IDisposable
             ref _propertyIds,
             ref _propertyTexts,
             ref _propertyContents,
-            ref _propertyLanguages
+            ref _propertyLanguages,
+            ref _propertyRoles,
+            ref _propertySchemes
         );
 
         ReadOnlySpan<char> path = default;
@@ -167,7 +171,9 @@ internal sealed class AssertionEvaluator : IDisposable
                 _propertyIds.AsSpan(0, properties),
                 _propertyTexts.AsSpan(0, properties),
                 _propertyContents.AsSpan(0, properties),
-                _propertyLanguages.AsSpan(0, properties)
+                _propertyLanguages.AsSpan(0, properties),
+                _propertyRoles.AsSpan(0, properties),
+                _propertySchemes.AsSpan(0, properties)
             ),
             issue,
             assertion.Message.Language.AsSpan()
@@ -243,7 +249,9 @@ internal sealed class AssertionEvaluator : IDisposable
         ref string[] ids,
         ref string[] texts,
         ref IFindingContent?[] contents,
-        ref string[] languages
+        ref string[] languages,
+        ref string[] roles,
+        ref string[] schemes
     )
     {
         if (ids.Length < references.Length)
@@ -252,6 +260,8 @@ internal sealed class AssertionEvaluator : IDisposable
             texts = new string[references.Length];
             contents = new IFindingContent?[references.Length];
             languages = new string[references.Length];
+            roles = new string[references.Length];
+            schemes = new string[references.Length];
         }
 
         var count = 0;
@@ -264,6 +274,8 @@ internal sealed class AssertionEvaluator : IDisposable
                 texts[count] = _reference.ToString();
                 contents[count] = content;
                 languages[count] = references[i].Language;
+                roles[count] = references[i].Role;
+                schemes[count] = references[i].Scheme;
                 count++;
             }
         }
