@@ -16,7 +16,6 @@ using NetEvolve.Schemas.Xsd.Tests.Integration.Xsts;
 /// </summary>
 [Explicit]
 [Category(ConformanceCategory.Name)]
-[ConformanceLeg]
 public class TreeValidationEquivalenceTests
 {
     private const string Unloadable = "unloadable";
