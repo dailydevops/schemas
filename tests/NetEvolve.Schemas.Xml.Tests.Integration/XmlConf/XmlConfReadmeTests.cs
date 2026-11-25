@@ -134,8 +134,6 @@ public class XmlConfReadmeTests
             "The reader has no event for an entity reference ([#647](https://github.com/dailydevops/schemas/issues/647)), so the constraint is not reported.",
             ["eduni-errata-2e/rmt-e2e-15a", "eduni-errata-3e/rmt-e3e-13"]
         ),
-        (
-        ),
     ];
 
     [Test]
