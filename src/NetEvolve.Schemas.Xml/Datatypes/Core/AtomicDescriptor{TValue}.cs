@@ -162,52 +162,76 @@ public sealed class AtomicDescriptor<TValue> : IDatatypeDescriptor<TValue>
         out TValue value,
         out FacetKind failedFacet,
         out int offset
+    ) =>
+        // A lexical form that is already normalized, the common case, needs neither a copy nor a scratch buffer.
+        WhitespaceNormalizer.IsNormalized(lexical, Whitespace)
+            ? EvaluateNormalized(lexical, lexical, wantValue, out value, out failedFacet, out offset)
+            : EvaluateChanged(lexical, wantValue, out value, out failedFacet, out offset);
+
+    private DatatypeError EvaluateChanged(
+        ReadOnlySpan<char> lexical,
+        bool wantValue,
+        out TValue value,
+        out FacetKind failedFacet,
+        out int offset
+    )
+    {
+        // A lexical form that changes and is short is normalized on the stack, so the common case allocates nothing.
+        Span<char> scratch = stackalloc char[ScratchLength];
+        var normalized = WhitespaceNormalizer.Apply(lexical, Whitespace, scratch, out var rented);
+        try
+        {
+            return EvaluateNormalized(lexical, normalized, wantValue, out value, out failedFacet, out offset);
+        }
+        finally
+        {
+            rented?.Dispose();
+        }
+    }
+
+    private DatatypeError EvaluateNormalized(
+        ReadOnlySpan<char> lexical,
+        ReadOnlySpan<char> normalized,
+        bool wantValue,
+        out TValue value,
+        out FacetKind failedFacet,
+        out int offset
     )
     {
         value = default!;
         failedFacet = FacetKind.None;
         offset = 0;
 
-        // A lexical form that changes and is short is normalized on the stack, so the common case allocates nothing.
-        Span<char> scratch = stackalloc char[ScratchLength];
-        var normalized = WhitespaceNormalizer.Apply(lexical, Whitespace, scratch, out var rented);
-        try
+        var error = _mapping.Check(normalized, LexicalMode, out var normalizedOffset);
+        if (error != DatatypeError.None)
         {
-            var error = _mapping.Check(normalized, LexicalMode, out var normalizedOffset);
-            if (error != DatatypeError.None)
-            {
-                offset = WhitespaceNormalizer.ToSourceOffset(lexical, Whitespace, normalizedOffset);
-                return error;
-            }
+            offset = WhitespaceNormalizer.ToSourceOffset(lexical, Whitespace, normalizedOffset);
+            return error;
+        }
 
-            // Facets in the fixed order of the design: lexical facets first, then the value-space facets.
+        // Facets in the fixed order of the design: lexical facets first, then the value-space facets.
+        for (var i = 0; i < Facets.Count; i++)
+        {
+            if (Facets[i] is ILexicalFacet lexicalFacet && !lexicalFacet.IsSatisfiedBy(normalized))
+            {
+                failedFacet = lexicalFacet.Kind;
+                return DatatypeError.FacetViolation;
+            }
+        }
+
+        if (wantValue || _hasValueFacets)
+        {
+            value = _mapping.Map(normalized, Whitespace, LexicalMode);
             for (var i = 0; i < Facets.Count; i++)
             {
-                if (Facets[i] is ILexicalFacet lexicalFacet && !lexicalFacet.IsSatisfiedBy(normalized))
+                if (Facets[i] is IValueFacet<TValue> valueFacet && !valueFacet.IsSatisfiedBy(in value))
                 {
-                    failedFacet = lexicalFacet.Kind;
+                    failedFacet = valueFacet.Kind;
                     return DatatypeError.FacetViolation;
                 }
             }
-
-            if (wantValue || _hasValueFacets)
-            {
-                value = _mapping.Map(normalized, Whitespace, LexicalMode);
-                for (var i = 0; i < Facets.Count; i++)
-                {
-                    if (Facets[i] is IValueFacet<TValue> valueFacet && !valueFacet.IsSatisfiedBy(in value))
-                    {
-                        failedFacet = valueFacet.Kind;
-                        return DatatypeError.FacetViolation;
-                    }
-                }
-            }
-
-            return DatatypeError.None;
         }
-        finally
-        {
-            rented?.Dispose();
-        }
+
+        return DatatypeError.None;
     }
 }

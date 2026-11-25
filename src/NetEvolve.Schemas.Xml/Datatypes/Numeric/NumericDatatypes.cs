@@ -125,6 +125,20 @@ internal static class NumericDatatypes
         // The decimal parser drops trailing zeros into a negative scale; the integer value restores them.
         public XsdInteger Map(ReadOnlySpan<char> normalized, WhitespaceMode mode, XsdVersion version)
         {
+            // The form passed Check: up to 18 digits fit a long, so the decimal parser is not needed.
+            var negative = normalized[0] == '-';
+            var digits = normalized[0] is '+' or '-' ? normalized.Slice(1) : normalized;
+            if (digits.Length <= 18)
+            {
+                long small = 0;
+                foreach (var c in digits)
+                {
+                    small = (small * 10) + (c - '0');
+                }
+
+                return new(negative ? -small : small);
+            }
+
             var value = XsdDecimal.Parse(normalized).Value;
             return new(value.Scale < 0 ? value.Mantissa * BigInteger.Pow(10, -value.Scale) : value.Mantissa);
         }
