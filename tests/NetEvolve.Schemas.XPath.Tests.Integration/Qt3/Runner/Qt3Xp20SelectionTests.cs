@@ -5,7 +5,7 @@ public class Qt3Xp20SelectionTests
     /// <summary>The number of XPath 2.0 cases the filter selects; a change of the filter or of the pinned suite makes it red.</summary>
     private const int SelectedXp20Cases = 15288;
 
-    private const int TotalCases = 31821;
+    internal const int TotalCases = 31821;
 
     private static readonly string[] DependencyTypes = ["spec ", "feature ", "xml-version ", "xsd-version "];
 
