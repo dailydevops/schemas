@@ -1,14 +1,7 @@
-namespace NetEvolve.Schemas.XPath.Tests.Integration.Qt3.Exclusions;
+﻿namespace NetEvolve.Schemas.XPath.Tests.Integration.Qt3.Exclusions;
 
 using System.Text;
 using NetEvolve.Schemas.XPath.Tests.Integration.Qt3.Runner;
-
-/// <summary>One excluded case of the XPath 2.0 selection, as listed in <c>Qt3/Exclusions/Xp20</c>.</summary>
-/// <param name="CaseId">The case id, <c>&lt;test-set&gt;/&lt;case-name&gt;</c>.</param>
-/// <param name="Dependencies">The unmet catalog dependencies, <c>; </c>-separated, as the dependency filter reports them.</param>
-/// <param name="Reason">Why the case is out of scope.</param>
-/// <param name="DefIds">The deferred features that are the reason, <c>,</c>-separated, for example <c>DEF-40</c>; empty when none is.</param>
-internal sealed record Qt3Xp20ExclusionEntry(string CaseId, string Dependencies, string Reason, string DefIds);
 
 /// <summary>
 /// The committed exclusion files of the XPath 2.0 selection: one tab-separated line per excluded case,
@@ -62,7 +55,15 @@ internal static class Qt3Xp20Exclusions
             _ => throw new InvalidOperationException("Unclassified dependency: " + dependency),
         };
 
-    /// <summary>Builds the file contents from the excluded cases; a case goes to the file that sorts first among its dependencies.</summary>
+    // A case of another language or version is not applicable whatever else it needs, so its spec dependency is the only reason.
+    private static (string File, string Reason, string? DefId)[] Primary(string[] dependencies)
+    {
+        var classes = Array.ConvertAll(dependencies, Classify);
+        var spec = Array.FindAll(classes, static c => c.File == "spec-not-applicable.txt");
+        return spec.Length > 0 ? spec : classes;
+    }
+
+    /// <summary>Builds the file contents from the excluded cases; a case goes to the file that sorts first among its reasons.</summary>
     /// <param name="excluded">The excluded cases.</param>
     /// <returns>The text per file name, with <c>\n</c> line endings.</returns>
     public static SortedDictionary<string, string> Format(IEnumerable<Qt3Exclusion> excluded)
@@ -70,7 +71,7 @@ internal static class Qt3Xp20Exclusions
         var files = new SortedDictionary<string, StringBuilder>(StringComparer.Ordinal);
         foreach (var exclusion in excluded)
         {
-            var classes = Array.ConvertAll(exclusion.Reason.Split("; "), Classify);
+            var classes = Primary(exclusion.Reason.Split("; "));
             var file = classes.Select(static c => c.File).Order(StringComparer.Ordinal).First();
             var reasons = string.Join("; ", classes.Select(static c => c.Reason).Distinct(StringComparer.Ordinal));
             var defs = string.Join(
@@ -147,12 +148,12 @@ internal static class Qt3Xp20Exclusions
                     problems.Add(entry.CaseId + ": unknown deferred feature " + def);
                 }
             }
-            foreach (var dependency in entry.Dependencies.Split(["; "], StringSplitOptions.RemoveEmptyEntries))
+            foreach (var dependency in Primary(entry.Dependencies.Split(["; "], StringSplitOptions.RemoveEmptyEntries)))
             {
-                var expected = Classify(dependency).DefId;
+                var expected = dependency.DefId;
                 if (expected is not null && Array.IndexOf(defs, expected) < 0)
                 {
-                    problems.Add(entry.CaseId + ": " + dependency + " needs " + expected);
+                    problems.Add(entry.CaseId + ": " + dependency.Reason + " needs " + expected);
                 }
             }
         }
