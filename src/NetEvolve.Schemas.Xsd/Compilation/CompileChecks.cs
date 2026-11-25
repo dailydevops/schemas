@@ -115,6 +115,11 @@ internal static class CompileChecks
         {
             var type = context.BuiltComplexTypes[i];
             IdAttributeUses.CheckType(type.AttributeUses, version, reporter);
+            if (type.NeverOccurringContent is { } never)
+            {
+                AllGroupLimits10.CheckContent(never, version, reporter);
+            }
+
             if (type.ContentParticle is not { } content)
             {
                 continue;
