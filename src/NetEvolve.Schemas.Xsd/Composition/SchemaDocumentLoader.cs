@@ -237,12 +237,12 @@ internal sealed class SchemaDocumentLoader
     private void Import(SchemaUnit unit, SchemaSyntaxNode node)
     {
         var imported = node.FindAttribute("namespace");
-        if (imported is null && unit.EffectiveNamespace.Length > 0)
+        if (imported is null && unit.EffectiveNamespace.Length == 0)
         {
             _reporter.Report(
                 SrcImport,
                 node.Location,
-                "The import has no namespace attribute, which a schema with a target namespace must give."
+                "The import has no namespace attribute, which only a schema with a target namespace may omit."
             );
             return;
         }
