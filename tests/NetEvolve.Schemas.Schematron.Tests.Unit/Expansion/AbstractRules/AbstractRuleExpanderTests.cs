@@ -173,6 +173,19 @@ public class AbstractRuleExpanderTests
     }
 
     [Test]
+    public async Task Extends_AbstractRuleOfAnotherPattern_ReportsAbstractTargetInvalid()
+    {
+        var owner = Pattern(1, Rule("shared", 2, true, null, Assert1("a1", 3)));
+        var user = Pattern(10, Rule("c", 11, false, null, Extends("shared", 12)));
+
+        var (ok, _, problems) = Run([], owner, user);
+
+        await Assert.That(ok).IsFalse();
+        await Assert.That(problems.Problems[0].Code).IsEqualTo(SchematronDiagnosticCodes.AbstractTargetInvalid);
+        await Assert.That(problems.Problems[0].Location).IsEqualTo(At(12));
+    }
+
+    [Test]
     public async Task Extends_ConcreteTarget_ReportsAbstractTargetInvalid()
     {
         var target = Rule("target", 2, false, null, Assert1("a1", 3));
