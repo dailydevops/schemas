@@ -148,7 +148,7 @@ public class StandaloneDocumentDeclarationTests
         await Assert.That(session.Result.Count).IsEqualTo(0);
     }
 
-    // Clause 3: attributes with tokenized types declared externally whose value normalization changes.
+    // Clause 3: attributes of a type other than CDATA (tokenized, notation and enumerated) declared externally whose value normalization changes.
 
     private static DtdDeclarations TypeModel(bool external, DtdAttributeType type) =>
         Declare("doc", [Element("doc")], [("doc", Attribute("a", type, DtdDefaultKind.Implied, null, external))]);
@@ -161,6 +161,8 @@ public class StandaloneDocumentDeclarationTests
     [Arguments(DtdAttributeType.IdRefs)]
     [Arguments(DtdAttributeType.Entity)]
     [Arguments(DtdAttributeType.Entities)]
+    [Arguments(DtdAttributeType.Notation)]
+    [Arguments(DtdAttributeType.Enumeration)]
     public async Task Normalization_TokenizedTypeDeclaredExternally_WhoseValueChanges_ReportsXml5003AtTheAttribute(
         DtdAttributeType type
     )
