@@ -107,8 +107,10 @@ public class XPathErrorCodesTests
     {
         var table = TableCodes("FO");
 
-        await Assert.That(table.SetEquals([.. FunctionsCodes, "FOTY0013", .. XPath31Codes])).IsTrue();
-        await Assert.That(table.Count).IsEqualTo(FunctionsCodes.Length + 1 + XPath31Codes.Length);
+        string[] foCodes = [.. XPath31Codes.Where(static c => c.StartsWith("FO", StringComparison.Ordinal))];
+
+        await Assert.That(table.SetEquals([.. FunctionsCodes, "FOTY0013", .. foCodes])).IsTrue();
+        await Assert.That(table.Count).IsEqualTo(FunctionsCodes.Length + 1 + foCodes.Length);
     }
 
     [Test]
