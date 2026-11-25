@@ -30,6 +30,7 @@ internal sealed class LoweringContext
     private readonly XPathLimits _limits;
     private readonly List<XPathQName> _scope = [];
     private readonly XPathOptimizations _optimizations;
+    private readonly List<CaptureFrame> _captures = [];
     private int _depth;
 
     internal LoweringContext(
@@ -95,6 +96,7 @@ internal sealed class LoweringContext
         var qname = Expand(name, string.Empty);
         if (_scope.Contains(qname) || StaticContext.TryGetVariableType(qname, out _))
         {
+            NoteReference(qname);
             return qname;
         }
 
@@ -132,6 +134,32 @@ internal sealed class LoweringContext
         return new VariableScope(this);
     }
 
+    /// <summary>Starts to collect the variables that the lowering of an inline function body references and the function does not declare.</summary>
+    /// <returns>The frame; dispose it when the body is lowered. A variable is free when it is declared outside the frame, which is every variable of the static context and every variable in scope at the function.</returns>
+    public CaptureFrame BeginCapture()
+    {
+        var frame = new CaptureFrame(this, _scope.Count);
+        _captures.Add(frame);
+        return frame;
+    }
+
+    private void NoteReference(XPathQName name)
+    {
+        if (_captures.Count == 0)
+        {
+            return;
+        }
+
+        var declared = _scope.LastIndexOf(name);
+        for (var i = 0; i < _captures.Count; i++)
+        {
+            if (declared < _captures[i].ScopeBase)
+            {
+                _ = _captures[i].FreeNames.Add(name);
+            }
+        }
+    }
+
     private XPathQName Expand(QualifiedName name, string unprefixedNamespace)
     {
         if (name.Prefix is null)
@@ -148,6 +176,26 @@ internal sealed class LoweringContext
     }
 
     private void EndScope() => _scope.RemoveAt(_scope.Count - 1);
+
+    /// <summary>The free variables of one inline function body, collected while it is lowered.</summary>
+    internal sealed class CaptureFrame : IDisposable
+    {
+        private readonly LoweringContext _owner;
+
+        internal CaptureFrame(LoweringContext owner, int scopeBase)
+        {
+            _owner = owner;
+            ScopeBase = scopeBase;
+        }
+
+        internal int ScopeBase { get; }
+
+        /// <summary>Gets the free variables.</summary>
+        public HashSet<XPathQName> FreeNames { get; } = [];
+
+        /// <summary>Ends the collection.</summary>
+        public void Dispose() => _owner._captures.Remove(this);
+    }
 
     /// <summary>The scope of a declared variable.</summary>
     internal readonly struct VariableScope : IDisposable
