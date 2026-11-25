@@ -130,7 +130,7 @@ public sealed class XPathEvaluationContext : IDisposable
 
     // Decision (#449): ThrowIfDisposed has no NetEvolve.Arguments.Argument equivalent and ObjectDisposedException.ThrowIf does not exist on netstandard; it stays the single explicit throw.
 #pragma warning disable CA1513
-    private void ThrowIfDisposed()
+    internal void ThrowIfDisposed()
     {
         if (_disposed)
         {
