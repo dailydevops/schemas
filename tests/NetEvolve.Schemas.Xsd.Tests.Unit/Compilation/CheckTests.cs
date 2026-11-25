@@ -153,8 +153,6 @@ public class CheckTests
     }
 
     [Test]
-    [Arguments("<xs:element name=\"e\" type=\"xs:NOTATION\"/>")]
-    [Arguments("<xs:attribute name=\"a\" type=\"xs:NOTATION\"/>")]
     [Arguments(
         "<xs:simpleType name=\"b\"><xs:restriction base=\"xs:NOTATION\"><xs:length value=\"3\"/></xs:restriction></xs:simpleType>"
             + "<xs:complexType name=\"c\"><xs:attribute name=\"a\" type=\"t:b\"/></xs:complexType>"

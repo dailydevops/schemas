@@ -169,6 +169,7 @@ internal sealed class SimpleTypeBuilder : IComponentBuilder
         if (type is not null)
         {
             _context.SetFixed(type, check.Fixed);
+            _context.NoteEnumeration(type, baseType, step);
         }
 
         return type;

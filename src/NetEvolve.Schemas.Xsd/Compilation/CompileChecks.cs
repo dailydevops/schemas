@@ -3,7 +3,9 @@ namespace NetEvolve.Schemas.Xsd.Compilation;
 using System.Collections.Generic;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
+using NetEvolve.Schemas.Xml.Datatypes.Facets.Core;
 using NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;
+using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Declarations11;
 using NetEvolve.Schemas.Xsd.Derivation.Particles10;
@@ -11,6 +13,7 @@ using NetEvolve.Schemas.Xsd.Derivation.Types;
 using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.Elements;
 using NetEvolve.Schemas.Xsd.SimpleTypes.Checks;
+using NetEvolve.Schemas.Xsd.SimpleTypes.Definitions;
 using NetEvolve.Schemas.Xsd.Substitution;
 using NetEvolve.Schemas.Xsd.Versioning.Rules10;
 
@@ -71,12 +74,16 @@ internal static class CompileChecks
     {
         for (var i = 0; i < context.FoundElements.Count; i++)
         {
-            _ = ValueConstraintCheck.Check(context.FoundElements[i], context.Assessor, version, reporter);
+            var element = context.FoundElements[i];
+            CheckNotationType(context, element.TypeDefinition, element.Location, version, reporter);
+            _ = ValueConstraintCheck.Check(element, context.Assessor, version, reporter);
         }
 
         for (var i = 0; i < context.BuiltAttributes.Count; i++)
         {
-            _ = ValueConstraintCheck.Check(context.BuiltAttributes[i], context.Assessor, version, reporter);
+            var attribute = context.BuiltAttributes[i];
+            CheckNotationType(context, attribute.TypeDefinition, attribute.Location, version, reporter);
+            _ = ValueConstraintCheck.Check(attribute, context.Assessor, version, reporter);
         }
 
         // The use of a local declaration states the constraint of the declaration, which was checked with it.
@@ -86,6 +93,30 @@ internal static class CompileChecks
             {
                 _ = ValueConstraintCheck.Check(context.BuiltUses[i], context.Assessor, version, reporter);
             }
+        }
+    }
+
+    // Datatypes 1.0, 3.2.19: a type derived from NOTATION that a declaration uses carries an enumeration; a restriction step in between needs none.
+    // The built-in NOTATION itself (no base type) is not checked.
+    private static void CheckNotationType(
+        BuildContext context,
+        IXsdComponent? type,
+        DocumentLocation location,
+        XsdVersion version,
+        XsdIssueReporter reporter
+    )
+    {
+        if (
+            type is SimpleTypeDefinition { BaseType: not null }
+            && !context.HasEnumeration(type)
+            && FacetBase.Resolve(type, version) is { Primitive: PrimitiveKind.Notation }
+        )
+        {
+            reporter.Report(
+                XsdRuleCodes.EnumerationRequiredNotation,
+                location,
+                "A type derived from NOTATION must specify an enumeration."
+            );
         }
     }
 
