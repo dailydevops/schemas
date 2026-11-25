@@ -501,23 +501,39 @@ public class DerivationValidRestrictionTests
     }
 
     [Test]
-    public async Task Restriction_OfAFixedAttributeValue_ComparesTheLexicalForm()
+    [Arguments("int", "1", "01", true)]
+    [Arguments("decimal", "1.0", "1", true)]
+    [Arguments("decimal", "1.0", "1.5", false)]
+    [Arguments("string", "1", "01", false)]
+    public async Task Restriction_OfAFixedAttributeValue_ComparesTheValueSpace(
+        string type,
+        string baseValue,
+        string value,
+        bool valid
+    )
     {
         var parent = _f.Root(
             "a",
             Seq(El("x")),
             false,
-            [_f.Use("p", AttributeUseKind.Optional, "int", AttributeValueConstraintKind.Fixed, "1")]
+            [_f.Use("p", AttributeUseKind.Optional, type, AttributeValueConstraintKind.Fixed, baseValue)]
         );
 
         _ = Restricted(
             parent,
             Seq(El("x")),
             false,
-            [_f.Use("p", AttributeUseKind.Optional, "int", AttributeValueConstraintKind.Fixed, "01")]
+            [_f.Use("p", AttributeUseKind.Optional, type, AttributeValueConstraintKind.Fixed, value)]
         );
 
-        await AssertSingle("2.1.3");
+        if (valid)
+        {
+            await AssertNone();
+        }
+        else
+        {
+            await AssertSingle("2.1.3");
+        }
     }
 
     [Test]
