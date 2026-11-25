@@ -183,7 +183,7 @@ The rates were measured on `main` at commit `a2d4119` with `net10.0`. The `Confo
 
 | Suite | Package | Applicable | Passed | Rate | Measured with |
 | --- | --- | ---: | ---: | ---: | --- |
-| W3C XML Conformance Test Suite (xmlconf), non-validating reader | `NetEvolve.Schemas.Xml` | 2,001 | 1,978 | 98.8% | [Xml package readme](src/NetEvolve.Schemas.Xml/README.md#conformance); 23 baselined cases in `tests/conformance/baselines/xmlconf` |
+| W3C XML Conformance Test Suite (xmlconf), non-validating reader | `NetEvolve.Schemas.Xml` | 2,001 | 1,980 | 98.9% | [Xml package readme](src/NetEvolve.Schemas.Xml/README.md#conformance); 21 baselined cases in `tests/conformance/baselines/xmlconf` |
 | xmlconf, DTD validation | `NetEvolve.Schemas.Xml` | 943 | 931 | 98.7% | `NetEvolve.Schemas.Xml.Tests.Integration`, filter `/*/*/*Xml*Conf*SuiteTests/*`; 12 baselined, 14 skipped |
 | W3C QT3 test suite, XPath 2.0 selection | `NetEvolve.Schemas.XPath` | 14,550 | 14,316 | 98.3% | `NetEvolve.Schemas.XPath.Tests.Integration`, filter `/*/*Conformance*/*/*`; 234 baselined cases in `tests/conformance/baselines/qt3`, 738 skipped |
 | W3C XML Schema Test Suite (XSTS) 1.0, schema tests | `NetEvolve.Schemas.Xsd` | 14,357 | 14,001 | 97.5% | `NetEvolve.Schemas.Xsd.Tests.Integration`, filter `/*/*Conformance*/*/*`; 356 baselined cases |

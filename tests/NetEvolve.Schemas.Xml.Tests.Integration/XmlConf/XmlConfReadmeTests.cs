@@ -68,11 +68,6 @@ public class XmlConfReadmeTests
             "The document declares version 1.7, which the Fifth Edition allows; the reader accepts 1.0 only and reports XML0010.",
             ["eduni-errata-4e/x-rmt-008b"]
         ),
-        (
-            "Entity used before its declaration",
-            "A default value refers to an entity that is declared later and is accepted ([#878](https://github.com/dailydevops/schemas/issues/878)).",
-            ["ibm/ibm-not-wf-P68-ibm68n07.xml", "xmltest/not-wf-sa-180"]
-        ),
     ];
 
     /// <summary>The cases the validation run does not run, by class: the label and the reason of the readme and the case ids.</summary>
