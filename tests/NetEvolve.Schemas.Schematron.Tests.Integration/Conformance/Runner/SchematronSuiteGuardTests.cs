@@ -2,25 +2,21 @@ namespace NetEvolve.Schemas.Schematron.Tests.Integration.Conformance.Runner;
 
 using NetEvolve.Schemas.Conformance.Reporting;
 
-public class SchematronLegTests
+public class SchematronSuiteGuardTests
 {
-    [Test]
-    public async Task SuiteRuns_AreSelectedByTheConformanceLeg() =>
-        await Assert
-            .That(
-                typeof(SchematronConformanceSuiteTests).GetCustomAttributes(
-                    typeof(ConformanceLegAttribute),
-                    inherit: false
-                )
-            )
-            .IsNotEmpty();
-
     [Test]
     public async Task SuiteClasses_AreExplicitAndInTheConformanceCategory()
     {
         var suites = typeof(SchematronConformanceSuiteTests)
             .Assembly.GetTypes()
-            .Where(t => t.GetCustomAttributes(typeof(ConformanceLegAttribute), inherit: false).Length != 0)
+            .Where(t =>
+                t.GetCustomAttributes(typeof(CategoryAttribute), inherit: false)
+                    .Concat(
+                        t.GetMethods().SelectMany(m => m.GetCustomAttributes(typeof(CategoryAttribute), inherit: false))
+                    )
+                    .Cast<CategoryAttribute>()
+                    .Any(a => a.Category == ConformanceCategory.Name)
+            )
             .ToArray();
 
         await Assert.That(suites).IsNotEmpty();
