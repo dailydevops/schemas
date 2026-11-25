@@ -24,6 +24,6 @@ internal sealed class Strict10Construct
     /// <summary>Gets the local names of the elements that carry the attribute; empty for any.</summary>
     internal string[] Owners { get; }
 
-    /// <summary>Gets a value indicating whether the construct is rejected only on a local declaration.</summary>
+    /// <summary>Gets a value indicating whether the not-yet-supported gate of XSD 1.1 rejects the construct only on a local declaration; strict 1.0 mode rejects it on any declaration.</summary>
     internal bool LocalOnly { get; }
 }

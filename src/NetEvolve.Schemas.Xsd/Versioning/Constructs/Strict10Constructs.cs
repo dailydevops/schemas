@@ -55,7 +55,7 @@ internal static class Strict10Constructs
             }
 
             var entry = Strict10ConstructTable.Find(true, attribute.Name.LocalName);
-            if (entry is not null && Applies(entry.Owners, entry.LocalOnly, name, parent))
+            if (entry is not null && Applies(entry.Owners, false, name, parent))
             {
                 Report(
                     reporter,
