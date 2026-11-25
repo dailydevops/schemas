@@ -20,7 +20,7 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// last step may deliver atomic values, which are returned as they are. Limitation: a result of two or more items is copied into one
 /// array; the intermediate lists are pooled.
 /// </remarks>
-internal sealed class PathNode : ExecutableNode, IOrderedNodeSequence
+internal sealed class PathNode : ExecutableNode, IOrderedNodeSequence, IItemListProducer
 {
     private const XPathOrderProperties Kept = XPathOrderProperties.Single | XPathOrderProperties.NonNested;
 
@@ -114,32 +114,57 @@ internal sealed class PathNode : ExecutableNode, IOrderedNodeSequence
         var next = new XdmItemList(limit, _location);
         try
         {
-            var index = 0;
-            if (_root == PathRoot.Relative)
-            {
-                _steps[0].EvaluateFromContext(context, ref current, _steps.Length == 1 ? _limit : 0);
-                Finish(ref current, 0);
-                index = 1;
-            }
-            else
-            {
-                current.Add(XdmItem.FromNode(GetRoot(context)));
-            }
-
-            for (; index < _steps.Length; index++)
-            {
-                _steps[index].EvaluateOver(context, current.Items, ref next, index == _steps.Length - 1 ? _limit : 0);
-                Finish(ref next, index);
-                (current, next) = (next, current);
-                next.Clear();
-            }
-
+            EvaluateSteps(context, ref current, ref next);
             return current.ToSequence();
         }
         finally
         {
             current.Dispose();
             next.Dispose();
+        }
+    }
+
+    /// <inheritdoc />
+    public void EvaluateInto(XPathEvaluationContext context, ref XdmItemList results)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+
+        var limit = context.Limits.MaxSequenceSize;
+        var current = new XdmItemList(limit, _location);
+        var next = new XdmItemList(limit, _location);
+        try
+        {
+            EvaluateSteps(context, ref current, ref next);
+            results.AddRange(current.Items);
+        }
+        finally
+        {
+            current.Dispose();
+            next.Dispose();
+        }
+    }
+
+    // Leaves the result in current; the caller disposes both lists.
+    private void EvaluateSteps(XPathEvaluationContext context, ref XdmItemList current, ref XdmItemList next)
+    {
+        var index = 0;
+        if (_root == PathRoot.Relative)
+        {
+            _steps[0].EvaluateFromContext(context, ref current, _steps.Length == 1 ? _limit : 0);
+            Finish(ref current, 0);
+            index = 1;
+        }
+        else
+        {
+            current.Add(XdmItem.FromNode(GetRoot(context)));
+        }
+
+        for (; index < _steps.Length; index++)
+        {
+            _steps[index].EvaluateOver(context, current.Items, ref next, index == _steps.Length - 1 ? _limit : 0);
+            Finish(ref next, index);
+            (current, next) = (next, current);
+            next.Clear();
         }
     }
 

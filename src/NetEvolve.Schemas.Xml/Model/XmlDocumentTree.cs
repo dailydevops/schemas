@@ -39,7 +39,8 @@ public sealed class XmlDocumentTree : XmlTree
     private readonly int[] _otherStarts; // length + 1; value-buffer offset when the row was appended
     private readonly char[] _text;
     private readonly char[] _other;
-    private readonly XmlPosition[]? _positions;
+    private readonly XmlPosition[]? _positions; // one entry per element row, in row order
+    private readonly int[]? _positionRows; // the element rows of _positions, ascending
     private readonly Uri? _documentUri;
     private readonly Dictionary<string, int>? _ids;
     private readonly byte[]? _facts;
@@ -63,6 +64,7 @@ public sealed class XmlDocumentTree : XmlTree
         char[] text,
         char[] other,
         XmlPosition[]? positions,
+        int[]? positionRows,
         Uri? documentUri,
         Dictionary<string, int>? ids,
         byte[]? facts,
@@ -82,6 +84,7 @@ public sealed class XmlDocumentTree : XmlTree
         _text = text;
         _other = other;
         _positions = positions;
+        _positionRows = positionRows;
         _documentUri = documentUri;
         _ids = ids;
         _facts = facts;
@@ -112,7 +115,13 @@ public sealed class XmlDocumentTree : XmlTree
         ArgumentOutOfRangeException.ThrowIfLessThan(index, 0);
         ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, _kinds.Length);
 
-        return _positions is null ? default : _positions[index];
+        if (_positions is null || _positionRows is null)
+        {
+            return default;
+        }
+
+        var slot = Array.BinarySearch(_positionRows, index);
+        return slot < 0 ? default : _positions[slot];
     }
 
     /// <summary>Looks up the element registered for an ID value; the first registration in document order wins.</summary>

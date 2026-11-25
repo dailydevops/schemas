@@ -40,6 +40,7 @@ public sealed class XmlTreeBuilder : IXmlAttributeInfoSink, IDisposable
     private readonly PooledBuffer<int> _textStarts = new();
     private readonly PooledBuffer<int> _otherStarts = new();
     private readonly PooledBuffer<XmlPosition> _positions = new();
+    private readonly PooledBuffer<int> _positionRows = new();
     private readonly PooledBuffer<char> _text = new();
     private readonly PooledBuffer<char> _other = new();
     private readonly PooledBuffer<int> _factRows = new();
@@ -276,6 +277,7 @@ public sealed class XmlTreeBuilder : IXmlAttributeInfoSink, IDisposable
             _text.WrittenSpan.ToArray(),
             _other.WrittenSpan.ToArray(),
             _trackPositions ? _positions.WrittenSpan.ToArray() : null,
+            _trackPositions ? _positionRows.WrittenSpan.ToArray() : null,
             _documentUri,
             _ids,
             Facts(count),
@@ -302,6 +304,7 @@ public sealed class XmlTreeBuilder : IXmlAttributeInfoSink, IDisposable
         _textStarts.Dispose();
         _otherStarts.Dispose();
         _positions.Dispose();
+        _positionRows.Dispose();
         _text.Dispose();
         _other.Dispose();
         _factRows.Dispose();
@@ -423,9 +426,11 @@ public sealed class XmlTreeBuilder : IXmlAttributeInfoSink, IDisposable
         _names.Append(name);
         _textStarts.Append(_text.Length);
         _otherStarts.Append(_other.Length);
-        if (_trackPositions)
+        // Only an element has a position, so the positions are kept for the element rows alone.
+        if (_trackPositions && kind == XmlNodeKind.Element)
         {
             _positions.Append(position);
+            _positionRows.Append(index);
         }
 
         return index;
@@ -501,6 +506,7 @@ public sealed class XmlTreeBuilder : IXmlAttributeInfoSink, IDisposable
         _textStarts.Clear();
         _otherStarts.Clear();
         _positions.Clear();
+        _positionRows.Clear();
         _text.Clear();
         _other.Clear();
         _factRows.Clear();
