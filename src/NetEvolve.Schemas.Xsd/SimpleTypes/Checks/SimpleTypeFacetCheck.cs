@@ -371,6 +371,17 @@ internal static class SimpleTypeFacetCheck
                 return;
             }
 
+            // Datatypes 1.0, 4.3.1.4: length with minLength or maxLength is allowed only across derivation steps; XSD 1.1 drops the rule.
+            if (_version == XsdVersion.V10 && _length.HasValue && (_minLength.HasValue || _maxLength.HasValue))
+            {
+                ReportResult(
+                    XsdRuleCodes.LengthMinLengthMaxLength,
+                    _minLength.HasValue ? FacetKind.MinLength : FacetKind.MaxLength,
+                    IsCore
+                );
+                return;
+            }
+
             var result = FacetRestriction.Validate(
                 _facts.CoreSet(fixedFacets),
                 new FacetSet(_length, _minLength, _maxLength, _whiteSpace),
