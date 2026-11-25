@@ -6,6 +6,9 @@
   -->
   <ItemGroup Condition="'$(LibraryLegTargetFramework)' != ''">
     <PackageReference Include="NetEvolve.Arguments" ExcludeAssets="compile;runtime" />
-    <Reference Include="NetEvolve.Arguments" HintPath="$([MSBuild]::EnsureTrailingSlash($(NuGetPackageRoot)))netevolve.arguments/@(PackageVersion->WithMetadataValue('Identity','NetEvolve.Arguments')->'%(Version)')/lib/netstandard2.0/NetEvolve.Arguments.dll" />
+    <Reference
+      Include="NetEvolve.Arguments"
+      HintPath="$([MSBuild]::EnsureTrailingSlash($(NuGetPackageRoot)))netevolve.arguments/@(PackageVersion->WithMetadataValue('Identity','NetEvolve.Arguments')->'%(Version)')/lib/netstandard2.0/NetEvolve.Arguments.dll"
+    />
   </ItemGroup>
 </Project>
