@@ -229,6 +229,42 @@ public class AllGroupLimits10Tests
     }
 
     [Test]
+    public async Task ContentTypeWithAnAllGroupThatNeverOccurs_IsALocatedSchemaError()
+    {
+        var fixture = Build(
+            "<xs:group name=\"g\"><xs:all><xs:element name=\"a\" type=\"xs:int\"/></xs:all></xs:group>"
+        );
+        var inline = Particle.Create(Where, 0, 0, fixture.Group("g").ModelGroup);
+        var reference = Particle.Create(Where, 0, 0, fixture.Group("g"));
+
+        AllGroupLimits10.CheckContent(inline, XsdVersion.V10, fixture.Reporter);
+        AllGroupLimits10.CheckContent(reference, XsdVersion.V10, fixture.Reporter);
+
+        await Assert.That(fixture.Issues.Count).IsEqualTo(2);
+        await Assert.That(fixture.Issues[0].Code).IsEqualTo(fixture.CodeOf("cos-all-limited"));
+        await Assert.That(fixture.Issues[1].Location).IsEqualTo(Where);
+
+        AllGroupLimits10.CheckContent(inline, XsdVersion.V11, fixture.Reporter);
+
+        await Assert.That(fixture.Issues.Count).IsEqualTo(2);
+    }
+
+    [Test]
+    public async Task AllGroupWithTwoElementsOfTheSameName_ReportsTheSecondOne()
+    {
+        var fixture = Build(
+            "<xs:element name=\"e \" type=\"xs:int\"/><xs:group name=\"g\"><xs:all>\n"
+                + "<xs:element ref=\"t:e\"/>\n<xs:element name=\"x\" type=\"xs:int\"/>\n<xs:element ref=\"t:e\"/>\n</xs:all></xs:group>"
+        );
+
+        await Assert.That(CheckDefinition(fixture, XsdVersion.V10)).IsEqualTo(1);
+
+        await Assert.That(fixture.Issues[0].Code).IsEqualTo(fixture.CodeOf("cos-all-limited"));
+        await Assert.That(fixture.Issues[0].Location.Line).IsEqualTo(5);
+        await Assert.That(CheckDefinition(fixture, XsdVersion.V11)).IsEqualTo(0);
+    }
+
+    [Test]
     public async Task ContentTypeWithAnInlineAllGroup_ChecksItsMembers()
     {
         var fixture = Build(MemberOccursTwice);
