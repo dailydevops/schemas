@@ -30,7 +30,10 @@ internal sealed class IntegerPicture
     public int ZeroDigit { get; private set; } = '0';
 
     /// <summary>Gets the number of mandatory digit signs of a decimal pattern: the minimum width.</summary>
-    public int MinimumDigits { get; private set; } = 1;
+    public int MinimumDigits { get; internal set; } = 1;
+
+    /// <summary>Gets the number of digit signs of a decimal pattern, mandatory and optional ones.</summary>
+    public int DigitSigns { get; private set; } = 1;
 
     /// <summary>Gets the grouping separators of a decimal pattern as pairs of the position counted from the right and the separator.</summary>
     public IReadOnlyList<KeyValuePair<int, string>> Separators { get; private set; } =
@@ -204,6 +207,7 @@ internal sealed class IntegerPicture
         {
             ZeroDigit = zero,
             MinimumDigits = mandatory,
+            DigitSigns = digits,
             Separators = fromRight,
             RegularInterval = ComputeInterval(fromRight, digits),
         };
