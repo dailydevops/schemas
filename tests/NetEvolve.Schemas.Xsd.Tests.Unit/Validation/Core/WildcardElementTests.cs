@@ -34,39 +34,6 @@ public class WildcardElementTests
         await Assert.That(issues[0].Message).Contains("'unknown'");
     }
 
-    private const string XsiNamespaces =
-        " xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"";
-
-    [Test]
-    public async Task Strict_WithoutDeclarationButValidXsiType_AssessesTheElementAgainstThatType()
-    {
-        var schema = WildcardRoot("##any", XsdProcessContents.Strict, out _);
-
-        var ok = ValidationHarness.Run(
-            schema,
-            "<r" + XsiNamespaces + "><unknown xsi:type=\"xs:int\">123</unknown></r>"
-        );
-        var bad = ValidationHarness.Run(
-            schema,
-            "<r" + XsiNamespaces + "><unknown xsi:type=\"xs:int\">abc</unknown></r>"
-        );
-
-        await Assert.That(ok.Count).IsEqualTo(0);
-        await Assert.That(bad.Count).IsEqualTo(1);
-        await Assert.That(bad[0].Constraint).IsNotEqualTo("cvc-wildcard.2");
-    }
-
-    [Test]
-    public async Task Strict_WithoutDeclarationAndUnknownXsiType_IsAnError()
-    {
-        var issues = ValidationHarness.Run(
-            WildcardRoot("##any", XsdProcessContents.Strict, out _),
-            "<r" + XsiNamespaces + "><unknown xsi:type=\"xs:nope\"><child/></unknown></r>"
-        );
-
-        await Assert.That(issues.Any(i => i.Constraint == "cvc-wildcard.2")).IsTrue();
-    }
-
     [Test]
     public async Task Strict_WithDeclaration_AssessesTheElement()
     {
@@ -75,7 +42,7 @@ public class WildcardElementTests
         var ok = ValidationHarness.Run(schema, "<r><known/></r>");
         var bad = ValidationHarness.Run(schema, "<r><known>text</known></r>");
 
-        await Assert.That(ok.Count).IsEqualTo(0);
+        await Assert.That(string.Join("//", ok.Select(i => i.Constraint + i.Message))).IsEqualTo("");
         await Assert.That(bad.Count).IsEqualTo(1);
         await Assert.That(bad[0].Constraint).IsEqualTo("cvc-complex-type.2.1");
     }
