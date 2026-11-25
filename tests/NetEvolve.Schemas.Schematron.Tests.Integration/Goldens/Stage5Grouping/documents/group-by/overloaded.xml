@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<order>
+  <line category="a" />
+  <line category="b" />
+  <line category="a" />
+  <line category="a" />
+</order>
