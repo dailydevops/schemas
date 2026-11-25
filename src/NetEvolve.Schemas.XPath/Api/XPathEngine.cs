@@ -10,6 +10,7 @@ using NetEvolve.Schemas.XPath.Compilation.Optimization;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Evaluation.Arithmetic;
+using NetEvolve.Schemas.XPath.Evaluation.Arrow;
 using NetEvolve.Schemas.XPath.Evaluation.Comparison;
 using NetEvolve.Schemas.XPath.Evaluation.Flow;
 using NetEvolve.Schemas.XPath.Evaluation.Flow30;
@@ -119,6 +120,7 @@ internal static class XPathEngine
         var registry = new LoweringRegistry();
         FlowLowerings.Register(registry);
         Flow30Lowerings.Register(registry);
+        ArrowLowerings.Register(registry);
         PathLowerings.Register(registry);
         SequenceTypeLowerings.Register(registry);
         CastingLowerings.Register(registry);
