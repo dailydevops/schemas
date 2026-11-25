@@ -85,7 +85,11 @@ public class Qt3BaselineTests
             .That(report.Counts.Passed + report.Counts.Failed + report.Counts.Skipped)
             .IsEqualTo(selection.Selected.Count);
     }
+}
 
+/// <summary>Every baseline entry links a known open issue; these tests need no network and run in the default set.</summary>
+public class Qt3BaselineLinkTests
+{
     /// <summary>The links file: one line per baseline entry, case id, <c>#issue</c> and reason separated by tabs.</summary>
     private static readonly string LinksPath = Path.Combine(Qt3Suite.BaselineDirectory, "known-failure-links.tsv");
 
@@ -147,7 +151,8 @@ public class Qt3BaselineTests
                 fields.Length != 3
                 || fields[0].Length == 0
                 || string.IsNullOrWhiteSpace(fields[2])
-                || !fields[1].StartsWith('#')
+                || fields[1].Length < 2
+                || fields[1][0] != '#'
                 || !int.TryParse(fields[1].AsSpan(1), NumberStyles.None, CultureInfo.InvariantCulture, out var issue)
             )
             {
