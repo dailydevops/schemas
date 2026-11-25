@@ -10,7 +10,11 @@ public class XsdPublicApiTests
 
     [Test]
     public async Task PublicApi_Xsd_MatchesApprovedSnapshot() =>
-        await PublicApiHarness.VerifyAsync(typeof(IXsdValidator).Assembly, AssemblyName, ["NetEvolve.Schemas"]);
+        await PublicApiHarness.VerifyAsync(
+            typeof(IXsdValidator).Assembly,
+            AssemblyName,
+            ["NetEvolve.Schemas", "Microsoft.Extensions.DependencyInjection"]
+        );
 
     [Test]
     public async Task PublicApi_XsdVersion_IsPublicInXml()
@@ -28,7 +32,10 @@ public class XsdPublicApiTests
 
         foreach (var type in typeof(IXsdValidator).Assembly.GetExportedTypes())
         {
-            if (type.Namespace is not ("NetEvolve.Schemas" or "NetEvolve.Schemas.Xsd"))
+            if (
+                type.Namespace
+                is not ("NetEvolve.Schemas" or "NetEvolve.Schemas.Xsd" or "Microsoft.Extensions.DependencyInjection")
+            )
             {
                 undocumented.Add(type.FullName!);
             }

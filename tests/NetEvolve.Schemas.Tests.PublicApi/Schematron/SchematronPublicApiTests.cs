@@ -9,7 +9,11 @@ public class SchematronPublicApiTests
 
     [Test]
     public async Task PublicApi_Schematron_MatchesApprovedSnapshot() =>
-        await PublicApiHarness.VerifyAsync(typeof(ISchematronValidator).Assembly, AssemblyName, ["NetEvolve.Schemas"]);
+        await PublicApiHarness.VerifyAsync(
+            typeof(ISchematronValidator).Assembly,
+            AssemblyName,
+            ["NetEvolve.Schemas", "Microsoft.Extensions.DependencyInjection"]
+        );
 
     [Test]
     public async Task Surface_OnlyDocumentedNamespacesArePublic()
@@ -25,6 +29,7 @@ public class SchematronPublicApiTests
                     or "NetEvolve.Schemas.Schematron"
                     or "NetEvolve.Schemas.Schematron.Model"
                     or "NetEvolve.Schemas.Schematron.Svrl"
+                    or "Microsoft.Extensions.DependencyInjection"
                 )
             )
             {

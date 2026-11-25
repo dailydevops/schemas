@@ -14,13 +14,13 @@ Format-agnostic, span-based .NET libraries for reading, validating, and querying
 The packages form layers; each package depends only on the packages to its left:
 
 ```txt
-NetEvolve.Schemas <- Xml <- XPath <- { Schematron, Xsd } <- DependencyInjection
+NetEvolve.Schemas <- DependencyInjection <- Xml <- XPath <- { Schematron, Xsd }
 ```
 
 - **Core**: `NetEvolve.Schemas` defines the validator contract, the result model, validation limits, and external resource resolvers.
 - **XML and XPath**: `NetEvolve.Schemas.Xml` reads documents and `NetEvolve.Schemas.XPath` evaluates expressions over them.
 - **Formats**: `NetEvolve.Schemas.Schematron` and `NetEvolve.Schemas.Xsd` each add a `SchemaValidator.For<Format>()` entry point, a C# 14 extension member that returns a fluent builder.
-- **Integration**: `NetEvolve.Schemas.DependencyInjection` registers validators with `Microsoft.Extensions.DependencyInjection`.
+- **Integration**: `NetEvolve.Schemas.DependencyInjection` is the generic registration core (`AddSchemaValidator`, `AddKeyedSchemaValidator`) for `Microsoft.Extensions.DependencyInjection` and references no format package. Each format package (`Xml` for DTD, `Xsd`, `Schematron`) carries its own `Add<Format>Validator` and `AddKeyed<Format>Validator` extensions in the namespace `Microsoft.Extensions.DependencyInjection`, so referencing one format brings no other format's assembly.
 
 All packages target `netstandard2.0`, `net10.0`, and `net11.0`. Beyond the layers above, every package has one runtime dependency, `NetEvolve.Arguments`, and the `netstandard2.0` builds add three Microsoft polyfill packages.
 
@@ -31,11 +31,11 @@ All packages target `netstandard2.0`, `net10.0`, and `net11.0`. Beyond the layer
 | Package | Purpose | Depends on | Target frameworks | Status |
 | --- | --- | --- | --- | --- |
 | [`NetEvolve.Schemas`](src/NetEvolve.Schemas/README.md) | Validator contract, result model, limits, and resolvers | none | `netstandard2.0`, `net10.0`, `net11.0` | Not yet released |
-| [`NetEvolve.Schemas.Xml`](src/NetEvolve.Schemas.Xml/README.md) | XML reader, document model, and DTD validation | `NetEvolve.Schemas` | `netstandard2.0`, `net10.0`, `net11.0` | Not yet released |
+| [`NetEvolve.Schemas.DependencyInjection`](src/NetEvolve.Schemas.DependencyInjection/README.md) | Generic dependency injection registration core | `NetEvolve.Schemas`, `Microsoft.Extensions.DependencyInjection.Abstractions` | `netstandard2.0`, `net10.0`, `net11.0` | Not yet released |
+| [`NetEvolve.Schemas.Xml`](src/NetEvolve.Schemas.Xml/README.md) | XML reader, document model, and DTD validation, with the DTD registration extensions | `NetEvolve.Schemas`, `NetEvolve.Schemas.DependencyInjection`, `Microsoft.Extensions.DependencyInjection.Abstractions` | `netstandard2.0`, `net10.0`, `net11.0` | Not yet released |
 | `NetEvolve.Schemas.XPath` | XPath evaluation (XPath 2.0; XPath 3.0 and 3.1 partial) | `NetEvolve.Schemas.Xml` | `netstandard2.0`, `net10.0`, `net11.0` | Not yet released |
-| [`NetEvolve.Schemas.Schematron`](src/NetEvolve.Schemas.Schematron/README.md) | Schematron validation with SVRL output | `NetEvolve.Schemas.XPath` | `netstandard2.0`, `net10.0`, `net11.0` | Not yet released |
-| `NetEvolve.Schemas.Xsd` | XSD validation | `NetEvolve.Schemas.XPath` | `netstandard2.0`, `net10.0`, `net11.0` | Not yet released, partial |
-| [`NetEvolve.Schemas.DependencyInjection`](src/NetEvolve.Schemas.DependencyInjection/README.md) | Dependency injection registration | `NetEvolve.Schemas.Schematron`, `NetEvolve.Schemas.Xsd`, `Microsoft.Extensions.DependencyInjection.Abstractions` | `netstandard2.0`, `net10.0`, `net11.0` | Not yet released |
+| [`NetEvolve.Schemas.Schematron`](src/NetEvolve.Schemas.Schematron/README.md) | Schematron validation with SVRL output, with the Schematron registration extensions | `NetEvolve.Schemas.XPath`, `NetEvolve.Schemas.DependencyInjection`, `Microsoft.Extensions.DependencyInjection.Abstractions` | `netstandard2.0`, `net10.0`, `net11.0` | Not yet released |
+| `NetEvolve.Schemas.Xsd` | XSD validation, with the XSD registration extensions | `NetEvolve.Schemas.XPath`, `NetEvolve.Schemas.DependencyInjection`, `Microsoft.Extensions.DependencyInjection.Abstractions` | `netstandard2.0`, `net10.0`, `net11.0` | Not yet released, partial |
 
 The target frameworks are set once in `src/Directory.Build.props`. Only `NetEvolve.Schemas` is packable today; the other projects become packable when their package lands (`Directory.Build.props`). The XPath and XSD packages have no package readme yet.
 
@@ -183,13 +183,13 @@ The rates were measured on `main` at commit `a2d4119` with `net10.0`. The `Confo
 
 | Suite | Package | Applicable | Passed | Rate | Measured with |
 | --- | --- | ---: | ---: | ---: | --- |
-| W3C XML Conformance Test Suite (xmlconf), non-validating reader | `NetEvolve.Schemas.Xml` | 2,001 | 1,977 | 98.8% | [Xml package readme](src/NetEvolve.Schemas.Xml/README.md#conformance); 24 baselined cases in `tests/conformance/baselines/xmlconf` |
+| W3C XML Conformance Test Suite (xmlconf), non-validating reader | `NetEvolve.Schemas.Xml` | 2,001 | 1,978 | 98.8% | [Xml package readme](src/NetEvolve.Schemas.Xml/README.md#conformance); 23 baselined cases in `tests/conformance/baselines/xmlconf` |
 | xmlconf, DTD validation | `NetEvolve.Schemas.Xml` | 943 | 927 | 98.3% | `NetEvolve.Schemas.Xml.Tests.Integration`, filter `/*/*/*Xml*Conf*SuiteTests/*`; 16 baselined, 14 skipped |
 | W3C QT3 test suite, XPath 2.0 selection | `NetEvolve.Schemas.XPath` | 14,550 | 14,304 | 98.3% | `NetEvolve.Schemas.XPath.Tests.Integration`, filter `/*/*Conformance*/*/*`; 246 baselined cases in `tests/conformance/baselines/qt3`, 738 skipped |
 | W3C XML Schema Test Suite (XSTS) 1.0, schema tests | `NetEvolve.Schemas.Xsd` | 14,357 | 14,001 | 97.5% | `NetEvolve.Schemas.Xsd.Tests.Integration`, filter `/*/*Conformance*/*/*`; 356 baselined cases |
 | XSTS 1.0, instance tests | `NetEvolve.Schemas.Xsd` | 24,914 | 15,022 | 60.2% | same run; 9,892 baselined cases |
 | XSTS 1.1, schema and instance tests | `NetEvolve.Schemas.Xsd` | 41,389 | 0 | 0.0% | derived from the same run: the row for all of XSTS (80,660 applicable, 29,023 passed, 35.9%) minus both XSTS 1.0 rows |
-| Schematron conformance suite 2.0, bindings `xslt-1` and `xslt-2` | `NetEvolve.Schemas.Schematron` | 84 | 43 | 51.1% | `NetEvolve.Schemas.Schematron.Tests.Integration`, filter `/*/*Conformance*/*/*`; 41 baselined cases in `tests/conformance/baselines/schematron-conformance`, 3 excluded |
+| Schematron conformance suite 2.0, bindings `xslt-1` and `xslt-2` | `NetEvolve.Schemas.Schematron` | 84 | 47 | 55.9% | `NetEvolve.Schemas.Schematron.Tests.Integration`, filter `/*/*Conformance*/*/*`; 37 baselined cases in `tests/conformance/baselines/schematron-conformance`, 3 excluded |
 | EN 16931 (CEN) validation artefacts 1.3.17, golden tests | `NetEvolve.Schemas.Schematron` | 1,174 | 1,174 | 100.0% | `NetEvolve.Schemas.Schematron.Tests.Integration`, filter `/*/*/En16931GoldenTests/*`; no baselined cases |
 
 Not yet reported:
