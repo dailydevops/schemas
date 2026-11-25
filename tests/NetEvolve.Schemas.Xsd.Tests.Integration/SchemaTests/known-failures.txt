@@ -8,8 +8,6 @@ ibmMeta-anyAttribute	1.0/s3_10_6ii04/s3_10_6v04s	-	The test group has no version
 ibmMeta-unitsLength	1.0/d2_4_1_3si01/d2_4_1_3si01s	#874	A schema constraint that the pipeline does not check; not analyzed yet.
 ibmMeta-wildcard	1.0/s3_10_1ii08/s3_10_1ii08s	-	The test group has no version attribute but its schema uses an XSD 1.1 construct, which strict 1.0 mode rejects (design 146, DP-16).
 ibmMeta-wildcard	1.0/s3_10_1ii09/s3_10_1ii09s	-	The test group has no version attribute but its schema uses an XSD 1.1 construct, which strict 1.0 mode rejects (design 146, DP-16).
-msMeta-Additional_w3c	1.0/addB008/addB008	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
-msMeta-Additional_w3c	1.0/addB035/addB035	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
 msMeta-Additional_w3c	1.0/addB078/addB078	#874	A schema constraint that the pipeline does not check; not analyzed yet.
 msMeta-Additional_w3c	1.0/addB078A/addB078A	#874	A schema constraint that the pipeline does not check; not analyzed yet.
 msMeta-Additional_w3c	1.0/addB078B/addB078B	#874	A schema constraint that the pipeline does not check; not analyzed yet.
@@ -56,12 +54,9 @@ msMeta-DataTypes_w3c	1.0/anyURI_b006_1356/anyURI_b006_1356	#874	A schema constra
 msMeta-DataTypes_w3c	1.0/dtZ107447_a_2245/dtZ107447_a_2245	#874	A schema constraint that the pipeline does not check; not analyzed yet.
 msMeta-Element_w3c	1.0/elemZ006/elemZ006	#872	A component of a document that is not imported or included is visible.
 msMeta-Element_w3c	1.0/elemZ007/elemZ007	#872	A component of a document that is not imported or included is visible.
-msMeta-Element_w3c	1.0/elemZ021g/elemZ021g	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
-msMeta-Element_w3c	1.0/elemZ022b/elemZ022b	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
 msMeta-Element_w3c	1.0/elemZ028c/elemZ028c	-	The unique particle attribution check does not cover an all group, so a member of a substitution group that is also listed is accepted.
 msMeta-Element_w3c	1.0/elemZ032a/elemZ032a	#871	A value constraint on a declaration of type ID is accepted.
 msMeta-Element_w3c	1.0/elemZ032b/elemZ032b	#871	A value constraint on a declaration of type ID is accepted.
-msMeta-Group_w3c	1.0/groupA008/groupA008	#874	A schema constraint that the pipeline does not check; not analyzed yet.
 msMeta-IdentityConstraint_w3c	1.0/idC019/idC019	#874	A schema constraint that the pipeline does not check; not analyzed yet.
 msMeta-IdentityConstraint_w3c	1.0/idZ011/idZ011	#871	A value constraint on a declaration of type ID is accepted.
 msMeta-ModelGroups_w3c	1.0/mgH014/mgH014	#863	The particle restriction check reports a restriction that the suite accepts.
@@ -74,23 +69,13 @@ msMeta-Particles_w3c	1.0/particlesHa070/particlesHa070	#863	The particle restric
 msMeta-Particles_w3c	1.0/particlesHa080/particlesHa080	#863	The particle restriction check reports a restriction that the suite accepts.
 msMeta-Particles_w3c	1.0/particlesHa084/particlesHa084	#863	The particle restriction check reports a restriction that the suite accepts.
 msMeta-Particles_w3c	1.0/particlesJq010/particlesJq010	#863	The particle restriction check reports a restriction that the suite accepts.
-msMeta-Particles_w3c	1.0/particlesJs001/particlesJs001	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
 msMeta-Particles_w3c	1.0/particlesQ013/particlesQ013	#863	The particle restriction check reports a restriction that the suite accepts.
-msMeta-Particles_w3c	1.0/particlesQ016/particlesQ016	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
-msMeta-Particles_w3c	1.0/particlesQ022/particlesQ022	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
 msMeta-Particles_w3c	1.0/particlesR013/particlesR013	#863	The particle restriction check reports a restriction that the suite accepts.
-msMeta-Particles_w3c	1.0/particlesR016/particlesR016	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
-msMeta-Particles_w3c	1.0/particlesR022/particlesR022	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
 msMeta-Particles_w3c	1.0/particlesZ001/particlesZ001	#863	The particle restriction check reports a restriction that the suite accepts.
 msMeta-Schema_w3c	1.0/schB8/schB8	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
 msMeta-Schema_w3c	1.0/schD7/schD7	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
 msMeta-Schema_w3c	1.0/schD8/schD8	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
-msMeta-Schema_w3c	1.0/schE1/schE1	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
-msMeta-Schema_w3c	1.0/schE2/schE2	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
-msMeta-Schema_w3c	1.0/schE3/schE3	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
-msMeta-Schema_w3c	1.0/schE9/schE9	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
-msMeta-Schema_w3c	1.0/schF1/schF1	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
-msMeta-Schema_w3c	1.0/schG2/schG2	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
+msMeta-Schema_w3c	1.0/schE9/schE9	#1128	The import names a schema location that cannot be resolved; an import with an unresolvable location is not an error, but the resolver refusal is reported as one.
 msMeta-Schema_w3c	1.0/schG8/schG8	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
 msMeta-Schema_w3c	1.0/schG9/schG9	#872	A component of a document that is not imported or included is visible.
 msMeta-Schema_w3c	1.0/schH9/schH9	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
@@ -110,23 +95,20 @@ msMeta-Schema_w3c	1.0/schR5/schR5	#869	A redefinition is not checked against the
 msMeta-Schema_w3c	1.0/schZ004/schZ004	#872	A component of a document that is not imported or included is visible.
 msMeta-Schema_w3c	1.0/schZ005/schZ005	#872	A component of a document that is not imported or included is visible.
 msMeta-Schema_w3c	1.0/schZ006/schZ006	#869	A redefinition is not checked against the redefined component.
-msMeta-Schema_w3c	1.0/schZ012_b/schZ012_b	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
-msMeta-Schema_w3c	1.0/schZ012_c/schZ012_c	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
-msMeta-Schema_w3c	1.0/schZ014_b/schZ014_b	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
+msMeta-Schema_w3c	1.0/schZ012_b/schZ012_b	#1129	The import of a document of the namespace that the schema already declares reports the declared elements as duplicates (NES4347).
+msMeta-Schema_w3c	1.0/schZ012_c/schZ012_c	#1129	The import of a document of the namespace that the schema already declares reports the declared elements as duplicates (NES4347).
+msMeta-Schema_w3c	1.0/schZ014_b/schZ014_b	#1130	A targetNamespace attribute with an empty string value is accepted; the schema must be invalid.
 msMeta-SimpleType_w3c	1.0/stZ005/stZ005	#874	A schema constraint that the pipeline does not check; not analyzed yet.
 msMeta-SimpleType_w3c	1.0/stZ006/stZ006	#874	A schema constraint that the pipeline does not check; not analyzed yet.
 msMeta-SimpleType_w3c	1.0/stZ010/stZ010	#874	A schema constraint that the pipeline does not check; not analyzed yet.
 msMeta-SimpleType_w3c	1.0/stZ011/stZ011	#874	A schema constraint that the pipeline does not check; not analyzed yet.
 msMeta-SimpleType_w3c	1.0/stZ041/stZ041	#874	A schema constraint that the pipeline does not check; not analyzed yet.
-msMeta-Wildcards_w3c	1.0/wildG006/wildG006	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
-msMeta-Wildcards_w3c	1.0/wildG010/wildG010	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
-msMeta-Wildcards_w3c	1.0/wildZ011/wildZ011	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
-msMeta-Wildcards_w3c	1.0/wildZ013a/wildZ013a	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
-msMeta-Wildcards_w3c	1.0/wildZ013b/wildZ013b	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
-msMeta-Wildcards_w3c	1.0/wildZ013c/wildZ013c	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
-msMeta-Wildcards_w3c	1.0/wildZ013d/wildZ013d	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
-msMeta-Wildcards_w3c	1.0/wildZ013e/wildZ013e	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
-msMeta-Wildcards_w3c	1.0/wildZ013f/wildZ013f	#859	The import check of the namespace attribute is inverted (src-import, clause 1.2).
+msMeta-Wildcards_w3c	1.0/wildZ013a/wildZ013a	#1127	The attribute wildcard of the type must allow every namespace that the one of the base type allows (NES4308); the schema does not build.
+msMeta-Wildcards_w3c	1.0/wildZ013b/wildZ013b	#1127	The attribute wildcard of the type must allow every namespace that the one of the base type allows (NES4308); the schema does not build.
+msMeta-Wildcards_w3c	1.0/wildZ013c/wildZ013c	#1127	The attribute wildcard of the type must allow every namespace that the one of the base type allows (NES4308); the schema does not build.
+msMeta-Wildcards_w3c	1.0/wildZ013d/wildZ013d	#1127	The attribute wildcard of the type must allow every namespace that the one of the base type allows (NES4308); the schema does not build.
+msMeta-Wildcards_w3c	1.0/wildZ013e/wildZ013e	#1127	The attribute wildcard of the type must allow every namespace that the one of the base type allows (NES4308); the schema does not build.
+msMeta-Wildcards_w3c	1.0/wildZ013f/wildZ013f	#1127	The attribute wildcard of the type must allow every namespace that the one of the base type allows (NES4308); the schema does not build.
 saxonMeta-Missing	1.0/missing001/missing001.xsd	-	A reference to a type that no document declares is src-resolve here; the suite accepts incomplete schemas.
 saxonMeta-Missing	1.0/missing002/missing001.xsd	-	A reference to an element declaration that no document declares is src-resolve here; the suite accepts incomplete schemas.
 saxonMeta-Missing	1.0/missing003/missing003.xsd	-	A reference to a type that no document declares is src-resolve here; the suite accepts incomplete schemas.

@@ -79,26 +79,17 @@ msMeta-DataTypes_w3c	1.0/base64Binary_enumeration001_1319/base64Binary_enumerati
 msMeta-DataTypes_w3c	1.0/hexBinary_enumeration001_1305/hexBinary_enumeration001_1305.i	#1079	The enumeration of a binary type is not evaluated and the case expects it to reject the value.
 msMeta-DataTypes_w3c	1.0/hexBinary_enumeration003_1307/hexBinary_enumeration003_1307.i	#1079	The enumeration of a binary type is not evaluated and the case expects it to reject the value.
 msMeta-Element_w3c	1.0/elemZ017/elemZ017.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-Element_w3c	1.0/elemZ021g/elemZ021g.i	#859	The schema does not build: the import check of the namespace attribute is inverted.
-msMeta-Element_w3c	1.0/elemZ022b/elemZ022b.v	#859	The schema does not build: the import check of the namespace attribute is inverted.
 msMeta-Element_w3c	1.0/elemZ033b/elemZ033b.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-ModelGroups_w3c	1.0/mgH014/mgH014.v	#863	The schema does not build: the particle restriction check rejects a restriction that the suite accepts.
 msMeta-Particles_w3c	1.0/particlesJq010/particlesJq010.v	#863	The schema does not build: the particle restriction check rejects a restriction that the suite accepts.
-msMeta-Particles_w3c	1.0/particlesJs001/particlesJs001.v	#859	The schema does not build: the import check of the namespace attribute is inverted.
 msMeta-Particles_w3c	1.0/particlesQ013/particlesQ013.v	#863	The schema does not build: the particle restriction check rejects a restriction that the suite accepts.
-msMeta-Particles_w3c	1.0/particlesQ016/particlesQ016.v	#859	The schema does not build: the import check of the namespace attribute is inverted.
-msMeta-Particles_w3c	1.0/particlesQ022/particlesQ022.v	#859	The schema does not build: the import check of the namespace attribute is inverted.
 msMeta-Particles_w3c	1.0/particlesR013/particlesR013.v	#863	The schema does not build: the particle restriction check rejects a restriction that the suite accepts.
-msMeta-Particles_w3c	1.0/particlesR016/particlesR016.v	#859	The schema does not build: the import check of the namespace attribute is inverted.
-msMeta-Particles_w3c	1.0/particlesR022/particlesR022.v	#859	The schema does not build: the import check of the namespace attribute is inverted.
 msMeta-Particles_w3c	1.0/particlesZ001/particlesZ001.i	#863	The schema does not build: the particle restriction check rejects a restriction that the suite accepts.
 msMeta-Particles_w3c	1.0/particlesZ025/particlesZ025.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-Regex_w3c	1.0/reZ006i/reZ006i.i	#1080	The pattern escape for name characters rejects a name character that the case expects to be valid.
 msMeta-Schema_w3c	1.0/schA4/schA4.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-Schema_w3c	1.0/schA8/schA8.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-Schema_w3c	1.0/schD7/schD7.v	-	The schema is incomplete (a missing component or document); the suite accepts it, the validator reports src-resolve.
-msMeta-Schema_w3c	1.0/schF1/schF1.v	#859	The schema does not build: the import check of the namespace attribute is inverted.
-msMeta-Schema_w3c	1.0/schG2/schG2.v	#859	The schema does not build: the import check of the namespace attribute is inverted.
 msMeta-Schema_w3c	1.0/schG8/schG8.v	-	The schema is incomplete (a missing component or document); the suite accepts it, the validator reports src-resolve.
 msMeta-Schema_w3c	1.0/schU3/schU3.i	#869	The schema does not build: a redefinition is not checked against the redefined component.
 msMeta-Schema_w3c	1.0/schU4/schU4.i	#869	The schema does not build: a redefinition is not checked against the redefined component.
@@ -119,15 +110,12 @@ msMeta-SimpleType_w3c	1.0/stZ064/stZ064.i	#963	The group has no schema document,
 msMeta-SimpleType_w3c	1.0/stZ066/stZ066.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-SimpleType_w3c	1.0/stZ075/stZ075.v	#870	Notation declarations are not components yet, so a NOTATION value cannot be checked.
 msMeta-SimpleType_w3c	1.0/ste110/ste110.i	#874	The schema does not build because of a schema constraint that is not analyzed yet.
-msMeta-Wildcards_w3c	1.0/wildG006/wildG006.v	#859	The schema does not build: the import check of the namespace attribute is inverted.
-msMeta-Wildcards_w3c	1.0/wildG010/wildG010.v	#859	The schema does not build: the import check of the namespace attribute is inverted.
-msMeta-Wildcards_w3c	1.0/wildZ011/wildZ011.i	#859	The schema does not build: the import check of the namespace attribute is inverted.
-msMeta-Wildcards_w3c	1.0/wildZ013a/wildZ013a.i	#859	The schema does not build: the import check of the namespace attribute is inverted.
-msMeta-Wildcards_w3c	1.0/wildZ013b/wildZ013b.v	#859	The schema does not build: the import check of the namespace attribute is inverted.
-msMeta-Wildcards_w3c	1.0/wildZ013c/wildZ013c.v	#859	The schema does not build: the import check of the namespace attribute is inverted.
-msMeta-Wildcards_w3c	1.0/wildZ013d/wildZ013d.i	#859	The schema does not build: the import check of the namespace attribute is inverted.
-msMeta-Wildcards_w3c	1.0/wildZ013e/wildZ013e.i	#859	The schema does not build: the import check of the namespace attribute is inverted.
-msMeta-Wildcards_w3c	1.0/wildZ013f/wildZ013f.i	#859	The schema does not build: the import check of the namespace attribute is inverted.
+msMeta-Wildcards_w3c	1.0/wildZ013a/wildZ013a.i	#1127	The schema does not build: the wildcard of the derived type is rejected against its base (NES4308).
+msMeta-Wildcards_w3c	1.0/wildZ013b/wildZ013b.v	#1127	The schema does not build: the wildcard of the derived type is rejected against its base (NES4308).
+msMeta-Wildcards_w3c	1.0/wildZ013c/wildZ013c.v	#1127	The schema does not build: the wildcard of the derived type is rejected against its base (NES4308).
+msMeta-Wildcards_w3c	1.0/wildZ013d/wildZ013d.i	#1127	The schema does not build: the wildcard of the derived type is rejected against its base (NES4308).
+msMeta-Wildcards_w3c	1.0/wildZ013e/wildZ013e.i	#1127	The schema does not build: the wildcard of the derived type is rejected against its base (NES4308).
+msMeta-Wildcards_w3c	1.0/wildZ013f/wildZ013f.i	#1127	The schema does not build: the wildcard of the derived type is rejected against its base (NES4308).
 nistMeta-NISTXMLSchemaDatatypes	1.0/list-anyURI-enumeration-5/NISTXML-SV-II-list-anyURI-enumeration-1-1	#1077	The enumeration of a list type is not evaluated and the case expects it to reject the value.
 nistMeta-NISTXMLSchemaDatatypes	1.0/list-anyURI-enumeration-5/NISTXML-SV-II-list-anyURI-enumeration-1-2	#1077	The enumeration of a list type is not evaluated and the case expects it to reject the value.
 nistMeta-NISTXMLSchemaDatatypes	1.0/list-anyURI-enumeration-5/NISTXML-SV-II-list-anyURI-enumeration-1-3	#1077	The enumeration of a list type is not evaluated and the case expects it to reject the value.

@@ -214,24 +214,43 @@ public class CompositionTests
     }
 
     [Test]
+    public async Task Import_WithoutNamespace_InASchemaWithATargetNamespace_LoadsTheNoNamespaceDocument()
+    {
+        var resolver = new MapResolver().Add("file:///b.xsd", Schema(string.Empty));
+
+        var (set, issues) = Load(Schema("<xs:import schemaLocation=\"b.xsd\"/>", "urn:a"), resolver);
+
+        await Assert.That(issues.Count).IsEqualTo(0);
+        await Assert.That(set.Units.Count).IsEqualTo(2);
+    }
+
+    [Test]
     public async Task Import_WithoutNamespace_OfADocumentWithANamespace_IsASchemaError()
     {
         var resolver = new MapResolver().Add("file:///b.xsd", Schema(string.Empty, "urn:b"));
 
-        var (_, issues) = Load(Schema("<xs:import schemaLocation=\"b.xsd\"/>"), resolver);
+        var (_, issues) = Load(Schema("<xs:import schemaLocation=\"b.xsd\"/>", "urn:a"), resolver);
 
         await Assert.That(issues.Count).IsEqualTo(1);
         await Assert.That(issues[0].Code).IsEqualTo(CodeOf("src-import"));
     }
 
     [Test]
-    [Arguments("<xs:import namespace=\"urn:a\"/>")]
-    [Arguments("<xs:import/>")]
-    public async Task Import_OfTheOwnNamespace_OrWithoutNamespaceInANamedSchema_IsASchemaError(string directive)
+    [Arguments("<xs:import namespace=\"urn:a\"/>", "urn:a")]
+    [Arguments("<xs:import/>", "")]
+    [Arguments("<xs:import schemaLocation=\"b.xsd\"/>", "")]
+    public async Task Import_OfTheOwnNamespace_OrWithoutNamespaceInASchemaWithoutOne_IsASchemaError(
+        string directive,
+        string targetNamespace
+    )
     {
         ArgumentNullException.ThrowIfNull(directive);
+        ArgumentNullException.ThrowIfNull(targetNamespace);
 
-        var (_, issues) = Load(Schema(directive, "urn:a"), new MapResolver());
+        var (_, issues) = Load(
+            targetNamespace.Length == 0 ? Schema(directive) : Schema(directive, targetNamespace),
+            new MapResolver()
+        );
 
         await Assert.That(issues.Count).IsEqualTo(1);
         await Assert.That(issues[0].Code).IsEqualTo(CodeOf("src-import"));
