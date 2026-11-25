@@ -15000,7 +15000,7 @@ sunMeta-suntest/1.0/xsd020.e/xsd020.e
 
 ### The baseline throws while it loads the schema
 
-Both engines reject the schema. System.Xml.Schema throws an ArgumentException (an empty string for a name) while it loads the schema, so the baseline reports no position. The test wrapper maps the exception to an invalid schema without positions; the adapter defect is tracked in #955.
+Both engines reject the schema. System.Xml.Schema throws an ArgumentException (an empty string for a name) while it loads the schema, so the baseline reports no position. The baseline adapter maps the exception to an invalid schema without positions.
 
 - Difference: IssuePositions `issue positions` (21)
 - Specification: XSD 1.0 Part 1, 5.1 (a schema document must be valid against the schema for schemas, A)
@@ -15036,4 +15036,4 @@ msMeta-SimpleType_w3c/1.0/stE004/stE004
 - System.Xml.Schema implements XSD 1.0 only; XSD 1.1 behavior has no baseline and the cases of XSD 1.1 are not compared.
 - The comparison covers verdicts and the positions of reported issues. Messages are never compared.
 - The XSTS expectation of a case is the reference for the classification. A case that the XSTS marks otherwise than accepted is outside the selection and outside this list.
-- Defects found by this triage are fixed in their own issues, not in this document or in the data file. The adapter of the baseline throws an ArgumentException for 21 schemas; the test wrapper maps it to an invalid schema and the entries of those cases name #955.
+- Defects found by this triage are fixed in their own issues, not in this document or in the data file. The baseline throws an ArgumentException for 21 schemas; the adapter maps it to an invalid schema without positions.

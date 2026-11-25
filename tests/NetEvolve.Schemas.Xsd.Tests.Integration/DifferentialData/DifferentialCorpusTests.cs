@@ -45,7 +45,7 @@ public class DifferentialCorpusTests
         var report = await DifferentialRunner.RunAsync(
             cases,
             new OursEngine(await XstsSuite.LoadRootAsync(cancellationToken)),
-            new ThrowTolerantEngine(new SystemXmlSchemaEngine()),
+            new SystemXmlSchemaEngine(),
             DeviationList.Load(DeviationData.ListPath),
             DifferentialLeg.Current(typeof(DifferentialCorpusTests).Assembly),
             cancellationToken
