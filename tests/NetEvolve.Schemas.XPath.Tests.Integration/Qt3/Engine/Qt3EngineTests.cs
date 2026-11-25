@@ -199,6 +199,38 @@ public class Qt3EngineTests
     }
 
     [Test]
+    public async Task Evaluate_DocOfASourceUri_ReturnsTheSourceDocument()
+    {
+        var environment =
+            "<environment name=\"u\"><source role=\"$d\" file=\"doc.xml\" uri=\"http://example.com/doc.xml\"/></environment>";
+
+        var result = Evaluate(
+            environment
+                + CaseXml("count(doc('http://example.com/doc.xml')//*)", environment: "<environment ref=\"u\"/>")
+        );
+
+        await Assert.That(Text(result.Items[0])).IsEqualTo("3");
+    }
+
+    [Test]
+    public async Task Evaluate_DocAvailableOfASourceUri_IsTrueAndFalseForAnUnknownUri()
+    {
+        var environment =
+            "<environment name=\"u\"><source role=\"$d\" file=\"doc.xml\" uri=\"http://example.com/doc.xml\"/></environment>";
+
+        var result = Evaluate(
+            environment
+                + CaseXml(
+                    "(doc-available('http://example.com/doc.xml'), doc-available('http://example.com/other.xml'))",
+                    environment: "<environment ref=\"u\"/>"
+                )
+        );
+
+        await Assert.That(Text(result.Items[0])).IsEqualTo("true");
+        await Assert.That(Text(result.Items[1])).IsEqualTo("false");
+    }
+
+    [Test]
     public async Task Read_StaticBaseUri_IsKeptExceptForUndefined()
     {
         var given = Qt3EnvironmentReader.Read(
