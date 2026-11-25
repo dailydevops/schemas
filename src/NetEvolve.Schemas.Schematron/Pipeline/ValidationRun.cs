@@ -10,6 +10,7 @@ using NetEvolve.Schemas.Schematron.Evaluation.Patterns;
 using NetEvolve.Schemas.Schematron.Results.Mapping;
 using NetEvolve.Schemas.Schematron.Scopes;
 using NetEvolve.Schemas.Schematron.Seams;
+using NetEvolve.Schemas.Schematron.Xslt.Embedding;
 using NetEvolve.Schemas.Schematron.Xslt.Functions;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Text.NameTable;
@@ -97,7 +98,8 @@ internal static class ValidationRun
         var document = new XPathNode(tree.Document);
         using var run = program.Binding.BeginRun(program.Resources, cancellationToken);
         var problems = new EvaluationProblems(collector, events, systemId);
-        var binder = new SlotBinder(program.Plan, run, new QueryFocus(document, 1, 1), problems);
+        var embedded = new EmbeddedContent(context.Names);
+        var binder = new SlotBinder(program.Plan, run, new QueryFocus(document, 1, 1), problems, embedded);
         if (program.XsltTables is { Functions.Count: > 0 } tables && run is IXsltFunctionRun functionRun)
         {
             // The slots of the functions lie above every slot of the plan, so the run grows its slot table on the first bind.
@@ -115,7 +117,15 @@ internal static class ValidationRun
             _ = binder.SetParameter(parameter.Key, parameter.Value);
         }
 
-        using var assertions = new AssertionEvaluator(run, binder, events, problems, systemId, MaxMessageLength);
+        using var assertions = new AssertionEvaluator(
+            run,
+            binder,
+            events,
+            problems,
+            systemId,
+            MaxMessageLength,
+            embedded
+        );
         var evaluator = new PatternEvaluator(
             program.Matcher,
             run,
