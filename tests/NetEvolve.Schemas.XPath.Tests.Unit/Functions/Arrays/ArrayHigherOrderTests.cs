@@ -48,10 +48,18 @@ public class ArrayHigherOrderTests
     [Arguments("array:flatten(array:sort([1, 2.5, 2e0]))", "integer:1, double:2, decimal:2.5")]
     [Arguments("array:size(array:sort([]))", "integer:0")]
     [Arguments(
+        "array:flatten(array:sort([1, xs:double('NaN'), xs:double('NaN')]))",
+        "double:NaN, double:NaN, integer:1"
+    )]
+    [Arguments(
+        "array:flatten(array:sort(['b', 'a'], (), function($x) { xs:untypedAtomic($x) }))",
+        "string:a, string:b"
+    )]
+    [Arguments(
         "array:flatten(array:sort(['b', 'a'], 'http://www.w3.org/2005/xpath-functions/collation/codepoint'))",
         "string:a, string:b"
     )]
-    [Arguments("let $a := [3, 1] let $b := array:sort($a) return array:flatten($a)", "integer:3, integer:1")]
+    [Arguments("let $a := [3, 1], $b := array:sort($a) return array:flatten($a)", "integer:3, integer:1")]
     public async Task Sort_IsStableAndOrdersByTheKey(
         string expression,
         string expected,

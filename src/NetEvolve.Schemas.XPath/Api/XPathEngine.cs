@@ -10,6 +10,7 @@ using NetEvolve.Schemas.XPath.Compilation.Optimization;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Evaluation.Arithmetic;
+using NetEvolve.Schemas.XPath.Evaluation.Arrays;
 using NetEvolve.Schemas.XPath.Evaluation.Comparison;
 using NetEvolve.Schemas.XPath.Evaluation.Flow;
 using NetEvolve.Schemas.XPath.Evaluation.Flow30;
@@ -49,7 +50,7 @@ internal static class XPathEngine
         | XPathHostRequirements.Keys;
 
     private static readonly ArithmeticOperatorTable Arithmetic = CreateArithmetic();
-    private static readonly ComparisonOperatorTable Comparison = CreateComparison();
+    internal static readonly ComparisonOperatorTable Comparison = CreateComparison();
     private static readonly LoweringRegistry DefaultRegistry = CreateRegistry(AllSlots);
 
     // One registry per host flag combination instead of one per compilation: building it allocates a dictionary and a delegate per lowering.
@@ -125,6 +126,7 @@ internal static class XPathEngine
         ArithmeticLowerings.Register(registry, Arithmetic);
         ComparisonLowerings.Register(registry, Comparison);
         FunctionItemLowerings.Register(registry, activeHost);
+        ArrayLowerings.Register(registry);
         registry.Register<FunctionCall>((node, context) => LowerCall(node, context, activeHost));
         return registry;
     }

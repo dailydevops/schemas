@@ -9,6 +9,7 @@ using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Evaluation.Axes;
 using NetEvolve.Schemas.XPath.Syntax.Tree;
+using NetEvolve.Schemas.XPath.Xdm.Arrays;
 using NetEvolve.Schemas.XPath.Xdm.Nodes;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
@@ -19,7 +20,7 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// <remarks>
 /// Limitations: <c>schema-element()</c> and <c>schema-attribute()</c> and types that are not built in need schema import (DEF-40, #52);
 /// the nillable marker of <c>element(N, T?)</c> is accepted but has no effect because nodes are never nilled until the nilled
-/// property exists; map and array tests belong to XP-32 and XP-69. A function test matches a function item by the signature of the item (see <see cref="FunctionSignature"/>).
+/// property exists; map tests belong to XP-32. An array test matches an array item by the types of its members (XPath 3.1, 2.5.5.6), and an array also matches the function tests by its signature. A function test matches a function item by the signature of the item (see <see cref="FunctionSignature"/>).
 /// </remarks>
 [StructLayout(LayoutKind.Auto)]
 internal readonly struct ItemTypeMatcher
@@ -28,13 +29,21 @@ internal readonly struct ItemTypeMatcher
     private readonly XPathNodeTest _test;
     private readonly XdmTypeId _type;
     private readonly FunctionSignature? _function;
+    private readonly SequenceTypeMatcher? _member;
 
-    private ItemTypeMatcher(ItemTypeKind kind, XPathNodeTest test, XdmTypeId type, FunctionSignature? function = null)
+    private ItemTypeMatcher(
+        ItemTypeKind kind,
+        XPathNodeTest test,
+        XdmTypeId type,
+        FunctionSignature? function = null,
+        SequenceTypeMatcher? member = null
+    )
     {
         _kind = kind;
         _test = test;
         _type = type;
         _function = function;
+        _member = member;
     }
 
     /// <summary>Gets a value indicating whether every item matches.</summary>
@@ -66,6 +75,15 @@ internal readonly struct ItemTypeMatcher
                 return BindKindTest(kind.Test, context);
             case ParenthesizedItemType parenthesized:
                 return Bind(parenthesized.Inner, context);
+            case AnyArrayTest:
+                return new(ItemTypeKind.Array, default, default);
+            case TypedArrayTest typedArray:
+                return new(
+                    ItemTypeKind.Array,
+                    default,
+                    default,
+                    member: SequenceTypeMatcher.Create(typedArray.MemberType, context)
+                );
             case AnyFunctionTest:
                 return new(ItemTypeKind.Function, default, default);
             case TypedFunctionTest typed:
@@ -100,6 +118,8 @@ internal readonly struct ItemTypeMatcher
                 return true;
             case ItemTypeKind.Atomic:
                 return !item.IsNode && item.Kind != XdmItemKind.Function && XdmTypes.IsDerivedFrom(item.TypeId, _type);
+            case ItemTypeKind.Array:
+                return XdmArray.TryGet(item, out var array) && MembersMatch(array!, annotations);
             case ItemTypeKind.Function:
                 return item.TryGetFunction(out var function)
                     && (_function is null || function!.Signature.IsSubtypeOf(_function));
@@ -124,6 +144,24 @@ internal readonly struct ItemTypeMatcher
         }
 
         return bound.Matches(node) && MatchesType(node, annotations);
+    }
+
+    private bool MembersMatch(XdmArray array, IXdmTypeAnnotationSource annotations)
+    {
+        if (_member is null)
+        {
+            return true;
+        }
+
+        for (var i = 0; i < array.Size; i++)
+        {
+            if (!_member.Matches(array[i], annotations))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private static FunctionSignature BindSignature(TypedFunctionTest test, XPathStaticContext context)
@@ -269,5 +307,6 @@ internal readonly struct ItemTypeMatcher
         Node = 3,
         DocumentElement = 4,
         Function = 5,
+        Array = 6,
     }
 }

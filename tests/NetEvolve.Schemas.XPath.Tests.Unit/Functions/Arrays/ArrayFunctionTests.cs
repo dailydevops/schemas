@@ -131,28 +131,28 @@ public class ArrayFunctionTests
         await Assert
             .That(
                 Run(
-                    "let $a := [1, 2, 3] let $b := array:put($a, 1, 9) return (array:get($a, 1), array:get($b, 1), array:size($a))"
+                    "let $a := [1, 2, 3], $b := array:put($a, 1, 9) return (array:get($a, 1), array:get($b, 1), array:size($a))"
                 )
             )
             .IsEqualTo("integer:1, integer:9, integer:3");
         await Assert
             .That(
                 Run(
-                    "let $a := [1, 2] let $b := array:append($a, 3) return (array:size($a), array:size($b), array:flatten($a))"
+                    "let $a := [1, 2], $b := array:append($a, 3) return (array:size($a), array:size($b), array:flatten($a))"
                 )
             )
             .IsEqualTo("integer:2, integer:3, integer:1, integer:2");
         await Assert
             .That(
                 Run(
-                    "let $a := [1, 2, 3, 4] let $b := array:subarray($a, 2, 2) let $c := array:put($b, 1, 'x') return (array:flatten($a), array:flatten($c))"
+                    "let $a := [1, 2, 3, 4], $b := array:subarray($a, 2, 2), $c := array:put($b, 1, 'x') return (array:flatten($a), array:flatten($c))"
                 )
             )
             .IsEqualTo("integer:1, integer:2, integer:3, integer:4, string:x, integer:3");
         await Assert
             .That(
                 Run(
-                    "let $a := [1, 2, 3] let $b := array:tail($a) let $c := array:append($b, 4) return (array:flatten($a), array:flatten($c))"
+                    "let $a := [1, 2, 3], $b := array:tail($a), $c := array:append($b, 4) return (array:flatten($a), array:flatten($c))"
                 )
             )
             .IsEqualTo("integer:1, integer:2, integer:3, integer:2, integer:3, integer:4");
