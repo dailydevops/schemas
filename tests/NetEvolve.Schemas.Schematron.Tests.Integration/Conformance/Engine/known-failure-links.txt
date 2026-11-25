@@ -2,7 +2,6 @@
 iso-instance-document-selection/pattern-subordinate-document-variable.xml	#913	The documents attribute is ignored: no subordinate document is validated and the SVRL does not name it.
 iso-instance-document-selection/pattern-subordinate-document.xml	#913	The documents attribute is ignored: no subordinate document is validated and the SVRL does not name it.
 iso-pattern-templating/pattern-abstract-diagnostic-value-of.xml	#915	Abstract pattern parameters are substituted in the pattern only; diagnostics and properties belong to the schema and are shared by every instance, so their content keeps the parameter reference (NES3300), a recorded deviation.
-iso-pattern-templating/pattern-abstract-name-path.xml	#919	The message of sch:name with a path holds the node name, the case expects the value.
 iso-pattern-templating/pattern-abstract-pattern-documents.xml	#913	The documents attribute is ignored: no subordinate document is validated and the SVRL does not name it.
 iso-pattern-templating/pattern-abstract-property-copy-of.xml	#915	Abstract pattern parameters are substituted in the pattern only; diagnostics and properties belong to the schema and are shared by every instance, so their content keeps the parameter reference (NES3300), a recorded deviation.
 iso-pattern-templating/pattern-abstract-property-value-of.xml	#915	Abstract pattern parameters are substituted in the pattern only; diagnostics and properties belong to the schema and are shared by every instance, so their content keeps the parameter reference (NES3300), a recorded deviation.
@@ -13,7 +12,6 @@ iso-reporting/svrl-diagnostic-icon.xml	#916	The SVRL text of a diagnostic or pro
 iso-reporting/svrl-diagnostic-see.xml	#916	The SVRL text of a diagnostic or property reference lacks fpi, icon, and see.
 iso-reporting/svrl-fired-rule-document-primary.xml	#913	The documents attribute is ignored: no subordinate document is validated and the SVRL does not name it.
 iso-reporting/svrl-fired-rule-document.xml	#913	The documents attribute is ignored: no subordinate document is validated and the SVRL does not name it.
-iso-reporting/svrl-name-path.xml	#919	The message of sch:name with a path holds the node name, the case expects the value.
 iso-reporting/svrl-property-copy-of.xml	#914	A property with xsl:copy-of is reported NES3204 because no embedded content is wired into the pipeline.
 iso-reporting/svrl-property-fpi.xml	#916	The SVRL text of a diagnostic or property reference lacks fpi, icon, and see.
 iso-reporting/svrl-property-icon.xml	#916	The SVRL text of a diagnostic or property reference lacks fpi, icon, and see.
