@@ -7,6 +7,7 @@ using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Diagnostics;
+using NetEvolve.Schemas.Xsd.SimpleTypes.Checks;
 
 /// <summary>
 /// A simple type definition by restriction, list, or union (Structures section 3.14; Datatypes section 4.1). Immutable; the
@@ -32,7 +33,9 @@ internal sealed class SimpleTypeDefinition : IXsdComponent
         SimpleTypeDefinition? baseType,
         SimpleTypeDefinition? itemType,
         IReadOnlyList<SimpleTypeDefinition> memberTypes,
-        IReadOnlyList<IFacet> facets
+        IReadOnlyList<IFacet> facets,
+        IDatatypeDescriptor? datatype = null,
+        int builtInFacets = 0
     )
     {
         Name = name;
@@ -43,6 +46,18 @@ internal sealed class SimpleTypeDefinition : IXsdComponent
         ItemType = itemType;
         MemberTypes = memberTypes;
         Facets = facets;
+        Datatype = datatype;
+        BuiltInFacets = builtInFacets;
+        Validator =
+            baseType?.Validator is { } inherited && facets.Count == baseType.Facets.Count
+                ? inherited
+                : SimpleTypeValidator.Create(
+                    name == default ? "anonymous" : name.LocalName,
+                    variety,
+                    datatype,
+                    facets,
+                    builtInFacets
+                );
     }
 
     /// <inheritdoc />
@@ -75,6 +90,13 @@ internal sealed class SimpleTypeDefinition : IXsdComponent
     /// <summary>Gets the facets: those inherited from the base type, then the own ones.</summary>
     public IReadOnlyList<IFacet> Facets { get; }
 
+    /// <summary>Gets the compiled validator of the facets this type adds to its built-in root, <see langword="null"/> when there are none or they cannot be compiled.</summary>
+    internal SimpleTypeValidator? Validator { get; }
+
+    private IDatatypeDescriptor? Datatype { get; }
+
+    private int BuiltInFacets { get; }
+
     /// <summary>Wraps a datatype of the Xml package, for example a built-in, as a component.</summary>
     /// <param name="name">The expanded name.</param>
     /// <param name="location">The location.</param>
@@ -90,7 +112,18 @@ internal sealed class SimpleTypeDefinition : IXsdComponent
     {
         ArgumentNullException.ThrowIfNull(datatype);
 
-        return new(name, location, final, datatype.Variety, null, null, NoMembers, datatype.Facets);
+        return new(
+            name,
+            location,
+            final,
+            datatype.Variety,
+            null,
+            null,
+            NoMembers,
+            datatype.Facets,
+            datatype,
+            datatype.Facets.Count
+        );
     }
 
     /// <summary>Defines a type by restriction; variety, item type, and member types come from the base type.</summary>
@@ -134,7 +167,9 @@ internal sealed class SimpleTypeDefinition : IXsdComponent
             parent,
             parent.ItemType,
             parent.MemberTypes,
-            Combine(parent.Facets, facets)
+            Combine(parent.Facets, facets),
+            parent.Datatype,
+            parent.BuiltInFacets
         );
     }
 

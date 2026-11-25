@@ -244,6 +244,26 @@ public class EntityTests
     }
 
     [Test]
+    public async Task Entities_OnARestrictionOfTheBuiltInListType_IsCheckedPerToken()
+    {
+        var schema = new SchemaFixture();
+        var builtIn = SimpleTypeDefinition.FromDatatype(
+            new XPathQName(SchemaFixture.Xs, "ENTITIES"),
+            SchemaFixture.Where,
+            new FakeDatatype("ENTITIES", DatatypeVariety.List)
+        );
+        var derived = EntityFixture.Restriction(builtIn, schema);
+
+        var issues = EntityFixture.Run(
+            EntityFixture.Schema(entities: derived),
+            EntityFixture.Document(Subset, "<ns>pic nope</ns>\n")
+        );
+
+        await Assert.That(issues.Count).IsEqualTo(1);
+        await AssertIssue(issues[0], 3, "'nope'");
+    }
+
+    [Test]
     public async Task Entity_ItemsOfAUserDefinedListOfEntity_AreCheckedPerItem()
     {
         var schema = new SchemaFixture();

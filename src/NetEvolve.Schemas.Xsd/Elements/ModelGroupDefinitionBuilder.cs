@@ -73,6 +73,11 @@ internal sealed class ModelGroupDefinitionBuilder : IComponentBuilder
             Report(reporter, node, "A model group definition must have one of all, choice, and sequence.");
         }
 
+        if (compositor?.FindAttribute("minOccurs") is not null || compositor?.FindAttribute("maxOccurs") is not null)
+        {
+            Report(reporter, node, "The model group of a model group definition must not have minOccurs or maxOccurs.");
+        }
+
         var group = compositor is null
             ? ModelGroup.Create(ModelGroupCompositor.Sequence, node.Location, [])
             : _particles.BuildGroup(compositor, reporter);

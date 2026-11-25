@@ -252,7 +252,7 @@ internal sealed partial class StreamingValidator
 
         if (byOpenContent)
         {
-            OpenWildcard(parent, parent.Open.Wildcard, name, qname, location);
+            OpenWildcard(parent.Open.Wildcard, name, qname, location);
             return;
         }
 
@@ -269,7 +269,7 @@ internal sealed partial class StreamingValidator
         }
         else
         {
-            OpenWildcard(parent, (IWildcard)term, name, qname, location);
+            OpenWildcard((IWildcard)term, name, qname, location);
         }
     }
 
@@ -295,13 +295,7 @@ internal sealed partial class StreamingValidator
         return frame.AllRun!.TryStep(id, out matched);
     }
 
-    private void OpenWildcard(
-        ElementFrame parent,
-        IWildcard wildcard,
-        XmlName name,
-        XPathQName qname,
-        DocumentLocation location
-    )
+    private void OpenWildcard(IWildcard wildcard, XmlName name, XPathQName qname, DocumentLocation location)
     {
         if (wildcard.ProcessContents == XsdProcessContents.Skip)
         {
@@ -317,18 +311,9 @@ internal sealed partial class StreamingValidator
         }
         else
         {
-            parent.IsValid = false;
-            Report(
-                ValidationRules.Wildcard,
-                location,
-                "The wildcard of element "
-                    + Display(parent.QName)
-                    + " is strict, but no declaration was found for the element "
-                    + Display(qname)
-                    + ".",
-                "cvc-wildcard.2"
-            );
-            _skip = 1;
+            // A strict wildcard still assesses the element when its xsi:type names a type; that is known at the end of the
+            // attributes (BeginContent), which reports cvc-wildcard.2 otherwise.
+            Push(name, qname, location).UndeclaredStrict = true;
         }
     }
 

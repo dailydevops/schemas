@@ -3,6 +3,7 @@ namespace NetEvolve.Schemas.Xsd.Compilation;
 using System;
 using System.Collections.Generic;
 using NetEvolve.Arguments;
+using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xsd.Attributes.Declarations;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Diagnostics;
@@ -77,7 +78,8 @@ internal sealed class AttributeGroupBuilder : IComponentBuilder
             if (SyntaxValues.IsSchemaElement(child, "attribute"))
             {
                 var use = _context.Attributes.BuildUse(child, unit);
-                if (use is not null)
+                // Structures 1.0 section 3.6.2: the prohibited uses are not part of the {attribute uses} of a group.
+                if (use is not null && !(use.Prohibited && _context.Version == XsdVersion.V10))
                 {
                     uses.Add(use);
                 }

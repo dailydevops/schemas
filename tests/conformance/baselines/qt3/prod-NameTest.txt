@@ -1,5 +1,3 @@
-prod-NameTest/K2-NameTest-35
-prod-NameTest/K2-NameTest-36
 prod-NameTest/K2-NameTest-84
 prod-NameTest/NodeTest004
 prod-NameTest/NodeTest005

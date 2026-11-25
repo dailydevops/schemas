@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Evaluation.Annotations;
 using NetEvolve.Schemas.Schematron.Model;
-using NetEvolve.Schemas.Schematron.Results.Mapping;
 using NetEvolve.Schemas.Schematron.Scopes;
 using NetEvolve.Schemas.Schematron.Seams;
 
@@ -145,11 +144,13 @@ internal static class AssertionCompiler
         SchematronMessage message,
         QueryStaticScope scope,
         IProblemSink problems,
-        out CompiledMessage? compiled
+        out CompiledMessage? compiled,
+        string? role = null,
+        string? scheme = null
     )
     {
         var ok = TryCompileParts(binding, message.Parts, scope, problems, out var parts);
-        compiled = ok ? new CompiledMessage(id, message.Location, parts!) : null;
+        compiled = ok ? new CompiledMessage(id, message.Location, parts!, message.Language, role, scheme) : null;
         return ok;
     }
 
@@ -264,7 +265,18 @@ internal static class AssertionCompiler
                 problems.Add(in problem);
                 ok = false;
             }
-            else if (TryCompileMessage(binding, ids[i], found, scope, problems, out var message))
+            else if (
+                TryCompileMessage(
+                    binding,
+                    ids[i],
+                    found.Value.Message,
+                    scope,
+                    problems,
+                    out var message,
+                    found.Value.Role,
+                    found.Value.Scheme
+                )
+            )
             {
                 compiled[i] = message!;
             }
@@ -278,7 +290,11 @@ internal static class AssertionCompiler
         return ok;
     }
 
-    private static SchematronMessage? Find(SchematronSchema schema, string id, bool isProperty)
+    private static (SchematronMessage Message, string? Role, string? Scheme)? Find(
+        SchematronSchema schema,
+        string id,
+        bool isProperty
+    )
     {
         if (isProperty)
         {
@@ -287,7 +303,7 @@ internal static class AssertionCompiler
             {
                 if (string.Equals(properties[i].Id, id, StringComparison.Ordinal))
                 {
-                    return properties[i].Message;
+                    return (properties[i].Message, properties[i].Role, properties[i].Scheme);
                 }
             }
 
@@ -299,7 +315,7 @@ internal static class AssertionCompiler
         {
             if (string.Equals(diagnostics[i].Id, id, StringComparison.Ordinal))
             {
-                return diagnostics[i].Message;
+                return (diagnostics[i].Message, null, null);
             }
         }
 

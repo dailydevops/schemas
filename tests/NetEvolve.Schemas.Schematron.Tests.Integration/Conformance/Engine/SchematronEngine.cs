@@ -25,8 +25,8 @@ using LibraryValidator = NetEvolve.Schemas.ISchematronValidator;
 /// </para>
 /// <para>
 /// Limitation: every build failure is an <see cref="SchematronOutcome.Error"/>, also a not-supported diagnostic, so a case that expects an
-/// error could pass on a limit of the library. Two selected cases expect an error: <c>rule-extends-no-abstract</c> passes with the code of
-/// a real semantic error, and <c>rule-abstract-scope-error</c> fails (#921).
+/// error could pass on a limit of the library. Two selected cases expect an error: <c>rule-extends-no-abstract</c> and <c>rule-abstract-scope-error</c> pass with
+/// the code of a real semantic error.
 /// </para>
 /// </remarks>
 internal sealed class SchematronEngine : ISchematronValidator

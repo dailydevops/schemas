@@ -133,6 +133,47 @@ public class CoreParserElementTests
     }
 
     [Test]
+    public async Task Assert_Message_DropsWhiteSpaceOnlyTextAtBothEnds()
+    {
+        var (schema, _, _) = CoreParserFixture.Parse(
+            E(
+                "schema",
+                1,
+                1,
+                E(
+                    "pattern",
+                    2,
+                    3,
+                    E(
+                        "rule",
+                        3,
+                        5,
+                        A("context", "/"),
+                        E(
+                            "assert",
+                            4,
+                            7,
+                            A("test", "false()"),
+                            "\n  ",
+                            E("value-of", 5, 9, A("select", "a")),
+                            " ",
+                            E("value-of", 6, 9, A("select", "b")),
+                            "\n"
+                        )
+                    )
+                )
+            )
+        );
+
+        var parts = FirstAssert(schema!).Message.Parts;
+
+        await Assert.That(parts.Count).IsEqualTo(3);
+        await Assert.That(parts[0]).IsTypeOf<SchematronValueOf>();
+        await Assert.That(((SchematronText)parts[1]).Text).IsEqualTo(" ");
+        await Assert.That(parts[2]).IsTypeOf<SchematronValueOf>();
+    }
+
+    [Test]
     public async Task Assert_Location_IsElementStart() =>
         await AssertLocation(FirstAssert(CoreParserFixture.Full()), 11, 7);
 

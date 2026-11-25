@@ -20,6 +20,11 @@ internal sealed class XIncludeRun : IXmlSink, IDisposable
     private const string XIncludeNamespace = "http://www.w3.org/2001/XInclude";
     private const string XmlNamespace = "http://www.w3.org/XML/1998/namespace";
 
+    // Each nested include costs a few stack frames, so the nesting is capped apart from MaxDepth, which can be raised to the
+    // ceiling. The path holds the root document too, hence the cap counts the includes below it.
+    // The value is the default MaxDepth: the nesting of a document within the default limits is never refused by it.
+    private const int MaxIncludeNesting = 256;
+
     private readonly XIncludeResolver _owner;
     private readonly IProblemSink _problems;
     private readonly CancellationToken _cancellationToken;
@@ -467,6 +472,14 @@ internal sealed class XIncludeRun : IXmlSink, IDisposable
                     "The reference closes a cycle through the document '" + systemId + "'.",
                     at
                 )
+            );
+        }
+        else if (_path.Count > MaxIncludeNesting)
+        {
+            Fail(
+                CoreDiagnosticCodes.DepthLimitExceeded,
+                "The nesting of xi:include elements exceeds " + MaxIncludeNesting + ".",
+                include.Position
             );
         }
         else if (IncludeFetcher.TryParse(content.Span, "document", systemId, at, out var document, out var problem))

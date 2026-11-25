@@ -333,4 +333,48 @@ public class XsiTypeTests
 
         throw new InvalidOperationException(local);
     }
+
+    // r holds a strict wildcard; "int" is a simple type that the instance may name, the element itself has no declaration.
+    private static XsiFixture StrictWildcard()
+    {
+        var schema = new XsiFixture();
+        _ = schema.Simple("int");
+        _ = schema.Global(
+            "r",
+            schema.Complex(
+                "rt",
+                SchemaFixture.Seq(
+                    SchemaFixture.Part(SchemaFixture.Wild("##any", XsdProcessContents.Strict), 0, long.MaxValue)
+                )
+            )
+        );
+        return schema;
+    }
+
+    [Test]
+    public async Task StrictWildcard_UndeclaredElementWithValidXsiType_IsAssessedAgainstThatType()
+    {
+        var ok = XsiHarness.Run(StrictWildcard(), "<r " + XsiFixture.Prefixes + "><b xsi:type=\"t:int\">12</b></r>");
+        var bad = XsiHarness.Run(StrictWildcard(), "<r " + XsiFixture.Prefixes + "><b xsi:type=\"t:int\">ab</b></r>");
+
+        await Assert.That(ok.Count).IsEqualTo(0);
+        await Assert.That(bad.Count).IsEqualTo(1);
+        await Assert.That(bad[0].Constraint).IsNotEqualTo("cvc-wildcard.2");
+    }
+
+    [Test]
+    public async Task StrictWildcard_UndeclaredElementWithoutResolvableXsiType_IsAnError()
+    {
+        var none = XsiHarness.Run(StrictWildcard(), "<r " + XsiFixture.Prefixes + "><b><c/></b></r>");
+        var unknown = XsiHarness.Run(
+            StrictWildcard(),
+            "<r " + XsiFixture.Prefixes + "><b xsi:type=\"t:nope\"><c/></b></r>"
+        );
+
+        await Assert.That(none.Count).IsEqualTo(1);
+        await Assert.That(none[0].Constraint).IsEqualTo("cvc-wildcard.2");
+        // The unresolvable xsi:type is reported on its own, then the strict wildcard finds no type to assess the element against.
+        await Assert.That(unknown.Count).IsEqualTo(2);
+        await Assert.That(unknown[1].Constraint).IsEqualTo("cvc-wildcard.2");
+    }
 }

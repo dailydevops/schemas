@@ -439,6 +439,30 @@ public class XmlSequenceReaderTests
         await Assert.That(sequence.Code).IsSameReferenceAs(XmlErrorCodes.XML1114);
     }
 
+    [Test]
+    public async Task Read_MalformedOversizedDeclaration_ReportsTheSameCodeForEveryInputKind(
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        // #830: the declaration parser runs on the buffered prefix before the length limit is checked.
+        var xml = "<?xml version=\"1.0\"" + new string('x', 5_000);
+        var bytes = Utf8(xml);
+
+        var span = StreamRuns.Span(bytes);
+        var sequence = SequenceRuns.Sequence(SequenceBuilder.Chunks(bytes, 7));
+        var chars = SequenceRuns.Sequence(SequenceBuilder.Chunks(xml.ToCharArray(), 7));
+        var stream = await StreamRuns.StreamAsync(bytes, _ => 7, 16, null, cancellationToken);
+
+        await Assert.That(span.Code).IsSameReferenceAs(XmlErrorCodes.XML0003);
+        await Assert.That(sequence.Code).IsSameReferenceAs(span.Code);
+        await Assert.That(chars.Code).IsSameReferenceAs(span.Code);
+        await Assert.That(stream.Code).IsSameReferenceAs(span.Code);
+        await Assert.That(sequence.ErrorPosition).IsEqualTo(span.ErrorPosition);
+        await Assert.That(stream.ErrorPosition).IsEqualTo(span.ErrorPosition);
+    }
+
     // ---- limits, large tokens, sinks ----
 
     [Test]

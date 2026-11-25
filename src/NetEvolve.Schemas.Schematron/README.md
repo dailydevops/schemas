@@ -174,11 +174,11 @@ Schematron lets a schema embed XSLT: stylesheet functions, keys, variables, and 
 
 ### What a schema reaches today
 
-The instruction engine (instruction registry, sequence sink, function table, key index, global table, module linker) is part of the package and covered by its unit tests, and the build of a schema hands the XSLT declarations to it. Under the bindings `xslt`, `xslt1`, `xslt2`, and `xslt3` the resolve stage follows `xsl:include` and `xsl:import` through the resolver of the builder, and the compile stage compiles `xsl:function`, `xsl:key`, `xsl:variable`, `xsl:param`, and `xsl:decimal-format` with the import precedence applied; any other `xsl:` element, such as `xsl:template`, fails at `Build` with `NES3204`, the unsupported XSLT construct error. The compiled schema holds the tables; the global variables and parameters take part in a run, while stylesheet functions and keys are not callable from the XPath of a rule yet ([#628](https://github.com/dailydevops/schemas/issues/628), [#832](https://github.com/dailydevops/schemas/issues/832)). Problems of a declaration that an included Schematron library holds are located at the principal schema, and without a line. A `let` with element content and a property with `xsl:copy-of` build, and the run reports `NES3204` where it needs them, because no embedded content is wired into the pipeline ([#914](https://github.com/dailydevops/schemas/issues/914)); a `let` with element content binds a document node (maintainer decision of [#856](https://github.com/dailydevops/schemas/issues/856)), which the suite case for it does not expect ([#877](https://github.com/dailydevops/schemas/issues/877)).
+The instruction engine (instruction registry, sequence sink, function table, key index, global table, module linker) is part of the package and covered by its unit tests, and the build of a schema hands the XSLT declarations to it. Under the bindings `xslt`, `xslt1`, `xslt2`, and `xslt3` the resolve stage follows `xsl:include` and `xsl:import` through the resolver of the builder, and the compile stage compiles `xsl:function`, `xsl:key`, `xsl:variable`, `xsl:param`, and `xsl:decimal-format` with the import precedence applied; any other `xsl:` element, such as `xsl:template`, fails at `Build` with `NES3204`, the unsupported XSLT construct error. The compiled schema holds the tables; the global variables and parameters take part in a run, and a rule, a variable, or another function body calls a stylesheet function through an XPath expression ([#628](https://github.com/dailydevops/schemas/issues/628)), while keys are not callable from the XPath of a rule yet ([#832](https://github.com/dailydevops/schemas/issues/832)). Problems of a declaration that an included Schematron library holds are located at the principal schema, and without a line. A `let` with element content and a property with `xsl:copy-of` build, and the run reports `NES3204` where it needs them, because no embedded content is wired into the pipeline ([#914](https://github.com/dailydevops/schemas/issues/914)); a `let` with element content binds a document node (maintainer decision of [#856](https://github.com/dailydevops/schemas/issues/856)), which the suite case for it does not expect ([#877](https://github.com/dailydevops/schemas/issues/877)).
 
 What does work are the XSLT functions in the expressions of a schema (`test`, `select`, `value`, `context`) under the bindings `xslt`, `xslt1`, `xslt2`, and `xslt3`: `current`, `system-property`, `function-available`, `format-number`, and `generate-id`. These functions do not exist under `xpath` and `xpath2`. A named decimal format is unknown, because no `xsl:decimal-format` is handed to the run ([#882](https://github.com/dailydevops/schemas/issues/882)).
 
-These functions are not available yet: `key` (the function is in the XPath package, [#776](https://github.com/dailydevops/schemas/issues/776), but a run has no key provider until the stylesheet modules reach it, [#832](https://github.com/dailydevops/schemas/issues/832); as a rule context, [#780](https://github.com/dailydevops/schemas/issues/780)), `document`, `doc`, and `unparsed-text` (the XPath package has the functions, but a schema run does not bind them to the schema base URI and the resolver yet, [#312](https://github.com/dailydevops/schemas/issues/312)), `current-group` and `current-grouping-key` ([#803](https://github.com/dailydevops/schemas/issues/803)), `regex-group` (the function is in the package, [#287](https://github.com/dailydevops/schemas/issues/287), but a run offers no regex groups slot, [#628](https://github.com/dailydevops/schemas/issues/628)), calls of stylesheet functions ([#628](https://github.com/dailydevops/schemas/issues/628)), `element-available` (DEF-30, [#42](https://github.com/dailydevops/schemas/issues/42)), `type-available` (DEF-31, [#43](https://github.com/dailydevops/schemas/issues/43)), `unparsed-entity-uri` and `unparsed-entity-public-id` (DEF-32, [#44](https://github.com/dailydevops/schemas/issues/44)), and `snapshot` (DEF-33, [#45](https://github.com/dailydevops/schemas/issues/45)).
+These functions are not available yet: `key` (the function is in the XPath package, [#776](https://github.com/dailydevops/schemas/issues/776), but a run has no key provider until the stylesheet modules reach it, [#832](https://github.com/dailydevops/schemas/issues/832); as a rule context, [#780](https://github.com/dailydevops/schemas/issues/780)), `document`, `doc`, and `unparsed-text` (the XPath package has the functions, but a schema run does not bind them to the schema base URI and the resolver yet, [#312](https://github.com/dailydevops/schemas/issues/312)), `current-group` and `current-grouping-key` ([#803](https://github.com/dailydevops/schemas/issues/803)), `regex-group` (the function is in the package, [#287](https://github.com/dailydevops/schemas/issues/287), but a run offers no regex groups slot, [#628](https://github.com/dailydevops/schemas/issues/628)), `element-available` (DEF-30, [#42](https://github.com/dailydevops/schemas/issues/42)), `type-available` (DEF-31, [#43](https://github.com/dailydevops/schemas/issues/43)), `unparsed-entity-uri` and `unparsed-entity-public-id` (DEF-32, [#44](https://github.com/dailydevops/schemas/issues/44)), and `snapshot` (DEF-33, [#45](https://github.com/dailydevops/schemas/issues/45)).
 
 ### Matrix of the registered constructs
 
@@ -268,7 +268,7 @@ The module elements of stage 3 (`xsl:include`, `xsl:import`, `xsl:stylesheet`, `
 | `static` on `xsl:variable` and `xsl:param` | DEF-28 ([#40](https://github.com/dailydevops/schemas/issues/40)) |
 | `exponent-separator` on `xsl:decimal-format` | [#836](https://github.com/dailydevops/schemas/issues/836) |
 
-The attributes `use-when` (DEF-28, [#40](https://github.com/dailydevops/schemas/issues/40)) and `expand-text` (DEF-14, [#26](https://github.com/dailydevops/schemas/issues/26)) are not supported either. The pattern matcher for rule contexts and `xsl:key` covers a subset of the XSLT 2.0 patterns: patterns that start with `id()` (DEF-55, [#67](https://github.com/dailydevops/schemas/issues/67)), patterns that start with `key()` ([#780](https://github.com/dailydevops/schemas/issues/780)), and the pattern forms of XSLT 3.0 (DEF-60, [#72](https://github.com/dailydevops/schemas/issues/72)) are not supported.
+The attributes `use-when` (DEF-28, [#40](https://github.com/dailydevops/schemas/issues/40)) and `expand-text` (DEF-14, [#26](https://github.com/dailydevops/schemas/issues/26)) are not supported either. The pattern matcher for rule contexts and `xsl:key` covers a subset of the XSLT 2.0 patterns: patterns that start with `id()` (DEF-55, [#67](https://github.com/dailydevops/schemas/issues/67)), patterns that start with `key()` ([#780](https://github.com/dailydevops/schemas/issues/780)), and patterns that start with a variable reference ([#72](https://github.com/dailydevops/schemas/issues/72)) are not supported. The pattern forms of XSLT 3.0 (DEF-60, [#72](https://github.com/dailydevops/schemas/issues/72)) are supported in part: predicates on a parenthesized pattern such as `(/a:Invoice | /a:CreditNote)[$flag]`, `intersect`, and `except` are accepted under the bindings `xslt`, `xslt2`, and `xslt3`. This is a superset on purpose: the `xslt` and `xslt2` bindings accept the forms although the XSLT versions they name do not have them, because rule sets that declare `xslt2` use them. The `xpath` bindings keep rejecting the forms with `NES3203`. A predicate on a parenthesized pattern must not read a position or the size.
 
 ## Configuration
 
@@ -306,7 +306,7 @@ The package is measured against the official Schematron conformance suite, relea
 
 ### Schematron conformance suite
 
-**43 of 84 applicable cases pass, a rate of 51.1%** on `net10.0`, the leg that runs the suites. The other cases are the 41 known failures below, and 3 excluded cases do not count. Every known failure is a case of the committed baseline in `tests/conformance/baselines/schematron-conformance/` (41 baseline entries in 5 files, one file per test set), linked to an issue; a regression and an unexpected pass fail the run.
+**58 of 84 applicable cases pass, a rate of 69.0%** on `net10.0`, the leg that runs the suites. The other cases are the 26 known failures below, and 3 excluded cases do not count. Every known failure is a case of the committed baseline in `tests/conformance/baselines/schematron-conformance/` (26 baseline entries in 5 files, one file per test set), linked to an issue; a regression and an unexpected pass fail the run.
 
 Reproduce the numbers on a clone: set `GITHUB_STEP_SUMMARY` to a file and run the conformance tests; the table of the rate per test set is appended to that file.
 
@@ -317,10 +317,10 @@ dotnet test --project tests/NetEvolve.Schemas.Schematron.Tests.Integration --con
 | Test set | Applicable | Passed | Rate |
 | --- | --- | --- | --- |
 | `iso-instance-document-selection` | 2 | 0 | 0.0% |
-| `iso-pattern-templating` | 12 | 4 | 33.3% |
-| `iso-reporting` | 45 | 24 | 53.3% |
-| `iso-rule-based-validation` | 14 | 10 | 71.4% |
-| `iso-schema-composition` | 11 | 5 | 45.4% |
+| `iso-pattern-templating` | 12 | 8 | 66.6% |
+| `iso-reporting` | 45 | 33 | 73.3% |
+| `iso-rule-based-validation` | 14 | 11 | 78.5% |
+| `iso-schema-composition` | 11 | 6 | 54.5% |
 
 The acceptance of XSLT stage 4 (own test schemas and four cases of the suite, which are also among the 84) publishes its own row in the job summary, `NetEvolve.Schemas.Schematron (stage 4 goldens)`: 12 of 17 cases pass, a rate of 70.5%. The other 5 wait for [#914](https://github.com/dailydevops/schemas/issues/914) (a `let` with element content), for temporary trees in global declarations, and for builder parameters of a global `xsl:param` ([#832](https://github.com/dailydevops/schemas/issues/832)).
 
@@ -345,9 +345,8 @@ The suite file of the binding `xslt-3-2025` lists three cases that no selected b
 
 - `iso-schema-composition/extends-recursive.xml`
 
-**[#832](https://github.com/dailydevops/schemas/issues/832)** (3 cases): The functions and keys of a schema build, but the XPath of a rule cannot call them yet (#628, #832).
+**[#832](https://github.com/dailydevops/schemas/issues/832)** (2 cases): The keys of a schema build, but the XPath of a rule cannot call them yet (#832).
 
-- `iso-rule-based-validation/xsl-function.xml`
 - `iso-rule-based-validation/xsl-key-element-content.xml`
 - `iso-rule-based-validation/xsl-key.xml`
 
@@ -370,10 +369,9 @@ The suite file of the binding `xslt-3-2025` lists three cases that no selected b
 - `iso-reporting/svrl-property-copy-of.xml`
 - `iso-reporting/svrl-property-variable-copy-of-rule.xml`
 
-**[#915](https://github.com/dailydevops/schemas/issues/915)** (4 cases): Abstract pattern parameters are not substituted in name paths and in diagnostic and property content (NES3300).
+**[#915](https://github.com/dailydevops/schemas/issues/915)** (3 cases): Abstract pattern parameters are substituted in the pattern only; diagnostics and properties belong to the schema and are shared by every instance, so their content keeps the parameter reference (NES3300), a recorded deviation.
 
 - `iso-pattern-templating/pattern-abstract-diagnostic-value-of.xml`
-- `iso-pattern-templating/pattern-abstract-name-path.xml`
 - `iso-pattern-templating/pattern-abstract-property-copy-of.xml`
 - `iso-pattern-templating/pattern-abstract-property-value-of.xml`
 
@@ -385,34 +383,6 @@ The suite file of the binding `xslt-3-2025` lists three cases that no selected b
 - `iso-reporting/svrl-property-fpi.xml`
 - `iso-reporting/svrl-property-icon.xml`
 - `iso-reporting/svrl-property-see.xml`
-
-**[#917](https://github.com/dailydevops/schemas/issues/917)** (6 cases): The SVRL output carries no xml:lang.
-
-- `iso-reporting/svrl-diagnostic-language.xml`
-- `iso-reporting/svrl-failed-assert-lang.xml`
-- `iso-reporting/svrl-pattern-abstract-lang.xml`
-- `iso-reporting/svrl-property-lang.xml`
-- `iso-reporting/svrl-rule-abstract-lang.xml`
-- `iso-reporting/svrl-successful-report-lang.xml`
-
-**[#918](https://github.com/dailydevops/schemas/issues/918)** (2 cases): The SVRL property-reference lacks role and scheme.
-
-- `iso-reporting/svrl-property-role.xml`
-- `iso-reporting/svrl-property-scheme.xml`
-
-**[#919](https://github.com/dailydevops/schemas/issues/919)** (1 case): The message of sch:name with a path holds the node name, the case expects the value.
-
-- `iso-reporting/svrl-name-path.xml`
-
-**[#920](https://github.com/dailydevops/schemas/issues/920)** (3 cases): White space only text around value-of is kept in the message, the case expects it stripped.
-
-- `iso-pattern-templating/pattern-abstract-pattern-let-value.xml`
-- `iso-pattern-templating/pattern-abstract-rule-let-value.xml`
-- `iso-pattern-templating/pattern-abstract-value-of.xml`
-
-**[#921](https://github.com/dailydevops/schemas/issues/921)** (1 case): An extends of an abstract rule of another pattern builds, the case expects an error.
-
-- `iso-schema-composition/rule-abstract-scope-error.xml`
 
 ### EN 16931 golden tests
 
@@ -433,12 +403,12 @@ dotnet test --project tests/NetEvolve.Schemas.Schematron.Tests.Integration --con
   ```
 
 - **No `ReadOnlyMemory<T>` overload.** With one, a `byte[]` or `char[]` argument is ambiguous for compilers older than C# 14; pass `memory.Span` instead.
-- **XSLT in a schema.** Declarations of XSLT build, but stylesheet functions and keys are not callable from a rule yet ([#628](https://github.com/dailydevops/schemas/issues/628), [#832](https://github.com/dailydevops/schemas/issues/832)), and `let` with element content and `xsl:copy-of` in a property are reported at run time ([#914](https://github.com/dailydevops/schemas/issues/914)); see [XSLT constructs](#xslt-constructs).
+- **XSLT in a schema.** Declarations of XSLT build and stylesheet functions are callable from XPath, but keys are not callable from a rule yet ([#832](https://github.com/dailydevops/schemas/issues/832)), and `let` with element content and `xsl:copy-of` in a property are reported at run time ([#914](https://github.com/dailydevops/schemas/issues/914)); see [XSLT constructs](#xslt-constructs).
 - **Attributes that are accepted and ignored.** The `documents` attribute of a pattern ([#913](https://github.com/dailydevops/schemas/issues/913), feature [#388](https://github.com/dailydevops/schemas/issues/388)) and the `visit-each` attribute of a rule ([#934](https://github.com/dailydevops/schemas/issues/934), feature [#387](https://github.com/dailydevops/schemas/issues/387)) neither fail the build nor take effect.
 - **Phase attributes.** A selected phase with `from` ([#385](https://github.com/dailydevops/schemas/issues/385)) or `when` ([#386](https://github.com/dailydevops/schemas/issues/386)) fails the build with `NES3007`.
-- **Include and extends.** An `href` with a fragment identifier is not supported ([#575](https://github.com/dailydevops/schemas/issues/575)), and an `extends` of an abstract rule of another pattern builds without an error ([#921](https://github.com/dailydevops/schemas/issues/921)).
-- **SVRL.** The output lacks `xml:lang` ([#917](https://github.com/dailydevops/schemas/issues/917)), the attributes `fpi`, `icon`, and `see` of a diagnostic or property reference ([#916](https://github.com/dailydevops/schemas/issues/916)), and the attributes `role` and `scheme` of a property reference ([#918](https://github.com/dailydevops/schemas/issues/918)). An SVRL `id` is written only for an author id, and a `svrl:error` in the output is not a failure of the run.
-- **Messages.** White space only text around `value-of` is kept in a message ([#920](https://github.com/dailydevops/schemas/issues/920)), `sch:name` with a path outputs the node name ([#919](https://github.com/dailydevops/schemas/issues/919)), and abstract pattern parameters are not substituted in name paths and in diagnostic and property content ([#915](https://github.com/dailydevops/schemas/issues/915)).
+- **Include and extends.** An `href` with a fragment identifier is not supported ([#575](https://github.com/dailydevops/schemas/issues/575)).
+- **SVRL.** The attributes `fpi`, `icon`, and `see` of a diagnostic or property reference ([#916](https://github.com/dailydevops/schemas/issues/916)). An SVRL `id` is written only for an author id, and a `svrl:error` in the output is not a failure of the run.
+- **Messages.** White space only text around `value-of` is kept in a message ([#920](https://github.com/dailydevops/schemas/issues/920)), and abstract pattern parameters are not substituted in diagnostic and property content, a recorded deviation ([#915](https://github.com/dailydevops/schemas/issues/915)).
 - **Locations.** A problem of an expression is located by the base URI of the schema and by the line and column within the text of the expression, and a dynamic problem has no line and column ([#881](https://github.com/dailydevops/schemas/issues/881)). `last()` in a predicate without a known size equals `position()` ([#883](https://github.com/dailydevops/schemas/issues/883)).
 - **Thread safety.** A validator is immutable and thread-safe; a `WithReportSink` view and a builder are not.
 - **Compile cost.** Every `Build` compiles the schema once; a validation compiles nothing.

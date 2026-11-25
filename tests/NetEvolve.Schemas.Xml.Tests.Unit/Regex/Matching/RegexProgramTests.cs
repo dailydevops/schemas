@@ -114,6 +114,93 @@ public class RegexProgramTests
     }
 
     [Test]
+    [Arguments(int.MaxValue, int.MaxValue)]
+    [Arguments(int.MaxValue, RegexNode.Unbounded)]
+    [Arguments(1_073_741_824, 1_073_741_824)]
+    public async Task Repeat_MinimumBeyondAnyInputLength_CompilesAndNeverMatches(int min, int max)
+    {
+        var t = new TreeBuilder();
+        t.WithRoot(t.Repeat(t.Char('a'), min, max));
+
+        await Assert.That(t.TryCompile()).IsEqualTo(RegexError.None);
+        await Assert.That(Run(t, "aaa")).IsEqualTo(RegexMatchResult.NoMatch);
+        await Assert.That(Run(t, string.Empty)).IsEqualTo(RegexMatchResult.NoMatch);
+    }
+
+    private static int HugeRepeatBody(TreeBuilder t, int kind) =>
+        kind switch
+        {
+            0 => t.Set('a', 'z'),
+            1 => t.Any(),
+            2 => t.Group(t.Char('a')),
+            3 => t.Alt(t.Text("bc"), t.Char('a')),
+            4 => t.Concat(t.Char('a'), t.Group(t.Char('b'))),
+            5 => t.Repeat(t.Char('a'), 2, 3),
+            6 => t.Repeat(t.Repeat(t.Char('a'), 1, 1), int.MaxValue, int.MaxValue),
+            7 => t.Concat(t.Char('a'), t.Add(RegexNode.Anchor(RegexAnchor.Start))),
+            _ => t.Concat(t.Group(t.Char('a')), t.Add(RegexNode.BackReference(1))),
+        };
+
+    [Test]
+    [Arguments(0)]
+    [Arguments(1)]
+    [Arguments(2)]
+    [Arguments(3)]
+    [Arguments(4)]
+    [Arguments(5)]
+    [Arguments(6)]
+    [Arguments(7)]
+    [Arguments(8)]
+    public async Task Repeat_HugeCountOfAnyNodeKind_CompilesAndNeverMatches(int kind)
+    {
+        var t = new TreeBuilder();
+        t.WithRoot(t.Repeat(HugeRepeatBody(t, kind), int.MaxValue, int.MaxValue));
+
+        await Assert.That(t.TryCompile(RegexDialect.XPath)).IsEqualTo(RegexError.None);
+        await Assert.That(t.Compile(RegexDialect.XPath).Match("abc", Limits)).IsEqualTo(RegexMatchResult.NoMatch);
+    }
+
+    [Test]
+    [Arguments(0)]
+    [Arguments(1)]
+    [Arguments(2)]
+    [Arguments(3)]
+    public async Task Repeat_HugeCountOfAnEmptyBody_CompilesAndMatchesTheEmptyString(int kind)
+    {
+        var t = new TreeBuilder();
+        var body = kind switch
+        {
+            0 => t.Alt(),
+            1 => t.Concat(),
+            2 => t.Group(t.Concat()),
+            _ => t.Group(RegexNode.NoNode),
+        };
+        t.WithRoot(t.Repeat(body, int.MaxValue, int.MaxValue));
+
+        await Assert.That(t.TryCompile(RegexDialect.XPath)).IsEqualTo(RegexError.None);
+        await Assert.That(t.Compile(RegexDialect.XPath).Match(string.Empty, Limits)).IsEqualTo(RegexMatchResult.Match);
+    }
+
+    [Test]
+    public async Task Repeat_ZeroMinimumWithHugeMaximum_SkipsTheMinimumLengthGuard()
+    {
+        var t = new TreeBuilder();
+        t.WithRoot(t.Repeat(t.Char('a'), 0, 3));
+
+        await Assert.That(t.TryCompile(RegexDialect.XPath)).IsEqualTo(RegexError.None);
+        await Assert.That(t.Compile(RegexDialect.XPath).Match("aa", Limits)).IsEqualTo(RegexMatchResult.Match);
+    }
+
+    [Test]
+    public async Task Repeat_MinimumBeyondAnyInputLengthOfAnEmptyMatchingBody_StaysWithinTheLimitError()
+    {
+        var t = new TreeBuilder();
+        t.WithRoot(t.Repeat(t.Repeat(t.Char('a'), 0, 1), int.MaxValue, int.MaxValue));
+
+        await Assert.That(t.TryCompile()).IsEqualTo(RegexError.LimitExceeded);
+    }
+
+    [Test]
     public async Task Repeat_NestedCounts_AreCappedByTheProgramSize()
     {
         var t = new TreeBuilder();

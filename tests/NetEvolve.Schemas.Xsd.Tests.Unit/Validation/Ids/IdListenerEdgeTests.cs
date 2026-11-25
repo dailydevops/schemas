@@ -17,11 +17,11 @@ public class IdListenerEdgeTests
 {
     private static readonly DocumentLocation Here = new("file:///i.xml", 3, 4);
 
-    private static (IdListener Listener, ValidationIssueCollector Collector) Begin()
+    private static (IdListener Listener, ValidationIssueCollector Collector) Begin(XsdVersion version = XsdVersion.V11)
     {
         var limits = ValidationLimits.Default;
         var collector = new ValidationIssueCollector(limits);
-        var listener = IdFixture.Listener(new ScriptedAssessor());
+        var listener = IdFixture.Listener(new ScriptedAssessor(), version);
         listener.BeginRun(
             new ValidationRunContext(limits, new SpanInterningNameTable(100), new XsdIssueReporter(collector))
         );
@@ -166,6 +166,70 @@ public class IdListenerEdgeTests
             new ValidationRunContext(limits, new SpanInterningNameTable(100), new XsdIssueReporter(collector))
         );
         Attribute(listener, id, "a");
+        listener.EndRun();
+
+        await Assert.That(collector.ToResult().Issues.Count).IsEqualTo(0);
+    }
+
+    private static void Start(IdListener listener, int ordinal) =>
+        listener.StartElement(new ElementStartInfo(ordinal, default, Here, null, null, 1));
+
+    [Test]
+    public async Task Attribute_TwoIdAttributesOnOneElement_Version10_ReportTheSecondOne()
+    {
+        var (listener, collector) = Begin(XsdVersion.V10);
+        var id = SchemaFixture.Simple("ID");
+
+        Start(listener, 1);
+        Attribute(listener, id, "a");
+        Attribute(listener, id, "b");
+        listener.EndRun();
+
+        var issues = collector.ToResult().Issues;
+        await Assert.That(issues.Count).IsEqualTo(1);
+        await Assert.That(issues[0].Code).IsEqualTo(ValidationHarness.Code("cvc-complex-type"));
+        await Assert.That(issues[0].Constraint).IsEqualTo("cvc-complex-type.5.2");
+    }
+
+    [Test]
+    public async Task Attribute_TwoIdAttributesOnOneElement_Version11_AreNotReported()
+    {
+        var (listener, collector) = Begin(XsdVersion.V11);
+        var id = SchemaFixture.Simple("ID");
+
+        Start(listener, 1);
+        Attribute(listener, id, "a");
+        Attribute(listener, id, "b");
+        listener.EndRun();
+
+        await Assert.That(collector.ToResult().Issues.Count).IsEqualTo(0);
+    }
+
+    [Test]
+    public async Task Attribute_OneIdAttributeOnEachOfTwoElements_AreNotReported()
+    {
+        var (listener, collector) = Begin(XsdVersion.V10);
+        var id = SchemaFixture.Simple("ID");
+
+        Start(listener, 1);
+        Attribute(listener, id, "a");
+        Start(listener, 2);
+        Attribute(listener, id, "b");
+        Attribute(listener, SchemaFixture.Simple("IDREF"), "a");
+        listener.EndRun();
+
+        await Assert.That(collector.ToResult().Issues.Count).IsEqualTo(0);
+    }
+
+    [Test]
+    public async Task Value_AnIdContentAndAnIdAttribute_AreNotReported()
+    {
+        var (listener, collector) = Begin(XsdVersion.V10);
+        var id = SchemaFixture.Simple("ID");
+
+        Start(listener, 1);
+        Attribute(listener, id, "a");
+        Value(listener, id, "b");
         listener.EndRun();
 
         await Assert.That(collector.ToResult().Issues.Count).IsEqualTo(0);

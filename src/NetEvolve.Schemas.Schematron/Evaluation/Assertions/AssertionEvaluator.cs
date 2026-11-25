@@ -3,7 +3,6 @@ namespace NetEvolve.Schemas.Schematron.Evaluation.Assertions;
 using System;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Evaluation.Annotations;
-using NetEvolve.Schemas.Schematron.Results.Mapping;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.XPath.Xdm.Nodes;
 
@@ -22,7 +21,7 @@ internal sealed class AssertionEvaluator : IDisposable
 {
     private readonly IQueryRun _run;
     private readonly ISlotBinder _binder;
-    private readonly IssueMapper _events;
+    private readonly IEvaluationEvents _events;
     private readonly IProblemSink _problems;
     private readonly string? _source;
     private readonly MessageBuilder _builder;
@@ -33,8 +32,12 @@ internal sealed class AssertionEvaluator : IDisposable
     private readonly AnnotationEvaluator _annotations;
     private string[] _diagnosticIds = [];
     private string[] _diagnosticTexts = [];
+    private string[] _diagnosticLanguages = [];
     private string[] _propertyIds = [];
     private string[] _propertyTexts = [];
+    private string[] _propertyLanguages = [];
+    private string[] _propertyRoles = [];
+    private string[] _propertySchemes = [];
     private IFindingContent?[] _propertyContents = [];
 
     /// <summary>Initializes a new instance of the <see cref="AssertionEvaluator"/> class.</summary>
@@ -48,7 +51,7 @@ internal sealed class AssertionEvaluator : IDisposable
     internal AssertionEvaluator(
         IQueryRun run,
         ISlotBinder binder,
-        IssueMapper events,
+        IEvaluationEvents events,
         IProblemSink problems,
         string? instanceSystemId,
         int maxTextLength,
@@ -128,7 +131,10 @@ internal sealed class AssertionEvaluator : IDisposable
             in focus,
             ref _propertyIds,
             ref _propertyTexts,
-            ref _propertyContents
+            ref _propertyContents,
+            ref _propertyLanguages,
+            ref _propertyRoles,
+            ref _propertySchemes
         );
 
         ReadOnlySpan<char> path = default;
@@ -156,13 +162,21 @@ internal sealed class AssertionEvaluator : IDisposable
             annotations.Flags.AsSpan(),
             annotations.Severity.AsSpan(),
             _message.Written,
-            new SchematronReferenceList(_diagnosticIds.AsSpan(0, diagnostics), _diagnosticTexts.AsSpan(0, diagnostics)),
+            new SchematronReferenceList(
+                _diagnosticIds.AsSpan(0, diagnostics),
+                _diagnosticTexts.AsSpan(0, diagnostics),
+                languages: _diagnosticLanguages.AsSpan(0, diagnostics)
+            ),
             new SchematronReferenceList(
                 _propertyIds.AsSpan(0, properties),
                 _propertyTexts.AsSpan(0, properties),
-                _propertyContents.AsSpan(0, properties)
+                _propertyContents.AsSpan(0, properties),
+                _propertyLanguages.AsSpan(0, properties),
+                _propertyRoles.AsSpan(0, properties),
+                _propertySchemes.AsSpan(0, properties)
             ),
-            issue
+            issue,
+            assertion.Message.Language.AsSpan()
         );
         _events.Finding(in finding);
     }
@@ -209,6 +223,7 @@ internal sealed class AssertionEvaluator : IDisposable
         {
             _diagnosticIds = new string[references.Length];
             _diagnosticTexts = new string[references.Length];
+            _diagnosticLanguages = new string[references.Length];
         }
 
         var count = 0;
@@ -219,6 +234,7 @@ internal sealed class AssertionEvaluator : IDisposable
             {
                 _diagnosticIds[count] = references[i].Id;
                 _diagnosticTexts[count] = _reference.ToString();
+                _diagnosticLanguages[count] = references[i].Language;
                 count++;
             }
         }
@@ -232,7 +248,10 @@ internal sealed class AssertionEvaluator : IDisposable
         in QueryFocus focus,
         ref string[] ids,
         ref string[] texts,
-        ref IFindingContent?[] contents
+        ref IFindingContent?[] contents,
+        ref string[] languages,
+        ref string[] roles,
+        ref string[] schemes
     )
     {
         if (ids.Length < references.Length)
@@ -240,6 +259,9 @@ internal sealed class AssertionEvaluator : IDisposable
             ids = new string[references.Length];
             texts = new string[references.Length];
             contents = new IFindingContent?[references.Length];
+            languages = new string[references.Length];
+            roles = new string[references.Length];
+            schemes = new string[references.Length];
         }
 
         var count = 0;
@@ -251,6 +273,9 @@ internal sealed class AssertionEvaluator : IDisposable
                 ids[count] = references[i].Id;
                 texts[count] = _reference.ToString();
                 contents[count] = content;
+                languages[count] = references[i].Language;
+                roles[count] = references[i].Role;
+                schemes[count] = references[i].Scheme;
                 count++;
             }
         }
