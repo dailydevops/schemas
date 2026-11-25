@@ -49,7 +49,7 @@ internal static class Qt3Xp20Rate
         File.AppendAllText(summaryPath, Render(counts, excluded), new UTF8Encoding(false));
     }
 
-    /// <summary>Publishes the total row to the job summary file; does nothing when the variable is not set.</summary>
+    /// <summary>Publishes the total row to the job summary file; does nothing when the variable is not set. The excluded count is always the full selection's, so a filtered run that executes only some test sets mixes partial counts with it; the CI job runs all test sets.</summary>
     public static async Task PublishAsync(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();

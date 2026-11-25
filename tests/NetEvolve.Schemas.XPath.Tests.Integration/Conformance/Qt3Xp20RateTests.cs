@@ -71,7 +71,7 @@ public class Qt3Xp20RateTests
         }
     }
 
-    /// <summary>Runs the whole selection once; the applicable and skipped cases are the selected cases, which are the catalog minus the excluded ones.</summary>
+    /// <summary>Runs the whole selection once; the applicable and skipped cases are the selected cases, which are the catalog minus the excluded ones. The catalog size is not read independently here (the total reduces to the selected count); an exclusion list that drifted from the catalog is caught by Qt3Xp20SelectionTests, which pins the catalog total. The test only runs under the conformance filter.</summary>
     [Test]
     [Explicit]
     [Category(ConformanceCategory.Name)]
