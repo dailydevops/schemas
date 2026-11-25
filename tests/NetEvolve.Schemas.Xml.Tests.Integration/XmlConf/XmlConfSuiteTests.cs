@@ -5,7 +5,6 @@ using NetEvolve.Schemas.Conformance.Baseline;
 using NetEvolve.Schemas.Conformance.Reporting;
 using NetEvolve.Schemas.Conformance.Results;
 
-[ConformanceLeg]
 public class XmlConfSuiteTests
 {
     /// <summary>The number of cases the pinned suite selects; a new release or a filter change moves it on purpose.</summary>

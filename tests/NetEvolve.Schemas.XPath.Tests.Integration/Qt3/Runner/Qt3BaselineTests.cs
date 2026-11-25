@@ -4,7 +4,6 @@ using NetEvolve.Schemas.Conformance.Reporting;
 using NetEvolve.Schemas.Conformance.Results;
 using NetEvolve.Schemas.XPath.Tests.Integration.Qt3.Engine;
 
-[ConformanceLeg]
 public class Qt3BaselineTests
 {
     /// <summary>Regenerates the baseline files from the current selection; run it with the explicit filter after a deliberate change.</summary>
