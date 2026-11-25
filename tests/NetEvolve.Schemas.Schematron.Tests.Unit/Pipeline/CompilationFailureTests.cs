@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Schematron.Tests.Unit.Pipeline;
+﻿namespace NetEvolve.Schemas.Schematron.Tests.Unit.Pipeline;
 
 using System;
 using System.Linq;
@@ -264,5 +264,35 @@ public class CompilationFailureTests
         var failure = BuildFailure(schema);
 
         await Assert.That(failure.Issues.Single().Code).IsEqualTo(SchematronDiagnosticCodes.DocumentDenied);
+    }
+
+    [Test]
+    public async Task VisitEachInAPatternOutsideTheSelectedPhase_Builds()
+    {
+        var schema = Wrap(
+            "<phase id=\"on\"><active pattern=\"p1\"/></phase>"
+                + "<pattern id=\"p1\"><rule context=\"a\"><assert test=\"true()\">m</assert></rule></pattern>"
+                + "<pattern id=\"p2\"><rule context=\"@a\" visit-each=\"tokenize(.)\"><assert test=\"true()\">m</assert></rule></pattern>",
+            " schematronEdition=\"2025\""
+        );
+
+        var validator = Builder(schema).WithPhase("on").BuildNow();
+
+        await Assert.That(validator).IsNotNull();
+    }
+
+    [Test]
+    public async Task VisitEachInAPatternOfTheSelectedPhase_IsUnsupported()
+    {
+        var schema = Wrap(
+            "<phase id=\"on\"><active pattern=\"p2\"/></phase>"
+                + "<pattern id=\"p1\"><rule context=\"a\"><assert test=\"true()\">m</assert></rule></pattern>"
+                + "<pattern id=\"p2\"><rule context=\"@a\" visit-each=\"tokenize(.)\"><assert test=\"true()\">m</assert></rule></pattern>",
+            " schematronEdition=\"2025\""
+        );
+
+        var failure = Capture(() => _ = Builder(schema).WithPhase("on").Build());
+
+        await Assert.That(failure.Issues.Single().Code).IsEqualTo(SchematronDiagnosticCodes.Unsupported);
     }
 }
