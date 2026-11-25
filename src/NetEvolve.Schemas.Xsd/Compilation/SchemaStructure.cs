@@ -79,7 +79,7 @@ internal static class SchemaStructure
             }
         }
 
-        var reached = model.Step(new HashSet<int> { 0 }, names);
+        var reached = model.Step(Positions.Start, names);
         return reached.Contains(names.Count);
     }
 
@@ -171,24 +171,140 @@ internal static class SchemaStructure
 
     private static Node Parse(string text) => new Parser(text).ParseAll();
 
+    // A set of positions in a child list, as a bit set. The first 64 positions are held inline, so a list of up to 64 children (all
+    // but a few elements of a schema document) matches without allocating; a longer list adds an array for the positions above.
+    private readonly struct Positions
+    {
+        private readonly ulong _low;
+        private readonly ulong[]? _high;
+
+        private Positions(ulong low, ulong[]? high)
+        {
+            _low = low;
+            _high = high;
+        }
+
+        internal static Positions Empty => default;
+
+        internal static Positions Start => new(1, null);
+
+        internal bool IsEmpty => _low == 0 && IsHighEmpty();
+
+        internal bool Contains(int position) => (Word(position >> 6) & (1UL << (position & 63))) != 0;
+
+        internal Positions Add(int position)
+        {
+            var index = position >> 6;
+            if (index == 0)
+            {
+                return new Positions(_low | (1UL << position), _high);
+            }
+
+            var high = new ulong[Math.Max(index, _high?.Length ?? 0)];
+            _high?.CopyTo(high, 0);
+            high[index - 1] |= 1UL << (position & 63);
+            return new Positions(_low, high);
+        }
+
+        internal Positions Union(Positions other)
+        {
+            if (_high is null && other._high is null)
+            {
+                return new Positions(_low | other._low, null);
+            }
+
+            var high = new ulong[Math.Max(_high?.Length ?? 0, other._high?.Length ?? 0)];
+            for (var i = 0; i < high.Length; i++)
+            {
+                high[i] = Word(i + 1) | other.Word(i + 1);
+            }
+
+            return new Positions(_low | other._low, high);
+        }
+
+        internal bool IsSupersetOf(Positions other)
+        {
+            if ((other._low & ~_low) != 0)
+            {
+                return false;
+            }
+
+            for (var i = 0; i < (other._high?.Length ?? 0); i++)
+            {
+                if ((other._high![i] & ~Word(i + 1)) != 0)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        // The first position from the given one on, or -1.
+        internal int Next(int from)
+        {
+            var words = 1 + (_high?.Length ?? 0);
+            var position = from;
+            while ((position >> 6) < words)
+            {
+                var bits = Word(position >> 6) >> (position & 63);
+                if (bits != 0)
+                {
+                    while ((bits & 1) == 0)
+                    {
+                        bits >>= 1;
+                        position++;
+                    }
+
+                    return position;
+                }
+
+                position = ((position >> 6) + 1) << 6;
+            }
+
+            return -1;
+        }
+
+        private ulong Word(int index) =>
+            index == 0 ? _low
+            : _high is not null && index <= _high.Length ? _high[index - 1]
+            : 0;
+
+        private bool IsHighEmpty()
+        {
+            if (_high is not null)
+            {
+                foreach (var word in _high)
+                {
+                    if (word != 0)
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+    }
+
     private abstract class Node
     {
         internal string Text { get; set; } = string.Empty;
 
         // The positions in the child list that follow from the given positions by matching this model.
-        internal abstract HashSet<int> Step(HashSet<int> from, List<string> names);
+        internal abstract Positions Step(Positions from, List<string> names);
     }
 
     private sealed class Name(string name) : Node
     {
-        internal override HashSet<int> Step(HashSet<int> from, List<string> names)
+        internal override Positions Step(Positions from, List<string> names)
         {
-            var to = new HashSet<int>();
-            foreach (var position in from)
+            var to = Positions.Empty;
+            for (var position = from.Next(0); position >= 0; position = from.Next(position + 1))
             {
                 if (position < names.Count && string.Equals(names[position], name, StringComparison.Ordinal))
                 {
-                    _ = to.Add(position + 1);
+                    to = to.Add(position + 1);
                 }
             }
 
@@ -198,7 +314,7 @@ internal static class SchemaStructure
 
     private sealed class Sequence(List<Node> items) : Node
     {
-        internal override HashSet<int> Step(HashSet<int> from, List<string> names)
+        internal override Positions Step(Positions from, List<string> names)
         {
             var current = from;
             foreach (var item in items)
@@ -212,12 +328,12 @@ internal static class SchemaStructure
 
     private sealed class Choice(List<Node> alternatives) : Node
     {
-        internal override HashSet<int> Step(HashSet<int> from, List<string> names)
+        internal override Positions Step(Positions from, List<string> names)
         {
-            var to = new HashSet<int>();
+            var to = Positions.Empty;
             foreach (var alternative in alternatives)
             {
-                to.UnionWith(alternative.Step(from, names));
+                to = to.Union(alternative.Step(from, names));
             }
 
             return to;
@@ -226,18 +342,13 @@ internal static class SchemaStructure
 
     private sealed class Repeat(Node item, bool allowsNone, bool allowsMany) : Node
     {
-        internal override HashSet<int> Step(HashSet<int> from, List<string> names)
+        internal override Positions Step(Positions from, List<string> names)
         {
-            var to = new HashSet<int>();
-            if (allowsNone)
-            {
-                to.UnionWith(from);
-            }
-
+            var to = allowsNone ? from : Positions.Empty;
             var current = item.Step(from, names);
-            while (current.Count > 0 && !to.IsSupersetOf(current))
+            while (!current.IsEmpty && !to.IsSupersetOf(current))
             {
-                to.UnionWith(current);
+                to = to.Union(current);
                 if (!allowsMany)
                 {
                     break;

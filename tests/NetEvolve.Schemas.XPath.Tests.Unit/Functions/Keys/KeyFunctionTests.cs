@@ -98,10 +98,15 @@ public class KeyFunctionTests
     public async Task Key_WithoutTheSlot_IsXPDY0002() =>
         await Assert.That(Run(null, "node:c", "string:k", "string:v")).IsEqualTo("error:XPDY0002");
 
-    // A provider that does not know the document is not enough for the function: its contract has no document and no top node (#777).
+    // The slot is typed as the one provider contract; no second interface is needed (#777).
     [Test]
-    public async Task Key_ProviderWithoutTheDocumentContract_IsXPDY0002() =>
-        await Assert.That(Run(new PlainProvider(), "node:c", "string:k", "string:v")).IsEqualTo("error:XPDY0002");
+    public async Task Key_SlotTypedAsTheContract_WorksForTwoAndThreeArguments()
+    {
+        IXPathKeyProvider provider = new FakeProvider();
+
+        await Assert.That(Run(provider, "node:c", "string:k", "string:v")).IsEqualTo("node:a,node:b");
+        await Assert.That(Run(provider, null, "string:k", "string:v", "node:b")).IsEqualTo("node:a,node:b");
+    }
 
     [Test]
     public async Task Key_UnknownKey_IsXTDE1260() =>
@@ -173,17 +178,11 @@ public class KeyFunctionTests
     }
 
     // The provider of the tests: the key 'k' finds a and b; 'no-document' is a tree without a document node; every other name is unknown.
-    private sealed class FakeProvider : IXPathDocumentKeyProvider
+    private sealed class FakeProvider : IXPathKeyProvider
     {
         internal List<string> Calls { get; } = [];
 
         internal List<XPathQName> Names { get; } = [];
-
-        public bool TryGetNodes(XPathQName name, in XdmItem value, out XdmSequence nodes)
-        {
-            nodes = XdmSequence.Empty;
-            return false;
-        }
 
         public bool TryLookup(
             in XPathQName name,
@@ -236,15 +235,6 @@ public class KeyFunctionTests
             }
 
             return "unknown";
-        }
-    }
-
-    private sealed class PlainProvider : IXPathKeyProvider
-    {
-        public bool TryGetNodes(XPathQName name, in XdmItem value, out XdmSequence nodes)
-        {
-            nodes = XdmSequence.Empty;
-            return false;
         }
     }
 }

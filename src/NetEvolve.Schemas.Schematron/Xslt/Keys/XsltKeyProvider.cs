@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Schematron.Xslt.Keys;
+﻿namespace NetEvolve.Schemas.Schematron.Xslt.Keys;
 
 using System;
 using System.Collections.Generic;
@@ -21,13 +21,11 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// thread-safe: one provider per run, as the run is.
 /// </summary>
 /// <remarks>
-/// The function <c>key</c> of the XPath package reaches the provider through <see cref="IXPathDocumentKeyProvider"/>, which names the
-/// context node or the top node (#776, #777); a problem of that lookup is an <see cref="XPathException"/>. Limitations: the lookup of
-/// the base contract <see cref="IXPathKeyProvider"/> has neither a context node nor a top node, so the provider answers it for
-/// <see cref="Document"/>. The index holds every matching node, so its size is proportional to the matches, as the key tables of
+/// The function <c>key</c> of the XPath package reaches the provider through <see cref="IXPathKeyProvider"/>, which names the
+/// context node or the top node (#776, #777); a problem of that lookup is an <see cref="XPathException"/>. The index holds every matching node, so its size is proportional to the matches, as the key tables of
 /// identity constraints are (design #146).
 /// </remarks>
-internal sealed class XsltKeyProvider : IXPathDocumentKeyProvider
+internal sealed class XsltKeyProvider : IXPathKeyProvider
 {
     private readonly XsltKeyTable _table;
     private readonly IPatternMatcher _matcher;
@@ -74,29 +72,13 @@ internal sealed class XsltKeyProvider : IXPathDocumentKeyProvider
     /// <summary>Gets the number of indexes built so far: one per key name and document that was looked up.</summary>
     internal int IndexBuilds { get; private set; }
 
-    /// <summary>Gets or sets the document that the lookup of the <see cref="IXPathKeyProvider"/> contract searches.</summary>
-    internal XPathNode Document { get; set; }
-
     /// <summary>Gets the problem of the last lookup that returned <see cref="QueryStatus.Problem"/> or <see langword="false"/>.</summary>
     /// <returns>The problem.</returns>
     internal SchematronProblem GetProblem() => _problem;
 
     /// <inheritdoc />
-    public bool TryGetNodes(XPathQName name, in XdmItem value, out XdmSequence nodes)
-    {
-        nodes = XdmSequence.Empty;
-        if (Document.Tree is null)
-        {
-            _problem = Problem(null, "The provider has no document to search.");
-            return false;
-        }
-
-        return TryLookup(in name, XdmSequence.Create(in value), Document, subtree: false, out nodes) == QueryStatus.Ok;
-    }
-
-    /// <inheritdoc />
     /// <exception cref="XPathException">The lookup is a problem (<see cref="TryLookup(in XPathQName, in XdmSequence, in XPathNode, bool, out XdmSequence)"/>); the code is the constraint of the problem, such as XTDE1260 or XTDE1270.</exception>
-    bool IXPathDocumentKeyProvider.TryLookup(
+    bool IXPathKeyProvider.TryLookup(
         in XPathQName name,
         in XdmSequence values,
         in XPathNode node,
