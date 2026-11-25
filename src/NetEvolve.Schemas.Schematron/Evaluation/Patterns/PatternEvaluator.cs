@@ -264,7 +264,17 @@ internal sealed class PatternEvaluator
                     nameKnown = true;
                 }
 
-                if (!names.Contains(name))
+                var listed = false;
+                foreach (var candidateName in names)
+                {
+                    if (candidateName.Equals(name))
+                    {
+                        listed = true;
+                        break;
+                    }
+                }
+
+                if (!listed)
                 {
                     continue;
                 }
