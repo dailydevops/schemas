@@ -198,4 +198,19 @@ public class SelectorTests
 
         await Assert.That(issues.Any(i => i.Constraint == "cvc-identity-constraint.3")).IsTrue();
     }
+
+    [Test]
+    [Arguments("@*", "xsi:nil=\"true\"")]
+    [Arguments("@*", "xsi:noNamespaceSchemaLocation=\"x.xsd\"")]
+    [Arguments("@xsi:nil", "xsi:nil=\"true\"")]
+    public async Task AttributeField_SelectingOnlyASchemaInstanceAttribute_IsAccepted(string field, string attribute)
+    {
+        var issues = Run(
+            "e",
+            "<r xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n<e " + attribute + "/>\n</r>",
+            field
+        );
+
+        await Assert.That(issues.Any(i => i.Constraint == "cvc-identity-constraint.3")).IsFalse();
+    }
 }
