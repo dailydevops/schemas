@@ -17,7 +17,7 @@ using NetEvolve.Schemas.Xsd.Validation.Core;
 /// with element-only or empty content, or with mixed content whose particle cannot be empty, cannot have a value constraint.
 /// </summary>
 /// <remarks>
-/// Limitations: the value is assessed through the assessor, so the own facets of a user-defined simple type are not evaluated (#600);
+/// Limitations: the value is assessed through the assessor, which evaluates the own facets of a user-defined simple type;
 /// the rule that an ID type may not carry a value constraint is not checked; the lexical value is not converted to its canonical
 /// form, as the specification does not need it for the check. An attribute use is checked against the type of its declaration; the
 /// agreement of a use with the value constraint of its declaration is checked when the use is built.
