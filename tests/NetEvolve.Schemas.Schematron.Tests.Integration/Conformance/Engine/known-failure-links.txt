@@ -13,23 +13,17 @@ iso-reporting/svrl-active-pattern-documents-primary.xml	#913	The documents attri
 iso-reporting/svrl-active-pattern-documents.xml	#913	The documents attribute is ignored: no subordinate document is validated and the SVRL does not name it.
 iso-reporting/svrl-diagnostic-fpi.xml	#916	The SVRL text of a diagnostic or property reference lacks fpi, icon, and see.
 iso-reporting/svrl-diagnostic-icon.xml	#916	The SVRL text of a diagnostic or property reference lacks fpi, icon, and see.
-iso-reporting/svrl-diagnostic-language.xml	#917	The SVRL output carries no xml:lang.
 iso-reporting/svrl-diagnostic-see.xml	#916	The SVRL text of a diagnostic or property reference lacks fpi, icon, and see.
-iso-reporting/svrl-failed-assert-lang.xml	#917	The SVRL output carries no xml:lang.
 iso-reporting/svrl-fired-rule-document-primary.xml	#913	The documents attribute is ignored: no subordinate document is validated and the SVRL does not name it.
 iso-reporting/svrl-fired-rule-document.xml	#913	The documents attribute is ignored: no subordinate document is validated and the SVRL does not name it.
 iso-reporting/svrl-name-path.xml	#919	The message of sch:name with a path holds the node name, the case expects the value.
-iso-reporting/svrl-pattern-abstract-lang.xml	#917	The SVRL output carries no xml:lang.
 iso-reporting/svrl-property-copy-of.xml	#914	A property with xsl:copy-of is reported NES3204 because no embedded content is wired into the pipeline.
 iso-reporting/svrl-property-fpi.xml	#916	The SVRL text of a diagnostic or property reference lacks fpi, icon, and see.
 iso-reporting/svrl-property-icon.xml	#916	The SVRL text of a diagnostic or property reference lacks fpi, icon, and see.
-iso-reporting/svrl-property-lang.xml	#917	The SVRL output carries no xml:lang.
 iso-reporting/svrl-property-role.xml	#918	The SVRL property-reference lacks role and scheme.
 iso-reporting/svrl-property-scheme.xml	#918	The SVRL property-reference lacks role and scheme.
 iso-reporting/svrl-property-see.xml	#916	The SVRL text of a diagnostic or property reference lacks fpi, icon, and see.
 iso-reporting/svrl-property-variable-copy-of-rule.xml	#914	A property with xsl:copy-of is reported NES3204 because no embedded content is wired into the pipeline.
-iso-reporting/svrl-rule-abstract-lang.xml	#917	The SVRL output carries no xml:lang.
-iso-reporting/svrl-successful-report-lang.xml	#917	The SVRL output carries no xml:lang.
 iso-rule-based-validation/let-value-element-content.xml	#877	A let with element content binds a document node (maintainer decision of #856), and the run reports NES3204 until the embedded content is wired (#914).
 iso-rule-based-validation/xsl-function.xml	#832	The functions and keys of a schema build, but the XPath of a rule cannot call them yet (#628, #832).
 iso-rule-based-validation/xsl-key-element-content.xml	#832	The functions and keys of a schema build, but the XPath of a rule cannot call them yet (#628, #832).
