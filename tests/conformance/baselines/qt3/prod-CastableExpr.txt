@@ -9,8 +9,6 @@ prod-CastableExpr/K-SeqExprCastable-15
 prod-CastableExpr/K-SeqExprCastable-16
 prod-CastableExpr/K-SeqExprCastable-22
 prod-CastableExpr/K2-SeqExprCastable-3
-prod-CastableExpr/K2-SeqExprCastable-6
-prod-CastableExpr/K2-SeqExprCastable-7
 prod-CastableExpr/K2-SeqExprCastable-8
 prod-CastableExpr/cbcl-castable-date-001
 prod-CastableExpr/cbcl-castable-date-002
