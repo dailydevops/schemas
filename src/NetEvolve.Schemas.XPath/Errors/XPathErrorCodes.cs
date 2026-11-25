@@ -157,6 +157,15 @@ internal static class XPathErrorCodes
         "XQST0039",
         "Two parameters of an inline function expression have the same name."
     );
+    internal static readonly XPathErrorCode XQDY0137 = Define(
+        "XQDY0137",
+        "A map constructor has two entries with the same key."
+    );
+    internal static readonly XPathErrorCode FOJS0003 = Define(
+        "FOJS0003",
+        "The input of map:merge has duplicate keys and the duplicates option is reject."
+    );
+    internal static readonly XPathErrorCode FOJS0005 = Define("FOJS0005", "An option has an invalid value.");
 
     internal static readonly XPathErrorCode FOAY0001 = Define("FOAY0001", "Array index out of bounds.");
     internal static readonly XPathErrorCode FOAY0002 = Define("FOAY0002", "Negative array length.");
@@ -192,7 +201,7 @@ internal static class XPathErrorCodes
             return XPathErrorKind.Type;
         }
 
-        if (name.StartsWith("XPDY", StringComparison.Ordinal))
+        if (name.StartsWith("XPDY", StringComparison.Ordinal) || name.StartsWith("XQDY", StringComparison.Ordinal))
         {
             return XPathErrorKind.Dynamic;
         }

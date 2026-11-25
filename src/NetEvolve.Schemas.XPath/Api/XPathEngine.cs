@@ -129,6 +129,9 @@ internal static class XPathEngine
         ComparisonLowerings.Register(registry, Comparison);
         FunctionItemLowerings.Register(registry, activeHost);
         ArrayLowerings.Register(registry);
+        registry.Register<MapConstructor>(
+            static (node, context) => Functions.Maps.MapConstructorNode.Lower(node, context)
+        );
         registry.Register<FunctionCall>((node, context) => LowerCall(node, context, activeHost));
         return registry;
     }
