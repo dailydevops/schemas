@@ -47,7 +47,7 @@ public class PatternXslt30Tests
     [Arguments("(/root/a)[@n = '1']", "a1")]
     [Arguments("(a/b)[@k]", "b2")]
     [Arguments("(@n | @k)[true()]", "a1n b2k a2n")]
-    [Arguments("(a|b)[@k] | e", "b2 e")]
+    [Arguments("(a|b)[@k] | p:e", "b2 e")]
     public async Task Matches_PredicateOnParenthesizedPattern_MatchesInnerPatternAndPredicates(
         string pattern,
         string expected
@@ -68,7 +68,7 @@ public class PatternXslt30Tests
     [Arguments("a | b except b[@k]", "a1 b1 a2 a2b")]
     [Arguments("(a|b)[@n] except a[@n = '1']", "a2")]
     [Arguments("* except a except b", "root e")]
-    [Arguments("a intersect b | e", "e")]
+    [Arguments("a intersect b | p:e", "e")]
     [Arguments("a union b intersect b[@k]", "a1 b2 a2")]
     public async Task Matches_IntersectAndExcept_CombineTheNodeSetsOfThePatterns(string pattern, string expected) =>
         await Assert.That(Keys(pattern)).IsEqualTo(expected);
@@ -85,16 +85,12 @@ public class PatternXslt30Tests
 
     // The prefilter of the plan: a node of the right side of intersect and except is a node of the left side too.
     [Test]
-    [Arguments("(a|@n)[true()]", QueryNodeKinds.Element | QueryNodeKinds.Attribute, "a;n")]
-    [Arguments("a intersect *", QueryNodeKinds.Element, "a")]
-    [Arguments("a except @n", QueryNodeKinds.Element, "a")]
-    [Arguments("* except a", QueryNodeKinds.Element, "")]
-    [Arguments("(a|*)[true()]", QueryNodeKinds.Element, "")]
-    public async Task Compile_Xslt30Form_PrefiltersByTheLeftAndUnionSides(
-        string pattern,
-        QueryNodeKinds kinds,
-        string names
-    )
+    [Arguments("(a|@n)[true()]", "Element, Attribute", "a;n")]
+    [Arguments("a intersect *", "Element", "a")]
+    [Arguments("a except @n", "Element", "a")]
+    [Arguments("* except a", "Element", "")]
+    [Arguments("(a|*)[true()]", "Element", "")]
+    public async Task Compile_Xslt30Form_PrefiltersByTheLeftAndUnionSides(string pattern, string kinds, string names)
     {
         var compiled = Compile(new PatternMatcher(new PatternTestBinding(true)), pattern);
         var rendered = new List<string>();
@@ -103,7 +99,7 @@ public class PatternXslt30Tests
             rendered.Add(name.LocalName);
         }
 
-        await Assert.That(compiled.NodeKinds).IsEqualTo(kinds);
+        await Assert.That(compiled.NodeKinds.ToString()).IsEqualTo(kinds);
         await Assert.That(string.Join(";", rendered)).IsEqualTo(names);
     }
 
@@ -119,8 +115,16 @@ public class PatternXslt30Tests
             "(/ubl-invoice:Invoice | /ubl-creditnote:CreditNote)[$supplierCountryIsDE and $customerCountryIsDE]",
             new QueryStaticScope(
                 [
-                    new NetEvolve.Schemas.Schematron.Model.SchematronNamespace(Fakes.FakeModel.Origin, "ubl-invoice", "urn:i"),
-                    new NetEvolve.Schemas.Schematron.Model.SchematronNamespace(Fakes.FakeModel.Origin, "ubl-creditnote", "urn:c"),
+                    new NetEvolve.Schemas.Schematron.Model.SchematronNamespace(
+                        Fakes.FakeModel.Origin,
+                        "ubl-invoice",
+                        "urn:i"
+                    ),
+                    new NetEvolve.Schemas.Schematron.Model.SchematronNamespace(
+                        Fakes.FakeModel.Origin,
+                        "ubl-creditnote",
+                        "urn:c"
+                    ),
                 ],
                 ["supplierCountryIsDE", "customerCountryIsDE"],
                 null,
