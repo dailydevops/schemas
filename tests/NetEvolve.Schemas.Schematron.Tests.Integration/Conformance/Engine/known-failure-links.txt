@@ -27,4 +27,3 @@ iso-schema-composition/extends-href-fragment-xml-id.xml	#575	A fragment identifi
 iso-schema-composition/extends-recursive.xml	#575	An extends with href needs a library that holds exactly one abstract rule; a rule document with a recursive extends is not accepted (NES3101).
 iso-schema-composition/include-href-fragment-xml-id-preserve-ns.xml	#575	A fragment identifier in the href of include and extends is not supported (NES3007).
 iso-schema-composition/include-href-fragment-xml-id.xml	#575	A fragment identifier in the href of include and extends is not supported (NES3007).
-iso-schema-composition/rule-abstract-scope-error.xml	#921	An extends of an abstract rule of another pattern builds, the case expects an error.
