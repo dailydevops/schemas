@@ -28,22 +28,16 @@ internal readonly struct ItemTypeMatcher
     private readonly ItemTypeKind _kind;
     private readonly XPathNodeTest _test;
     private readonly XdmTypeId _type;
-    private readonly FunctionSignature? _function;
-    private readonly SequenceTypeMatcher? _member;
 
-    private ItemTypeMatcher(
-        ItemTypeKind kind,
-        XPathNodeTest test,
-        XdmTypeId type,
-        FunctionSignature? function = null,
-        SequenceTypeMatcher? member = null
-    )
+    // The signature of a typed function test, or the matcher of the members of a typed array test: one slot, so that the struct does not grow for every compiled type.
+    private readonly object? _detail;
+
+    private ItemTypeMatcher(ItemTypeKind kind, XPathNodeTest test, XdmTypeId type, object? detail = null)
     {
         _kind = kind;
         _test = test;
         _type = type;
-        _function = function;
-        _member = member;
+        _detail = detail;
     }
 
     /// <summary>Gets a value indicating whether every item matches.</summary>
@@ -53,7 +47,7 @@ internal readonly struct ItemTypeMatcher
     public XdmTypeId Type => _type;
 
     /// <summary>Gets the signature of a typed function test; <see langword="null"/> for <c>function(*)</c> and for every other matcher.</summary>
-    public FunctionSignature? FunctionSignature => _function;
+    public FunctionSignature? FunctionSignature => _detail as FunctionSignature;
 
     /// <summary>Binds an item type.</summary>
     /// <param name="itemType">The syntax of the item type.</param>
@@ -82,7 +76,7 @@ internal readonly struct ItemTypeMatcher
                     ItemTypeKind.Array,
                     default,
                     default,
-                    member: SequenceTypeMatcher.Create(typedArray.MemberType, context)
+                    SequenceTypeMatcher.Create(typedArray.MemberType, context)
                 );
             case AnyFunctionTest:
                 return new(ItemTypeKind.Function, default, default);
@@ -122,7 +116,7 @@ internal readonly struct ItemTypeMatcher
                 return XdmArray.TryGet(item, out var array) && MembersMatch(array!, annotations);
             case ItemTypeKind.Function:
                 return item.TryGetFunction(out var function)
-                    && (_function is null || function!.Signature.IsSubtypeOf(_function));
+                    && (_detail is not FunctionSignature signature || function!.Signature.IsSubtypeOf(signature));
             default:
                 break;
         }
@@ -148,14 +142,14 @@ internal readonly struct ItemTypeMatcher
 
     private bool MembersMatch(XdmArray array, IXdmTypeAnnotationSource annotations)
     {
-        if (_member is null)
+        if (_detail is not SequenceTypeMatcher member)
         {
             return true;
         }
 
         for (var i = 0; i < array.Size; i++)
         {
-            if (!_member.Matches(array[i], annotations))
+            if (!member.Matches(array[i], annotations))
             {
                 return false;
             }
