@@ -1,5 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Functions.Regex;
 
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using NetEvolve.Arguments;
@@ -35,6 +36,7 @@ internal sealed class PatternCache
     private const int Slots = 16;
 
     private readonly ConditionalWeakTable<string, RegexOperations?[]> _entries = new();
+    private readonly ConditionalWeakTable<RegexOperations, int[]> _parents = new();
     private int _compilations;
 
     /// <summary>Gets the cache of the built-in functions, shared by <c>fn:matches</c>, <c>fn:replace</c>, and <c>fn:tokenize</c>.</summary>
@@ -75,7 +77,13 @@ internal sealed class PatternCache
         return Interlocked.CompareExchange(ref slots[slot], operations, null) ?? operations;
     }
 
-    private static RegexOperations Compile(string pattern, RegexOptions options)
+    /// <summary>Gets the enclosing capture group of each capture group of a pattern that this cache compiled.</summary>
+    /// <param name="operations">The operations, as <see cref="Get"/> returned them.</param>
+    /// <returns>An array indexed by group number whose entry is the number of the innermost capture group around that group, zero for none.</returns>
+    internal int[] GroupParents(RegexOperations operations) =>
+        _parents.TryGetValue(operations, out var parents) ? parents : [];
+
+    private RegexOperations Compile(string pattern, RegexOptions options)
     {
         var parsed = RegexParser.Parse(
             pattern.AsSpan(),
@@ -87,6 +95,42 @@ internal sealed class PatternCache
         }
 
         var created = RegexOperations.TryCreate(parsed.Tree!, out var operations);
-        return created == RegexError.None ? operations! : throw RegexErrors.Pattern(created);
+        if (created != RegexError.None)
+        {
+            throw RegexErrors.Pattern(created);
+        }
+
+        var parents = Parents(parsed.Tree!, operations!.GroupCount);
+        _ = _parents.GetValue(operations, _ => parents);
+        return operations;
+    }
+
+    private static int[] Parents(RegexTree tree, int groupCount)
+    {
+        var parents = new int[groupCount + 1];
+        var nodes = tree.Nodes;
+        var pending = new Stack<(int Node, int Parent)>();
+        pending.Push((tree.Root, 0));
+        while (pending.Count > 0)
+        {
+            var (index, parent) = pending.Pop();
+            for (; index != RegexNode.NoNode; index = nodes[index].NextSibling)
+            {
+                var node = nodes[index];
+                var inner = parent;
+                if (node.Kind == RegexNodeKind.Group && node.Value != RegexNode.NoGroup)
+                {
+                    parents[node.Value] = parent;
+                    inner = node.Value;
+                }
+
+                if (node.FirstChild != RegexNode.NoNode)
+                {
+                    pending.Push((node.FirstChild, inner));
+                }
+            }
+        }
+
+        return parents;
     }
 }
