@@ -1,4 +1,4 @@
-﻿namespace NetEvolve.Schemas.XPath.Functions.Regex;
+namespace NetEvolve.Schemas.XPath.Functions.Regex;
 
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;

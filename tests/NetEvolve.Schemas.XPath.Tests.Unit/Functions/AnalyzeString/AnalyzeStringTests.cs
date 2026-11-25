@@ -1,4 +1,4 @@
-﻿namespace NetEvolve.Schemas.XPath.Tests.Unit.Functions.AnalyzeString;
+namespace NetEvolve.Schemas.XPath.Tests.Unit.Functions.AnalyzeString;
 
 using System.Text;
 using System.Threading;
