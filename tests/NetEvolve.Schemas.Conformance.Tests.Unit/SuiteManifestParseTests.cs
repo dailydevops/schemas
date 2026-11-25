@@ -2,7 +2,7 @@ namespace NetEvolve.Schemas.Conformance.Tests.Unit;
 
 using NetEvolve.Schemas.Conformance.Manifest;
 
-public class ConformanceLegTests
+public class SuiteManifestParseTests
 {
     [Test]
     public async Task Parse_OnEveryTestLeg_ReadsManifest()
