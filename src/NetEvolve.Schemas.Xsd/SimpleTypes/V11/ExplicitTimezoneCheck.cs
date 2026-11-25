@@ -29,7 +29,7 @@ using NetEvolve.Schemas.Xsd.SimpleTypes.Definitions;
 /// <see cref="SimpleTypeFacetCheck"/> ignores <c>explicitTimezone</c> (XSD-54), so the caller runs both checks on a step and merges the
 /// <see cref="FacetCheckResult.Fixed"/> sets. Limitations: <c>xs:dateTimeStamp</c> requires the timezone in its lexical mapping and its
 /// datatype carries no facet, so a base derived from it is read as <see langword="required"/>; the facets of a base that is not built in
-/// are read from its facet list; the evaluation of the own facets of a user-defined type is #600; nothing calls the check until the
+/// are read from its facet list; nothing calls the check until the
 /// compile pipeline is wired (XSD-75, XSD-78).
 /// </para>
 /// </remarks>

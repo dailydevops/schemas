@@ -7,6 +7,7 @@ using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xml.Datatypes.Facets.Core;
 using NetEvolve.Schemas.Xml.Datatypes.Facets.Ordered;
 using NetEvolve.Schemas.Xml.Datatypes.Facets.Pattern;
+using NetEvolve.Schemas.Xml.Datatypes.Numeric;
 using NetEvolve.Schemas.Xsd.Compilation;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.SimpleTypes.Checks;
@@ -131,9 +132,19 @@ public class FacetFactoryTests
     }
 
     [Test]
+    public async Task Enumeration_OfAnOrderedFamily_IsCarriedAsATypedFacet()
+    {
+        var integers = Facets("xs:int", "<xs:enumeration value=\"1\"/><xs:enumeration value=\"2\"/>");
+        var booleans = Facets("xs:boolean", "<xs:enumeration value=\"true\"/>");
+
+        await Assert.That(integers.Single()).IsTypeOf<EnumerationFacet<XsdInteger>>();
+        await Assert.That(booleans.Single()).IsTypeOf<EnumerationFacet<bool>>();
+    }
+
+    [Test]
     public async Task Facets_OfAFamilyThatDoesNotCarryThem_AreLeftOut()
     {
-        var enumerated = Facets("xs:int", "<xs:enumeration value=\"1\"/>");
+        var enumerated = Facets("xs:hexBinary", "<xs:enumeration value=\"0A\"/>");
         var digits = Facets("xs:string", "<xs:totalDigits value=\"2\"/>");
         var bound = Facets("xs:boolean", "<xs:minInclusive value=\"true\"/>");
 

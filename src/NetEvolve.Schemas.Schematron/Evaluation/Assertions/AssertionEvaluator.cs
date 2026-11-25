@@ -3,7 +3,6 @@ namespace NetEvolve.Schemas.Schematron.Evaluation.Assertions;
 using System;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Evaluation.Annotations;
-using NetEvolve.Schemas.Schematron.Results.Mapping;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.XPath.Xdm.Nodes;
 
@@ -22,7 +21,7 @@ internal sealed class AssertionEvaluator : IDisposable
 {
     private readonly IQueryRun _run;
     private readonly ISlotBinder _binder;
-    private readonly IssueMapper _events;
+    private readonly IEvaluationEvents _events;
     private readonly IProblemSink _problems;
     private readonly string? _source;
     private readonly MessageBuilder _builder;
@@ -50,7 +49,7 @@ internal sealed class AssertionEvaluator : IDisposable
     internal AssertionEvaluator(
         IQueryRun run,
         ISlotBinder binder,
-        IssueMapper events,
+        IEvaluationEvents events,
         IProblemSink problems,
         string? instanceSystemId,
         int maxTextLength,

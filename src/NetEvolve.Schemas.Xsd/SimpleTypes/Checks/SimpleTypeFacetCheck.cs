@@ -32,7 +32,7 @@ using NetEvolve.Schemas.Xsd.Validation.Core;
 /// <para>
 /// Limitations: <c>explicitTimezone</c> (XSD-25) and <c>assertions</c> (XSD-70) are not checked and are ignored; the facets of a base
 /// type that is not built in are read from its facet list, so a facet that the list does not model is not compared; an enumeration
-/// value is assessed against the datatype chain of the base type, so own facets of a user-defined base are not evaluated (#600);
+/// value is assessed through the assessor, which evaluates the own facets of a user-defined base;
 /// a pattern is checked only for being a valid expression, because the specification defines no relation between the patterns of a
 /// type and its base; a length or digits value beyond <see cref="int.MaxValue"/> is treated as <see cref="int.MaxValue"/>. Bounds that
 /// are not ordered against each other, such as a dateTime without timezone inside the 14 hour window, are an error.

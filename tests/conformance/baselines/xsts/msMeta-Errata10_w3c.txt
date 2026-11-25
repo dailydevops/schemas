@@ -1,6 +1,5 @@
 1.0/errC005/errC005
 1.0/errC006/errC006
-1.0/errF001/errF001.i
 1.1/errA001/errA001
 1.1/errA001/errA001.v
 1.1/errA002/errA002

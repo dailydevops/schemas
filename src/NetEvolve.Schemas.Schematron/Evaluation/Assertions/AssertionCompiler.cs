@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Evaluation.Annotations;
 using NetEvolve.Schemas.Schematron.Model;
-using NetEvolve.Schemas.Schematron.Results.Mapping;
 using NetEvolve.Schemas.Schematron.Scopes;
 using NetEvolve.Schemas.Schematron.Seams;
 
