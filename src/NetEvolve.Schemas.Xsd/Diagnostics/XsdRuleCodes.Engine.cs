@@ -51,7 +51,7 @@ public static partial class XsdRuleCodes
     /// <summary>XSD 1.1 construct the inheritable attribute is not allowed in strict 1.0 mode.</summary>
     public static readonly DiagnosticCode Strict10Inheritable = new(4031);
 
-    /// <summary>XSD 1.1 construct the targetNamespace attribute on a local declaration is not allowed in strict 1.0 mode.</summary>
+    /// <summary>XSD 1.1 construct the targetNamespace attribute on a declaration is not allowed in strict 1.0 mode.</summary>
     public static readonly DiagnosticCode Strict10LocalTargetNamespace = new(4032);
 
     /// <summary>XSD 1.1 construct the explicitTimezone facet is not allowed in strict 1.0 mode.</summary>
@@ -242,7 +242,7 @@ public static partial class XsdRuleCodes
         new(
             Strict10LocalTargetNamespace,
             "strict10-local-target-namespace",
-            "XSD 1.1 construct the targetNamespace attribute on a local declaration is not allowed in strict 1.0 mode",
+            "XSD 1.1 construct the targetNamespace attribute on a declaration is not allowed in strict 1.0 mode",
             XsdRuleKind.Strict10Rejection,
             XsdVersionMask.V10,
             "Structures 1.1, 3.2.2"
