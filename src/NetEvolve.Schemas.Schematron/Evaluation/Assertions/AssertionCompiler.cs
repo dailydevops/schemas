@@ -146,11 +146,16 @@ internal static class AssertionCompiler
         IProblemSink problems,
         out CompiledMessage? compiled,
         string? role = null,
-        string? scheme = null
+        string? scheme = null,
+        string? fpi = null,
+        string? icon = null,
+        string? see = null
     )
     {
         var ok = TryCompileParts(binding, message.Parts, scope, problems, out var parts);
-        compiled = ok ? new CompiledMessage(id, message.Location, parts!, message.Language, role, scheme) : null;
+        compiled = ok
+            ? new CompiledMessage(id, message.Location, parts!, message.Language, role, scheme, fpi, icon, see)
+            : null;
         return ok;
     }
 
@@ -274,7 +279,10 @@ internal static class AssertionCompiler
                     problems,
                     out var message,
                     found.Value.Role,
-                    found.Value.Scheme
+                    found.Value.Scheme,
+                    found.Value.Fpi,
+                    found.Value.Icon,
+                    found.Value.See
                 )
             )
             {
@@ -290,11 +298,14 @@ internal static class AssertionCompiler
         return ok;
     }
 
-    private static (SchematronMessage Message, string? Role, string? Scheme)? Find(
-        SchematronSchema schema,
-        string id,
-        bool isProperty
-    )
+    private static (
+        SchematronMessage Message,
+        string? Role,
+        string? Scheme,
+        string? Fpi,
+        string? Icon,
+        string? See
+    )? Find(SchematronSchema schema, string id, bool isProperty)
     {
         if (isProperty)
         {
@@ -303,7 +314,15 @@ internal static class AssertionCompiler
             {
                 if (string.Equals(properties[i].Id, id, StringComparison.Ordinal))
                 {
-                    return (properties[i].Message, properties[i].Role, properties[i].Scheme);
+                    var property = properties[i];
+                    return (
+                        property.Message,
+                        property.Role,
+                        property.Scheme,
+                        property.Fpi,
+                        property.Icon,
+                        property.See
+                    );
                 }
             }
 
@@ -315,7 +334,8 @@ internal static class AssertionCompiler
         {
             if (string.Equals(diagnostics[i].Id, id, StringComparison.Ordinal))
             {
-                return (diagnostics[i].Message, null, null);
+                var diagnostic = diagnostics[i];
+                return (diagnostic.Message, null, null, diagnostic.Fpi, diagnostic.Icon, diagnostic.See);
             }
         }
 

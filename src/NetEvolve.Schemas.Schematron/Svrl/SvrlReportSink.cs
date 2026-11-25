@@ -378,6 +378,9 @@ public sealed class SvrlReportSink : ISchematronReportSink, IAsyncDisposable, ID
             _body.PutText(references.IdAt(i));
             _body.PutText(references.RoleAt(i));
             _body.PutText(references.SchemeAt(i));
+            _body.PutText(references.FpiAt(i));
+            _body.PutText(references.IconAt(i));
+            _body.PutText(references.SeeAt(i));
             _body.PutText(references.TextAt(i));
             _body.PutText(references.LanguageAt(i));
             _body.PutNumber(Keep(references.ContentAt(i)));
@@ -528,11 +531,14 @@ public sealed class SvrlReportSink : ISchematronReportSink, IAsyncDisposable, ID
             _xml.Attribute(attribute, reader.ReadText());
             Attribute(_names.Role, reader.ReadText());
             Attribute(_names.Scheme, reader.ReadText());
+            var fpi = reader.ReadText();
+            var icon = reader.ReadText();
+            var see = reader.ReadText();
             _xml.EndAttributes();
             var text = reader.ReadText();
             var language = reader.ReadText();
             var kept = reader.ReadNumber();
-            WriteText(text, kept == 0 ? null : _contents[kept - 1], language);
+            WriteText(text, kept == 0 ? null : _contents[kept - 1], language, fpi, icon, see);
             Close(element);
         }
     }
@@ -540,10 +546,16 @@ public sealed class SvrlReportSink : ISchematronReportSink, IAsyncDisposable, ID
     private void WriteText(
         ReadOnlySpan<char> text,
         IFindingContent? content = null,
-        ReadOnlySpan<char> language = default
+        ReadOnlySpan<char> language = default,
+        ReadOnlySpan<char> fpi = default,
+        ReadOnlySpan<char> icon = default,
+        ReadOnlySpan<char> see = default
     )
     {
         Open(_names.Text);
+        Attribute(_names.Fpi, fpi);
+        Attribute(_names.Icon, icon);
+        Attribute(_names.See, see);
         Language(language);
 
         // The attributes that xsl:copy-of copied belong to this element, so they precede the end of its start tag.

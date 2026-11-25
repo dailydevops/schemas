@@ -33,11 +33,13 @@ internal sealed class AssertionEvaluator : IDisposable
     private string[] _diagnosticIds = [];
     private string[] _diagnosticTexts = [];
     private string[] _diagnosticLanguages = [];
+    private CompiledMessage[] _diagnosticSources = [];
     private string[] _propertyIds = [];
     private string[] _propertyTexts = [];
     private string[] _propertyLanguages = [];
     private string[] _propertyRoles = [];
     private string[] _propertySchemes = [];
+    private CompiledMessage[] _propertySources = [];
     private IFindingContent?[] _propertyContents = [];
 
     /// <summary>Initializes a new instance of the <see cref="AssertionEvaluator"/> class.</summary>
@@ -134,7 +136,8 @@ internal sealed class AssertionEvaluator : IDisposable
             ref _propertyContents,
             ref _propertyLanguages,
             ref _propertyRoles,
-            ref _propertySchemes
+            ref _propertySchemes,
+            ref _propertySources
         );
 
         ReadOnlySpan<char> path = default;
@@ -165,7 +168,8 @@ internal sealed class AssertionEvaluator : IDisposable
             new SchematronReferenceList(
                 _diagnosticIds.AsSpan(0, diagnostics),
                 _diagnosticTexts.AsSpan(0, diagnostics),
-                languages: _diagnosticLanguages.AsSpan(0, diagnostics)
+                languages: _diagnosticLanguages.AsSpan(0, diagnostics),
+                sources: _diagnosticSources.AsSpan(0, diagnostics)
             ),
             new SchematronReferenceList(
                 _propertyIds.AsSpan(0, properties),
@@ -173,7 +177,8 @@ internal sealed class AssertionEvaluator : IDisposable
                 _propertyContents.AsSpan(0, properties),
                 _propertyLanguages.AsSpan(0, properties),
                 _propertyRoles.AsSpan(0, properties),
-                _propertySchemes.AsSpan(0, properties)
+                _propertySchemes.AsSpan(0, properties),
+                _propertySources.AsSpan(0, properties)
             ),
             issue,
             assertion.Message.Language.AsSpan()
@@ -224,6 +229,7 @@ internal sealed class AssertionEvaluator : IDisposable
             _diagnosticIds = new string[references.Length];
             _diagnosticTexts = new string[references.Length];
             _diagnosticLanguages = new string[references.Length];
+            _diagnosticSources = new CompiledMessage[references.Length];
         }
 
         var count = 0;
@@ -235,6 +241,7 @@ internal sealed class AssertionEvaluator : IDisposable
                 _diagnosticIds[count] = references[i].Id;
                 _diagnosticTexts[count] = _reference.ToString();
                 _diagnosticLanguages[count] = references[i].Language;
+                _diagnosticSources[count] = references[i];
                 count++;
             }
         }
@@ -251,7 +258,8 @@ internal sealed class AssertionEvaluator : IDisposable
         ref IFindingContent?[] contents,
         ref string[] languages,
         ref string[] roles,
-        ref string[] schemes
+        ref string[] schemes,
+        ref CompiledMessage[] sources
     )
     {
         if (ids.Length < references.Length)
@@ -262,6 +270,7 @@ internal sealed class AssertionEvaluator : IDisposable
             languages = new string[references.Length];
             roles = new string[references.Length];
             schemes = new string[references.Length];
+            sources = new CompiledMessage[references.Length];
         }
 
         var count = 0;
@@ -276,6 +285,7 @@ internal sealed class AssertionEvaluator : IDisposable
                 languages[count] = references[i].Language;
                 roles[count] = references[i].Role;
                 schemes[count] = references[i].Scheme;
+                sources[count] = references[i];
                 count++;
             }
         }

@@ -3,6 +3,7 @@
 namespace NetEvolve.Schemas.Schematron;
 
 using System;
+using NetEvolve.Schemas.Schematron.Evaluation.Assertions;
 using NetEvolve.Schemas.Schematron.Seams;
 
 /// <summary>The ids and rendered texts of the diagnostics or properties an assertion references. Valid only during the callback.</summary>
@@ -14,6 +15,7 @@ public readonly ref struct SchematronReferenceList
     private readonly ReadOnlySpan<string> _languages;
     private readonly ReadOnlySpan<string> _roles;
     private readonly ReadOnlySpan<string> _schemes;
+    private readonly ReadOnlySpan<CompiledMessage> _sources;
 
     internal SchematronReferenceList(
         ReadOnlySpan<string> ids,
@@ -21,7 +23,8 @@ public readonly ref struct SchematronReferenceList
         ReadOnlySpan<IFindingContent?> contents = default,
         ReadOnlySpan<string> languages = default,
         ReadOnlySpan<string> roles = default,
-        ReadOnlySpan<string> schemes = default
+        ReadOnlySpan<string> schemes = default,
+        ReadOnlySpan<CompiledMessage> sources = default
     )
     {
         _ids = ids;
@@ -30,6 +33,7 @@ public readonly ref struct SchematronReferenceList
         _languages = languages;
         _roles = roles;
         _schemes = schemes;
+        _sources = sources;
     }
 
     /// <summary>Gets the language in effect for a reference (the nearest <c>xml:lang</c>), or an empty string when it has none.</summary>
@@ -46,6 +50,21 @@ public readonly ref struct SchematronReferenceList
     /// <param name="index">The zero-based index.</param>
     /// <returns>The scheme.</returns>
     internal string SchemeAt(int index) => (uint)index < (uint)_schemes.Length ? _schemes[index] : string.Empty;
+
+    /// <summary>Gets the <c>fpi</c> of a diagnostic or property reference, or an empty string when it has none (#916).</summary>
+    /// <param name="index">The zero-based index.</param>
+    /// <returns>The formal public identifier.</returns>
+    internal string FpiAt(int index) => (uint)index < (uint)_sources.Length ? _sources[index].Fpi : string.Empty;
+
+    /// <summary>Gets the <c>icon</c> of a diagnostic or property reference, or an empty string when it has none (#916).</summary>
+    /// <param name="index">The zero-based index.</param>
+    /// <returns>The icon.</returns>
+    internal string IconAt(int index) => (uint)index < (uint)_sources.Length ? _sources[index].Icon : string.Empty;
+
+    /// <summary>Gets the <c>see</c> of a diagnostic or property reference, or an empty string when it has none (#916).</summary>
+    /// <param name="index">The zero-based index.</param>
+    /// <returns>The see value.</returns>
+    internal string SeeAt(int index) => (uint)index < (uint)_sources.Length ? _sources[index].See : string.Empty;
 
     /// <summary>
     /// Gets the structured content of a reference, which a property with <c>xsl:copy-of</c> has besides its text, or <see langword="null"/>
