@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Xml.Tests.Unit.Regex.Matching;
+﻿namespace NetEvolve.Schemas.Xml.Tests.Unit.Regex.Matching;
 
 using NetEvolve.Schemas.Testing.Allocations;
 using NetEvolve.Schemas.Xml.Regex.Contracts;
@@ -158,6 +158,35 @@ public class RegexProgramTests
 
         await Assert.That(t.TryCompile(RegexDialect.XPath)).IsEqualTo(RegexError.None);
         await Assert.That(t.Compile(RegexDialect.XPath).Match("abc", Limits)).IsEqualTo(RegexMatchResult.NoMatch);
+    }
+
+    [Test]
+    [Arguments(0)]
+    [Arguments(1)]
+    [Arguments(2)]
+    public async Task Repeat_HugeCountOfAnEmptyBody_CompilesAndMatchesTheEmptyString(int kind)
+    {
+        var t = new TreeBuilder();
+        var body = kind switch
+        {
+            0 => t.Alt(),
+            1 => t.Concat(),
+            _ => t.Group(t.Concat()),
+        };
+        t.WithRoot(t.Repeat(body, int.MaxValue, int.MaxValue));
+
+        await Assert.That(t.TryCompile(RegexDialect.XPath)).IsEqualTo(RegexError.None);
+        await Assert.That(t.Compile(RegexDialect.XPath).Match(string.Empty, Limits)).IsEqualTo(RegexMatchResult.Match);
+    }
+
+    [Test]
+    public async Task Repeat_ZeroMinimumWithHugeMaximum_SkipsTheMinimumLengthGuard()
+    {
+        var t = new TreeBuilder();
+        t.WithRoot(t.Repeat(t.Char('a'), 0, 3));
+
+        await Assert.That(t.TryCompile(RegexDialect.XPath)).IsEqualTo(RegexError.None);
+        await Assert.That(t.Compile(RegexDialect.XPath).Match("aa", Limits)).IsEqualTo(RegexMatchResult.Match);
     }
 
     [Test]
