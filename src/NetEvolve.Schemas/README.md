@@ -169,7 +169,7 @@ The limits of a validation are `ValidationLimits`, which is immutable. Every lim
 
 ## Requirements
 
-- .NET Standard 2.0, .NET 10, or .NET 11 (the package targets `netstandard2.0`, `net10.0`, and `net11.0`; the tests run on `net5.0`, `net10.0`, and `net11.0`, and `net5.0` runs the `netstandard2.0` build)
+- .NET Standard 2.0, .NET 10, or .NET 11 (the package targets `netstandard2.0`, `net10.0`, and `net11.0`; the tests run on `net9.0`, `net10.0`, and `net11.0`, and `net9.0` runs the `netstandard2.0` build)
 - `NetEvolve.Arguments` as a dependency; on `netstandard2.0` also `Microsoft.Bcl.AsyncInterfaces`, `System.Memory`, and `System.Threading.Tasks.Extensions`
 
 ## Related Packages

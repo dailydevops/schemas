@@ -11,6 +11,12 @@
 
     <DisableRecommendedPackage>Meziantou.Analyzer</DisableRecommendedPackage>
   </PropertyGroup>
+  <!-- Target frameworks are defined here only: libraries, benchmarks and tests each get one fixed set. -->
+  <PropertyGroup>
+    <TargetFrameworks Condition="$(MSBuildProjectDirectory.StartsWith('$(MSBuildThisFileDirectory)src'))">netstandard2.0;net10.0;net11.0</TargetFrameworks>
+    <TargetFrameworks Condition="$(MSBuildProjectDirectory.StartsWith('$(MSBuildThisFileDirectory)benchmarks'))">net10.0;net11.0</TargetFrameworks>
+    <TargetFrameworks Condition="$(MSBuildProjectDirectory.StartsWith('$(MSBuildThisFileDirectory)tests'))">net9.0;net10.0;net11.0</TargetFrameworks>
+  </PropertyGroup>
   <!-- Only the core library is packable; every other project stays unpackaged until its package lands. -->
   <PropertyGroup Condition="'$(MSBuildProjectName)' != 'NetEvolve.Schemas'">
     <IsPackable>false</IsPackable>

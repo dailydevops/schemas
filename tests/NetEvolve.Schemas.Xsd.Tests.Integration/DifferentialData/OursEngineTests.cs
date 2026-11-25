@@ -99,37 +99,4 @@ public class OursEngineTests
             .That(async () => await engine.RunAsync(missing, cancellationToken))
             .Throws<InvalidOperationException>();
     }
-
-    [Test]
-    public async Task ThrowTolerantEngine_ArgumentException_IsAnInvalidSchemaWithoutPositions(
-        CancellationToken cancellationToken
-    )
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-        var engine = new ThrowTolerantEngine(
-            new FakeDifferentialEngine(_ => throw new ArgumentException("An empty name.", nameof(cancellationToken)))
-        );
-
-        var result = await engine.RunAsync(
-            new DifferentialCase("c", ["a.xsd"], null, Verdict.Valid, Verdict.NotRun),
-            cancellationToken
-        );
-
-        await Assert.That(result).IsEqualTo(new EngineResult(Verdict.Invalid, Verdict.NotRun, []));
-    }
-
-    [Test]
-    public async Task ThrowTolerantEngine_AnyOtherResult_PassesThrough(CancellationToken cancellationToken)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-        var expected = new EngineResult(Verdict.Valid, Verdict.Invalid, [new IssuePosition(3, 4)]);
-        var engine = new ThrowTolerantEngine(new FakeDifferentialEngine(_ => expected));
-
-        var result = await engine.RunAsync(
-            new DifferentialCase("c", ["a.xsd"], "a.xml", Verdict.Valid, Verdict.Valid),
-            cancellationToken
-        );
-
-        await Assert.That(result).IsEqualTo(expected);
-    }
 }

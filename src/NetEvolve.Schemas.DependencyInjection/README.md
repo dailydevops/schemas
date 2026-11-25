@@ -218,7 +218,7 @@ The `configure` callbacks are the only configuration surface. They run once, on 
 
 ## Requirements
 
-- .NET Standard 2.0, .NET 10, or .NET 11 (the package targets `netstandard2.0`, `net10.0`, and `net11.0`; the tests run on `net5.0`, `net10.0`, and `net11.0`, and `net5.0` runs the `netstandard2.0` build)
+- .NET Standard 2.0, .NET 10, or .NET 11 (the package targets `netstandard2.0`, `net10.0`, and `net11.0`; the tests run on `net9.0`, `net10.0`, and `net11.0`, and `net9.0` runs the `netstandard2.0` build)
 - `NetEvolve.Schemas`, `Microsoft.Extensions.DependencyInjection.Abstractions`, and `NetEvolve.Arguments` as dependencies; the XSD, Schematron, and DTD registrations come with `NetEvolve.Schemas.Xsd`, `NetEvolve.Schemas.Schematron`, and `NetEvolve.Schemas.Xml`; on `netstandard2.0` also `Microsoft.Bcl.AsyncInterfaces`, `System.Memory`, and `System.Threading.Tasks.Extensions`
 - A container that implements `IKeyedServiceProvider` for the keyed methods, for example `Microsoft.Extensions.DependencyInjection` 8.0 or later
 

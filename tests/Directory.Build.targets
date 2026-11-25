@@ -1,0 +1,14 @@
+<Project>
+  <!--
+    net9.0 runs the netstandard2.0 build of the libraries. NetEvolve.Arguments ships net6.0+ assets too, which NuGet prefers for net9.0;
+    the netstandard2.0 build is compiled against the netstandard2.0 asset (its own polyfill types) and fails with MissingMethodException
+    against the net9.0 one. Pin the netstandard2.0 asset for this leg.
+  -->
+  <ItemGroup Condition="'$(LibraryLegTargetFramework)' != ''">
+    <PackageReference Include="NetEvolve.Arguments" ExcludeAssets="compile;runtime" />
+    <Reference
+      Include="NetEvolve.Arguments"
+      HintPath="$([MSBuild]::EnsureTrailingSlash($(NuGetPackageRoot)))netevolve.arguments/@(PackageVersion->WithMetadataValue('Identity','NetEvolve.Arguments')->'%(Version)')/lib/netstandard2.0/NetEvolve.Arguments.dll"
+    />
+  </ItemGroup>
+</Project>

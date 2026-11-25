@@ -271,8 +271,14 @@ public class ModelShapeTests
     {
         var message = FakeModel.Message("text");
         var group = new SchematronGroup(At, "g", false, null, null, null, null, [], [], [], [BuildRule()], null);
-        var diagnostics = new SchematronDiagnostics(At, [new SchematronDiagnostic(At, "d1", "r", message)]);
-        var properties = new SchematronProperties(At, [new SchematronProperty(At, "p1", "r", "s", message)]);
+        var diagnostics = new SchematronDiagnostics(
+            At,
+            [new SchematronDiagnostic(At, "d1", "r", "dfpi", "dicon", "dsee", message)]
+        );
+        var properties = new SchematronProperties(
+            At,
+            [new SchematronProperty(At, "p1", "r", "s", "pfpi", "picon", "psee", message)]
+        );
         var phase = new SchematronPhase(
             At,
             "ph",
@@ -330,7 +336,13 @@ public class ModelShapeTests
         await Assert.That(schema.Patterns[1].IsGroup).IsTrue();
         await Assert.That(schema.Diagnostics!.Items[0].Id).IsEqualTo("d1");
         await Assert.That(schema.Diagnostics!.Items[0].Role).IsEqualTo("r");
+        await Assert.That(schema.Diagnostics!.Items[0].Fpi).IsEqualTo("dfpi");
+        await Assert.That(schema.Diagnostics!.Items[0].Icon).IsEqualTo("dicon");
+        await Assert.That(schema.Diagnostics!.Items[0].See).IsEqualTo("dsee");
         await Assert.That(schema.Properties!.Items[0].Scheme).IsEqualTo("s");
+        await Assert.That(schema.Properties!.Items[0].Fpi).IsEqualTo("pfpi");
+        await Assert.That(schema.Properties!.Items[0].Icon).IsEqualTo("picon");
+        await Assert.That(schema.Properties!.Items[0].See).IsEqualTo("psee");
         await Assert.That(schema.Properties!.Items[0].Role).IsEqualTo("r");
         await Assert.That(schema.Title!.Parts.Count).IsEqualTo(2);
         await Assert.That(((SchematronName)schema.Title.Parts[0]).Path).IsEqualTo("path");

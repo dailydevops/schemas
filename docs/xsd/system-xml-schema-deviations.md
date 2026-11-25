@@ -7,7 +7,7 @@ This document lists every difference that the differential run over the W3C XML 
 | Baseline | `System.Xml.Schema` of the .NET runtime 10.0, compared on the `net10.0` test leg only (`baseline-runtime: 10.0`) |
 | Corpus | XSTS cases of XSD 1.0 (schema tests and instance tests), pinned in `tests/conformance/suites/xsts.json` |
 | Data file | `tests/NetEvolve.Schemas.Xsd.Tests.Integration/DifferentialData/xsts-1.0-deviations.txt`, one entry per difference: case id, difference kind, observed difference, specification reference, reason |
-| Entries | 14549 entries for 14512 cases |
+| Entries | 14552 entries for 14515 cases |
 
 The list is valid for the recorded baseline runtime version only. A run on another runtime version fails until the list is compared again. System.Xml.Schema implements XSD 1.0 only, so cases of XSD 1.1 are not compared.
 
@@ -27,19 +27,18 @@ No builder option, switch, or code path in the library reproduces System.Xml.Sch
 
 | Class | Entries | Cases |
 |---|---:|---:|
-| Verdict differences: this library follows the specification | 1693 | 1661 |
+| Verdict differences: this library follows the specification | 1696 | 1664 |
 | Verdict differences: documented limitations of this library | 26 | 21 |
 | Position differences: equivalent | 12830 | 12830 |
-| Differences on cases that a bug issue tracks (no entry) | 1200 | |
+| Differences on cases that a bug issue tracks (no entry) | 1047 | |
 
 ## Differences on cases that a bug issue tracks
 
-The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTests/known-failures.txt` and `tests/NetEvolve.Schemas.Xsd.Tests.Integration/InstanceTests/known-failures.txt` record every case of XSD 1.0 that this library does not pass yet, each with its bug issue. At the time of this triage the run found 10149 differences on these cases:
+The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTests/known-failures.txt` and `tests/NetEvolve.Schemas.Xsd.Tests.Integration/InstanceTests/known-failures.txt` record every case of XSD 1.0 that this library does not pass yet, each with its bug issue. At the time of this triage the run found 9996 differences on these cases:
 
 | Issue | Differences | Title |
 |---|---:|---|
 | #1077 | 654 | feat(xsd): evaluate the enumeration facet of list simple types in the value space |
-| #858 | 149 | bug(datatypes): the xsd regex parser rejects the anchors ^ and $ outside a character class |
 | #1078 | 101 | feat(xsd): evaluate the enumeration facet of union simple types in the value space |
 | #859 | 63 | bug(xsd): the import check of the namespace attribute is inverted |
 | #860 | 38 | bug(xsd): a restriction of NOTATION without an enumeration is rejected where the type is not used |
@@ -54,7 +53,6 @@ The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTe
 | #602 | 6 | feat(xsd): apply default values to elements with mixed content |
 | #865 | 5 | bug(xsd): a local element declaration with abstract or final is accepted |
 | #871 | 5 | feat(xsd): reject a value constraint on an attribute or element of type ID |
-| #894 | 4 | bug(xsd): the content model transition ceiling rejects the instance schemas of four xsts cases |
 | #1080 | 4 | fix(xml): match every XML name character with the multi-character escape c in the pattern facet |
 | #1079 | 3 | feat(xsd): evaluate the enumeration facet of hexBinary and base64Binary restrictions |
 | #604 | 2 | feat(xsd): resolve QName and NOTATION instance values with the namespace context |
@@ -2002,6 +2000,18 @@ msMeta-DataTypes_w3c/1.0/gMonth_pattern001_1274/gMonth_pattern001_1274.v
 msMeta-DataTypes_w3c/1.0/hexBinary003_2069/hexBinary003_2069.v
 ```
 
+### An identity constraint field that selects more than one attribute
+
+An `@*` field selects every attribute of the element, and the xsi attributes are attributes too, so the field selects more than one node and the instance is invalid. System.Xml.Schema does not count the xsi attributes and accepts the instance.
+
+- Difference: InstanceVerdict `instance verdict: ours=Invalid, baseline=Valid` (1)
+- Specification: XSD 1.0 Part 1, 3.11.4 (Identity-constraint Definition: the field evaluates to at most one node) and 3.2.2 (the attributes of an element include the xsi attributes)
+- Cases: 1
+
+```text
+msMeta-IdentityConstraint_w3c/1.0/idL100/idL100.v
+```
+
 ### An xsi:type that is not validly derived from the declared type
 
 The type named by xsi:type is not validly derived from the type of the declaration, or it is unknown, so the instance is invalid. System.Xml.Schema accepts it.
@@ -2038,6 +2048,19 @@ saxonMeta-Complex/1.0/complex022/complex022.n1.xml
 sunMeta-ElemDecl/1.0/disallowedsubst00503m3/Negative
 sunMeta-ElemDecl/1.0/disallowedsubst00503m4/Negative
 sunMeta-ElemDecl/1.0/disallowedsubst00503m5/Negative
+```
+
+### A content model with large occurrence ranges
+
+The content model is a choice with a large maxOccurs over a sequence with a maxOccurs of 100000000, and the instance is valid. System.Xml.Schema stops tracking the occurrence counts of a model with such large ranges ("Content model validation resulted in a large number of states") and rejects a valid child element. The suite expects the instance to be valid.
+
+- Difference: InstanceVerdict `instance verdict: ours=Valid, baseline=Invalid` (2)
+- Specification: XSD 1.0 Part 1, 3.8.4 (Content Model Validation, Element Sequence Valid) and 3.9.4 (Element Sequence Valid (Particle))
+- Cases: 2
+
+```text
+msMeta-Particles_w3c/1.0/particlesZ036_b1/particlesZ036_b1.i
+msMeta-Particles_w3c/1.0/particlesZ036_b2/particlesZ036_b2.i
 ```
 
 ### A value that differs from the fixed value
@@ -2166,9 +2189,9 @@ msMeta-AttributeGroup_w3c/1.0/attgD003/attgD003.v
 
 Both engines reject the document with the same number of issues on the same lines, and the verdicts agree. They anchor an issue at different columns of the same construct. Issue positions are not part of the specification, so the difference is equivalent.
 
-- Difference: IssuePositions `issue positions` (3800)
+- Difference: IssuePositions `issue positions` (3804)
 - Specification: XSD 1.0 Part 1, 5.2 and C.1 (the assessment outcome is the validity property; positions and number of reports are not specified)
-- Cases: 3800
+- Cases: 3804
 
 ```text
 ibmMeta-anyAttribute/1.0/s3_10_6ii01/s3_10_6v01i
@@ -4256,6 +4279,9 @@ msMeta-Particles_w3c/1.0/particlesZ014/particlesZ014
 msMeta-Particles_w3c/1.0/particlesZ015/particlesZ015.i
 msMeta-Particles_w3c/1.0/particlesZ016/particlesZ016.i
 msMeta-Particles_w3c/1.0/particlesZ034_a2/particlesZ034_a2.i
+msMeta-Particles_w3c/1.0/particlesZ034_a3/particlesZ034_a3.i
+msMeta-Particles_w3c/1.0/particlesZ034_b/particlesZ034_b.i
+msMeta-Particles_w3c/1.0/particlesZ035_a/particlesZ035_a.i
 msMeta-Particles_w3c/1.0/particlesZ036_a/particlesZ036_a.i
 msMeta-Particles_w3c/1.0/particlesZ039/particlesZ039
 msMeta-Regex_w3c/1.0/HighSurrogates/HighSurrogates.i
@@ -5978,9 +6004,9 @@ sunMeta-suntest/1.0/xsd023.e/xsd023.e
 
 Both engines reject the document with the same number of issues, and the verdicts agree. They attribute the issues to different constructs of the document. Issue positions are not part of the specification, so the difference is equivalent.
 
-- Difference: IssuePositions `issue positions` (8533)
+- Difference: IssuePositions `issue positions` (8530)
 - Specification: XSD 1.0 Part 1, 5.2 and C.1 (the assessment outcome is the validity property; positions and number of reports are not specified)
-- Cases: 8533
+- Cases: 8530
 
 ```text
 ibmMeta-identityConstraint/1.0/s2_2_4si06/s2_2_4si06s
@@ -6617,9 +6643,6 @@ msMeta-Particles_w3c/1.0/particlesZ028/particlesZ028
 msMeta-Particles_w3c/1.0/particlesZ030_d/particlesZ030_d
 msMeta-Particles_w3c/1.0/particlesZ033_c/particlesZ033_c
 msMeta-Particles_w3c/1.0/particlesZ033_g/particlesZ033_g
-msMeta-Particles_w3c/1.0/particlesZ034_a3/particlesZ034_a3.i
-msMeta-Particles_w3c/1.0/particlesZ034_b/particlesZ034_b.i
-msMeta-Particles_w3c/1.0/particlesZ035_a/particlesZ035_a.i
 msMeta-Particles_w3c/1.0/particlesZ037/particlesZ037
 msMeta-Schema_w3c/1.0/schE10/schE10
 msMeta-Schema_w3c/1.0/schE6/schE6
@@ -14522,9 +14545,9 @@ sunMeta-suntest/1.0/xsd022/xsd022.n00
 
 Both engines reject the document and the verdicts agree. This library reports more issues than System.Xml.Schema for the same document; the engines group and follow up violations differently. The number and the positions of reported issues are not part of the specification, so the difference is equivalent.
 
-- Difference: IssuePositions `issue positions` (353)
+- Difference: IssuePositions `issue positions` (354)
 - Specification: XSD 1.0 Part 1, 5.2 and C.1 (the assessment outcome is the validity property; positions and number of reports are not specified)
-- Cases: 353
+- Cases: 354
 
 ```text
 ibmMeta-cyclicRedefineIncludeImportOverride/1.0/s4_2_4si02/s4_2_4si02s
@@ -14828,6 +14851,7 @@ msMeta-Particles_w3c/1.0/particlesQ028/particlesQ028
 msMeta-Particles_w3c/1.0/particlesR019/particlesR019
 msMeta-Particles_w3c/1.0/particlesR025/particlesR025
 msMeta-Particles_w3c/1.0/particlesR028/particlesR028
+msMeta-Particles_w3c/1.0/particlesZ007/particlesZ007.i
 msMeta-Particles_w3c/1.0/particlesZ011/particlesZ011
 msMeta-Particles_w3c/1.0/particlesZ033_e/particlesZ033_e
 msMeta-Particles_w3c/1.0/particlesZ033_f/particlesZ033_f
@@ -14886,9 +14910,9 @@ sunMeta-suntest/1.0/xsd007.e/xsd007.e
 
 Both engines reject the document and the verdicts agree. System.Xml.Schema reports more issues than this library for the same document; the engines group and follow up violations differently. The number and the positions of reported issues are not part of the specification, so the difference is equivalent.
 
-- Difference: IssuePositions `issue positions` (122)
+- Difference: IssuePositions `issue positions` (121)
 - Specification: XSD 1.0 Part 1, 5.2 and C.1 (the assessment outcome is the validity property; positions and number of reports are not specified)
-- Cases: 122
+- Cases: 121
 
 ```text
 ibmMeta-identityConstraint/1.0/s2_2_4si04/s2_2_4si04s
@@ -14977,7 +15001,6 @@ msMeta-Particles_w3c/1.0/particlesEa006/particlesEa006.i
 msMeta-Particles_w3c/1.0/particlesEa013/particlesEa013.i
 msMeta-Particles_w3c/1.0/particlesEa020/particlesEa020.i
 msMeta-Particles_w3c/1.0/particlesEc009/particlesEc009
-msMeta-Particles_w3c/1.0/particlesZ007/particlesZ007.i
 msMeta-Schema_w3c/1.0/schN13i/schN13i
 msMeta-SimpleType_w3c/1.0/stE071/stE071.i
 msMeta-SimpleType_w3c/1.0/stZ012/stZ012
@@ -15017,7 +15040,7 @@ sunMeta-suntest/1.0/xsd020.e/xsd020.e
 
 ### The baseline throws while it loads the schema
 
-Both engines reject the schema. System.Xml.Schema throws an ArgumentException (an empty string for a name) while it loads the schema, so the baseline reports no position. The test wrapper maps the exception to an invalid schema without positions; the adapter defect is tracked in #955.
+Both engines reject the schema. System.Xml.Schema throws an ArgumentException (an empty string for a name) while it loads the schema, so the baseline reports no position. The baseline adapter maps the exception to an invalid schema without positions.
 
 - Difference: IssuePositions `issue positions` (21)
 - Specification: XSD 1.0 Part 1, 5.1 (a schema document must be valid against the schema for schemas, A)
@@ -15053,4 +15076,4 @@ msMeta-SimpleType_w3c/1.0/stE004/stE004
 - System.Xml.Schema implements XSD 1.0 only; XSD 1.1 behavior has no baseline and the cases of XSD 1.1 are not compared.
 - The comparison covers verdicts and the positions of reported issues. Messages are never compared.
 - The XSTS expectation of a case is the reference for the classification. A case that the XSTS marks otherwise than accepted is outside the selection and outside this list.
-- Defects found by this triage are fixed in their own issues, not in this document or in the data file. The adapter of the baseline throws an ArgumentException for 21 schemas; the test wrapper maps it to an invalid schema and the entries of those cases name #955.
+- Defects found by this triage are fixed in their own issues, not in this document or in the data file. The baseline throws an ArgumentException for 21 schemas; the adapter maps it to an invalid schema without positions.

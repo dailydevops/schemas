@@ -47,10 +47,10 @@ internal static class AssertionModel
     ) => new(Next(), test, id, [], null, null, subject, diagnostics ?? [], properties ?? [], message);
 
     internal static SchematronDiagnostic Diagnostic(string id, SchematronMessage message) =>
-        new(Next(), id, null, message);
+        new(Next(), id, null, null, null, null, message);
 
     internal static SchematronProperty Property(string id, SchematronMessage message) =>
-        new(Next(), id, null, null, message);
+        new(Next(), id, null, null, null, null, null, message);
 
     internal static SchematronRule Rule(string? id = "r1", string? subject = null) =>
         new(Next(), id, "order", null, [], null, subject, false, null, [], [], null);

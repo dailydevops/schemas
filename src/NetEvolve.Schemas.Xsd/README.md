@@ -275,7 +275,7 @@ A document type declaration in an instance ends the run with a reader error by d
 
 ## Requirements
 
-- .NET 10.0 or higher, or any runtime that implements .NET Standard 2.0 (the tests also run the `netstandard2.0` build on .NET 5.0)
+- .NET 10.0 or higher, or any runtime that implements .NET Standard 2.0 (the tests also run the `netstandard2.0` build on .NET 9)
 - The package targets `netstandard2.0`, `net10.0`, and `net11.0`
 - Depends on `NetEvolve.Schemas`, `NetEvolve.Schemas.Xml`, `NetEvolve.Schemas.XPath`, and `NetEvolve.Arguments`; on `netstandard2.0` it also depends on `Microsoft.Bcl.AsyncInterfaces`, `System.Memory`, and `System.Threading.Tasks.Extensions`
 - The call `SchemaValidator.ForXsd()` needs C# 14; older compilers use the named class (see [Compilers older than C# 14](#compilers-older-than-c-14))
@@ -303,8 +303,8 @@ The conformance run executes the W3C XML Schema Test Suite (XSTS), pinned by che
 | Part | Applicable | Passed | Known failures | Rate |
 | --- | --- | --- | --- | --- |
 | Schema tests | 14357 | 14183 | 174 | 98.7% |
-| Instance tests | 24914 | 24000 | 914 | 96.3% |
-| Both | 39271 | 38183 | 1088 | 97.2% |
+| Instance tests | 24914 | 24005 | 909 | 96.3% |
+| Both | 39271 | 38188 | 1083 | 97.2% |
 
 The last row adds the two published rows; the job summary shows no row for the sum. The selection also leaves 214 excluded cases of XSD 1.0 out of these counts: cases whose status is not accepted, whose expected outcome is not definite, or that depend on a processor feature that the runner does not model. Every known failure is a case of the committed baseline in `tests/conformance/baselines/xsts/`, and it is listed with its reason and, where a bug issue exists, its issue in `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTests/known-failures.txt` and `tests/NetEvolve.Schemas.Xsd.Tests.Integration/InstanceTests/known-failures.txt`. A regression and an unexpected pass fail the run. To reproduce the numbers, run the conformance tests of the integration project on one leg, with a file in `GITHUB_STEP_SUMMARY` to receive the rows:
 

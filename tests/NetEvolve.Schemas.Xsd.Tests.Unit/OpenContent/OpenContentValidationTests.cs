@@ -320,11 +320,16 @@ public class OpenContentValidationTests
         var mode = suffix ? OpenContentMode.Suffix : OpenContentMode.Interleave;
         var content = SchemaFixture.Group(
             ModelGroupCompositor.Sequence,
-            1,
-            70,
-            SchemaFixture.Part("a", SchemaFixture.Simple("string"), 1, 70)
+            12,
+            100,
+            SchemaFixture.Group(
+                ModelGroupCompositor.Sequence,
+                12,
+                100,
+                SchemaFixture.Part("a", SchemaFixture.Simple("string"), 12, 100)
+            )
         );
-        var elements = new string('x', 60).Replace("x", "<a/>", StringComparison.Ordinal);
+        var elements = new string('x', 5000).Replace("x", "<a/>", StringComparison.Ordinal);
 
         // The wildcard allows every name, so it would take the a that the run refuses at its ceiling; the engine limit is
         // reported instead.

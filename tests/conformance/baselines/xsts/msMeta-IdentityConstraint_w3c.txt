@@ -1,5 +1,4 @@
 1.0/idC019/idC019
-1.0/idL100/idL100.v
 1.0/idZ011/idZ011
 1.1/idA001/idA001
 1.1/idA002/idA002

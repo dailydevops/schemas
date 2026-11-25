@@ -32,11 +32,5 @@ jobs:
     with:
       dotnetLogging: ${{ inputs.dotnet-logging }}
       dotnetVersion: ${{ vars.NE_DOTNET_TARGETFRAMEWORKS }}
-      # .NET 5 loads OpenSSL 1.1 only; ubuntu-latest ships OpenSSL 3, so the net5.0 test host aborts without this.
-      preTestCommand: |
-        set -e
-        curl -fsSLo libssl1.1.deb http://security.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2.24_amd64.deb
-        echo "7cf39d70a639017d1dd7c8d36daa2258063608688e449fddf40ffdd46f992a78  libssl1.1.deb" | sha256sum --check
-        sudo dpkg -i libssl1.1.deb
       solution: ./Schemas.slnx
     secrets: inherit

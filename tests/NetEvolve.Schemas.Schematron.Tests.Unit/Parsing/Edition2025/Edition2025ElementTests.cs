@@ -140,6 +140,9 @@ public class Edition2025ElementTests
                         3,
                         5,
                         A("id", "pr1"),
+                        A("fpi", "pf"),
+                        A("icon", "pi"),
+                        A("see", "ps"),
                         A("role", "r"),
                         A("scheme", "s"),
                         "Text ",
@@ -159,6 +162,10 @@ public class Edition2025ElementTests
         await Assert.That(first.Id).IsEqualTo("pr1");
         await Assert.That(first.Role).IsEqualTo("r");
         await Assert.That(first.Scheme).IsEqualTo("s");
+        await Assert.That(first.Fpi).IsEqualTo("pf");
+        await Assert.That(first.Icon).IsEqualTo("pi");
+        await Assert.That(first.See).IsEqualTo("ps");
+        await Assert.That(properties.Items[1].Fpi).IsNull();
         await Assert.That(first.Message.Parts.Count).IsEqualTo(3);
         await Assert.That(((SchematronText)first.Message.Parts[0]).Text).IsEqualTo("Text ");
         await Assert.That(((SchematronValueOf)first.Message.Parts[1]).Select).IsEqualTo("@x");

@@ -7,17 +7,9 @@ iso-pattern-templating/pattern-abstract-property-copy-of.xml	#915	Abstract patte
 iso-pattern-templating/pattern-abstract-property-value-of.xml	#915	Abstract pattern parameters are substituted in the pattern only; diagnostics and properties belong to the schema and are shared by every instance, so their content keeps the parameter reference (NES3300), a recorded deviation.
 iso-reporting/svrl-active-pattern-documents-primary.xml	#913	The documents attribute is ignored: no subordinate document is validated and the SVRL does not name it.
 iso-reporting/svrl-active-pattern-documents.xml	#913	The documents attribute is ignored: no subordinate document is validated and the SVRL does not name it.
-iso-reporting/svrl-diagnostic-fpi.xml	#916	The SVRL text of a diagnostic or property reference lacks fpi, icon, and see.
-iso-reporting/svrl-diagnostic-icon.xml	#916	The SVRL text of a diagnostic or property reference lacks fpi, icon, and see.
-iso-reporting/svrl-diagnostic-see.xml	#916	The SVRL text of a diagnostic or property reference lacks fpi, icon, and see.
 iso-reporting/svrl-fired-rule-document-primary.xml	#913	The documents attribute is ignored: no subordinate document is validated and the SVRL does not name it.
 iso-reporting/svrl-fired-rule-document.xml	#913	The documents attribute is ignored: no subordinate document is validated and the SVRL does not name it.
-iso-reporting/svrl-property-copy-of.xml	#914	A property with xsl:copy-of is reported NES3204 because no embedded content is wired into the pipeline.
-iso-reporting/svrl-property-fpi.xml	#916	The SVRL text of a diagnostic or property reference lacks fpi, icon, and see.
-iso-reporting/svrl-property-icon.xml	#916	The SVRL text of a diagnostic or property reference lacks fpi, icon, and see.
-iso-reporting/svrl-property-see.xml	#916	The SVRL text of a diagnostic or property reference lacks fpi, icon, and see.
-iso-reporting/svrl-property-variable-copy-of-rule.xml	#914	A property with xsl:copy-of is reported NES3204 because no embedded content is wired into the pipeline.
-iso-rule-based-validation/let-value-element-content.xml	#877	A let with element content binds a document node (maintainer decision of #856), and the run reports NES3204 until the embedded content is wired (#914).
+iso-rule-based-validation/let-value-element-content.xml	#877	A let with element content binds a document node (maintainer decision of #856), and the case fails on a document node versus a sequence only.
 iso-rule-based-validation/xsl-key-element-content.xml	#832	The keys of a schema build, but the XPath of a rule cannot call them yet (#832).
 iso-rule-based-validation/xsl-key.xml	#832	The keys of a schema build, but the XPath of a rule cannot call them yet (#832).
 iso-schema-composition/extends-href-fragment-xml-id-preserve-ns.xml	#575	A fragment identifier in the href of include and extends is not supported (NES3007).

@@ -468,7 +468,7 @@ internal sealed class SandboxedFileSystemResourceResolverTests : IDisposable
     }
 
 #if !NET6_0_OR_GREATER
-    // File/Directory.CreateSymbolicLink exist only since .NET 6; P/Invoke on net5.0.
+    // File/Directory.CreateSymbolicLink exist only since .NET 6; P/Invoke below net6.0.
     private static bool CreateLinkNative(string link, string target, bool isDirectory)
     {
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))

@@ -81,7 +81,7 @@ internal sealed class IdentityConstraintListener : ValidationListener
     }
 
     /// <inheritdoc />
-    public override ListenerInterest Interest => ListenerInterest.All;
+    public override ListenerInterest Interest => ListenerInterest.All | ListenerInterest.XsiAttribute;
 
     /// <inheritdoc />
     public override void BeginRun(in ValidationRunContext context)

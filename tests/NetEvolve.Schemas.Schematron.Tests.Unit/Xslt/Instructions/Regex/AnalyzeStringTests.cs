@@ -304,7 +304,7 @@ public class AnalyzeStringTests
     {
         using var source = new CancellationTokenSource();
         var harness = new RegexHarness(Brackets("'a1b'", "[0-9]", null, 10), cancellationToken: source.Token);
-#if NET10_0_OR_GREATER
+#if NET8_0_OR_GREATER
         await source.CancelAsync();
 #else
         source.Cancel();

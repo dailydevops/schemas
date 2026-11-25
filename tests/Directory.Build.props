@@ -1,7 +1,6 @@
 <Project>
   <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
   <PropertyGroup>
-    <TargetFrameworks>net5.0;net10.0;net11.0</TargetFrameworks>
     <OutputType>Exe</OutputType>
     <!-- Open source project without revenue: Verify SponsorCheck exemption (max term 12 months, renew before expiry). -->
     <Verify_SponsorshipExemption>OpenSource</Verify_SponsorshipExemption>

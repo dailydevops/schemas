@@ -10,10 +10,10 @@ A failing test exists before the implementation.
 2. Run it and confirm that it fails for the expected reason. Commit it on its own (`test(<scope>): ...`).
 3. Implement until the test is green. Commit the implementation separately (`feat(<scope>): ...`).
 
-No implementation is merged without a confirming test. Where no test is possible, the issue names the evidence to deliver instead. A test must run green on every leg: `net5.0` (runs the `netstandard2.0` build), `net10.0`, and `net11.0`.
+No implementation is merged without a confirming test. Where no test is possible, the issue names the evidence to deliver instead. A test must run green on every leg: `net9.0` (runs the `netstandard2.0` build), `net10.0`, and `net11.0`.
 
 ```shell
-dotnet test --solution Schemas.slnx -c Release -f net5.0
+dotnet test --solution Schemas.slnx -c Release -f net9.0
 ```
 
 ## Bug handling
@@ -65,8 +65,8 @@ Do not add ADR files, a `docs/adr` directory, or a `decisions` directory. A devi
 
 A conformance result does not depend on the target framework, so the conformance workflow runs each suite on one leg, `net10.0`, and not on every leg of the test projects. The suites are explicit (see below), so no other leg runs them, and the rate table appears once per package in the job summary.
 
-- To compare another leg locally, run the category filter with `--framework`, for example `--framework net5.0`.
-- `net5.0` runs the `netstandard2.0` build of the libraries. A run on `net5.0` passes every baseline gate of QT3, XSTS, XML Conformance and Schematron, so the failure sets equal those of `net10.0`. A second leg is added only when a conformance result is shown to differ between builds.
+- To compare another leg locally, run the category filter with `--framework`, for example `--framework net9.0`.
+- `net9.0` runs the `netstandard2.0` build of the libraries. A run on `net9.0` passes every baseline gate of QT3, XSTS, XML Conformance and Schematron, so the failure sets equal those of `net10.0`. A second leg is added only when a conformance result is shown to differ between builds.
 
 ### Explicit conformance suites
 

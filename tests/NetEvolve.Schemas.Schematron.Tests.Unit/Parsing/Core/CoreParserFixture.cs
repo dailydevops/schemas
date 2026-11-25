@@ -74,7 +74,22 @@ internal static class CoreParserFixture
                         E("report", 15, 7, A("test", "y"), "Rep")
                     )
                 ),
-                E("diagnostics", 16, 3, E("diagnostic", 17, 5, A("id", "d1"), A("role", "dr"), "Diag"))
+                E(
+                    "diagnostics",
+                    16,
+                    3,
+                    E(
+                        "diagnostic",
+                        17,
+                        5,
+                        A("id", "d1"),
+                        A("role", "dr"),
+                        A("fpi", "df"),
+                        A("icon", "di"),
+                        A("see", "ds"),
+                        "Diag"
+                    )
+                )
             )
         );
         return result && schema is not null

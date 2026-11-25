@@ -317,7 +317,7 @@ public class CompositionTests
             new XsdIssueReporter(collector)
         );
         using var source = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-#if NET10_0_OR_GREATER
+#if NET8_0_OR_GREATER
         await source.CancelAsync();
 #else
         source.Cancel();

@@ -120,6 +120,7 @@ public class RegexParserTests
     [Test]
     [Arguments("^abc$", "cat(c5E c61 c62 c63 c24)")]
     [Arguments("a^b", "cat(c61 c5E c62)")]
+    [Arguments("(^a)", "grp(cat(c5E c61))")]
     public async Task Parse_CaretAndDollarOutsideAClass_AreLiteralCharactersInTheXsdDialect(
         string pattern,
         string expected

@@ -379,7 +379,7 @@ public class XmlStreamReaderTests
         var bytePool = new TrackingPool<byte>();
         var charPool = new TrackingPool<char>();
         using var source = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-#if NET10_0_OR_GREATER
+#if NET8_0_OR_GREATER
         await source.CancelAsync();
 #else
         source.Cancel();

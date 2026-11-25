@@ -197,13 +197,12 @@ internal sealed class CountingRun
                 Array.Copy(_counters, i * _slots, _nextCounters, dst, _slots);
                 if (
                     !Passes(transition.ActionStart, transition.ActionCount, _counters, i * _slots)
-                    || ApplyAndFindDuplicate(transition, i * _slots, dst, next)
+                    || !ApplyAndMerge(transition, i * _slots, ref next)
                 )
                 {
                     continue;
                 }
 
-                _nextPositions[next++] = transition.Target;
                 var isWildcard = _automaton.IsWildcard(transition.Target);
                 if (chosen < 0 || (chosenIsWildcard && !isWildcard))
                 {
@@ -251,49 +250,85 @@ internal sealed class CountingRun
         return true;
     }
 
-    /// <summary>Writes the counters after the path into the next buffer and tells whether that configuration is already there.</summary>
+    /// <summary>
+    /// Writes the counters after the path into the candidate slot of the next buffer and adds the candidate unless another
+    /// configuration of the same position dominates it; configurations the candidate dominates are removed.
+    /// </summary>
     /// <remarks>
-    /// ponytail: linear duplicate scan, O(n^2) in the configurations; a hash set if profiling asks for it.
+    /// <para>
+    /// A configuration dominates another when, for every counter, both hold the same value or its value is smaller and
+    /// already reaches the minimum of the counter. Below the minimum a counter cannot exit yet, above it only the number of
+    /// remaining iterations differs, and a smaller value keeps more of them, so the dominating configuration accepts
+    /// everything the dominated one accepts. This keeps the live set to the values below each minimum plus one value per
+    /// counter, instead of every reachable pair of counts.
+    /// </para>
+    /// <para>
+    /// ponytail: linear scans, O(n^2) in the configurations; a hash set if profiling asks for it.
+    /// </para>
     /// </remarks>
-    private bool ApplyAndFindDuplicate(AutomatonTransition transition, int srcOffset, int dstOffset, int count)
+    /// <returns><see langword="true"/> when the candidate was added at the index of <paramref name="count"/>, which is advanced.</returns>
+    private bool ApplyAndMerge(AutomatonTransition transition, int srcOffset, ref int count)
     {
+        var dst = count * _slots;
         for (var a = transition.ActionStart; a < transition.ActionStart + transition.ActionCount; a++)
         {
             var action = _automaton.GetAction(a);
             if (action.Kind == AutomatonActionKind.Iterate)
             {
-                _nextCounters[dstOffset + action.Slot] = Math.Min(_counters[srcOffset + action.Slot] + 1, action.Cap);
+                _nextCounters[dst + action.Slot] = Math.Min(_counters[srcOffset + action.Slot] + 1, action.Cap);
             }
             else if (action.Kind == AutomatonActionKind.Enter)
             {
-                _nextCounters[dstOffset + action.Slot] = 1;
+                _nextCounters[dst + action.Slot] = 1;
             }
         }
 
         for (var j = 0; j < count; j++)
         {
-            if (_nextPositions[j] != transition.Target)
+            if (_nextPositions[j] == transition.Target && Dominates(j * _slots, dst))
+            {
+                return false;
+            }
+        }
+
+        for (var j = count - 1; j >= 0; j--)
+        {
+            if (_nextPositions[j] != transition.Target || !Dominates(dst, j * _slots))
             {
                 continue;
             }
 
-            var same = true;
-            for (var s = 0; s < _slots; s++)
+            count--;
+            if (j != count)
             {
-                if (_nextCounters[j * _slots + s] != _nextCounters[dstOffset + s])
-                {
-                    same = false;
-                    break;
-                }
-            }
-
-            if (same)
-            {
-                return true;
+                _nextPositions[j] = _nextPositions[count];
+                Array.Copy(_nextCounters, count * _slots, _nextCounters, j * _slots, _slots);
             }
         }
 
-        return false;
+        var target = count * _slots;
+        if (target != dst)
+        {
+            Array.Copy(_nextCounters, dst, _nextCounters, target, _slots);
+        }
+
+        _nextPositions[count++] = transition.Target;
+        return true;
+    }
+
+    private bool Dominates(int xOffset, int yOffset)
+    {
+        for (var s = 0; s < _slots; s++)
+        {
+            var x = _nextCounters[xOffset + s];
+            var y = _nextCounters[yOffset + s];
+            if (x != y && (x > y || x < _automaton.SlotMinimum(s)))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private bool GrowNext()

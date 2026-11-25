@@ -241,6 +241,9 @@ public class CoreParserElementTests
         await Assert.That(diagnostics.Items.Count).IsEqualTo(1);
         await Assert.That(diagnostic.Id).IsEqualTo("d1");
         await Assert.That(diagnostic.Role).IsEqualTo("dr");
+        await Assert.That(diagnostic.Fpi).IsEqualTo("df");
+        await Assert.That(diagnostic.Icon).IsEqualTo("di");
+        await Assert.That(diagnostic.See).IsEqualTo("ds");
         await Assert.That(((SchematronText)diagnostic.Message.Parts[0]).Text).IsEqualTo("Diag");
     }
 

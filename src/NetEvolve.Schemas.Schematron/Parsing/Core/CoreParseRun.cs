@@ -504,6 +504,9 @@ internal sealed partial class CoreParseRun
             Location(element),
             id,
             role,
+            Attribute(element, "fpi"),
+            Attribute(element, "icon"),
+            Attribute(element, "see"),
             ParseTrimmedMessage(element, CoreInline.Diagnostic)
         );
     }
