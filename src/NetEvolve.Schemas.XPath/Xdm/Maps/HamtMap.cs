@@ -81,7 +81,7 @@ internal sealed class HamtMap
     public bool TryGet(in XdmItem key, out XdmSequence value)
     {
         var found = TryGetEntry(in key, out var entry);
-        value = entry.Value;
+        value = found ? entry.Value : default;
         return found;
     }
 
