@@ -1,4 +1,4 @@
-﻿namespace NetEvolve.Schemas.Xsd.Tests.Unit.Validation.Xsi;
+namespace NetEvolve.Schemas.Xsd.Tests.Unit.Validation.Xsi;
 
 using System;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
