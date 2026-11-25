@@ -1,0 +1,15 @@
+prod-AxisStep.static-typing/ST-Axes001	feature staticTyping	static typing	DEF-41
+prod-AxisStep.static-typing/ST-Axes002	feature staticTyping	static typing	DEF-41
+prod-AxisStep.static-typing/ST-Axes003	feature staticTyping	static typing	DEF-41
+prod-AxisStep.static-typing/ST-Axes004	feature staticTyping	static typing	DEF-41
+prod-AxisStep.static-typing/ST-Axes005	feature staticTyping	static typing	DEF-41
+prod-AxisStep.static-typing/ST-Axes006	feature staticTyping	static typing	DEF-41
+prod-AxisStep.static-typing/ST-Axes007	feature staticTyping	static typing	DEF-41
+prod-AxisStep.static-typing/ST-Axes008	feature staticTyping	static typing	DEF-41
+prod-AxisStep.static-typing/ST-Axes009	feature staticTyping	static typing	DEF-41
+prod-AxisStep.static-typing/ST-Axes010	feature staticTyping	static typing	DEF-41
+prod-AxisStep.static-typing/ST-Axes011	feature staticTyping	static typing	DEF-41
+prod-AxisStep.static-typing/ST-Axes012	feature staticTyping	static typing	DEF-41
+prod-AxisStep.static-typing/ST-Axes013	feature staticTyping	static typing	DEF-41
+prod-AxisStep.static-typing/ST-Axes014	feature staticTyping	static typing	DEF-41
+prod-AxisStep.static-typing/ST-Axes015	feature staticTyping	static typing	DEF-41

@@ -1,0 +1,7 @@
+fn-codepoints-to-string/K-CodepointToStringFunc-8a	xml-version 1.1	an XML 1.1 case; the documents of the runner are XML 1.0	
+fn-codepoints-to-string/K-CodepointToStringFunc-11b	xml-version 1.1	an XML 1.1 case; the documents of the runner are XML 1.0	
+fn-codepoints-to-string/K-CodepointToStringFunc-12b	xml-version 1.1	an XML 1.1 case; the documents of the runner are XML 1.0	
+fn-in-scope-prefixes/fn-in-scope-prefixes-27	xml-version 1.1	an XML 1.1 case; the documents of the runner are XML 1.0	
+fn-in-scope-prefixes/fn-in-scope-prefixes-28	xml-version 1.1	an XML 1.1 case; the documents of the runner are XML 1.0	
+fn-in-scope-prefixes/fn-in-scope-prefixes-29	xml-version 1.1	an XML 1.1 case; the documents of the runner are XML 1.0	
+fn-in-scope-prefixes/fn-in-scope-prefixes-30	xml-version 1.1	an XML 1.1 case; the documents of the runner are XML 1.0	
