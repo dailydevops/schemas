@@ -20,6 +20,8 @@ internal sealed class MiniRun : IXsltFunctionRun
 
     internal XsltFunctionCaller? Caller { get; set; }
 
+    public object? FunctionCalls { get; set; }
+
     internal List<QueryFocus> Focuses { get; } = [];
 
     internal List<string> Events { get; } = [];
@@ -98,6 +100,8 @@ internal sealed class MiniRun : IXsltFunctionRun
     public void BindVariable(int slot, string value) => _values[slot] = XdmSequence.Create(XdmItem.FromString(value));
 
     public SchematronProblem GetProblem() => _problem;
+
+    public void FailWith(in SchematronProblem problem) => _problem = problem;
 
     public void SetValue(int slot, in XdmSequence value) => _values[slot] = value;
 

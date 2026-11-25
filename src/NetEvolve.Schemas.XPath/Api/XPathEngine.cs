@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.XPath.Api;
 
 using System;
+using System.Collections.Concurrent;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Casting.Core;
 using NetEvolve.Schemas.XPath.Compatibility;
@@ -11,6 +12,7 @@ using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Evaluation.Arithmetic;
 using NetEvolve.Schemas.XPath.Evaluation.Comparison;
 using NetEvolve.Schemas.XPath.Evaluation.Flow;
+using NetEvolve.Schemas.XPath.Evaluation.Flow30;
 using NetEvolve.Schemas.XPath.Evaluation.Paths;
 using NetEvolve.Schemas.XPath.Evaluation.Temporal;
 using NetEvolve.Schemas.XPath.Functions.Binding;
@@ -48,6 +50,9 @@ internal static class XPathEngine
     private static readonly ArithmeticOperatorTable Arithmetic = CreateArithmetic();
     private static readonly ComparisonOperatorTable Comparison = CreateComparison();
     private static readonly LoweringRegistry DefaultRegistry = CreateRegistry(AllSlots);
+
+    // One registry per host flag combination instead of one per compilation: building it allocates a dictionary and a delegate per lowering.
+    private static readonly ConcurrentDictionary<XPathHostRequirements, LoweringRegistry> HostRegistries = new();
 
     /// <summary>Compiles an expression without throwing for static errors.</summary>
     /// <param name="text">The expression text.</param>
@@ -87,7 +92,10 @@ internal static class XPathEngine
             return new XPathCompileResult(null, diagnostic);
         }
 
-        var registry = activeHost == AllSlots ? DefaultRegistry : CreateRegistry(activeHost);
+        var registry =
+            activeHost == AllSlots
+                ? DefaultRegistry
+                : HostRegistries.GetOrAdd(activeHost, static host => CreateRegistry(host));
         return ExpressionCompiler.TryCompile(
             syntax!,
             source,
@@ -106,6 +114,7 @@ internal static class XPathEngine
     {
         var registry = new LoweringRegistry();
         FlowLowerings.Register(registry);
+        Flow30Lowerings.Register(registry);
         PathLowerings.Register(registry);
         SequenceTypeLowerings.Register(registry);
         CastingLowerings.Register(registry);

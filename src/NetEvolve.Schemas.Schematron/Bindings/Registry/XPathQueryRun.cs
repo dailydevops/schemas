@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.Schematron.Bindings.Registry;
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using NetEvolve.Arguments;
@@ -28,13 +29,17 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// as the position (<c>last()</c> then equals <c>position()</c>). The token is looked at before every evaluation.
 /// </para>
 /// </remarks>
-internal sealed class XPathQueryRun : IQueryRun
+internal sealed class XPathQueryRun : IXsltFunctionRun
 {
     // The public code type, not the internal table of the XPath package, which the seam rule keeps out of reach.
     private static readonly XPathErrorCode UnsetContext = new("XPDY0002");
 
-    private readonly XPathEvaluationContext _context = new();
+    private readonly List<XPathEvaluationContext> _contexts = [];
+    private readonly IXPathResourceResolver _resolver;
     private readonly CancellationToken _cancellationToken;
+    private int _level;
+    private bool _nested;
+    private object? _functions;
     private XdmSequence[] _values = new XdmSequence[16];
     private bool[] _bound = new bool[16];
     private SchematronProblem _problem;
@@ -44,8 +49,21 @@ internal sealed class XPathQueryRun : IQueryRun
         ArgumentNullException.ThrowIfNull(resources);
 
         _cancellationToken = cancellationToken;
-        _context.ResourceResolver = resources.XPathResolver;
-        _context.Host.DecimalFormats = NoDecimalFormats.Instance;
+        _resolver = resources.XPathResolver;
+    }
+
+    /// <inheritdoc />
+    public object? FunctionCalls
+    {
+        get => _functions;
+        set
+        {
+            _functions = value;
+            foreach (var context in _contexts)
+            {
+                context.Host.HostState = value;
+            }
+        }
     }
 
     public QueryStatus TryEvaluateBoolean(QueryExpression expression, in QueryFocus focus, out bool value)
@@ -121,15 +139,54 @@ internal sealed class XPathQueryRun : IQueryRun
         Store(slot, XdmSequence.Create(XdmItem.FromString(value)));
     }
 
+    public void SetValue(int slot, in XdmSequence value) => Store(slot, value);
+
+    public bool TryGetValue(int slot, out XdmSequence value)
+    {
+        if (slot < _bound.Length && _bound[slot])
+        {
+            value = _values[slot];
+            return true;
+        }
+
+        value = XdmSequence.Empty;
+        return false;
+    }
+
+    public void ClearValue(int slot)
+    {
+        if (slot < _bound.Length)
+        {
+            _bound[slot] = false;
+            _values[slot] = default;
+        }
+    }
+
+    // A function body starts with no focus, no current item, no group, no grouping key, and no regex groups: an evaluation that
+    // is nested in another one runs on a context of its own (see Acquire), which is cleared when it is taken, so there is nothing
+    // to save here and the evaluation that called the function gets its own context back unchanged.
+    public void EnterFunction() { }
+
+    public void ExitFunction() { }
+
+    public void FailWith(in SchematronProblem problem)
+    {
+        _problem = problem;
+        _nested = true;
+    }
+
     public SchematronProblem GetProblem() => _problem;
 
     public void Dispose()
     {
-        // The values hold items of the instance; nothing of a run stays reachable from the pooled context.
+        // The values hold items of the instance; nothing of a run stays reachable from the pooled contexts.
         Array.Clear(_values, 0, _values.Length);
         Array.Clear(_bound, 0, _bound.Length);
-        _context.Reset();
-        _context.Dispose();
+        foreach (var context in _contexts)
+        {
+            context.Reset();
+            context.Dispose();
+        }
     }
 
     private static XPathQueryExpression Cast(QueryExpression expression)
@@ -167,22 +224,36 @@ internal sealed class XPathQueryRun : IQueryRun
     {
         _cancellationToken.ThrowIfCancellationRequested();
 
-        SetFocus(in focus);
+        _nested = false;
+        var context = Acquire();
+        SetFocus(context, in focus);
         var slots = query.ReferencedSlots;
         for (var i = 0; i < query.Names.Length; i++)
         {
             var slot = slots[i];
             if (slot < _bound.Length && _bound[slot])
             {
-                _context.Variables.Set(query.Names[i], _values[slot]);
+                context.Variables.Set(query.Names[i], _values[slot]);
             }
             else
             {
-                _context.Variables.Remove(query.Names[i]);
+                context.Variables.Remove(query.Names[i]);
             }
         }
 
-        var result = query.Expression.TryEvaluate(_context);
+        // A stylesheet function called from the expression evaluates its body through this run, so the context of the evaluation
+        // that is running must stay untouched: the nested one takes the next context.
+        _level++;
+        XPathResult result;
+        try
+        {
+            result = query.Expression.TryEvaluate(context);
+        }
+        finally
+        {
+            _level--;
+        }
+
         sequence = result.Value;
         if (result.Status == XPathEvaluationStatus.Ok)
         {
@@ -193,21 +264,50 @@ internal sealed class XPathQueryRun : IQueryRun
         return false;
     }
 
-    private void SetFocus(in QueryFocus focus)
+    // One context per level of nested evaluations. A context of a nested level is cleared when it is taken, because it may hold the
+    // focus and the host slots of an earlier evaluation at that level.
+    private XPathEvaluationContext Acquire()
+    {
+        if (_level < _contexts.Count)
+        {
+            var existing = _contexts[_level];
+            if (_level > 0)
+            {
+                existing.Reset();
+                Prepare(existing);
+            }
+
+            return existing;
+        }
+
+        var context = new XPathEvaluationContext { ResourceResolver = _resolver };
+        Prepare(context);
+        _contexts.Add(context);
+        return context;
+    }
+
+    // The host slots that every evaluation of the run starts with; the public reset clears them, so they are set again after it.
+    private void Prepare(XPathEvaluationContext context)
+    {
+        context.Host.DecimalFormats = NoDecimalFormats.Instance;
+        context.Host.HostState = _functions;
+    }
+
+    private void SetFocus(XPathEvaluationContext context, in QueryFocus focus)
     {
         if (focus.Item.Kind == XdmItemKind.None)
         {
-            // The focus type of the context is internal to the XPath package and outside the seam, so the public reset clears the focus; the
-            // variables are set after it, and the slot of the decimal formats is set again.
-            _context.Reset();
-            _context.Host.DecimalFormats = NoDecimalFormats.Instance;
+            // The focus type of the context is internal to the XPath package and outside the seam, so the public reset clears the
+            // focus; the variables are set after it, and the host slots are set again.
+            context.Reset();
+            Prepare(context);
             return;
         }
 
         var item = focus.Item;
         var position = Math.Max(focus.Position, 1);
-        _context.SetContextItem(in item, position, Math.Max(focus.ResolveSize(), position));
-        _context.Host.CurrentItem = item;
+        context.SetContextItem(in item, position, Math.Max(focus.ResolveSize(), position));
+        context.Host.CurrentItem = item;
     }
 
     private void Store(int slot, XdmSequence value)
@@ -226,6 +326,13 @@ internal sealed class XPathQueryRun : IQueryRun
     // An unbound variable and an absent context item are the same dynamic error, XPDY0002.
     private QueryStatus Fail(XPathQueryExpression query, in XPathDiagnostic diagnostic)
     {
+        if (_nested)
+        {
+            // A stylesheet function failed inside the expression: the problem of the callee, with its own code and location, stays.
+            _nested = false;
+            return QueryStatus.Problem;
+        }
+
         _problem = new SchematronProblem(
             diagnostic.QName == UnsetContext
                 ? SchematronDiagnosticCodes.VariableUndefined

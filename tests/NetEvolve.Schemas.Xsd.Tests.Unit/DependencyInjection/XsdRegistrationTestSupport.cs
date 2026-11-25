@@ -1,7 +1,6 @@
-namespace NetEvolve.Schemas.DependencyInjection.Tests.Unit.Xsd;
+namespace NetEvolve.Schemas.Xsd.Tests.Unit.DependencyInjection;
 
 using System.Text;
-using NetEvolve.Schemas.DependencyInjection.Tests.Unit.Schematron;
 
 internal static class XsdRegistrationTestSupport
 {

@@ -1,7 +1,7 @@
-namespace NetEvolve.Schemas.DependencyInjection.Tests.Unit.Schematron;
+namespace NetEvolve.Schemas.Schematron.Tests.Unit.DependencyInjection;
 
 using Microsoft.Extensions.DependencyInjection;
-using static NetEvolve.Schemas.DependencyInjection.Tests.Unit.Schematron.SchematronRegistrationTestSupport;
+using static NetEvolve.Schemas.Schematron.Tests.Unit.DependencyInjection.SchematronRegistrationTestSupport;
 
 public class SchematronLazyCompilationTests
 {
