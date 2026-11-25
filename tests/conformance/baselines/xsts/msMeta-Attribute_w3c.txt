@@ -12,12 +12,10 @@
 1.0/attO006/attO006.v
 1.0/attO009/attO009.v
 1.0/attO011/attO011.v
-1.0/attP031/attP031.i
 1.0/attZ013a/attZ013a
 1.0/attZ013b/attZ013b
 1.0/attZ014a/attZ014a.i
 1.0/attZ014b/attZ014b.i
-1.0/attZ015/attZ015.v
 1.1/attA001/attA001
 1.1/attA002/attA002
 1.1/attA003/attA003

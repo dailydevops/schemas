@@ -7,7 +7,7 @@ This document lists every difference that the differential run over the W3C XML 
 | Baseline | `System.Xml.Schema` of the .NET runtime 10.0, compared on the `net10.0` test leg only (`baseline-runtime: 10.0`) |
 | Corpus | XSTS cases of XSD 1.0 (schema tests and instance tests), pinned in `tests/conformance/suites/xsts.json` |
 | Data file | `tests/NetEvolve.Schemas.Xsd.Tests.Integration/DifferentialData/xsts-1.0-deviations.txt`, one entry per difference: case id, difference kind, observed difference, specification reference, reason |
-| Entries | 5568 entries for 5561 cases |
+| Entries | 5569 entries for 5562 cases |
 
 The list is valid for the recorded baseline runtime version only. A run on another runtime version fails until the list is compared again. System.Xml.Schema implements XSD 1.0 only, so cases of XSD 1.1 are not compared.
 
@@ -27,14 +27,14 @@ No builder option, switch, or code path in the library reproduces System.Xml.Sch
 
 | Class | Entries | Cases |
 |---|---:|---:|
-| Verdict differences: this library follows the specification | 1658 | 1644 |
+| Verdict differences: this library follows the specification | 1659 | 1645 |
 | Verdict differences: documented limitations of this library | 26 | 21 |
 | Position differences: equivalent | 3916 | 3916 |
-| Differences on cases that a bug issue tracks (no entry) | 10152 | |
+| Differences on cases that a bug issue tracks (no entry) | 10150 | |
 
 ## Differences on cases that a bug issue tracks
 
-The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTests/known-failures.txt` and `tests/NetEvolve.Schemas.Xsd.Tests.Integration/InstanceTests/known-failures.txt` record every case of XSD 1.0 that this library does not pass yet, each with its bug issue. At the time of this triage the run found 10152 differences on these cases:
+The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTests/known-failures.txt` and `tests/NetEvolve.Schemas.Xsd.Tests.Integration/InstanceTests/known-failures.txt` record every case of XSD 1.0 that this library does not pass yet, each with its bug issue. At the time of this triage the run found 10150 differences on these cases:
 
 | Issue | Differences | Title |
 |---|---:|---|
@@ -56,7 +56,6 @@ The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTe
 | #894 | 4 | bug(xsd): the content model transition ceiling rejects the instance schemas of four xsts cases |
 | #604 | 2 | feat(xsd): resolve QName and NOTATION instance values with the namespace context |
 | #904 | 2 | bug(xsd): an element with two ID-typed attributes through a wildcard is accepted |
-| #905 | 2 | bug(xsd): use=prohibited on an attribute is treated with the XSD 1.1 meaning in a 1.0 schema |
 | #864 | 1 | bug(xsd): fixed values of attribute uses are compared as strings in the derivation check |
 | #903 | 1 | bug(xsd): a strict wildcard rejects an element that has no declaration but a valid xsi:type |
 | #907 | 1 | bug(xsd): an identity constraint field that selects a skipped attribute is accepted |
@@ -2008,6 +2007,18 @@ A key reference has a value that no key of the referenced constraint has, so the
 
 ```text
 msMeta-Additional_w3c/1.0/addB049/addB049.v
+```
+
+### A prohibited attribute use with a fixed value
+
+The type has no use for the prohibited attribute, which carries a fixed value, so the attribute is not forbidden and the instance is valid. System.Xml.Schema applies the XSD 1.1 meaning and rejects the attribute.
+
+- Difference: InstanceVerdict `instance verdict: ours=Valid, baseline=Invalid` (1)
+- Specification: XSD 1.0 Part 1, 3.4.2 (Complex Type Definition with complex content: the prohibited attribute uses of the XML representation are not part of the {attribute uses}) and 3.4.4
+- Cases: 1
+
+```text
+msMeta-Attribute_w3c/1.0/attP031/attP031.i
 ```
 
 ### A schema document that only an xsi:schemaLocation hint names
