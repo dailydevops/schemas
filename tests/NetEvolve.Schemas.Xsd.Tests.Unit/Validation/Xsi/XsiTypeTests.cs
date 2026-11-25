@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Xsd.Tests.Unit.Validation.Xsi;
+﻿namespace NetEvolve.Schemas.Xsd.Tests.Unit.Validation.Xsi;
 
 using System;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
@@ -373,6 +373,8 @@ public class XsiTypeTests
 
         await Assert.That(none.Count).IsEqualTo(1);
         await Assert.That(none[0].Constraint).IsEqualTo("cvc-wildcard.2");
-        await Assert.That(unknown.Any(i => i.Constraint == "cvc-wildcard.2")).IsTrue();
+        // The unresolvable xsi:type is reported on its own, then the strict wildcard finds no type to assess the element against.
+        await Assert.That(unknown.Count).IsEqualTo(2);
+        await Assert.That(unknown[1].Constraint).IsEqualTo("cvc-wildcard.2");
     }
 }

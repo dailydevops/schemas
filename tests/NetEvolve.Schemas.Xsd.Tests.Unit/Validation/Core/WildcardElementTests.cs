@@ -42,7 +42,7 @@ public class WildcardElementTests
         var ok = ValidationHarness.Run(schema, "<r><known/></r>");
         var bad = ValidationHarness.Run(schema, "<r><known>text</known></r>");
 
-        await Assert.That(string.Join("//", ok.Select(i => i.Constraint + i.Message))).IsEqualTo("");
+        await Assert.That(ok.Count).IsEqualTo(0);
         await Assert.That(bad.Count).IsEqualTo(1);
         await Assert.That(bad[0].Constraint).IsEqualTo("cvc-complex-type.2.1");
     }
