@@ -30,11 +30,11 @@ No builder option, switch, or code path in the library reproduces System.Xml.Sch
 | Verdict differences: this library follows the specification | 1696 | 1664 |
 | Verdict differences: documented limitations of this library | 26 | 21 |
 | Position differences: equivalent | 12863 | 12863 |
-| Differences on cases that a bug issue tracks (no entry) | 1014 | |
+| Differences on cases that a bug issue tracks (no entry) | 1013 | |
 
 ## Differences on cases that a bug issue tracks
 
-The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTests/known-failures.txt` and `tests/NetEvolve.Schemas.Xsd.Tests.Integration/InstanceTests/known-failures.txt` record every case of XSD 1.0 that this library does not pass yet, each with its bug issue. At the time of this triage the run found 9991 differences on these cases:
+The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTests/known-failures.txt` and `tests/NetEvolve.Schemas.Xsd.Tests.Integration/InstanceTests/known-failures.txt` record every case of XSD 1.0 that this library does not pass yet, each with its bug issue. At the time of this triage the run found 9990 differences on these cases:
 
 | Issue | Differences | Title |
 |---|---:|---|
@@ -55,7 +55,6 @@ The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTe
 | #1079 | 3 | feat(xsd): evaluate the enumeration facet of hexBinary and base64Binary restrictions |
 | #604 | 2 | feat(xsd): resolve QName and NOTATION instance values with the namespace context |
 | #410 | 1 | feat(xml): support caller-selectable xml 1.1 name productions |
-| #864 | 1 | bug(xsd): fixed values of attribute uses are compared as strings in the derivation check |
 | #903 | 1 | bug(xsd): a strict wildcard rejects an element that has no declaration but a valid xsi:type |
 
 ## Verdict differences: this library follows the specification
