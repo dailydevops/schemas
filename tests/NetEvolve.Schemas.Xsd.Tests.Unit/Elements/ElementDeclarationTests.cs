@@ -108,6 +108,35 @@ public class ElementDeclarationTests
     }
 
     [Test]
+    [Arguments("abstract=\"true\"")]
+    [Arguments("final=\"restriction\"")]
+    [Arguments("substitutionGroup=\"t:h\"")]
+    public async Task LocalElement_WithAGlobalOnlyAttribute_IsALocatedSchemaError(string attribute)
+    {
+        ArgumentNullException.ThrowIfNull(attribute);
+        var fixture = ElementFixture.Build(
+            "<xs:element name=\"h\"/><xs:group name=\"g\"><xs:sequence>\n<xs:element name=\"a\" "
+                + attribute
+                + "/></xs:sequence></xs:group>"
+        );
+
+        await Assert.That(fixture.Issues.Count).IsEqualTo(1);
+        await Assert.That(fixture.Issues[0].Code).IsEqualTo(fixture.CodeOf("src-element"));
+        await Assert.That(fixture.Issues[0].Location.Line).IsEqualTo(4);
+    }
+
+    [Test]
+    public async Task LocalElement_WithTheSchemaDefaults_IsNotAnError()
+    {
+        var fixture = ElementFixture.Build(
+            "<xs:group name=\"g\"><xs:sequence><xs:element name=\"a\"/></xs:sequence></xs:group>",
+            "finalDefault=\"#all\""
+        );
+
+        await Assert.That(fixture.Issues.Count).IsEqualTo(0);
+    }
+
+    [Test]
     public async Task AbstractBlockAndFinal_AreExposed()
     {
         var fixture = ElementFixture.Build(
