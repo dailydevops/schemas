@@ -164,6 +164,25 @@ public class ContentSubsumptionElementTests
     }
 
     [Test]
+    public async Task Element_FixedValue_OfATypeThatIsNotKnownYet_IsComparedAsText()
+    {
+        var syntax = new FakeSyntaxElement("complexType", 3);
+        var fixedKind = ElementValueConstraintKind.Fixed;
+        var baseParticle = Pair(Declaration("a", constraint: fixedKind, value: "1", inlineType: syntax));
+
+        await AssertSubsumed(
+            Pair(Declaration("a", constraint: fixedKind, value: "1", inlineType: syntax)),
+            baseParticle
+        );
+        await AssertNotSubsumed(
+            Pair(Declaration("a", constraint: fixedKind, value: "01", inlineType: syntax)),
+            baseParticle,
+            Subsumes + "4.2",
+            10
+        );
+    }
+
+    [Test]
     public async Task Element_WithATypeThatIsNotKnownYet_IsNotCompared()
     {
         var syntax = new FakeSyntaxElement("complexType", 3);

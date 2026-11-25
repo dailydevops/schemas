@@ -264,6 +264,29 @@ public class ParticleRestrictionElementTests
     }
 
     [Test]
+    public async Task NameAndTypeOK_FixedValue_OfATypeThatIsNotKnownYet_IsComparedAsText()
+    {
+        var syntax = new FakeSyntaxElement("complexType", 3);
+        var fixedKind = ElementValueConstraintKind.Fixed;
+
+        await AssertValid(
+            Elements(
+                Declaration("a", constraint: fixedKind, value: "1", inlineType: syntax),
+                Declaration("a", constraint: fixedKind, value: "1", inlineType: syntax)
+            )
+        );
+        await AssertViolation(
+            Elements(
+                Declaration("a", constraint: fixedKind, value: "01", inlineType: syntax),
+                Declaration("a", constraint: fixedKind, value: "1", inlineType: syntax)
+            ),
+            XsdRuleCodes.RcaseNameAndTypeOK,
+            "rcase-NameAndTypeOK.3.2.2",
+            10
+        );
+    }
+
+    [Test]
     public async Task NameAndTypeOK_TypeThatIsNotKnownYet_IsNotCompared()
     {
         var syntax = new FakeSyntaxElement("complexType", 3);

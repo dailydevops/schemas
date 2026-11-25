@@ -8,7 +8,6 @@ using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.IdentityConstraints.Evaluation;
-using NetEvolve.Schemas.Xsd.Validation.Core;
 
 /// <summary>
 /// Checks the derivation of types (Structures 3.4.6 and 3.14.6): the <see cref="IDerivationCheck"/> seam that answers whether
@@ -44,13 +43,15 @@ internal sealed class TypeDerivationCheck : IDerivationCheck
 
     /// <summary>Initializes a new instance of the <see cref="TypeDerivationCheck"/> class.</summary>
     /// <param name="version">The XSD version, which selects the built-in types.</param>
-    internal TypeDerivationCheck(XsdVersion version)
+    /// <param name="values">The value space, which compares the fixed values of attribute uses.</param>
+    internal TypeDerivationCheck(XsdVersion version, ValueSpace values)
     {
+        ArgumentNullException.ThrowIfNull(values);
         ArgumentOutOfRangeException.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
         ArgumentOutOfRangeException.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
 
         _derivation = new TypeDerivationOk(version);
-        _values = new ValueSpace(new DescriptorValueAssessor(version), version);
+        _values = values;
     }
 
     /// <inheritdoc />

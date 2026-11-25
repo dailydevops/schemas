@@ -8,7 +8,9 @@ using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Derivation.Types;
+using NetEvolve.Schemas.Xsd.IdentityConstraints.Evaluation;
 using NetEvolve.Schemas.Xsd.Substitution;
+using NetEvolve.Schemas.Xsd.Validation.Core;
 
 /// <summary>
 /// Resolves the <c>xsi:type</c> attribute of an element to a type and checks that it may stand in for the declared type
@@ -77,7 +79,10 @@ internal sealed class XsiTypeResolver
             block |= blocked.Block;
         }
 
-        _derivation ??= new TypeDerivationCheck(_schema.Version);
+        _derivation ??= new TypeDerivationCheck(
+            _schema.Version,
+            new ValueSpace(new DescriptorValueAssessor(_schema.Version), _schema.Version)
+        );
         var result = _derivation.Check(named, declaredType, XsdDerivationMethod.Substitution, block & TypeDerivations);
         return result.IsValid
             ? new XsiTypeResult(XsiTypeStatus.Resolved, named, name, null)
