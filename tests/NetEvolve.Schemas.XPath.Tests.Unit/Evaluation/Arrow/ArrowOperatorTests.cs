@@ -37,7 +37,7 @@ public class ArrowOperatorTests
     [Test]
     [Arguments("'abc' => upper-case() => substring(2) => string-length()", "integer:2")]
     [Arguments("'abc' => upper-case() => substring(2)", "string:BC")]
-    [Arguments("(1, 2, 3) => reverse() => string-join(',')", "string:3,2,1")]
+    [Arguments("('a', 'b', 'c') => reverse() => string-join(',')", "string:c,b,a")]
     public async Task AChainOfArrows_EvaluatesLeftToRight(
         string expression,
         string expected,
@@ -85,7 +85,7 @@ public class ArrowOperatorTests
     [Test]
     [Arguments("('a' => concat(?, 'c'))('b')", "string:abc")]
     [Arguments("function-arity('a' => concat(?, 'c'))", "integer:1")]
-    [Arguments("function-arity('a' => concat(?, ?))", "integer:1")]
+    [Arguments("function-arity('a' => concat(?, ?))", "integer:2")]
     [Arguments("(1 => (function($a, $b, $c) { $a + $b + $c })(?, 3))(2)", "integer:6")]
     public async Task APlaceholder_ProducesAPartialApplication(
         string expression,
@@ -123,7 +123,7 @@ public class ArrowOperatorTests
 
         await Assert.That(diagnostic.QName.LocalName).IsEqualTo("XPST0017");
         await Assert.That(diagnostic.Offset).IsEqualTo(5);
-        await Assert.That(diagnostic.Length).IsEqualTo(10);
+        await Assert.That(diagnostic.Length).IsEqualTo(11);
     }
 
     [Test]
