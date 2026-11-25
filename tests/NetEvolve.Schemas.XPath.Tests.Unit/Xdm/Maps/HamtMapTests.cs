@@ -39,7 +39,7 @@ public class HamtMapTests
             var found = map.TryGet(Key(i), out var value);
 
             await Assert.That(found).IsFalse();
-            await Assert.That(value.Length).IsEqualTo(0);
+            await Assert.That(value.Count).IsEqualTo(0);
         }
     }
 
