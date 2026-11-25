@@ -11,7 +11,6 @@ using NetEvolve.Schemas.Xsd.Tests.Integration.Xsts;
 /// </summary>
 [Explicit]
 [Category(ConformanceCategory.Name)]
-[ConformanceLeg]
 public class InstanceKnownFailuresTests
 {
     private static readonly string ListPath = Path.Combine(
