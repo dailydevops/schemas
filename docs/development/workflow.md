@@ -75,3 +75,13 @@ The suite classes also carry `[Explicit]` and `[Category(ConformanceCategory.Nam
 - The conformance workflow selects the suites by category: `--treenode-filter "/*/*/*/*[Category=Conformance]"`. A filter such as `/*/*Conformance*/*/*` also selects non-explicit tests, so TUnit would drop the explicit ones from that run. Do not use a namespace or class-name filter for the suites.
 - Because a conformance result does not depend on the target framework, the workflow matrix runs the `net10.0` leg only.
 - A new suite class carries `[Explicit]` and `[Category(ConformanceCategory.Name)]`.
+
+## Benchmarks run after the merge
+
+The Benchmarks workflow (`.github/workflows/benchmarks.yml`) does not run on pull requests. A run takes about 50 minutes, and with many open pull requests it saturates the hosted CI runners and delays every other check. The benchmark gate is not a required status check of the `main` ruleset, so it does not need to finish before the merge.
+
+- It runs on every push to `main` that touches `benchmarks/**`, `src/**`, or the workflow file.
+- It runs nightly (`schedule`) and on demand (`workflow_dispatch`).
+- To benchmark a pull request that changes benchmarks or hot paths, start the workflow manually with `workflow_dispatch` on the branch of the pull request. There is no label for this.
+- The concurrency group is per ref, so a newer run on `main` cancels an older one, and runs of other refs are not affected.
+- A red run on `main` stays visible as a failed workflow run. A follow-up pull request fixes it.
