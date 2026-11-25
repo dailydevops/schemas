@@ -47,6 +47,16 @@ internal static class FunctionConversion
                 : throw XPathErrors.Exception(XPathErrorCodes.XPTY0004);
         }
 
+        // An atomic type is checked after the atomization, which flattens an array into the values of its members (XPath 3.1, 3.1.5.2).
+        if (type.ItemType is not (XPathItemType.Item or XPathItemType.Node))
+        {
+            var atomic = XPathAtomization.Atomize(argument);
+            return !MatchesOccurrence(atomic.Count, type.Occurrence)
+                    ? throw XPathErrors.Exception(XPathErrorCodes.XPTY0004)
+                : atomic.IsEmpty ? atomic
+                : ConvertAtomic(atomic, atomic.Count, type);
+        }
+
         var count = argument.Count;
         if (!MatchesOccurrence(count, type.Occurrence))
         {
@@ -58,23 +68,18 @@ internal static class FunctionConversion
             return argument;
         }
 
-        switch (type.ItemType)
+        if (type.ItemType == XPathItemType.Node)
         {
-            case XPathItemType.Item:
-                return argument;
-            case XPathItemType.Node:
-                for (var i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
+            {
+                if (!argument[i].IsNode)
                 {
-                    if (!argument[i].IsNode)
-                    {
-                        throw XPathErrors.Exception(XPathErrorCodes.XPTY0004);
-                    }
+                    throw XPathErrors.Exception(XPathErrorCodes.XPTY0004);
                 }
-
-                return argument;
-            default:
-                return ConvertAtomic(XPathAtomization.Atomize(argument), count, type);
+            }
         }
+
+        return argument;
     }
 
     private static bool MatchesOccurrence(int count, Occurrence occurrence) =>

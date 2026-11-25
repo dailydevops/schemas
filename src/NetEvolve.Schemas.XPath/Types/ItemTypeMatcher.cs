@@ -9,6 +9,7 @@ using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Evaluation.Axes;
 using NetEvolve.Schemas.XPath.Syntax.Tree;
+using NetEvolve.Schemas.XPath.Xdm.Arrays;
 using NetEvolve.Schemas.XPath.Xdm.Nodes;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
@@ -19,7 +20,7 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// <remarks>
 /// Limitations: <c>schema-element()</c> and <c>schema-attribute()</c> and types that are not built in need schema import (DEF-40, #52);
 /// the nillable marker of <c>element(N, T?)</c> is accepted but has no effect because nodes are never nilled until the nilled
-/// property exists; map and array tests belong to XP-32 and XP-69. A function test matches a function item by the signature of the item (see <see cref="FunctionSignature"/>).
+/// property exists; map tests belong to XP-32. An array test matches an array item by the types of its members (XPath 3.1, 2.5.5.6), and an array also matches the function tests by its signature. A function test matches a function item by the signature of the item (see <see cref="FunctionSignature"/>).
 /// </remarks>
 [StructLayout(LayoutKind.Auto)]
 internal readonly struct ItemTypeMatcher
@@ -27,14 +28,16 @@ internal readonly struct ItemTypeMatcher
     private readonly ItemTypeKind _kind;
     private readonly XPathNodeTest _test;
     private readonly XdmTypeId _type;
-    private readonly FunctionSignature? _function;
 
-    private ItemTypeMatcher(ItemTypeKind kind, XPathNodeTest test, XdmTypeId type, FunctionSignature? function = null)
+    // The signature of a typed function test, or the matcher of the members of a typed array test: one slot, so that the struct does not grow for every compiled type.
+    private readonly object? _detail;
+
+    private ItemTypeMatcher(ItemTypeKind kind, XPathNodeTest test, XdmTypeId type, object? detail = null)
     {
         _kind = kind;
         _test = test;
         _type = type;
-        _function = function;
+        _detail = detail;
     }
 
     /// <summary>Gets a value indicating whether every item matches.</summary>
@@ -44,7 +47,7 @@ internal readonly struct ItemTypeMatcher
     public XdmTypeId Type => _type;
 
     /// <summary>Gets the signature of a typed function test; <see langword="null"/> for <c>function(*)</c> and for every other matcher.</summary>
-    public FunctionSignature? FunctionSignature => _function;
+    public FunctionSignature? FunctionSignature => _detail as FunctionSignature;
 
     /// <summary>Binds an item type.</summary>
     /// <param name="itemType">The syntax of the item type.</param>
@@ -66,6 +69,15 @@ internal readonly struct ItemTypeMatcher
                 return BindKindTest(kind.Test, context);
             case ParenthesizedItemType parenthesized:
                 return Bind(parenthesized.Inner, context);
+            case AnyArrayTest:
+                return new(ItemTypeKind.Array, default, default);
+            case TypedArrayTest typedArray:
+                return new(
+                    ItemTypeKind.Array,
+                    default,
+                    default,
+                    SequenceTypeMatcher.Create(typedArray.MemberType, context)
+                );
             case AnyFunctionTest:
                 return new(ItemTypeKind.Function, default, default);
             case TypedFunctionTest typed:
@@ -100,9 +112,11 @@ internal readonly struct ItemTypeMatcher
                 return true;
             case ItemTypeKind.Atomic:
                 return !item.IsNode && item.Kind != XdmItemKind.Function && XdmTypes.IsDerivedFrom(item.TypeId, _type);
+            case ItemTypeKind.Array:
+                return XdmArray.TryGet(item, out var array) && MembersMatch(array!, annotations);
             case ItemTypeKind.Function:
                 return item.TryGetFunction(out var function)
-                    && (_function is null || function!.Signature.IsSubtypeOf(_function));
+                    && (_detail is not FunctionSignature signature || function!.Signature.IsSubtypeOf(signature));
             default:
                 break;
         }
@@ -124,6 +138,24 @@ internal readonly struct ItemTypeMatcher
         }
 
         return bound.Matches(node) && MatchesType(node, annotations);
+    }
+
+    private bool MembersMatch(XdmArray array, IXdmTypeAnnotationSource annotations)
+    {
+        if (_detail is not SequenceTypeMatcher member)
+        {
+            return true;
+        }
+
+        for (var i = 0; i < array.Size; i++)
+        {
+            if (!member.Matches(array[i], annotations))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private static FunctionSignature BindSignature(TypedFunctionTest test, XPathStaticContext context)
@@ -281,5 +313,6 @@ internal readonly struct ItemTypeMatcher
         Node = 3,
         DocumentElement = 4,
         Function = 5,
+        Array = 6,
     }
 }
