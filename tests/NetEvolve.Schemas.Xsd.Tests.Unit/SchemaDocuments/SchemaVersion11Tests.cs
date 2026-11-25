@@ -70,9 +70,9 @@ public class SchemaVersion11Tests
     )]
     [Arguments(
         Open
-            + "  ^<xs:defaultOpenContent id=\"i\" appliesToEmpty=\"true\" mode=\"interleaved\"><xs:any namespace=\"##other\"/></xs:defaultOpenContent>",
+            + "  ^<xs:defaultOpenContent id=\"i\" appliesToEmpty=\"true\" mode=\"interleave\"><xs:any namespace=\"##other\"/></xs:defaultOpenContent>",
         "defaultOpenContent",
-        "id=i;appliesToEmpty=true;mode=interleaved"
+        "id=i;appliesToEmpty=true;mode=interleave"
     )]
     [Arguments(
         Open
