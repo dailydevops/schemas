@@ -29,8 +29,8 @@ No builder option, switch, or code path in the library reproduces System.Xml.Sch
 |---|---:|---:|
 | Verdict differences: this library follows the specification | 1696 | 1664 |
 | Verdict differences: documented limitations of this library | 26 | 21 |
-| Position differences: equivalent | 12868 | 12868 |
-| Differences on cases that a bug issue tracks (no entry) | 943 | |
+| Position differences: equivalent | 12872 | 12872 |
+| Differences on cases that a bug issue tracks (no entry) | 925 | |
 
 ## Differences on cases that a bug issue tracks
 
@@ -45,7 +45,6 @@ The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTe
 | #870 | 22 | feat(xsd): add notation declarations as components |
 | #874 | 22 | bug(xsd): schema constraints that the pipeline does not check yet |
 | #62 | 19 | feat(xml): support xml 1.1 |
-| #1127 | 18 | bug(xsd): a derived attribute wildcard is rejected against the intersection of the attribute group wildcards |
 | #863 | 17 | bug(xsd): particle restriction reports errors for restrictions that the XSTS accepts |
 | #896 | 7 | feat(xsd): compare fixed values in the value space when validating instances |
 | #602 | 6 | feat(xsd): apply default values to elements with mixed content |
@@ -6024,9 +6023,9 @@ sunMeta-suntest/1.0/xsd023.e/xsd023.e
 
 Both engines reject the document with the same number of issues, and the verdicts agree. They attribute the issues to different constructs of the document. Issue positions are not part of the specification, so the difference is equivalent.
 
-- Difference: IssuePositions `issue positions` (8564)
+- Difference: IssuePositions `issue positions` (8568)
 - Specification: XSD 1.0 Part 1, 5.2 and C.1 (the assessment outcome is the validity property; positions and number of reports are not specified)
-- Cases: 8564
+- Cases: 8568
 
 ```text
 ibmMeta-identityConstraint/1.0/s2_2_4si06/s2_2_4si06s
@@ -6749,6 +6748,10 @@ msMeta-Wildcards_w3c/1.0/wildO003/wildO003.i
 msMeta-Wildcards_w3c/1.0/wildQ001/wildQ001
 msMeta-Wildcards_w3c/1.0/wildZ008/wildZ008
 msMeta-Wildcards_w3c/1.0/wildZ009/wildZ009
+msMeta-Wildcards_w3c/1.0/wildZ013a/wildZ013a.i
+msMeta-Wildcards_w3c/1.0/wildZ013d/wildZ013d.i
+msMeta-Wildcards_w3c/1.0/wildZ013e/wildZ013e.i
+msMeta-Wildcards_w3c/1.0/wildZ013f/wildZ013f.i
 nistMeta-NISTXMLSchemaDatatypes/1.0/atomic-NCName-length-5/NISTXML-SV-II-atomic-NCName-length-1-1
 nistMeta-NISTXMLSchemaDatatypes/1.0/atomic-NCName-length-5/NISTXML-SV-II-atomic-NCName-length-1-2
 nistMeta-NISTXMLSchemaDatatypes/1.0/atomic-NCName-length-5/NISTXML-SV-II-atomic-NCName-length-1-3

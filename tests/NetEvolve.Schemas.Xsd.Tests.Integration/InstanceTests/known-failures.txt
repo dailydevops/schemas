@@ -110,12 +110,6 @@ msMeta-SimpleType_w3c	1.0/stZ064/stZ064.i	#963	The group has no schema document,
 msMeta-SimpleType_w3c	1.0/stZ066/stZ066.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-SimpleType_w3c	1.0/stZ075/stZ075.v	#870	Notation declarations are not components yet, so a NOTATION value cannot be checked.
 msMeta-SimpleType_w3c	1.0/ste110/ste110.i	#874	The schema does not build because of a schema constraint that is not analyzed yet.
-msMeta-Wildcards_w3c	1.0/wildZ013a/wildZ013a.i	#1127	The schema does not build: the wildcard of the derived type is rejected against its base (NES4308).
-msMeta-Wildcards_w3c	1.0/wildZ013b/wildZ013b.v	#1127	The schema does not build: the wildcard of the derived type is rejected against its base (NES4308).
-msMeta-Wildcards_w3c	1.0/wildZ013c/wildZ013c.v	#1127	The schema does not build: the wildcard of the derived type is rejected against its base (NES4308).
-msMeta-Wildcards_w3c	1.0/wildZ013d/wildZ013d.i	#1127	The schema does not build: the wildcard of the derived type is rejected against its base (NES4308).
-msMeta-Wildcards_w3c	1.0/wildZ013e/wildZ013e.i	#1127	The schema does not build: the wildcard of the derived type is rejected against its base (NES4308).
-msMeta-Wildcards_w3c	1.0/wildZ013f/wildZ013f.i	#1127	The schema does not build: the wildcard of the derived type is rejected against its base (NES4308).
 nistMeta-NISTXMLSchemaDatatypes	1.0/list-anyURI-enumeration-5/NISTXML-SV-II-list-anyURI-enumeration-1-1	#1077	The enumeration of a list type is not evaluated and the case expects it to reject the value.
 nistMeta-NISTXMLSchemaDatatypes	1.0/list-anyURI-enumeration-5/NISTXML-SV-II-list-anyURI-enumeration-1-2	#1077	The enumeration of a list type is not evaluated and the case expects it to reject the value.
 nistMeta-NISTXMLSchemaDatatypes	1.0/list-anyURI-enumeration-5/NISTXML-SV-II-list-anyURI-enumeration-1-3	#1077	The enumeration of a list type is not evaluated and the case expects it to reject the value.

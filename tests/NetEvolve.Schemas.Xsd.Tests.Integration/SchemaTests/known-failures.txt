@@ -87,12 +87,6 @@ msMeta-SimpleType_w3c	1.0/stZ006/stZ006	#874	A schema constraint that the pipeli
 msMeta-SimpleType_w3c	1.0/stZ010/stZ010	#874	A schema constraint that the pipeline does not check; not analyzed yet.
 msMeta-SimpleType_w3c	1.0/stZ011/stZ011	#874	A schema constraint that the pipeline does not check; not analyzed yet.
 msMeta-SimpleType_w3c	1.0/stZ041/stZ041	#874	A schema constraint that the pipeline does not check; not analyzed yet.
-msMeta-Wildcards_w3c	1.0/wildZ013a/wildZ013a	#1127	The attribute wildcard of the type must allow every namespace that the one of the base type allows (NES4308); the schema does not build.
-msMeta-Wildcards_w3c	1.0/wildZ013b/wildZ013b	#1127	The attribute wildcard of the type must allow every namespace that the one of the base type allows (NES4308); the schema does not build.
-msMeta-Wildcards_w3c	1.0/wildZ013c/wildZ013c	#1127	The attribute wildcard of the type must allow every namespace that the one of the base type allows (NES4308); the schema does not build.
-msMeta-Wildcards_w3c	1.0/wildZ013d/wildZ013d	#1127	The attribute wildcard of the type must allow every namespace that the one of the base type allows (NES4308); the schema does not build.
-msMeta-Wildcards_w3c	1.0/wildZ013e/wildZ013e	#1127	The attribute wildcard of the type must allow every namespace that the one of the base type allows (NES4308); the schema does not build.
-msMeta-Wildcards_w3c	1.0/wildZ013f/wildZ013f	#1127	The attribute wildcard of the type must allow every namespace that the one of the base type allows (NES4308); the schema does not build.
 saxonMeta-Missing	1.0/missing001/missing001.xsd	-	A reference to a type that no document declares is src-resolve here; the suite accepts incomplete schemas.
 saxonMeta-Missing	1.0/missing002/missing001.xsd	-	A reference to an element declaration that no document declares is src-resolve here; the suite accepts incomplete schemas.
 saxonMeta-Missing	1.0/missing003/missing003.xsd	-	A reference to a type that no document declares is src-resolve here; the suite accepts incomplete schemas.
