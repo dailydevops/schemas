@@ -13,6 +13,5 @@ internal static class ParallelPolyfills
         IEnumerable<T> source,
         ParallelOptions options,
         Func<T, CancellationToken, ValueTask> body
-    ) =>
-        Parallel.ForEachAsync(source, options, body);
+    ) => Parallel.ForEachAsync(source, options, body);
 }

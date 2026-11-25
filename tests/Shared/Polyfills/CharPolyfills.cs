@@ -5,14 +5,11 @@ namespace System;
 // Call as c.IsAsciiLetter(); forwards to the BCL char.IsAscii* statics.
 internal static class CharPolyfills
 {
-    public static bool IsAsciiLetter(this char c) =>
-        char.IsAsciiLetter(c);
+    public static bool IsAsciiLetter(this char c) => char.IsAsciiLetter(c);
 
-    public static bool IsAsciiDigit(this char c) =>
-        char.IsAsciiDigit(c);
+    public static bool IsAsciiDigit(this char c) => char.IsAsciiDigit(c);
 
     public static bool IsAsciiLetterOrDigit(this char c) => c.IsAsciiLetter() || c.IsAsciiDigit();
 
-    public static bool IsAsciiHexDigitLower(this char c) =>
-        char.IsAsciiHexDigitLower(c);
+    public static bool IsAsciiHexDigitLower(this char c) => char.IsAsciiHexDigitLower(c);
 }
