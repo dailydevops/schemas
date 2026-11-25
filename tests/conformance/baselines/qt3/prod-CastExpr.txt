@@ -49,13 +49,8 @@ prod-CastExpr/K2-SeqExprCast-17
 prod-CastExpr/K2-SeqExprCast-2
 prod-CastExpr/K2-SeqExprCast-201
 prod-CastExpr/K2-SeqExprCast-207
-prod-CastExpr/K2-SeqExprCast-210
 prod-CastExpr/K2-SeqExprCast-22
 prod-CastExpr/K2-SeqExprCast-299
 prod-CastExpr/K2-SeqExprCast-421
-prod-CastExpr/K2-SeqExprCast-422
-prod-CastExpr/K2-SeqExprCast-423
-prod-CastExpr/K2-SeqExprCast-424
-prod-CastExpr/K2-SeqExprCast-505
 prod-CastExpr/K2-SeqExprCast-78
 prod-CastExpr/K2-SeqExprCast-90

@@ -44,6 +44,7 @@ internal sealed class SvrlNames
         Diagnostic = Attribute(table, "diagnostic");
         Property = Attribute(table, "property");
         Code = Attribute(table, "code");
+        Lang = table.Intern("xml", "lang", "http://www.w3.org/XML/1998/namespace");
     }
 
     internal XmlSymbol PrefixSymbol { get; }
@@ -109,6 +110,8 @@ internal sealed class SvrlNames
     internal XmlName Property { get; }
 
     internal XmlName Code { get; }
+
+    internal XmlName Lang { get; }
 
     private static XmlName Element(XmlNameTable table, string local) => table.Intern(Prefix, local, Namespace);
 
