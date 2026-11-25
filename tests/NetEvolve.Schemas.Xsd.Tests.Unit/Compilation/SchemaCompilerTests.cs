@@ -11,6 +11,7 @@ using NetEvolve.Schemas.Xsd.Compilation;
 using NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;
 using NetEvolve.Schemas.Xsd.ContentModels.Determinism;
 using NetEvolve.Schemas.Xsd.Contracts;
+using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.Elements;
 using NetEvolve.Schemas.Xsd.SimpleTypes.Definitions;
 using NetEvolve.Schemas.Xsd.Tests.Unit.Composition;
@@ -264,6 +265,21 @@ public class SchemaCompilerTests
             )
             .Throws<ArgumentOutOfRangeException>();
         await Assert.That(() => Compiler().Compile((IReadOnlyList<SchemaInput>)null!)).Throws<ArgumentNullException>();
+    }
+
+    // An all group that may not occur is dropped from the content type, but cos-all-limited of XSD 1.0 still applies to it.
+    [Test]
+    [Arguments(XsdVersion.V10, 1)]
+    [Arguments(XsdVersion.V11, 0)]
+    public async Task Compile_AllGroupThatNeverOccurs_IsAnErrorInXsd10Only(XsdVersion version, int errors)
+    {
+        var root = Schema(
+            "<xs:complexType name=\"foo\"><xs:all minOccurs=\"0\" maxOccurs=\"0\"><xs:element name=\"a\"/></xs:all></xs:complexType>"
+        );
+
+        var compilation = Compile(root, version);
+
+        await Assert.That(Codes(compilation).Count(c => c == XsdRuleCodes.CosAllLimited)).IsEqualTo(errors);
     }
 
     [Test]

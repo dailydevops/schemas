@@ -7,7 +7,7 @@ This document lists every difference that the differential run over the W3C XML 
 | Baseline | `System.Xml.Schema` of the .NET runtime 10.0, compared on the `net10.0` test leg only (`baseline-runtime: 10.0`) |
 | Corpus | XSTS cases of XSD 1.0 (schema tests and instance tests), pinned in `tests/conformance/suites/xsts.json` |
 | Data file | `tests/NetEvolve.Schemas.Xsd.Tests.Integration/DifferentialData/xsts-1.0-deviations.txt`, one entry per difference: case id, difference kind, observed difference, specification reference, reason |
-| Entries | 14533 entries for 14496 cases |
+| Entries | 14542 entries for 14505 cases |
 
 The list is valid for the recorded baseline runtime version only. A run on another runtime version fails until the list is compared again. System.Xml.Schema implements XSD 1.0 only, so cases of XSD 1.1 are not compared.
 
@@ -29,8 +29,8 @@ No builder option, switch, or code path in the library reproduces System.Xml.Sch
 |---|---:|---:|
 | Verdict differences: this library follows the specification | 1692 | 1660 |
 | Verdict differences: documented limitations of this library | 26 | 21 |
-| Position differences: equivalent | 12815 | 12815 |
-| Differences on cases that a bug issue tracks (no entry) | 1210 | |
+| Position differences: equivalent | 12824 | 12824 |
+| Differences on cases that a bug issue tracks (no entry) | 1201 | |
 
 ## Differences on cases that a bug issue tracks
 
@@ -45,15 +45,14 @@ The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTe
 | #860 | 38 | bug(xsd): a restriction of NOTATION without an enumeration is rejected where the type is not used |
 | #963 | 35 | test(conformance): run the xsts instance tests of groups without a schema document through schema location hints |
 | #862 | 28 | bug(xsd): length together with minLength or maxLength in one restriction step is accepted |
-| #874 | 28 | bug(xsd): schema constraints that the pipeline does not check yet |
-| #869 | 22 | feat(xsd): check redefinitions against the redefined component |
+| #874 | 23 | bug(xsd): schema constraints that the pipeline does not check yet |
+| #869 | 23 | feat(xsd): check redefinitions against the redefined component |
 | #62 | 19 | feat(xml): support xml 1.1 |
 | #863 | 17 | bug(xsd): particle restriction reports errors for restrictions that the XSTS accepts |
 | #870 | 11 | feat(xsd): add notation declarations as components |
 | #896 | 7 | feat(xsd): compare fixed values in the value space when validating instances |
 | #602 | 6 | feat(xsd): apply default values to elements with mixed content |
 | #865 | 5 | bug(xsd): a local element declaration with abstract or final is accepted |
-| #866 | 5 | bug(xsd): the all group limits of 1.0 miss particles that occur zero times and identical declarations |
 | #871 | 5 | feat(xsd): reject a value constraint on an attribute or element of type ID |
 | #894 | 4 | bug(xsd): the content model transition ceiling rejects the instance schemas of four xsts cases |
 | #1080 | 4 | fix(xml): match every XML name character with the multi-character escape c in the pattern facet |
@@ -2156,9 +2155,9 @@ msMeta-AttributeGroup_w3c/1.0/attgD003/attgD003.v
 
 Both engines reject the document with the same number of issues on the same lines, and the verdicts agree. They anchor an issue at different columns of the same construct. Issue positions are not part of the specification, so the difference is equivalent.
 
-- Difference: IssuePositions `issue positions` (3795)
+- Difference: IssuePositions `issue positions` (3794)
 - Specification: XSD 1.0 Part 1, 5.2 and C.1 (the assessment outcome is the validity property; positions and number of reports are not specified)
-- Cases: 3795
+- Cases: 3794
 
 ```text
 ibmMeta-anyAttribute/1.0/s3_10_6ii01/s3_10_6v01i
@@ -3966,7 +3965,6 @@ msMeta-ModelGroups_w3c/1.0/mgA019/mgA019
 msMeta-ModelGroups_w3c/1.0/mgA020/mgA020
 msMeta-ModelGroups_w3c/1.0/mgAa004/mgAa004
 msMeta-ModelGroups_w3c/1.0/mgAa006/mgAa006
-msMeta-ModelGroups_w3c/1.0/mgAb003/mgAb003
 msMeta-ModelGroups_w3c/1.0/mgAb004/mgAb004
 msMeta-ModelGroups_w3c/1.0/mgAb006/mgAb006
 msMeta-ModelGroups_w3c/1.0/mgAb007/mgAb007
@@ -3977,7 +3975,6 @@ msMeta-ModelGroups_w3c/1.0/mgB010/mgB010
 msMeta-ModelGroups_w3c/1.0/mgC003/mgC003.i
 msMeta-ModelGroups_w3c/1.0/mgC007/mgC007.i
 msMeta-ModelGroups_w3c/1.0/mgC008/mgC008
-msMeta-ModelGroups_w3c/1.0/mgC009/mgC009
 msMeta-ModelGroups_w3c/1.0/mgC012/mgC012.i
 msMeta-ModelGroups_w3c/1.0/mgC013/mgC013
 msMeta-ModelGroups_w3c/1.0/mgE003/mgE003
@@ -4055,21 +4052,23 @@ msMeta-ModelGroups_w3c/1.0/mgN011/mgN011.i
 msMeta-ModelGroups_w3c/1.0/mgN013/mgN013.i
 msMeta-ModelGroups_w3c/1.0/mgN014/mgN014.i
 msMeta-ModelGroups_w3c/1.0/mgN015/mgN015.i
+msMeta-ModelGroups_w3c/1.0/mgO001/mgO001
 msMeta-ModelGroups_w3c/1.0/mgO003/mgO003
+msMeta-ModelGroups_w3c/1.0/mgO018/mgO018
 msMeta-ModelGroups_w3c/1.0/mgO020/mgO020
 msMeta-ModelGroups_w3c/1.0/mgP039/mgP039
 msMeta-ModelGroups_w3c/1.0/mgP041/mgP041
 msMeta-ModelGroups_w3c/1.0/mgP042/mgP042
 msMeta-ModelGroups_w3c/1.0/mgP043/mgP043
 msMeta-ModelGroups_w3c/1.0/mgP050/mgP050
-msMeta-ModelGroups_w3c/1.0/mgP055/mgP055
-msMeta-ModelGroups_w3c/1.0/mgP056/mgP056
+msMeta-ModelGroups_w3c/1.0/mgQ001/mgQ001
 msMeta-ModelGroups_w3c/1.0/mgQ004/mgQ004
 msMeta-ModelGroups_w3c/1.0/mgQ005/mgQ005
 msMeta-ModelGroups_w3c/1.0/mgQ010/mgQ010
 msMeta-ModelGroups_w3c/1.0/mgQ011/mgQ011
 msMeta-ModelGroups_w3c/1.0/mgQ012/mgQ012
 msMeta-ModelGroups_w3c/1.0/mgQ013/mgQ013
+msMeta-ModelGroups_w3c/1.0/mgR001/mgR001
 msMeta-ModelGroups_w3c/1.0/mgR002/mgR002
 msMeta-ModelGroups_w3c/1.0/mgR004/mgR004
 msMeta-ModelGroups_w3c/1.0/mgR005/mgR005
@@ -4201,7 +4200,6 @@ msMeta-Particles_w3c/1.0/particlesEa014/particlesEa014.i
 msMeta-Particles_w3c/1.0/particlesEa019/particlesEa019.i
 msMeta-Particles_w3c/1.0/particlesEa021/particlesEa021.i
 msMeta-Particles_w3c/1.0/particlesEa023/particlesEa023
-msMeta-Particles_w3c/1.0/particlesEa024/particlesEa024
 msMeta-Particles_w3c/1.0/particlesEa025/particlesEa025
 msMeta-Particles_w3c/1.0/particlesEb004/particlesEb004.i
 msMeta-Particles_w3c/1.0/particlesEb005/particlesEb005.i
@@ -5963,9 +5961,9 @@ sunMeta-suntest/1.0/xsd023.e/xsd023.e
 
 Both engines reject the document with the same number of issues, and the verdicts agree. They attribute the issues to different constructs of the document. Issue positions are not part of the specification, so the difference is equivalent.
 
-- Difference: IssuePositions `issue positions` (8528)
+- Difference: IssuePositions `issue positions` (8533)
 - Specification: XSD 1.0 Part 1, 5.2 and C.1 (the assessment outcome is the validity property; positions and number of reports are not specified)
-- Cases: 8528
+- Cases: 8533
 
 ```text
 ibmMeta-identityConstraint/1.0/s2_2_4si06/s2_2_4si06s
@@ -5974,6 +5972,7 @@ msMeta-Additional_w3c/1.0/addB021a/addB021a
 msMeta-Additional_w3c/1.0/addB022/addB022
 msMeta-Additional_w3c/1.0/addB037/addB037.i
 msMeta-Additional_w3c/1.0/addB043/addB043
+msMeta-Additional_w3c/1.0/addB053/addB053
 msMeta-Additional_w3c/1.0/addB069/addB069.i
 msMeta-Additional_w3c/1.0/addB098/addB098.i
 msMeta-Additional_w3c/1.0/addB102/addB102.i
@@ -6293,6 +6292,7 @@ msMeta-ModelGroups_w3c/1.0/mgN002/mgN002.i
 msMeta-ModelGroups_w3c/1.0/mgN016/mgN016.i
 msMeta-ModelGroups_w3c/1.0/mgO021/mgO021
 msMeta-ModelGroups_w3c/1.0/mgO022/mgO022
+msMeta-ModelGroups_w3c/1.0/mgO027/mgO027
 msMeta-ModelGroups_w3c/1.0/mgQ021/mgQ021
 msMeta-ModelGroups_w3c/1.0/mgR003/mgR003
 msMeta-ModelGroups_w3c/1.0/mgR008/mgR008
@@ -6341,6 +6341,7 @@ msMeta-Particles_w3c/1.0/particlesEc027/particlesEc027.i
 msMeta-Particles_w3c/1.0/particlesEc028/particlesEc028.i
 msMeta-Particles_w3c/1.0/particlesFb005/particlesFb005
 msMeta-Particles_w3c/1.0/particlesFb006/particlesFb006
+msMeta-Particles_w3c/1.0/particlesHa008/particlesHa008
 msMeta-Particles_w3c/1.0/particlesHa021/particlesHa021
 msMeta-Particles_w3c/1.0/particlesHa052/particlesHa052
 msMeta-Particles_w3c/1.0/particlesHa071/particlesHa071
@@ -14362,6 +14363,8 @@ nistMeta-NISTXMLSchemaDatatypes/1.0/union-short-gYear-pattern-9/NISTXML-SV-II-un
 nistMeta-NISTXMLSchemaDatatypes/1.0/union-short-gYear-pattern-9/NISTXML-SV-II-union-short-gYear-pattern-5-3
 nistMeta-NISTXMLSchemaDatatypes/1.0/union-short-gYear-pattern-9/NISTXML-SV-II-union-short-gYear-pattern-5-4
 nistMeta-NISTXMLSchemaDatatypes/1.0/union-short-gYear-pattern-9/NISTXML-SV-II-union-short-gYear-pattern-5-5
+saxonMeta-Complex/1.0/complex019/complex019.xsd
+saxonMeta-Complex/1.0/complex020/complex020.xsd
 sunMeta-CType/1.0/abstract00101m1/Negative
 sunMeta-CType/1.0/abstract00101m2/Negative
 sunMeta-CType/1.0/basetd00101m1/Negative
@@ -14502,9 +14505,9 @@ sunMeta-suntest/1.0/xsd022/xsd022.n00
 
 Both engines reject the document and the verdicts agree. This library reports more issues than System.Xml.Schema for the same document; the engines group and follow up violations differently. The number and the positions of reported issues are not part of the specification, so the difference is equivalent.
 
-- Difference: IssuePositions `issue positions` (348)
+- Difference: IssuePositions `issue positions` (353)
 - Specification: XSD 1.0 Part 1, 5.2 and C.1 (the assessment outcome is the validity property; positions and number of reports are not specified)
-- Cases: 348
+- Cases: 353
 
 ```text
 ibmMeta-cyclicRedefineIncludeImportOverride/1.0/s4_2_4si02/s4_2_4si02s
@@ -14732,10 +14735,12 @@ msMeta-ModelGroups_w3c/1.0/mgAa008/mgAa008
 msMeta-ModelGroups_w3c/1.0/mgAa009/mgAa009
 msMeta-ModelGroups_w3c/1.0/mgAb001/mgAb001
 msMeta-ModelGroups_w3c/1.0/mgAb002/mgAb002
+msMeta-ModelGroups_w3c/1.0/mgAb003/mgAb003
 msMeta-ModelGroups_w3c/1.0/mgAb005/mgAb005
 msMeta-ModelGroups_w3c/1.0/mgAb008/mgAb008
 msMeta-ModelGroups_w3c/1.0/mgAb009/mgAb009
 msMeta-ModelGroups_w3c/1.0/mgB009/mgB009
+msMeta-ModelGroups_w3c/1.0/mgC009/mgC009
 msMeta-ModelGroups_w3c/1.0/mgE009/mgE009
 msMeta-ModelGroups_w3c/1.0/mgE010/mgE010
 msMeta-ModelGroups_w3c/1.0/mgE012/mgE012
@@ -14771,6 +14776,8 @@ msMeta-ModelGroups_w3c/1.0/mgO032/mgO032
 msMeta-ModelGroups_w3c/1.0/mgO033/mgO033
 msMeta-ModelGroups_w3c/1.0/mgP040/mgP040
 msMeta-ModelGroups_w3c/1.0/mgP049/mgP049
+msMeta-ModelGroups_w3c/1.0/mgP055/mgP055
+msMeta-ModelGroups_w3c/1.0/mgP056/mgP056
 msMeta-ModelGroups_w3c/1.0/mgP057/mgP057
 msMeta-ModelGroups_w3c/1.0/mgP058/mgP058
 msMeta-ModelGroups_w3c/1.0/mgP059/mgP059
@@ -14790,6 +14797,7 @@ msMeta-Notations_w3c/1.0/notatF067/notatF067
 msMeta-Notations_w3c/1.0/notatF069/notatF069
 msMeta-Notations_w3c/1.0/notatF071/notatF071
 msMeta-Particles_w3c/1.0/particlesDa006/particlesDa006
+msMeta-Particles_w3c/1.0/particlesEa024/particlesEa024
 msMeta-Particles_w3c/1.0/particlesEd001/particlesEd001
 msMeta-Particles_w3c/1.0/particlesFb003/particlesFb003
 msMeta-Particles_w3c/1.0/particlesHa103/particlesHa103
@@ -14938,8 +14946,7 @@ msMeta-ModelGroups_w3c/1.0/mgL002/mgL002.i
 msMeta-ModelGroups_w3c/1.0/mgM002/mgM002.i
 msMeta-ModelGroups_w3c/1.0/mgM014/mgM014.i
 msMeta-ModelGroups_w3c/1.0/mgN004/mgN004.i
-msMeta-ModelGroups_w3c/1.0/mgO027/mgO027
-msMeta-ModelGroups_w3c/1.0/mgR001/mgR001
+msMeta-ModelGroups_w3c/1.0/mgO019/mgO019
 msMeta-Notations_w3c/1.0/notatA002/notatA002
 msMeta-Notations_w3c/1.0/notatG006/notatG006
 msMeta-Particles_w3c/1.0/particlesA003/particlesA003.i
@@ -14952,6 +14959,7 @@ msMeta-Particles_w3c/1.0/particlesDc009/particlesDc009.i
 msMeta-Particles_w3c/1.0/particlesEa006/particlesEa006.i
 msMeta-Particles_w3c/1.0/particlesEa013/particlesEa013.i
 msMeta-Particles_w3c/1.0/particlesEa020/particlesEa020.i
+msMeta-Particles_w3c/1.0/particlesEc009/particlesEc009
 msMeta-Particles_w3c/1.0/particlesZ007/particlesZ007.i
 msMeta-Schema_w3c/1.0/schN13i/schN13i
 msMeta-SimpleType_w3c/1.0/stE071/stE071.i

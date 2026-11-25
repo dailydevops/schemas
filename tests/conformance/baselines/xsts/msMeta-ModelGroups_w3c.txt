@@ -1,10 +1,6 @@
 1.0/mgH014/mgH014
 1.0/mgH014/mgH014.v
-1.0/mgO001/mgO001
 1.0/mgO013/mgO013
-1.0/mgO018/mgO018
-1.0/mgO019/mgO019
-1.0/mgQ001/mgQ001
 1.1/mgA001/mgA001
 1.1/mgA001/mgA001.v
 1.1/mgA002/mgA002

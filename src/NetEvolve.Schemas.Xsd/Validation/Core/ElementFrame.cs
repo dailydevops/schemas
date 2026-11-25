@@ -31,6 +31,7 @@ internal sealed class ElementFrame
     internal bool HasText;
     internal bool IsNilled;
     internal bool UndeclaredRoot;
+    internal bool UndeclaredStrict;
     internal int NamespaceMark;
 
     internal void Start(XmlName name, XPathQName qname, DocumentLocation location, int ordinal, int namespaceMark)
@@ -54,6 +55,7 @@ internal sealed class ElementFrame
         HasText = false;
         IsNilled = false;
         UndeclaredRoot = false;
+        UndeclaredStrict = false;
         NamespaceMark = namespaceMark;
     }
 }
