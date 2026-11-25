@@ -48,6 +48,23 @@ public class SystemXmlSchemaEngineTests
     }
 
     [Test]
+    public async Task Run_SchemaThatThrowsAnArgumentException_IsInvalidWithoutPositions(
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        using var directory = new TempDirectory();
+        const string emptyId =
+            "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><xs:attributeGroup name=\"abc\" id=\"\"/></xs:schema>";
+
+        var result = await RunAsync(directory, emptyId, "<a/>", cancellationToken);
+
+        await Assert.That(result.Schema).IsEqualTo(Verdict.Invalid);
+        await Assert.That(result.Instance).IsEqualTo(Verdict.NotRun);
+        await Assert.That(result.Issues).IsEmpty();
+    }
+
+    [Test]
     public async Task Run_SchemaOnly_LeavesTheInstanceNotRun(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
