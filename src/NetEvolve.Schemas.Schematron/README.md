@@ -345,7 +345,6 @@ The suite file of the binding `xslt-3-2025` lists three cases that no selected b
 
 - `iso-schema-composition/extends-recursive.xml`
 
-
 **[#877](https://github.com/dailydevops/schemas/issues/877)** (1 case): A let with element content binds a document node (maintainer decision of #856), and the case fails on a document node versus a sequence only.
 
 - `iso-rule-based-validation/let-value-element-content.xml`
