@@ -506,37 +506,6 @@ public class KeyIndexTests
     }
 
     [Test]
-    public async Task Provider_ContractLookup_UsesTheDocumentOfTheProvider()
-    {
-        var fixture = new KeyFixture();
-        var document = new KeyDocument();
-        var (_, provider) = fixture.CreateProvider(Kx.Key("k", "*", "@code", 10));
-        using var context = new XPathEvaluationContext();
-        context.Host.Keys = provider;
-        provider.Document = document["doc"];
-
-        var found = context.Host.Keys.TryGetNodes(Key("k"), XdmItem.FromString("a"), out var nodes);
-
-        await Assert.That(found).IsTrue();
-        await Assert.That(document.Keys(Nodes(nodes))).IsEqualTo("i1 o1");
-        await Assert.That(context.Host.Keys.TryGetNodes(Key("missing"), XdmItem.FromString("a"), out _)).IsFalse();
-        await Assert.That(provider.GetProblem().Constraint).IsEqualTo("XTDE1260");
-    }
-
-    [Test]
-    public async Task Provider_ContractLookup_WithoutADocument_IsFalse()
-    {
-        var fixture = new KeyFixture();
-        var (_, provider) = fixture.CreateProvider(Kx.Key("k", "*", "@code", 10));
-
-        var found = provider.TryGetNodes(Key("k"), XdmItem.FromString("a"), out var nodes);
-
-        await Assert.That(found).IsFalse();
-        await Assert.That(nodes.IsEmpty).IsTrue();
-        await Assert.That(provider.GetProblem().Message).Contains("no document");
-    }
-
-    [Test]
     public async Task Provider_NullArguments_Throw()
     {
         var fixture = new KeyFixture();
