@@ -242,6 +242,13 @@ public sealed partial class RegexProgram
                 return;
             }
 
+            // A required length beyond any input cannot match, whatever the program size; one instruction that never matches stands in.
+            if (node.Min > 0 && (long)node.Min * MinLength(node.FirstChild) > int.MaxValue / 2)
+            {
+                _ = Add(Opcode.Char, -1, 0);
+                return;
+            }
+
             // Counted repeats are expanded (AP-15 A); an empty child cannot grow the program, so it ends the loops.
             for (var i = 0; i < node.Min && Error == RegexError.None; i++)
             {
@@ -282,6 +289,41 @@ public sealed partial class RegexProgram
                 {
                     Patch(split, b: _code.Count);
                 }
+            }
+        }
+
+        // The fewest code units a subtree consumes, capped at int.MaxValue; a back reference and an anchor count as none.
+        private long MinLength(int index)
+        {
+            if (index == RegexNode.NoNode)
+            {
+                return 0;
+            }
+
+            var node = _nodes[index];
+            switch (node.Kind)
+            {
+                case RegexNodeKind.Character:
+                case RegexNodeKind.Set:
+                case RegexNodeKind.AnyChar:
+                    return 1;
+                case RegexNodeKind.Group:
+                    return MinLength(node.FirstChild);
+                case RegexNodeKind.Repeat:
+                    return Math.Min((long)node.Min * MinLength(node.FirstChild), int.MaxValue);
+                case RegexNodeKind.Concat:
+                case RegexNodeKind.Alternation:
+                    var alternation = node.Kind == RegexNodeKind.Alternation;
+                    var total = alternation ? long.MaxValue : 0L;
+                    for (var child = node.FirstChild; child != RegexNode.NoNode; child = _nodes[child].NextSibling)
+                    {
+                        var length = MinLength(child);
+                        total = alternation ? Math.Min(total, length) : Math.Min(total + length, int.MaxValue);
+                    }
+
+                    return total == long.MaxValue ? 0 : total;
+                default:
+                    return 0;
             }
         }
 
