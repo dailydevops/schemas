@@ -88,7 +88,7 @@ internal sealed class SchematronSchemaCompiler : ISchemaCompiler
         var ok = linked || CheckDeclarations(effective, binding, problems);
         ok &= CheckParameters(effective, settings, problems);
         ok &= PhaseSelector.TryResolve(effective, settings.Phase, problems, out var selection);
-        ok &= SubordinateConstructs.TryCheck(effective.Patterns, settings.Resolver, problems);
+        ok &= SubordinateConstructs.TryCheck(selection.Patterns, settings.Resolver, problems);
         XsltModuleTables? tables = null;
         if (linked)
         {
