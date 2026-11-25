@@ -219,20 +219,6 @@ public class StandaloneDocumentDeclarationTests
     }
 
     [Test]
-    [Arguments(DtdAttributeType.Enumeration)]
-    [Arguments(DtdAttributeType.Notation)]
-    public async Task Normalization_EnumeratedType_IsNotATokenizedType_AsSection29SaysTokenized(DtdAttributeType type)
-    {
-        var session = new Session(TypeModel(true, type), standalone: true).Start(
-            "doc",
-            At(3, 1),
-            Attr("a", "x", type, changed: true)
-        );
-
-        await Assert.That(session.Result.Count).IsEqualTo(0);
-    }
-
-    [Test]
     public async Task Normalization_WithoutStandaloneYes_ReportsNothing()
     {
         var session = new Session(TypeModel(true, DtdAttributeType.NmToken), standalone: false).Start(

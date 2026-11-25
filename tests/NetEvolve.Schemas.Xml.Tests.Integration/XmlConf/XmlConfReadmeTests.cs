@@ -144,11 +144,6 @@ public class XmlConfReadmeTests
             "ID values are checked against Name only ([#925](https://github.com/dailydevops/schemas/issues/925)): a colon is accepted.",
             ["eduni-namespaces-1.0/rmt-ns10-045", "eduni-namespaces-1.0/rmt-ns10-046"]
         ),
-        (
-            "Standalone normalization clause",
-            "The clause skips enumerated and notation attributes ([#924](https://github.com/dailydevops/schemas/issues/924)), so Standalone Document Declaration is not reported.",
-            ["sun/inv-not-sa05", "sun/inv-not-sa06"]
-        ),
     ];
 
     [Test]
