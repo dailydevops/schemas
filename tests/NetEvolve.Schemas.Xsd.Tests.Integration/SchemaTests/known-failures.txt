@@ -90,8 +90,6 @@ msMeta-Element_w3c	1.0/elemZ022b/elemZ022b	#859	The import check of the namespac
 msMeta-Element_w3c	1.0/elemZ028c/elemZ028c	-	The unique particle attribution check does not cover an all group, so a member of a substitution group that is also listed is accepted.
 msMeta-Element_w3c	1.0/elemZ032a/elemZ032a	#871	A value constraint on a declaration of type ID is accepted.
 msMeta-Element_w3c	1.0/elemZ032b/elemZ032b	#871	A value constraint on a declaration of type ID is accepted.
-msMeta-Errata10_w3c	1.0/errC005/errC005	#865	A local element declaration with abstract or final is accepted.
-msMeta-Errata10_w3c	1.0/errC006/errC006	#865	A local element declaration with abstract or final is accepted.
 msMeta-Group_w3c	1.0/groupA008/groupA008	#874	A schema constraint that the pipeline does not check; not analyzed yet.
 msMeta-IdentityConstraint_w3c	1.0/idC019/idC019	#874	A schema constraint that the pipeline does not check; not analyzed yet.
 msMeta-IdentityConstraint_w3c	1.0/idZ011/idZ011	#871	A value constraint on a declaration of type ID is accepted.
@@ -101,7 +99,6 @@ msMeta-Notations_w3c	1.0/notatB001/notatB001	#870	Notation declarations are not 
 msMeta-Notations_w3c	1.0/notatB005/notatB005	#870	Notation declarations are not components yet.
 msMeta-Notations_w3c	1.0/notatG001/notatG001	#870	Notation declarations are not components yet.
 msMeta-Notations_w3c	1.0/notatG003/notatG003	#870	Notation declarations are not components yet.
-msMeta-Particles_w3c	1.0/particlesDa011/particlesDa011	#865	A local element declaration with abstract or final is accepted.
 msMeta-Particles_w3c	1.0/particlesHa070/particlesHa070	#863	The particle restriction check reports a restriction that the suite accepts.
 msMeta-Particles_w3c	1.0/particlesHa080/particlesHa080	#863	The particle restriction check reports a restriction that the suite accepts.
 msMeta-Particles_w3c	1.0/particlesHa084/particlesHa084	#863	The particle restriction check reports a restriction that the suite accepts.
@@ -139,8 +136,6 @@ msMeta-Schema_w3c	1.0/schN12/schN12	#869	A redefinition is not checked against t
 msMeta-Schema_w3c	1.0/schN6/schN6	#869	A redefinition is not checked against the redefined component.
 msMeta-Schema_w3c	1.0/schO2/schO2	#869	A redefinition is not checked against the redefined component.
 msMeta-Schema_w3c	1.0/schR5/schR5	#869	A redefinition is not checked against the redefined component.
-msMeta-Schema_w3c	1.0/schZ001_78029-a/schZ001_78029-a	#865	A local element declaration with abstract or final is accepted.
-msMeta-Schema_w3c	1.0/schZ002_78029-b/schZ002_78029-b	#865	A local element declaration with abstract or final is accepted.
 msMeta-Schema_w3c	1.0/schZ004/schZ004	#872	A component of a document that is not imported or included is visible.
 msMeta-Schema_w3c	1.0/schZ005/schZ005	#872	A component of a document that is not imported or included is visible.
 msMeta-Schema_w3c	1.0/schZ006/schZ006	#869	A redefinition is not checked against the redefined component.
