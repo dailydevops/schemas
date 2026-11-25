@@ -28,16 +28,11 @@ internal sealed class IssueMapper : IEvaluationEvents
     /// <inheritdoc />
     public bool WantsLocationPath => _sink is not null;
 
-    /// <summary>Gets a value indicating whether an error was dropped by the issue limit; evaluation stops there (OQ-1).</summary>
-    internal bool HasDroppedError { get; private set; }
+    /// <inheritdoc />
+    public bool HasDroppedError { get; private set; }
 
-    /// <summary>Maps one fired assertion to an issue and adds it to the collector.</summary>
-    /// <param name="isReport"><see langword="true"/> for a successful report, <see langword="false"/> for a failed assert.</param>
-    /// <param name="constraint">The assertion identifier, see <see cref="AssertionIdentifier"/>.</param>
-    /// <param name="message">The rendered message.</param>
-    /// <param name="location">The instance location of the reported node.</param>
-    /// <returns>The issue, or <see langword="null"/> when the collector dropped it.</returns>
-    internal ValidationIssue? Map(bool isReport, string constraint, string message, DocumentLocation location)
+    /// <inheritdoc />
+    public ValidationIssue? Map(bool isReport, string constraint, string message, DocumentLocation location)
     {
         ArgumentNullException.ThrowIfNull(constraint);
         ArgumentNullException.ThrowIfNull(message);

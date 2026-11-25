@@ -3,7 +3,6 @@ namespace NetEvolve.Schemas.Schematron.Evaluation.Patterns;
 using System;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Formats;
-using NetEvolve.Schemas.Schematron.Results.Mapping;
 using NetEvolve.Schemas.Schematron.Seams;
 
 /// <summary>
@@ -17,14 +16,14 @@ using NetEvolve.Schemas.Schematron.Seams;
 internal sealed class EvaluationProblems : IProblemSink
 {
     private readonly ValidationIssueCollector _collector;
-    private readonly IssueMapper _events;
+    private readonly IEvaluationEvents _events;
     private readonly string _instance;
 
     /// <summary>Initializes a new instance of the <see cref="EvaluationProblems"/> class.</summary>
     /// <param name="collector">Receives the issues.</param>
     /// <param name="events">Forwards the error events to the caller sink.</param>
     /// <param name="instanceSystemId">The system identifier of the instance, or <see langword="null"/>.</param>
-    internal EvaluationProblems(ValidationIssueCollector collector, IssueMapper events, string? instanceSystemId)
+    internal EvaluationProblems(ValidationIssueCollector collector, IEvaluationEvents events, string? instanceSystemId)
     {
         ArgumentNullException.ThrowIfNull(collector);
         ArgumentNullException.ThrowIfNull(events);

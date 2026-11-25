@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Schematron.Results.Mapping;
+namespace NetEvolve.Schemas.Schematron.Evaluation.Assertions;
 
 using System.Globalization;
 

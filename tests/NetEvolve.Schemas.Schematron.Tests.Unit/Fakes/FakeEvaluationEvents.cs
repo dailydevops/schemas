@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.Schematron.Tests.Unit.Fakes;
 
 using System.Collections.Generic;
+using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Schematron.Seams;
 
 internal sealed class FakeEvaluationEvents(bool wantsLocationPath) : IEvaluationEvents
@@ -10,6 +11,10 @@ internal sealed class FakeEvaluationEvents(bool wantsLocationPath) : IEvaluation
     internal List<string> Events => _inner.Events;
 
     public bool WantsLocationPath { get; } = wantsLocationPath;
+
+    public bool HasDroppedError => false;
+
+    public ValidationIssue? Map(bool isReport, string constraint, string message, DocumentLocation location) => null;
 
     public void Begin(in SchematronRunInfo info) => _inner.Begin(in info);
 
