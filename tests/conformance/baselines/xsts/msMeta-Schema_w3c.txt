@@ -4,14 +4,7 @@
 1.0/schD7/schD7
 1.0/schD7/schD7.v
 1.0/schD8/schD8
-1.0/schE1/schE1
-1.0/schE2/schE2
-1.0/schE3/schE3
 1.0/schE9/schE9
-1.0/schF1/schF1
-1.0/schF1/schF1.v
-1.0/schG2/schG2
-1.0/schG2/schG2.v
 1.0/schG8/schG8
 1.0/schG8/schG8.v
 1.0/schG9/schG9

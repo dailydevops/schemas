@@ -1,10 +1,6 @@
 1.0/elemZ006/elemZ006
 1.0/elemZ007/elemZ007
 1.0/elemZ017/elemZ017.v
-1.0/elemZ021g/elemZ021g
-1.0/elemZ021g/elemZ021g.i
-1.0/elemZ022b/elemZ022b
-1.0/elemZ022b/elemZ022b.v
 1.0/elemZ028c/elemZ028c
 1.0/elemZ032a/elemZ032a
 1.0/elemZ032b/elemZ032b

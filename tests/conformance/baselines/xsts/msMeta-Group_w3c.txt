@@ -1,4 +1,3 @@
-1.0/groupA008/groupA008
 1.1/groupA001/groupA001
 1.1/groupA002/groupA002
 1.1/groupA003/groupA003
