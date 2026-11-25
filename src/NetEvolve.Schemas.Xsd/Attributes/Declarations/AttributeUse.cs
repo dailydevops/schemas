@@ -11,7 +11,8 @@ using NetEvolve.Schemas.Xsd.Diagnostics;
 /// constraint. Immutable.
 /// </summary>
 /// <remarks>
-/// Limitation: two fixed values are compared as strings, not in the value space of the type.
+/// Limitation: the clause <c>au-props-correct</c> compares the fixed value of a use with the one of its declaration as strings,
+/// not in the value space of the type; the derivation check of attribute uses compares in the value space.
 /// </remarks>
 internal sealed class AttributeUse : IXsdComponent
 {

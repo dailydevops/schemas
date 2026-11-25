@@ -12,6 +12,7 @@ using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Derivation.Types;
 using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.Elements;
+using NetEvolve.Schemas.Xsd.IdentityConstraints.Evaluation;
 using NetEvolve.Schemas.Xsd.Substitution;
 
 /// <summary>
@@ -40,8 +41,8 @@ using NetEvolve.Schemas.Xsd.Substitution;
 /// instance members when it is compared with an element of another name, but only when <see cref="Substitutions"/> is set, otherwise it is
 /// compared as itself; clause 3.2.3 of <c>rcase-NameAndTypeOK</c> (the identity
 /// constraints of the restriction are a subset of those of the base) is not checked, because an element declaration keeps no
-/// identity constraints yet; the fixed values of <c>rcase-NameAndTypeOK.3.2.2</c> are compared by their lexical form, not by
-/// the value of the type; a type that an element declaration does not know yet (an unresolved reference, or an anonymous type
+/// identity constraints yet; the fixed values of <c>rcase-NameAndTypeOK.3.2.2</c> are compared in the value space of the
+/// element types (a declaration without a type compares the lexical forms); a type that an element declaration does not know yet (an unresolved reference, or an anonymous type
 /// that is not constructed) is not compared, and an element declaration without a type has the ur-type; a restriction that cannot
 /// map the members of an <c>all</c> group of the base by name (a base that is not unique, which <c>cos-nonambig</c> reports)
 /// takes the first free member that fits; the occurrence limitations of <see cref="OccurrenceRange"/> apply. The recursion over
@@ -55,14 +56,18 @@ internal sealed class ParticleRestriction
     private static readonly ConditionalWeakTable<Particle, object> SelfStanding = new();
 
     private readonly TypeDerivationOk _derivation;
+    private readonly ValueSpace _values;
 
     /// <summary>Initializes a new instance of the <see cref="ParticleRestriction"/> class.</summary>
     /// <param name="derivation">Type Derivation OK of XSD 1.0, for the types of element declarations.</param>
-    internal ParticleRestriction(TypeDerivationOk derivation)
+    /// <param name="values">The value space, which compares the fixed values of element declarations.</param>
+    internal ParticleRestriction(TypeDerivationOk derivation, ValueSpace values)
     {
         ArgumentNullException.ThrowIfNull(derivation);
+        ArgumentNullException.ThrowIfNull(values);
 
         _derivation = derivation;
+        _values = values;
     }
 
     /// <summary>
@@ -181,6 +186,17 @@ internal sealed class ParticleRestriction
     private static IXsdComponent? TypeOf(ElementDeclaration element) =>
         element.TypeDefinition
         ?? (element.InlineTypeSyntax is null && element.ReferenceCount == 0 ? ComplexTypeDefinition.AnyType : null);
+
+    // The fixed values are equal in the value space of the types; a declaration without a type compares the lexical forms.
+    private bool SameFixedValue(ElementDeclaration element, ElementDeclaration baseElement) =>
+        TypeOf(element) is { } type && TypeOf(baseElement) is { } baseType
+            ? _values.AreEqual(
+                type,
+                (element.ValueConstraint.Value ?? string.Empty).AsSpan(),
+                baseType,
+                (baseElement.ValueConstraint.Value ?? string.Empty).AsSpan()
+            )
+            : string.Equals(element.ValueConstraint.Value, baseElement.ValueConstraint.Value, StringComparison.Ordinal);
 
     private ParticleViolation Valid(Particle restriction, Particle baseParticle)
     {
@@ -317,11 +333,7 @@ internal sealed class ParticleRestriction
     }
 
     // Clauses 3.2.1 to 3.2.4; clause 3.2.3 (identity constraints) is not checked.
-    private static ParticleViolation CheckLocalScope(
-        Particle r,
-        ElementDeclaration element,
-        ElementDeclaration baseElement
-    )
+    private ParticleViolation CheckLocalScope(Particle r, ElementDeclaration element, ElementDeclaration baseElement)
     {
         if (element.IsNillable && !baseElement.IsNillable)
         {
@@ -337,11 +349,7 @@ internal sealed class ParticleRestriction
             baseElement.ValueConstraint.Kind == ElementValueConstraintKind.Fixed
             && (
                 element.ValueConstraint.Kind != ElementValueConstraintKind.Fixed
-                || !string.Equals(
-                    element.ValueConstraint.Value,
-                    baseElement.ValueConstraint.Value,
-                    StringComparison.Ordinal
-                )
+                || !SameFixedValue(element, baseElement)
             )
         )
         {

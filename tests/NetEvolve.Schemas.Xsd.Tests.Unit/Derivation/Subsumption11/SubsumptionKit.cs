@@ -12,7 +12,7 @@ internal static class SubsumptionKit
     public const long Billion = 1_000_000_000;
 
     public static ContentSubsumption Subsumption(int maxWork = ContentSubsumption.DefaultMaxWork) =>
-        new(new TypeDerivationOk(XsdVersion.V11), maxWork);
+        new(new TypeDerivationOk(XsdVersion.V11), ParticleKit.Values(XsdVersion.V11), maxWork);
 
     public static SubsumptionOutcome Check(Particle restriction, Particle baseParticle) =>
         Subsumption().Check(restriction, baseParticle);

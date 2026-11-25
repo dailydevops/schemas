@@ -9,6 +9,8 @@ using NetEvolve.Schemas.Xsd.Derivation.Particles10;
 using NetEvolve.Schemas.Xsd.Derivation.Types;
 using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.Elements;
+using NetEvolve.Schemas.Xsd.IdentityConstraints.Evaluation;
+using NetEvolve.Schemas.Xsd.Validation.Core;
 using NetEvolve.Schemas.Xsd.Wildcards.Core;
 
 /// <summary>Builds particles over real element declarations, wildcards, and model groups for the particle restriction tests.</summary>
@@ -19,7 +21,9 @@ internal static class ParticleKit
 
     public static DocumentLocation At(int line) => new("file:///particles.xsd", line, 1);
 
-    public static ParticleRestriction Checker() => new(new TypeDerivationOk(XsdVersion.V10));
+    public static ValueSpace Values(XsdVersion version) => new(new DescriptorValueAssessor(version), version);
+
+    public static ParticleRestriction Checker() => new(new TypeDerivationOk(XsdVersion.V10), Values(XsdVersion.V10));
 
     public static ElementDeclaration Declaration(
         string name,
