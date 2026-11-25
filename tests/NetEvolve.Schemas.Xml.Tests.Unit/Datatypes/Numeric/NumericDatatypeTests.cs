@@ -292,4 +292,29 @@ public class NumericDatatypeTests
             .That(Integer("integer").Parse("1" + new string('0', 30)).Value)
             .IsEqualTo(new XsdInteger(BigInteger.Pow(10, 30)));
     }
+
+    [Test]
+    [Arguments("0", "0")]
+    [Arguments("-0", "0")]
+    [Arguments("+7", "7")]
+    [Arguments("000000000000000000000000042", "42")]
+    [Arguments("-000000000000000000000000042", "-42")]
+    [Arguments("100", "100")]
+    [Arguments("-1000000000000000000", "-1000000000000000000")]
+    [Arguments("999999999999999999", "999999999999999999")]
+    [Arguments("-999999999999999999", "-999999999999999999")]
+    [Arguments("1000000000000000000", "1000000000000000000")]
+    [Arguments("9223372036854775807", "9223372036854775807")]
+    [Arguments("-9223372036854775808", "-9223372036854775808")]
+    [Arguments("18446744073709551616", "18446744073709551616")]
+    [Arguments("-18446744073709551616", "-18446744073709551616")]
+    public async Task Parse_AcrossTheInlineWidth_MapsExactly(string lexical, string expected)
+    {
+        var result = Integer("integer").Parse(lexical);
+
+        await Assert.That(result.Success).IsTrue();
+        await Assert
+            .That(result.Value)
+            .IsEqualTo(new XsdInteger(BigInteger.Parse(expected, CultureInfo.InvariantCulture)));
+    }
 }
