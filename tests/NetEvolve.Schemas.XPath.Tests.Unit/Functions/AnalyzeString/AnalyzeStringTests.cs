@@ -52,6 +52,26 @@ public class AnalyzeStringTests
     )]
     [Arguments("ab", "a()b", "", ResultOpen + "<match>a<group nr=\"1\"></group>b</match>" + ResultClose)]
     [Arguments(
+        "a",
+        "(a())",
+        "",
+        ResultOpen + "<match><group nr=\"1\">a<group nr=\"2\"></group></group></match>" + ResultClose
+    )]
+    [Arguments(
+        "a",
+        "(a)()",
+        "",
+        ResultOpen + "<match><group nr=\"1\">a</group><group nr=\"2\"></group></match>" + ResultClose
+    )]
+    [Arguments(
+        "ab",
+        "((a())b())",
+        "",
+        ResultOpen
+            + "<match><group nr=\"1\"><group nr=\"2\">a<group nr=\"3\"></group></group>b<group nr=\"4\"></group></group></match>"
+            + ResultClose
+    )]
+    [Arguments(
         "xabab",
         "(ab)",
         "",
