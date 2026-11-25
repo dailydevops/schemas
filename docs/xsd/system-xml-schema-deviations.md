@@ -52,7 +52,6 @@ The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTe
 | #1079 | 3 | feat(xsd): evaluate the enumeration facet of hexBinary and base64Binary restrictions |
 | #604 | 2 | feat(xsd): resolve QName and NOTATION instance values with the namespace context |
 | #863 | 2 | bug(xsd): particle restriction reports errors for restrictions that the XSTS accepts |
-| #1129 | 2 | bug(xsd): an import of a document with the namespace of the importing schema reports duplicate declarations |
 | #410 | 1 | feat(xml): support caller-selectable xml 1.1 name productions |
 
 ## Verdict differences: this library follows the specification
