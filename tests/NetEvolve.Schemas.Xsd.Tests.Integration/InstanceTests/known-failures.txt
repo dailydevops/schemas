@@ -9764,7 +9764,6 @@ saxonMeta-XmlVersions	1.0/xv100noti/xv100noti.c.xml	#600	The own facets of a res
 saxonMeta-XmlVersions	1.0/xv100noti/xv100noti.i.xml	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
 sunMeta-AttrDecl	1.0/ad_type00102m/AD_type00102m1_n	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
 sunMeta-AttrDecl	1.0/ad_type00102m/AD_type00102m2_n	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
-sunMeta-ElemDecl	1.0/idconstrdefs00403m/idConstrDefs00403m1_n	#908	The IDREFS items of a restriction of xs:IDREFS are not resolved, so a dangling reference is accepted.
 sunMeta-ElemDecl	1.0/typedef00201m/typeDef00201m1_n	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
 sunMeta-ElemDecl	1.0/typedef00802m1/Negative	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
 sunMeta-ElemDecl	1.0/typedef00901m1/Negative	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).

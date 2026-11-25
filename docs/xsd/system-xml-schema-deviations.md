@@ -7,7 +7,7 @@ This document lists every difference that the differential run over the W3C XML 
 | Baseline | `System.Xml.Schema` of the .NET runtime 10.0, compared on the `net10.0` test leg only (`baseline-runtime: 10.0`) |
 | Corpus | XSTS cases of XSD 1.0 (schema tests and instance tests), pinned in `tests/conformance/suites/xsts.json` |
 | Data file | `tests/NetEvolve.Schemas.Xsd.Tests.Integration/DifferentialData/xsts-1.0-deviations.txt`, one entry per difference: case id, difference kind, observed difference, specification reference, reason |
-| Entries | 5568 entries for 5561 cases |
+| Entries | 5569 entries for 5562 cases |
 
 The list is valid for the recorded baseline runtime version only. A run on another runtime version fails until the list is compared again. System.Xml.Schema implements XSD 1.0 only, so cases of XSD 1.1 are not compared.
 
@@ -29,12 +29,12 @@ No builder option, switch, or code path in the library reproduces System.Xml.Sch
 |---|---:|---:|
 | Verdict differences: this library follows the specification | 1626 | 1624 |
 | Verdict differences: documented limitations of this library | 26 | 21 |
-| Position differences: equivalent | 3916 | 3916 |
-| Differences on cases that a bug issue tracks (no entry) | 10152 | |
+| Position differences: equivalent | 3917 | 3917 |
+| Differences on cases that a bug issue tracks (no entry) | 10151 | |
 
 ## Differences on cases that a bug issue tracks
 
-The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTests/known-failures.txt` and `tests/NetEvolve.Schemas.Xsd.Tests.Integration/InstanceTests/known-failures.txt` record every case of XSD 1.0 that this library does not pass yet, each with its bug issue. At the time of this triage the run found 10152 differences on these cases:
+The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTests/known-failures.txt` and `tests/NetEvolve.Schemas.Xsd.Tests.Integration/InstanceTests/known-failures.txt` record every case of XSD 1.0 that this library does not pass yet, each with its bug issue. At the time of this triage the run found 10151 differences on these cases:
 
 | Issue | Differences | Title |
 |---|---:|---|
@@ -60,7 +60,6 @@ The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTe
 | #864 | 1 | bug(xsd): fixed values of attribute uses are compared as strings in the derivation check |
 | #903 | 1 | bug(xsd): a strict wildcard rejects an element that has no declaration but a valid xsi:type |
 | #907 | 1 | bug(xsd): an identity constraint field that selects a skipped attribute is accepted |
-| #908 | 1 | bug(xsd): IDREFS items of a restriction of xs:IDREFS are not resolved |
 
 ## Verdict differences: this library follows the specification
 
@@ -4415,6 +4414,7 @@ sunMeta-ElemDecl/1.0/idconstrdefs00301m/idConstrDefs00301m3_n
 sunMeta-ElemDecl/1.0/idconstrdefs00301m/idConstrDefs00301m4_n
 sunMeta-ElemDecl/1.0/idconstrdefs00302m/idConstrDefs00302m2_n
 sunMeta-ElemDecl/1.0/idconstrdefs00402m/idConstrDefs00402m1_n
+sunMeta-ElemDecl/1.0/idconstrdefs00403m/idConstrDefs00403m1_n
 sunMeta-ElemDecl/1.0/idconstrdefs00501m/idConstrDefs00501m1_n
 sunMeta-ElemDecl/1.0/maxoccurs00101m/maxOccurs00101m1_n
 sunMeta-ElemDecl/1.0/maxoccurs00201m/maxOccurs00201m1_n
