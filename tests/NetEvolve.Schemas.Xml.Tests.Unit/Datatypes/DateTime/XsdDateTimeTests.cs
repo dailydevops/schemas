@@ -3,8 +3,8 @@ namespace NetEvolve.Schemas.Xml.Tests.Unit.Datatypes.DateTime;
 using System;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xml.Datatypes.Core;
-using NetEvolve.Schemas.Xml.Datatypes.Decimals;
 using NetEvolve.Schemas.Xml.Datatypes.DateTime;
+using NetEvolve.Schemas.Xml.Datatypes.Decimals;
 
 public class XsdDateTimeTests
 {
