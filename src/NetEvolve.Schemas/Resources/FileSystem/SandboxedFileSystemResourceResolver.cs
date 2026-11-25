@@ -94,6 +94,20 @@ public sealed class SandboxedFileSystemResourceResolver : IResourceResolver
 
         var hash = uri.AsSpan().IndexOf('#');
         var systemId = hash < 0 ? uri : uri.Substring(0, hash);
+        if (exists && Canonicalize(segments, ref path))
+        {
+            full = Path.GetFullPath(path);
+            var rebuilt = new StringBuilder(_rootUri);
+            for (var i = _rootSegments.Length; i < segments.Length; i++)
+            {
+                _ = rebuilt
+                    .Append(i > _rootSegments.Length ? "/" : string.Empty)
+                    .Append(FileUriPath.Encode(segments[i]));
+            }
+
+            systemId = rebuilt.ToString();
+        }
+
         if (!exists || !File.Exists(full))
         {
             return ResourceResult.NotFound(
@@ -154,6 +168,47 @@ public sealed class SandboxedFileSystemResourceResolver : IResourceResolver
         }
 
         return null;
+    }
+
+    /// <summary>
+    /// Replaces every segment below the root by the name stored on disk, so one file has one system id on a case-insensitive
+    /// file system (#1129); returns <see langword="true"/> when a segment changed.
+    /// </summary>
+    private bool Canonicalize(string[] segments, ref string path)
+    {
+        var current = _root;
+        var changed = false;
+        for (var i = _rootSegments.Length; i < segments.Length; i++)
+        {
+            var segment = segments[i];
+            if (segment.AsSpan().IndexOfAny('*', '?') < 0)
+            {
+                foreach (var entry in Directory.EnumerateFileSystemEntries(current, segment))
+                {
+                    var actual = Path.GetFileName(entry);
+                    if (string.Equals(actual, segment, StringComparison.Ordinal))
+                    {
+                        break;
+                    }
+
+                    if (string.Equals(actual, segment, StringComparison.OrdinalIgnoreCase))
+                    {
+                        segments[i] = actual;
+                        changed = true;
+                        break;
+                    }
+                }
+            }
+
+            current = Path.Combine(current, segments[i]);
+        }
+
+        if (changed)
+        {
+            path = current;
+        }
+
+        return changed;
     }
 
     private static ResourceResult Deny(in ResourceRequest request, string reason) =>
