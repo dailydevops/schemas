@@ -564,7 +564,7 @@ internal sealed partial class CoreParseRun
 
         if (start == end)
         {
-            return new(Location(element), parts);
+            return new(Location(element), parts, InheritedLanguage(element));
         }
 
         if (start > 0 || end < parts.Length)
@@ -574,7 +574,7 @@ internal sealed partial class CoreParseRun
             parts = trimmed;
         }
 
-        return new(Location(element), parts);
+        return new(Location(element), parts, InheritedLanguage(element));
     }
 
     private static bool IsBlankText(SchematronMessagePart part) => part is SchematronText text && IsBlank(text.Text);
