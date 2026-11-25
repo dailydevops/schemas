@@ -41,6 +41,8 @@ public class PathAllocationTests
     [Arguments("child::b[1] intersect child::b[position() < 2]", "a", "b1")]
     [Arguments("child::b[1] except child::b[2]", "a", "b1")]
     [Arguments("child::b[2] | child::b[2]", "a", "b2")]
+    [Arguments("(child::b | child::p:e)/child::i", "a", "i")]
+    [Arguments("(child::b/self::* | child::p:e)/child::i", "a", "i")]
     public async Task SetOperators_AllocateNothing(string expression, string context, string expected) =>
         await AssertNoAllocation(expression, context, expected);
 }

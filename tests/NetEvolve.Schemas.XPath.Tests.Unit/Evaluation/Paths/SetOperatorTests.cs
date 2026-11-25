@@ -22,6 +22,9 @@ public class SetOperatorTests
     [Arguments("ancestor-or-self::* | child::*", "b2", "a b2 i")]
     [Arguments("ancestor::* | ancestor::node()", "i", "doc a b2")]
     [Arguments("/a/b | /a/p:e", "doc", "b1 b2 e")]
+    [Arguments("(child::b | child::p:e)/child::i", "a", "i")]
+    [Arguments("(child::b/self::* | child::p:e)/child::i", "a", "i")]
+    [Arguments("((child::b | child::c) | child::p:e)/self::p:e", "a", "e")]
     public async Task Union_OnOverlappingSequences_IsInDocumentOrderWithoutDuplicates(
         string expression,
         string context,
@@ -79,6 +82,9 @@ public class SetOperatorTests
     [Arguments("child::b union 'x'")]
     [Arguments("() | $atoms")]
     [Arguments("$atoms except ()")]
+    [Arguments("child::b/1 | child::b")]
+    [Arguments("child::b | child::b/1")]
+    [Arguments("child::b/1 except child::b")]
     public async Task SetOperator_WithANonNodeOperand_RaisesXpty0004(string expression)
     {
         var error = Raised(expression, "a");
