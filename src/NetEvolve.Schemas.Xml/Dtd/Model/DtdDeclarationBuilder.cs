@@ -86,6 +86,11 @@ internal sealed class DtdDeclarationBuilder
         }
     }
 
+    /// <summary>Gets a value indicating whether a general entity is already declared.</summary>
+    /// <param name="name">The entity name.</param>
+    /// <returns><see langword="true"/> when declared.</returns>
+    internal bool IsGeneralEntityDeclared(string name) => _general.ContainsKey(name);
+
     /// <summary>Gets the declared parameter entity, if any.</summary>
     /// <param name="name">The entity name.</param>
     /// <param name="entity">The declaration.</param>

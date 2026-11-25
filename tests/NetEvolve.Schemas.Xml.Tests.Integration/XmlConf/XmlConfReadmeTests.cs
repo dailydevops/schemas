@@ -69,11 +69,6 @@ public class XmlConfReadmeTests
             ["eduni-errata-4e/x-rmt-008b"]
         ),
         (
-            "Entity used before its declaration",
-            "A default value refers to an entity that is declared later and is accepted ([#878](https://github.com/dailydevops/schemas/issues/878)).",
-            ["ibm/ibm-not-wf-P68-ibm68n07.xml", "xmltest/not-wf-sa-180"]
-        ),
-        (
             "Invalid public identifier",
             "A public identifier with a character outside `PubidChar` is accepted ([#931](https://github.com/dailydevops/schemas/issues/931)).",
             ["xmltest/not-wf-sa-085"]

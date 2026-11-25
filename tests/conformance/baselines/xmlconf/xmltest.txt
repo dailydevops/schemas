@@ -1,3 +1,2 @@
 xmltest/not-wf-sa-085
-xmltest/not-wf-sa-180
 xmltest/valid-sa-012
