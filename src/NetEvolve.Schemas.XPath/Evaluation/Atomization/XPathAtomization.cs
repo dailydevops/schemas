@@ -1,13 +1,15 @@
 namespace NetEvolve.Schemas.XPath.Evaluation.Atomization;
 
+using System.Collections.Generic;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Errors;
+using NetEvolve.Schemas.XPath.Xdm.Arrays;
 using NetEvolve.Schemas.XPath.Xdm.Nodes;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>Atomization (XPath 2.0, 2.4.2) and effective boolean value (2.4.3): the two operations every operator and function shares.</summary>
 /// <remarks>
-/// A function item has no typed value (FOTY0013) and no effective boolean value (FORG0006). Singletons and the empty sequence take allocation-free fast paths. Limitations: a node yields exactly one typed value, so list
+/// An array atomizes to the atomized values of its members; any other function item has no typed value (FOTY0013) and no effective boolean value (FORG0006). Singletons and the empty sequence take allocation-free fast paths. Limitations: a node yields exactly one typed value, so list
 /// types that atomize to several items await schema-aware processing (XSD-16); the effective boolean value covers the
 /// families the data model carries today, so a type without a rule (for example a date) raises FORG0006.
 /// </remarks>
@@ -36,23 +38,28 @@ internal static class XPathAtomization
         if (count == 1)
         {
             var only = sequence[0];
-            ThrowIfFunction(only);
+            if (only.Kind == XdmItemKind.Function)
+            {
+                return AtomizeItems(sequence, source);
+            }
+
             return only.IsNode ? XdmSequence.Create(AtomizeNode(only, source)) : sequence;
         }
 
-        // Every item is checked, because a function item has no typed value wherever it stands in the sequence.
-        var first = count;
+        // Every item is checked, because a function item has no typed value wherever it stands in the sequence; an array is expanded.
+        var work = false;
         for (var i = 0; i < count; i++)
         {
             var item = sequence[i];
-            ThrowIfFunction(item);
-            if (first == count && item.IsNode)
+            if (item.Kind == XdmItemKind.Function)
             {
-                first = i;
+                return AtomizeItems(sequence, source);
             }
+
+            work |= item.IsNode;
         }
 
-        if (first == count)
+        if (!work)
         {
             return sequence;
         }
@@ -134,12 +141,35 @@ internal static class XPathAtomization
         throw XPathErrors.Exception(XPathErrorCodes.FORG0006);
     }
 
-    // XPath 3.0, 2.4.2: a function item has no typed value, so atomizing one is an error.
-    private static void ThrowIfFunction(in XdmItem item)
+    // XPath 3.1, 2.4.2: an array atomizes to the atomized values of its members, in order; any other function item has no typed value.
+    private static XdmSequence AtomizeItems(in XdmSequence sequence, IXdmTypeAnnotationSource source)
     {
-        if (item.Kind == XdmItemKind.Function)
+        var items = new List<XdmItem>();
+        AppendAtomized(sequence, source, items);
+        return items.Count == 0 ? XdmSequence.Empty : XdmSequence.Create(items.ToArray());
+    }
+
+    private static void AppendAtomized(in XdmSequence sequence, IXdmTypeAnnotationSource source, List<XdmItem> items)
+    {
+        var count = sequence.Count;
+        for (var i = 0; i < count; i++)
         {
-            throw XPathErrors.Exception(XPathErrorCodes.FOTY0013);
+            var item = sequence[i];
+            if (item.Kind != XdmItemKind.Function)
+            {
+                items.Add(item.IsNode ? AtomizeNode(item, source) : item);
+            }
+            else if (XdmArray.TryGet(item, out var array))
+            {
+                for (var member = 0; member < array!.Size; member++)
+                {
+                    AppendAtomized(array[member], source, items);
+                }
+            }
+            else
+            {
+                throw XPathErrors.Exception(XPathErrorCodes.FOTY0013);
+            }
         }
     }
 

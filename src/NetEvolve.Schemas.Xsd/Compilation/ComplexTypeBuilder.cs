@@ -3,6 +3,7 @@ namespace NetEvolve.Schemas.Xsd.Compilation;
 using System;
 using System.Collections.Generic;
 using NetEvolve.Arguments;
+using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xsd.Attributes.Declarations;
 using NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;
 using NetEvolve.Schemas.Xsd.Contracts;
@@ -196,7 +197,7 @@ internal sealed class ComplexTypeBuilder : IComponentBuilder
         }
 
         content = ReadContent(node, unit);
-        var uses = ReadUses(node, unit, out var wildcard);
+        var uses = ReadUses(node, unit, null, out var wildcard);
         return ComplexTypeDefinition.Implicit(header, typeMixed, content, uses, wildcard, _context.Reporter);
     }
 
@@ -225,7 +226,7 @@ internal sealed class ComplexTypeBuilder : IComponentBuilder
             ? SyntaxValues.IsTrue(value)
             : (bool?)null;
         content = ReadContent(derivation, unit);
-        var uses = ReadUses(derivation, unit, out var wildcard);
+        var uses = ReadUses(derivation, unit, baseType, out var wildcard);
         return ComplexTypeDefinition.FromComplexContent(
             header,
             method,
@@ -257,7 +258,7 @@ internal sealed class ComplexTypeBuilder : IComponentBuilder
         }
 
         var simpleType = method == XsdDerivationMethod.Restriction ? RestrictContent(derivation, unit, baseType) : null;
-        var uses = ReadUses(derivation, unit, out var wildcard);
+        var uses = ReadUses(derivation, unit, baseType, out var wildcard);
         return ComplexTypeDefinition.FromSimpleContent(
             header,
             method,
@@ -385,7 +386,12 @@ internal sealed class ComplexTypeBuilder : IComponentBuilder
     }
 
     // The attribute uses of the attribute and attributeGroup children, and the wildcard that anyAttribute and the groups give.
-    private List<AttributeUse> ReadUses(SchemaSyntaxNode owner, UnitScope unit, out IWildcard? wildcard)
+    private List<AttributeUse> ReadUses(
+        SchemaSyntaxNode owner,
+        UnitScope unit,
+        IXsdComponent? baseType,
+        out IWildcard? wildcard
+    )
     {
         var uses = new List<AttributeUse>();
         wildcard = null;
@@ -398,7 +404,7 @@ internal sealed class ComplexTypeBuilder : IComponentBuilder
                 var use = _context.Attributes.BuildUse(child, unit);
                 if (use is not null)
                 {
-                    uses.Add(use);
+                    uses.Add(KeepsAsOptional(use, baseType) ? OptionalOf(use) : use);
                 }
             }
             else if (SyntaxValues.IsSchemaElement(child, "attributeGroup"))
@@ -418,6 +424,41 @@ internal sealed class ComplexTypeBuilder : IComponentBuilder
 
         return uses;
     }
+
+    // Structures 1.0: a prohibited use with a value constraint that removes no use of the base does not forbid the attribute.
+    private bool KeepsAsOptional(AttributeUse use, IXsdComponent? baseType)
+    {
+        if (
+            _context.Version != XsdVersion.V10
+            || !use.Prohibited
+            || use.ValueConstraint.Kind == AttributeValueConstraintKind.None
+        )
+        {
+            return false;
+        }
+
+        if (baseType is ComplexTypeDefinition complex)
+        {
+            for (var i = 0; i < complex.AttributeUses.Count; i++)
+            {
+                if (complex.AttributeUses[i].Name == use.Name)
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    private AttributeUse OptionalOf(AttributeUse use) =>
+        AttributeUse.Create(
+            use.Location,
+            AttributeUseKind.Optional,
+            use.Declaration,
+            use.ValueConstraint,
+            _context.Reporter
+        ) ?? use;
 
     private void Intersect(ref IWildcard? wildcard, ref bool failed, IWildcard? next, SchemaSyntaxNode at)
     {
