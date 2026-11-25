@@ -42,13 +42,13 @@ public class XdmContractTests
     {
         var names = Enum.GetNames<XdmItemKind>();
 
-        await Assert.That(names).Contains("None").And.Contains("Node");
+        await Assert.That(names).Contains("None").And.Contains("Node").And.Contains("Function");
         foreach (var family in AtomicFamilies)
         {
             await Assert.That(names).Contains(family);
         }
 
-        await Assert.That(names.Length).IsEqualTo(AtomicFamilies.Length + 2);
+        await Assert.That(names.Length).IsEqualTo(AtomicFamilies.Length + 3);
         await Assert.That(default(XdmItem).Kind).IsEqualTo(XdmItemKind.None);
     }
 

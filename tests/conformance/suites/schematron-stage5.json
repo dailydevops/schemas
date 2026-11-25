@@ -1,0 +1,79 @@
+{
+  "ownSchemas": [
+    {
+      "schema": "tests/NetEvolve.Schemas.Schematron.Tests.Integration/Goldens/Stage5Grouping/group-by.sch",
+      "documents": [
+        { "document": "group-by/within-limit.xml", "valid": true, "rules": ["order-lines"] },
+        { "document": "group-by/overloaded.xml", "valid": false, "rules": ["order-lines"] },
+        { "document": "group-by/too-many-categories.xml", "valid": false, "rules": ["order-lines", "order-categories"] },
+        { "document": "group-by/few-categories.xml", "valid": true, "rules": ["order-lines", "order-categories"] },
+        { "document": "group-by/no-order.xml", "valid": true, "rules": [] }
+      ]
+    },
+    {
+      "schema": "tests/NetEvolve.Schemas.Schematron.Tests.Integration/Goldens/Stage5Grouping/group-adjacent.sch",
+      "documents": [
+        { "document": "group-adjacent/alternating.xml", "valid": true, "rules": ["workflow-runs"] },
+        { "document": "group-adjacent/long-run.xml", "valid": false, "rules": ["workflow-runs"] },
+        { "document": "group-adjacent/separated-equal-status.xml", "valid": true, "rules": ["workflow-runs"] },
+        { "document": "group-adjacent/no-workflow.xml", "valid": true, "rules": [] }
+      ]
+    },
+    {
+      "schema": "tests/NetEvolve.Schemas.Schematron.Tests.Integration/Goldens/Stage5Grouping/group-starting-with.sch",
+      "documents": [
+        { "document": "group-starting-with/paragraphs-follow.xml", "valid": true, "rules": ["section-chunks"] },
+        { "document": "group-starting-with/leading-paragraph.xml", "valid": false, "rules": ["section-chunks"] },
+        { "document": "group-starting-with/empty-chunk.xml", "valid": false, "rules": ["section-chunks"] },
+        { "document": "group-starting-with/trailing-heading.xml", "valid": false, "rules": ["section-chunks"] },
+        { "document": "group-starting-with/no-section.xml", "valid": true, "rules": [] }
+      ]
+    },
+    {
+      "schema": "tests/NetEvolve.Schemas.Schematron.Tests.Integration/Goldens/Stage5Grouping/group-ending-with.sch",
+      "documents": [
+        { "document": "group-ending-with/closed-blocks.xml", "valid": true, "rules": ["ledger-blocks"] },
+        { "document": "group-ending-with/open-tail.xml", "valid": false, "rules": ["ledger-blocks"] },
+        { "document": "group-ending-with/only-open.xml", "valid": false, "rules": ["ledger-blocks"] },
+        { "document": "group-ending-with/empty-ledger.xml", "valid": true, "rules": ["ledger-blocks"] },
+        { "document": "group-ending-with/no-ledger.xml", "valid": true, "rules": [] }
+      ]
+    },
+    {
+      "schema": "tests/NetEvolve.Schemas.Schematron.Tests.Integration/Goldens/Stage5Grouping/analyze-string.sch",
+      "documents": [
+        { "document": "analyze-string/valid-dates.xml", "valid": true, "rules": ["note-dates"] },
+        { "document": "analyze-string/no-dates.xml", "valid": true, "rules": ["note-dates"] },
+        { "document": "analyze-string/month-thirteen.xml", "valid": false, "rules": ["note-dates"] },
+        { "document": "analyze-string/one-bad-of-two.xml", "valid": false, "rules": ["note-dates"] },
+        { "document": "analyze-string/no-note.xml", "valid": true, "rules": [] }
+      ]
+    }
+  ],
+  "knownFailures": [
+    {"id": "group-by/within-limit.xml", "issue": 803, "reason": "A stylesheet function with xsl:for-each-group does not build or run: current-group() and current-grouping-key() are not offered to the function scope (NES3202), and the run of the XPath binding does not hold the current group (NES3301) (#803)."},
+    {"id": "group-by/overloaded.xml", "issue": 803, "reason": "A stylesheet function with xsl:for-each-group does not build or run: current-group() and current-grouping-key() are not offered to the function scope (NES3202), and the run of the XPath binding does not hold the current group (NES3301) (#803)."},
+    {"id": "group-by/too-many-categories.xml", "issue": 803, "reason": "A stylesheet function with xsl:for-each-group does not build or run: current-group() and current-grouping-key() are not offered to the function scope (NES3202), and the run of the XPath binding does not hold the current group (NES3301) (#803)."},
+    {"id": "group-by/few-categories.xml", "issue": 803, "reason": "A stylesheet function with xsl:for-each-group does not build or run: current-group() and current-grouping-key() are not offered to the function scope (NES3202), and the run of the XPath binding does not hold the current group (NES3301) (#803)."},
+    {"id": "group-by/no-order.xml", "issue": 803, "reason": "A stylesheet function with xsl:for-each-group does not build or run: current-group() and current-grouping-key() are not offered to the function scope (NES3202), and the run of the XPath binding does not hold the current group (NES3301) (#803)."},
+    {"id": "group-adjacent/alternating.xml", "issue": 803, "reason": "A stylesheet function with xsl:for-each-group does not build or run: current-group() and current-grouping-key() are not offered to the function scope (NES3202), and the run of the XPath binding does not hold the current group (NES3301) (#803)."},
+    {"id": "group-adjacent/long-run.xml", "issue": 803, "reason": "A stylesheet function with xsl:for-each-group does not build or run: current-group() and current-grouping-key() are not offered to the function scope (NES3202), and the run of the XPath binding does not hold the current group (NES3301) (#803)."},
+    {"id": "group-adjacent/separated-equal-status.xml", "issue": 803, "reason": "A stylesheet function with xsl:for-each-group does not build or run: current-group() and current-grouping-key() are not offered to the function scope (NES3202), and the run of the XPath binding does not hold the current group (NES3301) (#803)."},
+    {"id": "group-adjacent/no-workflow.xml", "issue": 803, "reason": "A stylesheet function with xsl:for-each-group does not build or run: current-group() and current-grouping-key() are not offered to the function scope (NES3202), and the run of the XPath binding does not hold the current group (NES3301) (#803)."},
+    {"id": "group-starting-with/paragraphs-follow.xml", "issue": 803, "reason": "A stylesheet function with xsl:for-each-group does not build or run: current-group() and current-grouping-key() are not offered to the function scope (NES3202), and the run of the XPath binding does not hold the current group (NES3301) (#803)."},
+    {"id": "group-starting-with/leading-paragraph.xml", "issue": 803, "reason": "A stylesheet function with xsl:for-each-group does not build or run: current-group() and current-grouping-key() are not offered to the function scope (NES3202), and the run of the XPath binding does not hold the current group (NES3301) (#803)."},
+    {"id": "group-starting-with/empty-chunk.xml", "issue": 803, "reason": "A stylesheet function with xsl:for-each-group does not build or run: current-group() and current-grouping-key() are not offered to the function scope (NES3202), and the run of the XPath binding does not hold the current group (NES3301) (#803)."},
+    {"id": "group-starting-with/trailing-heading.xml", "issue": 803, "reason": "A stylesheet function with xsl:for-each-group does not build or run: current-group() and current-grouping-key() are not offered to the function scope (NES3202), and the run of the XPath binding does not hold the current group (NES3301) (#803)."},
+    {"id": "group-starting-with/no-section.xml", "issue": 803, "reason": "A stylesheet function with xsl:for-each-group does not build or run: current-group() and current-grouping-key() are not offered to the function scope (NES3202), and the run of the XPath binding does not hold the current group (NES3301) (#803)."},
+    {"id": "group-ending-with/closed-blocks.xml", "issue": 803, "reason": "A stylesheet function with xsl:for-each-group does not build or run: current-group() and current-grouping-key() are not offered to the function scope (NES3202), and the run of the XPath binding does not hold the current group (NES3301) (#803)."},
+    {"id": "group-ending-with/open-tail.xml", "issue": 803, "reason": "A stylesheet function with xsl:for-each-group does not build or run: current-group() and current-grouping-key() are not offered to the function scope (NES3202), and the run of the XPath binding does not hold the current group (NES3301) (#803)."},
+    {"id": "group-ending-with/only-open.xml", "issue": 803, "reason": "A stylesheet function with xsl:for-each-group does not build or run: current-group() and current-grouping-key() are not offered to the function scope (NES3202), and the run of the XPath binding does not hold the current group (NES3301) (#803)."},
+    {"id": "group-ending-with/empty-ledger.xml", "issue": 803, "reason": "A stylesheet function with xsl:for-each-group does not build or run: current-group() and current-grouping-key() are not offered to the function scope (NES3202), and the run of the XPath binding does not hold the current group (NES3301) (#803)."},
+    {"id": "group-ending-with/no-ledger.xml", "issue": 803, "reason": "A stylesheet function with xsl:for-each-group does not build or run: current-group() and current-grouping-key() are not offered to the function scope (NES3202), and the run of the XPath binding does not hold the current group (NES3301) (#803)."},
+    {"id": "analyze-string/valid-dates.xml", "issue": 1087, "reason": "A stylesheet function with xsl:analyze-string and regex-group() does not build or run: regex-group is not offered to the function scope (NES3202), and the run of the XPath binding does not hold the regex groups (NES3301) (#1087)."},
+    {"id": "analyze-string/no-dates.xml", "issue": 1087, "reason": "A stylesheet function with xsl:analyze-string and regex-group() does not build or run: regex-group is not offered to the function scope (NES3202), and the run of the XPath binding does not hold the regex groups (NES3301) (#1087)."},
+    {"id": "analyze-string/month-thirteen.xml", "issue": 1087, "reason": "A stylesheet function with xsl:analyze-string and regex-group() does not build or run: regex-group is not offered to the function scope (NES3202), and the run of the XPath binding does not hold the regex groups (NES3301) (#1087)."},
+    {"id": "analyze-string/one-bad-of-two.xml", "issue": 1087, "reason": "A stylesheet function with xsl:analyze-string and regex-group() does not build or run: regex-group is not offered to the function scope (NES3202), and the run of the XPath binding does not hold the regex groups (NES3301) (#1087)."},
+    {"id": "analyze-string/no-note.xml", "issue": 1087, "reason": "A stylesheet function with xsl:analyze-string and regex-group() does not build or run: regex-group is not offered to the function scope (NES3202), and the run of the XPath binding does not hold the regex groups (NES3301) (#1087)."}
+  ]
+}
