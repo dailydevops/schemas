@@ -4,9 +4,13 @@ using System;
 using System.Collections.Generic;
 using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Xml.Contracts;
+using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xml.Reader.Pipeline;
+using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Diagnostics;
+using NetEvolve.Schemas.Xsd.SimpleTypes.Definitions;
+using NetEvolve.Schemas.Xsd.Tests.Unit.SimpleTypes.Definitions;
 using NetEvolve.Schemas.Xsd.Tests.Unit.Validation.Core;
 using NetEvolve.Schemas.Xsd.Validation.Core;
 
@@ -146,6 +150,22 @@ public class IdrefTests
         await Assert.That(issues.Count).IsEqualTo(2);
         await Assert.That(issues[0].Location.Line).IsEqualTo(3);
         await Assert.That(issues[1].Location.Line).IsEqualTo(4);
+    }
+
+    [Test]
+    public async Task Idrefs_OnARestrictionOfTheBuiltInListType_IsCheckedPerToken()
+    {
+        var schema = new SchemaFixture();
+        var builtIn = SimpleTypeDefinition.FromDatatype(
+            new XPathQName(SchemaFixture.Xs, "IDREFS"),
+            SchemaFixture.Where,
+            new FakeDatatype("IDREFS", DatatypeVariety.List)
+        );
+        var derived = IdFixture.Restriction(builtIn, schema);
+
+        var issues = IdFixture.Run(IdFixture.Schema(idrefs: derived), "<r>\n<e id=\"a\"/>\n<e refs=\"a b\"/>\n</r>");
+
+        await AssertDangling(issues, 1, 3, "b");
     }
 
     [Test]

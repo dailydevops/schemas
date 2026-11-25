@@ -306,7 +306,7 @@ The package is measured against the official Schematron conformance suite, relea
 
 ### Schematron conformance suite
 
-**53 of 84 applicable cases pass, a rate of 63.0%** on `net10.0`, the leg that runs the suites. The other cases are the 31 known failures below, and 3 excluded cases do not count. Every known failure is a case of the committed baseline in `tests/conformance/baselines/schematron-conformance/` (31 baseline entries in 5 files, one file per test set), linked to an issue; a regression and an unexpected pass fail the run.
+**55 of 84 applicable cases pass, a rate of 65.4%** on `net10.0`, the leg that runs the suites. The other cases are the 29 known failures below, and 3 excluded cases do not count. Every known failure is a case of the committed baseline in `tests/conformance/baselines/schematron-conformance/` (29 baseline entries in 5 files, one file per test set), linked to an issue; a regression and an unexpected pass fail the run.
 
 Reproduce the numbers on a clone: set `GITHUB_STEP_SUMMARY` to a file and run the conformance tests; the table of the rate per test set is appended to that file.
 
@@ -317,8 +317,8 @@ dotnet test --project tests/NetEvolve.Schemas.Schematron.Tests.Integration --con
 | Test set | Applicable | Passed | Rate |
 | --- | --- | --- | --- |
 | `iso-instance-document-selection` | 2 | 0 | 0.0% |
-| `iso-pattern-templating` | 12 | 7 | 58.3% |
-| `iso-reporting` | 45 | 30 | 66.6% |
+| `iso-pattern-templating` | 12 | 8 | 66.6% |
+| `iso-reporting` | 45 | 31 | 68.8% |
 | `iso-rule-based-validation` | 14 | 11 | 78.5% |
 | `iso-schema-composition` | 11 | 5 | 45.4% |
 
@@ -389,11 +389,6 @@ The suite file of the binding `xslt-3-2025` lists three cases that no selected b
 - `iso-reporting/svrl-property-role.xml`
 - `iso-reporting/svrl-property-scheme.xml`
 
-**[#919](https://github.com/dailydevops/schemas/issues/919)** (2 cases): The message of sch:name with a path holds the node name, the case expects the value.
-
-- `iso-pattern-templating/pattern-abstract-name-path.xml`
-- `iso-reporting/svrl-name-path.xml`
-
 **[#921](https://github.com/dailydevops/schemas/issues/921)** (1 case): An extends of an abstract rule of another pattern builds, the case expects an error.
 
 - `iso-schema-composition/rule-abstract-scope-error.xml`
@@ -422,7 +417,7 @@ dotnet test --project tests/NetEvolve.Schemas.Schematron.Tests.Integration --con
 - **Phase attributes.** A selected phase with `from` ([#385](https://github.com/dailydevops/schemas/issues/385)) or `when` ([#386](https://github.com/dailydevops/schemas/issues/386)) fails the build with `NES3007`.
 - **Include and extends.** An `href` with a fragment identifier is not supported ([#575](https://github.com/dailydevops/schemas/issues/575)), and an `extends` of an abstract rule of another pattern builds without an error ([#921](https://github.com/dailydevops/schemas/issues/921)).
 - **SVRL.** The attributes `fpi`, `icon`, and `see` of a diagnostic or property reference ([#916](https://github.com/dailydevops/schemas/issues/916)), and the attributes `role` and `scheme` of a property reference ([#918](https://github.com/dailydevops/schemas/issues/918)). An SVRL `id` is written only for an author id, and a `svrl:error` in the output is not a failure of the run.
-- **Messages.** White space only text around `value-of` is kept in a message ([#920](https://github.com/dailydevops/schemas/issues/920)), `sch:name` with a path outputs the node name ([#919](https://github.com/dailydevops/schemas/issues/919)), and abstract pattern parameters are not substituted in diagnostic and property content, a recorded deviation ([#915](https://github.com/dailydevops/schemas/issues/915)).
+- **Messages.** White space only text around `value-of` is kept in a message ([#920](https://github.com/dailydevops/schemas/issues/920)), and abstract pattern parameters are not substituted in diagnostic and property content, a recorded deviation ([#915](https://github.com/dailydevops/schemas/issues/915)).
 - **Locations.** A problem of an expression is located by the base URI of the schema and by the line and column within the text of the expression, and a dynamic problem has no line and column ([#881](https://github.com/dailydevops/schemas/issues/881)). `last()` in a predicate without a known size equals `position()` ([#883](https://github.com/dailydevops/schemas/issues/883)).
 - **Thread safety.** A validator is immutable and thread-safe; a `WithReportSink` view and a builder are not.
 - **Compile cost.** Every `Build` compiles the schema once; a validation compiles nothing.
