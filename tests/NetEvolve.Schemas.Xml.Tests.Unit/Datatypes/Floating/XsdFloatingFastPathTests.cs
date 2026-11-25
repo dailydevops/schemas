@@ -86,6 +86,20 @@ public class XsdFloatingFastPathTests
     [Arguments("1E20")]
     [Arguments("1E-20")]
     [Arguments("5E-324")]
+    [Arguments("9007199254740992")]
+    [Arguments("9007199254740992E22")]
+    [Arguments("9007199254740992E-22")]
+    [Arguments("9007199254740993E-22")]
+    [Arguments("9007199254740991E22")]
+    [Arguments("1E22")]
+    [Arguments("1E23")]
+    [Arguments("1E-22")]
+    [Arguments("1E-23")]
+    [Arguments("123456789E-22")]
+    [Arguments("123456789E22")]
+    [Arguments("3.14159")]
+    [Arguments("1.7976931348623157E308")]
+    [Arguments("-0.0")]
     public async Task Parse_OfTiesAndWindowBoundaries_EqualsTheRuntimeParser(string lexical)
     {
         var expectedDouble = double.Parse(lexical, NumberStyles.Float, CultureInfo.InvariantCulture);
