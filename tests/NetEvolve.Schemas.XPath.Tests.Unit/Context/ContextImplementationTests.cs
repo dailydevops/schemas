@@ -6,6 +6,7 @@ using NetEvolve.Schemas.XPath.Abstractions;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Errors;
+using NetEvolve.Schemas.XPath.Xdm.Nodes;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
 public class ContextImplementationTests

@@ -3,6 +3,7 @@ namespace NetEvolve.Schemas.XPath.Tests.Unit.Contracts;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.XPath.Abstractions;
 using NetEvolve.Schemas.XPath.Api;
+using NetEvolve.Schemas.XPath.Xdm.Nodes;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
 public class HostSlotContractTests
@@ -59,7 +60,7 @@ public class HostSlotContractTests
 
         await Assert.That(slots.DecimalFormats!.TryGetDecimalFormat(name, out var found)).IsTrue();
         await Assert.That(found).IsSameReferenceAs(format);
-        var node = default(NetEvolve.Schemas.XPath.Xdm.Nodes.XPathNode);
+        var node = default(XPathNode);
         await Assert
             .That(slots.Keys!.TryLookup(name, XdmSequence.Create(XdmItem.FromString("v")), node, false, out var nodes))
             .IsTrue();

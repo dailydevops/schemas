@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.XPath.Functions.Nodes;
+﻿namespace NetEvolve.Schemas.XPath.Functions.Nodes;
 
 using NetEvolve.Schemas.XPath.Abstractions;
 using NetEvolve.Schemas.XPath.Api;
@@ -17,9 +17,9 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// </summary>
 /// <remarks>
 /// <para>
-/// The key index lives in the provider of the slot <see cref="XPathHostSlots.Keys"/>, which has to be an
-/// <see cref="IXPathDocumentKeyProvider"/>: the function hands it the context node, or the top node with the subtree flag (#777). An
-/// empty slot, or a provider of the base contract only, is XPDY0002. A name that is not a valid QName, or that no declaration has, is
+/// The key index lives in the provider of the slot <see cref="XPathHostSlots.Keys"/>, which is an
+/// <see cref="IXPathKeyProvider"/>: the function hands it the context node, or the top node with the subtree flag (#777). An
+/// empty slot is XPDY0002. A name that is not a valid QName, or that no declaration has, is
 /// XTDE1260; the provider reports a tree without a document node as XTDE1270 through an <see cref="XPathException"/>.
 /// </para>
 /// <para>
@@ -52,14 +52,12 @@ internal sealed class KeyFunction : NodeFunction
 
     /// <inheritdoc />
     /// <exception cref="XPathException">
-    /// The slot is empty or holds no <see cref="IXPathDocumentKeyProvider"/> (XPDY0002), the name is invalid or unknown (XTDE1260), the
+    /// The slot is empty (XPDY0002), the name is invalid or unknown (XTDE1260), the
     /// context item is absent (XPDY0002) or no node (XPTY0004) in the two-argument form, or the provider fails (XTDE1270).
     /// </exception>
     public override XPathEvaluationStatus Invoke(ref XPathFunctionCall invocation)
     {
-        var provider =
-            invocation.Context.Host.Keys as IXPathDocumentKeyProvider
-            ?? throw XPathErrors.Exception(XPathErrorCodes.XPDY0002);
+        var provider = invocation.Context.Host.Keys ?? throw XPathErrors.Exception(XPathErrorCodes.XPDY0002);
         var arguments = invocation.Arguments;
         _ = arguments[0][0].TryGetString(out var text);
         if (!DecimalFormatName.TryParse(text!, true, NoNamespaceContext.Instance, out var name))
