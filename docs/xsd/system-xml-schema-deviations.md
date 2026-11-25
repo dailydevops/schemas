@@ -2142,7 +2142,7 @@ msMeta-Schema_w3c/1.0/schD7/schD7.v
 
 ### A schema location that cannot be resolved
 
-Documented limitation (design 146, DP-3): a schema location that the resolver refuses or cannot find is an error at the directive, whereas the suite ignores it.
+Documented limitation (design 146, DP-3): the schema location of an include or redefine that the resolver refuses or cannot find is an error at the directive, whereas the suite ignores it. An import is not affected: its location is a hint and an unresolvable one is ignored.
 
 - Difference: SchemaVerdict `schema verdict: ours=Invalid, baseline=Valid` (12)
 - Specification: XSD 1.0 Part 1, 4.2.1 (src-include), 4.2.2 (src-redefine), and 4.2.3 (src-import: schemaLocation is a hint)

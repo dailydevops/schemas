@@ -1,1 +1,1 @@
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"><xs:import namespace="urn:x" schemaLocation="file:///etc/passwd"/><xs:element name="root" type="xs:int"/></xs:schema>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"><xs:import namespace="urn:x" schemaLocation="file:///etc/passwd"/><xs:include schemaLocation="file:///etc/hosts"/><xs:element name="root" type="xs:int"/></xs:schema>
