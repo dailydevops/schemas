@@ -1,4 +1,12 @@
-﻿namespace NetEvolve.Schemas
+﻿namespace Microsoft.Extensions.DependencyInjection
+{
+    public static class SchematronValidatorServiceCollectionExtensions
+    {
+        public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddKeyedSchematronValidator(this Microsoft.Extensions.DependencyInjection.IServiceCollection services, object serviceKey, System.Func<System.IServiceProvider, object?, System.IO.Stream> schema, System.Action<System.IServiceProvider, object?, NetEvolve.Schemas.SchematronValidatorBuilder>? configure = null, string? systemId = null) { }
+        public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddSchematronValidator(this Microsoft.Extensions.DependencyInjection.IServiceCollection services, System.Func<System.IServiceProvider, System.IO.Stream> schema, System.Action<System.IServiceProvider, NetEvolve.Schemas.SchematronValidatorBuilder>? configure = null, string? systemId = null) { }
+    }
+}
+namespace NetEvolve.Schemas
 {
     public interface ISchematronValidator : NetEvolve.Schemas.ISchemaValidator
     {

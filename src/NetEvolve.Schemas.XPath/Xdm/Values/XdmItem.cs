@@ -15,7 +15,7 @@ using NetEvolve.Schemas.Xml.Datatypes.QNames;
 using NetEvolve.Schemas.XPath.Types;
 using NetEvolve.Schemas.XPath.Xdm.Nodes;
 
-/// <summary>An item: a node or an atomic value. A tagged struct; boolean, integer, double, and node need no allocation.</summary>
+/// <summary>An item: a node, an atomic value, or a function item. A tagged struct; boolean, integer, double, and node need no allocation.</summary>
 /// <remarks>
 /// Limitation: the public factories and accessors cover boolean, integer, double, string, node, decimal, date and time, and
 /// duration values; <c>xs:float</c>, <c>xs:untypedAtomic</c>, <c>xs:anyURI</c>, the Gregorian types, <c>xs:hexBinary</c>,
@@ -218,6 +218,26 @@ public readonly struct XdmItem : IEquatable<XdmItem>
         return new(XdmItemKind.Node, node.TypeAnnotation, node.Node.Index, tree);
     }
 
+    /// <summary>Creates a function item.</summary>
+    /// <param name="function">The function.</param>
+    /// <returns>The item; it carries no type annotation, and two function items are equal when they are the same function.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="function"/> is <see langword="null"/>.</exception>
+    internal static XdmItem FromFunction(XdmFunction function)
+    {
+        ArgumentNullException.ThrowIfNull(function);
+
+        return new(XdmItemKind.Function, default, 0, function);
+    }
+
+    /// <summary>Gets the function.</summary>
+    /// <param name="function">The function, <see langword="null"/> unless the item is a function item.</param>
+    /// <returns><see langword="true"/> when the item is a function item.</returns>
+    internal bool TryGetFunction(out XdmFunction? function)
+    {
+        function = Kind == XdmItemKind.Function ? (XdmFunction?)_reference : null;
+        return function is not null;
+    }
+
     /// <summary>Gets the boolean value.</summary>
     /// <param name="value">The value.</param>
     /// <returns><see langword="true"/> when the item is a boolean.</returns>
@@ -399,7 +419,7 @@ public readonly struct XdmItem : IEquatable<XdmItem>
     public override int GetHashCode() =>
         unchecked((((((((int)Kind * 31) + TypeId.Value) * 31) + _bits.GetHashCode()) * 31)) + ReferenceHash());
 
-    // Strings compare ordinally, boxed value types by value, nodes by tree identity.
+    // Strings compare ordinally, boxed value types by value, nodes by tree identity, and function items by identity.
     private bool ReferencesEqual(XdmItem other) =>
         Kind switch
         {
@@ -408,7 +428,7 @@ public readonly struct XdmItem : IEquatable<XdmItem>
                 (string?)other._reference,
                 StringComparison.Ordinal
             ),
-            XdmItemKind.Node => ReferenceEquals(_reference, other._reference),
+            XdmItemKind.Node or XdmItemKind.Function => ReferenceEquals(_reference, other._reference),
             _ => Equals(_reference, other._reference),
         };
 
@@ -417,7 +437,7 @@ public readonly struct XdmItem : IEquatable<XdmItem>
         {
             XdmItemKind.XsString or XdmItemKind.UntypedAtomic or XdmItemKind.AnyUri =>
                 StringComparer.Ordinal.GetHashCode((string)_reference!),
-            XdmItemKind.Node => RuntimeHelpers.GetHashCode(_reference),
+            XdmItemKind.Node or XdmItemKind.Function => RuntimeHelpers.GetHashCode(_reference),
             _ => _reference?.GetHashCode() ?? 0,
         };
 

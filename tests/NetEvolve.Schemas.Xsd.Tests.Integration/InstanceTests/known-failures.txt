@@ -9730,28 +9730,16 @@ saxonMeta-VC	1.0/vc014/vc014.n1.xml	-	The schema is incomplete (a missing compon
 saxonMeta-VC	1.0/vc014/vc014.v1.xml	-	The schema is incomplete (a missing component or document); the suite accepts it, the validator reports src-resolve.
 saxonMeta-VC	1.0/vc024-11/vc024.n1.xml	-	The test group has no version attribute but its schema uses an XSD 1.1 construct, which strict 1.0 mode rejects (design 146, DP-16).
 saxonMeta-VC	1.0/vc024-11/vc024.v1.xml	-	The test group has no version attribute but its schema uses an XSD 1.1 construct, which strict 1.0 mode rejects (design 146, DP-16).
-saxonMeta-XmlVersions	1.0/xv001/xv001.v01.xml	#861	The schema does not build: a schema document that declares XML 1.1 is rejected.
-saxonMeta-XmlVersions	1.0/xv002/xv002.v01.xml	#861	The schema does not build: a schema document that declares XML 1.1 is rejected.
-saxonMeta-XmlVersions	1.0/xv003/xv003.v01.xml	#861	The schema does not build: a schema document that declares XML 1.1 is rejected.
-saxonMeta-XmlVersions	1.0/xv004/xv004.v01.xml	#861	The schema does not build: a schema document that declares XML 1.1 is rejected.
-saxonMeta-XmlVersions	1.0/xv005/xv005.n01.xml	#861	The schema does not build: a schema document that declares XML 1.1 is rejected.
-saxonMeta-XmlVersions	1.0/xv005/xv005.n02.xml	#861	The schema does not build: a schema document that declares XML 1.1 is rejected.
-saxonMeta-XmlVersions	1.0/xv005/xv005.v01.xml	#861	The schema does not build: a schema document that declares XML 1.1 is rejected.
-saxonMeta-XmlVersions	1.0/xv006/xv006.n01.xml	#861	The schema does not build: a schema document that declares XML 1.1 is rejected.
-saxonMeta-XmlVersions	1.0/xv006/xv006.n02.xml	#861	The schema does not build: a schema document that declares XML 1.1 is rejected.
-saxonMeta-XmlVersions	1.0/xv006/xv006.n03.xml	#861	The schema does not build: a schema document that declares XML 1.1 is rejected.
-saxonMeta-XmlVersions	1.0/xv006/xv006.v01.xml	#861	The schema does not build: a schema document that declares XML 1.1 is rejected.
-saxonMeta-XmlVersions	1.0/xv007/xv007.n01.xml	#861	The schema does not build: a schema document that declares XML 1.1 is rejected.
-saxonMeta-XmlVersions	1.0/xv007/xv007.n02.xml	#861	The schema does not build: a schema document that declares XML 1.1 is rejected.
-saxonMeta-XmlVersions	1.0/xv007/xv007.v01.xml	#861	The schema does not build: a schema document that declares XML 1.1 is rejected.
-saxonMeta-XmlVersions	1.0/xv008/xv008.n01.xml	#861	The schema does not build: a schema document that declares XML 1.1 is rejected.
-saxonMeta-XmlVersions	1.0/xv008/xv008.n02.xml	#861	The schema does not build: a schema document that declares XML 1.1 is rejected.
-saxonMeta-XmlVersions	1.0/xv008/xv008.v01.xml	#861	The schema does not build: a schema document that declares XML 1.1 is rejected.
-saxonMeta-XmlVersions	1.0/xv009/xv009.n01.xml	#861	The schema does not build: a schema document that declares XML 1.1 is rejected.
-saxonMeta-XmlVersions	1.0/xv009/xv009.n02.xml	#861	The schema does not build: a schema document that declares XML 1.1 is rejected.
-saxonMeta-XmlVersions	1.0/xv009/xv009.n03.xml	#861	The schema does not build: a schema document that declares XML 1.1 is rejected.
-saxonMeta-XmlVersions	1.0/xv009/xv009.v01.xml	#861	The schema does not build: a schema document that declares XML 1.1 is rejected.
-saxonMeta-XmlVersions	1.0/xv009/xv009.v02.xml	#861	The schema does not build: a schema document that declares XML 1.1 is rejected.
+saxonMeta-XmlVersions	1.0/xv001/xv001.v01.xml	#62	The instance document declares XML 1.1, which the reader does not accept; XML 1.1 is not supported (#62).
+saxonMeta-XmlVersions	1.0/xv002/xv002.v01.xml	#62	The instance document declares XML 1.1, which the reader does not accept; XML 1.1 is not supported (#62).
+saxonMeta-XmlVersions	1.0/xv003/xv003.v01.xml	#62	The instance document declares XML 1.1, which the reader does not accept; XML 1.1 is not supported (#62).
+saxonMeta-XmlVersions	1.0/xv004/xv004.v01.xml	#62	The instance document declares XML 1.1, which the reader does not accept; XML 1.1 is not supported (#62).
+saxonMeta-XmlVersions	1.0/xv005/xv005.v01.xml	#62	The instance document declares XML 1.1, which the reader does not accept; XML 1.1 is not supported (#62).
+saxonMeta-XmlVersions	1.0/xv006/xv006.v01.xml	#62	The instance document declares XML 1.1, which the reader does not accept; XML 1.1 is not supported (#62).
+saxonMeta-XmlVersions	1.0/xv007/xv007.v01.xml	#62	The instance document declares XML 1.1, which the reader does not accept; XML 1.1 is not supported (#62).
+saxonMeta-XmlVersions	1.0/xv008/xv008.v01.xml	#62	The instance document declares XML 1.1, which the reader does not accept; XML 1.1 is not supported (#62).
+saxonMeta-XmlVersions	1.0/xv009/xv009.v01.xml	#62	The instance document declares XML 1.1, which the reader does not accept; XML 1.1 is not supported (#62).
+saxonMeta-XmlVersions	1.0/xv009/xv009.v02.xml	#62	The instance document declares XML 1.1, which the reader does not accept; XML 1.1 is not supported (#62).
 saxonMeta-XmlVersions	1.0/xv100c/xv100c.notc.xml	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
 saxonMeta-XmlVersions	1.0/xv100c/xv100c.noti.xml	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
 saxonMeta-XmlVersions	1.0/xv100i/xv100i.c.xml	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).

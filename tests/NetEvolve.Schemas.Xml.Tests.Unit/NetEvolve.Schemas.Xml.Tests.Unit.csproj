@@ -12,4 +12,8 @@
     <!-- Fetches the pinned Unicode Character Database by checksum for the table tests. -->
     <ProjectReference Include="../NetEvolve.Schemas.Conformance/NetEvolve.Schemas.Conformance.csproj" />
   </ItemGroup>
+  <!-- The registration tests build a real container (#1054). -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+  </ItemGroup>
 </Project>

@@ -149,7 +149,7 @@ internal static class AssertionCompiler
     )
     {
         var ok = TryCompileParts(binding, message.Parts, scope, problems, out var parts);
-        compiled = ok ? new CompiledMessage(id, message.Location, parts!) : null;
+        compiled = ok ? new CompiledMessage(id, message.Location, parts!, message.Language) : null;
         return ok;
     }
 
