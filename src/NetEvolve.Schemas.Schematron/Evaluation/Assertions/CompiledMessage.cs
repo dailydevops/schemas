@@ -8,7 +8,7 @@ using NetEvolve.Arguments;
 /// </summary>
 internal sealed class CompiledMessage
 {
-    internal CompiledMessage(string id, DocumentLocation location, MessagePart[] parts)
+    internal CompiledMessage(string id, DocumentLocation location, MessagePart[] parts, string? language = null)
     {
         ArgumentNullException.ThrowIfNull(id);
         ArgumentNullException.ThrowIfNull(parts);
@@ -16,6 +16,7 @@ internal sealed class CompiledMessage
         Id = id;
         Location = location;
         Parts = parts;
+        Language = language ?? string.Empty;
         for (var i = 0; i < parts.Length; i++)
         {
             HasCopyOf |= parts[i].Kind == MessagePartKind.CopyOf;
@@ -28,6 +29,9 @@ internal sealed class CompiledMessage
     internal DocumentLocation Location { get; }
 
     internal MessagePart[] Parts { get; }
+
+    /// <summary>Gets the language in effect for the message, empty when none.</summary>
+    internal string Language { get; }
 
     /// <summary>Gets a value indicating whether a part is an <c>xsl:copy-of</c>, so the property has structured content besides its text.</summary>
     internal bool HasCopyOf { get; }

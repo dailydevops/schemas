@@ -34,7 +34,9 @@ using NetEvolve.Schemas.Xml.Contracts;
 /// the schema was loaded from, because a tree has one source; namespace declarations on <c>xi:include</c> and
 /// <c>xi:fallback</c> elements are not carried to fallback content; the included document is not validated and its document
 /// type declaration is dropped. The tree is merged after the XInclude infoset rules except that <c>xml:base</c> is the absolute
-/// system identifier of the included document. The nesting of includes is recursive, bounded by <see cref="ValidationLimits.MaxDepth"/>.
+/// system identifier of the included document. The nesting of includes is recursive, bounded by
+/// <see cref="ValidationLimits.MaxDepth"/> and by a fixed cap of 256 nested includes
+/// (<see cref="CoreDiagnosticCodes.DepthLimitExceeded"/>).
 /// </para>
 /// </remarks>
 internal sealed class XIncludeResolver

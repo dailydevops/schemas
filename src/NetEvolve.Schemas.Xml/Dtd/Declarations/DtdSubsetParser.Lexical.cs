@@ -154,7 +154,7 @@ internal sealed partial class DtdSubsetParser
 
         foreach (var c in value)
         {
-            if (!IsPubidChar(c))
+            if (!XmlCharClass.IsPubidChar(c))
             {
                 return Fail(XmlErrorCodes.XML0011);
             }
@@ -162,34 +162,6 @@ internal sealed partial class DtdSubsetParser
 
         return true;
     }
-
-    private static bool IsPubidChar(char c) =>
-        c
-            is ' '
-                or '\r'
-                or '\n'
-                or (>= 'a' and <= 'z')
-                or (>= 'A' and <= 'Z')
-                or (>= '0' and <= '9')
-                or '-'
-                or '\''
-                or '('
-                or ')'
-                or '+'
-                or ','
-                or '.'
-                or '/'
-                or ':'
-                or '='
-                or '?'
-                or ';'
-                or '!'
-                or '*'
-                or '#'
-                or '@'
-                or '$'
-                or '_'
-                or '%';
 
     // Production 75 (and 83 when `publicOnly`): SYSTEM literal, or PUBLIC literal and an optional or required literal.
     private bool ScanExternalId(bool publicOnly, out string? publicId, out string? systemId)
