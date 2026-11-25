@@ -12,9 +12,9 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// <summary>
 /// The base of <c>fn:min</c> and <c>fn:max</c> (Functions and Operators 1.0, 15.4.3 and 15.4.4): the least or the greatest value of the
 /// argument. <c>xs:untypedAtomic</c> values are cast to <c>xs:double</c>; numbers are promoted to the type of the widest number in the
-/// sequence and so is the result; a NaN makes the result NaN; strings and URIs compare by codepoint and the result is the selected string with its own type (a derived string type
-/// survives), or an <c>xs:string</c> for a URI; booleans compare as booleans; dates, times, dateTimes, and the two duration subtypes compare through the entries
-/// of the comparison operator table (<see cref="TemporalAggregation"/>), with the implicit timezone of the dynamic context for a value
+/// sequence and so is the result; a NaN makes the result NaN; strings and URIs compare by codepoint and the result is the selected
+/// string with its own type (a derived string type survives), or an <c>xs:string</c> for a URI; booleans compare as booleans; dates,
+/// times, dateTimes, and the two duration subtypes compare through the entries of the comparison operator table (<see cref="TemporalAggregation"/>), with the implicit timezone of the dynamic context for a value
 /// without a timezone; and values that cannot be ordered together are FORG0006.
 /// </summary>
 /// <remarks>

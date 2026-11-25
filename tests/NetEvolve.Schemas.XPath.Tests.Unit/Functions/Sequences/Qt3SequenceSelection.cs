@@ -24,7 +24,8 @@ namespace NetEvolve.Schemas.XPath.Tests.Unit.Functions.Sequences;
 /// reasons that follow; since the casting to the derived types exists (XP-23, #299), 498 of them are selected: the cases whose expression
 /// builds an <c>xs:int</c>, <c>xs:long</c>, <c>xs:short</c>, <c>xs:byte</c>, an unsigned or a signed integer subtype, or a derived string
 /// type, and that no other reason keeps out. The four cases <c>fn-max/fn-max-13</c>, <c>fn-max/fn-max-18</c>, <c>fn-min/fn-min-13</c>, and
-/// <c>fn-min/fn-min-18</c> are selected too, since <c>fn:min</c> and <c>fn:max</c> keep the derived string type of the selected item (#767). The reasons of the first selection: a constructor function of a type outside the casting table of the seven types
+/// <c>fn-min/fn-min-18</c> are selected too, since <c>fn:min</c> and <c>fn:max</c> keep the derived string type of the selected item
+/// (#767). The reasons of the first selection: a constructor function of a type outside the casting table of the seven types
 /// (<c>xs:int</c>, <c>xs:long</c>, <c>xs:short</c>, the unsigned and the signed integer subtypes, <c>xs:anyURI</c>, <c>xs:date</c>,
 /// <c>xs:dateTime</c>, <c>xs:time</c>, the duration types, <c>xs:hexBinary</c>), 575 cases (XP-23 and XP-59 add the rows); a function that belongs to another work package (<c>fn:not</c>, <c>fn:true</c>, <c>fn:false</c>,
 /// <c>fn:boolean</c>, <c>fn:QName</c>, <c>fn:concat</c>, <c>fn:string-length</c>, <c>fn:error</c>, and others), 52 cases; an expression
