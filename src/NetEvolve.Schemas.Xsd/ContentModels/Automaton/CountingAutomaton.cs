@@ -20,6 +20,7 @@ internal sealed class CountingAutomaton : ICompiledContentModel
     private readonly AutomatonAction[] _actions;
     private readonly int[] _finalStart;
     private readonly int[] _finalCount;
+    private readonly long[] _slotMinimums;
 
     internal CountingAutomaton(
         int[][] names,
@@ -29,7 +30,8 @@ internal sealed class CountingAutomaton : ICompiledContentModel
         AutomatonAction[] actions,
         int[] finalStart,
         int[] finalCount,
-        int counterSlots
+        int counterSlots,
+        long[] slotMinimums
     )
     {
         _names = names;
@@ -40,6 +42,7 @@ internal sealed class CountingAutomaton : ICompiledContentModel
         _finalStart = finalStart;
         _finalCount = finalCount;
         CounterSlots = counterSlots;
+        _slotMinimums = slotMinimums;
     }
 
     /// <inheritdoc />
@@ -65,6 +68,9 @@ internal sealed class CountingAutomaton : ICompiledContentModel
     internal int SourceEnd(int sourceIndex) => _sourceStart[sourceIndex + 1];
 
     internal AutomatonAction GetAction(int index) => _actions[index];
+
+    /// <summary>Gets the minimum occurrence of the counted node a counter slot belongs to.</summary>
+    internal long SlotMinimum(int slot) => _slotMinimums[slot];
 
     internal bool IsFinalSource(int sourceIndex, out int actionStart, out int actionCount)
     {

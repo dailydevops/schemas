@@ -108,6 +108,7 @@ internal static class CountingAutomatonCompiler
         private readonly List<Node> _positions = [];
         private readonly List<Edge> _edges = [];
         private readonly List<AutomatonAction> _actions = [];
+        private readonly List<long> _slotMinimums = [];
         private int _slots;
         private bool _tooManyPositions;
         private bool _tooManyTransitions;
@@ -354,6 +355,7 @@ internal static class CountingAutomatonCompiler
             if (node.Slot < 0)
             {
                 node.Slot = _slots++;
+                _slotMinimums.Add(node.Particle.MinOccurs);
             }
 
             return node.Slot;
@@ -438,7 +440,8 @@ internal static class CountingAutomatonCompiler
                 _actions.ToArray(),
                 finalStart,
                 finalCount,
-                _slots
+                _slots,
+                _slotMinimums.ToArray()
             );
         }
     }

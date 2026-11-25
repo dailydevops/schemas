@@ -162,14 +162,19 @@ public class ElementAssessmentTests
             schema.ElementOnly(
                 SchemaFixture.Group(
                     ModelGroupCompositor.Sequence,
-                    1,
-                    70,
-                    SchemaFixture.Part("a", SchemaFixture.Simple("string"), 1, 70)
+                    12,
+                    100,
+                    SchemaFixture.Group(
+                        ModelGroupCompositor.Sequence,
+                        12,
+                        100,
+                        SchemaFixture.Part("a", SchemaFixture.Simple("string"), 12, 100)
+                    )
                 )
             )
         );
 
-        var issues = ValidationHarness.Run(schema, "<r>\n" + Repeat("<a/>", 60) + "</r>");
+        var issues = ValidationHarness.Run(schema, "<r>\n" + Repeat("<a/>", 5000) + "</r>");
 
         await Assert.That(issues.Count).IsEqualTo(1);
         await Assert.That(issues[0].Code).IsEqualTo(ValidationHarness.Code("engine-content-model-transitions"));

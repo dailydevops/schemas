@@ -187,9 +187,12 @@ namespace NetEvolve.Schemas.Schematron.Model
     }
     public sealed class SchematronDiagnostic : NetEvolve.Schemas.Schematron.Model.SchematronNode
     {
+        public string? Fpi { get; }
+        public string? Icon { get; }
         public string Id { get; }
         public NetEvolve.Schemas.Schematron.Model.SchematronMessage Message { get; }
         public string? Role { get; }
+        public string? See { get; }
     }
     public sealed class SchematronDiagnostics : NetEvolve.Schemas.Schematron.Model.SchematronNode
     {
@@ -273,10 +276,13 @@ namespace NetEvolve.Schemas.Schematron.Model
     }
     public sealed class SchematronProperty : NetEvolve.Schemas.Schematron.Model.SchematronNode
     {
+        public string? Fpi { get; }
+        public string? Icon { get; }
         public string Id { get; }
         public NetEvolve.Schemas.Schematron.Model.SchematronMessage Message { get; }
         public string? Role { get; }
         public string? Scheme { get; }
+        public string? See { get; }
     }
     public sealed class SchematronReport : NetEvolve.Schemas.Schematron.Model.SchematronAssertion { }
     public abstract class SchematronRichText : NetEvolve.Schemas.Schematron.Model.SchematronNode
