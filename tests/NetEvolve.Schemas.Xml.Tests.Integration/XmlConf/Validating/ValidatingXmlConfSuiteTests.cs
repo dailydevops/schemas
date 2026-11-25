@@ -10,7 +10,6 @@ using NetEvolve.Schemas.Conformance.Results;
 /// </summary>
 [Explicit]
 [Category(ConformanceCategory.Name)]
-[ConformanceLeg]
 public class ValidatingXmlConfSuiteTests
 {
     /// <summary>The number of valid and invalid cases of the selection, by type and <c>ENTITIES</c> value, with the cases that are not run and the cases that fail.</summary>
