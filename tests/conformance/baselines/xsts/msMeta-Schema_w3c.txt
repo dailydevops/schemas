@@ -27,7 +27,6 @@
 1.0/schZ006/schZ006
 1.0/schZ012_b/schZ012_b
 1.0/schZ012_c/schZ012_c
-1.0/schZ014_b/schZ014_b
 1.1/schA1/schA1
 1.1/schA1/schA1.v
 1.1/schA2/schA2

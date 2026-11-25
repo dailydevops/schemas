@@ -23,7 +23,7 @@ using NetEvolve.Schemas.Xsd.SchemaDocuments;
 /// is allowed anywhere. All violated clauses of one declaration are reported at its start tag (design #108 AP9).
 /// </para>
 /// <para>
-/// Strict 1.0 mode is not reported here: <see cref="Versioning.Constructs.Strict10Constructs"/> rejects the attribute on a local
+/// Strict 1.0 mode is not reported here: <see cref="Versioning.Constructs.Strict10Constructs"/> rejects the attribute on any element or attribute
 /// declaration, so that one construct has one report. Limitations: a base with an undeclared prefix does not match
 /// <c>xs:anyType</c> and is the <c>src-resolve</c> error of the type; the schema element of an included chameleon document
 /// is the one of its own document, as the attribute reads.

@@ -95,6 +95,8 @@ public class SchemaErrorTests
     [Arguments(Open + "  ^<xs:complexType name=\"c\" mixed=\"2\"/>", "src-ct")]
     [Arguments(Open + "  <xs:simpleType name=\"t\">^<xs:union memberTypes=\"1x\"/></xs:simpleType>", "src-simple-type")]
     [Arguments("^<xs:schema " + Xmlns + " elementFormDefault=\"both\"/>", "sch-props-correct")]
+    [Arguments("^<xs:schema " + Xmlns + " targetNamespace=\"\"/>", "sch-props-correct")]
+    [Arguments("^<xs:schema " + Xmlns + " targetNamespace=\" \"/>", "sch-props-correct")]
     // Missing required attributes.
     [Arguments(Open + "  ^<xs:include/>", "src-include")]
     [Arguments(Open + "  ^<xs:redefine/>", "src-redefine")]

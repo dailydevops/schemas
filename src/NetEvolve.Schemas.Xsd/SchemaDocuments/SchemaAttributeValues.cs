@@ -16,6 +16,8 @@ internal static class SchemaAttributeValues
                     || text.SequenceEqual("false".AsSpan())
                     || text.SequenceEqual("1".AsSpan())
                     || text.SequenceEqual("0".AsSpan());
+            case SchemaAttributeKind.NonEmpty:
+                return !text.IsEmpty;
             case SchemaAttributeKind.NCName:
                 return IsNCName(text);
             case SchemaAttributeKind.QName:

@@ -137,6 +137,8 @@ public class Strict10ConstructTests
         Open + "  <xs:complexType name=\"c\">^<xs:attribute name=\"a\" targetNamespace=\"urn:o\"/></xs:complexType>",
         4032
     )]
+    [Arguments(Open + "  ^<xs:element name=\"e\" targetNamespace=\"urn:o\"/>", 4032)]
+    [Arguments(Open + "  ^<xs:attribute name=\"a\" targetNamespace=\"urn:o\"/>", 4032)]
     [Arguments(
         Open
             + "  <xs:simpleType name=\"t\"><xs:restriction base=\"xs:dateTime\">^<xs:explicitTimezone value=\"required\"/></xs:restriction></xs:simpleType>",
