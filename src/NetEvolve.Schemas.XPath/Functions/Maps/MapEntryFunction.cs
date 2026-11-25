@@ -3,7 +3,7 @@ namespace NetEvolve.Schemas.XPath.Functions.Maps;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Xdm.Maps;
 
-/// <summary><c>map:entry</c> (Functions and Operators 3.1, 17.1.7): a map of one entry.</summary>
+/// <summary><c>map:entry</c> (Functions and Operators 3.1, 17.1.9): a map of one entry.</summary>
 internal sealed class MapEntryFunction : MapFunction
 {
     /// <summary>Initializes a new instance of the <see cref="MapEntryFunction"/> class.</summary>

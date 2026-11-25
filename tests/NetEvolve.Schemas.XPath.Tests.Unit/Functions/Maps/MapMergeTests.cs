@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using static MapFixture;
 
-/// <summary><c>map:merge</c> and the <c>duplicates</c> option (Functions and Operators 3.1, 17.1.1).</summary>
+/// <summary><c>map:merge</c> and the <c>duplicates</c> option (Functions and Operators 3.1, 17.1.2).</summary>
 public class MapMergeTests
 {
     private const string Pair = "(map { 1 : 'a', 2 : 'x' }, map { 1 : 'b', 3 : 'y' })";

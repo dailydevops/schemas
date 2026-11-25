@@ -8,7 +8,7 @@ using NetEvolve.Schemas.XPath.Syntax.Tree;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>
-/// <c>map:for-each</c> (Functions and Operators 3.1, 17.1.12): the concatenation of the results of calling a function with the key and the
+/// <c>map:for-each</c> (Functions and Operators 3.1, 17.1.11): the concatenation of the results of calling a function with the key and the
 /// value of each entry, in no specified order.
 /// </summary>
 /// <remarks>Limitation: the action must be a function item of arity 2; a function item of another arity is XPTY0004 and is not coerced.</remarks>

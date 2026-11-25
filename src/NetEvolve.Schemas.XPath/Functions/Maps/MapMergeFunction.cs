@@ -9,7 +9,7 @@ using NetEvolve.Schemas.XPath.Xdm.Maps;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>
-/// <c>map:merge</c> (Functions and Operators 3.1, 17.1.5): one map with the entries of all the maps of the first argument. The
+/// <c>map:merge</c> (Functions and Operators 3.1, 17.1.2): one map with the entries of all the maps of the first argument. The
 /// <c>duplicates</c> option of the second argument says what happens to a key that two maps share: <c>use-first</c> (the default),
 /// <c>use-last</c>, <c>use-any</c>, <c>combine</c> (the values are concatenated in order), or <c>reject</c> (FOJS0003).
 /// </summary>

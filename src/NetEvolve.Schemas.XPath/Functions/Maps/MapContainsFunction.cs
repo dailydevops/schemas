@@ -3,7 +3,7 @@ namespace NetEvolve.Schemas.XPath.Functions.Maps;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
-/// <summary><c>map:contains</c> (Functions and Operators 3.1, 17.1.4): whether a map has an entry with a key.</summary>
+/// <summary><c>map:contains</c> (Functions and Operators 3.1, 17.1.5): whether a map has an entry with a key.</summary>
 internal sealed class MapContainsFunction : MapFunction
 {
     /// <summary>Initializes a new instance of the <see cref="MapContainsFunction"/> class.</summary>
