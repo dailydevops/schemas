@@ -51,6 +51,11 @@ public readonly struct XsdDuration : IEquatable<XsdDuration>
     internal static XsdDuration Map(ReadOnlySpan<char> lexical, DurationLexical.Parts p)
     {
         var months = (p.Years * 12) + p.Months;
+        if (TryMapInline(lexical, p, out var inline))
+        {
+            return new XsdDuration(p.Negative ? -months : months, inline);
+        }
+
         var mantissa =
             (new BigInteger(p.Days) * SecondsPerDay)
             + (new BigInteger(p.Hours) * SecondsPerHour)
@@ -65,6 +70,36 @@ public readonly struct XsdDuration : IEquatable<XsdDuration>
         return p.Negative
             ? new XsdDuration(-months, new XsdDecimal(-mantissa, scale))
             : new XsdDuration(months, new XsdDecimal(mantissa, scale));
+    }
+
+    // The common case: the second count and its fraction fit 64 bits, so no BigInteger is built.
+    private static bool TryMapInline(ReadOnlySpan<char> lexical, DurationLexical.Parts p, out XsdDecimal seconds)
+    {
+        seconds = default;
+        const long Limit = 1_000_000_000_000;
+        var scale = p.FractionLength;
+        if (p.Days > Limit || p.Hours > Limit || p.Minutes > Limit || p.Seconds > Limit || scale > 18)
+        {
+            return false;
+        }
+
+        var whole = (ulong)(
+            (p.Days * SecondsPerDay) + (p.Hours * SecondsPerHour) + (p.Minutes * SecondsPerMinute) + p.Seconds
+        );
+        ulong fraction = 0;
+        foreach (var c in lexical.Slice(p.FractionStart, scale))
+        {
+            fraction = (fraction * 10) + (ulong)(c - '0');
+        }
+
+        var factor = XsdDecimal.Pow10[scale];
+        if (whole > (ulong.MaxValue - fraction) / factor)
+        {
+            return false;
+        }
+
+        seconds = XsdDecimal.FromInline(p.Negative, (whole * factor) + fraction, scale);
+        return true;
     }
 
     /// <summary>Gets the canonical lexical form of the <c>duration</c> type.</summary>

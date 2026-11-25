@@ -575,6 +575,24 @@ public readonly struct XsdDateTime : IEquatable<XsdDateTime>
         second = XsdDecimal.Zero;
         fractionCapAt = -1;
         var seconds = text.Slice(start, end - start);
+
+        // Up to 18 digits plus the point fit a ulong: the common form is built without the decimal parser.
+        if (seconds.Length <= 19)
+        {
+            ulong magnitude = 0;
+            foreach (var c in seconds)
+            {
+                if (c != '.')
+                {
+                    magnitude = (magnitude * 10) + (ulong)(c - '0');
+                }
+            }
+
+            second = XsdDecimal.FromInline(false, magnitude, seconds.Length > 2 ? seconds.Length - 3 : 0);
+            nonZero = magnitude != 0;
+            return;
+        }
+
         var parsed = XsdDecimal.Parse(seconds);
         if (parsed.Success)
         {
