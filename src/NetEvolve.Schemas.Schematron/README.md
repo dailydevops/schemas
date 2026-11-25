@@ -306,7 +306,7 @@ The package is measured against the official Schematron conformance suite, relea
 
 ### Schematron conformance suite
 
-**66 of 84 applicable cases pass, a rate of 78.5%** on `net10.0`, the leg that runs the suites. The other cases are the 18 known failures below, and 3 excluded cases do not count. Every known failure is a case of the committed baseline in `tests/conformance/baselines/schematron-conformance/` (18 baseline entries in 5 files, one file per test set), linked to an issue; a regression and an unexpected pass fail the run.
+**68 of 84 applicable cases pass, a rate of 80.9%** on `net10.0`, the leg that runs the suites. The other cases are the 16 known failures below, and 3 excluded cases do not count. Every known failure is a case of the committed baseline in `tests/conformance/baselines/schematron-conformance/` (16 baseline entries in 5 files, one file per test set), linked to an issue; a regression and an unexpected pass fail the run.
 
 Reproduce the numbers on a clone: set `GITHUB_STEP_SUMMARY` to a file and run the conformance tests; the table of the rate per test set is appended to that file.
 
@@ -319,7 +319,7 @@ dotnet test --project tests/NetEvolve.Schemas.Schematron.Tests.Integration --con
 | `iso-instance-document-selection` | 2 | 0 | 0.0% |
 | `iso-pattern-templating` | 12 | 8 | 66.6% |
 | `iso-reporting` | 45 | 41 | 91.1% |
-| `iso-rule-based-validation` | 14 | 11 | 78.5% |
+| `iso-rule-based-validation` | 14 | 13 | 92.8% |
 | `iso-schema-composition` | 11 | 6 | 54.5% |
 
 The acceptance of XSLT stage 4 (own test schemas and four cases of the suite, which are also among the 84) publishes its own row in the job summary, `NetEvolve.Schemas.Schematron (stage 4 goldens)`: 12 of 17 cases pass, a rate of 70.5%. The other 5 wait for [#877](https://github.com/dailydevops/schemas/issues/877) (a `let` with element content binds a document node), for temporary trees in global declarations, and for builder parameters of a global `xsl:param` ([#832](https://github.com/dailydevops/schemas/issues/832)).
@@ -345,10 +345,6 @@ The suite file of the binding `xslt-3-2025` lists three cases that no selected b
 
 - `iso-schema-composition/extends-recursive.xml`
 
-**[#832](https://github.com/dailydevops/schemas/issues/832)** (2 cases): The keys of a schema build, but the XPath of a rule cannot call them yet (#832).
-
-- `iso-rule-based-validation/xsl-key-element-content.xml`
-- `iso-rule-based-validation/xsl-key.xml`
 
 **[#877](https://github.com/dailydevops/schemas/issues/877)** (1 case): A let with element content binds a document node (maintainer decision of #856), and the case fails on a document node versus a sequence only.
 
@@ -389,7 +385,7 @@ dotnet test --project tests/NetEvolve.Schemas.Schematron.Tests.Integration --con
   ```
 
 - **No `ReadOnlyMemory<T>` overload.** With one, a `byte[]` or `char[]` argument is ambiguous for compilers older than C# 14; pass `memory.Span` instead.
-- **XSLT in a schema.** Declarations of XSLT build and stylesheet functions are callable from XPath, but keys are not callable from a rule yet ([#832](https://github.com/dailydevops/schemas/issues/832)), and a `let` with element content binds a document node, which one suite case does not expect ([#877](https://github.com/dailydevops/schemas/issues/877)); see [XSLT constructs](#xslt-constructs).
+- **XSLT in a schema.** Declarations of XSLT build, and stylesheet functions and keys are callable from XPath, but a `let` with element content binds a document node, which one suite case does not expect ([#877](https://github.com/dailydevops/schemas/issues/877)); see [XSLT constructs](#xslt-constructs).
 - **Attributes that are accepted and ignored.** The `documents` attribute of a pattern ([#913](https://github.com/dailydevops/schemas/issues/913), feature [#388](https://github.com/dailydevops/schemas/issues/388)) and the `visit-each` attribute of a rule ([#934](https://github.com/dailydevops/schemas/issues/934), feature [#387](https://github.com/dailydevops/schemas/issues/387)) neither fail the build nor take effect.
 - **Phase attributes.** A selected phase with `from` ([#385](https://github.com/dailydevops/schemas/issues/385)) or `when` ([#386](https://github.com/dailydevops/schemas/issues/386)) fails the build with `NES3007`.
 - **Include and extends.** An `href` with a fragment identifier is not supported ([#575](https://github.com/dailydevops/schemas/issues/575)).
