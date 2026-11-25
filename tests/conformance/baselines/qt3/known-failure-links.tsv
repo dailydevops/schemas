@@ -1,5 +1,5 @@
 # One line per baseline entry: case id, #issue, reason, separated by tabs. A baseline entry without a line fails the guard test.
-# Every issue number must also be listed in known-open-issues.txt (no network access in the test).
+# Every issue number must also be listed in known-open-issues.lst (no network access in the test).
 app-FunctxFn/functx-fn-default-collation-1	#887	fn:default-collation is not implemented (XPST0017).
 app-FunctxFn/functx-fn-doc-available-1	#886	fn:node-name, fn:nilled and fn:document-uri are not available with an argument (XPST0017).
 app-FunctxFn/functx-fn-escape-html-uri-1	#96	fn:escape-html-uri is not implemented (XPST0017).
