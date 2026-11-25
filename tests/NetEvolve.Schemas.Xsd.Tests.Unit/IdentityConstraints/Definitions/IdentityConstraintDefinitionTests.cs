@@ -294,6 +294,7 @@ public class IdentityConstraintDefinitionTests
         "<xs:key name=\"k\"><xs:selector xpath=\"a\"/><xs:selector xpath=\"b\"/><xs:field xpath=\"@x\"/></xs:key>"
     )]
     [Arguments("<xs:key><xs:selector xpath=\"a\"/><xs:field xpath=\"@x\"/></xs:key>")]
+    [Arguments("<xs:unique name=\"\"><xs:selector xpath=\"a\"/><xs:field xpath=\"@x\"/></xs:unique>")]
     public async Task Create_MissingPartsOrName_IsRepresentationError(string constraint)
     {
         var definition = Create(constraint);
