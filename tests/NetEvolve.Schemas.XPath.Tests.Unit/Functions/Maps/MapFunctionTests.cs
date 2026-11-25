@@ -89,18 +89,17 @@ public class MapFunctionTests
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        const string Source = "let $m := map { 1 : 'a', 2 : 'b' } ";
+        const string Source = "let $m := map { 1 : 'a', 2 : 'b' }, ";
         await Assert
-            .That(Run(Source + "let $p := map:put($m, 3, 'c') return (map:size($m), map:size($p))"))
+            .That(Run(Source + "$p := map:put($m, 3, 'c') return (map:size($m), map:size($p))"))
             .IsEqualTo("integer:2, integer:3");
         await Assert
-            .That(Run(Source + "let $p := map:put($m, 1, 'z') return ($m(1), $p(1))"))
+            .That(Run(Source + "$p := map:put($m, 1, 'z') return ($m(1), $p(1))"))
             .IsEqualTo("string:a, string:z");
         await Assert
             .That(
                 Run(
-                    Source
-                        + "let $r := map:remove($m, 1) return (map:size($m), map:size($r), exists($m(1)), exists($r(1)))"
+                    Source + "$r := map:remove($m, 1) return (map:size($m), map:size($r), exists($m(1)), exists($r(1)))"
                 )
             )
             .IsEqualTo("integer:2, integer:1, boolean:True, boolean:False");
@@ -118,11 +117,7 @@ public class MapFunctionTests
             .IsEqualTo("integer:9003000");
         await Assert.That(Run($"let $m := {Big} return sum(map:keys($m))")).IsEqualTo("integer:4501500");
         await Assert
-            .That(
-                Run(
-                    $"let $m := {Big} return map:size(map:remove($m, for $i in 1 to 3000 where $i mod 2 = 0 return $i))"
-                )
-            )
+            .That(Run($"let $m := {Big} return map:size(map:remove($m, (1 to 3000)[. mod 2 = 0]))"))
             .IsEqualTo("integer:1500");
         await Assert.That(Run($"let $m := {Big} return map:size(map:remove($m, 1 to 3000))")).IsEqualTo("integer:0");
         await Assert.That(Run($"let $m := {Big} return exists($m(0)) or exists($m(3001))")).IsEqualTo("boolean:False");

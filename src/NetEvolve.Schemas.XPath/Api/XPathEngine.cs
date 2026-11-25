@@ -125,6 +125,9 @@ internal static class XPathEngine
         ArithmeticLowerings.Register(registry, Arithmetic);
         ComparisonLowerings.Register(registry, Comparison);
         FunctionItemLowerings.Register(registry, activeHost);
+        registry.Register<MapConstructor>(
+            static (node, context) => Functions.Maps.MapConstructorNode.Lower(node, context)
+        );
         registry.Register<FunctionCall>((node, context) => LowerCall(node, context, activeHost));
         return registry;
     }

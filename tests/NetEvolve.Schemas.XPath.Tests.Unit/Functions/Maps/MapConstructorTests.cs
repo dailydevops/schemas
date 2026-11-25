@@ -101,6 +101,38 @@ public class MapConstructorTests
     }
 
     [Test]
+    [Arguments("function($m as map(*)) { 1 } instance of function(map(xs:integer, xs:string)) as item()*", "True")]
+    [Arguments("function($m as map(*)) { 1 } instance of function(map(*)) as item()*", "True")]
+    [Arguments("function($m as map(*)) { 1 } instance of function(function(*)) as item()*", "False")]
+    [Arguments("function($f as function(*)) { 1 } instance of function(map(*)) as item()*", "True")]
+    [Arguments("function($f as function(*)) { 1 } instance of function(map(xs:string, item()*)) as item()*", "True")]
+    [Arguments(
+        "function($m as map(xs:decimal, item()*)) { 1 } instance of function(map(xs:integer, xs:string)) as item()*",
+        "True"
+    )]
+    [Arguments(
+        "function($m as map(xs:string, item()*)) { 1 } instance of function(map(xs:integer, xs:string)) as item()*",
+        "False"
+    )]
+    [Arguments(
+        "function($m as map(xs:integer, xs:integer)) { 1 } instance of function(map(xs:integer, xs:string)) as item()*",
+        "False"
+    )]
+    [Arguments("function($m as map(xs:integer, item()*)) { 1 } instance of function(map(*)) as item()*", "False")]
+    [Arguments("function($m as xs:integer) { 1 } instance of function(map(*)) as item()*", "False")]
+    [Arguments("function($m as map(*)) { 1 } instance of function(xs:integer) as item()*", "False")]
+    public async Task InstanceOf_AFunctionTestThatNamesMapTypes_ComparesTheParameterTypes(
+        string expression,
+        string expected,
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        await Assert.That(Run(expression)).IsEqualTo("boolean:" + expected);
+    }
+
+    [Test]
     public async Task TreatAs_AMapAgainstAnotherType_RaisesXPDY0050(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
