@@ -66,6 +66,32 @@ public class ContentSubsumptionElementTests
     }
 
     [Test]
+    [Arguments("int", "1", "01", true)]
+    [Arguments("decimal", "1.0", "1", true)]
+    [Arguments("decimal", "1.0", "1.5", false)]
+    [Arguments("string", "1", "01", false)]
+    public async Task Element_FixedValue_IsComparedInTheValueSpace(
+        string type,
+        string baseValue,
+        string value,
+        bool valid
+    )
+    {
+        var fixedKind = ElementValueConstraintKind.Fixed;
+        var restriction = Pair(Declaration("a", constraint: fixedKind, value: value, type: TypeFixture.Xs(type)));
+        var baseParticle = Pair(Declaration("a", constraint: fixedKind, value: baseValue, type: TypeFixture.Xs(type)));
+
+        if (valid)
+        {
+            await AssertSubsumed(restriction, baseParticle);
+        }
+        else
+        {
+            await AssertNotSubsumed(restriction, baseParticle, Subsumes + "4.2", 10);
+        }
+    }
+
+    [Test]
     public async Task Element_DisallowedSubstitutions_OfTheRestriction_MustBeASuperset()
     {
         await AssertNotSubsumed(

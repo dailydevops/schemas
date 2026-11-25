@@ -145,6 +145,34 @@ public class ParticleRestrictionElementTests
     }
 
     [Test]
+    [Arguments("int", "1", "01", true)]
+    [Arguments("decimal", "1.0", "1", true)]
+    [Arguments("decimal", "1.0", "1.5", false)]
+    [Arguments("string", "1", "01", false)]
+    public async Task NameAndTypeOK_FixedValue_IsComparedInTheValueSpace(
+        string type,
+        string baseValue,
+        string value,
+        bool valid
+    )
+    {
+        var fixedKind = ElementValueConstraintKind.Fixed;
+        var violation = Elements(
+            Declaration("a", constraint: fixedKind, value: value, type: TypeFixture.Xs(type)),
+            Declaration("a", constraint: fixedKind, value: baseValue, type: TypeFixture.Xs(type))
+        );
+
+        if (valid)
+        {
+            await AssertValid(violation);
+        }
+        else
+        {
+            await AssertViolation(violation, XsdRuleCodes.RcaseNameAndTypeOK, "rcase-NameAndTypeOK.3.2.2", 10);
+        }
+    }
+
+    [Test]
     [Arguments(2, 2, true)]
     [Arguments(2, 3, true)]
     [Arguments(0, 0, true)]
