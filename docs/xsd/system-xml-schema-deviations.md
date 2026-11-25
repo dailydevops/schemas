@@ -7,7 +7,7 @@ This document lists every difference that the differential run over the W3C XML 
 | Baseline | `System.Xml.Schema` of the .NET runtime 10.0, compared on the `net10.0` test leg only (`baseline-runtime: 10.0`) |
 | Corpus | XSTS cases of XSD 1.0 (schema tests and instance tests), pinned in `tests/conformance/suites/xsts.json` |
 | Data file | `tests/NetEvolve.Schemas.Xsd.Tests.Integration/DifferentialData/xsts-1.0-deviations.txt`, one entry per difference: case id, difference kind, observed difference, specification reference, reason |
-| Entries | 14542 entries for 14505 cases |
+| Entries | 14543 entries for 14506 cases |
 
 The list is valid for the recorded baseline runtime version only. A run on another runtime version fails until the list is compared again. System.Xml.Schema implements XSD 1.0 only, so cases of XSD 1.1 are not compared.
 
@@ -29,8 +29,8 @@ No builder option, switch, or code path in the library reproduces System.Xml.Sch
 |---|---:|---:|
 | Verdict differences: this library follows the specification | 1692 | 1660 |
 | Verdict differences: documented limitations of this library | 26 | 21 |
-| Position differences: equivalent | 12824 | 12824 |
-| Differences on cases that a bug issue tracks (no entry) | 1201 | |
+| Position differences: equivalent | 12825 | 12825 |
+| Differences on cases that a bug issue tracks (no entry) | 1200 | |
 
 ## Differences on cases that a bug issue tracks
 
@@ -61,7 +61,6 @@ The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTe
 | #410 | 1 | feat(xml): support caller-selectable xml 1.1 name productions |
 | #864 | 1 | bug(xsd): fixed values of attribute uses are compared as strings in the derivation check |
 | #903 | 1 | bug(xsd): a strict wildcard rejects an element that has no declaration but a valid xsi:type |
-| #907 | 1 | bug(xsd): an identity constraint field that selects a skipped attribute is accepted |
 
 ## Verdict differences: this library follows the specification
 
@@ -2155,9 +2154,9 @@ msMeta-AttributeGroup_w3c/1.0/attgD003/attgD003.v
 
 Both engines reject the document with the same number of issues on the same lines, and the verdicts agree. They anchor an issue at different columns of the same construct. Issue positions are not part of the specification, so the difference is equivalent.
 
-- Difference: IssuePositions `issue positions` (3794)
+- Difference: IssuePositions `issue positions` (3795)
 - Specification: XSD 1.0 Part 1, 5.2 and C.1 (the assessment outcome is the validity property; positions and number of reports are not specified)
-- Cases: 3794
+- Cases: 3795
 
 ```text
 ibmMeta-anyAttribute/1.0/s3_10_6ii01/s3_10_6v01i
@@ -3955,6 +3954,7 @@ msMeta-IdentityConstraint_w3c/1.0/idZ004/idZ004.i
 msMeta-IdentityConstraint_w3c/1.0/idZ011_a/idZ011_a.i
 msMeta-IdentityConstraint_w3c/1.0/idZ012/idZ012.i
 msMeta-ModelGroups_w3c/1.0/mgA003/mgA003
+msMeta-IdentityConstraint_w3c/1.0/idZ015/idZ015.i
 msMeta-ModelGroups_w3c/1.0/mgA004/mgA004
 msMeta-ModelGroups_w3c/1.0/mgA005/mgA005
 msMeta-ModelGroups_w3c/1.0/mgA008/mgA008

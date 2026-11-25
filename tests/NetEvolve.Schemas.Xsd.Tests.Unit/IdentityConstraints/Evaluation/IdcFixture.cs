@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xsd.Attributes.Declarations;
+using NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;
 using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Diagnostics;
@@ -29,7 +30,8 @@ internal static class IdcFixture
     public static SchemaFixture Schema(
         SimpleTypeDefinition? leaf = null,
         string ns = "",
-        AttributeValueConstraint attributeC = default
+        AttributeValueConstraint attributeC = default,
+        IWildcard? attributeWildcard = null
     )
     {
         leaf ??= SchemaFixture.Simple("string");
@@ -37,7 +39,9 @@ internal static class IdcFixture
         var schema = new SchemaFixture();
         var e = SchemaFixture.Element(
             "e",
-            schema.ElementOnly(
+            ComplexTypeDefinition.Implicit(
+                SchemaFixture.Header(),
+                false,
                 SchemaFixture.Group(
                     ModelGroupCompositor.Choice,
                     0,
@@ -46,9 +50,9 @@ internal static class IdcFixture
                     SchemaFixture.Part(SchemaFixture.Element("m", BuiltIn("string"), namespaceName: ns)),
                     SchemaFixture.Part(SchemaFixture.Element("q", schema.SimpleContent("string"), namespaceName: ns))
                 ),
-                Use(schema, "a", leaf),
-                Use(schema, "b", leaf),
-                Use(schema, "c", leaf, attributeC)
+                [Use(schema, "a", leaf), Use(schema, "b", leaf), Use(schema, "c", leaf, attributeC)],
+                attributeWildcard,
+                schema.Reporter
             ),
             namespaceName: ns
         );

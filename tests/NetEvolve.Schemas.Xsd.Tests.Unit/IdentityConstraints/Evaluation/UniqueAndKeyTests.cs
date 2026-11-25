@@ -1,6 +1,8 @@
 namespace NetEvolve.Schemas.Xsd.Tests.Unit.IdentityConstraints.Evaluation;
 
 using System.Collections.Generic;
+using NetEvolve.Schemas.Xsd.Contracts;
+using NetEvolve.Schemas.Xsd.Tests.Unit.Validation.Core;
 
 public class UniqueAndKeyTests
 {
@@ -184,6 +186,18 @@ public class UniqueAndKeyTests
     public async Task Field_AfterAnError_TheElementTakesNoPartInTheTable()
     {
         var issues = Run(IdcFixture.Unique("u", "e", "k"), "<r>\n<e><k>1</k><k>2</k></e>\n<e><k>1</k></e>\n</r>");
+
+        await Assert.That(issues.Count).IsEqualTo(1);
+        await IdcAssert.Issue(issues[0], "cvc-identity-constraint.3", 2);
+    }
+
+    [Test]
+    public async Task Field_AttributeMatchedBySkippedWildcard_IsAnErrorAtTheElement()
+    {
+        var set = new ConstraintSet().On("r", IdcFixture.Key("k", "e", "@x"));
+        var schema = IdcFixture.Schema(attributeWildcard: SchemaFixture.Wild("##any", XsdProcessContents.Skip));
+
+        var issues = IdcFixture.Run(schema, "<r>\n<e x=\"1\"/>\n</r>", set.Listener());
 
         await Assert.That(issues.Count).IsEqualTo(1);
         await IdcAssert.Issue(issues[0], "cvc-identity-constraint.3", 2);
