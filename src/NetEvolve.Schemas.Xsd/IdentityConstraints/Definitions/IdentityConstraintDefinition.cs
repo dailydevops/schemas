@@ -102,13 +102,13 @@ internal sealed class IdentityConstraintDefinition : IXsdComponent
         };
 
         var localName = element.FindAttribute("name");
-        if (localName is null)
+        if (localName is null or { Length: 0 })
         {
             Report(
                 reporter,
                 XsdRuleCodes.SrcIdentityConstraint,
                 element.Location,
-                "An identity constraint needs a name."
+                "An identity constraint needs a non-empty name."
             );
             return null;
         }

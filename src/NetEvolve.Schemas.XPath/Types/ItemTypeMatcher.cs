@@ -19,7 +19,7 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// <remarks>
 /// Limitations: <c>schema-element()</c> and <c>schema-attribute()</c> and types that are not built in need schema import (DEF-40, #52);
 /// the nillable marker of <c>element(N, T?)</c> is accepted but has no effect because nodes are never nilled until the nilled
-/// property exists; function, map, and array tests belong to XP-31, XP-32, and XP-69.
+/// property exists; map and array tests belong to XP-32 and XP-69. A function test matches a function item by the signature of the item (see <see cref="FunctionSignature"/>).
 /// </remarks>
 [StructLayout(LayoutKind.Auto)]
 internal readonly struct ItemTypeMatcher
@@ -27,12 +27,14 @@ internal readonly struct ItemTypeMatcher
     private readonly ItemTypeKind _kind;
     private readonly XPathNodeTest _test;
     private readonly XdmTypeId _type;
+    private readonly FunctionSignature? _function;
 
-    private ItemTypeMatcher(ItemTypeKind kind, XPathNodeTest test, XdmTypeId type)
+    private ItemTypeMatcher(ItemTypeKind kind, XPathNodeTest test, XdmTypeId type, FunctionSignature? function = null)
     {
         _kind = kind;
         _test = test;
         _type = type;
+        _function = function;
     }
 
     /// <summary>Gets a value indicating whether every item matches.</summary>
@@ -40,6 +42,9 @@ internal readonly struct ItemTypeMatcher
 
     /// <summary>Gets the type of an atomic type, or the type annotation that an element or attribute test names; <see langword="default"/> when there is none.</summary>
     public XdmTypeId Type => _type;
+
+    /// <summary>Gets the signature of a typed function test; <see langword="null"/> for <c>function(*)</c> and for every other matcher.</summary>
+    public FunctionSignature? FunctionSignature => _function;
 
     /// <summary>Binds an item type.</summary>
     /// <param name="itemType">The syntax of the item type.</param>
@@ -59,6 +64,12 @@ internal readonly struct ItemTypeMatcher
                 return new(ItemTypeKind.Atomic, default, ResolveAtomic(atomic.Name, context));
             case KindItemType kind:
                 return BindKindTest(kind.Test, context);
+            case ParenthesizedItemType parenthesized:
+                return Bind(parenthesized.Inner, context);
+            case AnyFunctionTest:
+                return new(ItemTypeKind.Function, default, default);
+            case TypedFunctionTest typed:
+                return new(ItemTypeKind.Function, default, default, BindSignature(typed, context));
             default:
                 throw XPathErrors.Exception(
                     XPathErrorCodes.XPST0003,
@@ -88,7 +99,10 @@ internal readonly struct ItemTypeMatcher
             case ItemTypeKind.AnyItem:
                 return true;
             case ItemTypeKind.Atomic:
-                return !item.IsNode && XdmTypes.IsDerivedFrom(item.TypeId, _type);
+                return !item.IsNode && item.Kind != XdmItemKind.Function && XdmTypes.IsDerivedFrom(item.TypeId, _type);
+            case ItemTypeKind.Function:
+                return item.TryGetFunction(out var function)
+                    && (_function is null || function!.Signature.IsSubtypeOf(_function));
             default:
                 break;
         }
@@ -112,12 +126,23 @@ internal readonly struct ItemTypeMatcher
         return bound.Matches(node) && MatchesType(node, annotations);
     }
 
+    private static FunctionSignature BindSignature(TypedFunctionTest test, XPathStaticContext context)
+    {
+        var parameters = new SequenceTypeInfo[test.ParameterTypes.Count];
+        for (var i = 0; i < parameters.Length; i++)
+        {
+            parameters[i] = SequenceTypeInfo.Bind(test.ParameterTypes[i], context);
+        }
+
+        return new FunctionSignature(parameters, SequenceTypeInfo.Bind(test.ReturnType, context));
+    }
+
     private static ItemTypeMatcher BindKindTest(KindTest test, XPathStaticContext context)
     {
         switch (test)
         {
             case SchemaElementTest or SchemaAttributeTest:
-                throw XPathErrors.Exception(XPathErrorCodes.XPST0008, test.Location.Offset, test.Location.Length);
+                throw UndeclaredSchemaTest(test, context);
             case DocumentTest { Element: { } element }:
                 var (documentElement, type) = BindNamedTest(element, context);
                 return new(ItemTypeKind.DocumentElement, documentElement, type);
@@ -138,7 +163,7 @@ internal readonly struct ItemTypeMatcher
         switch (test)
         {
             case SchemaElementTest or SchemaAttributeTest:
-                throw XPathErrors.Exception(XPathErrorCodes.XPST0008, test.Location.Offset, test.Location.Length);
+                throw UndeclaredSchemaTest(test, context);
             case ElementTest element:
                 var elementType = element.TypeName is null ? default : ResolveAny(element.TypeName, context);
                 var withoutType = new ElementTest(element.Location, element.Name, null, false);
@@ -150,6 +175,18 @@ internal readonly struct ItemTypeMatcher
             default:
                 return (ToNodeTest(test, context), default);
         }
+    }
+
+    // The name is expanded before the declaration lookup, so an unbound prefix (XPST0081) wins over XPST0008.
+    private static XPathException UndeclaredSchemaTest(KindTest test, XPathStaticContext context)
+    {
+        var name = test is SchemaElementTest element ? element.Name : ((SchemaAttributeTest)test).Name;
+        if (name.Prefix is not null && !context.TryResolveNamespace(name.Prefix, out _))
+        {
+            return XPathErrors.Exception(XPathErrorCodes.XPST0081, name.Location.Offset, name.Location.Length);
+        }
+
+        return XPathErrors.Exception(XPathErrorCodes.XPST0008, test.Location.Offset, test.Location.Length);
     }
 
     private static XPathNodeTest ToNodeTest(NodeTest test, XPathStaticContext context) =>
@@ -243,5 +280,6 @@ internal readonly struct ItemTypeMatcher
         AnyNode = 2,
         Node = 3,
         DocumentElement = 4,
+        Function = 5,
     }
 }

@@ -329,6 +329,7 @@ namespace NetEvolve.Schemas.XPath.Xdm.Values
         GMonth = 22,
         HexBinary = 23,
         Base64Binary = 24,
+        Function = 25,
     }
     public readonly struct XdmSequence : System.IEquatable<NetEvolve.Schemas.XPath.Xdm.Values.XdmSequence>
     {

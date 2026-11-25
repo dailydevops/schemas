@@ -7,7 +7,6 @@ using NetEvolve.Schemas.XPath.Tests.Integration.Qt3.Runner;
 
 [Explicit]
 [Category(ConformanceCategory.Name)]
-[ConformanceLeg]
 public class StructuralSuiteTests
 {
     private static readonly string[] Kinds = ["assert-deep-eq", "assert-permutation", "assert-type", "assert-xml"];

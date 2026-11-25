@@ -156,6 +156,31 @@ public class XIncludeErrorTests
     }
 
     [Test]
+    public async Task Depth_ChainBeyondTheIncludeNestingCap_ReportsNes0002_EvenWithAHigherMaxDepth()
+    {
+        var limits = ValidationLimits.Default.WithMaxExternalResources(5_000).WithMaxDepth(5_000);
+
+        var outcome = Run(Doc(Inc("c1.xml")), Chain(300), limits);
+
+        await AssertSingle(outcome, CoreDiagnosticCodes.DepthLimitExceeded);
+    }
+
+    [Test]
+    [Arguments(1_000, 1_000)]
+    [Arguments(2_000, ValidationLimits.MaxDepthCeiling)]
+    public async Task Depth_LongChainWithARaisedMaxDepth_ReportsNes0002InsteadOfOverflowingTheStack(
+        int length,
+        int maxDepth
+    )
+    {
+        var limits = ValidationLimits.Default.WithMaxExternalResources(100_000).WithMaxDepth(maxDepth);
+
+        var outcome = Run(Doc(Inc("c1.xml")), Chain(length), limits);
+
+        await AssertSingle(outcome, CoreDiagnosticCodes.DepthLimitExceeded);
+    }
+
+    [Test]
     public async Task Depth_ChainAtTheLimit_Succeeds()
     {
         var limits = ValidationLimits.Default.WithMaxExternalResources(3);

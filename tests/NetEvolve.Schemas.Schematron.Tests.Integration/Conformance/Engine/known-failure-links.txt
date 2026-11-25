@@ -4,11 +4,8 @@ iso-instance-document-selection/pattern-subordinate-document.xml	#913	The docume
 iso-pattern-templating/pattern-abstract-diagnostic-value-of.xml	#915	Abstract pattern parameters are not substituted in name paths and in diagnostic and property content (NES3300).
 iso-pattern-templating/pattern-abstract-name-path.xml	#915	Abstract pattern parameters are not substituted in name paths and in diagnostic and property content (NES3300).
 iso-pattern-templating/pattern-abstract-pattern-documents.xml	#913	The documents attribute is ignored: no subordinate document is validated and the SVRL does not name it.
-iso-pattern-templating/pattern-abstract-pattern-let-value.xml	#920	White space only text around value-of is kept in the message, the case expects it stripped.
 iso-pattern-templating/pattern-abstract-property-copy-of.xml	#915	Abstract pattern parameters are not substituted in name paths and in diagnostic and property content (NES3300).
 iso-pattern-templating/pattern-abstract-property-value-of.xml	#915	Abstract pattern parameters are not substituted in name paths and in diagnostic and property content (NES3300).
-iso-pattern-templating/pattern-abstract-rule-let-value.xml	#920	White space only text around value-of is kept in the message, the case expects it stripped.
-iso-pattern-templating/pattern-abstract-value-of.xml	#920	White space only text around value-of is kept in the message, the case expects it stripped.
 iso-reporting/svrl-active-pattern-documents-primary.xml	#913	The documents attribute is ignored: no subordinate document is validated and the SVRL does not name it.
 iso-reporting/svrl-active-pattern-documents.xml	#913	The documents attribute is ignored: no subordinate document is validated and the SVRL does not name it.
 iso-reporting/svrl-diagnostic-fpi.xml	#916	The SVRL text of a diagnostic or property reference lacks fpi, icon, and see.
@@ -31,9 +28,8 @@ iso-reporting/svrl-property-variable-copy-of-rule.xml	#914	A property with xsl:c
 iso-reporting/svrl-rule-abstract-lang.xml	#917	The SVRL output carries no xml:lang.
 iso-reporting/svrl-successful-report-lang.xml	#917	The SVRL output carries no xml:lang.
 iso-rule-based-validation/let-value-element-content.xml	#877	A let with element content binds a document node (maintainer decision of #856), and the run reports NES3204 until the embedded content is wired (#914).
-iso-rule-based-validation/xsl-function.xml	#832	The functions and keys of a schema build, but the XPath of a rule cannot call them yet (#628, #832).
-iso-rule-based-validation/xsl-key-element-content.xml	#832	The functions and keys of a schema build, but the XPath of a rule cannot call them yet (#628, #832).
-iso-rule-based-validation/xsl-key.xml	#832	The functions and keys of a schema build, but the XPath of a rule cannot call them yet (#628, #832).
+iso-rule-based-validation/xsl-key-element-content.xml	#832	The keys of a schema build, but the XPath of a rule cannot call them yet (#832).
+iso-rule-based-validation/xsl-key.xml	#832	The keys of a schema build, but the XPath of a rule cannot call them yet (#832).
 iso-schema-composition/extends-href-fragment-xml-id-preserve-ns.xml	#575	A fragment identifier in the href of include and extends is not supported (NES3007).
 iso-schema-composition/extends-href-fragment-xml-id.xml	#575	A fragment identifier in the href of include and extends is not supported (NES3007).
 iso-schema-composition/extends-recursive.xml	#575	An extends with href needs a library that holds exactly one abstract rule; a rule document with a recursive extends is not accepted (NES3101).

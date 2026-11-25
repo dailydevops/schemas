@@ -216,7 +216,7 @@ The engine is measured against the W3C QT3 test suite, pinned by commit `201a6e4
 
 ### XPath 2.0
 
-**14,304 of 14,550 decided cases pass, a rate of 98.3%** on `net10.0`, the leg that runs the suites by default. The other 246 are known failures, and 738 skipped cases do not count. The 984 baseline entries (246 failures and 738 skipped cases) are the files of `tests/conformance/baselines/qt3`, one file per test set (238 test sets), and the run fails on a regression and on a listed case that passes.
+**14,309 of 14,550 decided cases pass, a rate of 98.3%** on `net10.0`, the leg that runs the suites by default. The other 241 are known failures, and 738 skipped cases do not count. The 979 baseline entries (241 failures and 738 skipped cases) are the files of `tests/conformance/baselines/qt3`, one file per test set (238 test sets), and the run fails on a regression and on a listed case that passes.
 
 Reproduce the numbers on a clone: set `GITHUB_STEP_SUMMARY` to a file and run the conformance tests; the table of the rate per test set is appended to that file.
 
@@ -257,6 +257,7 @@ The selection rules, the exclusion list of the later tiers, and the regeneration
 - **Documents and base URI.** The built-in document functions hold no static base URI, so a relative reference is unresolvable, and a document is loaded with the secure reader defaults. The [document functions readme](https://github.com/dailydevops/schemas/blob/main/src/NetEvolve.Schemas.XPath/Functions/Documents/README.md) lists the rest.
 - **Schema-aware processing, static typing, the namespace axis, UCA collations, `fn:collection`, and the fully normalized form** are not supported, see [Exclusions](#exclusions).
 - **Evaluation limits** are not configurable through the public API on main, see [Evaluation limits](#evaluation-limits).
+- **Year range.** Dates and dateTimes accept a year of up to 17 digits, the range of the datatype layer ([#100](https://github.com/dailydevops/schemas/issues/100), [#301](https://github.com/dailydevops/schemas/issues/301)); Functions and Operators 1.0 lets an implementation choose a smaller range. Eight QT3 cases expect a rejection beyond a smaller range and are a deliberate deviation, tracked in [#889](https://github.com/dailydevops/schemas/issues/889): the four `castable as` cases `cbcl-castable-date-001`, `cbcl-castable-date-002`, `cbcl-castable-dateTime-001`, and `cbcl-castable-dateTime-002` (excluded from the selection) and the four cases `cbcl-adjust-date-to-timezone-002` and `-003` and `cbcl-adjust-dateTime-to-timezone-002` and `-003` (listed in the baseline), which expect `FODT0001`.
 - **Conformance.** The cases with serialization assertions and compound assertions are skipped by the runner and are not part of the rate.
 - **Compilers older than C# 14.** The API of this package has no C# 14 extension members, so every compiler calls it the same way; the C# 14 calling path of `SchemaValidator.ForSchematron` belongs to the Schematron package.
 

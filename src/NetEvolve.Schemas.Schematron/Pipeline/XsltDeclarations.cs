@@ -3,12 +3,14 @@ namespace NetEvolve.Schemas.Schematron.Pipeline;
 using System;
 using System.Collections.Generic;
 using NetEvolve.Arguments;
+using NetEvolve.Schemas.Schematron.Bindings.Registry;
 using NetEvolve.Schemas.Schematron.Model;
 using NetEvolve.Schemas.Schematron.Scopes;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Schematron.Xslt.Functions;
 using NetEvolve.Schemas.Schematron.Xslt.Modules;
 using NetEvolve.Schemas.Schematron.Xslt.Registry;
+using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Xdm.Nodes;
 
 /// <summary>
@@ -31,6 +33,50 @@ internal sealed class XsltDeclarations
         _binding = binding;
         _registry = XsltRegistryCatalog.Shared.Default;
         _variableNames = variableNames;
+    }
+
+    /// <summary>
+    /// Gives a binding the signature of every stylesheet function of the modules, before any body is compiled (design #150 EP-13): a
+    /// call of a function then compiles in a rule, a variable, and another function body, and a call with an arity that no function
+    /// declares stays the static error XPST0017. One signature-only host function stands for every declaration of a name and arity;
+    /// the winner is resolved when the call runs. A declaration with an invalid name is left to the compile of the function, which
+    /// reports it.
+    /// </summary>
+    /// <param name="binding">The binding of the schema.</param>
+    /// <param name="schema">The effective schema, whose namespaces bind the prefix of a function name.</param>
+    /// <param name="modules">The linked modules.</param>
+    /// <returns>The derived binding, or <paramref name="binding"/> when it takes no host functions or the modules declare no function.</returns>
+    internal static IQueryBinding WithSignatures(IQueryBinding binding, SchematronSchema schema, XsltModuleSet modules)
+    {
+        ArgumentNullException.ThrowIfNull(binding);
+        ArgumentNullException.ThrowIfNull(schema);
+        ArgumentNullException.ThrowIfNull(modules);
+
+        if (binding is not IFunctionHostBinding host)
+        {
+            return binding;
+        }
+
+        var seen = new HashSet<(XPathQName Name, int Arity)>();
+        var functions = new List<XPathHostFunction>();
+        foreach (var declaration in modules.Declarations)
+        {
+            if (
+                XsltElementReader.IsXslt(declaration.Element.Node, "function")
+                && XsltFunctionInstruction.TryReadSignature(
+                    declaration.Element,
+                    schema.Namespaces,
+                    out var name,
+                    out var arity
+                )
+                && seen.Add((name, arity))
+            )
+            {
+                functions.Add(new XsltUserFunction(name, arity));
+            }
+        }
+
+        return functions.Count == 0 ? binding : host.WithFunctions(functions);
     }
 
     /// <summary>Compiles the declarations that are not functions: the globals, the keys, and the decimal formats.</summary>

@@ -1,6 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Xdm.Values;
 
-/// <summary>The kind of an item: a node, or one atomic family of the data model.</summary>
+/// <summary>The kind of an item: a node, one atomic family of the data model, or a function item.</summary>
 /// <remarks>Limitation: the contract names every family, but the factories and accessors for decimal, date and time, and duration values arrive with XP-06 (#185).</remarks>
 public enum XdmItemKind
 {
@@ -78,4 +78,7 @@ public enum XdmItemKind
 
     /// <summary><c>xs:base64Binary</c>.</summary>
     Base64Binary = 24,
+
+    /// <summary>A function item (XPath 3.0).</summary>
+    Function = 25,
 }

@@ -67,6 +67,7 @@ internal partial struct XmlTokenizer
     private int _constructStart;
     private int _line;
     private int _column;
+    private readonly bool _allowXml11Declaration;
     private long _offset;
     private bool _afterCr;
     private long _scanned;
@@ -81,8 +82,15 @@ internal partial struct XmlTokenizer
     /// <param name="limits">The limits.</param>
     /// <param name="allowDoctype">Whether a document type declaration is scanned (a handler is installed) or rejected.</param>
     /// <param name="allowEntityReferences">Whether references to other entities become tokens (an entity input stack is installed) or are rejected.</param>
-    internal XmlTokenizer(XmlReaderLimits limits, bool allowDoctype, bool allowEntityReferences)
+    /// <param name="allowXml11Declaration">Whether the version <c>1.1</c> in the XML declaration is accepted.</param>
+    internal XmlTokenizer(
+        XmlReaderLimits limits,
+        bool allowDoctype,
+        bool allowEntityReferences,
+        bool allowXml11Declaration = false
+    )
     {
+        _allowXml11Declaration = allowXml11Declaration;
         _limits = limits;
         _allowDoctype = allowDoctype;
         _allowEntityReferences = allowEntityReferences;
