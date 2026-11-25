@@ -13,7 +13,6 @@ msMeta-Additional_w3c	1.0/addB078A/addB078A	#874	A schema constraint that the pi
 msMeta-Additional_w3c	1.0/addB078B/addB078B	#874	A schema constraint that the pipeline does not check; not analyzed yet.
 msMeta-Additional_w3c	1.0/addB110/addB110	#874	A schema constraint that the pipeline does not check; not analyzed yet.
 msMeta-Additional_w3c	1.0/addB111/addB111	#874	A schema constraint that the pipeline does not check; not analyzed yet.
-msMeta-Additional_w3c	1.0/addB183/addB183	#864	Fixed values are compared as strings, not in the value space.
 msMeta-Additional_w3c	1.0/addC001/addC001	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
 msMeta-Additional_w3c	1.0/isDefault060_2/isDefault060_2	#874	A schema constraint that the pipeline does not check; not analyzed yet.
 msMeta-Additional_w3c	1.0/isDefault069/isDefault069	#874	A schema constraint that the pipeline does not check; not analyzed yet.

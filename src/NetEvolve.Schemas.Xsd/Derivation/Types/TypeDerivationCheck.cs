@@ -7,6 +7,7 @@ using NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;
 using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Diagnostics;
+using NetEvolve.Schemas.Xsd.IdentityConstraints.Evaluation;
 
 /// <summary>
 /// Checks the derivation of types (Structures 3.4.6 and 3.14.6): the <see cref="IDerivationCheck"/> seam that answers whether
@@ -38,15 +39,19 @@ internal sealed class TypeDerivationCheck : IDerivationCheck
         | XsdDerivationMethod.Substitution;
 
     private readonly TypeDerivationOk _derivation;
+    private readonly ValueSpace _values;
 
     /// <summary>Initializes a new instance of the <see cref="TypeDerivationCheck"/> class.</summary>
     /// <param name="version">The XSD version, which selects the built-in types.</param>
-    internal TypeDerivationCheck(XsdVersion version)
+    /// <param name="values">The value space, which compares the fixed values of attribute uses.</param>
+    internal TypeDerivationCheck(XsdVersion version, ValueSpace values)
     {
+        ArgumentNullException.ThrowIfNull(values);
         ArgumentOutOfRangeException.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
         ArgumentOutOfRangeException.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
 
         _derivation = new TypeDerivationOk(version);
+        _values = values;
     }
 
     /// <inheritdoc />
@@ -74,7 +79,7 @@ internal sealed class TypeDerivationCheck : IDerivationCheck
                     "Only a complex type can be derived by extension."
                 ),
             XsdDerivationMethod.Restriction => derived is ComplexTypeDefinition restriction
-                ? RestrictionValidity.Check(restriction, baseType, _derivation)
+                ? RestrictionValidity.Check(restriction, baseType, _derivation, _values)
                 : _derivation.Check(derived, baseType, XsdDerivationMethod.None),
             _ => _derivation.Check(derived, baseType, blockSet),
         };
@@ -111,7 +116,7 @@ internal sealed class TypeDerivationCheck : IDerivationCheck
         var violation =
             type.DerivationMethod == XsdDerivationMethod.Extension
                 ? ExtensionValidity.Check(type, baseType)
-                : RestrictionValidity.Check(type, baseType, _derivation);
+                : RestrictionValidity.Check(type, baseType, _derivation, _values);
         if (violation.IsViolation)
         {
             reporter.Report(XsdRuleLookup.Find(violation.Code), type.Location, violation.Message!, violation.Clause);

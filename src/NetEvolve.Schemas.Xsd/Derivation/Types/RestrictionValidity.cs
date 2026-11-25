@@ -5,13 +5,13 @@ using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xsd.Attributes.Declarations;
 using NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;
 using NetEvolve.Schemas.Xsd.Contracts;
+using NetEvolve.Schemas.Xsd.IdentityConstraints.Evaluation;
 
 /// <summary>Derivation Valid (Restriction, Complex) (<c>derivation-ok-restriction</c>, Structures 3.4.6).</summary>
 /// <remarks>
 /// Limitations: the clause 5.4.2 (the particle of the type is a valid restriction of the particle of the base type, Particle
 /// Valid (Restriction)) is XSD-62 for XSD 1.0 and the subsumption check of XSD 1.1 is XSD-61, so the content of element-only and
-/// mixed types is compared by kind only; the clause 2.1.3 compares fixed values by their lexical form, not by the value of the
-/// attribute type; the XSD 1.0 constraint applies in both versions (open content and assertions are not considered); the first
+/// mixed types is compared by kind only; the XSD 1.0 constraint applies in both versions (open content and assertions are not considered); the first
 /// violated clause is the one reported.
 /// </remarks>
 internal static class RestrictionValidity
@@ -20,12 +20,19 @@ internal static class RestrictionValidity
     /// <param name="type">The derived type.</param>
     /// <param name="baseType">The base type to check against.</param>
     /// <param name="derivation">Type Derivation OK, for the types of attributes and of simple content.</param>
+    /// <param name="values">The value space, which compares the fixed values of attribute uses.</param>
     /// <returns>The first violated clause, none when the type is a valid restriction.</returns>
-    internal static TypeViolation Check(ComplexTypeDefinition type, IXsdComponent baseType, TypeDerivationOk derivation)
+    internal static TypeViolation Check(
+        ComplexTypeDefinition type,
+        IXsdComponent baseType,
+        TypeDerivationOk derivation,
+        ValueSpace values
+    )
     {
         ArgumentNullException.ThrowIfNull(type);
         ArgumentNullException.ThrowIfNull(baseType);
         ArgumentNullException.ThrowIfNull(derivation);
+        ArgumentNullException.ThrowIfNull(values);
 
         var complexBase = TypeComponents.AsComplex(baseType);
         if (complexBase is null || (complexBase.Final & XsdDerivationMethod.Restriction) != XsdDerivationMethod.None)
@@ -36,7 +43,7 @@ internal static class RestrictionValidity
             );
         }
 
-        var violation = CheckAttributeUses(type, complexBase, derivation);
+        var violation = CheckAttributeUses(type, complexBase, derivation, values);
         if (violation.IsViolation)
         {
             return violation;
@@ -49,7 +56,8 @@ internal static class RestrictionValidity
     private static TypeViolation CheckAttributeUses(
         ComplexTypeDefinition type,
         ComplexTypeDefinition baseType,
-        TypeDerivationOk derivation
+        TypeDerivationOk derivation,
+        ValueSpace values
     )
     {
         var baseUses = TypeComponents.IndexUses(baseType.AttributeUses);
@@ -57,7 +65,7 @@ internal static class RestrictionValidity
         {
             var use = type.AttributeUses[i];
             var violation = baseUses.TryGetValue(use.Name, out var baseUse)
-                ? CheckRestatedUse(use, baseUse, derivation)
+                ? CheckRestatedUse(use, baseUse, derivation, values)
                 : CheckNewUse(use, baseType);
             if (violation.IsViolation)
             {
@@ -80,7 +88,12 @@ internal static class RestrictionValidity
             );
 
     // The clause 2.1: a use that restates one of the base type.
-    private static TypeViolation CheckRestatedUse(AttributeUse use, AttributeUse baseUse, TypeDerivationOk derivation)
+    private static TypeViolation CheckRestatedUse(
+        AttributeUse use,
+        AttributeUse baseUse,
+        TypeDerivationOk derivation,
+        ValueSpace values
+    )
     {
         var name = use.Name.LocalName;
         if (baseUse.Required && !use.Required)
@@ -107,7 +120,12 @@ internal static class RestrictionValidity
             baseUse.ValueConstraint.Kind == AttributeValueConstraintKind.Fixed
             && (
                 use.ValueConstraint.Kind != AttributeValueConstraintKind.Fixed
-                || !string.Equals(use.ValueConstraint.Value, baseUse.ValueConstraint.Value, StringComparison.Ordinal)
+                || !values.AreEqual(
+                    use.Declaration.TypeDefinition,
+                    (use.ValueConstraint.Value ?? string.Empty).AsSpan(),
+                    baseUse.Declaration.TypeDefinition,
+                    (baseUse.ValueConstraint.Value ?? string.Empty).AsSpan()
+                )
             )
             ? Violation(
                 "2.1.3",

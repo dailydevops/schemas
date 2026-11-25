@@ -11,6 +11,7 @@ using NetEvolve.Schemas.Xsd.Derivation.Particles10;
 using NetEvolve.Schemas.Xsd.Derivation.Types;
 using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.Elements;
+using NetEvolve.Schemas.Xsd.IdentityConstraints.Evaluation;
 using NetEvolve.Schemas.Xsd.Wildcards.Negation;
 
 /// <summary>
@@ -47,7 +48,7 @@ using NetEvolve.Schemas.Xsd.Wildcards.Negation;
 /// names that <c>##defined</c> refers to and that neither model declares are not told apart; an element declaration is compared
 /// as itself, not as the substitution group it heads (#817); identity constraints (clause 4.3, #818) and type tables (clause 4.6,
 /// #319) are not compared yet because the element declaration carries neither; the fixed values of clause 4.2 are compared
-/// by their lexical form; both models are read with the priority of an element declaration over a wildcard, see <see cref="SubsumptionSearch"/>, and
+/// in the value space of the element types; both models are read with the priority of an element declaration over a wildcard, see <see cref="SubsumptionSearch"/>, and
 /// the counters of a loop that are not run in step are decided only up to <see cref="SubsumptionSearch.WidenAfter"/> values per
 /// pair of positions; occurrence bounds above <see cref="long.MaxValue"/> are
 /// read as unbounded (<see cref="Particle"/>). The recursion over nested groups is bounded by the depth of the schema documents,
@@ -67,17 +68,21 @@ internal sealed class ContentSubsumption
     private const string RemainderLocalName = "*remainder*";
 
     private readonly TypeDerivationOk _derivation;
+    private readonly ValueSpace _values;
     private readonly int _maxWork;
 
     /// <summary>Initializes a new instance of the <see cref="ContentSubsumption"/> class.</summary>
     /// <param name="derivation">Type Derivation OK of XSD 1.1, for the types of element declarations.</param>
+    /// <param name="values">The value space, which compares the fixed values of element declarations.</param>
     /// <param name="maxWork">The work limit of one check.</param>
-    internal ContentSubsumption(TypeDerivationOk derivation, int maxWork = DefaultMaxWork)
+    internal ContentSubsumption(TypeDerivationOk derivation, ValueSpace values, int maxWork = DefaultMaxWork)
     {
         ArgumentNullException.ThrowIfNull(derivation);
+        ArgumentNullException.ThrowIfNull(values);
         ArgumentOutOfRangeException.ThrowIfLessThan(maxWork, 1);
 
         _derivation = derivation;
+        _values = values;
         _maxWork = maxWork;
     }
 
@@ -216,6 +221,17 @@ internal sealed class ContentSubsumption
         element.TypeDefinition
         ?? (element.InlineTypeSyntax is null && element.ReferenceCount == 0 ? ComplexTypeDefinition.AnyType : null);
 
+    // The fixed values are equal in the value space of the types; a declaration without a type compares the lexical forms.
+    private bool SameFixedValue(ElementDeclaration element, ElementDeclaration baseElement) =>
+        TypeOf(element) is { } type && TypeOf(baseElement) is { } baseType
+            ? _values.AreEqual(
+                type,
+                (element.ValueConstraint.Value ?? string.Empty).AsSpan(),
+                baseType,
+                (baseElement.ValueConstraint.Value ?? string.Empty).AsSpan()
+            )
+            : string.Equals(element.ValueConstraint.Value, baseElement.ValueConstraint.Value, StringComparison.Ordinal);
+
     // The default binding G of the base subsumes the default binding S of the restriction (clause 2 and the definition of subsumption).
     private ParticleViolation Correspond(Particle at, IXsdComponent specific, IXsdComponent general)
     {
@@ -269,11 +285,7 @@ internal sealed class ContentSubsumption
             baseElement.ValueConstraint.Kind == ElementValueConstraintKind.Fixed
             && (
                 element.ValueConstraint.Kind != ElementValueConstraintKind.Fixed
-                || !string.Equals(
-                    element.ValueConstraint.Value,
-                    baseElement.ValueConstraint.Value,
-                    StringComparison.Ordinal
-                )
+                || !SameFixedValue(element, baseElement)
             )
         )
         {

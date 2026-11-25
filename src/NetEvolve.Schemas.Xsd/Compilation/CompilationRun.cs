@@ -17,6 +17,7 @@ using NetEvolve.Schemas.Xsd.Derivation.Types;
 using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.Elements;
 using NetEvolve.Schemas.Xsd.IdentityConstraints.Definitions;
+using NetEvolve.Schemas.Xsd.IdentityConstraints.Evaluation;
 using NetEvolve.Schemas.Xsd.SchemaDocuments;
 using NetEvolve.Schemas.Xsd.Substitution;
 using NetEvolve.Schemas.Xsd.Validation.Assembly;
@@ -80,10 +81,11 @@ internal sealed class CompilationRun
         XsdBuiltInTypes.Register(_registry, version);
         _context = new BuildContext(version, _registry, _reporter);
         _componentResolver = new ComponentResolver(version);
-        _derivation = new TypeDerivationCheck(version);
+        var values = new ValueSpace(new DescriptorValueAssessor(version), version);
+        _derivation = new TypeDerivationCheck(version, values);
         _determinism = new DeterminismChecker();
         _particleRestriction =
-            version == XsdVersion.V10 ? new ParticleRestriction(new TypeDerivationOk(version)) : null;
+            version == XsdVersion.V10 ? new ParticleRestriction(new TypeDerivationOk(version), values) : null;
     }
 
     /// <summary>

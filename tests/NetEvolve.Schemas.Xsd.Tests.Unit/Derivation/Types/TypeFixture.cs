@@ -13,6 +13,7 @@ using NetEvolve.Schemas.Xsd.Derivation.Types;
 using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.Elements;
 using NetEvolve.Schemas.Xsd.SimpleTypes.Definitions;
+using NetEvolve.Schemas.Xsd.Tests.Unit.Derivation.Particles10;
 using NetEvolve.Schemas.Xsd.Tests.Unit.Fakes;
 using NetEvolve.Schemas.Xsd.Wildcards.Core;
 
@@ -37,7 +38,8 @@ internal sealed class TypeFixture
 
     private XsdIssueReporter Builder => new(_built);
 
-    public static TypeDerivationCheck Checker(XsdVersion version = XsdVersion.V11) => new(version);
+    public static TypeDerivationCheck Checker(XsdVersion version = XsdVersion.V11) =>
+        new(version, ParticleKit.Values(version));
 
     public static XPathQName Name(string name) => name.Length == 0 ? default : new XPathQName(Tns, name);
 

@@ -1,9 +1,11 @@
 namespace NetEvolve.Schemas.Xsd.Tests.Unit.Derivation.Particles10;
 
 using NetEvolve.Schemas.Formats;
+using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Derivation.Particles10;
+using NetEvolve.Schemas.Xsd.Derivation.Types;
 using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.Elements;
 using NetEvolve.Schemas.Xsd.Tests.Unit.Fakes;
@@ -82,7 +84,10 @@ public class ParticleRestrictionReportTests
     [Test]
     public async Task Guards_RejectNullArguments()
     {
-        await Assert.That(() => new ParticleRestriction(null!)).Throws<ArgumentNullException>();
+        await Assert.That(() => new ParticleRestriction(null!, Values(XsdVersion.V10))).Throws<ArgumentNullException>();
+        await Assert
+            .That(() => new ParticleRestriction(new TypeDerivationOk(XsdVersion.V10), null!))
+            .Throws<ArgumentNullException>();
         await Assert.That(() => _check.Check(null!, El("a"))).Throws<ArgumentNullException>();
         await Assert.That(() => _check.Check(El("a"), null!)).Throws<ArgumentNullException>();
         await Assert.That(() => _check.Report(El("a"), El("a"), null!)).Throws<ArgumentNullException>();

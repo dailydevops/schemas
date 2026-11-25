@@ -259,9 +259,12 @@ public class ContentSubsumptionLimitTests
     {
         var check = Subsumption();
 
-        await Assert.That(() => new ContentSubsumption(null!)).Throws<ArgumentNullException>();
+        await Assert.That(() => new ContentSubsumption(null!, Values(XsdVersion.V11))).Throws<ArgumentNullException>();
         await Assert
-            .That(() => new ContentSubsumption(new TypeDerivationOk(XsdVersion.V11), 0))
+            .That(() => new ContentSubsumption(new TypeDerivationOk(XsdVersion.V11), null!))
+            .Throws<ArgumentNullException>();
+        await Assert
+            .That(() => new ContentSubsumption(new TypeDerivationOk(XsdVersion.V11), Values(XsdVersion.V11), 0))
             .Throws<ArgumentOutOfRangeException>();
         await Assert.That(() => check.Check(null!, El("a"))).Throws<ArgumentNullException>();
         await Assert.That(() => check.Check(El("a"), null!)).Throws<ArgumentNullException>();

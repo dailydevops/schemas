@@ -6,6 +6,7 @@ using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Derivation.Types;
+using NetEvolve.Schemas.Xsd.Tests.Unit.Derivation.Particles10;
 using NetEvolve.Schemas.Xsd.Tests.Unit.Fakes;
 
 public class TypeDerivationCheckTests
@@ -84,11 +85,19 @@ public class TypeDerivationCheckTests
 
     [Test]
     public async Task Constructor_UndefinedVersion_Throws() =>
-        await Assert.That(() => new TypeDerivationCheck((XsdVersion)5)).Throws<ArgumentOutOfRangeException>();
+        await Assert
+            .That(() => new TypeDerivationCheck((XsdVersion)5, ParticleKit.Values(XsdVersion.V11)))
+            .Throws<ArgumentOutOfRangeException>();
+
+    [Test]
+    public async Task Constructor_NullValues_Throws() =>
+        await Assert.That(() => new TypeDerivationCheck(XsdVersion.V11, null!)).Throws<ArgumentNullException>();
 
     [Test]
     public async Task Constructor_NegativeVersion_Throws() =>
-        await Assert.That(() => new TypeDerivationCheck((XsdVersion)(-1))).Throws<ArgumentOutOfRangeException>();
+        await Assert
+            .That(() => new TypeDerivationCheck((XsdVersion)(-1), ParticleKit.Values(XsdVersion.V11)))
+            .Throws<ArgumentOutOfRangeException>();
 
     [Test]
     public async Task Check_NullDerived_Throws() =>
