@@ -36,6 +36,11 @@ public sealed class SandboxedFileSystemResourceResolver : IResourceResolver
         ? StringComparison.OrdinalIgnoreCase
         : StringComparison.Ordinal;
 
+#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+    // A case-insensitive mount on a host that defaults to case-sensitive matching (macOS, a mounted volume) still reports the stored name.
+    private static readonly EnumerationOptions CaseInsensitive = new() { MatchCasing = MatchCasing.CaseInsensitive };
+#endif
+
     private readonly string _root;
     private readonly string _rootPrefix;
     private readonly string _rootUri;
@@ -183,7 +188,11 @@ public sealed class SandboxedFileSystemResourceResolver : IResourceResolver
             var segment = segments[i];
             if (segment.AsSpan().IndexOfAny('*', '?') < 0)
             {
+#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+                foreach (var entry in Directory.EnumerateFileSystemEntries(current, segment, CaseInsensitive))
+#else
                 foreach (var entry in Directory.EnumerateFileSystemEntries(current, segment))
+#endif
                 {
                     var actual = Path.GetFileName(entry);
                     if (string.Equals(actual, segment, StringComparison.Ordinal))
