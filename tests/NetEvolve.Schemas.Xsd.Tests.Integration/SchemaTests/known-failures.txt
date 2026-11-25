@@ -176,4 +176,3 @@ sunMeta-ElemDecl	1.0/valueconstraint01001m5/valueConstraint01001m5	#874	A schema
 sunMeta-ElemDecl	1.0/valueconstraint01001m6/valueConstraint01001m6	#874	A schema constraint that the pipeline does not check; not analyzed yet.
 sunMeta-Notation	1.0/name00101m2/name00101m2	#870	Notation declarations are not components yet.
 sunMeta-Notation	1.0/publicid00201m1/publicId00201m1	#870	Notation declarations are not components yet.
-msMeta-Regex_w3c	1.0/reF56/reF56	#1056	The class subtraction after a trailing hyphen is rejected.

@@ -916,9 +916,3 @@ sunMeta-ElemDecl	1.0/valueconstraint00701m1/Negative	#602	The fixed value of an 
 sunMeta-ElemDecl	1.0/valueconstraint00801m1/Negative	#602	The fixed value of an element with mixed content is not enforced; the element value constraint covers simple content only.
 sunMeta-suntest	1.0/identitytestsuitetest002/test.2.v	#604	QName values are resolved without the namespace context, so an unbound prefix is accepted and two prefixes of one namespace give different key values.
 sunMeta-suntest	1.0/identitytestsuitetest002/test.3.n	#604	QName values are resolved without the namespace context, so an unbound prefix is accepted and two prefixes of one namespace give different key values.
-msMeta-Regex_w3c	1.0/RegexTest_488/RegexTest_488.i	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
-msMeta-Regex_w3c	1.0/RegexTest_489/RegexTest_489.i	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
-msMeta-Regex_w3c	1.0/RegexTest_506/RegexTest_506.i	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
-msMeta-Regex_w3c	1.0/RegexTest_508/RegexTest_508.i	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
-msMeta-Regex_w3c	1.0/RegexTest_529/RegexTest_529.i	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).
-msMeta-Regex_w3c	1.0/reZ001/reZ001.v	#600	The own facets of a restriction are not evaluated yet and the case expects one to reject the value (the schema text declares facets).

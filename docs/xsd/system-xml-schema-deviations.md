@@ -7,7 +7,7 @@ This document lists every difference that the differential run over the W3C XML 
 | Baseline | `System.Xml.Schema` of the .NET runtime 10.0, compared on the `net10.0` test leg only (`baseline-runtime: 10.0`) |
 | Corpus | XSTS cases of XSD 1.0 (schema tests and instance tests), pinned in `tests/conformance/suites/xsts.json` |
 | Data file | `tests/NetEvolve.Schemas.Xsd.Tests.Integration/DifferentialData/xsts-1.0-deviations.txt`, one entry per difference: case id, difference kind, observed difference, specification reference, reason |
-| Entries | 14543 entries for 14506 cases |
+| Entries | 14549 entries for 14512 cases |
 
 The list is valid for the recorded baseline runtime version only. A run on another runtime version fails until the list is compared again. System.Xml.Schema implements XSD 1.0 only, so cases of XSD 1.1 are not compared.
 
@@ -27,9 +27,9 @@ No builder option, switch, or code path in the library reproduces System.Xml.Sch
 
 | Class | Entries | Cases |
 |---|---:|---:|
-| Verdict differences: this library follows the specification | 1692 | 1660 |
+| Verdict differences: this library follows the specification | 1693 | 1661 |
 | Verdict differences: documented limitations of this library | 26 | 21 |
-| Position differences: equivalent | 12825 | 12825 |
+| Position differences: equivalent | 12830 | 12830 |
 | Differences on cases that a bug issue tracks (no entry) | 1200 | |
 
 ## Differences on cases that a bug issue tracks
@@ -1876,6 +1876,18 @@ saxonMeta-XmlVersions/1.0/xv009/xv009.n03.xml
 saxonMeta-XmlVersions/1.0/xv009/xv009.xsd
 ```
 
+### A pattern with the characters ^ or $ outside a character class
+
+The pattern uses ^ or $ outside a character class, which the XSD regular expression grammar reads as literal characters, so the value does not match and the instance is invalid. System.Xml.Schema reads them as anchors and accepts it.
+
+- Difference: InstanceVerdict `instance verdict: ours=Invalid, baseline=Valid` (1)
+- Specification: XSD 1.0 Part 2, F (Regular Expressions: ^ and $ are not metacharacters) and 4.3.4 (pattern)
+- Cases: 1
+
+```text
+msMeta-Regex_w3c/1.0/reZ001/reZ001.v
+```
+
 ### A keyref whose values are matched by keys
 
 Every keyref value is matched by a key value of the referenced key, so the instance is valid. System.Xml.Schema reports that the keyref fails to refer to some key.
@@ -2154,9 +2166,9 @@ msMeta-AttributeGroup_w3c/1.0/attgD003/attgD003.v
 
 Both engines reject the document with the same number of issues on the same lines, and the verdicts agree. They anchor an issue at different columns of the same construct. Issue positions are not part of the specification, so the difference is equivalent.
 
-- Difference: IssuePositions `issue positions` (3795)
+- Difference: IssuePositions `issue positions` (3800)
 - Specification: XSD 1.0 Part 1, 5.2 and C.1 (the assessment outcome is the validity property; positions and number of reports are not specified)
-- Cases: 3795
+- Cases: 3800
 
 ```text
 ibmMeta-anyAttribute/1.0/s3_10_6ii01/s3_10_6v01i
@@ -3953,8 +3965,8 @@ msMeta-IdentityConstraint_w3c/1.0/idZ002/idZ002.i
 msMeta-IdentityConstraint_w3c/1.0/idZ004/idZ004.i
 msMeta-IdentityConstraint_w3c/1.0/idZ011_a/idZ011_a.i
 msMeta-IdentityConstraint_w3c/1.0/idZ012/idZ012.i
-msMeta-ModelGroups_w3c/1.0/mgA003/mgA003
 msMeta-IdentityConstraint_w3c/1.0/idZ015/idZ015.i
+msMeta-ModelGroups_w3c/1.0/mgA003/mgA003
 msMeta-ModelGroups_w3c/1.0/mgA004/mgA004
 msMeta-ModelGroups_w3c/1.0/mgA005/mgA005
 msMeta-ModelGroups_w3c/1.0/mgA008/mgA008
@@ -4415,6 +4427,8 @@ msMeta-Regex_w3c/1.0/RegexTest_474/RegexTest_474.i
 msMeta-Regex_w3c/1.0/RegexTest_475/RegexTest_475.i
 msMeta-Regex_w3c/1.0/RegexTest_476/RegexTest_476.i
 msMeta-Regex_w3c/1.0/RegexTest_48/RegexTest_48
+msMeta-Regex_w3c/1.0/RegexTest_488/RegexTest_488.i
+msMeta-Regex_w3c/1.0/RegexTest_489/RegexTest_489.i
 msMeta-Regex_w3c/1.0/RegexTest_49/RegexTest_49
 msMeta-Regex_w3c/1.0/RegexTest_491/RegexTest_491.i
 msMeta-Regex_w3c/1.0/RegexTest_492/RegexTest_492.i
@@ -4430,11 +4444,14 @@ msMeta-Regex_w3c/1.0/RegexTest_501/RegexTest_501.i
 msMeta-Regex_w3c/1.0/RegexTest_502/RegexTest_502.i
 msMeta-Regex_w3c/1.0/RegexTest_503/RegexTest_503.i
 msMeta-Regex_w3c/1.0/RegexTest_504/RegexTest_504.i
+msMeta-Regex_w3c/1.0/RegexTest_506/RegexTest_506.i
+msMeta-Regex_w3c/1.0/RegexTest_508/RegexTest_508.i
 msMeta-Regex_w3c/1.0/RegexTest_51/RegexTest_51
 msMeta-Regex_w3c/1.0/RegexTest_514/RegexTest_514.i
 msMeta-Regex_w3c/1.0/RegexTest_52/RegexTest_52
 msMeta-Regex_w3c/1.0/RegexTest_520/RegexTest_520.i
 msMeta-Regex_w3c/1.0/RegexTest_528/RegexTest_528.i
+msMeta-Regex_w3c/1.0/RegexTest_529/RegexTest_529.i
 msMeta-Regex_w3c/1.0/RegexTest_53/RegexTest_53
 msMeta-Regex_w3c/1.0/RegexTest_531/RegexTest_531.i
 msMeta-Regex_w3c/1.0/RegexTest_532/RegexTest_532.i
