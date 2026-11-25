@@ -1,4 +1,12 @@
-﻿namespace NetEvolve.Schemas
+﻿namespace Microsoft.Extensions.DependencyInjection
+{
+    public static class DtdValidatorServiceCollectionExtensions
+    {
+        public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddDtdValidator(this Microsoft.Extensions.DependencyInjection.IServiceCollection services, System.Action<System.IServiceProvider, NetEvolve.Schemas.DtdValidatorBuilder>? configure = null) { }
+        public static Microsoft.Extensions.DependencyInjection.IServiceCollection AddKeyedDtdValidator(this Microsoft.Extensions.DependencyInjection.IServiceCollection services, object serviceKey, System.Action<System.IServiceProvider, object?, NetEvolve.Schemas.DtdValidatorBuilder>? configure = null) { }
+    }
+}
+namespace NetEvolve.Schemas
 {
     public static class DtdSchemaValidatorExtensions
     {

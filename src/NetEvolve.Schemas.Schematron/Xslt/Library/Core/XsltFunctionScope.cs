@@ -17,8 +17,8 @@ using NetEvolve.Schemas.XPath.Functions.Binding;
 /// <remarks>
 /// Limitations: the one-argument form of <c>function-available</c> probes the arities 0 to <see cref="MaxProbedArity"/>, because the
 /// static context does not enumerate its functions (#587); a function whose smallest arity is higher is not found. The compiler of the
-/// XPath package does not pass the host flags to the registry yet (#297), and the stylesheet functions become host functions with
-/// #628, so until then the scope answers the lookups and the compiled call path does not use it.
+/// XPath package does not pass the host flags to the registry yet (#297), so the scope answers the lookups and the compiled call path does
+/// not use it. The stylesheet functions are host functions of a binding that is derived per schema (#628), not of this scope.
 /// </remarks>
 internal sealed class XsltFunctionScope
 {

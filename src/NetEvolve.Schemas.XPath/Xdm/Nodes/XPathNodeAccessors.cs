@@ -8,7 +8,9 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>The data model accessors over <see cref="XPathNode"/>: name, parent, children, attributes, base URI, string value, and typed value.</summary>
 /// <remarks>
-/// Navigation accessors return <see langword="default"/> for no node; test it with <see cref="IsEmpty"/>. Limitations: namespace
+/// Navigation accessors return <see langword="default"/> for no node; test it with <see cref="IsEmpty"/>. The accessors
+/// <see cref="Name"/>, <see cref="Parent"/>, <see cref="FirstChild"/>, <see cref="StringValue"/>, and <see cref="BaseUri"/>
+/// require a non-empty node: check <see cref="IsEmpty"/> first, because the result for <see langword="default"/> is unspecified. Limitations: namespace
 /// nodes are not exposed (#54), and the string value of a document or element is built as one string because the document model
 /// offers no span accessor for it.
 /// </remarks>
