@@ -70,7 +70,13 @@ public class XPathErrorCodesTests
         "FOTY0012",
     ];
 
-    public static IEnumerable<string> AllCodes() => [.. XPath20Codes, .. FunctionsCodes];
+    // XML Path Language (XPath) 3.0, appendix G, and XQuery and XPath Functions and Operators 3.0, appendix D: the conditions that function items add.
+    private static readonly string[] XPath30Codes = ["XQST0039", "FOTY0013"];
+
+    private static readonly string[] XPath31Codes = ["FOAY0001", "FOAY0002"];
+
+    public static IEnumerable<string> AllCodes() =>
+        [.. XPath20Codes, .. FunctionsCodes, .. XPath30Codes, .. XPath31Codes];
 
     private static HashSet<string> TableCodes(string prefix)
     {
@@ -100,13 +106,15 @@ public class XPathErrorCodesTests
     {
         var table = TableCodes("FO");
 
-        await Assert.That(table.SetEquals(FunctionsCodes)).IsTrue();
-        await Assert.That(table.Count).IsEqualTo(FunctionsCodes.Length);
+        await Assert.That(table.SetEquals([.. FunctionsCodes, "FOTY0013", .. XPath31Codes])).IsTrue();
+        await Assert.That(table.Count).IsEqualTo(FunctionsCodes.Length + 1 + XPath31Codes.Length);
     }
 
     [Test]
     public async Task Table_HasNoDuplicatesAndNoOtherPrefixes() =>
-        await Assert.That(XPathErrorCodes.All.Count).IsEqualTo(XPath20Codes.Length + FunctionsCodes.Length);
+        await Assert
+            .That(XPathErrorCodes.All.Count)
+            .IsEqualTo(XPath20Codes.Length + FunctionsCodes.Length + XPath30Codes.Length + XPath31Codes.Length);
 
     [Test]
     [MethodDataSource(nameof(AllCodes))]
@@ -125,6 +133,7 @@ public class XPathErrorCodesTests
 
     [Test]
     [Arguments("XPST0003", XPathErrorKind.Static)]
+    [Arguments("XQST0039", XPathErrorKind.Static)]
     [Arguments("XPTY0004", XPathErrorKind.Type)]
     [Arguments("XPDY0002", XPathErrorKind.Dynamic)]
     [Arguments("FOAR0001", XPathErrorKind.Function)]

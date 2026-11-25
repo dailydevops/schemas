@@ -149,6 +149,17 @@ internal static class XPathErrorCodes
     );
     internal static readonly XPathErrorCode FORX0004 = Define("FORX0004", "Invalid replacement string.");
     internal static readonly XPathErrorCode FOTY0012 = Define("FOTY0012", "Argument node does not have a typed value.");
+    internal static readonly XPathErrorCode FOTY0013 = Define(
+        "FOTY0013",
+        "Atomization is not defined for a function item."
+    );
+    internal static readonly XPathErrorCode XQST0039 = Define(
+        "XQST0039",
+        "Two parameters of an inline function expression have the same name."
+    );
+
+    internal static readonly XPathErrorCode FOAY0001 = Define("FOAY0001", "Array index out of bounds.");
+    internal static readonly XPathErrorCode FOAY0002 = Define("FOAY0002", "Negative array length.");
 
     /// <summary>Gets every code of the table.</summary>
     internal static IReadOnlyCollection<XPathErrorCode> All => Messages.Keys;
@@ -171,7 +182,7 @@ internal static class XPathErrorCodes
         }
 
         var name = code.LocalName;
-        if (name.StartsWith("XPST", StringComparison.Ordinal))
+        if (name.StartsWith("XPST", StringComparison.Ordinal) || name.StartsWith("XQST", StringComparison.Ordinal))
         {
             return XPathErrorKind.Static;
         }

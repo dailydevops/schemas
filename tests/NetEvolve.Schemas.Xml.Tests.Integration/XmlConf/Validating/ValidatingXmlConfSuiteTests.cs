@@ -25,7 +25,7 @@ public class ValidatingXmlConfSuiteTests
         (XmlConfType.Valid, XmlConfEntities.General, 3, 0, 0),
         (XmlConfType.Valid, XmlConfEntities.Parameter, 78, 0, 0),
         (XmlConfType.Valid, XmlConfEntities.Both, 46, 0, 0),
-        (XmlConfType.Invalid, XmlConfEntities.None, 175, 4, 6),
+        (XmlConfType.Invalid, XmlConfEntities.None, 175, 4, 4),
         (XmlConfType.Invalid, XmlConfEntities.General, 6, 0, 0),
         (XmlConfType.Invalid, XmlConfEntities.Parameter, 44, 0, 4),
         (XmlConfType.Invalid, XmlConfEntities.Both, 4, 0, 4),

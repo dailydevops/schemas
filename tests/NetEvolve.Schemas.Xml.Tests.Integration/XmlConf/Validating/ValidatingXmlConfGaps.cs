@@ -56,10 +56,6 @@ internal static class ValidatingXmlConfGaps
             ["eduni-errata-2e/rmt-e2e-14"] = Anomalies("Proper Declaration/PE Nesting"),
             ["eduni-errata-2e/rmt-e2e-15a"] = EntityReferences("Element Valid for EMPTY content"),
             ["eduni-errata-3e/rmt-e3e-13"] = EntityReferences("Entity Declared"),
-            ["eduni-namespaces-1.0/rmt-ns10-045"] =
-                "ID values are checked against Name only (#925): a colon in an ID value is accepted.",
-            ["eduni-namespaces-1.0/rmt-ns10-046"] =
-                "ID values are checked against Name only (#925): a colon in an ID value is accepted.",
             ["ibm/ibm-invalid-P45-ibm45i01.xml"] = Anomalies("Unique Element Type Declaration"),
             ["ibm/ibm-invalid-P49-ibm49i01.xml"] = Anomalies("Proper Group/PE Nesting"),
             ["ibm/ibm-invalid-P50-ibm50i01.xml"] = Anomalies("Proper Group/PE Nesting"),

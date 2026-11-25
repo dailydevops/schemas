@@ -12,6 +12,7 @@ using NetEvolve.Schemas.Xml.Model;
 internal sealed partial class CoreParseRun
 {
     private const string SchematronNamespace = "http://purl.oclc.org/dsdl/schematron";
+    private const string XmlNamespace = "http://www.w3.org/XML/1998/namespace";
     private const string XsltNamespace = "http://www.w3.org/1999/XSL/Transform";
 
     private static readonly string[] UnsupportedCopyOfAttributes = ["type", "validation"];
@@ -333,7 +334,7 @@ internal sealed partial class CoreParseRun
             subject,
             diagnostics,
             properties,
-            ParseMessage(element, CoreInline.Message)
+            ParseTrimmedMessage(element, CoreInline.Message)
         );
     }
 
@@ -357,7 +358,7 @@ internal sealed partial class CoreParseRun
             subject,
             diagnostics,
             properties,
-            ParseMessage(element, CoreInline.Message)
+            ParseTrimmedMessage(element, CoreInline.Message)
         );
     }
 
@@ -499,7 +500,12 @@ internal sealed partial class CoreParseRun
     {
         var id = Required(element, "id");
         var role = Attribute(element, "role");
-        return new SchematronDiagnostic(Location(element), id, role, ParseMessage(element, CoreInline.Diagnostic));
+        return new SchematronDiagnostic(
+            Location(element),
+            id,
+            role,
+            ParseTrimmedMessage(element, CoreInline.Diagnostic)
+        );
     }
 
     private SchematronTitle ParseTitle(XmlNode element) =>
@@ -514,7 +520,64 @@ internal sealed partial class CoreParseRun
     }
 
     private SchematronMessage ParseMessage(XmlNode element, CoreInline allowed) =>
-        new(Location(element), ParseParts(element, allowed));
+        new(Location(element), ParseParts(element, allowed), InheritedLanguage(element));
+
+    // The nearest xml:lang of the element and its ancestors; an empty value resets the language, so it is returned as written.
+    private string? InheritedLanguage(XmlNode element)
+    {
+        for (var node = element; !node.IsEmpty; node = node.Parent)
+        {
+            for (var attribute = node.FirstAttribute; !attribute.IsEmpty; attribute = attribute.NextAttribute)
+            {
+                var name = attribute.Name;
+                if (
+                    string.Equals(_names.GetString(name.Local), "lang", StringComparison.Ordinal)
+                    && string.Equals(_names.GetString(name.NamespaceUri), XmlNamespace, StringComparison.Ordinal)
+                )
+                {
+                    return attribute.StringValue;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    // The message of an assertion, a report and a diagnostic. A property keeps its white space text (see ParseMessage).
+    private SchematronMessage ParseTrimmedMessage(XmlNode element, CoreInline allowed)
+    {
+        var parts = ParseParts(element, allowed);
+
+        // The XSLT bindings strip white space only text of the schema: the formatting between the start tag and the first child element and
+        // between the last child element and the end tag is no content. Text between two parts stays, and so does a message of text alone.
+        var start = 0;
+        var end = parts.Length;
+        while (start < end && IsBlankText(parts[start]))
+        {
+            start++;
+        }
+
+        while (end > start && IsBlankText(parts[end - 1]))
+        {
+            end--;
+        }
+
+        if (start == end)
+        {
+            return new(Location(element), parts, InheritedLanguage(element));
+        }
+
+        if (start > 0 || end < parts.Length)
+        {
+            var trimmed = new SchematronMessagePart[end - start];
+            Array.Copy(parts, start, trimmed, 0, trimmed.Length);
+            parts = trimmed;
+        }
+
+        return new(Location(element), parts, InheritedLanguage(element));
+    }
+
+    private static bool IsBlankText(SchematronMessagePart part) => part is SchematronText text && IsBlank(text.Text);
 
     private SchematronMessagePart[] ParseParts(XmlNode element, CoreInline allowed)
     {

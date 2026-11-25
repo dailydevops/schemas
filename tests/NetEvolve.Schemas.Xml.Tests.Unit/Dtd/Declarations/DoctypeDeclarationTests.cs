@@ -108,6 +108,31 @@ public class DoctypeDeclarationTests
     }
 
     [Test]
+    [Arguments("<!DOCTYPE doc PUBLIC \"[\" \"null.ent\"><doc></doc>")]
+    [Arguments("<!DOCTYPE doc PUBLIC '\"' 'null.ent'><doc></doc>")]
+    [Arguments("<!DOCTYPE doc PUBLIC \"a	b\" 'null.ent'><doc></doc>")]
+    public async Task OptIn_PublicIdWithACharacterOutsidePubidChar_ReportsXml0011(string xml)
+    {
+        ArgumentNullException.ThrowIfNull(xml);
+        var (status, code, _) = Read(xml, OptIn);
+
+        await Assert.That(status).IsEqualTo(XmlReadStatus.Error);
+        await Assert.That(code).IsSameReferenceAs(XmlErrorCodes.XML0011);
+    }
+
+    [Test]
+    [Arguments("<!DOCTYPE doc PUBLIC \"-//X//Y 1.0 (a)+,./:=?;!*#@$_%'\" \"null.ent\"><doc></doc>")]
+    [Arguments("<!DOCTYPE doc PUBLIC \"\" \"null.ent\"><doc></doc>")]
+    public async Task OptIn_PublicIdOfPubidCharOnly_IsAccepted(string xml)
+    {
+        ArgumentNullException.ThrowIfNull(xml);
+        var (status, code, _) = Read(xml, OptIn);
+
+        await Assert.That(status).IsEqualTo(XmlReadStatus.Completed);
+        await Assert.That(code).IsNull();
+    }
+
+    [Test]
     public async Task OptIn_InvalidDeclaration_ReportsTheCodedErrorForTheDocument()
     {
         var (status, code, _) = Read("<!DOCTYPE a [<!ELEMENT a>]><a/>", OptIn);

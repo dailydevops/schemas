@@ -20,7 +20,8 @@ public readonly ref struct SchematronFinding
         ReadOnlySpan<char> message,
         SchematronReferenceList diagnostics,
         SchematronReferenceList properties,
-        ValidationIssue? issue
+        ValidationIssue? issue,
+        ReadOnlySpan<char> language = default
     )
     {
         IsReport = isReport;
@@ -36,6 +37,7 @@ public readonly ref struct SchematronFinding
         Diagnostics = diagnostics;
         Properties = properties;
         Issue = issue;
+        Language = language;
     }
 
     /// <summary>Gets a value indicating whether the finding is a successful report; <see langword="false"/> is a failed assert.</summary>
@@ -76,4 +78,7 @@ public readonly ref struct SchematronFinding
 
     /// <summary>Gets the mapped issue; <see langword="null"/> when <c>MaxIssues</c> dropped it.</summary>
     public ValidationIssue? Issue { get; }
+
+    /// <summary>Gets the language in effect at the assertion (the nearest <c>xml:lang</c>); empty when none. Read by the SVRL writer only.</summary>
+    internal ReadOnlySpan<char> Language { get; }
 }
