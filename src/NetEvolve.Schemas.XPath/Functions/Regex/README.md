@@ -53,5 +53,4 @@ compiled again. Each set of flags has its own entry, so `i` and `ii` share one.
   sequence size limit (XP0004).
 - `fn:matches` runs the search that records capture groups, which is slower than a search for the extent alone.
 - One-argument `fn:tokenize` is XP-71 (#334); `xsl:analyze-string` is SCH-69.
-- `fn:analyze-string` is implemented (XP-64, #332; XPath 3.0 gated). Limitation: an empty group at the end of an enclosing group is
-  emitted as a sibling (#1022).
+- `fn:analyze-string` is implemented (XP-64, #332; XPath 3.0 gated).

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Schematron.Diagnostics;
 using NetEvolve.Schemas.Schematron.Results.Mapping;
+using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Schematron.Tests.Unit.Fakes;
 
 public class IssueMapperTests
@@ -155,8 +156,67 @@ public class IssueMapperTests
     }
 
     [Test]
+    public async Task Fanout_Mapper_RunsBeforeSink_IssueAvailable()
+    {
+        var collector = new ValidationIssueCollector(Limits(10));
+        var sink = new OrderSink(collector);
+        IEvaluationEvents events = new IssueMapper(collector, sink);
+
+        MapThenDeliver(events);
+
+        await Assert.That(sink.CountSeenAtFinding).IsEqualTo(1);
+        await Assert.That(sink.IssueSeen).IsNotNull();
+        await Assert.That(sink.IssueSeen).IsSameReferenceAs(collector.ToResult().Issues[0]);
+    }
+
+    [Test]
     public async Task Constructor_NullCollector_Throws() =>
         await Assert.That(() => new IssueMapper(null!, null)).Throws<ArgumentNullException>();
+
+    // The event structs are ref structs: they live in synchronous helpers, never in async test methods.
+    private static void MapThenDeliver(IEvaluationEvents events)
+    {
+        var issue = events.Map(false, "a1", "message", Where);
+        var finding = new SchematronFinding(
+            false,
+            "a1",
+            "r1",
+            "a1",
+            "@id",
+            "/",
+            "",
+            "",
+            "",
+            "message",
+            default,
+            default,
+            issue
+        );
+        events.Finding(in finding);
+    }
+
+    private sealed class OrderSink(ValidationIssueCollector collector) : ISchematronReportSink
+    {
+        internal int CountSeenAtFinding { get; private set; }
+
+        internal ValidationIssue? IssueSeen { get; private set; }
+
+        public void Begin(in SchematronRunInfo info) { }
+
+        public void ActivePattern(in SchematronPatternEvent pattern) { }
+
+        public void FiredRule(in SchematronRuleEvent rule) { }
+
+        public void Finding(in SchematronFinding finding)
+        {
+            CountSeenAtFinding = collector.Count;
+            IssueSeen = finding.Issue;
+        }
+
+        public void ErrorOccurred(in SchematronErrorEvent errorEvent) { }
+
+        public void Finish(in SchematronRunSummary summary) { }
+    }
 
     // The event structs are ref structs: they live in synchronous helpers, never in async test methods.
     private static void Forward(

@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Evaluation.Annotations;
 using NetEvolve.Schemas.Schematron.Model;
-using NetEvolve.Schemas.Schematron.Results.Mapping;
 using NetEvolve.Schemas.Schematron.Scopes;
 using NetEvolve.Schemas.Schematron.Seams;
 
@@ -149,7 +148,7 @@ internal static class AssertionCompiler
     )
     {
         var ok = TryCompileParts(binding, message.Parts, scope, problems, out var parts);
-        compiled = ok ? new CompiledMessage(id, message.Location, parts!) : null;
+        compiled = ok ? new CompiledMessage(id, message.Location, parts!, message.Language) : null;
         return ok;
     }
 

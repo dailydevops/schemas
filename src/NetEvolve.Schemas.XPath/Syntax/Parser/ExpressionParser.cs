@@ -236,7 +236,8 @@ internal ref partial struct ExpressionParser
         {
             _ = Advance();
             var target = ParseArrowTarget();
-            expression = new ArrowExpression(Span(start), expression, target, ParseArguments());
+            var arguments = ParseArguments();
+            expression = new ArrowExpression(Span(start), expression, target, arguments);
         }
 
         return expression;

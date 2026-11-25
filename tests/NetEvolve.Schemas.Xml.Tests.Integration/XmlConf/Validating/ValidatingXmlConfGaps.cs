@@ -56,19 +56,11 @@ internal static class ValidatingXmlConfGaps
             ["eduni-errata-2e/rmt-e2e-14"] = Anomalies("Proper Declaration/PE Nesting"),
             ["eduni-errata-2e/rmt-e2e-15a"] = EntityReferences("Element Valid for EMPTY content"),
             ["eduni-errata-3e/rmt-e3e-13"] = EntityReferences("Entity Declared"),
-            ["eduni-namespaces-1.0/rmt-ns10-045"] =
-                "ID values are checked against Name only (#925): a colon in an ID value is accepted.",
-            ["eduni-namespaces-1.0/rmt-ns10-046"] =
-                "ID values are checked against Name only (#925): a colon in an ID value is accepted.",
             ["ibm/ibm-invalid-P45-ibm45i01.xml"] = Anomalies("Unique Element Type Declaration"),
             ["ibm/ibm-invalid-P49-ibm49i01.xml"] = Anomalies("Proper Group/PE Nesting"),
             ["ibm/ibm-invalid-P50-ibm50i01.xml"] = Anomalies("Proper Group/PE Nesting"),
             ["ibm/ibm-invalid-P51-ibm51i01.xml"] = Anomalies("Proper Group/PE Nesting"),
             ["sun/el04"] = Anomalies("Unique Element Type Declaration"),
-            ["sun/inv-not-sa05"] =
-                "The standalone normalization clause skips enumerated attributes (#924), so Standalone Document Declaration is not reported.",
-            ["sun/inv-not-sa06"] =
-                "The standalone normalization clause skips notation attributes (#924), so Standalone Document Declaration is not reported.",
             ["xmltest/invalid--002"] = Anomalies("Proper Group/PE Nesting"),
             ["xmltest/invalid--005"] = Anomalies("Proper Declaration/PE Nesting"),
             ["xmltest/invalid--006"] = Anomalies("Proper Declaration/PE Nesting"),
