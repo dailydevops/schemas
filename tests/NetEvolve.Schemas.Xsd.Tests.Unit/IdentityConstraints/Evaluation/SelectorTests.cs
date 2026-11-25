@@ -186,4 +186,16 @@ public class SelectorTests
 
         await Assert.That(issues.Count).IsEqualTo(0);
     }
+
+    [Test]
+    public async Task AttributeWildcard_AsField_CountsTheSchemaInstanceAttributes()
+    {
+        var issues = Run(
+            "e",
+            "<r xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n<e a=\"1\" xsi:nil=\"true\"/>\n</r>",
+            "@*"
+        );
+
+        await Assert.That(issues.Any(i => i.Constraint == "cvc-identity-constraint.3")).IsTrue();
+    }
 }
