@@ -122,7 +122,7 @@ public class ElementDeclarationTests
 
         await Assert.That(fixture.Issues.Count).IsEqualTo(1);
         await Assert.That(fixture.Issues[0].Code).IsEqualTo(fixture.CodeOf("src-element"));
-        await Assert.That(fixture.Issues[0].Location.Line).IsEqualTo(4);
+        await Assert.That(fixture.Issues[0].Location.Line).IsEqualTo(3);
     }
 
     [Test]

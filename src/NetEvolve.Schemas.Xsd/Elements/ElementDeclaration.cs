@@ -15,8 +15,7 @@ using NetEvolve.Schemas.Xsd.Substitution;
 /// <remarks>
 /// Limitations: only the first head of the <c>substitutionGroup</c> of a global declaration is read (several heads are XSD-71 #322), identity constraints are XSD-17 (#241), type alternatives are
 /// XSD 1.1 (#319), and a local <c>targetNamespace</c> is XSD-71 (#322); checking the value constraint against the type
-/// (cos-valid-default) is XSD-54 (#307). <see langword="abstract"/>, <c>final</c> and <c>substitutionGroup</c> on a local declaration
-/// are not rejected.
+/// (cos-valid-default) is XSD-54 (#307).
 /// </remarks>
 internal sealed class ElementDeclaration : IReferencingComponent, ISubstitutionElement
 {

@@ -7,7 +7,7 @@ This document lists every difference that the differential run over the W3C XML 
 | Baseline | `System.Xml.Schema` of the .NET runtime 10.0, compared on the `net10.0` test leg only (`baseline-runtime: 10.0`) |
 | Corpus | XSTS cases of XSD 1.0 (schema tests and instance tests), pinned in `tests/conformance/suites/xsts.json` |
 | Data file | `tests/NetEvolve.Schemas.Xsd.Tests.Integration/DifferentialData/xsts-1.0-deviations.txt`, one entry per difference: case id, difference kind, observed difference, specification reference, reason |
-| Entries | 14545 entries for 14508 cases |
+| Entries | 14550 entries for 14513 cases |
 
 The list is valid for the recorded baseline runtime version only. A run on another runtime version fails until the list is compared again. System.Xml.Schema implements XSD 1.0 only, so cases of XSD 1.1 are not compared.
 
@@ -29,8 +29,8 @@ No builder option, switch, or code path in the library reproduces System.Xml.Sch
 |---|---:|---:|
 | Verdict differences: this library follows the specification | 1694 | 1662 |
 | Verdict differences: documented limitations of this library | 26 | 21 |
-| Position differences: equivalent | 12825 | 12825 |
-| Differences on cases that a bug issue tracks (no entry) | 1196 | |
+| Position differences: equivalent | 12830 | 12830 |
+| Differences on cases that a bug issue tracks (no entry) | 1191 | |
 
 ## Differences on cases that a bug issue tracks
 
@@ -52,7 +52,6 @@ The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTe
 | #870 | 11 | feat(xsd): add notation declarations as components |
 | #896 | 7 | feat(xsd): compare fixed values in the value space when validating instances |
 | #602 | 6 | feat(xsd): apply default values to elements with mixed content |
-| #865 | 5 | bug(xsd): a local element declaration with abstract or final is accepted |
 | #871 | 5 | feat(xsd): reject a value constraint on an attribute or element of type ID |
 | #1080 | 4 | fix(xml): match every XML name character with the multi-character escape c in the pattern facet |
 | #1079 | 3 | feat(xsd): evaluate the enumeration facet of hexBinary and base64Binary restrictions |
@@ -2178,9 +2177,9 @@ msMeta-AttributeGroup_w3c/1.0/attgD003/attgD003.v
 
 Both engines reject the document with the same number of issues on the same lines, and the verdicts agree. They anchor an issue at different columns of the same construct. Issue positions are not part of the specification, so the difference is equivalent.
 
-- Difference: IssuePositions `issue positions` (3799)
+- Difference: IssuePositions `issue positions` (3804)
 - Specification: XSD 1.0 Part 1, 5.2 and C.1 (the assessment outcome is the validity property; positions and number of reports are not specified)
-- Cases: 3799
+- Cases: 3804
 
 ```text
 ibmMeta-anyAttribute/1.0/s3_10_6ii01/s3_10_6v01i
@@ -3682,6 +3681,8 @@ msMeta-Element_w3c/1.0/elemZ021f/elemZ021f.i
 msMeta-Element_w3c/1.0/elemZ022a/elemZ022a.i
 msMeta-Element_w3c/1.0/elemZ023/elemZ023.i
 msMeta-Errata10_w3c/1.0/errA002/errA002.i
+msMeta-Errata10_w3c/1.0/errC005/errC005
+msMeta-Errata10_w3c/1.0/errC006/errC006
 msMeta-Errata10_w3c/1.0/errC009/errC009
 msMeta-Errata10_w3c/1.0/errE004/errE004.i
 msMeta-Errata10_w3c/1.0/errF001/errF001.i
@@ -4208,6 +4209,7 @@ msMeta-Particles_w3c/1.0/particlesDa001/particlesDa001.i
 msMeta-Particles_w3c/1.0/particlesDa003/particlesDa003.i
 msMeta-Particles_w3c/1.0/particlesDa004/particlesDa004.i
 msMeta-Particles_w3c/1.0/particlesDa005/particlesDa005.i
+msMeta-Particles_w3c/1.0/particlesDa011/particlesDa011
 msMeta-Particles_w3c/1.0/particlesDb001/particlesDb001.i
 msMeta-Particles_w3c/1.0/particlesDb003/particlesDb003.i
 msMeta-Particles_w3c/1.0/particlesDb004/particlesDb004.i
@@ -5205,6 +5207,8 @@ msMeta-Schema_w3c/1.0/schS1/schS1
 msMeta-Schema_w3c/1.0/schT1/schT1
 msMeta-Schema_w3c/1.0/schT2/schT2
 msMeta-Schema_w3c/1.0/schT6/schT6.i
+msMeta-Schema_w3c/1.0/schZ001_78029-a/schZ001_78029-a
+msMeta-Schema_w3c/1.0/schZ002_78029-b/schZ002_78029-b
 msMeta-Schema_w3c/1.0/schZ003_78029-c/schZ003_78029-c
 msMeta-Schema_w3c/1.0/schZ010/schZ010
 msMeta-Schema_w3c/1.0/schZ011_a/schZ011_a

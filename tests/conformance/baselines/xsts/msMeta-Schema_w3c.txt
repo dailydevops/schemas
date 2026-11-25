@@ -32,8 +32,6 @@
 1.0/schU3/schU3.i
 1.0/schU4/schU4.i
 1.0/schU5/schU5.i
-1.0/schZ001_78029-a/schZ001_78029-a
-1.0/schZ002_78029-b/schZ002_78029-b
 1.0/schZ004/schZ004
 1.0/schZ005/schZ005
 1.0/schZ006/schZ006
