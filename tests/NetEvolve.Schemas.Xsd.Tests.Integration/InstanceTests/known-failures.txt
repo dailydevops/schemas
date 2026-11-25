@@ -921,7 +921,6 @@ saxonMeta-XmlVersions	1.0/xv009/xv009.v02.xml	#62	The instance document declares
 saxonMeta-XmlVersions	1.0/xv100c/xv100c.c.xml	#1080	The pattern escape for name characters rejects a name character that the case expects to be valid.
 saxonMeta-XmlVersions	1.0/xv100c/xv100c.i.xml	#1080	The pattern escape for name characters rejects a name character that the case expects to be valid.
 saxonMeta-XmlVersions	1.0/xv100i/xv100i.i.xml	#1080	The pattern escape for name characters rejects a name character that the case expects to be valid.
-sunMeta-ElemDecl	1.0/idconstrdefs00403m/idConstrDefs00403m1_n	#908	The IDREFS items of a restriction of xs:IDREFS are not resolved, so a dangling reference is accepted.
 sunMeta-ElemDecl	1.0/valueconstraint00701m1/Negative	#602	The fixed value of an element with mixed content is not enforced; the element value constraint covers simple content only.
 sunMeta-ElemDecl	1.0/valueconstraint00801m1/Negative	#602	The fixed value of an element with mixed content is not enforced; the element value constraint covers simple content only.
 sunMeta-suntest	1.0/identitytestsuitetest002/test.2.v	#604	QName values are resolved without the namespace context, so an unbound prefix is accepted and two prefixes of one namespace give different key values.
