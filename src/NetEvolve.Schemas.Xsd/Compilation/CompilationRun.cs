@@ -8,6 +8,7 @@ using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Resources;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xsd.Assertions.ComplexTypes;
+using NetEvolve.Schemas.Xsd.Assertions.Facet;
 using NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;
 using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Composition;
@@ -454,7 +455,8 @@ internal sealed class CompilationRun
                 _registry.Components,
                 _context.ComplexTypeAssertions.Count == 0
                     ? null
-                    : new ComplexTypeAssertions(_context.ComplexTypeAssertions)
+                    : new ComplexTypeAssertions(_context.ComplexTypeAssertions),
+                _context.SimpleTypeAssertions.Count == 0 ? null : new FacetAssertions(_context.SimpleTypeAssertions)
             )
             : new SchemaCompilation(null, null, result);
     }

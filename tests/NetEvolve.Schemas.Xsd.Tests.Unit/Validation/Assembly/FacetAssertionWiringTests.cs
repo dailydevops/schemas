@@ -53,7 +53,7 @@ public class FacetAssertionWiringTests
     private static int Count(string instance) =>
         AssemblyFixture
             .Run(AssemblyFixture.Build(Schema), instance)
-            .Issues.Count(i => i.Code == XsdRuleCodes.CvcAssertion);
+            .Issues.Count(i => i.Code == XsdRuleCodes.CvcAssertionsValid);
 
     [Test]
     public async Task Validate_SatisfiedAssertion_IsValid()
@@ -64,19 +64,19 @@ public class FacetAssertionWiringTests
     }
 
     [Test]
-    public async Task Validate_ViolatedAssertion_ReportsCvcAssertion()
+    public async Task Validate_ViolatedAssertion_ReportsCvcAssertionsValid()
     {
         var result = AssemblyFixture.Run(AssemblyFixture.Build(Schema), "<p xmlns=\"urn:t\">-5</p>");
 
         await Assert.That(result.IsValid).IsFalse();
-        await Assert.That(result.Issues.Count(i => i.Code == XsdRuleCodes.CvcAssertion)).IsEqualTo(1);
+        await Assert.That(result.Issues.Count(i => i.Code == XsdRuleCodes.CvcAssertionsValid)).IsEqualTo(1);
     }
 
     [Test]
     public async Task Validate_DerivedType_ChecksTheInheritedAndTheOwnAssertion()
     {
         await Assert.That(Count("<s xmlns=\"urn:t\">5</s>")).IsEqualTo(0);
-        await Assert.That(Count("<s xmlns=\"urn:t\">-5</s>")).IsEqualTo(2);
+        await Assert.That(Count("<s xmlns=\"urn:t\">-5</s>")).IsEqualTo(1);
         await Assert.That(Count("<s xmlns=\"urn:t\">50</s>")).IsEqualTo(1);
     }
 
@@ -88,10 +88,8 @@ public class FacetAssertionWiringTests
     }
 
     [Test]
-    public async Task Validate_TestThatUsesTheContextItem_IsADynamicErrorAndInvalid()
-    {
+    public async Task Validate_TestThatUsesTheContextItem_IsADynamicErrorAndInvalid() =>
         await Assert.That(Count("<ctx xmlns=\"urn:t\">5</ctx>")).IsEqualTo(1);
-    }
 
     [Test]
     public async Task Validate_SimpleContentRestriction_EvaluatesTheAssertionFacet()
@@ -117,19 +115,26 @@ public class FacetAssertionWiringTests
     }
 
     [Test]
+    public async Task Validate_XsiTypeOfABuiltInType_HasNoAssertionToEvaluate()
+    {
+        const string Xsi =
+            " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"";
+
+        await Assert.That(Count("<any xmlns=\"urn:t\"" + Xsi + " xsi:type=\"xs:int\">-1</any>")).IsEqualTo(0);
+    }
+
+    [Test]
     public async Task Validate_ValueThatIsInvalidForTheDatatype_ReportsNoAssertion()
     {
         var result = AssemblyFixture.Run(AssemblyFixture.Build(Schema), "<p xmlns=\"urn:t\">x</p>");
 
         await Assert.That(result.IsValid).IsFalse();
-        await Assert.That(result.Issues.Any(i => i.Code == XsdRuleCodes.CvcAssertion)).IsFalse();
+        await Assert.That(result.Issues.Any(i => i.Code == XsdRuleCodes.CvcAssertionsValid)).IsFalse();
     }
 
     [Test]
-    public async Task Validate_TypeWithoutAssertion_IsNotAffected()
-    {
+    public async Task Validate_TypeWithoutAssertion_IsNotAffected() =>
         await Assert.That(Count("<plain xmlns=\"urn:t\">-5</plain>")).IsEqualTo(0);
-    }
 
     [Test]
     public async Task Build_AnAssertionThatDoesNotCompile_IsASchemaError()

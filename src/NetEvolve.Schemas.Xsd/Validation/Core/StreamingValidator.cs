@@ -6,6 +6,8 @@ using System.Runtime.InteropServices;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Text.NameTable;
+using NetEvolve.Schemas.XPath.Context;
+using NetEvolve.Schemas.Xsd.Assertions.Facet;
 using NetEvolve.Schemas.Xsd.ContentModels.AllGroups;
 using NetEvolve.Schemas.Xsd.ContentModels.AllGroups11;
 using NetEvolve.Schemas.Xsd.ContentModels.Automaton;
@@ -55,6 +57,8 @@ internal sealed partial class StreamingValidator : IXmlSink
     private readonly SchemaLocationHints? _hints;
     private readonly ISimpleValueAssessor _assessor;
     private ValueSpace? _valueSpace;
+    private readonly FacetAssertions? _facetAssertions;
+    private XPathEvaluationContext? _facetContext;
     private readonly XsdIssueReporter _reporter;
     private readonly ValidationLimits _limits;
     private readonly string? _documentUri;
@@ -95,6 +99,7 @@ internal sealed partial class StreamingValidator : IXmlSink
     /// <param name="derivation">The derivation check that <c>xsi:type</c> is judged by, <see langword="null"/> for the type derivation check of the schema version.</param>
     /// <param name="readerLimits">The limits of the reader that feeds the validator, <see langword="null"/> for the defaults.</param>
     /// <param name="hints">The schema location hints of the run, <see langword="null"/> to ignore them.</param>
+    /// <param name="facetAssertions">The assertion facets of the simple types, <see langword="null"/> for none.</param>
     internal StreamingValidator(
         ValidationModel model,
         ISimpleValueAssessor assessor,
@@ -104,7 +109,8 @@ internal sealed partial class StreamingValidator : IXmlSink
         IReadOnlyList<ValidationListener> listeners,
         IDerivationCheck? derivation = null,
         XmlReaderLimits? readerLimits = null,
-        SchemaLocationHints? hints = null
+        SchemaLocationHints? hints = null,
+        FacetAssertions? facetAssertions = null
     )
     {
         ArgumentNullException.ThrowIfNull(model);
@@ -115,6 +121,7 @@ internal sealed partial class StreamingValidator : IXmlSink
 
         _model = model;
         _hints = hints;
+        _facetAssertions = facetAssertions;
         _derivation = derivation;
         _assessor = assessor;
         _reporter = reporter;
@@ -163,6 +170,9 @@ internal sealed partial class StreamingValidator : IXmlSink
         {
             _listeners[i].EndRun();
         }
+
+        _facetContext?.Dispose();
+        _facetContext = null;
     }
 
     /// <inheritdoc />
