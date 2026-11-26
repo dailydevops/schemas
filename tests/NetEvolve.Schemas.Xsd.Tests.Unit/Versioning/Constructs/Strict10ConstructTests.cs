@@ -115,30 +115,30 @@ public class Strict10ConstructTests
     )]
     [Arguments(Open + "  ^<xs:defaultOpenContent><xs:any/></xs:defaultOpenContent>", 4024)]
     [Arguments(Open + "  ^<xs:override schemaLocation=\"a.xsd\"/>", 4025)]
-    [Arguments("^<xs:schema " + Xmlns + " defaultAttributes=\"ag\"/>", 4026)]
-    [Arguments(Open + "  ^<xs:complexType name=\"c\" defaultAttributesApply=\"false\"/>", 4027)]
+    [Arguments("<xs:schema " + Xmlns + " ^defaultAttributes=\"ag\"/>", 4026)]
+    [Arguments(Open + "  <xs:complexType name=\"c\" ^defaultAttributesApply=\"false\"/>", 4027)]
     [Arguments(
         Open
-            + "  <xs:complexType name=\"c\"><xs:sequence>^<xs:any notNamespace=\"##local\"/></xs:sequence></xs:complexType>",
+            + "  <xs:complexType name=\"c\"><xs:sequence><xs:any ^notNamespace=\"##local\"/></xs:sequence></xs:complexType>",
         4028
     )]
-    [Arguments(Open + "  <xs:complexType name=\"c\">^<xs:anyAttribute notQName=\"##defined\"/></xs:complexType>", 4029)]
-    [Arguments("^<xs:schema " + Xmlns + " xpathDefaultNamespace=\"##local\"/>", 4030)]
+    [Arguments(Open + "  <xs:complexType name=\"c\"><xs:anyAttribute ^notQName=\"##defined\"/></xs:complexType>", 4029)]
+    [Arguments("<xs:schema " + Xmlns + " ^xpathDefaultNamespace=\"##local\"/>", 4030)]
     [Arguments(
-        Open + "  <xs:complexType name=\"c\">^<xs:attribute name=\"a\" inheritable=\"true\"/></xs:complexType>",
+        Open + "  <xs:complexType name=\"c\"><xs:attribute name=\"a\" ^inheritable=\"true\"/></xs:complexType>",
         4031
     )]
     [Arguments(
         Open
-            + "  <xs:complexType name=\"c\"><xs:sequence>^<xs:element name=\"e\" targetNamespace=\"urn:o\"/></xs:sequence></xs:complexType>",
+            + "  <xs:complexType name=\"c\"><xs:sequence><xs:element name=\"e\" ^targetNamespace=\"urn:o\"/></xs:sequence></xs:complexType>",
         4032
     )]
     [Arguments(
-        Open + "  <xs:complexType name=\"c\">^<xs:attribute name=\"a\" targetNamespace=\"urn:o\"/></xs:complexType>",
+        Open + "  <xs:complexType name=\"c\"><xs:attribute name=\"a\" ^targetNamespace=\"urn:o\"/></xs:complexType>",
         4032
     )]
-    [Arguments(Open + "  ^<xs:element name=\"e\" targetNamespace=\"urn:o\"/>", 4032)]
-    [Arguments(Open + "  ^<xs:attribute name=\"a\" targetNamespace=\"urn:o\"/>", 4032)]
+    [Arguments(Open + "  <xs:element name=\"e\" ^targetNamespace=\"urn:o\"/>", 4032)]
+    [Arguments(Open + "  <xs:attribute name=\"a\" ^targetNamespace=\"urn:o\"/>", 4032)]
     [Arguments(
         Open
             + "  <xs:simpleType name=\"t\"><xs:restriction base=\"xs:dateTime\">^<xs:explicitTimezone value=\"required\"/></xs:restriction></xs:simpleType>",

@@ -11,7 +11,7 @@ using static NetEvolve.Schemas.Xsd.Tests.Unit.IdentityConstraints.DefaultNamespa
 
 /// <summary>
 /// Strict 1.0 mode: the construct check of the schema document reports the attribute once, with the rule code of the attribute and
-/// the location of the element that carries it; the qualification step reads no namespace from it, so nothing is reported twice.
+/// the location of the attribute; the qualification step reads no namespace from it, so nothing is reported twice.
 /// </summary>
 public class XPathDefaultNamespaceStrictTests
 {
@@ -34,10 +34,10 @@ public class XPathDefaultNamespaceStrictTests
         await Assert.That(issues).Count().IsEqualTo(2);
         await Assert.That(issues[0].Code).IsEqualTo(Strict10XPathDefaultNamespace);
         await Assert.That(issues[0].Location.Line).IsEqualTo(3);
-        await Assert.That(issues[0].Location.Column).IsEqualTo(Column(schema, "<xs:selector"));
+        await Assert.That(issues[0].Location.Column).IsEqualTo(Column(schema, "<xs:selector", "xpathDefaultNamespace"));
         await Assert.That(issues[1].Code).IsEqualTo(Strict10XPathDefaultNamespace);
         await Assert.That(issues[1].Location.Line).IsEqualTo(3);
-        await Assert.That(issues[1].Location.Column).IsEqualTo(Column(schema, "<xs:field"));
+        await Assert.That(issues[1].Location.Column).IsEqualTo(Column(schema, "<xs:field", "xpathDefaultNamespace"));
     }
 
     [Test]
@@ -81,6 +81,8 @@ public class XPathDefaultNamespaceStrictTests
     }
 
     // The one-based column of a start tag on the line of the constraint, which the issue of the attribute points at.
-    private static int Column(string schema, string tag) =>
-        schema.IndexOf(tag, StringComparison.Ordinal) - schema.IndexOf("<xs:unique", StringComparison.Ordinal) + 1;
+    private static int Column(string schema, string tag, string attribute) =>
+        schema.IndexOf(attribute, schema.IndexOf(tag, StringComparison.Ordinal), StringComparison.Ordinal)
+        - schema.IndexOf("<xs:unique", StringComparison.Ordinal)
+        + 1;
 }

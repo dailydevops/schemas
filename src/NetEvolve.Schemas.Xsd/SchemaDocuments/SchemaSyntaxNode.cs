@@ -6,10 +6,7 @@ using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.Xsd.Contracts;
 
 /// <summary>An element of a schema document with its attributes, children, and namespace declarations.</summary>
-/// <remarks>
-/// Limitation: an attribute carries the location of the start tag of its element, because the reader contract reports no
-/// attribute position (design #108 AP9). Text is not part of the model.
-/// </remarks>
+/// <remarks>Text is not part of the model.</remarks>
 internal sealed class SchemaSyntaxNode : ISchemaSyntaxElement
 {
     // Most elements have few or no children and no namespace declarations; the lists exist only once they are needed, and the

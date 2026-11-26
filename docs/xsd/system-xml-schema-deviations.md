@@ -7,7 +7,7 @@ This document lists every difference that the differential run over the W3C XML 
 | Baseline | `System.Xml.Schema` of the .NET runtime 10.0, compared on the `net10.0` test leg only (`baseline-runtime: 10.0`) |
 | Corpus | XSTS cases of XSD 1.0 (schema tests and instance tests), pinned in `tests/conformance/suites/xsts.json` |
 | Data file | `tests/NetEvolve.Schemas.Xsd.Tests.Integration/DifferentialData/xsts-1.0-deviations.txt`, one entry per difference: case id, difference kind, observed difference, specification reference, reason |
-| Entries | 13970 entries for 13934 cases |
+| Entries | 13835 entries for 13799 cases |
 
 The list is valid for the recorded baseline runtime version only. A run on another runtime version fails until the list is compared again. System.Xml.Schema implements XSD 1.0 only, so cases of XSD 1.1 are not compared.
 
@@ -29,7 +29,7 @@ No builder option, switch, or code path in the library reproduces System.Xml.Sch
 |---|---:|---:|
 | Verdict differences: this library follows the specification | 1706 | 1674 |
 | Verdict differences: documented limitations of this library | 21 | 17 |
-| Position differences: equivalent | 12241 | 12241 |
+| Position differences: equivalent | 12107 | 12107 |
 | Differences on cases that a bug issue tracks (no entry) | 875 | |
 
 ## Differences on cases that a bug issue tracks
@@ -2212,31 +2212,16 @@ msMeta-AttributeGroup_w3c/1.0/attgD003/attgD003.v
 
 Both engines reject the document with the same number of issues on the same lines, and the verdicts agree. They anchor an issue at different columns of the same construct. Issue positions are not part of the specification, so the difference is equivalent.
 
-- Difference: IssuePositions `issue positions` (3322)
+- Difference: IssuePositions `issue positions` (3190)
 - Specification: XSD 1.0 Part 1, 5.2 and C.1 (the assessment outcome is the validity property; positions and number of reports are not specified)
-- Cases: 3322
+- Cases: 3190
 
 ```text
-ibmMeta-anyAttribute/1.0/s3_10_6ii01/s3_10_6v01i
-ibmMeta-anyAttribute/1.0/s3_10_6ii01/s3_10_6v01s
-ibmMeta-anyAttribute/1.0/s3_10_6ii02/s3_10_6v02i
-ibmMeta-anyAttribute/1.0/s3_10_6ii02/s3_10_6v02s
-ibmMeta-anyAttribute/1.0/s3_10_6ii04/s3_10_6v04i
-ibmMeta-anyAttribute/1.0/s3_10_6ii04/s3_10_6v04s
-ibmMeta-anyAttribute/1.0/s3_10_6si01/s3_10_6si01s
-ibmMeta-anyAttribute/1.0/s3_10_6si02/s3_10_6si02s
-ibmMeta-constraintsOnAttribute/1.0/s3_2_3si05/s3_2_3si05s
 ibmMeta-unitsLength/1.0/d2_4_1_3si01/d2_4_1_3si01s
 ibmMeta-wildcard/1.0/s3_10_1ii01/s3_10_1ii01i
 ibmMeta-wildcard/1.0/s3_10_1ii03/s3_10_1ii03i
 ibmMeta-wildcard/1.0/s3_10_1ii04/s3_10_1ii04i
 ibmMeta-wildcard/1.0/s3_10_1ii07/s3_10_1ii07i
-ibmMeta-wildcard/1.0/s3_10_1ii08/s3_10_1ii08i
-ibmMeta-wildcard/1.0/s3_10_1ii08/s3_10_1ii08s
-ibmMeta-wildcard/1.0/s3_10_1ii09/s3_10_1ii09i
-ibmMeta-wildcard/1.0/s3_10_1ii09/s3_10_1ii09s
-ibmMeta-wildcard/1.0/s3_10_1si01/s3_10_1si01s
-ibmMeta-wildcard/1.0/s3_10_1si02/s3_10_1si02s
 ibmMeta-xml11Support/1.0/d3_4_6ii01/d3_4_6ii01i
 ibmMeta-xml11Support/1.0/d3_4_6ii02/d3_4_6ii02i
 ibmMeta-xml11Support/1.0/d3_4_6ii03/d3_4_6ii03i
@@ -2257,13 +2242,11 @@ msMeta-Additional_w3c/1.0/addB045/addB045
 msMeta-Additional_w3c/1.0/addB052/addB052
 msMeta-Additional_w3c/1.0/addB065/addB065.i
 msMeta-Additional_w3c/1.0/addB066/addB066.i
-msMeta-Additional_w3c/1.0/addB070a/addB070a
 msMeta-Additional_w3c/1.0/addB078/addB078
 msMeta-Additional_w3c/1.0/addB078A/addB078A
 msMeta-Additional_w3c/1.0/addB078B/addB078B
 msMeta-Additional_w3c/1.0/addB080/addB080.i
 msMeta-Additional_w3c/1.0/addB081/addB081
-msMeta-Additional_w3c/1.0/addB082/addB082
 msMeta-Additional_w3c/1.0/addB087/addB087.i
 msMeta-Additional_w3c/1.0/addB089/addB089
 msMeta-Additional_w3c/1.0/addB092/addB092.i
@@ -2322,7 +2305,6 @@ msMeta-Annotations_w3c/1.0/annotB028/annotB028
 msMeta-Annotations_w3c/1.0/annotB029/annotB029
 msMeta-Annotations_w3c/1.0/annotB032/annotB032
 msMeta-Annotations_w3c/1.0/annotB033/annotB033
-msMeta-Annotations_w3c/1.0/annotF009/annotF009
 msMeta-AttributeGroup_w3c/1.0/attgA002/attgA002
 msMeta-AttributeGroup_w3c/1.0/attgA004/attgA004
 msMeta-AttributeGroup_w3c/1.0/attgA005/attgA005
@@ -2350,10 +2332,6 @@ msMeta-AttributeGroup_w3c/1.0/attgD039/attgD039
 msMeta-AttributeGroup_w3c/1.0/attgD041/attgD041
 msMeta-Attribute_w3c/1.0/attA001/attA001
 msMeta-Attribute_w3c/1.0/attA002/attA002
-msMeta-Attribute_w3c/1.0/attA003/attA003
-msMeta-Attribute_w3c/1.0/attA004/attA004
-msMeta-Attribute_w3c/1.0/attA005/attA005
-msMeta-Attribute_w3c/1.0/attA006/attA006
 msMeta-Attribute_w3c/1.0/attB006/attB006
 msMeta-Attribute_w3c/1.0/attC005/attC005
 msMeta-Attribute_w3c/1.0/attC006/attC006
@@ -2365,21 +2343,11 @@ msMeta-Attribute_w3c/1.0/attD002/attD002
 msMeta-Attribute_w3c/1.0/attE003/attE003
 msMeta-Attribute_w3c/1.0/attE004/attE004
 msMeta-Attribute_w3c/1.0/attE006/attE006
-msMeta-Attribute_w3c/1.0/attF004/attF004
-msMeta-Attribute_w3c/1.0/attF005/attF005
-msMeta-Attribute_w3c/1.0/attF006/attF006
-msMeta-Attribute_w3c/1.0/attF007/attF007
-msMeta-Attribute_w3c/1.0/attH001/attH001
 msMeta-Attribute_w3c/1.0/attI004/attI004
 msMeta-Attribute_w3c/1.0/attI005/attI005
 msMeta-Attribute_w3c/1.0/attJ008/attJ008.i
 msMeta-Attribute_w3c/1.0/attJ009/attJ009.i
 msMeta-Attribute_w3c/1.0/attJ010/attJ010.i
-msMeta-Attribute_w3c/1.0/attJ013/attJ013
-msMeta-Attribute_w3c/1.0/attJ014/attJ014
-msMeta-Attribute_w3c/1.0/attJ015/attJ015
-msMeta-Attribute_w3c/1.0/attJ016/attJ016
-msMeta-Attribute_w3c/1.0/attJ017/attJ017
 msMeta-Attribute_w3c/1.0/attKa004/attKa004
 msMeta-Attribute_w3c/1.0/attKa005/attKa005
 msMeta-Attribute_w3c/1.0/attKa011/attKa011
@@ -2407,7 +2375,6 @@ msMeta-Attribute_w3c/1.0/attKc014/attKc014
 msMeta-Attribute_w3c/1.0/attKc015/attKc015
 msMeta-Attribute_w3c/1.0/attKc016/attKc016
 msMeta-Attribute_w3c/1.0/attKc017/attKc017
-msMeta-Attribute_w3c/1.0/attKc018a/attKc018a
 msMeta-Attribute_w3c/1.0/attO002/attO002
 msMeta-Attribute_w3c/1.0/attO003/attO003
 msMeta-Attribute_w3c/1.0/attO005/attO005
@@ -2444,18 +2411,10 @@ msMeta-Attribute_w3c/1.0/attZ013a/attZ013a
 msMeta-Attribute_w3c/1.0/attZ013b/attZ013b
 msMeta-Attribute_w3c/1.0/attZ014a/attZ014a.i
 msMeta-Attribute_w3c/1.0/attZ014b/attZ014b.i
-msMeta-ComplexType_w3c/1.0/ctA004/ctA004
-msMeta-ComplexType_w3c/1.0/ctA006/ctA006
-msMeta-ComplexType_w3c/1.0/ctA007/ctA007
-msMeta-ComplexType_w3c/1.0/ctA008/ctA008
 msMeta-ComplexType_w3c/1.0/ctA016/ctA016
 msMeta-ComplexType_w3c/1.0/ctA025/ctA025
 msMeta-ComplexType_w3c/1.0/ctA028/ctA028
 msMeta-ComplexType_w3c/1.0/ctA031/ctA031
-msMeta-ComplexType_w3c/1.0/ctA036/ctA036
-msMeta-ComplexType_w3c/1.0/ctA038/ctA038
-msMeta-ComplexType_w3c/1.0/ctA039/ctA039
-msMeta-ComplexType_w3c/1.0/ctA040/ctA040
 msMeta-ComplexType_w3c/1.0/ctA042/ctA042
 msMeta-ComplexType_w3c/1.0/ctA043/ctA043
 msMeta-ComplexType_w3c/1.0/ctA044/ctA044
@@ -3553,21 +3512,6 @@ msMeta-Element_w3c/1.0/elemA011/elemA011
 msMeta-Element_w3c/1.0/elemA012/elemA012
 msMeta-Element_w3c/1.0/elemA013/elemA013
 msMeta-Element_w3c/1.0/elemA014/elemA014
-msMeta-Element_w3c/1.0/elemB003/elemB003
-msMeta-Element_w3c/1.0/elemB004/elemB004
-msMeta-Element_w3c/1.0/elemB005/elemB005
-msMeta-Element_w3c/1.0/elemB006/elemB006
-msMeta-Element_w3c/1.0/elemB009/elemB009
-msMeta-Element_w3c/1.0/elemB010/elemB010
-msMeta-Element_w3c/1.0/elemC009/elemC009
-msMeta-Element_w3c/1.0/elemC010/elemC010
-msMeta-Element_w3c/1.0/elemC011/elemC011
-msMeta-Element_w3c/1.0/elemC012/elemC012
-msMeta-Element_w3c/1.0/elemC013/elemC013
-msMeta-Element_w3c/1.0/elemC014/elemC014
-msMeta-Element_w3c/1.0/elemC015/elemC015
-msMeta-Element_w3c/1.0/elemC016/elemC016
-msMeta-Element_w3c/1.0/elemC017/elemC017
 msMeta-Element_w3c/1.0/elemD003/elemD003
 msMeta-Element_w3c/1.0/elemD004/elemD004
 msMeta-Element_w3c/1.0/elemD005/elemD005
@@ -3575,37 +3519,14 @@ msMeta-Element_w3c/1.0/elemF004/elemF004
 msMeta-Element_w3c/1.0/elemF006/elemF006
 msMeta-Element_w3c/1.0/elemF007/elemF007
 msMeta-Element_w3c/1.0/elemF008/elemF008
-msMeta-Element_w3c/1.0/elemF009/elemF009
-msMeta-Element_w3c/1.0/elemF010/elemF010
-msMeta-Element_w3c/1.0/elemF011/elemF011
-msMeta-Element_w3c/1.0/elemF012/elemF012
-msMeta-Element_w3c/1.0/elemF013/elemF013
-msMeta-Element_w3c/1.0/elemF014/elemF014
-msMeta-Element_w3c/1.0/elemF015/elemF015
-msMeta-Element_w3c/1.0/elemF016/elemF016
-msMeta-Element_w3c/1.0/elemF017/elemF017
 msMeta-Element_w3c/1.0/elemG003/elemG003
 msMeta-Element_w3c/1.0/elemG004/elemG004
-msMeta-Element_w3c/1.0/elemH003/elemH003
-msMeta-Element_w3c/1.0/elemH004/elemH004
-msMeta-Element_w3c/1.0/elemH005/elemH005
-msMeta-Element_w3c/1.0/elemH006/elemH006
 msMeta-Element_w3c/1.0/elemI003/elemI003
 msMeta-Element_w3c/1.0/elemI005/elemI005
-msMeta-Element_w3c/1.0/elemJ006/elemJ006
-msMeta-Element_w3c/1.0/elemJ007/elemJ007
-msMeta-Element_w3c/1.0/elemJ008/elemJ008
 msMeta-Element_w3c/1.0/elemJ019/elemJ019
-msMeta-Element_w3c/1.0/elemJ020/elemJ020
-msMeta-Element_w3c/1.0/elemK003/elemK003
-msMeta-Element_w3c/1.0/elemK004/elemK004
-msMeta-Element_w3c/1.0/elemK005/elemK005
-msMeta-Element_w3c/1.0/elemK006/elemK006
-msMeta-Element_w3c/1.0/elemK007/elemK007
 msMeta-Element_w3c/1.0/elemL002/elemL002
 msMeta-Element_w3c/1.0/elemM003/elemM003
 msMeta-Element_w3c/1.0/elemM005/elemM005
-msMeta-Element_w3c/1.0/elemN006/elemN006
 msMeta-Element_w3c/1.0/elemO001/elemO001.i
 msMeta-Element_w3c/1.0/elemO010/elemO010.i
 msMeta-Element_w3c/1.0/elemO011/elemO011.i
@@ -3676,8 +3597,6 @@ msMeta-Group_w3c/1.0/groupB016/groupB016
 msMeta-Group_w3c/1.0/groupC001/groupC001
 msMeta-Group_w3c/1.0/groupC002/groupC002
 msMeta-Group_w3c/1.0/groupC010/groupC010
-msMeta-Group_w3c/1.0/groupD001/groupD001
-msMeta-Group_w3c/1.0/groupD003/groupD003
 msMeta-Group_w3c/1.0/groupE002/groupE002
 msMeta-Group_w3c/1.0/groupE003v/groupE003v.i
 msMeta-Group_w3c/1.0/groupE005v/groupE005v.i
@@ -3692,7 +3611,6 @@ msMeta-Group_w3c/1.0/groupF016v/groupF016v.i
 msMeta-Group_w3c/1.0/groupF019v/groupF019v.i
 msMeta-Group_w3c/1.0/groupF022/groupF022
 msMeta-Group_w3c/1.0/groupF023/groupF023
-msMeta-Group_w3c/1.0/groupF025/groupF025
 msMeta-Group_w3c/1.0/groupG002/groupG002
 msMeta-Group_w3c/1.0/groupG003v/groupG003v.i
 msMeta-Group_w3c/1.0/groupG005v/groupG005v.i
@@ -3720,7 +3638,6 @@ msMeta-Group_w3c/1.0/groupJ016v/groupJ016v.i
 msMeta-Group_w3c/1.0/groupJ019v/groupJ019v.i
 msMeta-Group_w3c/1.0/groupJ022/groupJ022
 msMeta-Group_w3c/1.0/groupJ023/groupJ023
-msMeta-Group_w3c/1.0/groupJ025/groupJ025
 msMeta-Group_w3c/1.0/groupK002/groupK002
 msMeta-Group_w3c/1.0/groupK003v/groupK003v.i
 msMeta-Group_w3c/1.0/groupK005v/groupK005v.i
@@ -3734,7 +3651,6 @@ msMeta-Group_w3c/1.0/groupL016v/groupL016v.i
 msMeta-Group_w3c/1.0/groupL019v/groupL019v.i
 msMeta-Group_w3c/1.0/groupL022/groupL022
 msMeta-Group_w3c/1.0/groupL023/groupL023
-msMeta-Group_w3c/1.0/groupL025/groupL025
 msMeta-Group_w3c/1.0/groupM002/groupM002
 msMeta-Group_w3c/1.0/groupM003v/groupM003v.i
 msMeta-Group_w3c/1.0/groupM005v/groupM005v.i
@@ -3748,7 +3664,6 @@ msMeta-Group_w3c/1.0/groupN016v/groupN016v.i
 msMeta-Group_w3c/1.0/groupN019v/groupN019v.i
 msMeta-Group_w3c/1.0/groupN022/groupN022
 msMeta-Group_w3c/1.0/groupN023/groupN023
-msMeta-Group_w3c/1.0/groupN025/groupN025
 msMeta-Group_w3c/1.0/groupO002/groupO002
 msMeta-Group_w3c/1.0/groupO003/groupO003
 msMeta-Group_w3c/1.0/groupO007v/groupO007v.i
@@ -3771,7 +3686,6 @@ msMeta-IdentityConstraint_w3c/1.0/idA028/idA028
 msMeta-IdentityConstraint_w3c/1.0/idA030/idA030
 msMeta-IdentityConstraint_w3c/1.0/idA031/idA031
 msMeta-IdentityConstraint_w3c/1.0/idA032/idA032
-msMeta-IdentityConstraint_w3c/1.0/idA035/idA035
 msMeta-IdentityConstraint_w3c/1.0/idA037/idA037
 msMeta-IdentityConstraint_w3c/1.0/idA042/idA042
 msMeta-IdentityConstraint_w3c/1.0/idA043/idA043
@@ -3791,7 +3705,6 @@ msMeta-IdentityConstraint_w3c/1.0/idB028/idB028
 msMeta-IdentityConstraint_w3c/1.0/idB030/idB030
 msMeta-IdentityConstraint_w3c/1.0/idB031/idB031
 msMeta-IdentityConstraint_w3c/1.0/idB032/idB032
-msMeta-IdentityConstraint_w3c/1.0/idB035/idB035
 msMeta-IdentityConstraint_w3c/1.0/idB037/idB037
 msMeta-IdentityConstraint_w3c/1.0/idB042/idB042
 msMeta-IdentityConstraint_w3c/1.0/idB043/idB043
@@ -3816,7 +3729,6 @@ msMeta-IdentityConstraint_w3c/1.0/idC045/idC045
 msMeta-IdentityConstraint_w3c/1.0/idC046/idC046
 msMeta-IdentityConstraint_w3c/1.0/idD002/idD002
 msMeta-IdentityConstraint_w3c/1.0/idD005/idD005
-msMeta-IdentityConstraint_w3c/1.0/idD006/idD006
 msMeta-IdentityConstraint_w3c/1.0/idD011/idD011
 msMeta-IdentityConstraint_w3c/1.0/idD012/idD012
 msMeta-IdentityConstraint_w3c/1.0/idD014/idD014
@@ -3839,7 +3751,6 @@ msMeta-IdentityConstraint_w3c/1.0/idD032/idD032
 msMeta-IdentityConstraint_w3c/1.0/idD033/idD033
 msMeta-IdentityConstraint_w3c/1.0/idE002/idE002
 msMeta-IdentityConstraint_w3c/1.0/idE005/idE005
-msMeta-IdentityConstraint_w3c/1.0/idE006/idE006
 msMeta-IdentityConstraint_w3c/1.0/idE007/idE007
 msMeta-IdentityConstraint_w3c/1.0/idE011/idE011
 msMeta-IdentityConstraint_w3c/1.0/idE012/idE012
@@ -3977,7 +3888,6 @@ msMeta-ModelGroups_w3c/1.0/mgA003/mgA003
 msMeta-ModelGroups_w3c/1.0/mgA004/mgA004
 msMeta-ModelGroups_w3c/1.0/mgA005/mgA005
 msMeta-ModelGroups_w3c/1.0/mgA008/mgA008
-msMeta-ModelGroups_w3c/1.0/mgA013/mgA013
 msMeta-ModelGroups_w3c/1.0/mgA016/mgA016
 msMeta-ModelGroups_w3c/1.0/mgA018/mgA018
 msMeta-ModelGroups_w3c/1.0/mgA019/mgA019
@@ -4006,12 +3916,6 @@ msMeta-ModelGroups_w3c/1.0/mgE007/mgE007
 msMeta-ModelGroups_w3c/1.0/mgE008/mgE008
 msMeta-ModelGroups_w3c/1.0/mgE011/mgE011
 msMeta-ModelGroups_w3c/1.0/mgEa005/mgEa005
-msMeta-ModelGroups_w3c/1.0/mgEb001/mgEb001
-msMeta-ModelGroups_w3c/1.0/mgEb002/mgEb002
-msMeta-ModelGroups_w3c/1.0/mgEb003/mgEb003
-msMeta-ModelGroups_w3c/1.0/mgEb006/mgEb006
-msMeta-ModelGroups_w3c/1.0/mgEb007/mgEb007
-msMeta-ModelGroups_w3c/1.0/mgEb008/mgEb008
 msMeta-ModelGroups_w3c/1.0/mgF003/mgF003
 msMeta-ModelGroups_w3c/1.0/mgF020/mgF020
 msMeta-ModelGroups_w3c/1.0/mgF022/mgF022
@@ -4029,7 +3933,6 @@ msMeta-ModelGroups_w3c/1.0/mgG021/mgG021.i
 msMeta-ModelGroups_w3c/1.0/mgG024/mgG024.i
 msMeta-ModelGroups_w3c/1.0/mgG027/mgG027
 msMeta-ModelGroups_w3c/1.0/mgG028/mgG028
-msMeta-ModelGroups_w3c/1.0/mgG030/mgG030
 msMeta-ModelGroups_w3c/1.0/mgH003/mgH003
 msMeta-ModelGroups_w3c/1.0/mgH004/mgH004
 msMeta-ModelGroups_w3c/1.0/mgH005/mgH005
@@ -4038,12 +3941,6 @@ msMeta-ModelGroups_w3c/1.0/mgH007/mgH007
 msMeta-ModelGroups_w3c/1.0/mgH008/mgH008
 msMeta-ModelGroups_w3c/1.0/mgH011/mgH011
 msMeta-ModelGroups_w3c/1.0/mgHa005/mgHa005
-msMeta-ModelGroups_w3c/1.0/mgHb001/mgHb001
-msMeta-ModelGroups_w3c/1.0/mgHb002/mgHb002
-msMeta-ModelGroups_w3c/1.0/mgHb003/mgHb003
-msMeta-ModelGroups_w3c/1.0/mgHb006/mgHb006
-msMeta-ModelGroups_w3c/1.0/mgHb007/mgHb007
-msMeta-ModelGroups_w3c/1.0/mgHb008/mgHb008
 msMeta-ModelGroups_w3c/1.0/mgI003/mgI003
 msMeta-ModelGroups_w3c/1.0/mgI020/mgI020
 msMeta-ModelGroups_w3c/1.0/mgI022/mgI022
@@ -4061,7 +3958,6 @@ msMeta-ModelGroups_w3c/1.0/mgJ021/mgJ021.i
 msMeta-ModelGroups_w3c/1.0/mgJ024/mgJ024.i
 msMeta-ModelGroups_w3c/1.0/mgJ027/mgJ027
 msMeta-ModelGroups_w3c/1.0/mgJ028/mgJ028
-msMeta-ModelGroups_w3c/1.0/mgJ030/mgJ030
 msMeta-ModelGroups_w3c/1.0/mgK003/mgK003.i
 msMeta-ModelGroups_w3c/1.0/mgK005/mgK005.i
 msMeta-ModelGroups_w3c/1.0/mgK006/mgK006.i
@@ -4133,8 +4029,6 @@ msMeta-Notations_w3c/1.0/notatB010/notatB010
 msMeta-Notations_w3c/1.0/notatB011/notatB011
 msMeta-Notations_w3c/1.0/notatB012/notatB012
 msMeta-Notations_w3c/1.0/notatB013/notatB013
-msMeta-Notations_w3c/1.0/notatE002/notatE002
-msMeta-Notations_w3c/1.0/notatE003/notatE003
 msMeta-Notations_w3c/1.0/notatF001/notatF001
 msMeta-Notations_w3c/1.0/notatF002/notatF002
 msMeta-Notations_w3c/1.0/notatF003/notatF003
@@ -4772,7 +4666,6 @@ msMeta-Schema_w3c/1.0/schF4/schF4
 msMeta-Schema_w3c/1.0/schF6/schF6
 msMeta-Schema_w3c/1.0/schG10/schG10
 msMeta-Schema_w3c/1.0/schG13/schG13
-msMeta-Schema_w3c/1.0/schH4/schH4
 msMeta-Schema_w3c/1.0/schJ2/schJ2
 msMeta-Schema_w3c/1.0/schJ3/schJ3
 msMeta-Schema_w3c/1.0/schK2/schK2
@@ -4788,7 +4681,6 @@ msMeta-Schema_w3c/1.0/schT2/schT2
 msMeta-Schema_w3c/1.0/schT6/schT6.i
 msMeta-Schema_w3c/1.0/schZ001_78029-a/schZ001_78029-a
 msMeta-Schema_w3c/1.0/schZ002_78029-b/schZ002_78029-b
-msMeta-Schema_w3c/1.0/schZ003_78029-c/schZ003_78029-c
 msMeta-Schema_w3c/1.0/schZ010/schZ010
 msMeta-Schema_w3c/1.0/schZ011_a/schZ011_a
 msMeta-Schema_w3c/1.0/schZ011_c/schZ011_c
@@ -4921,11 +4813,7 @@ msMeta-Wildcards_w3c/1.0/wildA004/wildA004
 msMeta-Wildcards_w3c/1.0/wildA005/wildA005
 msMeta-Wildcards_w3c/1.0/wildA006/wildA006
 msMeta-Wildcards_w3c/1.0/wildA007/wildA007
-msMeta-Wildcards_w3c/1.0/wildB014/wildB014
-msMeta-Wildcards_w3c/1.0/wildB015/wildB015
-msMeta-Wildcards_w3c/1.0/wildB016/wildB016
 msMeta-Wildcards_w3c/1.0/wildB027/wildB027
-msMeta-Wildcards_w3c/1.0/wildB028/wildB028
 msMeta-Wildcards_w3c/1.0/wildC035/wildC035
 msMeta-Wildcards_w3c/1.0/wildC036/wildC036
 msMeta-Wildcards_w3c/1.0/wildC049/wildC049
@@ -4974,8 +4862,6 @@ msMeta-Wildcards_w3c/1.0/wildH001/wildH001.i
 msMeta-Wildcards_w3c/1.0/wildH002/wildH002.i
 msMeta-Wildcards_w3c/1.0/wildH006/wildH006.i
 msMeta-Wildcards_w3c/1.0/wildH008/wildH008.i
-msMeta-Wildcards_w3c/1.0/wildI002/wildI002
-msMeta-Wildcards_w3c/1.0/wildI003/wildI003
 msMeta-Wildcards_w3c/1.0/wildI004i/wildI004i.i
 msMeta-Wildcards_w3c/1.0/wildJ003/wildJ003
 msMeta-Wildcards_w3c/1.0/wildJ004/wildJ004
@@ -5008,9 +4894,6 @@ msMeta-Wildcards_w3c/1.0/wildN014/wildN014
 msMeta-Wildcards_w3c/1.0/wildN015/wildN015
 msMeta-Wildcards_w3c/1.0/wildN016/wildN016
 msMeta-Wildcards_w3c/1.0/wildN018/wildN018
-msMeta-Wildcards_w3c/1.0/wildQ002/wildQ002
-msMeta-Wildcards_w3c/1.0/wildQ003/wildQ003
-msMeta-Wildcards_w3c/1.0/wildQ004/wildQ004
 msMeta-Wildcards_w3c/1.0/wildZ001/wildZ001.i
 msMeta-Wildcards_w3c/1.0/wildZ005/wildZ005.i
 msMeta-Wildcards_w3c/1.0/wildZ006/wildZ006.i
@@ -5245,17 +5128,6 @@ sunMeta-ElemDecl/1.0/abstract00101m/abstract00101m1_n
 sunMeta-ElemDecl/1.0/abstract00201m1/Negative
 sunMeta-ElemDecl/1.0/annotation00101m2/annotation00101m2
 sunMeta-ElemDecl/1.0/annotation00101m4/annotation00101m4
-sunMeta-ElemDecl/1.0/disallowedsubst00202m1/disallowedSubst00202m1
-sunMeta-ElemDecl/1.0/disallowedsubst00202m10/disallowedSubst00202m10
-sunMeta-ElemDecl/1.0/disallowedsubst00202m11/disallowedSubst00202m11
-sunMeta-ElemDecl/1.0/disallowedsubst00202m2/disallowedSubst00202m2
-sunMeta-ElemDecl/1.0/disallowedsubst00202m3/disallowedSubst00202m3
-sunMeta-ElemDecl/1.0/disallowedsubst00202m4/disallowedSubst00202m4
-sunMeta-ElemDecl/1.0/disallowedsubst00202m5/disallowedSubst00202m5
-sunMeta-ElemDecl/1.0/disallowedsubst00202m6/disallowedSubst00202m6
-sunMeta-ElemDecl/1.0/disallowedsubst00202m7/disallowedSubst00202m7
-sunMeta-ElemDecl/1.0/disallowedsubst00202m8/disallowedSubst00202m8
-sunMeta-ElemDecl/1.0/disallowedsubst00202m9/disallowedSubst00202m9
 sunMeta-ElemDecl/1.0/disallowedsubst00401m2/Negative
 sunMeta-ElemDecl/1.0/idconstrdefs00101m/idConstrDefs00101m1_n
 sunMeta-ElemDecl/1.0/idconstrdefs00201m/idConstrDefs00201m2_n
@@ -5293,12 +5165,6 @@ sunMeta-ElemDecl/1.0/substgrpaffil00101m/substGrpAffil00101m1_n
 sunMeta-ElemDecl/1.0/substgrpaffil00201m/substGrpAffil00201m1_n
 sunMeta-ElemDecl/1.0/substgrpexcl00202m2/substGrpExcl00202m2
 sunMeta-ElemDecl/1.0/substgrpexcl00303m2/substGrpExcl00303m2
-sunMeta-ElemDecl/1.0/substgrpexcl00402m1/substGrpExcl00402m1
-sunMeta-ElemDecl/1.0/substgrpexcl00402m2/substGrpExcl00402m2
-sunMeta-ElemDecl/1.0/substgrpexcl00402m3/substGrpExcl00402m3
-sunMeta-ElemDecl/1.0/substgrpexcl00402m4/substGrpExcl00402m4
-sunMeta-ElemDecl/1.0/substgrpexcl00402m5/substGrpExcl00402m5
-sunMeta-ElemDecl/1.0/substgrpexcl00402m6/substGrpExcl00402m6
 sunMeta-ElemDecl/1.0/targetns00301m1/Negative
 sunMeta-ElemDecl/1.0/targetns00301m2/Negative
 sunMeta-ElemDecl/1.0/targetns00301m3/Negative

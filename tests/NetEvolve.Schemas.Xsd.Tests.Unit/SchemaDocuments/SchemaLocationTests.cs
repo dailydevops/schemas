@@ -2,11 +2,11 @@ namespace NetEvolve.Schemas.Xsd.Tests.Unit.SchemaDocuments;
 
 using static NetEvolve.Schemas.Xsd.Tests.Unit.SchemaDocuments.SchemaFixture;
 
-/// <summary>Locations of the nodes and the documented limitation for attributes (design #108 AP9).</summary>
+/// <summary>Locations of the nodes and the exact positions of attributes.</summary>
 public class SchemaLocationTests
 {
     [Test]
-    public async Task SchemaSyntax_Attribute_LocationIsTheStartTagOfItsElement()
+    public async Task SchemaSyntax_Attribute_LocationIsTheNameOfTheAttribute()
     {
         var (document, issues) = Parse(
             Open + "  <xs:element\n      name=\"e\"\n      type=\"xs:string\"\n        minOccurs=\"0\"/>" + Close
@@ -16,23 +16,45 @@ public class SchemaLocationTests
 
         await Assert.That(issues.Count).IsEqualTo(0);
         await Assert.That(element.AttributeCount).IsEqualTo(3);
+        var expected = new[] { (3, 7), (4, 7), (5, 9) };
         for (var i = 0; i < element.AttributeCount; i++)
         {
             var location = element.GetAttribute(i).Location;
-            await Assert.That(location).IsEqualTo(element.Location);
-            await Assert.That(location.Line).IsEqualTo(2);
-            await Assert.That(location.Column).IsEqualTo(3);
+            await Assert.That(location.Line).IsEqualTo(expected[i].Item1);
+            await Assert.That(location.Column).IsEqualTo(expected[i].Item2);
         }
     }
 
     [Test]
-    public async Task Error_OnAnAttribute_IsLocatedAtTheStartTagOfItsElement()
+    public async Task Error_OnAnAttribute_IsLocatedAtTheNameOfTheAttribute()
     {
         var (_, issues) = Parse(Open + "  <xs:element\n      name=\"e\"\n      bogus=\"1\"/>" + Close);
 
         await Assert.That(issues.Count).IsEqualTo(1);
-        await Assert.That(issues[0].Location.Line).IsEqualTo(2);
-        await Assert.That(issues[0].Location.Column).IsEqualTo(3);
+        await Assert.That(issues[0].Location.Line).IsEqualTo(4);
+        await Assert.That(issues[0].Location.Column).IsEqualTo(7);
+    }
+
+    [Test]
+    public async Task Error_OnAnAttributeValue_IsLocatedAtTheNameOfTheAttribute()
+    {
+        var (_, issues) = Parse(Open + "  <xs:element\n      name=\"e\"\n      minOccurs=\"x\"/>" + Close);
+
+        await Assert.That(issues.Count).IsEqualTo(1);
+        await Assert.That(issues[0].Location.Line).IsEqualTo(4);
+        await Assert.That(issues[0].Location.Column).IsEqualTo(7);
+    }
+
+    [Test]
+    public async Task Error_OnAnAttributeOfAnOpaqueElement_IsLocatedAtTheNameOfTheAttribute()
+    {
+        var (_, issues) = Parse(
+            Open + "  <xs:annotation>\n    <xs:appinfo\n        bogus=\"1\"/></xs:annotation>" + Close
+        );
+
+        await Assert.That(issues.Count).IsEqualTo(1);
+        await Assert.That(issues[0].Location.Line).IsEqualTo(4);
+        await Assert.That(issues[0].Location.Column).IsEqualTo(9);
     }
 
     [Test]

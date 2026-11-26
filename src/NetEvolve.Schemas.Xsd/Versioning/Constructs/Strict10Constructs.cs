@@ -9,7 +9,7 @@ using NetEvolve.Schemas.Xsd.SchemaDocuments;
 
 /// <summary>Reports every XSD 1.1 construct of a schema document as a located schema error in strict 1.0 mode.</summary>
 /// <remarks>
-/// Limitation: an attribute is located at the start tag of its element (design #108 AP9). Attributes in a namespace, such
+/// Attributes in a namespace, such
 /// as the version control attributes, are ignored in 1.0 mode, not rejected; their evaluation is XSD-22. In 1.1 mode this
 /// check reports nothing.
 /// </remarks>
