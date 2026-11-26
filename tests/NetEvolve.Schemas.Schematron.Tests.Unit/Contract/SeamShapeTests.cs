@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.Schematron.Tests.Unit.Contract;
 
 using System;
 using System.Linq;
+using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Resources;
 using NetEvolve.Schemas.Schematron.Model;
 using NetEvolve.Schemas.Schematron.Seams;
@@ -49,8 +50,6 @@ public class SeamShapeTests
         "ModuleReference",
         "ModuleKind",
         "LoadedModule",
-        "SchemaSource",
-        "SchemaSourceKind",
         "BuildSettings",
         "ParsedModule",
         "ResolvedModel",
@@ -58,7 +57,7 @@ public class SeamShapeTests
     ];
 
     private static Type Seam(string name) =>
-        typeof(SchemaSource).Assembly.GetType(SeamNamespace + "." + name)
+        typeof(SchematronValidatorBuilder).Assembly.GetType(SeamNamespace + "." + name)
         ?? throw new InvalidOperationException("Missing seam type " + name);
 
     [Test]
@@ -86,7 +85,7 @@ public class SeamShapeTests
     [Test]
     public async Task Seams_NoPublicTypeLivesInTheSeamNamespace()
     {
-        var publicTypes = typeof(SchemaSource)
+        var publicTypes = typeof(SchematronValidatorBuilder)
             .Assembly.GetExportedTypes()
             .Where(type => string.Equals(type.Namespace, SeamNamespace, StringComparison.Ordinal));
 
@@ -286,7 +285,7 @@ public class SeamShapeTests
             DenyAllResourceResolver.Instance
         );
 
-        _ = parser.TryParse(SchemaSource.FromChars("x".AsSpan(), null), problems, out var parsed);
+        _ = parser.TryParse(SchemaSourceHolder.FromChars("x".AsSpan(), null), problems, out var parsed);
         _ = resolver.TryResolve(parsed, new FakeModuleLoader(), problems, out var resolved);
         _ = expander.TryExpand(resolved, settings, problems, out var effective);
         _ = compiler.TryCompile(effective, settings, problems, out var compiled);
@@ -320,9 +319,9 @@ public class SeamShapeTests
             .Throws<ArgumentNullException>();
         await Assert.That(() => new CompiledSchema(null!, "p")).Throws<ArgumentNullException>();
         await Assert.That(() => new CompiledSchema(FakeModel.Schema(), null!)).Throws<ArgumentNullException>();
-        await Assert.That(() => SchemaSource.FromStream(null!, null)).Throws<ArgumentNullException>();
+        await Assert.That(() => SchemaSourceHolder.FromStream(null!, null)).Throws<ArgumentNullException>();
         await Assert
-            .That(() => new SchematronValidatorBuilder(SchemaSource.FromChars("x".AsSpan(), null)).UsePipeline(null!))
+            .That(() => new SchematronValidatorBuilder(SchemaSourceHolder.FromChars("x".AsSpan(), null)).UsePipeline(null!))
             .Throws<ArgumentNullException>();
     }
 }

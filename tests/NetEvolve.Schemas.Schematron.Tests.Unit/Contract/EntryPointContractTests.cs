@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Schematron.Model;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Schematron.Tests.Unit.Fakes;
@@ -23,26 +24,26 @@ public class EntryPointContractTests
 
         SchemaValidator.ForSchematron(stream).UsePipeline(pipeline).BuildNow();
         await Assert.That(pipeline.LoadCount).IsEqualTo(1);
-        await Assert.That(pipeline.LastSource!.Kind).IsEqualTo(SchemaSourceKind.Stream);
+        await Assert.That(pipeline.LastSource!.Kind).IsEqualTo(DocumentSourceKind.Bytes);
 
         SchemaValidator.ForSchematron(bytes.AsSpan()).UsePipeline(pipeline).BuildNow();
         await Assert.That(pipeline.LoadCount).IsEqualTo(2);
-        await Assert.That(pipeline.LastSource!.Kind).IsEqualTo(SchemaSourceKind.Bytes);
+        await Assert.That(pipeline.LastSource!.Kind).IsEqualTo(DocumentSourceKind.Bytes);
 
         SchemaValidator.ForSchematron(SchemaText.AsSpan()).UsePipeline(pipeline).BuildNow();
         await Assert.That(pipeline.LoadCount).IsEqualTo(3);
-        await Assert.That(pipeline.LastSource!.Kind).IsEqualTo(SchemaSourceKind.Chars);
+        await Assert.That(pipeline.LastSource!.Kind).IsEqualTo(DocumentSourceKind.Chars);
 
         SchemaValidator.ForSchematron(new ReadOnlySequence<byte>(bytes)).UsePipeline(pipeline).BuildNow();
         await Assert.That(pipeline.LoadCount).IsEqualTo(4);
-        await Assert.That(pipeline.LastSource!.Kind).IsEqualTo(SchemaSourceKind.Bytes);
+        await Assert.That(pipeline.LastSource!.Kind).IsEqualTo(DocumentSourceKind.Bytes);
 
         SchemaValidator
             .ForSchematron(new ReadOnlySequence<char>(SchemaText.ToCharArray()))
             .UsePipeline(pipeline)
             .BuildNow();
         await Assert.That(pipeline.LoadCount).IsEqualTo(5);
-        await Assert.That(pipeline.LastSource!.Kind).IsEqualTo(SchemaSourceKind.Chars);
+        await Assert.That(pipeline.LastSource!.Kind).IsEqualTo(DocumentSourceKind.Chars);
     }
 
     [Test]
@@ -71,7 +72,7 @@ public class EntryPointContractTests
 
         SchemaValidator.ForSchematron((byte[])null!).UsePipeline(pipeline).BuildNow();
 
-        await Assert.That(pipeline.LastSource!.Kind).IsEqualTo(SchemaSourceKind.Bytes);
+        await Assert.That(pipeline.LastSource!.Kind).IsEqualTo(DocumentSourceKind.Bytes);
         await Assert.That(pipeline.LastSource!.Bytes.Length).IsEqualTo(0);
     }
 
