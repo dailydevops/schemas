@@ -216,6 +216,19 @@ public readonly struct XsdDecimal : IEquatable<XsdDecimal>, IComparable<XsdDecim
             );
         }
 
+#if NET
+        // 38 digits cannot overflow 128 bits: one conversion replaces a BigInteger multiply and add per chunk.
+        if (digits.Last - digits.First < MaxWideDigits)
+        {
+            var wide = BuildWide(lexical, start, digits);
+            return new ParseResult<XsdDecimal>(
+                wide <= ulong.MaxValue
+                    ? new XsdDecimal(sign, (ulong)wide, default, scale)
+                    : new XsdDecimal(sign, 0, (BigInteger)wide, scale)
+            );
+        }
+#endif
+
         var big = BuildBig(lexical, start, digits);
 
         // A 20-digit magnitude can still fit 64 bits.
@@ -492,6 +505,25 @@ public readonly struct XsdDecimal : IEquatable<XsdDecimal>, IComparable<XsdDecim
 
         return value;
     }
+
+#if NET
+    private const int MaxWideDigits = 38;
+
+    private static UInt128 BuildWide(ReadOnlySpan<char> lexical, int start, DigitScan digits)
+    {
+        UInt128 value = 0;
+        var ordinal = -1;
+        for (var i = start; i < lexical.Length && ordinal < digits.Last; i++)
+        {
+            if (lexical[i] != '.' && ++ordinal >= digits.First)
+            {
+                value = (value * 10) + (ulong)(lexical[i] - '0');
+            }
+        }
+
+        return value;
+    }
+#endif
 
     // Chunks of 18 digits: no string and no culture-aware parse.
     private static BigInteger BuildBig(ReadOnlySpan<char> lexical, int start, DigitScan digits)
