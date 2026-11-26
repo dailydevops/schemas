@@ -40,7 +40,7 @@ public sealed class ResourceLoader
     /// Gets a value indicating whether a relative reference without an absolute base is passed to the resolver with
     /// <see cref="ResourceRequest.ResolvedUri"/> set to <see langword="null"/> instead of failing with NES0101. Xsd sets it; the default keeps Schematron.
     /// </summary>
-    internal bool PassMissingBaseToResolver { get; init; }
+    internal bool PassMissingBaseToResolver { get; set; }
 
     /// <summary>Gets the number of requests counted so far, refused and missing ones included.</summary>
     public int RequestCount { get; private set; }
@@ -100,7 +100,10 @@ public sealed class ResourceLoader
             return Fail(
                 ResourceLoadStatus.Failed,
                 notFound ? CoreDiagnosticCodes.ResourceNotFound : CoreDiagnosticCodes.ResourceDenied,
-                result.Message ?? "The resource '" + (resolution.Uri ?? reference) + (notFound ? "' was not found." : "' was denied.")
+                result.Message
+                    ?? "The resource '"
+                        + (resolution.Uri ?? reference)
+                        + (notFound ? "' was not found." : "' was denied.")
             );
         }
 

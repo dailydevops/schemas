@@ -172,7 +172,7 @@ public class ResourceLoaderTests
         var resolver = new StubResolver(_ => ResourceResult.Found(Content));
         var loader = new ResourceLoader(resolver, ValidationLimits.Default) { PassMissingBaseToResolver = true };
 
-        var result = loader.Load(ResourceKind.SchemaDocument, "http://[bad", Base, cancellationToken);
+        var result = loader.Load(ResourceKind.SchemaDocument, "ht tp://[bad", Base, cancellationToken);
 
         await Assert.That(result.Code).IsEqualTo(CoreDiagnosticCodes.ResourceReferenceInvalid);
         await Assert.That(resolver.Requests).IsEmpty();
