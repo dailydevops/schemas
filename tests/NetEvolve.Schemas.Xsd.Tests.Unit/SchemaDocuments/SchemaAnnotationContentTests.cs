@@ -25,9 +25,9 @@ public class SchemaAnnotationContentTests
     }
 
     [Test]
-    [Arguments("<xs:annotation>^<xs:documentation id=\"x\"/></xs:annotation>")]
-    [Arguments("<xs:annotation>^<xs:appinfo xs:source=\"x\"/></xs:annotation>")]
-    public async Task WrongAttribute_IsReportedAtTheStartTagOfTheElement(string marked)
+    [Arguments("<xs:annotation><xs:documentation ^id=\"x\"/></xs:annotation>")]
+    [Arguments("<xs:annotation><xs:appinfo ^xs:source=\"x\"/></xs:annotation>")]
+    public async Task WrongAttribute_IsReportedAtTheNameOfTheAttribute(string marked)
     {
         ArgumentNullException.ThrowIfNull(marked);
 

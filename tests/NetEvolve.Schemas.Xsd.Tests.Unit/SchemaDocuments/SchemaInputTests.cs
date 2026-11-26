@@ -94,6 +94,6 @@ public class SchemaInputTests
         var description = FromChars();
 
         await Assert.That(description).Contains("NES4101");
-        await Assert.That(description).Contains(SystemId + "(3,3)");
+        await Assert.That(description).Contains(SystemId + "(3,41)");
     }
 }

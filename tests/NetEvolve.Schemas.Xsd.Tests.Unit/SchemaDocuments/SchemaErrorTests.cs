@@ -49,54 +49,54 @@ public class SchemaErrorTests
     )]
     [Arguments(Open + "  <xs:annotation>^<xs:element name=\"e\"/></xs:annotation>", "src-annotation")]
     // Unknown attributes in no namespace and in the schema namespace.
-    [Arguments(Open + "  ^<xs:element name=\"e\" bogus=\"1\"/>", "src-element")]
-    [Arguments(Open + "  ^<xs:element name=\"e\" xs:name=\"1\"/>", "src-element")]
-    [Arguments(Open + "  ^<xs:attribute name=\"a\" minOccurs=\"1\"/>", "src-attribute")]
-    [Arguments(Open + "  ^<xs:complexType name=\"c\" nillable=\"true\"/>", "src-ct")]
-    [Arguments(Open + "  ^<xs:simpleType name=\"t\" mixed=\"true\"/>", "src-simple-type")]
+    [Arguments(Open + "  <xs:element name=\"e\" ^bogus=\"1\"/>", "src-element")]
+    [Arguments(Open + "  <xs:element name=\"e\" ^xs:name=\"1\"/>", "src-element")]
+    [Arguments(Open + "  <xs:attribute name=\"a\" ^minOccurs=\"1\"/>", "src-attribute")]
+    [Arguments(Open + "  <xs:complexType name=\"c\" ^nillable=\"true\"/>", "src-ct")]
+    [Arguments(Open + "  <xs:simpleType name=\"t\" ^mixed=\"true\"/>", "src-simple-type")]
     [Arguments(
-        Open + "  <xs:complexType name=\"c\"><xs:sequence>^<xs:any bogus=\"1\"/></xs:sequence></xs:complexType>",
+        Open + "  <xs:complexType name=\"c\"><xs:sequence><xs:any ^bogus=\"1\"/></xs:sequence></xs:complexType>",
         "src-wildcard"
     )]
     [Arguments(
         Open
-            + "  <xs:element name=\"e\">^<xs:key name=\"k\" refer=\"x\"><xs:selector xpath=\"a\"/><xs:field xpath=\"b\"/></xs:key></xs:element>",
+            + "  <xs:element name=\"e\"><xs:key name=\"k\" ^refer=\"x\"><xs:selector xpath=\"a\"/><xs:field xpath=\"b\"/></xs:key></xs:element>",
         "src-identity-constraint"
     )]
-    [Arguments(Open + "  ^<xs:notation name=\"n\" bogus=\"1\"/>", "src-notation")]
-    [Arguments(Open + "  ^<xs:annotation bogus=\"1\"/>", "src-annotation")]
+    [Arguments(Open + "  <xs:notation name=\"n\" ^bogus=\"1\"/>", "src-notation")]
+    [Arguments(Open + "  <xs:annotation ^bogus=\"1\"/>", "src-annotation")]
     // Invalid attribute values.
-    [Arguments(Open + "  ^<xs:element name=\"e\" minOccurs=\"abc\"/>", "src-element")]
-    [Arguments(Open + "  ^<xs:element name=\"e\" minOccurs=\"-1\"/>", "src-element")]
-    [Arguments(Open + "  ^<xs:element name=\"e\" maxOccurs=\"many\"/>", "src-element")]
-    [Arguments(Open + "  ^<xs:element name=\"e\" nillable=\"yes\"/>", "src-element")]
-    [Arguments(Open + "  ^<xs:element name=\"e\" form=\"other\"/>", "src-element")]
-    [Arguments(Open + "  ^<xs:element name=\"1e\"/>", "src-element")]
-    [Arguments(Open + "  ^<xs:element name=\"a:b\"/>", "src-element")]
-    [Arguments(Open + "  ^<xs:element name=\"e\" type=\"a:b:c\"/>", "src-element")]
-    [Arguments(Open + "  ^<xs:element name=\"e\" type=\"\"/>", "src-element")]
-    [Arguments(Open + "  ^<xs:element name=\"e\" block=\"foo\"/>", "src-element")]
-    [Arguments(Open + "  ^<xs:attribute name=\"a\" use=\"mandatory\"/>", "src-attribute")]
+    [Arguments(Open + "  <xs:element name=\"e\" ^minOccurs=\"abc\"/>", "src-element")]
+    [Arguments(Open + "  <xs:element name=\"e\" ^minOccurs=\"-1\"/>", "src-element")]
+    [Arguments(Open + "  <xs:element name=\"e\" ^maxOccurs=\"many\"/>", "src-element")]
+    [Arguments(Open + "  <xs:element name=\"e\" ^nillable=\"yes\"/>", "src-element")]
+    [Arguments(Open + "  <xs:element name=\"e\" ^form=\"other\"/>", "src-element")]
+    [Arguments(Open + "  <xs:element ^name=\"1e\"/>", "src-element")]
+    [Arguments(Open + "  <xs:element ^name=\"a:b\"/>", "src-element")]
+    [Arguments(Open + "  <xs:element name=\"e\" ^type=\"a:b:c\"/>", "src-element")]
+    [Arguments(Open + "  <xs:element name=\"e\" ^type=\"\"/>", "src-element")]
+    [Arguments(Open + "  <xs:element name=\"e\" ^block=\"foo\"/>", "src-element")]
+    [Arguments(Open + "  <xs:attribute name=\"a\" ^use=\"mandatory\"/>", "src-attribute")]
     [Arguments(
-        Open + "  <xs:complexType name=\"c\">^<xs:anyAttribute processContents=\"maybe\"/></xs:complexType>",
+        Open + "  <xs:complexType name=\"c\"><xs:anyAttribute ^processContents=\"maybe\"/></xs:complexType>",
         "src-wildcard"
     )]
     [Arguments(
         Open
-            + "  <xs:simpleType name=\"t\"><xs:restriction base=\"xs:string\">^<xs:whiteSpace value=\"squeeze\"/></xs:restriction></xs:simpleType>",
+            + "  <xs:simpleType name=\"t\"><xs:restriction base=\"xs:string\"><xs:whiteSpace ^value=\"squeeze\"/></xs:restriction></xs:simpleType>",
         "src-simple-type"
     )]
-    [Arguments(Open + "  <xs:complexType name=\"c\">^<xs:openContent mode=\"first\"/></xs:complexType>", "src-ct")]
+    [Arguments(Open + "  <xs:complexType name=\"c\"><xs:openContent ^mode=\"first\"/></xs:complexType>", "src-ct")]
     [Arguments(
-        Open + "  <xs:complexType name=\"c\">^<xs:openContent mode=\"interleaved\"/></xs:complexType>",
+        Open + "  <xs:complexType name=\"c\"><xs:openContent ^mode=\"interleaved\"/></xs:complexType>",
         "src-ct"
     )]
-    [Arguments(Open + "  ^<xs:defaultOpenContent mode=\"interleaved\"><xs:any/></xs:defaultOpenContent>", "src-ct")]
-    [Arguments(Open + "  ^<xs:complexType name=\"c\" mixed=\"2\"/>", "src-ct")]
-    [Arguments(Open + "  <xs:simpleType name=\"t\">^<xs:union memberTypes=\"1x\"/></xs:simpleType>", "src-simple-type")]
-    [Arguments("^<xs:schema " + Xmlns + " elementFormDefault=\"both\"/>", "sch-props-correct")]
-    [Arguments("^<xs:schema " + Xmlns + " targetNamespace=\"\"/>", "sch-props-correct")]
-    [Arguments("^<xs:schema " + Xmlns + " targetNamespace=\" \"/>", "sch-props-correct")]
+    [Arguments(Open + "  <xs:defaultOpenContent ^mode=\"interleaved\"><xs:any/></xs:defaultOpenContent>", "src-ct")]
+    [Arguments(Open + "  <xs:complexType name=\"c\" ^mixed=\"2\"/>", "src-ct")]
+    [Arguments(Open + "  <xs:simpleType name=\"t\"><xs:union ^memberTypes=\"1x\"/></xs:simpleType>", "src-simple-type")]
+    [Arguments("<xs:schema " + Xmlns + " ^elementFormDefault=\"both\"/>", "sch-props-correct")]
+    [Arguments("<xs:schema " + Xmlns + " ^targetNamespace=\"\"/>", "sch-props-correct")]
+    [Arguments("<xs:schema " + Xmlns + " ^targetNamespace=\" \"/>", "sch-props-correct")]
     // Missing required attributes.
     [Arguments(Open + "  ^<xs:include/>", "src-include")]
     [Arguments(Open + "  ^<xs:redefine/>", "src-redefine")]
