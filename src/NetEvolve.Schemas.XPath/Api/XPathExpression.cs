@@ -124,4 +124,51 @@ public sealed class XPathExpression
 
         return _compiled.Evaluate(context);
     }
+
+    /// <summary>Evaluates the expression to its effective boolean value; never throws for dynamic errors.</summary>
+    /// <param name="context">The evaluation context.</param>
+    /// <param name="value">The effective boolean value, <see langword="false"/> when the evaluation fails.</param>
+    /// <param name="diagnostic">The diagnostic, <see langword="default"/> on success.</param>
+    /// <returns>The status.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="context"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ObjectDisposedException">The context is disposed.</exception>
+    public XPathEvaluationStatus TryEvaluateBoolean(
+        XPathEvaluationContext context,
+        out bool value,
+        out XPathDiagnostic diagnostic
+    )
+    {
+        ArgumentNullException.ThrowIfNull(context);
+        context.ThrowIfDisposed();
+
+        try
+        {
+            value = _compiled.EvaluateBoolean(context);
+            diagnostic = default;
+            return XPathEvaluationStatus.Ok;
+        }
+        catch (XPathException failure)
+        {
+            value = false;
+            diagnostic = failure.Diagnostic;
+            return XPathEvaluationStatus.Error;
+        }
+    }
+
+    /// <summary>
+    /// Evaluates the expression to its effective boolean value: the result of <see cref="Evaluate"/> reduced as <c>fn:boolean</c> does, without
+    /// building the result sequence where the value is known earlier, for example at the first node of a path.
+    /// </summary>
+    /// <param name="context">The evaluation context.</param>
+    /// <returns>The effective boolean value.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="context"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ObjectDisposedException">The context is disposed.</exception>
+    /// <exception cref="XPathException">The evaluation fails, or the value has no effective boolean value (FORG0006).</exception>
+    public bool EvaluateBoolean(XPathEvaluationContext context)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+        context.ThrowIfDisposed();
+
+        return _compiled.EvaluateBoolean(context);
+    }
 }

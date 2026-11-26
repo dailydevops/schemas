@@ -5,7 +5,6 @@ using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Compilation;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Errors;
-using NetEvolve.Schemas.XPath.Evaluation.Atomization;
 using NetEvolve.Schemas.XPath.Syntax.Tree;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
@@ -38,20 +37,25 @@ internal sealed class QuantifiedNode : BindingNode
 
     /// <inheritdoc />
     /// <exception cref="XPathException">The body has no effective boolean value (FORG0006), or an expression raises an error.</exception>
-    public override XdmSequence Evaluate(XPathEvaluationContext context)
+    public override XdmSequence Evaluate(XPathEvaluationContext context) =>
+        XdmSequence.Create(XdmItem.FromBoolean(EvaluateBoolean(context)));
+
+    /// <inheritdoc />
+    /// <exception cref="XPathException">The body has no effective boolean value (FORG0006), or an expression raises an error.</exception>
+    public override bool EvaluateBoolean(XPathEvaluationContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
 
         // Some starts false and every starts true: the value of the empty sequence, which a decision replaces.
         var state = new BindingState(default, _quantifier == Quantifier.Every);
         _ = Iterate(context, ref state);
-        return XdmSequence.Create(XdmItem.FromBoolean(state.Result));
+        return state.Result;
     }
 
     /// <inheritdoc />
     protected override bool Visit(XPathEvaluationContext context, ref BindingState state)
     {
-        var truth = XPathAtomization.EffectiveBooleanValue(Body.Evaluate(context));
+        var truth = Body.EvaluateBoolean(context);
         if (truth == (_quantifier == Quantifier.Some))
         {
             state.Result = truth;

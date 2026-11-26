@@ -41,9 +41,25 @@ internal static class FacetFactory
     )
     {
         ArgumentNullException.ThrowIfNull(baseType);
+
+        return Create(step, FacetBase.Resolve(baseType, version), version, null);
+    }
+
+    /// <summary>Creates the facet objects of one restriction step from a base description that the caller has already resolved.</summary>
+    /// <param name="step">The facets of the step in document order.</param>
+    /// <param name="facts">The description of the base type, as <see cref="FacetBase.Resolve"/> returned it.</param>
+    /// <param name="version">The XSD version.</param>
+    /// <param name="compiledPattern">The facet that the check compiled from the only pattern of the step, or <see langword="null"/>.</param>
+    /// <returns>The facets in document order, the patterns of the step combined into one facet at the first pattern.</returns>
+    internal static IReadOnlyList<IFacet> Create(
+        IReadOnlyList<FacetDeclaration> step,
+        FacetBase? facts,
+        XsdVersion version,
+        PatternFacet? compiledPattern
+    )
+    {
         ArgumentNullException.ThrowIfNull(step);
 
-        var facts = FacetBase.Resolve(baseType, version);
         var facets = new List<IFacet>(step.Count);
         var patterns = new List<string>();
         var enumeration = new List<string>();
@@ -68,7 +84,11 @@ internal static class FacetFactory
             }
         }
 
-        if (patterns.Count > 0 && PatternFacet.TryCreate(patterns, version, null, out var pattern, out _))
+        if (patterns.Count == 1 && compiledPattern is not null)
+        {
+            facets[patternSlot] = compiledPattern;
+        }
+        else if (patterns.Count > 0 && PatternFacet.TryCreate(patterns, version, null, out var pattern, out _))
         {
             facets[patternSlot] = pattern!;
         }

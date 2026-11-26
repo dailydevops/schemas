@@ -177,8 +177,10 @@ internal sealed class SimpleTypeBuilder : IComponentBuilder
         }
 
         var step = ReadFacets(restriction);
+        var facts = FacetBase.Resolve(baseType, _context.Version);
         var check = SimpleTypeFacetCheck.Check(
             baseType,
+            facts,
             _context.FixedOf(baseType),
             step,
             restriction.Location,
@@ -192,7 +194,7 @@ internal sealed class SimpleTypeBuilder : IComponentBuilder
             node.Location,
             final,
             parent,
-            FacetFactory.Create(baseType, step, _context.Version),
+            FacetFactory.Create(step, facts, _context.Version, check.CompiledPattern),
             _context.Reporter
         );
         if (type is not null)

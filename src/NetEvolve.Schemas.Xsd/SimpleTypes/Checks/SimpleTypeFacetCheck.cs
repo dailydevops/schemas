@@ -66,7 +66,39 @@ internal static class SimpleTypeFacetCheck
         ArgumentNullException.ThrowIfNull(assessor);
         ArgumentNullException.ThrowIfNull(reporter);
 
-        var facts = FacetBase.Resolve(baseType, version);
+        return Check(
+            baseType,
+            FacetBase.Resolve(baseType, version),
+            baseFixed,
+            step,
+            location,
+            assessor,
+            version,
+            reporter
+        );
+    }
+
+    /// <summary>Checks a restriction step against a base description that the caller has already resolved.</summary>
+    /// <param name="baseType">The resolved base type.</param>
+    /// <param name="facts">The description of the base type, as <see cref="FacetBase.Resolve"/> returned it.</param>
+    /// <param name="baseFixed">The facets that the base type fixes.</param>
+    /// <param name="step">The facets of the restriction in document order.</param>
+    /// <param name="location">The location of the restriction.</param>
+    /// <param name="assessor">The assessor.</param>
+    /// <param name="version">The XSD version.</param>
+    /// <param name="reporter">The reporter.</param>
+    /// <returns>The outcome.</returns>
+    internal static FacetCheckResult Check(
+        IXsdComponent baseType,
+        FacetBase? facts,
+        FacetKindSet baseFixed,
+        IReadOnlyList<FacetDeclaration> step,
+        DocumentLocation location,
+        ISimpleValueAssessor assessor,
+        XsdVersion version,
+        XsdIssueReporter reporter
+    )
+    {
         if (facts is null)
         {
             return new FacetCheckResult(true, StepFixed(baseFixed, step, null));
@@ -170,6 +202,8 @@ internal static class SimpleTypeFacetCheck
 
         private bool IsValid { get; set; } = true;
 
+        private PatternFacet? CompiledPattern { get; set; }
+
         internal FacetCheckResult Execute(FacetKindSet baseFixed)
         {
             var fixedFacets = _facts.SeedFixed(baseFixed);
@@ -181,7 +215,7 @@ internal static class SimpleTypeFacetCheck
             CheckLengthAndWhiteSpace(fixedFacets);
             CheckBoundsAndDigits(fixedFacets);
 
-            return new FacetCheckResult(IsValid, StepFixed(fixedFacets, _step, _skipped));
+            return new FacetCheckResult(IsValid, StepFixed(fixedFacets, _step, _skipped), CompiledPattern);
         }
 
         // Datatypes 4.1.3 (src-single-facet-value): every facet but pattern and enumeration is stated once.
@@ -241,6 +275,15 @@ internal static class SimpleTypeFacetCheck
         // Datatypes 4.3.4.3 (src-pattern-value): the value is a regular expression.
         private void CheckPatterns()
         {
+            var count = 0;
+            for (var i = 0; i < _step.Count; i++)
+            {
+                if (_step[i].Kind == FacetKind.Pattern)
+                {
+                    count++;
+                }
+            }
+
             for (var i = 0; i < _step.Count; i++)
             {
                 if (_skipped[i] || _step[i].Kind != FacetKind.Pattern)
@@ -248,7 +291,7 @@ internal static class SimpleTypeFacetCheck
                     continue;
                 }
 
-                if (!PatternFacet.TryCreate([_step[i].Value], _version, null, out _, out var diagnostic))
+                if (!PatternFacet.TryCreate([_step[i].Value], _version, null, out var facet, out var diagnostic))
                 {
                     Report(
                         XsdRuleCodes.SrcPatternValue,
@@ -257,6 +300,11 @@ internal static class SimpleTypeFacetCheck
                             + diagnostic.Position.ToString(CultureInfo.InvariantCulture)
                             + ")."
                     );
+                }
+                else if (count == 1)
+                {
+                    // One pattern per step is the common case; the facet factory reuses the facet instead of compiling it again.
+                    CompiledPattern = facet;
                 }
             }
         }

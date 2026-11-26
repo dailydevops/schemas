@@ -4,7 +4,6 @@ using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Compilation;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Errors;
-using NetEvolve.Schemas.XPath.Evaluation.Atomization;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>
@@ -48,8 +47,15 @@ internal sealed class IfNode : ExecutableNode
     {
         ArgumentNullException.ThrowIfNull(context);
 
-        return XPathAtomization.EffectiveBooleanValue(_condition.Evaluate(context))
-            ? _then.Evaluate(context)
-            : _else.Evaluate(context);
+        return _condition.EvaluateBoolean(context) ? _then.Evaluate(context) : _else.Evaluate(context);
+    }
+
+    /// <inheritdoc />
+    /// <exception cref="XPathException">The condition or the chosen branch has no effective boolean value (FORG0006), or an evaluated operand raises an error.</exception>
+    public override bool EvaluateBoolean(XPathEvaluationContext context)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+
+        return _condition.EvaluateBoolean(context) ? _then.EvaluateBoolean(context) : _else.EvaluateBoolean(context);
     }
 }
