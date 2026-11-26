@@ -28,9 +28,11 @@ internal sealed class LoweringContext
 
     private readonly LoweringRegistry _registry;
     private readonly XPathLimits _limits;
-    private readonly List<XPathQName> _scope = [];
+
+    // Created on the first variable or inline function: most expressions have neither.
+    private List<XPathQName>? _scope;
     private readonly XPathOptimizations _optimizations;
-    private readonly List<CaptureFrame> _captures = [];
+    private List<CaptureFrame>? _captures;
     private int _depth;
 
     internal LoweringContext(
@@ -94,7 +96,7 @@ internal sealed class LoweringContext
         ArgumentNullException.ThrowIfNull(name);
 
         var qname = Expand(name, string.Empty);
-        if (_scope.Contains(qname) || StaticContext.TryGetVariableType(qname, out _))
+        if ((_scope is not null && _scope.Contains(qname)) || StaticContext.TryGetVariableType(qname, out _))
         {
             NoteReference(qname);
             return qname;
@@ -130,7 +132,7 @@ internal sealed class LoweringContext
     {
         ArgumentNullException.ThrowIfNull(name);
 
-        _scope.Add(Expand(name, string.Empty));
+        (_scope ??= []).Add(Expand(name, string.Empty));
         return new VariableScope(this);
     }
 
@@ -138,19 +140,19 @@ internal sealed class LoweringContext
     /// <returns>The frame; dispose it when the body is lowered. A variable is free when it is declared outside the frame, which is every variable of the static context and every variable in scope at the function.</returns>
     public CaptureFrame BeginCapture()
     {
-        var frame = new CaptureFrame(this, _scope.Count);
-        _captures.Add(frame);
+        var frame = new CaptureFrame(this, _scope?.Count ?? 0);
+        (_captures ??= []).Add(frame);
         return frame;
     }
 
     private void NoteReference(XPathQName name)
     {
-        if (_captures.Count == 0)
+        if (_captures is not { Count: > 0 })
         {
             return;
         }
 
-        var declared = _scope.LastIndexOf(name);
+        var declared = _scope?.LastIndexOf(name) ?? -1;
         for (var i = 0; i < _captures.Count; i++)
         {
             if (declared < _captures[i].ScopeBase)
@@ -175,7 +177,7 @@ internal sealed class LoweringContext
         return new XPathQName(namespaceUri!, name.LocalName);
     }
 
-    private void EndScope() => _scope.RemoveAt(_scope.Count - 1);
+    private void EndScope() => _scope!.RemoveAt(_scope.Count - 1);
 
     /// <summary>The free variables of one inline function body, collected while it is lowered.</summary>
     internal sealed class CaptureFrame : IDisposable
@@ -194,7 +196,7 @@ internal sealed class LoweringContext
         public HashSet<XPathQName> FreeNames { get; } = [];
 
         /// <summary>Ends the collection.</summary>
-        public void Dispose() => _owner._captures.Remove(this);
+        public void Dispose() => _owner._captures!.Remove(this);
     }
 
     /// <summary>The scope of a declared variable.</summary>
