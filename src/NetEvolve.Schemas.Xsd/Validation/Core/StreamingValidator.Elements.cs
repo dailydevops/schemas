@@ -9,6 +9,7 @@ using NetEvolve.Schemas.Xml.Datatypes.Core;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;
 using NetEvolve.Schemas.Xsd.Components;
+using NetEvolve.Schemas.Xsd.ContentModels.AllGroups11;
 using NetEvolve.Schemas.Xsd.ContentModels.Automaton;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Elements;
@@ -407,7 +408,7 @@ internal sealed partial class StreamingValidator
         }
         else
         {
-            var pool = _all11Pool[index];
+            var pool = _all11Pool?[index];
             var run = pool is { Count: > 0 } ? pool.Pop() : program.AllGroup11!.CreateRun();
             run.Reset();
             frame.AllRun11 = run;
@@ -441,7 +442,8 @@ internal sealed partial class StreamingValidator
         }
         else if (frame.AllRun11 is { } all11 && frame.Program is { } all11Program)
         {
-            (_all11Pool[all11Program.PoolIndex] ??= new()).Push(all11);
+            var pools = _all11Pool ??= new Stack<AllGroup11Run>?[_model.ProgramCount];
+            (pools[all11Program.PoolIndex] ??= new()).Push(all11);
         }
 
         _depth--;
