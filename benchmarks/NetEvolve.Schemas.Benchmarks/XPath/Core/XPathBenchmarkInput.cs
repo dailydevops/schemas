@@ -31,6 +31,21 @@ internal static class XPathBenchmarkInput
         "string-length(/Invoice/ID) <= 20",
     ];
 
+    /// <summary>Gets the XPath 1.0 compatible tests whose truth is all a rule needs: paths, comparisons, and logical combinations.</summary>
+    public static string[] Booleans { get; } =
+    [
+        "/Invoice/InvoiceLine",
+        "//InvoiceLine/Item/TaxCategory",
+        "/Invoice/InvoiceLine/LineAmount",
+        "/Invoice/MissingElement",
+        "/Invoice/ID != ''",
+        "count(/Invoice/InvoiceLine) > 0",
+        "/Invoice/InvoiceLine/Quantity > 5",
+        "/Invoice/InvoiceLine[Quantity > 5] and /Invoice/TaxTotal",
+        "/Invoice/MissingElement or /Invoice/InvoiceLine/Item",
+        "//InvoiceLine[Item/TaxCategory/Code = 'S']",
+    ];
+
     /// <summary>Gets the expressions that are valid XPath 1.0 as well, so <c>System.Xml.XPath</c> can run them as the baseline.</summary>
     public static string[] Compatible { get; } = [.. Predicates, .. Comparisons];
 

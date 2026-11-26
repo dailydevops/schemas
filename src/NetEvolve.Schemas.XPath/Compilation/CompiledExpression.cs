@@ -57,4 +57,16 @@ internal sealed class CompiledExpression
         context.Limits.ThrowIfTooDeep(Depth, _location);
         return Root.Evaluate(context);
     }
+
+    /// <summary>Evaluates the expression to its effective boolean value.</summary>
+    /// <param name="context">The evaluation context.</param>
+    /// <returns>The effective boolean value.</returns>
+    /// <exception cref="XPathException">The tree is deeper than the recursion depth limit of the context, an operator raises an error, or the value has no effective boolean value (FORG0006).</exception>
+    public bool EvaluateBoolean(XPathEvaluationContext context)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+
+        context.Limits.ThrowIfTooDeep(Depth, _location);
+        return Root.EvaluateBoolean(context);
+    }
 }

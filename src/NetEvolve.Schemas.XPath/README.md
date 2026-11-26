@@ -8,7 +8,7 @@ An XPath engine for .NET that compiles an expression once and evaluates it again
 
 ## Features
 
-- Compiled, immutable expressions - compile once with `XPathExpression.Compile` or `TryCompile`, evaluate many times with `Evaluate` or `TryEvaluate`
+- Compiled, immutable expressions - compile once with `XPathExpression.Compile` or `TryCompile`, evaluate many times with `Evaluate` or `TryEvaluate`; use `EvaluateBoolean` or `TryEvaluateBoolean` when only the effective boolean value of a test is needed
 - XPath 2.0 (Second Edition) - the language and the function library, measured against the W3C QT3 test suite, see [Conformance](#conformance)
 - XPath 1.0 compatibility mode - a switch of the static context, see [XPath 1.0 compatibility mode](#xpath-10-compatibility-mode)
 - Variables and host functions - bind values on the evaluation context and register your own functions on the static context
@@ -81,7 +81,7 @@ Here `compiled.Success` is `false` and `compiled.Diagnostic.Code` is `XPST0003`.
 
 ### Variables
 
-A variable is declared on the static context, with `WithVariable`, and bound on every evaluation context, with `Variables.Set`. Rebinding between evaluations is cheap; the compiled expression is not touched. `TryEvaluate` returns an `XPathResult` with a status instead of throwing for a dynamic error.
+A variable is declared on the static context, with `WithVariable`, and bound on every evaluation context, with `Variables.Set`. Rebinding between evaluations is cheap; the compiled expression is not touched. `TryEvaluate` returns an `XPathResult` with a status instead of throwing for a dynamic error. `EvaluateBoolean` returns the effective boolean value of the result, without building the result sequence where the value is known earlier (a path test stops at its first node); it raises the errors of `Evaluate` and `FORG0006` for a value without an effective boolean value, and `TryEvaluateBoolean` reports them as a status and a diagnostic.
 
 ```csharp
 var order = new XPathNode(

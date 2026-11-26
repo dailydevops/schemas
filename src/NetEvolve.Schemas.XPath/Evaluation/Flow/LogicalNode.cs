@@ -4,7 +4,6 @@ using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Compilation;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Errors;
-using NetEvolve.Schemas.XPath.Evaluation.Atomization;
 using NetEvolve.Schemas.XPath.Syntax.Tree;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
@@ -53,8 +52,15 @@ internal sealed class LogicalNode : ExecutableNode
     {
         ArgumentNullException.ThrowIfNull(context);
 
-        var first = XPathAtomization.EffectiveBooleanValue(_left.Evaluate(context));
-        var value = first == _decisive ? _decisive : XPathAtomization.EffectiveBooleanValue(_right.Evaluate(context));
-        return XdmSequence.Create(XdmItem.FromBoolean(value));
+        return XdmSequence.Create(XdmItem.FromBoolean(EvaluateBoolean(context)));
+    }
+
+    /// <inheritdoc />
+    /// <exception cref="XPathException">An evaluated operand has no effective boolean value (FORG0006), or raises an error.</exception>
+    public override bool EvaluateBoolean(XPathEvaluationContext context)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+
+        return _left.EvaluateBoolean(context) == _decisive ? _decisive : _right.EvaluateBoolean(context);
     }
 }
