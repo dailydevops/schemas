@@ -9,8 +9,8 @@ using NetEvolve.Schemas.XPath.Evaluation.Arithmetic;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>
-/// The value rules of <c>fn:abs</c>, <c>fn:ceiling</c>, <c>fn:floor</c>, <c>fn:round</c>, and <c>fn:round-half-to-even</c>
-/// (Functions and Operators 1.0, 6.4): each result has the type of the argument, an <c>xs:integer</c> or <c>xs:decimal</c> is exact at any
+/// The value rules of <c>fn:abs</c>, <c>fn:ceiling</c>, <c>fn:floor</c>, <c>fn:round</c> (with and without a precision), and <c>fn:round-half-to-even</c>
+/// (Functions and Operators 1.0, 6.4, and 3.1, 4.4): each result has the type of the argument, an <c>xs:integer</c> or <c>xs:decimal</c> is exact at any
 /// width, and a floating-point zero keeps the sign of the argument, so that rounding -0.3 gives negative zero.
 /// </summary>
 /// <remarks>
@@ -85,27 +85,37 @@ internal static class NumericRounding
     /// <param name="precision">The number of fraction digits kept; negative rounds to a power of ten.</param>
     /// <returns>The rounded number, in the type of the argument.</returns>
     /// <exception cref="XPathException">The item is not a number (XPTY0004), or the result is beyond the scale range of the decimal (FOAR0002).</exception>
-    public static XdmItem RoundHalfToEven(in XdmItem item, long precision)
+    public static XdmItem RoundHalfToEven(in XdmItem item, long precision) =>
+        RoundTo(in item, precision, halfEven: true);
+
+    /// <summary>Rounds a number to a precision, a tie toward positive infinity (<c>fn:round</c> with a precision): 2.5 gives 3 and -2.5 gives -2, and 1.125 with a precision of 2 gives 1.13.</summary>
+    /// <param name="item">The number.</param>
+    /// <param name="precision">The number of fraction digits kept; negative rounds to a power of ten.</param>
+    /// <returns>The rounded number, in the type of the argument.</returns>
+    /// <exception cref="XPathException">The item is not a number (XPTY0004), or the result is beyond the scale range of the decimal (FOAR0002).</exception>
+    public static XdmItem Round(in XdmItem item, long precision) => RoundTo(in item, precision, halfEven: false);
+
+    private static XdmItem RoundTo(in XdmItem item, long precision, bool halfEven)
     {
         // A precision beyond the 32-bit range keeps or clears every digit of any value, so the clamp changes no result.
         var digits = (int)Math.Max(int.MinValue, Math.Min(int.MaxValue, precision));
         if (IsInteger(in item))
         {
-            return digits >= 0 ? item : XdmItem.FromBigInteger(RoundInteger(in item, digits));
+            return digits >= 0 ? item : XdmItem.FromBigInteger(RoundInteger(in item, digits, halfEven));
         }
 
         if (item.TryGetDecimal(out var number))
         {
-            return number.Scale <= digits ? item : XdmItem.FromDecimal(Quantize(number, digits));
+            return number.Scale <= digits ? item : XdmItem.FromDecimal(Quantize(number, digits, halfEven));
         }
 
         if (item.TryGetFloat(out var single))
         {
-            return XdmItem.FromFloat((float)RoundBinary(single, digits, single: true));
+            return XdmItem.FromFloat((float)RoundBinary(single, digits, single: true, halfEven));
         }
 
         return item.TryGetDouble(out var floating)
-            ? XdmItem.FromDouble(RoundBinary(floating, digits, single: false))
+            ? XdmItem.FromDouble(RoundBinary(floating, digits, single: false, halfEven))
             : throw XPathErrors.Exception(XPathErrorCodes.XPTY0004);
     }
 
@@ -165,7 +175,7 @@ internal static class NumericRounding
             : result;
     }
 
-    private static double RoundBinary(double value, int digits, bool single)
+    private static double RoundBinary(double value, int digits, bool single, bool halfEven)
     {
         // NaN, the infinities, and the zeros are their own result.
         if (double.IsNaN(value) || double.IsInfinity(value) || value == 0)
@@ -174,26 +184,28 @@ internal static class NumericRounding
         }
 
         var exact = DecimalArithmetic.FromDouble(value).Value;
-        var rounded = exact.Scale <= digits ? exact : Quantize(exact, digits);
+        var rounded = exact.Scale <= digits ? exact : Quantize(exact, digits, halfEven);
         var result = single ? NumericPromotion.DecimalToNearestSingle(rounded) : DecimalArithmetic.ToDouble(rounded);
         return result == 0 && value < 0 ? BitConverter.Int64BitsToDouble(long.MinValue) : result;
     }
 
-    private static BigInteger RoundInteger(in XdmItem item, int digits)
+    private static BigInteger RoundInteger(in XdmItem item, int digits, bool halfEven)
     {
         _ = item.TryGetBigInteger(out var value);
-        var rounded = Quantize(new XsdDecimal(value, 0), digits);
+        var rounded = Quantize(new XsdDecimal(value, 0), digits, halfEven);
         return DecimalArithmetic.ToBigInteger(rounded).Value;
     }
 
     // An integer or a type derived from it, inline or beyond 64 bits (an item of the decimal family that carries the type).
     private static bool IsInteger(in XdmItem item) => item.TryGetBigInteger(out _);
 
-    private static XsdDecimal Quantize(XsdDecimal number, int digits)
+    private static XsdDecimal Quantize(XsdDecimal number, int digits, bool halfEven)
     {
         try
         {
-            return DecimalArithmetic.RoundHalfToEven(number, digits);
+            return halfEven
+                ? DecimalArithmetic.RoundHalfToEven(number, digits)
+                : DecimalArithmetic.Round(number, digits);
         }
         catch (OverflowException)
         {

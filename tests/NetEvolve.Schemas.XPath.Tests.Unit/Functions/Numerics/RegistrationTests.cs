@@ -60,14 +60,35 @@ public class RegistrationTests
         await Assert.That(found).IsTrue();
     }
 
-    // Decision (#271): fn:round with a precision is a function of Functions and Operators 3.0 and later; the XPath 2.0 epic leaves it out
-    // in every version until #727 enables it. QT3 K-RoundFunc-2 expects XPST0017 for round(1, 2) under XPath 2.0.
+    // fn:round with a precision is a function of Functions and Operators 3.0 and later (#727); XPath 2.0 leaves it out, and QT3
+    // K-RoundFunc-2 expects XPST0017 for round(1, 2) there.
+    [Test]
+    [Arguments(XPathVersion.V30, true)]
+    [Arguments(XPathVersion.V31, true)]
+    [Arguments(XPathVersion.V20, false)]
+    public async Task DefaultCatalog_RoundWithAPrecision_IsVisibleFromXPath30On(XPathVersion version, bool visible)
+    {
+        await Assert.That(NumericsHarness.TryResolve("round", 2, out var function, version)).IsEqualTo(visible);
+        if (visible)
+        {
+            await Assert.That(function!.Versions).IsEqualTo(XPathVersionMask.V30 | XPathVersionMask.V31);
+        }
+    }
+
     [Test]
     [Arguments(XPathVersion.V20)]
     [Arguments(XPathVersion.V30)]
     [Arguments(XPathVersion.V31)]
-    public async Task DefaultCatalog_RoundWithAPrecision_IsNotRegistered(XPathVersion version) =>
-        await Assert.That(NumericsHarness.TryResolve("round", 2, out _, version)).IsFalse();
+    public async Task DefaultCatalog_RoundWithThreeArguments_IsNotRegistered(XPathVersion version) =>
+        await Assert.That(NumericsHarness.TryResolve("round", 3, out _, version)).IsFalse();
+
+    [Test]
+    public async Task RoundWithAPrecision_InXPath20_RaisesXPST0017AtCompileTime()
+    {
+        var statics = XPathStaticContext.Default.ToBuilder().WithVersion(XPathVersion.V20).Build();
+
+        await Assert.That(XPathExpression.TryCompile("round(1, 2)", statics).Diagnostic.Code).IsEqualTo("XPST0017");
+    }
 
     [Test]
     public async Task DefaultCatalog_SameLocalNameInAnotherNamespace_IsNotFound()

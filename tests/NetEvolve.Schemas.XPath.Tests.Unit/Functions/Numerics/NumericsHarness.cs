@@ -45,9 +45,21 @@ internal static class NumericsHarness
         RunWith(context => context.SetContextItem(ParseItem(contextItem)), local, arguments);
 
     /// <summary>Calls a function after <paramref name="setup"/> configured the evaluation context.</summary>
-    internal static string RunWith(Action<XPathEvaluationContext>? setup, string local, params string[] arguments)
+    internal static string RunWith(Action<XPathEvaluationContext>? setup, string local, params string[] arguments) =>
+        RunCore(XPathVersion.V20, setup, local, arguments);
+
+    /// <summary>Calls a function that is resolved for the given language version.</summary>
+    internal static string RunAt(XPathVersion version, string local, params string[] arguments) =>
+        RunCore(version, null, local, arguments);
+
+    private static string RunCore(
+        XPathVersion version,
+        Action<XPathEvaluationContext>? setup,
+        string local,
+        string[] arguments
+    )
     {
-        if (!TryResolve(local, arguments.Length, out var function))
+        if (!TryResolve(local, arguments.Length, out var function, version))
         {
             return "error:not-registered";
         }
