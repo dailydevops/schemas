@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Functions.Binding;
 
 using System;
-using System.Buffers;
 using System.Collections.Generic;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Api;
@@ -79,9 +78,8 @@ internal abstract class XPathFunction : XPathHostFunction
             return Run(context, default);
         }
 
-        // Pooled, so that a call allocates nothing in steady state; cleared, because a pooled array must not keep sequences alive.
-        var pool = ArrayPool<XdmSequence>.Shared;
-        var converted = pool.Rent(count);
+        // Cached, so that a call allocates nothing in steady state; cleared, because a cached array must not keep sequences alive.
+        var converted = SmallArrayCache<XdmSequence>.Rent(count);
         try
         {
             for (var i = 0; i < count; i++)
@@ -93,7 +91,7 @@ internal abstract class XPathFunction : XPathHostFunction
         }
         finally
         {
-            pool.Return(converted, clearArray: true);
+            SmallArrayCache<XdmSequence>.Return(converted, count);
         }
     }
 

@@ -3,6 +3,7 @@ namespace NetEvolve.Schemas.XPath.Evaluation.Paths;
 using System.Collections.Generic;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Compilation;
+using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Evaluation.Axes;
 using NetEvolve.Schemas.XPath.Syntax.Tree;
@@ -14,8 +15,9 @@ using NetEvolve.Schemas.XPath.Types;
 /// </summary>
 /// <remarks>
 /// An axis step outside a path is a path of one step, so it also returns its nodes in document order. While a path is lowered,
-/// <c>descendant-or-self::node()/child::T</c> without predicates on either step becomes <c>descendant::T</c>, which keeps the same nodes
-/// and needs no sort; with a predicate the expanded form stays, because a positional predicate counts among the children of each node.
+/// <c>descendant-or-self::node()/child::T</c> without predicates on the first step becomes <c>descendant::T</c>, which keeps the same nodes
+/// and needs no sort; the same holds with predicates that cannot select by position (see <see cref="NonPositionalPredicates"/>), while
+/// the expanded form stays for any other predicate, because a positional predicate counts among the children of each node.
 /// Limitations: <c>schema-element()</c> and <c>schema-attribute()</c> tests are rejected with XPST0008 (#52) and the namespace axis
 /// with XPST0010 (#54).
 /// </remarks>
@@ -60,10 +62,12 @@ internal static class PathLowerings
         var steps = new List<PathStep>(syntax.Count);
         for (var i = 0; i < syntax.Count; i++)
         {
-            if (IsDescendantShortcut(syntax, i))
+            if (IsDescendantShortcut(syntax, i, context))
             {
                 var child = (AxisStep)syntax[i + 1];
-                steps.Add(LowerAxisStep(new AxisStep(child.Location, Axis.Descendant, child.Test, []), context));
+                steps.Add(
+                    LowerAxisStep(new AxisStep(child.Location, Axis.Descendant, child.Test, child.Predicates), context)
+                );
                 i++;
             }
             else
@@ -75,11 +79,19 @@ internal static class PathLowerings
         return new PathNode(node.Root, steps.ToArray(), node.Location);
     }
 
-    // descendant-or-self::node()/child::T, with no predicate on either step.
-    private static bool IsDescendantShortcut(List<Expression> steps, int index) =>
+    // descendant-or-self::node()/child::T, with no predicate on the first step and none on the second that can select by position.
+    private static bool IsDescendantShortcut(List<Expression> steps, int index, LoweringContext context) =>
         index + 1 < steps.Count
         && steps[index] is AxisStep { Axis: Axis.DescendantOrSelf, Test: AnyKindTest, Predicates.Count: 0 }
-        && steps[index + 1] is AxisStep { Axis: Axis.Child, Predicates.Count: 0 };
+        && steps[index + 1] is AxisStep { Axis: Axis.Child } child
+        && (
+            child.Predicates.Count == 0
+            || NonPositionalPredicates.All(
+                child.Predicates,
+                context.StaticContext.DefaultFunctionNamespace,
+                XPathStaticContext.Default.DefaultFunctionNamespace
+            )
+        );
 
     private static PathStep LowerStep(Expression step, LoweringContext context) =>
         step switch

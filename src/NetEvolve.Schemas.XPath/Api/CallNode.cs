@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Api;
 
 using System;
-using System.Buffers;
 using System.Collections.Generic;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Compilation;
@@ -60,9 +59,8 @@ internal sealed class CallNode : ExecutableNode
             return _function.Call(context, default);
         }
 
-        // Pooled and cleared, because a pooled array must not keep sequences alive.
-        var pool = ArrayPool<XdmSequence>.Shared;
-        var values = pool.Rent(count);
+        // Cached and cleared, because a cached array must not keep sequences alive.
+        var values = SmallArrayCache<XdmSequence>.Rent(count);
         try
         {
             for (var i = 0; i < count; i++)
@@ -74,7 +72,7 @@ internal sealed class CallNode : ExecutableNode
         }
         finally
         {
-            pool.Return(values, clearArray: true);
+            SmallArrayCache<XdmSequence>.Return(values, count);
         }
     }
 }
