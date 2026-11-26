@@ -369,4 +369,60 @@ public class XmlNamespaceScopeTests
 
         await Assert.That(() => s.Scope.PopElement()).Throws<InvalidOperationException>();
     }
+
+    [Test]
+    public async Task TrustedNamesAgreeWithValidatedNamesForEveryTokenizerName()
+    {
+        string[] alphabet = ["a", "1", ":", ".", "𐀀"];
+        var checkedNames = 0;
+        var names = new System.Collections.Generic.List<string>();
+        void Grow(string prefix, int depth)
+        {
+            if (prefix.Length > 0 && Text.CharClasses.XmlCharClass.NameLength(prefix) == prefix.Length)
+            {
+                names.Add(prefix);
+            }
+
+            if (depth == 0)
+            {
+                return;
+            }
+
+            foreach (var token in alphabet)
+            {
+                Grow(prefix + token, depth - 1);
+            }
+        }
+
+        Grow(string.Empty, 4);
+
+        foreach (var name in names)
+        {
+            foreach (var isAttribute in new[] { false, true })
+            {
+                var plain = new Script();
+                var trusted = new Script();
+                plain.Scope.PushElement();
+                trusted.Scope.PushElement();
+                plain.Scope.Declare("xmlns:a", "urn:a", out _);
+                trusted.Scope.Declare("xmlns:a", "urn:a", out _);
+                var expected = isAttribute
+                    ? plain.Scope.ResolveAttribute(name, out var e)
+                    : plain.Scope.ResolveElement(name, out e);
+                var actual = isAttribute
+                    ? trusted.Scope.ResolveAttribute(name, out var a, isName: true)
+                    : trusted.Scope.ResolveElement(name, out a, isName: true);
+                await Assert.That(actual).IsEqualTo(expected);
+                await Assert.That(a.Local).IsEqualTo(e.Local);
+                checkedNames++;
+            }
+
+            var declared = "xmlns:" + name;
+            var plainDeclare = new Script().Scope.Declare(declared, "urn:x", out _);
+            var trustedDeclare = new Script().Scope.Declare(declared, "urn:x", out _, isName: true);
+            await Assert.That(trustedDeclare).IsEqualTo(plainDeclare);
+        }
+
+        await Assert.That(checkedNames).IsGreaterThan(100);
+    }
 }
