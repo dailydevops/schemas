@@ -20,8 +20,8 @@ using NetEvolve.Schemas.Xml.Text.CharClasses;
 /// A match that reaches the step ceiling of the <see cref="RegexStepLimits"/> is reported as <see cref="PatternDiagnosticCode.StepLimitExceeded"/>
 /// and the value is treated as not validated, although the specification defines an answer for it; <see cref="IsSatisfiedBy"/> is then
 /// <see langword="false"/>. The syntax is the XSD dialect of the regex parser, so its limits apply (pattern length, nesting, program size,
-/// and no back references or reluctant quantifiers; <c>^</c> and <c>$</c> are literal characters). The XSD 1.0 mode reads <c>\i \I \c \C</c> with the Second Edition name
-/// characters and the 1.1 mode with the Fifth Edition. Whether a pattern is a valid restriction of the pattern of the base type is not
+/// and no back references or reluctant quantifiers; <c>^</c> and <c>$</c> are literal characters). In both XSD modes <c>\i \I \c \C</c> read the XML 1.0 Fifth Edition name
+/// characters, as the XSD test suite expects since its 2011 update; the name datatypes keep the Second Edition in the 1.0 mode. Whether a pattern is a valid restriction of the pattern of the base type is not
 /// checked, as the specification does not define it either.
 /// </remarks>
 public sealed class PatternFacet : ILexicalFacet
@@ -45,7 +45,7 @@ public sealed class PatternFacet : ILexicalFacet
 
     /// <summary>Creates the facet by compiling every pattern.</summary>
     /// <param name="patterns">The patterns of one derivation step, at least one.</param>
-    /// <param name="version">The XSD version, which selects the name characters behind <c>\i \I \c \C</c>.</param>
+    /// <param name="version">The XSD version, which does not change the name characters behind <c>\i \I \c \C</c>: both modes use the Fifth Edition.</param>
     /// <param name="limits">The step ceilings of a match, <see langword="null"/> for <see cref="RegexStepLimits.Default"/>.</param>
     /// <param name="facet">The facet, <see langword="null"/> when a pattern is invalid.</param>
     /// <param name="diagnostic">The diagnostic of the first invalid pattern, with the position in it; none when the facet is created.</param>
@@ -63,10 +63,9 @@ public sealed class PatternFacet : ILexicalFacet
         ArgumentNullException.ThrowIfNull(patterns);
         ArgumentOutOfRangeException.ThrowIfLessThan(patterns.Count, 1);
 
-        var syntax = new RegexSyntax(
-            RegexDialect.Xsd,
-            version == XsdVersion.V11 ? NameEdition.Xml10FifthEdition : NameEdition.Xml10SecondEdition
-        );
+        // The multi-character escapes use the Fifth Edition in both XSD modes; only the name datatypes split by version.
+        _ = version; // kept for the public signature; the escapes do not depend on it
+        var syntax = new RegexSyntax(RegexDialect.Xsd, NameEdition.Xml10FifthEdition);
         var programs = new RegexProgram[patterns.Count];
         var texts = new string[patterns.Count];
         for (var i = 0; i < programs.Length; i++)

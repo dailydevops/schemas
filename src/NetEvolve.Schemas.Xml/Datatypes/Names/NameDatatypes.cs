@@ -13,7 +13,7 @@ using NetEvolve.Schemas.Xml.Text.CharClasses;
 /// </summary>
 /// <remarks>
 /// The name rules come from <see cref="XmlNameClass"/>: the XSD 1.0 mode uses the XML 1.0 Second Edition classes, the XSD 1.1 mode the Fifth
-/// Edition ones. Limitations: the lexical space of language is checked in the mapping instead of by the <c>pattern</c> facet of the
+/// Edition ones; the multi-character regex escapes of the pattern facet are independent of this split (Fifth Edition in both modes). Limitations: the lexical space of language is checked in the mapping instead of by the <c>pattern</c> facet of the
 /// specification; uniqueness of ID, resolution of IDREF, and declared unparsed entities of ENTITY are document-level checks (XSD-14, XML-65, XML-66).
 /// </remarks>
 internal static class NameDatatypes
