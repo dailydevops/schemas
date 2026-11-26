@@ -26,7 +26,7 @@ internal sealed class ScopeFixture
 
     internal ScopeTestBinding Binding { get; }
 
-    internal static ScopeFixture Create(SchematronSchema schema, string phase = "#ALL")
+    internal static ScopeFixture Create(SchematronSchema schema, string phase = "#ALL", bool hoistPatternLets = false)
     {
         var problems = new FakeProblemSink();
         var binding = new ScopeTestBinding();
@@ -35,7 +35,7 @@ internal sealed class ScopeFixture
             throw new System.InvalidOperationException("The phase of the test schema does not resolve.");
         }
 
-        var ok = ScopePlanner.TryPlan(schema, selection, binding, problems, out var plan);
+        var ok = ScopePlanner.TryPlan(schema, selection, binding, problems, out var plan, hoistPatternLets);
         return new ScopeFixture(ok, plan, problems, binding);
     }
 
