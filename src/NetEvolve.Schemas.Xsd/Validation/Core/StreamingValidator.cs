@@ -7,6 +7,7 @@ using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Text.NameTable;
 using NetEvolve.Schemas.Xsd.ContentModels.AllGroups;
+using NetEvolve.Schemas.Xsd.ContentModels.AllGroups11;
 using NetEvolve.Schemas.Xsd.ContentModels.Automaton;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Diagnostics;
@@ -70,6 +71,7 @@ internal sealed partial class StreamingValidator : IXmlSink
     private XsiTypeResolver _xsi;
     private Stack<CountingRun>?[] _countingPool;
     private Stack<AllGroupRun>?[] _allPool;
+    private Stack<AllGroup11Run>?[] _all11Pool;
     private ElementFrame[] _frames = new ElementFrame[8];
     private int _depth;
     private int _skip;
@@ -124,6 +126,7 @@ internal sealed partial class StreamingValidator : IXmlSink
         _nil = new XsiNil(model.Schema.Version);
         _countingPool = new Stack<CountingRun>?[model.ProgramCount];
         _allPool = new Stack<AllGroupRun>?[model.ProgramCount];
+        _all11Pool = new Stack<AllGroup11Run>?[model.ProgramCount];
 
         var all = new List<ValidationListener>(listeners.Count);
         for (var i = 0; i < listeners.Count; i++)

@@ -3,9 +3,11 @@ namespace NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using NetEvolve.Arguments;
+using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.Xsd.Attributes.Declarations;
 using NetEvolve.Schemas.Xsd.Components;
+using NetEvolve.Schemas.Xsd.ContentModels.AllGroups11;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.Elements;
@@ -31,8 +33,8 @@ using NetEvolve.Schemas.Xsd.Wildcards.Core;
 /// <para>
 /// Limitations: whether a derivation is valid (final base types, the content of an extension or restriction against the base:
 /// <c>cos-ct-extends</c>, <c>derivation-ok-restriction</c>, <c>cos-ct-derived-ok</c>) is XSD-10 and XSD-62; compiling the content
-/// model is XSD-09; assertions are XSD-23 and the XSD 1.1 <c>all</c> group is XSD-19, so those mapping rules are not applied
-/// (an extension combines base and own content as a sequence, also for <c>all</c> groups); open content (XSD-20) follows the
+/// model is XSD-09; assertions are XSD-23, so that mapping rule is not applied (an extension combines base and own content as a
+/// sequence, except two <c>all</c> groups in XSD 1.1, which <see cref="AllGroup11Compiler.Extend"/> merges); open content (XSD-20) follows the
 /// mapping rules of XSD 1.1 and is given to the factories as the <c>openContent</c> child and the <c>defaultOpenContent</c> of the
 /// schema, see <see cref="OpenContentRules"/> for the limitation of the extension case; at most one attribute of type ID
 /// (<c>ct-props-correct.5</c>) is not checked because the simple type definition cannot tell derivation from <c>ID</c> yet;
@@ -210,6 +212,7 @@ internal sealed class ComplexTypeDefinition : IReferencingComponent, IBlockedTyp
     /// <param name="reporter">The reporter.</param>
     /// <param name="openContent">The <c>openContent</c> child, <see langword="null"/> for none.</param>
     /// <param name="defaultOpenContent">The <c>defaultOpenContent</c> child of the schema, <see langword="null"/> for none.</param>
+    /// <param name="version">The XSD version; in <see cref="XsdVersion.V11"/> an extension of an <c>all</c> group by an <c>all</c> group is one merged <c>all</c> group.</param>
     /// <returns>The definition, <see langword="null"/> after an issue was reported.</returns>
     internal static ComplexTypeDefinition? FromComplexContent(
         ComplexTypeHeader header,
@@ -221,7 +224,8 @@ internal sealed class ComplexTypeDefinition : IReferencingComponent, IBlockedTyp
         IWildcard? attributeWildcard,
         XsdIssueReporter reporter,
         OpenContentElement? openContent = null,
-        OpenContentElement? defaultOpenContent = null
+        OpenContentElement? defaultOpenContent = null,
+        XsdVersion version = XsdVersion.V10
     )
     {
         GuardDerivation(method, baseType, attributeUses, reporter);
@@ -244,7 +248,7 @@ internal sealed class ComplexTypeDefinition : IReferencingComponent, IBlockedTyp
         {
             content = Restricted(mixed, effective);
         }
-        else if (!TryExtend(header.Location, parent, mixed, effective, reporter, out content))
+        else if (!TryExtend(header.Location, parent, mixed, effective, version, reporter, out content))
         {
             return null;
         }
@@ -407,6 +411,7 @@ internal sealed class ComplexTypeDefinition : IReferencingComponent, IBlockedTyp
         ComplexTypeDefinition parent,
         bool mixed,
         Particle? effective,
+        XsdVersion version,
         XsdIssueReporter reporter,
         out Content content
     )
@@ -439,10 +444,12 @@ internal sealed class ComplexTypeDefinition : IReferencingComponent, IBlockedTyp
             return false;
         }
 
+        // Structures 1.1, 3.4.2 clause 4.2.3.2: two all groups merge into one; every other combination is a sequence.
+        var merged = version == XsdVersion.V11 ? AllGroup11Compiler.Extend(parent.ContentParticle!, effective) : null;
         var sequence = ModelGroup.Create(ModelGroupCompositor.Sequence, location, [parent.ContentParticle!, effective]);
         content = new Content(
             mixed ? ComplexContentKind.Mixed : ComplexContentKind.ElementOnly,
-            Particle.Create(location, 1, 1, sequence),
+            merged ?? Particle.Create(location, 1, 1, sequence),
             null,
             parent.OpenContent
         );
