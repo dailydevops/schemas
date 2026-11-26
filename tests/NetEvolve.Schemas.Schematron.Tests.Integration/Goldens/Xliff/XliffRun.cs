@@ -117,11 +117,6 @@ internal static class XliffRun
         ["test-suite/modules/valid/Good-res_source-has-no-content-and-href.xlf"] = 1363,
     };
 
-    private static readonly Regex EntityDeclaration = new(
-        """<!ENTITY\s+([^\s%]+)\s+"([^"]*)"\s*>""",
-        RegexOptions.CultureInvariant
-    );
-    private static readonly Regex EntityReference = new("&([A-Za-z_][A-Za-z0-9._-]*);", RegexOptions.CultureInvariant);
     private static readonly XNamespace Svrl = "http://purl.oclc.org/dsdl/svrl";
     private static readonly HttpClient Client = new() { Timeout = TimeSpan.FromMinutes(10) };
     private static readonly SemaphoreSlim Gate = new(1, 1);
@@ -222,13 +217,9 @@ internal static class XliffRun
         {
             var path = Path.Combine(schemas, file);
             var validator = SchemaValidator
-                .ForSchematron(
-                    Encoding.UTF8.GetBytes(
-                        ExpandInternalEntities(await File.ReadAllTextAsync(path, cancellationToken))
-                    ),
-                    new Uri(path).AbsoluteUri
-                )
+                .ForSchematron(await File.ReadAllBytesAsync(path, cancellationToken), new Uri(path).AbsoluteUri)
                 .WithGlobalPatternLets(true)
+                .WithDtdProcessing(true)
                 .WithResolver(new SandboxedFileSystemResourceResolver(schemas))
                 .Build();
             ruleSets.Add(new KeyValuePair<string, ISchematronValidator>(file, validator));
@@ -271,44 +262,6 @@ internal static class XliffRun
         }
 
         return problems;
-    }
-
-    /// <summary>
-    /// Drops the document type declaration of a rule set and replaces each use of an entity it declares with the replacement text. The
-    /// Schematron reader rejects a document type declaration (#1361), and the upstream rule sets declare only literal internal entities.
-    /// </summary>
-    /// <param name="text">The text of the rule set.</param>
-    /// <returns>The text without the declaration and without the entity references.</returns>
-    internal static string ExpandInternalEntities(string text)
-    {
-        ArgumentNullException.ThrowIfNull(text);
-        var start = text.IndexOf("<!DOCTYPE", StringComparison.Ordinal);
-        var end = start < 0 ? -1 : text.IndexOf("]>", start, StringComparison.Ordinal);
-        if (end < 0)
-        {
-            return text;
-        }
-
-        var entities = EntityDeclaration
-            .Matches(text.Substring(start, end - start))
-            .Cast<Match>()
-            .ToDictionary(m => m.Groups[1].Value, m => m.Groups[2].Value, StringComparer.Ordinal);
-        var body = text.Remove(start, end + 2 - start);
-        // The replacement text may use other entities, so the pass repeats until nothing changes; the depth is the upstream nesting.
-        for (var pass = 0; pass < 8; pass++)
-        {
-            var expanded = EntityReference.Replace(body, m =>
-                entities.TryGetValue(m.Groups[1].Value, out var value) ? value : m.Value
-            );
-            if (string.Equals(expanded, body, StringComparison.Ordinal))
-            {
-                break;
-            }
-
-            body = expanded;
-        }
-
-        return body;
     }
 
     private static string Describe(XElement fired)

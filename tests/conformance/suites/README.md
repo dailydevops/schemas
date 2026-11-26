@@ -149,8 +149,8 @@ the limitation of `xsts.json` applies. The runner lives in
 - **Verdict:** the folder is the expected verdict. The observed verdict is the XSD step (core and module schemas in one
   validator) and the Schematron step (all nine rule sets, as the upstream NVDL script attaches them to every document)
   together.
-- **Rule sets:** the rule sets declare internal entities in a document type declaration, which the Schematron reader
-  rejects; the runner expands them before the build (#1361).
+- **Rule sets:** the rule sets declare internal entities in a document type declaration; the runner builds them with
+  the DTD processing opt-in (`WithDtdProcessing`).
 - **Known failures:** 41 cases, each linked to its issue in `XliffRun.KnownFailures` (#1362, #1363).
 
 ## W3C XInclude test suite (`xinclude.json`)
