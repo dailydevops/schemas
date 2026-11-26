@@ -72,7 +72,9 @@ namespace NetEvolve.Schemas.XPath.Api
         public string Source { get; }
         public NetEvolve.Schemas.XPath.Api.XPathVersion Version { get; }
         public NetEvolve.Schemas.XPath.Xdm.Values.XdmSequence Evaluate(NetEvolve.Schemas.XPath.Context.XPathEvaluationContext context) { }
+        public bool EvaluateBoolean(NetEvolve.Schemas.XPath.Context.XPathEvaluationContext context) { }
         public NetEvolve.Schemas.XPath.Api.XPathResult TryEvaluate(NetEvolve.Schemas.XPath.Context.XPathEvaluationContext context) { }
+        public NetEvolve.Schemas.XPath.Api.XPathEvaluationStatus TryEvaluateBoolean(NetEvolve.Schemas.XPath.Context.XPathEvaluationContext context, out bool value, out NetEvolve.Schemas.XPath.Errors.XPathDiagnostic diagnostic) { }
         public static NetEvolve.Schemas.XPath.Api.XPathExpression Compile(string expression, NetEvolve.Schemas.XPath.Context.XPathStaticContext? context = null) { }
         public static NetEvolve.Schemas.XPath.Api.XPathCompileResult TryCompile(System.ReadOnlySpan<char> expression, NetEvolve.Schemas.XPath.Context.XPathStaticContext? context = null) { }
         public static NetEvolve.Schemas.XPath.Api.XPathCompileResult TryCompile(string expression, NetEvolve.Schemas.XPath.Context.XPathStaticContext? context = null) { }

@@ -89,21 +89,22 @@ internal sealed class XPathQueryRun : IXsltFunctionRun, IXPathResourceResolver
         ArgumentNullException.ThrowIfNull(expression);
 
         var query = Cast(expression);
-        value = false;
-        if (!TryRun(query, in focus, out var sequence))
-        {
-            return QueryStatus.Problem;
-        }
+        var context = Begin(query, in focus);
 
+        // The effective boolean value is computed by the engine, which stops a path test at its first node.
+        _level++;
+        XPathEvaluationStatus status;
+        XPathDiagnostic diagnostic;
         try
         {
-            value = XPathAtomization.EffectiveBooleanValue(in sequence);
-            return QueryStatus.Ok;
+            status = query.Expression.TryEvaluateBoolean(context, out value, out diagnostic);
         }
-        catch (XPathException failure)
+        finally
         {
-            return Fail(query, failure.Diagnostic);
+            _level--;
         }
+
+        return status == XPathEvaluationStatus.Ok ? QueryStatus.Ok : Fail(query, in diagnostic);
     }
 
     public QueryStatus TryEvaluate(QueryExpression expression, in QueryFocus focus, ISequenceSink sink)
@@ -269,6 +270,34 @@ internal sealed class XPathQueryRun : IXsltFunctionRun, IXPathResourceResolver
 
     private bool TryRun(XPathQueryExpression query, in QueryFocus focus, out XdmSequence sequence)
     {
+        var context = Begin(query, in focus);
+
+        // A stylesheet function called from the expression evaluates its body through this run, so the context of the evaluation
+        // that is running must stay untouched: the nested one takes the next context.
+        _level++;
+        XPathResult result;
+        try
+        {
+            result = query.Expression.TryEvaluate(context);
+        }
+        finally
+        {
+            _level--;
+        }
+
+        sequence = result.Value;
+        if (result.Status == XPathEvaluationStatus.Ok)
+        {
+            return true;
+        }
+
+        _ = Fail(query, result.Diagnostic);
+        return false;
+    }
+
+    // Prepares the context of the next evaluation: the focus and the variables of the query.
+    private XPathEvaluationContext Begin(XPathQueryExpression query, in QueryFocus focus)
+    {
         _cancellationToken.ThrowIfCancellationRequested();
 
         _nested = false;
@@ -295,27 +324,7 @@ internal sealed class XPathQueryRun : IXsltFunctionRun, IXPathResourceResolver
             }
         }
 
-        // A stylesheet function called from the expression evaluates its body through this run, so the context of the evaluation
-        // that is running must stay untouched: the nested one takes the next context.
-        _level++;
-        XPathResult result;
-        try
-        {
-            result = query.Expression.TryEvaluate(context);
-        }
-        finally
-        {
-            _level--;
-        }
-
-        sequence = result.Value;
-        if (result.Status == XPathEvaluationStatus.Ok)
-        {
-            return true;
-        }
-
-        _ = Fail(query, result.Diagnostic);
-        return false;
+        return context;
     }
 
     // One context per level of nested evaluations. A context of a nested level is cleared when it is taken, because it may hold the
