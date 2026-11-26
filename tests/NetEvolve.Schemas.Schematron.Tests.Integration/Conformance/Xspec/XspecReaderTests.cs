@@ -191,6 +191,37 @@ public class XspecReaderTests
     }
 
     [Test]
+    [Arguments("""<x:context expand-text="yes"><a>{1}</a></x:context>""")]
+    [Arguments("""<x:context><a attr="{1}"/></x:context>""")]
+    [Arguments("""<x:context><a><b attr="}}"/></a></x:context>""")]
+    public async Task Read_InlineContextWithValueTemplates_IsExcludedBecauseXSpecWouldExpandThem(string context)
+    {
+        using var fixture = new XspecFixture();
+        _ = fixture.Write("test/s.sch", "<schema/>");
+        _ = fixture.WriteXspec("a", $"""<x:scenario label="s">{context}<x:expect-valid/></x:scenario>""");
+
+        var selection = XspecReader.Read(fixture.Root);
+
+        await Assert.That(selection.Selected).IsEmpty();
+        await Assert.That(selection.Excluded.Single().Reason).Contains("value template");
+    }
+
+    [Test]
+    public async Task Read_InlineContextWithBracesInText_IsKeptBecauseXSpecLeavesTextIntact()
+    {
+        using var fixture = new XspecFixture();
+        _ = fixture.Write("test/s.sch", "<schema/>");
+        _ = fixture.WriteXspec(
+            "a",
+            """<x:scenario label="s"><x:context><a>{1}</a></x:context><x:expect-valid/></x:scenario>"""
+        );
+
+        var selected = XspecReader.Read(fixture.Root).Selected.Single();
+
+        await Assert.That(selected.Context.Xml).IsEqualTo("<a>{1}</a>");
+    }
+
+    [Test]
     public async Task Read_FileWithoutSchematronAttribute_IsExcludedAsAWhole()
     {
         using var fixture = new XspecFixture();
