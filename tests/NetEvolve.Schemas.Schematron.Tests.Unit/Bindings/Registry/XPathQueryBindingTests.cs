@@ -74,6 +74,46 @@ public class XPathQueryBindingTests
         return status == QueryStatus.Ok ? value : throw new InvalidOperationException(run.GetProblem().Message);
     }
 
+    private static QueryStaticScope ScopeWith(params SchematronNamespace[] namespaces) =>
+        new(namespaces, [], BaseUri, SchematronEdition.Iso2016);
+
+    private static bool TryCompileIn(IQueryBinding binding, string text, QueryStaticScope scope) =>
+        binding.TryCompile(text.AsSpan(), QueryExpressionKind.Value, scope, out _, out _);
+
+    [Test]
+    public async Task Compile_UndeclaredXsPrefix_ResolvesToTheXmlSchemaNamespace()
+    {
+        var compiled = TryCompileIn(Xpath2(), "xs:decimal('1.5') gt 1", ScopeWith());
+
+        await Assert.That(compiled).IsTrue();
+    }
+
+    [Test]
+    public async Task Compile_SchemaDeclaredXsPrefix_KeepsItsOwnBinding()
+    {
+        var other = new SchematronNamespace(new DocumentLocation(BaseUri, 1, 1), "xs", "urn:other");
+
+        var compiled = TryCompileIn(Xpath2(), "xs:decimal('1.5')", ScopeWith(other));
+
+        await Assert.That(compiled).IsFalse();
+    }
+
+    [Test]
+    public async Task Compile_UndeclaredXsPrefix_StaysUnboundInXPath10Mode()
+    {
+        var compiled = TryCompileIn(Xslt(), "xs:decimal('1.5')", ScopeWith());
+
+        await Assert.That(compiled).IsFalse();
+    }
+
+    [Test]
+    public async Task Compile_ExpressionWithoutXsPrefix_IsUnchanged()
+    {
+        var compiled = TryCompileIn(Xpath2(), "1 + 1 = 2", ScopeWith());
+
+        await Assert.That(compiled).IsTrue();
+    }
+
     [Test]
     public async Task Compile_ValidExpression_EvaluatesAgainstTheFocusNode()
     {
