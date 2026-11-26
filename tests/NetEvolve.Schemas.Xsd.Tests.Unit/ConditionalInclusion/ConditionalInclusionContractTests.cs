@@ -32,7 +32,7 @@ public class ConditionalInclusionContractTests
     }
 
     [Test]
-    public async Task EveryFacetExceptTheAssertionFacet_IsAvailableByTheNameOfItsElement()
+    public async Task EveryFacet_IsAvailableByTheNameOfItsElement()
     {
         foreach (var facet in Enum.GetValues<FacetKind>())
         {
@@ -47,7 +47,8 @@ public class ConditionalInclusionContractTests
             await Assert.That(ProcessorCapabilities.IsFacetAvailable(string.Empty, name)).IsFalse();
         }
 
-        await Assert.That(ProcessorCapabilities.IsFacetAvailable(XsdNamespace, "assertion")).IsFalse();
+        await Assert.That(ProcessorCapabilities.IsFacetAvailable(XsdNamespace, "assertion")).IsTrue()
+        await Assert.That(ProcessorCapabilities.IsFacetAvailable(string.Empty, "assertion")).IsFalse();
         await Assert.That(ProcessorCapabilities.IsFacetAvailable(XsdNamespace, "assertions")).IsFalse();
         await Assert.That(ProcessorCapabilities.IsFacetAvailable(XsdNamespace, "string")).IsFalse();
     }
