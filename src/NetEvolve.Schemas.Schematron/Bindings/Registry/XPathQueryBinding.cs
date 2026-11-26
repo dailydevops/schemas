@@ -24,8 +24,8 @@ using NetEvolve.Schemas.XPath.Errors;
 /// <para>
 /// Limitations: the seam does not hand the binding the location of the construct that holds the expression, so a problem is located by
 /// the base URI of the scope and by the line and column within the expression text (the convention of the pattern matcher), and the
-/// location of a dynamic problem has no line and column. The keys and the decimal formats of an XSLT
-/// stylesheet are not wired (#832, #250): a run starts with an empty set of decimal formats, so a named format is unknown. The stylesheet functions are host functions of a derived binding (<see cref="WithFunctions"/>). Without
+/// location of a dynamic problem has no line and column. The decimal formats of an XSLT
+/// stylesheet are not wired (#882): a run starts with an empty set of decimal formats, so a named format is unknown. The stylesheet functions are host functions of a derived binding (<see cref="WithFunctions"/>). Without
 /// an extension the binding has the functions of XPath 2.0 only.
 /// </para>
 /// </remarks>

@@ -32,8 +32,7 @@ using NetEvolve.Schemas.Schematron.Xslt.Modules;
 /// holds it, and an element of another namespace is a data element and is ignored.
 /// </para>
 /// <para>
-/// Limitations: the keys are not callable from the XPath of a rule yet (the key host slot, #832 stays open for that part); the
-/// stylesheet functions are, through the binding that <see cref="XsltDeclarations.WithSignatures"/> derives before any body compiles; without a module set (the four-argument form) the XSLT children of the schema are
+/// Limitations: the keys and the stylesheet functions are callable from the XPath of a rule (the keys through the key host slot that a run assigns, #776); the stylesheet functions use the binding that <see cref="XsltDeclarations.WithSignatures"/> derives before any body compiles; without a module set (the four-argument form) the XSLT children of the schema are
 /// <see cref="SchematronDiagnosticCodes.XsltUnsupported"/>.
 /// </para>
 /// </remarks>
