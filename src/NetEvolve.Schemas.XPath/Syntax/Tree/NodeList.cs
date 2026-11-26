@@ -1,7 +1,7 @@
 namespace NetEvolve.Schemas.XPath.Syntax.Tree;
 
+using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 
 /// <summary>Helpers that keep child lists of syntax nodes read-only.</summary>
 internal static class NodeList
@@ -12,12 +12,17 @@ internal static class NodeList
     /// <returns>A read-only copy.</returns>
     public static IReadOnlyList<T> Copy<T>(IReadOnlyList<T> source)
     {
+        if (source.Count == 0)
+        {
+            return Array.Empty<T>();
+        }
+
         var copy = new T[source.Count];
         for (var i = 0; i < copy.Length; i++)
         {
             copy[i] = source[i];
         }
 
-        return new ReadOnlyCollection<T>(copy);
+        return copy;
     }
 }
