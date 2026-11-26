@@ -114,6 +114,14 @@ public class CallAndKeyReuseTests
     }
 
     [Test]
+    public async Task Key_SeveralValuesOfWhichOneIsUnsupported_IsAProblem()
+    {
+        var result = Validate(Inline("empty(key('k', ('x', xs:date('2020-01-01'))))"), Document);
+
+        await Assert.That(result.Issues.Count).IsEqualTo(1);
+    }
+
+    [Test]
     public async Task Key_DeclarationsByName_MatchOnlyTheNodesTheyName() =>
         await Holds("count(key('k', 'x')) = 3 and count(key('any', 'x')) = 4 and count(key('attr', 'x')) = 4");
 
