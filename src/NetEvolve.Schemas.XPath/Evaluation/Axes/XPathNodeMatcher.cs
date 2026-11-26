@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.XPath.Evaluation.Axes;
 
 using System.Runtime.InteropServices;
 using NetEvolve.Schemas.Xml.Contracts;
+using NetEvolve.Schemas.Xml.Model;
 using NetEvolve.Schemas.XPath.Xdm.Nodes;
 
 /// <summary>A node test bound to the name table of a tree: names are compared as integer handles, never as strings.</summary>
@@ -61,11 +62,35 @@ internal readonly struct XPathNodeMatcher
         };
     }
 
-    private bool MatchesName(in XPathNode node)
+    /// <summary>Determines whether a row of a document tree passes the test, without making a node of it.</summary>
+    /// <param name="tree">The tree the matcher is bound to.</param>
+    /// <param name="row">The row, a node of the tree.</param>
+    /// <returns><see langword="true"/> when the node matches; the same answer as <see cref="Matches(in XPathNode)"/> gives for the node.</returns>
+    public bool Matches(XmlDocumentTree tree, int row)
     {
-        var name = node.Name();
-        return (_anyLocal || name.Local == _local) && (_anyNamespace || name.NamespaceUri == _namespace);
+        if (_neverMatches)
+        {
+            return false;
+        }
+
+        var kind = tree.GetKind(row);
+        return _kind switch
+        {
+            XPathNodeTestKind.AnyNode => true,
+            XPathNodeTestKind.Text => kind == XmlNodeKind.Text,
+            XPathNodeTestKind.Comment => kind == XmlNodeKind.Comment,
+            XPathNodeTestKind.ProcessingInstruction => kind == XmlNodeKind.ProcessingInstruction
+                && (_anyLocal || tree.GetName(row).Local == _local),
+            XPathNodeTestKind.Element => kind == XmlNodeKind.Element && MatchesName(tree.GetName(row)),
+            XPathNodeTestKind.Attribute => kind == XmlNodeKind.Attribute && MatchesName(tree.GetName(row)),
+            _ => Matches(new XPathNode(new XmlNode(tree, row))),
+        };
     }
+
+    private bool MatchesName(in XPathNode node) => MatchesName(node.Name());
+
+    private bool MatchesName(in XmlName name) =>
+        (_anyLocal || name.Local == _local) && (_anyNamespace || name.NamespaceUri == _namespace);
 
     // document-node(element(E)): exactly one element child that matches E; comments and processing instructions may accompany it.
     private bool HasMatchingDocumentElement(in XPathNode document)
