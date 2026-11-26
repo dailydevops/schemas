@@ -33,6 +33,8 @@ public class UblConformanceTests
         );
 
         await Assert.That(results.Count(r => r.Outcome == CaseOutcome.Pass)).IsGreaterThan(0);
+        // Exactly one sample per package has no maindoc schema; a layout change must not shrink the coverage silently.
+        await Assert.That(results.Count(r => r.Outcome == CaseOutcome.Skipped)).IsEqualTo(1);
         await Assert.That(report.IsSuccess).IsTrue();
     }
 }

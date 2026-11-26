@@ -99,7 +99,7 @@ internal static class UblSuite
     /// <param name="version">The UBL version, which is the test set of the results.</param>
     /// <param name="root">The suite root.</param>
     /// <param name="cancellationToken">A token to cancel the run.</param>
-    /// <returns>One result per sample: pass when valid, fail when rejected, skipped when no schema or build applies.</returns>
+    /// <returns>One result per sample: pass when valid, fail when rejected or when the schema does not build, skipped when no maindoc schema applies.</returns>
     public static async Task<IReadOnlyList<CaseResult>> RunAsync(
         string version,
         string root,
@@ -125,7 +125,7 @@ internal static class UblSuite
             var validator = await validators.GetOrAdd(ns, _ => BuildAsync(root, schema, cancellationToken));
             if (validator is null)
             {
-                results.Add(new CaseResult(sample, testSet, CaseOutcome.Skipped, "The schema does not build."));
+                results.Add(new CaseResult(sample, testSet, CaseOutcome.Fail, "The schema does not build."));
                 continue;
             }
 
