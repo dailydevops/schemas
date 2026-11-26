@@ -69,9 +69,7 @@ public class UnknownAttributeTests
     public async Task AnUnknownAttributeOnAKeptRoot_IsWarned()
     {
         var (_, issues) = Run(
-            "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:vc=\""
-                + Vc
-                + "\" vc:other=\"x\"/>"
+            "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" xmlns:vc=\"" + Vc + "\" vc:other=\"x\"/>"
         );
 
         await Assert.That(issues.Count).IsEqualTo(1);
