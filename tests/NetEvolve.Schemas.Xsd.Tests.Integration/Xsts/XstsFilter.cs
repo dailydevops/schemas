@@ -19,5 +19,15 @@ internal sealed record XstsFilter(
 
     /// <summary>Gets the status-less test sets the suite run allows; every entry carries its reason.</summary>
     public static IReadOnlyDictionary<string, string> DefaultStatusLessTestSets { get; } =
-        new Dictionary<string, string>(StringComparer.Ordinal);
+        new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["wgMeta-IRI"] =
+                "The working group IRI and anyURI cases record no status; they are the first evidence for anyURI.",
+            ["wgMeta-substitution-groups"] =
+                "The working group substitution group cases record no status; no other set covers them.",
+            ["boeingMeta-BoeingXSDTestSet"] =
+                "The real-world style schemas record no status; they exercise whole documents.",
+            ["common-introspection"] =
+                "The schema for schemas cases record no status; they check the built-in components.",
+        };
 }
