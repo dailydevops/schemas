@@ -7,7 +7,7 @@ This document lists every difference that the differential run over the W3C XML 
 | Baseline | `System.Xml.Schema` of the .NET runtime 10.0, compared on the `net10.0` test leg only (`baseline-runtime: 10.0`) |
 | Corpus | XSTS cases of XSD 1.0 (schema tests and instance tests), pinned in `tests/conformance/suites/xsts.json` |
 | Data file | `tests/NetEvolve.Schemas.Xsd.Tests.Integration/DifferentialData/xsts-1.0-deviations.txt`, one entry per difference: case id, difference kind, observed difference, specification reference, reason |
-| Entries | 14616 entries for 14580 cases |
+| Entries | 14623 entries for 14587 cases |
 
 The list is valid for the recorded baseline runtime version only. A run on another runtime version fails until the list is compared again. System.Xml.Schema implements XSD 1.0 only, so cases of XSD 1.1 are not compared.
 
@@ -27,9 +27,9 @@ No builder option, switch, or code path in the library reproduces System.Xml.Sch
 
 | Class | Entries | Cases |
 |---|---:|---:|
-| Verdict differences: this library follows the specification | 1701 | 1669 |
+| Verdict differences: this library follows the specification | 1705 | 1673 |
 | Verdict differences: documented limitations of this library | 21 | 17 |
-| Position differences: equivalent | 12894 | 12894 |
+| Position differences: equivalent | 12897 | 12897 |
 | Differences on cases that a bug issue tracks (no entry) | 881 | |
 
 ## Differences on cases that a bug issue tracks
@@ -1771,19 +1771,23 @@ nistMeta-NISTXMLSchemaDatatypes/1.0/atomic-QName-enumeration/NISTXML-SV-IV-atomi
 nistMeta-NISTXMLSchemaDatatypes/1.0/atomic-QName-enumeration/NISTXML-SV-IV-atomic-QName-enumeration-1-4
 ```
 
-### A length facet on a type derived from QName
+### A length facet on a type derived from QName or NOTATION
 
-Any value of a type derived from QName is valid for length, minLength, and maxLength, so the instance is valid. System.Xml.Schema enforces the length facets on the QName value.
+Any value of a type derived from QName or NOTATION is valid for length, minLength, and maxLength, so the instance is valid. System.Xml.Schema enforces the length facets on the QName or NOTATION value.
 
-- Difference: InstanceVerdict `instance verdict: ours=Valid, baseline=Invalid` (52)
+- Difference: InstanceVerdict `instance verdict: ours=Valid, baseline=Invalid` (56)
 - Specification:
-  - XSD 1.0 Part 2, 4.3.1.3 (length valid, clause 1.3) and 3.2.18.1
-  - XSD 1.0 Part 2, 4.3.2.3 (minLength valid, clause 1.3) and 3.2.18.1
-  - XSD 1.0 Part 2, 4.3.3.3 (maxLength valid, clause 1.3) and 3.2.18.1
-- Cases: 52
+  - XSD 1.0 Part 2, 4.3.1.3 (length valid, clause 1.3) and 3.2.18.1 (QName) or 3.2.19.1 (NOTATION)
+  - XSD 1.0 Part 2, 4.3.2.3 (minLength valid, clause 1.3) and 3.2.18.1 (QName) or 3.2.19.1 (NOTATION)
+  - XSD 1.0 Part 2, 4.3.3.3 (maxLength valid, clause 1.3) and 3.2.18.1 (QName) or 3.2.19.1 (NOTATION)
+- Cases: 56
 
 ```text
 msMeta-Additional_w3c/1.0/addB068/addB068.i
+msMeta-DataTypes_w3c/1.0/NOTATION_length001_1372/NOTATION_length001_1372.i
+msMeta-DataTypes_w3c/1.0/NOTATION_length003_1374/NOTATION_length003_1374.i
+msMeta-DataTypes_w3c/1.0/NOTATION_maxLength001_1379/NOTATION_maxLength001_1379.i
+msMeta-DataTypes_w3c/1.0/NOTATION_minLength003_1377/NOTATION_minLength003_1377.i
 msMeta-DataTypes_w3c/1.0/QName_length001_1357/QName_length001_1357.i
 msMeta-DataTypes_w3c/1.0/QName_length003_1359/QName_length003_1359.i
 msMeta-DataTypes_w3c/1.0/QName_maxLength001_1364/QName_maxLength001_1364.i
@@ -2196,9 +2200,9 @@ msMeta-AttributeGroup_w3c/1.0/attgD003/attgD003.v
 
 Both engines reject the document with the same number of issues on the same lines, and the verdicts agree. They anchor an issue at different columns of the same construct. Issue positions are not part of the specification, so the difference is equivalent.
 
-- Difference: IssuePositions `issue positions` (3842)
+- Difference: IssuePositions `issue positions` (3847)
 - Specification: XSD 1.0 Part 1, 5.2 and C.1 (the assessment outcome is the validity property; positions and number of reports are not specified)
-- Cases: 3842
+- Cases: 3847
 
 ```text
 ibmMeta-anyAttribute/1.0/s3_10_6ii01/s3_10_6v01i
@@ -2226,6 +2230,7 @@ ibmMeta-xml11Support/1.0/d3_4_6ii01/d3_4_6ii01i
 ibmMeta-xml11Support/1.0/d3_4_6ii02/d3_4_6ii02i
 ibmMeta-xml11Support/1.0/d3_4_6ii03/d3_4_6ii03i
 ibmMeta-xml11Support/1.0/d3_4_6ii04/d3_4_6ii04i
+msMeta-Additional_w3c/1.0/addB004/addB004
 msMeta-Additional_w3c/1.0/addB005/addB005
 msMeta-Additional_w3c/1.0/addB008/addB008
 msMeta-Additional_w3c/1.0/addB009/addB009
@@ -4153,8 +4158,11 @@ msMeta-ModelGroups_w3c/1.0/mgR015/mgR015
 msMeta-ModelGroups_w3c/1.0/mgR016/mgR016
 msMeta-ModelGroups_w3c/1.0/mgR017/mgR017
 msMeta-ModelGroups_w3c/1.0/mgR018/mgR018
+msMeta-Notations_w3c/1.0/notatA002/notatA002
 msMeta-Notations_w3c/1.0/notatA005/notatA005
 msMeta-Notations_w3c/1.0/notatA007/notatA007
+msMeta-Notations_w3c/1.0/notatB001/notatB001
+msMeta-Notations_w3c/1.0/notatB005/notatB005
 msMeta-Notations_w3c/1.0/notatB008/notatB008
 msMeta-Notations_w3c/1.0/notatB009/notatB009
 msMeta-Notations_w3c/1.0/notatB010/notatB010
@@ -5883,6 +5891,7 @@ sunMeta-MGroupDef/1.0/name00101m2/name00101m2
 sunMeta-Notation/1.0/annotation00101m2/annotation00101m2
 sunMeta-Notation/1.0/annotation00101m4/annotation00101m4
 sunMeta-Notation/1.0/name00201m1/name00201m1
+sunMeta-Notation/1.0/publicid00201m1/publicId00201m1
 sunMeta-SType/1.0/st_final00101m1/ST_final00101m1
 sunMeta-SType/1.0/st_final00102m1/ST_final00102m1
 sunMeta-SType/1.0/st_final00103m1/ST_final00103m1
@@ -14634,9 +14643,9 @@ sunMeta-suntest/1.0/xsd022/xsd022.n00
 
 Both engines reject the document and the verdicts agree. This library reports more issues than System.Xml.Schema for the same document; the engines group and follow up violations differently. The number and the positions of reported issues are not part of the specification, so the difference is equivalent.
 
-- Difference: IssuePositions `issue positions` (336)
+- Difference: IssuePositions `issue positions` (337)
 - Specification: XSD 1.0 Part 1, 5.2 and C.1 (the assessment outcome is the validity property; positions and number of reports are not specified)
-- Cases: 336
+- Cases: 337
 
 ```text
 ibmMeta-cyclicRedefineIncludeImportOverride/1.0/s4_2_4si02/s4_2_4si02s
@@ -14914,6 +14923,7 @@ msMeta-Notations_w3c/1.0/notatF065/notatF065
 msMeta-Notations_w3c/1.0/notatF067/notatF067
 msMeta-Notations_w3c/1.0/notatF069/notatF069
 msMeta-Notations_w3c/1.0/notatF071/notatF071
+msMeta-Notations_w3c/1.0/notatG006/notatG006
 msMeta-Particles_w3c/1.0/particlesDa006/particlesDa006
 msMeta-Particles_w3c/1.0/particlesEa024/particlesEa024
 msMeta-Particles_w3c/1.0/particlesEd001/particlesEd001
@@ -14981,13 +14991,12 @@ sunMeta-suntest/1.0/xsd007.e/xsd007.e
 
 Both engines reject the document and the verdicts agree. System.Xml.Schema reports more issues than this library for the same document; the engines group and follow up violations differently. The number and the positions of reported issues are not part of the specification, so the difference is equivalent.
 
-- Difference: IssuePositions `issue positions` (121)
+- Difference: IssuePositions `issue positions` (118)
 - Specification: XSD 1.0 Part 1, 5.2 and C.1 (the assessment outcome is the validity property; positions and number of reports are not specified)
-- Cases: 121
+- Cases: 118
 
 ```text
 ibmMeta-identityConstraint/1.0/s2_2_4si04/s2_2_4si04s
-msMeta-Additional_w3c/1.0/addB004/addB004
 msMeta-Additional_w3c/1.0/addB070/addB070
 msMeta-AttributeGroup_w3c/1.0/attgB011/attgB011
 msMeta-AttributeGroup_w3c/1.0/attgC020/attgC020
@@ -15060,8 +15069,6 @@ msMeta-ModelGroups_w3c/1.0/mgM002/mgM002.i
 msMeta-ModelGroups_w3c/1.0/mgM014/mgM014.i
 msMeta-ModelGroups_w3c/1.0/mgN004/mgN004.i
 msMeta-ModelGroups_w3c/1.0/mgO019/mgO019
-msMeta-Notations_w3c/1.0/notatA002/notatA002
-msMeta-Notations_w3c/1.0/notatG006/notatG006
 msMeta-Particles_w3c/1.0/particlesA003/particlesA003.i
 msMeta-Particles_w3c/1.0/particlesB003/particlesB003.i
 msMeta-Particles_w3c/1.0/particlesDc004/particlesDc004.i
