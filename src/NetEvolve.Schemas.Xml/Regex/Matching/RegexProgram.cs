@@ -64,6 +64,7 @@ public sealed partial class RegexProgram : IRegexMatcher
         _backtracking = backtracking;
         _captureSlots = captureSlots;
         _slotCount = slotCount;
+        _dfa = dialect == RegexDialect.Xsd ? new Dfa() : null;
     }
 
     /// <inheritdoc/>
@@ -154,7 +155,22 @@ public sealed partial class RegexProgram : IRegexMatcher
 
     /// <inheritdoc/>
     /// <remarks>For the XPath dialect this is a search: <see cref="RegexMatchResult.Match"/> when any part of the input matches.</remarks>
-    public RegexMatchResult Match(ReadOnlySpan<char> input, RegexStepLimits limits) => Match(input, limits, out _);
+    public RegexMatchResult Match(ReadOnlySpan<char> input, RegexStepLimits limits)
+    {
+        // The simulation takes at most (length + 1) times the program size in steps; below the ceiling no abort is possible,
+        // so the deterministic path answers exactly as the simulation does.
+        var effective = limits ?? RegexStepLimits.Default;
+        if (
+            _dfa is not null
+            && (input.Length + 1L) * _program.Length <= effective.MaxNfaSteps
+            && MatchDeterministic(input) is { } result
+        )
+        {
+            return result;
+        }
+
+        return Match(input, effective, out _);
+    }
 
     /// <summary>Finds the first match, from an index of the input.</summary>
     /// <param name="input">The input.</param>
