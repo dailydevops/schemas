@@ -139,4 +139,21 @@ internal static class En16931Run
             _ = Gate.Release();
         }
     }
+
+    /// <summary>The test sets beyond the UBL and CII unit-test corpus, each with its own rate row.</summary>
+    public static readonly string[] ExtendedTestSets = ["edifact", "ubl-testfiles"];
+
+    /// <summary>Reads the cases of an extended test set.</summary>
+    /// <param name="root">The suite root.</param>
+    /// <param name="testSet">The test set, one of <see cref="ExtendedTestSets"/>.</param>
+    /// <returns>The cases in a stable order.</returns>
+    public static IReadOnlyList<En16931Case> LoadExtendedCases(string root, string testSet) =>
+        string.IsNullOrEmpty(root + testSet) ? throw new ArgumentException("Unreachable.") : [];
+
+    /// <summary>Gets the results of every extended test set.</summary>
+    /// <param name="cancellationToken">A token to cancel the run.</param>
+    /// <returns>The results by test set.</returns>
+    public static Task<IReadOnlyDictionary<string, IReadOnlyList<CaseResult>>> GetExtendedResultsAsync(
+        CancellationToken cancellationToken
+    ) => throw new NotImplementedException();
 }
