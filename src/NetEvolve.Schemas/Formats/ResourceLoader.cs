@@ -36,6 +36,12 @@ public sealed class ResourceLoader
         _limits = limits;
     }
 
+    /// <summary>
+    /// Gets a value indicating whether a relative reference without an absolute base is passed to the resolver with
+    /// <see cref="ResourceRequest.ResolvedUri"/> set to <see langword="null"/> instead of failing with NES0101. Xsd sets it; the default keeps Schematron.
+    /// </summary>
+    internal bool PassMissingBaseToResolver { get; set; }
+
     /// <summary>Gets the number of requests counted so far, refused and missing ones included.</summary>
     public int RequestCount { get; private set; }
 
@@ -72,7 +78,10 @@ public sealed class ResourceLoader
 
         RequestCount++;
         var resolution = UriReference.Resolve(reference, baseUri);
-        if (resolution.Uri is null)
+        if (
+            resolution.Uri is null
+            && !(PassMissingBaseToResolver && resolution.Code == CoreDiagnosticCodes.ResourceBaseUriMissing)
+        )
         {
             return Fail(
                 ResourceLoadStatus.Failed,
@@ -91,7 +100,10 @@ public sealed class ResourceLoader
             return Fail(
                 ResourceLoadStatus.Failed,
                 notFound ? CoreDiagnosticCodes.ResourceNotFound : CoreDiagnosticCodes.ResourceDenied,
-                result.Message ?? "The resource '" + resolution.Uri + (notFound ? "' was not found." : "' was denied.")
+                result.Message
+                    ?? "The resource '"
+                        + (resolution.Uri ?? reference)
+                        + (notFound ? "' was not found." : "' was denied.")
             );
         }
 
@@ -101,7 +113,7 @@ public sealed class ResourceLoader
             : Fail(
                 ResourceLoadStatus.LimitExceeded,
                 CoreDiagnosticCodes.ResourceSizeLimitExceeded,
-                "The resource '" + systemId + "' is larger than " + _limits.MaxResourceSize + " bytes.",
+                "The resource '" + (systemId ?? reference) + "' is larger than " + _limits.MaxResourceSize + " bytes.",
                 systemId
             );
     }
