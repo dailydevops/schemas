@@ -135,3 +135,19 @@ cases of `xslt-3` are excluded with a reason (SCH-21).
   separated by tabs; a baseline entry without a line, or a line without an entry, fails the test.
 - **Limitation:** the case reader keeps the text of an assertion and not its namespace declarations, so the engine declares the prefix
   `svrl` for the assertions; every assertion of the pinned release uses this prefix only.
+
+## OASIS XLIFF 2.1 (`xliff.json`)
+
+The OASIS XLIFF TC repository is pinned by commit archive (`.../archive/<commit>.zip`) with the `subPath`
+`<archive-root>/xliff-21`. The archive is about 45 MB. GitHub does not promise byte-identical generated archives;
+the limitation of `xsts.json` applies. The runner lives in
+`tests/NetEvolve.Schemas.Schematron.Tests.Integration/Goldens/Xliff`.
+
+- **Selection:** every `.xlf` file of the `valid` and `invalid` folders of `test-suite/core` and `test-suite/modules`
+  (221 cases). The `in-out` folder holds no verdict and is not selected.
+- **Verdict:** the folder is the expected verdict. The observed verdict is the XSD step (core and module schemas in one
+  validator) and the Schematron step (all nine rule sets, as the upstream NVDL script attaches them to every document)
+  together.
+- **Rule sets:** the rule sets declare internal entities in a document type declaration, which the Schematron reader
+  rejects; the runner expands them before the build (#1361).
+- **Known failures:** 41 cases, each linked to its issue in `XliffRun.KnownFailures` (#1362, #1363).
