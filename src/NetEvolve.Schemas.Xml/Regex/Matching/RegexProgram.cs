@@ -66,7 +66,7 @@ public sealed partial class RegexProgram : IRegexMatcher
         _backtracking = backtracking;
         _captureSlots = captureSlots;
         _slotCount = slotCount;
-        _dfa = dialect == RegexDialect.Xsd ? new Dfa() : null;
+        _dfa = !backtracking && (dialect == RegexDialect.Xsd || CanRunDeterministically(program)) ? new Dfa() : null;
     }
 
     /// <inheritdoc/>
