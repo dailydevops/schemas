@@ -21,6 +21,39 @@ public class PatternCompileTests
         return string.Join(";", rendered);
     }
 
+    // Rule contexts keep XPath 2.0 semantics under every binding (#838), so xs is predeclared (#1182).
+    [Test]
+    public async Task TryCompile_UndeclaredXsPrefixInNameTest_ResolvesToTheXmlSchemaNamespace()
+    {
+        var scope = new QueryStaticScope([], [], null, SchematronEdition.Iso2016);
+
+        var compiled = new PatternMatcher(new PatternTestBinding()).TryCompile(
+            "xs:e",
+            PatternUse.RuleContext,
+            scope,
+            out _,
+            out _
+        );
+
+        await Assert.That(compiled).IsTrue();
+    }
+
+    [Test]
+    public async Task TryCompile_UndeclaredOtherPrefixInNameTest_StaysUnbound()
+    {
+        var scope = new QueryStaticScope([], [], null, SchematronEdition.Iso2016);
+
+        var compiled = new PatternMatcher(new PatternTestBinding()).TryCompile(
+            "q:e",
+            PatternUse.RuleContext,
+            scope,
+            out _,
+            out _
+        );
+
+        await Assert.That(compiled).IsFalse();
+    }
+
     // XSLT 2.0 section 6.4: the default priority of every alternative.
     [Test]
     [Arguments("/", "-0.5")]

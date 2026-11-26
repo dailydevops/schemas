@@ -31,6 +31,8 @@ using NetEvolve.Schemas.XPath.Errors;
 /// </remarks>
 internal sealed class XPathQueryBinding : IFunctionHostBinding
 {
+    private const string XmlSchemaNamespace = "http://www.w3.org/2001/XMLSchema";
+
     // The public code type, not the internal table of the XPath package, which the seam rule keeps out of reach.
     private static readonly XPathErrorCode UndeclaredVariable = new("XPST0008");
 
@@ -100,6 +102,13 @@ internal sealed class XPathQueryBinding : IFunctionHostBinding
         ArgumentNullException.ThrowIfNull(scope);
 
         var builder = XPathStaticContext.Default.ToBuilder().WithXPath10Compatibility(xpath10Compatibility);
+
+        // The prefix xs is predeclared for XPath 2.0 and later, as the reference implementation does; a declaration of the schema below wins.
+        if (!xpath10Compatibility)
+        {
+            _ = builder.WithNamespace("xs", XmlSchemaNamespace);
+        }
+
         for (var i = 0; i < scope.Namespaces.Count; i++)
         {
             var declaration = scope.Namespaces[i];

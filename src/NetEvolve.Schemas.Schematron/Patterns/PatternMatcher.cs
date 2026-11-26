@@ -114,6 +114,9 @@ internal sealed class PatternMatcher : IPatternMatcher
     private static XPathStaticContext StaticContext(QueryStaticScope scope)
     {
         var builder = XPathStaticContext.Default.ToBuilder();
+
+        // Rule contexts keep XPath 2.0 semantics under every binding (#838), so xs is predeclared; a declaration of the schema below wins.
+        _ = builder.WithNamespace("xs", "http://www.w3.org/2001/XMLSchema");
         foreach (var declaration in scope.Namespaces)
         {
             if (declaration.Prefix.Length > 0)
