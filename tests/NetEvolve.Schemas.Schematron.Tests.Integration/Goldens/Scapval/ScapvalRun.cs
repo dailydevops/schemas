@@ -36,7 +36,12 @@ internal static class ScapvalRun
         IReadOnlyDictionary<string, int>
     >(StringComparer.Ordinal)
     {
-        [BuildSet] = new Dictionary<string, int>(StringComparer.Ordinal),
+        [BuildSet] = new Dictionary<string, int>(StringComparer.Ordinal)
+        {
+            ["main/resources/rules/scap/source-data-stream-1.2.sch"] = 1371,
+            ["main/resources/rules/scap/source-data-stream-1.3.sch"] = 1371,
+            ["main/resources/rules/scap/source-data-stream-1.4.sch"] = 1371,
+        },
     };
 
     private static readonly HttpClient Client = new() { Timeout = TimeSpan.FromMinutes(10) };
