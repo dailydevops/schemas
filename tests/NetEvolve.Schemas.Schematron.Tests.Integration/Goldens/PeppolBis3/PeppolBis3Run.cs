@@ -19,8 +19,19 @@ internal static class PeppolBis3Run
     /// <summary>The package name of the rate rows in the job summary.</summary>
     public const string RatePackage = "NetEvolve.Schemas.Schematron (OpenPEPPOL BIS 3 goldens)";
 
-    /// <summary>The syntaxes of the rule set, which are also the test sets of the results.</summary>
+    /// <summary>The package name of the rate rows of the national and envelope unit tests in the job summary.</summary>
+    public const string NationalRatePackage = "NetEvolve.Schemas.Schematron (OpenPEPPOL BIS 3 national goldens)";
+
+    /// <summary>The syntaxes of the Peppol rule sets, which are also the test sets of their results.</summary>
     public static readonly string[] Syntaxes = ["ubl", "cii"];
+
+    private const string EnvelopeFolder = "unit-SBDH";
+    private const string EnvelopeSchema = "PeppolBIS-Envelope-Rules.sch";
+    private const string EnvelopeTestSet = "sbdh";
+
+    /// <summary>Gets the directory of the known-failure baselines of the national and envelope test sets.</summary>
+    public static string BaselineDirectory { get; } =
+        Path.Combine(SchematronSuite.RepositoryRoot, "tests", "conformance", "baselines", "peppol-bis3");
 
     private static readonly HttpClient Client = new() { Timeout = TimeSpan.FromMinutes(10) };
     private static readonly SemaphoreSlim Gate = new(1, 1);
@@ -39,14 +50,55 @@ internal static class PeppolBis3Run
     /// <param name="syntax">The syntax.</param>
     /// <returns>The path of the schema.</returns>
     public static string SchemaPath(string root, string syntax) =>
-        Path.Combine(root, "sch", $"PEPPOL-EN16931-{syntax.ToUpperInvariant()}.sch");
+        Path.Combine(
+            root,
+            "sch",
+            syntax == EnvelopeTestSet ? EnvelopeSchema : $"PEPPOL-EN16931-{SyntaxOf(syntax).ToUpperInvariant()}.sch"
+        );
 
-    /// <summary>Gets the unit-test directory of a syntax.</summary>
+    /// <summary>Gets the test sets of the archive: the Peppol rules, every national folder, and the envelope.</summary>
+    /// <remarks>
+    /// The test set of <c>unit-UBL-PEPPOL</c> is <c>ubl</c>, of <c>unit-UBL-DE</c> it is <c>ubl-de</c>, and of <c>unit-SBDH</c> it is
+    /// <c>sbdh</c>. The national folders test the Peppol rule sets of their syntax.
+    /// </remarks>
     /// <param name="root">The suite root.</param>
-    /// <param name="syntax">The syntax.</param>
+    /// <returns>The test set names in a stable order.</returns>
+    public static IReadOnlyList<string> TestSets(string root)
+    {
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(root);
+        return
+        [
+            .. Directory
+                .EnumerateDirectories(root, "unit-*")
+                .Select(d =>
+                    Path.GetFileName(d)["unit-".Length..].Replace("-PEPPOL", string.Empty, StringComparison.Ordinal)
+                )
+                .Select(n => string.Concat(n.Select(char.ToLowerInvariant)))
+                .OrderBy(n => n, StringComparer.Ordinal),
+        ];
+    }
+
+    /// <summary>Gets the syntax of a test set: <c>ubl</c> or <c>cii</c> for the rule sets, <c>sbdh</c> for the envelope.</summary>
+    /// <param name="testSet">The test set name.</param>
+    /// <returns>The syntax.</returns>
+    public static string SyntaxOf(string testSet)
+    {
+        ArgumentNullException.ThrowIfNullOrWhiteSpace(testSet);
+        var dash = testSet.IndexOf('-', StringComparison.Ordinal);
+        return dash < 0 ? testSet : testSet[..dash];
+    }
+
+    /// <summary>Gets the unit-test directory of a test set.</summary>
+    /// <param name="root">The suite root.</param>
+    /// <param name="syntax">The test set name.</param>
     /// <returns>The directory of the Peppol rule unit tests.</returns>
     public static string UnitDirectory(string root, string syntax) =>
-        Path.Combine(root, $"unit-{syntax.ToUpperInvariant()}-PEPPOL");
+        Path.Combine(
+            root,
+            syntax == EnvelopeTestSet ? EnvelopeFolder
+                : syntax.Contains('-', StringComparison.Ordinal) ? $"unit-{syntax.ToUpperInvariant()}"
+                : $"unit-{syntax.ToUpperInvariant()}-PEPPOL"
+        );
 
     /// <summary>Gets the test-set files of a syntax; the archive spells one file extension <c>.xm</c>, which is included.</summary>
     /// <param name="root">The suite root.</param>
@@ -105,7 +157,7 @@ internal static class PeppolBis3Run
             if (s_results is null)
             {
                 var results = new Dictionary<string, IReadOnlyList<CaseResult>>(StringComparer.Ordinal);
-                foreach (var syntax in Syntaxes)
+                foreach (var syntax in TestSets(root))
                 {
                     results[syntax] = En16931Runner.Run(
                         SchemaPath(root, syntax),
