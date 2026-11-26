@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.Schematron.Seams;
 
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Resources;
-using NetEvolve.Schemas.XPath.Abstractions;
 
 /// <summary>
 /// The resolver adapter handed to every run of one validator. It wraps the core <see cref="IResourceResolver"/> once, so
@@ -17,12 +16,9 @@ internal sealed class QueryResources
 
         Resolver = resolver;
         Limits = limits ?? ValidationLimits.Default;
-        XPathResolver = XPathResourceResolverAdapter.Wrap(resolver)!;
     }
 
     internal IResourceResolver Resolver { get; }
 
     internal ValidationLimits Limits { get; }
-
-    internal IXPathResourceResolver XPathResolver { get; }
 }

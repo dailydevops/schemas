@@ -178,7 +178,6 @@ public class SeamShapeTests
         var resources = new QueryResources(resolver);
 
         await Assert.That(resources.Resolver).IsSameReferenceAs(resolver);
-        await Assert.That(resources.XPathResolver).IsNotNull();
         await Assert.That(() => new QueryResources(null!)).Throws<ArgumentNullException>();
     }
 
