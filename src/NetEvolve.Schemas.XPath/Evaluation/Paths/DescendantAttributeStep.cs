@@ -3,11 +3,13 @@ namespace NetEvolve.Schemas.XPath.Evaluation.Paths;
 using System;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Contracts;
+using NetEvolve.Schemas.Xml.Model;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Evaluation.Axes;
 using NetEvolve.Schemas.XPath.Evaluation.Ordering;
 using NetEvolve.Schemas.XPath.Syntax.Tree;
+using NetEvolve.Schemas.XPath.Xdm.Nodes;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>
@@ -74,6 +76,11 @@ internal sealed class DescendantAttributeStep : PathStep
             bound.Attributes = _test.Bind(tree.Names);
         }
 
+        if (TryProcessIndexed(node, in bound.Attributes, ref results))
+        {
+            return;
+        }
+
         var walk = new XPathAxisIterator(node, Axis.DescendantOrSelf, bound.Elements);
         while (walk.MoveNext())
         {
@@ -83,6 +90,38 @@ internal sealed class DescendantAttributeStep : PathStep
                 results.Add(XdmItem.FromNode(attributes.Current));
             }
         }
+    }
+
+    // The attributes of a large subtree of a document tree with one local name come from the attribute index of the tree: the same rows in
+    // the same order, since the attributes of the elements of a subtree are exactly the attribute rows inside it.
+    private static bool TryProcessIndexed(in XPathNode node, in XPathNodeMatcher attributes, ref XdmItemList results)
+    {
+        if (
+            node.Node.Tree is not XmlDocumentTree tree
+            || !attributes.TryGetLocal(attributes: true, out var local)
+            || tree.GetKind(node.Node.Index) is not (XmlNodeKind.Document or XmlNodeKind.Element)
+        )
+        {
+            return false;
+        }
+
+        var row = node.Node.Index;
+        var end = tree.GetEnd(row);
+        if (end - row < XPathAxisIterator.MinimumIndexedSubtree || tree.GetAttributeIndex() is not { } index)
+        {
+            return false;
+        }
+
+        index.Find(local, row, end, out var rows, out var first, out var last);
+        for (var slot = first; slot < last; slot++)
+        {
+            if (attributes.Matches(tree, rows[slot]))
+            {
+                results.Add(XdmItem.FromNode(new XPathNode(new XmlNode(tree, rows[slot]))));
+            }
+        }
+
+        return true;
     }
 
     // The tree the tests are bound for; the context nodes of a step are mostly of one tree.

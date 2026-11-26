@@ -36,6 +36,18 @@ internal readonly struct XPathNodeMatcher
         _neverMatches = neverMatches;
     }
 
+    /// <summary>Gets the local name symbol of a test that selects elements, or attributes, by one local name.</summary>
+    /// <param name="attributes"><see langword="true"/> for an attribute test, <see langword="false"/> for an element test.</param>
+    /// <param name="local">The symbol.</param>
+    /// <returns><see langword="true"/> for a test of that kind with a local name that the name table contains.</returns>
+    public bool TryGetLocal(bool attributes, out XmlSymbol local)
+    {
+        local = _local;
+        return _kind == (attributes ? XPathNodeTestKind.Attribute : XPathNodeTestKind.Element)
+            && !_neverMatches
+            && !_anyLocal;
+    }
+
     /// <summary>Determines whether a node passes the test.</summary>
     /// <param name="node">The node, from the tree the matcher is bound to.</param>
     /// <returns><see langword="true"/> when the node matches.</returns>

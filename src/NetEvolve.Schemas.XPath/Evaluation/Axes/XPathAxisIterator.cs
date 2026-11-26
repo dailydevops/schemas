@@ -21,6 +21,9 @@ using NetEvolve.Schemas.XPath.Xdm.Nodes;
 [StructLayout(LayoutKind.Auto)]
 internal struct XPathAxisIterator
 {
+    // The rows of a subtree below which a descendant walk is not worth an index lookup.
+    internal const int MinimumIndexedSubtree = 64;
+
     private readonly XPathNode _context;
     private readonly Axis _axis;
     private readonly XPathNodeMatcher _matcher;
@@ -34,6 +37,12 @@ internal struct XPathAxisIterator
     // every other tree and axis.
     private readonly XmlDocumentTree? _rows;
     private int _row;
+
+    // The slots of the element index that a descendant walk for one local name reads instead of the rows of the subtree; null when the
+    // walk reads the rows.
+    private int[]? _indexed;
+    private int _slot;
+    private int _slotEnd;
 
     /// <summary>Initializes a new instance of the <see cref="XPathAxisIterator"/> struct.</summary>
     /// <param name="context">The context node.</param>
@@ -72,6 +81,11 @@ internal struct XPathAxisIterator
     /// <returns><see langword="true"/> when there is one.</returns>
     public bool MoveNext()
     {
+        if (_indexed is not null)
+        {
+            return MoveNextIndexed(_rows!);
+        }
+
         if (_rows is not null)
         {
             return MoveNextRow(_rows);
@@ -128,6 +142,10 @@ internal struct XPathAxisIterator
                 row = tree.GetNextSibling(row);
             }
         }
+        else if (first && _axis == Axis.Descendant && TryStartIndexed(tree, context, contextKind))
+        {
+            return MoveNextIndexed(tree);
+        }
         else if (first && _axis == Axis.DescendantOrSelf && _matcher.Matches(tree, context))
         {
             row = context;
@@ -167,6 +185,46 @@ internal struct XPathAxisIterator
         _row = row == XmlTree.NoNode ? tree.Count : row;
         _current = row == XmlTree.NoNode ? default : new XPathNode(new XmlNode(tree, row));
         return row != XmlTree.NoNode;
+    }
+
+    // A descendant walk for the elements of one local name over a large subtree reads the elements of that name from the index of the
+    // tree: the same rows, in the same order, without a look at the others. Small subtrees are cheaper to scan than to look up.
+    private bool TryStartIndexed(XmlDocumentTree tree, int context, XmlNodeKind contextKind)
+    {
+        if (
+            contextKind is not (XmlNodeKind.Document or XmlNodeKind.Element)
+            || !_matcher.TryGetLocal(attributes: false, out var local)
+        )
+        {
+            return false;
+        }
+
+        var end = tree.GetEnd(context);
+        if (end - context < MinimumIndexedSubtree || tree.GetElementIndex() is not { } index)
+        {
+            return false;
+        }
+
+        index.Find(local, context, end, out var rows, out _slot, out _slotEnd);
+        _indexed = rows;
+        return true;
+    }
+
+    private bool MoveNextIndexed(XmlDocumentTree tree)
+    {
+        var rows = _indexed!;
+        while (_slot < _slotEnd)
+        {
+            var row = rows[_slot++];
+            if (_matcher.Matches(tree, row))
+            {
+                _current = new XPathNode(new XmlNode(tree, row));
+                return true;
+            }
+        }
+
+        _current = default;
+        return false;
     }
 
     private bool Advance()
