@@ -1,3 +1,2 @@
 fn-deep-equal/K-SeqDeepEqualFunc-4
 fn-deep-equal/K-SeqDeepEqualFunc-5
-fn-deep-equal/K2-SeqDeepEqualFunc-40

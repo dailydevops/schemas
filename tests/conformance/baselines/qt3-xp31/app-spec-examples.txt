@@ -58,7 +58,6 @@ app-spec-examples/fo-test-array-subarray-006
 app-spec-examples/fo-test-array-subarray-007
 app-spec-examples/fo-test-array-tail-001
 app-spec-examples/fo-test-array-tail-002
-app-spec-examples/fo-test-fn-adjust-time-to-timezone-002
 app-spec-examples/fo-test-fn-analyze-string-001
 app-spec-examples/fo-test-fn-analyze-string-002
 app-spec-examples/fo-test-fn-analyze-string-003

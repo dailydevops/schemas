@@ -160,7 +160,6 @@ fn-compare/compare-001	#901	The runner skips the compound assertions any-of, all
 fn-data/cbcl-data-001	#901	The runner skips the compound assertions any-of, all-of and not.
 fn-deep-equal/K-SeqDeepEqualFunc-4	#901	The runner skips the compound assertions any-of, all-of and not.
 fn-deep-equal/K-SeqDeepEqualFunc-5	#901	The runner skips the compound assertions any-of, all-of and not.
-fn-deep-equal/K2-SeqDeepEqualFunc-40	#732	Dates, times and durations are not compared by value with the implicit timezone in distinct-values and deep-equal.
 fn-default-collation/K-ContextDefaultCollationFunc-3	#887	fn:default-collation is not implemented (XPST0017).
 fn-default-collation/cbcl-default-collation-001	#887	fn:default-collation is not implemented (XPST0017).
 fn-default-collation/cbcl-default-collation-002	#887	fn:default-collation is not implemented (XPST0017).
@@ -170,7 +169,6 @@ fn-distinct-values/K-SeqDistinctValuesFunc-2	#901	The runner skips the compound 
 fn-distinct-values/K-SeqDistinctValuesFunc-5	#901	The runner skips the compound assertions any-of, all-of and not.
 fn-distinct-values/K-SeqDistinctValuesFunc-7	#901	The runner skips the compound assertions any-of, all-of and not.
 fn-distinct-values/K-SeqDistinctValuesFunc-8	#901	The runner skips the compound assertions any-of, all-of and not.
-fn-distinct-values/cbcl-distinct-values-003	#732	Dates, times and durations are not compared by value with the implicit timezone in distinct-values and deep-equal.
 fn-distinct-values/cbcl-distinct-values-016	#901	The runner skips the compound assertions any-of, all-of and not.
 fn-distinct-values/fn-distinct-values-mixed-args-001	#901	The runner skips the compound assertions any-of, all-of and not.
 fn-distinct-values/fn-distinct-values-mixed-args-003	#901	The runner skips the compound assertions any-of, all-of and not.
