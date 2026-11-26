@@ -3,6 +3,7 @@ namespace NetEvolve.Schemas.XPath.Functions.Strings;
 using System;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Limits;
+using NetEvolve.Schemas.XPath.Syntax.Tree;
 
 /// <summary>
 /// <c>fn:translate</c> (Functions and Operators 1.0, 7.4.7): every code point of the argument that occurs in the map string is replaced
@@ -42,6 +43,13 @@ internal sealed class TranslateFunction : TextFunction
         var builder = new TextBuilder(initial, limits);
         try
         {
+            // Without a surrogate in the map and the translate string, every code unit is one code point and the position in the map
+            // string is the position in the translate string; a surrogate in the argument is never in the map, so it is copied as it is.
+            if (!HasSurrogate(mapSpan) && !HasSurrogate(translationSpan))
+            {
+                return TranslateUnits(source, mapSpan, translationSpan, text, limits, ref builder);
+            }
+
             var changed = false;
             var index = 0;
             while (index < source.Length)
@@ -67,6 +75,58 @@ internal sealed class TranslateFunction : TextFunction
         {
             builder.Dispose();
         }
+    }
+
+    private static string TranslateUnits(
+        ReadOnlySpan<char> source,
+        ReadOnlySpan<char> map,
+        ReadOnlySpan<char> translation,
+        string text,
+        XPathLimits limits,
+        ref TextBuilder builder
+    )
+    {
+        var changed = false;
+        var runStart = 0;
+        for (var i = 0; i < source.Length; i++)
+        {
+            var position = map.IndexOf(source[i]);
+            if (position < 0)
+            {
+                continue;
+            }
+
+            changed = true;
+            builder.Append(source.Slice(runStart, i - runStart));
+            runStart = i + 1;
+            if (position < translation.Length)
+            {
+                builder.Append(translation[position]);
+            }
+        }
+
+        if (!changed)
+        {
+            // The general path builds the unchanged string against the limit before it returns it; keep that.
+            limits.ThrowIfStringTooLong(source.Length, new SourceSpan(-1, 0));
+            return text;
+        }
+
+        builder.Append(source.Slice(runStart));
+        return builder.ToString();
+    }
+
+    private static bool HasSurrogate(ReadOnlySpan<char> text)
+    {
+        foreach (var unit in text)
+        {
+            if (char.IsSurrogate(unit))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     // Looks the code point up in the map string, reading the translate string in step: the replacement is the code point of the same

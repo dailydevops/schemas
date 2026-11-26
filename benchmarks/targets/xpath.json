@@ -60,5 +60,23 @@
     "meanNs": 5500.0,
     "allocatedBytes": 768,
     "baselineRatio": 0.4
+  },
+  {
+    "name": "XPathStringFunctionBenchmarks.LowerCase",
+    "meanNs": 12000.0,
+    "allocatedBytes": 800,
+    "baselineRatio": 5.5
+  },
+  {
+    "name": "XPathStringFunctionBenchmarks.Translate",
+    "meanNs": 15000.0,
+    "allocatedBytes": 800,
+    "baselineRatio": 7.0
+  },
+  {
+    "name": "XPathStringFunctionBenchmarks.UpperCase",
+    "meanNs": 14000.0,
+    "allocatedBytes": 720,
+    "baselineRatio": 6.5
   }
 ]

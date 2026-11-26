@@ -98,6 +98,19 @@ internal static class CaseMapping
             var index = first;
             while (index < span.Length)
             {
+                var unit = span[index];
+                if (unit < 0x80)
+                {
+                    // ASCII needs no table lookup: the letters of the other case shift by 32, everything else stays.
+                    index++;
+                    builder.Append(
+                        upper ? (unit is >= 'a' and <= 'z' ? (char)(unit - 32) : unit)
+                        : unit is >= 'A' and <= 'Z' ? (char)(unit + 32)
+                        : unit
+                    );
+                    continue;
+                }
+
                 var count = Map(CodePoints.Next(span, ref index), upper, mapped);
                 for (var i = 0; i < count; i++)
                 {
