@@ -120,6 +120,65 @@ public class ResourceLoaderTests
     }
 
     [Test]
+    public async Task Load_RelativeReferenceWithoutBase_PassesThroughWhenTheInternalSwitchIsSet(
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var resolver = new StubResolver(_ => ResourceResult.Found(Content));
+        var loader = new ResourceLoader(resolver, ValidationLimits.Default) { PassMissingBaseToResolver = true };
+
+        var result = loader.Load(ResourceKind.SchemaDocument, "other.xsd", null, cancellationToken);
+
+        await Assert.That(result.Status).IsEqualTo(ResourceLoadStatus.Loaded);
+        await Assert.That(result.SystemId).IsNull();
+        await Assert.That(resolver.Requests.Single().ResolvedUri).IsNull();
+        await Assert.That(loader.RequestCount).IsEqualTo(1);
+    }
+
+    [Test]
+    public async Task Load_MissingBasePassThrough_MapsNotFoundAndOversizeWithTheReference(
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var missing = new ResourceLoader(new StubResolver(_ => ResourceResult.NotFound()), ValidationLimits.Default)
+        {
+            PassMissingBaseToResolver = true,
+        };
+        var large = new ResourceLoader(
+            new StubResolver(_ => ResourceResult.Found(Content)),
+            ValidationLimits.Default.WithMaxResourceSize(2)
+        )
+        {
+            PassMissingBaseToResolver = true,
+        };
+
+        var notFound = missing.Load(ResourceKind.SchemaDocument, "other.xsd", null, cancellationToken);
+        var tooLarge = large.Load(ResourceKind.SchemaDocument, "other.xsd", null, cancellationToken);
+
+        await Assert.That(notFound.Message).IsEqualTo("The resource 'other.xsd' was not found.");
+        await Assert.That(tooLarge.Code).IsEqualTo(CoreDiagnosticCodes.ResourceSizeLimitExceeded);
+        await Assert.That(tooLarge.Message).IsEqualTo("The resource 'other.xsd' is larger than 2 bytes.");
+    }
+
+    [Test]
+    public async Task Load_InvalidReference_FailsEvenWithTheInternalSwitch(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var resolver = new StubResolver(_ => ResourceResult.Found(Content));
+        var loader = new ResourceLoader(resolver, ValidationLimits.Default) { PassMissingBaseToResolver = true };
+
+        var result = loader.Load(ResourceKind.SchemaDocument, "ht tp://[bad", Base, cancellationToken);
+
+        await Assert.That(result.Code).IsEqualTo(CoreDiagnosticCodes.ResourceReferenceInvalid);
+        await Assert.That(resolver.Requests).IsEmpty();
+    }
+
+    [Test]
     public async Task Load_RelativeReferenceWithoutBase_FailsWithNes0101WithoutAskingTheResolver(
         CancellationToken cancellationToken
     )

@@ -1,0 +1,96 @@
+{
+  "stage": 2,
+  "suites": [
+    "stage2-ehf",
+    "stage2-peppol-reporting"
+  ],
+  "keyRuleSets": [
+    {
+      "suite": "stage2-ehf",
+      "path": "ordering-3.0/EHF-ORDER-3.0.sch",
+      "rule": "PEPPOL-T01-R001"
+    },
+    {
+      "suite": "stage2-ehf",
+      "path": "ordering-3.0/EHF-ORDER-RESPONSE-3.0.sch",
+      "rule": "PEPPOL-T76-R003"
+    },
+    {
+      "suite": "stage2-ehf",
+      "path": "advanced-ordering-3.0/EHF-P09-3.0-ORDER-INITIATION.sch",
+      "rule": "PEPPOL-T01-R001"
+    },
+    {
+      "suite": "stage2-ehf",
+      "path": "advanced-ordering-3.0/EHF-P09-3.0-ORDER-CHANGE.sch",
+      "rule": "EHF-P09-CHANGE-R001"
+    },
+    {
+      "suite": "stage2-ehf",
+      "path": "advanced-ordering-3.0/EHF-P09-3.0-ORDER-RESPONSE.sch",
+      "rule": "PEPPOL-T76-R003"
+    }
+  ],
+  "excluded": [
+    {
+      "id": "stage2-ehf/test-documents",
+      "reason": "The pinned EHF archive ships only the rule sets and a README, no official test documents; the key-based rules are exercised with inline documents instead."
+    },
+    {
+      "id": "stage2-peppol-reporting/rule-sets-without-keys",
+      "reason": "The two reporting rule sets (EUSR and TSR) declare no xsl:key; their official examples and bad examples still run as goldens of the XSLT 2.0 stage."
+    },
+    {
+      "case": "bad-examples/eusr-26-1.xml",
+      "testSet": "stage2-eusr",
+      "reason": "Stale upstream example: it expects SCH-EUSR-26 for two keys with the meta scheme ID CC, but the rule of release 1.1.0 asserts exactly one, and the document has one."
+    },
+    {
+      "case": "bad-examples/eusr-28-1.xml",
+      "testSet": "stage2-eusr",
+      "reason": "Rule SCH-EUSR-28 was removed in release 1.1.0 (see the history in the rule set); the example is not applicable."
+    },
+    {
+      "case": "bad-examples/eusr-28-2.xml",
+      "testSet": "stage2-eusr",
+      "reason": "Rule SCH-EUSR-28 was removed in release 1.1.0 (see the history in the rule set); the example is not applicable."
+    },
+    {
+      "case": "bad-examples/eusr-30-2.xml",
+      "testSet": "stage2-eusr",
+      "reason": "Stale upstream example: every country code of the document (FI, PT) is valid, so SCH-EUSR-30 cannot fire."
+    }
+  ],
+  "knownFailures": [
+    {
+      "id": "EHF-ORDER-3.0/unique-line-ids.xml",
+      "issue": 615,
+      "reason": "The rule set builds only after the deferred opt-in global visibility of pattern-level let (#615): it reads a pattern-level let (a code list) from a later pattern, which is lexical today, so the build reports NES3300 (SCH-VAR-UNDEFINED)."
+    },
+    {
+      "id": "EHF-ORDER-3.0/duplicate-line-ids.xml",
+      "issue": 615,
+      "reason": "The rule set builds only after the deferred opt-in global visibility of pattern-level let (#615): it reads a pattern-level let (a code list) from a later pattern, which is lexical today, so the build reports NES3300 (SCH-VAR-UNDEFINED)."
+    },
+    {
+      "id": "EHF-P09-3.0-ORDER-INITIATION/unique-line-ids.xml",
+      "issue": 615,
+      "reason": "The rule set builds only after the deferred opt-in global visibility of pattern-level let (#615): it reads a pattern-level let (a code list) from a later pattern, which is lexical today, so the build reports NES3300 (SCH-VAR-UNDEFINED)."
+    },
+    {
+      "id": "EHF-P09-3.0-ORDER-INITIATION/duplicate-line-ids.xml",
+      "issue": 615,
+      "reason": "The rule set builds only after the deferred opt-in global visibility of pattern-level let (#615): it reads a pattern-level let (a code list) from a later pattern, which is lexical today, so the build reports NES3300 (SCH-VAR-UNDEFINED)."
+    },
+    {
+      "id": "EHF-P09-3.0-ORDER-CHANGE/unique-line-ids.xml",
+      "issue": 615,
+      "reason": "The rule set builds only after the deferred opt-in global visibility of pattern-level let (#615): it reads a pattern-level let (a code list) from a later pattern, which is lexical today, so the build reports NES3300 (SCH-VAR-UNDEFINED)."
+    },
+    {
+      "id": "EHF-P09-3.0-ORDER-CHANGE/duplicate-line-ids.xml",
+      "issue": 615,
+      "reason": "The rule set builds only after the deferred opt-in global visibility of pattern-level let (#615): it reads a pattern-level let (a code list) from a later pattern, which is lexical today, so the build reports NES3300 (SCH-VAR-UNDEFINED)."
+    }
+  ]
+}
