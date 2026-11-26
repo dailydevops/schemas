@@ -160,8 +160,16 @@ internal sealed class XsltKeyProvider : IXPathKeyProvider
                 );
             }
 
-            var built = TryBuild(in root, declarations, out index);
-            _ = _building.Remove((root, name));
+            QueryStatus built;
+            try
+            {
+                built = TryBuild(in root, declarations, out index);
+            }
+            finally
+            {
+                _ = _building.Remove((root, name));
+            }
+
             if (built == QueryStatus.Problem)
             {
                 return QueryStatus.Problem;
