@@ -348,7 +348,7 @@ public class CompositionTests
     }
 
     [Test]
-    public async Task ResourceSize_RedirectToAnAlreadyKnownUnit_StillReportsTheOversizeContent()
+    public async Task ResourceSize_RedirectToAnAlreadyKnownUnit_KeepsTheKnownUnitWithoutAnIssue()
     {
         var small = Schema(string.Empty);
         var large = Schema(new string(' ', 4096));
@@ -365,8 +365,7 @@ public class CompositionTests
         );
 
         await Assert.That(set.Units.Count).IsEqualTo(2);
-        await Assert.That(issues.Count).IsEqualTo(1);
-        await Assert.That(issues[0].Code).IsEqualTo(CoreDiagnosticCodes.ResourceSizeLimitExceeded);
+        await Assert.That(issues.Count).IsEqualTo(0);
     }
 
     [Test]
