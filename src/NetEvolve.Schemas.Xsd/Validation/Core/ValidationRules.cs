@@ -13,6 +13,7 @@ internal static class ValidationRules
     internal static readonly XsdRule Au = XsdRuleLookup.Find(XsdRuleCodes.CvcAu);
     internal static readonly XsdRule Wildcard = XsdRuleLookup.Find(XsdRuleCodes.CvcWildcard);
     internal static readonly XsdRule RunCeiling = XsdRuleLookup.Find(XsdRuleCodes.ContentModelRunCeilingExceeded);
+    internal static readonly XsdRule ResolveInstance = XsdRuleLookup.Find(XsdRuleCodes.CvcResolveInstance);
     internal static readonly XsdRule WildcardNamespace = XsdRuleLookup.Find(XsdRuleCodes.CvcWildcardNamespace);
 
     /// <summary>Gets the rule of a failed facet; a lexical or list failure, and a facet without a rule, is Datatype Valid.</summary>

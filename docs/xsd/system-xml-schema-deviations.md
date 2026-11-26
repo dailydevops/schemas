@@ -7,7 +7,7 @@ This document lists every difference that the differential run over the W3C XML 
 | Baseline | `System.Xml.Schema` of the .NET runtime 10.0, compared on the `net10.0` test leg only (`baseline-runtime: 10.0`) |
 | Corpus | XSTS cases of XSD 1.0 (schema tests and instance tests), pinned in `tests/conformance/suites/xsts.json` |
 | Data file | `tests/NetEvolve.Schemas.Xsd.Tests.Integration/DifferentialData/xsts-1.0-deviations.txt`, one entry per difference: case id, difference kind, observed difference, specification reference, reason |
-| Entries | 14623 entries for 14587 cases |
+| Entries | 14624 entries for 14588 cases |
 
 The list is valid for the recorded baseline runtime version only. A run on another runtime version fails until the list is compared again. System.Xml.Schema implements XSD 1.0 only, so cases of XSD 1.1 are not compared.
 
@@ -1983,6 +1983,18 @@ msMeta-Additional_w3c/1.0/addB175/addB175.i
 msMeta-Additional_w3c/1.0/addB201/addB201.i
 sunMeta-ElemDecl/1.0/targetns00401m/targetNS00401m1_n
 sunMeta-ElemDecl/1.0/targetns00402m/targetNS00402m1_n
+```
+
+### A QName value with an unbound prefix
+
+The prefix of the QName value is bound to no namespace in scope of the element or attribute, so the value does not resolve and the instance is invalid. System.Xml.Schema accepts it.
+
+- Difference: InstanceVerdict `instance verdict: ours=Invalid, baseline=Valid` (1)
+- Specification: XSD 1.0 Part 1, 3.15.4 (cvc-resolve-instance: QName resolution)
+- Cases: 1
+
+```text
+msMeta-DataTypes_w3c/1.0/QName009_2092/QName009_2092.v
 ```
 
 ### A value that is not in the lexical space of its type
