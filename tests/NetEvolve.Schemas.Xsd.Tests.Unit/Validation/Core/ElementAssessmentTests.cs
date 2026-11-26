@@ -63,11 +63,11 @@ public class ElementAssessmentTests
     }
 
     [Test]
-    public async Task Sequence_MissingChild_IsReportedAtTheStartTagOfTheParent()
+    public async Task Sequence_MissingChild_IsReportedAtTheEndTagOfTheParent()
     {
         var issues = ValidationHarness.Run(SequenceOfAAndB(), "\n<r>\n<a/>\n</r>");
 
-        await AssertIssue(issues, "cvc-complex-type", "cvc-complex-type.2.4", 2, "'b'");
+        await AssertIssue(issues, "cvc-complex-type", "cvc-complex-type.2.4", 4, "'b'");
     }
 
     [Test]
@@ -215,7 +215,7 @@ public class ElementAssessmentTests
 
         var issues = ValidationHarness.Run(schema, "<r>\n<a/>oops\n</r>");
 
-        await AssertIssue(issues, "cvc-complex-type", "cvc-complex-type.2.3", 1);
+        await AssertIssue(issues, "cvc-complex-type", "cvc-complex-type.2.3", 2);
     }
 
     [Test]

@@ -42,6 +42,7 @@ internal sealed partial class StreamingValidator
         {
             Invalid(
                 frame,
+                frame.TextLocation,
                 ValidationRules.Elt,
                 "The value '"
                     + Shorten(value)

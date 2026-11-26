@@ -67,13 +67,13 @@ public class AttributeAssessmentTests
     }
 
     [Test]
-    public async Task UndeclaredAttribute_WithoutWildcard_IsAnError()
+    public async Task UndeclaredAttribute_WithoutWildcard_IsAnErrorAtTheAttribute()
     {
         var schema = RootWith(s => s.Empty(s.Use("a")));
 
         var issues = ValidationHarness.Run(schema, "<r\n a=\"1\" z=\"2\"/>");
 
-        await AssertIssue(issues, "cvc-complex-type", "cvc-complex-type.3.2.1", 1, "'z'");
+        await AssertIssue(issues, "cvc-complex-type", "cvc-complex-type.3.2.1", 2, "'z'");
     }
 
     [Test]

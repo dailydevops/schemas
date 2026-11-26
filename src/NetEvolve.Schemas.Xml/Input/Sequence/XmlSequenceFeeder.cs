@@ -46,6 +46,8 @@ internal abstract class XmlSequenceFeeder : IDisposable
     /// <summary>Gets the position after the last event that was pumped.</summary>
     internal XmlPosition Position => _parser.Position;
 
+    internal XmlPosition EventPosition => _parser.EventPosition;
+
     /// <summary>Gets the error, <see langword="null"/> unless <see cref="Pump{TSink}"/> returned <see cref="XmlReadStatus.Error"/>.</summary>
     internal XmlDiagnostic? Diagnostic => _parser.Diagnostic ?? _diagnostic;
 

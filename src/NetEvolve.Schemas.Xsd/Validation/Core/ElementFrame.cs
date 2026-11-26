@@ -16,6 +16,7 @@ internal sealed class ElementFrame
     internal XmlName Name;
     internal XPathQName QName;
     internal DocumentLocation Location;
+    internal DocumentLocation TextLocation;
     internal int Ordinal;
     internal FrameContent Content;
     internal ElementDeclaration? Declaration;
@@ -50,6 +51,7 @@ internal sealed class ElementFrame
         Name = name;
         QName = qname;
         Location = location;
+        TextLocation = location;
         Ordinal = ordinal;
         Content = FrameContent.Unassessed;
         Declaration = null;

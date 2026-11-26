@@ -98,6 +98,9 @@ internal sealed partial class XmlParser : IXmlReader, IDisposable
     /// <inheritdoc />
     public XmlPosition Position => _frameCount > 0 ? _referencePosition : _tokenizer.Position;
 
+    /// <summary>Gets the position at which the event that is being delivered began (<see cref="IXmlPositionSource"/>).</summary>
+    internal XmlPosition EventPosition { get; private set; }
+
     /// <inheritdoc />
     public XmlDiagnostic? Diagnostic => _diagnostic;
 
@@ -314,6 +317,7 @@ internal sealed partial class XmlParser : IXmlReader, IDisposable
         where TSink : IXmlSink
     {
         var position = _frameCount > 0 ? _referencePosition : _tokenizer.TokenPosition;
+        EventPosition = position;
         if (_phase == Phase.Start && StartDocument(ref sink, in token, span))
         {
             return true;

@@ -39,6 +39,7 @@ internal sealed partial class XmlParser
     private int _depth;
     private bool _inTag;
     private XmlPosition _startPosition;
+    private XmlPosition _endTagPosition;
 
     private void InitializeTag(XmlReaderLimits limits) => _elementDepth = XmlBudget.ElementDepth(limits);
 
@@ -199,6 +200,7 @@ internal sealed partial class XmlParser
         }
 
         EndText();
+        EventPosition = _startPosition;
         sink.StartElement(name, _startPosition);
 
         // Only a sink of a reference type is offered the declaration facts: a boxed copy of a struct sink would lose its state.
@@ -208,6 +210,7 @@ internal sealed partial class XmlParser
         {
             if (_attributes[i].IsDeclaration)
             {
+                EventPosition = _attributes[i].Position;
                 sink.NamespaceDeclaration(_attributes[i].Binding.Prefix, _attributes[i].Binding.Uri);
                 infoSink?.AttributeInfo(AttributeFacts(i));
             }
@@ -217,6 +220,7 @@ internal sealed partial class XmlParser
         {
             if (!_attributes[i].IsDeclaration)
             {
+                EventPosition = _attributes[i].Position;
                 sink.Attribute(_attributes[i].Name, tag.Slice(_attributes[i].ValueStart, _attributes[i].ValueLength));
                 infoSink?.AttributeInfo(AttributeFacts(i));
             }
@@ -231,6 +235,7 @@ internal sealed partial class XmlParser
         _stack[_depth++] = name;
         if (isEmpty)
         {
+            EventPosition = _startPosition;
             sink.EndElement(name);
             CloseElement();
         }
@@ -252,6 +257,7 @@ internal sealed partial class XmlParser
         var prefix = colon < 0 ? ReadOnlySpan<char>.Empty : name.Slice(0, colon);
         var local = name.Slice(colon + 1);
         var open = _stack[_depth - 1];
+        _endTagPosition = position;
         return (
                 _names!.TryGet(prefix, out var prefixSymbol)
                 && _names.TryGet(local, out var localSymbol)
@@ -264,6 +270,7 @@ internal sealed partial class XmlParser
         where TSink : IXmlSink
     {
         EndText();
+        EventPosition = _endTagPosition;
         sink.EndElement(_stack[_depth - 1]);
         CloseElement();
         return true;

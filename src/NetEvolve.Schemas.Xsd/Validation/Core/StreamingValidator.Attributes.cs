@@ -29,7 +29,12 @@ internal sealed partial class StreamingValidator
         }
 
         value.CopyTo(_attributeChars.AsSpan(_attributeLength));
-        _attributes[_attributeCount++] = new AttributeEntry(name, _attributeLength, value.Length);
+        _attributes[_attributeCount++] = new AttributeEntry(
+            name,
+            _attributeLength,
+            value.Length,
+            Here(_frames[_depth - 1].Location)
+        );
         _attributeLength += value.Length;
     }
 
@@ -163,6 +168,7 @@ internal sealed partial class StreamingValidator
 
             Invalid(
                 frame,
+                entry.Location,
                 ValidationRules.Type,
                 "The type of element "
                     + Display(frame.QName)
@@ -238,6 +244,7 @@ internal sealed partial class StreamingValidator
         {
             Invalid(
                 frame,
+                entry.Location,
                 ValidationRules.ComplexType,
                 "The attribute " + Display(qname) + " is not allowed on element " + Display(frame.QName) + ".",
                 "cvc-complex-type.3.2.1"
@@ -248,6 +255,7 @@ internal sealed partial class StreamingValidator
         {
             Invalid(
                 frame,
+                entry.Location,
                 ValidationRules.WildcardNamespace,
                 "The attribute "
                     + Display(qname)
@@ -280,6 +288,7 @@ internal sealed partial class StreamingValidator
             {
                 Invalid(
                     frame,
+                    entry.Location,
                     ValidationRules.Wildcard,
                     "The attribute wildcard of element "
                         + Display(frame.QName)
@@ -307,12 +316,12 @@ internal sealed partial class StreamingValidator
     )
     {
         var value = ValueOf(entry);
-        var valid = AssessValue(declaration.TypeDefinition, value, frame.Location, qname, true, out _);
+        var valid = AssessValue(declaration.TypeDefinition, value, entry.Location, qname, true, out _);
         if (valid && !SatisfiesFixed(declaration.TypeDefinition, constraint, value))
         {
             Report(
                 ValidationRules.Au,
-                frame.Location,
+                entry.Location,
                 "The value '" + Shorten(value) + "' of attribute " + Display(qname) + " is not its fixed value.",
                 null
             );

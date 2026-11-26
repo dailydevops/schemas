@@ -43,6 +43,10 @@ namespace NetEvolve.Schemas.Xml.Contracts
     {
         void AttributeInfo(in NetEvolve.Schemas.Xml.Dtd.Contracts.ValidationAttributeInfo attribute);
     }
+    public interface IXmlPositionSource
+    {
+        NetEvolve.Schemas.Xml.Contracts.XmlPosition Current { get; }
+    }
     public interface IXmlReader
     {
         NetEvolve.Schemas.Xml.Contracts.XmlDiagnostic? Diagnostic { get; }
@@ -1294,7 +1298,7 @@ namespace NetEvolve.Schemas.Xml.Dtd.Model
 }
 namespace NetEvolve.Schemas.Xml.Input.Sequence
 {
-    public readonly struct XmlSequenceReader : NetEvolve.Schemas.Xml.Contracts.IXmlReader, System.IDisposable, System.IEquatable<NetEvolve.Schemas.Xml.Input.Sequence.XmlSequenceReader>
+    public readonly struct XmlSequenceReader : NetEvolve.Schemas.Xml.Contracts.IXmlPositionSource, NetEvolve.Schemas.Xml.Contracts.IXmlReader, System.IDisposable, System.IEquatable<NetEvolve.Schemas.Xml.Input.Sequence.XmlSequenceReader>
     {
         public NetEvolve.Schemas.Xml.Contracts.XmlDiagnostic? Diagnostic { get; }
         public NetEvolve.Schemas.Xml.Contracts.XmlPosition Position { get; }
@@ -1413,7 +1417,7 @@ namespace NetEvolve.Schemas.Xml.Model
 }
 namespace NetEvolve.Schemas.Xml.Reader.Pipeline
 {
-    public sealed class XmlPipelineReader : NetEvolve.Schemas.Xml.Contracts.IXmlReader, System.IDisposable
+    public sealed class XmlPipelineReader : NetEvolve.Schemas.Xml.Contracts.IXmlPositionSource, NetEvolve.Schemas.Xml.Contracts.IXmlReader, System.IDisposable
     {
         public NetEvolve.Schemas.Xml.Contracts.XmlDiagnostic? Diagnostic { get; }
         public NetEvolve.Schemas.Xml.Contracts.XmlPosition Position { get; }
