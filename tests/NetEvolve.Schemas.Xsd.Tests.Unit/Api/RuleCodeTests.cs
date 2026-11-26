@@ -96,7 +96,8 @@ public class RuleCodeTests
         {
             await Assert.That(rule.Title).IsNotEmpty();
             await Assert.That(rule.Versions).IsNotEqualTo(XsdVersionMask.None);
-            await Assert.That(rule.DefaultSeverity).IsEqualTo(IssueSeverity.Error);
+            var expected = rule.Id == "vc-unknown-attribute" ? IssueSeverity.Warning : IssueSeverity.Error;
+            await Assert.That(rule.DefaultSeverity).IsEqualTo(expected);
             await Assert.That(rule.ToString()).IsEqualTo($"{rule.Code} {rule.Id}");
         }
     }

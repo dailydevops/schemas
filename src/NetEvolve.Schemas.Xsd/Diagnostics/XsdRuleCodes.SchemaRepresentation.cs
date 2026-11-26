@@ -92,6 +92,9 @@ public static partial class XsdRuleCodes
     /// <summary>Enumeration value (<c>src-enumeration-value</c>), Datatypes 1.1, 4.3.5.3.</summary>
     public static readonly DiagnosticCode SrcEnumerationValue = new(4128);
 
+    /// <summary>Unknown version control attribute (<c>vc-unknown-attribute</c>), Structures 1.1, 4.2.2.</summary>
+    public static readonly DiagnosticCode UnknownVersionControlAttribute = new(4129);
+
     internal static XsdRule[] SchemaRepresentationRules { get; } =
     [
         new(
@@ -325,6 +328,15 @@ public static partial class XsdRuleCodes
             XsdRuleKind.SchemaRepresentation,
             XsdVersionMask.V11,
             "Datatypes 1.1, 4.3.5.3"
+        ),
+        new(
+            UnknownVersionControlAttribute,
+            "vc-unknown-attribute",
+            "Unknown version control attribute",
+            XsdRuleKind.SchemaRepresentation,
+            XsdVersionMask.V11,
+            "Structures 1.1, 4.2.2",
+            IssueSeverity.Warning
         ),
     ];
 }

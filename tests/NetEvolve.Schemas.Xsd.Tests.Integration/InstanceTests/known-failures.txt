@@ -142,19 +142,6 @@ msMeta-DataTypes_w3c	1.0/IDREFS_enumeration001_1442/IDREFS_enumeration001_1442.i
 msMeta-DataTypes_w3c	1.0/IDREFS_enumeration003_1444/IDREFS_enumeration003_1444.i	#1077	The enumeration of a list type is not evaluated and the case expects it to reject the value.
 msMeta-DataTypes_w3c	1.0/NMTOKENS_enumeration001_1471/NMTOKENS_enumeration001_1471.i	#1077	The enumeration of a list type is not evaluated and the case expects it to reject the value.
 msMeta-DataTypes_w3c	1.0/NMTOKENS_enumeration003_1473/NMTOKENS_enumeration003_1473.i	#1077	The enumeration of a list type is not evaluated and the case expects it to reject the value.
-msMeta-DataTypes_w3c	1.0/NOTATION_enumeration002_1384/NOTATION_enumeration002_1384.v	#870	Notation declarations are not components yet, so a NOTATION value cannot be checked.
-msMeta-DataTypes_w3c	1.0/NOTATION_enumeration004_1386/NOTATION_enumeration004_1386.v	#870	Notation declarations are not components yet, so a NOTATION value cannot be checked.
-msMeta-DataTypes_w3c	1.0/NOTATION_length001_1372/NOTATION_length001_1372.i	#870	Notation declarations are not components yet, so a NOTATION value cannot be checked.
-msMeta-DataTypes_w3c	1.0/NOTATION_length002_1373/NOTATION_length002_1373.v	#870	Notation declarations are not components yet, so a NOTATION value cannot be checked.
-msMeta-DataTypes_w3c	1.0/NOTATION_length003_1374/NOTATION_length003_1374.i	#870	Notation declarations are not components yet, so a NOTATION value cannot be checked.
-msMeta-DataTypes_w3c	1.0/NOTATION_maxLength001_1379/NOTATION_maxLength001_1379.i	#870	Notation declarations are not components yet, so a NOTATION value cannot be checked.
-msMeta-DataTypes_w3c	1.0/NOTATION_maxLength002_1380/NOTATION_maxLength002_1380.v	#870	Notation declarations are not components yet, so a NOTATION value cannot be checked.
-msMeta-DataTypes_w3c	1.0/NOTATION_maxLength003_1381/NOTATION_maxLength003_1381.v	#870	Notation declarations are not components yet, so a NOTATION value cannot be checked.
-msMeta-DataTypes_w3c	1.0/NOTATION_minLength001_1375/NOTATION_minLength001_1375.v	#870	Notation declarations are not components yet, so a NOTATION value cannot be checked.
-msMeta-DataTypes_w3c	1.0/NOTATION_minLength002_1376/NOTATION_minLength002_1376.v	#870	Notation declarations are not components yet, so a NOTATION value cannot be checked.
-msMeta-DataTypes_w3c	1.0/NOTATION_minLength003_1377/NOTATION_minLength003_1377.i	#870	Notation declarations are not components yet, so a NOTATION value cannot be checked.
-msMeta-DataTypes_w3c	1.0/NOTATION_minLength004_1378/NOTATION_minLength004_1378.v	#870	Notation declarations are not components yet, so a NOTATION value cannot be checked.
-msMeta-DataTypes_w3c	1.0/NOTATION_pattern001_1382/NOTATION_pattern001_1382.v	#870	Notation declarations are not components yet, so a NOTATION value cannot be checked.
 msMeta-DataTypes_w3c	1.0/anyURI_a002_1337/anyURI_a002_1337.v	-	The schema is incomplete (a missing component or document); the suite accepts it, the validator reports src-resolve.
 msMeta-DataTypes_w3c	1.0/base64Binary_enumeration001_1319/base64Binary_enumeration001_1319.i	#1079	The enumeration of a binary type is not evaluated and the case expects it to reject the value.
 msMeta-DataTypes_w3c	1.0/hexBinary_enumeration001_1305/hexBinary_enumeration001_1305.i	#1079	The enumeration of a binary type is not evaluated and the case expects it to reject the value.
@@ -179,7 +166,7 @@ msMeta-SimpleType_w3c	1.0/stZ062/stZ062.v	#963	The group has no schema document,
 msMeta-SimpleType_w3c	1.0/stZ063/stZ063.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-SimpleType_w3c	1.0/stZ064/stZ064.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-SimpleType_w3c	1.0/stZ066/stZ066.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-SimpleType_w3c	1.0/stZ075/stZ075.v	#870	Notation declarations are not components yet, so a NOTATION value cannot be checked.
+msMeta-SimpleType_w3c	1.0/stZ075/stZ075.v	#604	A NOTATION value is looked up without the namespace context of the instance, so an unprefixed name does not find the declaration of the target namespace.
 msMeta-SimpleType_w3c	1.0/ste110/ste110.i	#1183	The schema with unions that name each other as members does not build.
 nistMeta-NISTXMLSchemaDatatypes	1.0/list-anyURI-enumeration-5/NISTXML-SV-II-list-anyURI-enumeration-1-1	#1077	The enumeration of a list type is not evaluated and the case expects it to reject the value.
 nistMeta-NISTXMLSchemaDatatypes	1.0/list-anyURI-enumeration-5/NISTXML-SV-II-list-anyURI-enumeration-1-2	#1077	The enumeration of a list type is not evaluated and the case expects it to reject the value.

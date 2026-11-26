@@ -83,7 +83,7 @@ public class XsdReadmeTests
     }
 
     [Test]
-    public async Task VersionSelectionSample_RejectsTheAssertionFacetInBothVersionsWithTheirCodes(
+    public async Task VersionSelectionSample_RejectsTheExplicitTimezoneFacetInBothVersionsWithTheirCodes(
         CancellationToken cancellationToken
     )
     {
@@ -94,8 +94,8 @@ public class XsdReadmeTests
             <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
               <xs:element name="total">
                 <xs:simpleType>
-                  <xs:restriction base="xs:int">
-                    <xs:assertion test="$value gt 0"/>
+                  <xs:restriction base="xs:dateTime">
+                    <xs:explicitTimezone value="required"/>
                   </xs:restriction>
                 </xs:simpleType>
               </xs:element>
@@ -120,8 +120,8 @@ public class XsdReadmeTests
         }
         // </sample>
 
-        await Assert.That(codes).IsEquivalentTo(["V11: NES4061", "V10: NES4021"]);
-        await Assert.That(codes[0]).IsEqualTo("V11: NES4061");
+        await Assert.That(codes).IsEquivalentTo(["V11: NES4073", "V10: NES4033"]);
+        await Assert.That(codes[0]).IsEqualTo("V11: NES4073");
     }
 
     [Test]
@@ -326,7 +326,7 @@ public class XsdReadmeTests
         await Assert.That(readme).Contains("XsdSchemaValidatorExtensions");
         await Assert.That(readme).Contains("C# 14");
         await Assert.That(readme).Contains("WithVersion(XsdVersion.V10)");
-        await Assert.That(readme).Contains("NES4061");
+        await Assert.That(readme).Contains("NES4062");
         await Assert.That(readme).Contains("NES4020");
         await Assert.That(readme).Contains("#360");
         await Assert.That(readme).Contains("#318");

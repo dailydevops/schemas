@@ -8,6 +8,7 @@ using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Resources;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xsd.Assertions.ComplexTypes;
+using NetEvolve.Schemas.Xsd.Assertions.Facet;
 using NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;
 using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Composition;
@@ -34,14 +35,14 @@ using NetEvolve.Schemas.Xsd.Versioning.Constructs;
 /// <para>
 /// A run is not reusable and not thread-safe; <see cref="SchemaCompiler"/> creates one per call. Components are built in the order
 /// that their dependencies demand (<see cref="BuildContext"/>): simple types, attribute declarations, attribute groups, complex
-/// types, then element declarations, model group definitions, and identity constraints, then the anonymous types of the elements.
+/// types, then element declarations, model group definitions, notation declarations, and identity constraints, then the anonymous types of the elements.
 /// Everything that is named is registered; the resolver binds the by-name references once all of it exists.
 /// </para>
 /// <para>
 /// Limitations: the strict XSD 1.0 gate and the not-yet-supported gate of XSD 1.1 stop the run before any component is built
 /// (design #146 DP-16); conditional inclusion
 /// (<c>vc:</c> attributes) is not applied in this run, because it is part of the XSD 1.1 pipeline (XSD-78, #360); substitution group
-/// affiliation of several heads (XSD-71), notation declarations, <c>openContent</c>, type alternatives, the assertion facet, and the
+/// affiliation of several heads (XSD-71), <c>openContent</c>, type alternatives, the assertion facet, and the
 /// subsumption check of XSD 1.1 are not built or checked; the limit of external resources applies to each root document alone.
 /// </para>
 /// </remarks>
@@ -362,6 +363,9 @@ internal sealed class CompilationRun
                     _definitions.Add(definition);
                     _context.ComplexTypes.Scan(definition.ModelGroup, unit);
                     break;
+                case "notation":
+                    _ = unit.Notations.Build(node, _registry, _reporter);
+                    break;
                 default:
                     break;
             }
@@ -454,7 +458,8 @@ internal sealed class CompilationRun
                 _registry.Components,
                 _context.ComplexTypeAssertions.Count == 0
                     ? null
-                    : new ComplexTypeAssertions(_context.ComplexTypeAssertions)
+                    : new ComplexTypeAssertions(_context.ComplexTypeAssertions),
+                _context.SimpleTypeAssertions.Count == 0 ? null : new FacetAssertions(_context.SimpleTypeAssertions)
             )
             : new SchemaCompilation(null, null, result);
     }

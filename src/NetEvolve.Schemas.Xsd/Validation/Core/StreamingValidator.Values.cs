@@ -2,6 +2,8 @@ namespace NetEvolve.Schemas.Xsd.Validation.Core;
 
 using System;
 using NetEvolve.Schemas.XPath.Api;
+using NetEvolve.Schemas.XPath.Context;
+using NetEvolve.Schemas.Xsd.Assertions.Facet;
 using NetEvolve.Schemas.Xsd.Attributes.Declarations;
 using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Contracts;
@@ -9,6 +11,7 @@ using NetEvolve.Schemas.Xsd.Elements;
 using NetEvolve.Schemas.Xsd.IdentityConstraints.Evaluation;
 using NetEvolve.Schemas.Xsd.SchemaDocuments;
 using NetEvolve.Schemas.Xsd.SimpleTypes.Definitions;
+using NetEvolve.Schemas.Xsd.Validation.Annotations;
 
 internal sealed partial class StreamingValidator
 {
@@ -166,7 +169,7 @@ internal sealed partial class StreamingValidator
                 return false;
             }
 
-            return true;
+            return CheckFacetAssertions(type, value, location);
         }
 
         Report(
@@ -183,6 +186,29 @@ internal sealed partial class StreamingValidator
             null
         );
         return false;
+    }
+
+    // The assertion facets of the type, with the inherited ones, see the value bound to $value; the datatype contract does not know them (XSD 1.1).
+    private bool CheckFacetAssertions(IXsdComponent type, ReadOnlySpan<char> value, DocumentLocation location)
+    {
+        if (
+            _facetAssertions is null
+            || TypedValues.SimpleTypeOf(type) is not SimpleTypeDefinition definition
+            || _facetAssertions.Of(definition).Count == 0
+        )
+        {
+            return true;
+        }
+
+        return FacetAssertionEvaluator.Check(
+            _facetAssertions,
+            definition,
+            value.ToString(),
+            _assessor,
+            _facetContext ??= new XPathEvaluationContext(),
+            location,
+            _reporter
+        );
     }
 
     private bool SatisfiesFixed(IXsdComponent? type, AttributeValueConstraint constraint, ReadOnlySpan<char> value) =>

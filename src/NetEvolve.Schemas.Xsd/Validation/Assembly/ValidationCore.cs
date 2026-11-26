@@ -13,6 +13,7 @@ using NetEvolve.Schemas.Xml.Model;
 using NetEvolve.Schemas.Xml.Model.Traversal;
 using NetEvolve.Schemas.Xml.Reader.Pipeline;
 using NetEvolve.Schemas.Xsd.Assertions.ComplexTypes;
+using NetEvolve.Schemas.Xsd.Assertions.Facet;
 using NetEvolve.Schemas.Xsd.Compilation;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Diagnostics;
@@ -58,6 +59,7 @@ internal sealed class ValidationCore : IValidationCore
     private readonly IReadOnlyDictionary<ElementDeclaration, IReadOnlyList<IdentityConstraintDefinition>> _constraints;
     private readonly XsdVersion _version;
     private readonly ComplexTypeAssertions? _assertions;
+    private readonly FacetAssertions? _facetAssertions;
     private readonly bool _needsIds;
     private readonly bool _needsEntities;
     private readonly ValidationLimits _limits;
@@ -84,6 +86,7 @@ internal sealed class ValidationCore : IValidationCore
         _assessor = new DescriptorValueAssessor(version);
         _version = version;
         _assertions = compilation.Assertions;
+        _facetAssertions = compilation.FacetAssertions;
         _needsIds = compilation.NeedsIdListener;
         _needsEntities = compilation.NeedsEntityListener;
         _limits = limits;
@@ -240,6 +243,7 @@ internal sealed class ValidationCore : IValidationCore
                 _systemId,
                 Listeners(entities),
                 readerLimits: _core._options.Limits,
+                facetAssertions: _core._facetAssertions,
                 hints: _core._hintResolver is null
                     ? null
                     : new SchemaLocationHints(

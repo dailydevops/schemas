@@ -1,11 +1,17 @@
 namespace NetEvolve.Schemas.Xsd.Assertions.Facet;
 
+using System.Collections.Generic;
 using System.Globalization;
 using NetEvolve.Arguments;
+using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Context;
+using NetEvolve.Schemas.Xsd.Assertions.ComplexTypes;
+using NetEvolve.Schemas.Xsd.Compilation;
 using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Diagnostics;
+using NetEvolve.Schemas.Xsd.IdentityConstraints.DefaultNamespace;
+using NetEvolve.Schemas.Xsd.SchemaDocuments;
 
 /// <summary>
 /// An assertion facet of a simple type (XSD 1.1, Datatypes section 4.3.13): the <c>test</c> of an <c>assertion</c> element, compiled once when
@@ -21,8 +27,8 @@ using NetEvolve.Schemas.Xsd.Diagnostics;
 /// Limitations: the type is not a facet of the Xml package, because the architecture tests allow the Xsd package no facet of its own (#193),
 /// so the assertions are held beside the type, not in its facet list; the caller builds the static context, which holds the namespace
 /// bindings of the <c>assertion</c> element and its resolved <c>xpathDefaultNamespace</c>; the XPath engine does not type statically (design
-/// #123), so a type error shows when the test is evaluated and is a dynamic error then; nothing reads the <c>assertion</c> element or calls
-/// this class until the compile pipeline is wired (XSD-78).
+/// #123), so a type error shows when the test is evaluated and is a dynamic error then; the compile pipeline reads the <c>assertion</c> children of a
+/// <c>restriction</c> with <see cref="Collect"/> (XSD-78).
 /// </para>
 /// </remarks>
 internal sealed class FacetAssertion
@@ -45,6 +51,47 @@ internal sealed class FacetAssertion
 
     /// <summary>Gets the location of the <c>assertion</c> element.</summary>
     public DocumentLocation Location { get; }
+
+    /// <summary>Compiles the <c>assertion</c> children of a <c>restriction</c>.</summary>
+    /// <param name="restriction">The <c>restriction</c> element.</param>
+    /// <param name="scope">The namespace the schema document contributes to.</param>
+    /// <param name="version">The configured XSD version.</param>
+    /// <param name="reporter">The reporter of schema errors.</param>
+    /// <returns>The assertions in document order; one that does not compile is reported and left out.</returns>
+    internal static IReadOnlyList<FacetAssertion> Collect(
+        SchemaSyntaxNode restriction,
+        SchemaNamespaceScope scope,
+        XsdVersion version,
+        XsdIssueReporter reporter
+    )
+    {
+        ArgumentNullException.ThrowIfNull(restriction);
+        ArgumentNullException.ThrowIfNull(reporter);
+
+        var found = new List<FacetAssertion>();
+        for (var i = 0; i < restriction.ChildCount; i++)
+        {
+            var child = restriction.GetChildNode(i);
+            if (!SyntaxValues.IsSchemaElement(child, "assertion"))
+            {
+                continue;
+            }
+
+            // The grammar of the schema document requires the test attribute.
+            var test = child.FindAttribute("test") ?? string.Empty;
+            var context = AssertionStaticContext.Create(
+                child,
+                test,
+                XPathDefaultNamespace.Resolve(child, scope, version)
+            );
+            if (TryCreate(test, context, child.Location, reporter) is { } assertion)
+            {
+                found.Add(assertion);
+            }
+        }
+
+        return found;
+    }
 
     /// <summary>Compiles the <c>test</c> of an <c>assertion</c> element.</summary>
     /// <param name="test">The text of the <c>test</c> attribute.</param>

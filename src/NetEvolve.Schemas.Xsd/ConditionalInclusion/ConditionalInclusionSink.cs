@@ -41,6 +41,7 @@ internal sealed class ConditionalInclusionSink : IXmlSink, INamespaceContext
     private readonly List<ScopedNamespace> _declarations = [];
     private readonly List<HeldAttribute> _attributes = [];
     private readonly List<int> _invalid = [];
+    private readonly List<int> _unknown = [];
     private char[] _values = new char[256];
     private int _valuesLength;
     private XmlName _name;
@@ -151,6 +152,7 @@ internal sealed class ConditionalInclusionSink : IXmlSink, INamespaceContext
         if (!exclude)
         {
             ReportInvalid(onlyVersions: false);
+            ReportUnknown();
             Replay(onlyRootAttributes: false);
             _depth++;
             return;
@@ -252,6 +254,7 @@ internal sealed class ConditionalInclusionSink : IXmlSink, INamespaceContext
     {
         var exclude = false;
         _invalid.Clear();
+        _unknown.Clear();
         for (var i = 0; i < _attributes.Count; i++)
         {
             var attribute = _attributes[i];
@@ -266,8 +269,15 @@ internal sealed class ConditionalInclusionSink : IXmlSink, INamespaceContext
                 continue;
             }
 
+            var local = Names.GetString(attribute.Name.Local);
+            if (!VersionControl.IsKnown(local))
+            {
+                _unknown.Add(i);
+                continue;
+            }
+
             var outcome = VersionControl.Evaluate(
-                Names.GetString(attribute.Name.Local),
+                local,
                 new ReadOnlySpan<char>(_values, attribute.Start, attribute.Length),
                 this
             );
@@ -303,6 +313,20 @@ internal sealed class ConditionalInclusionSink : IXmlSink, INamespaceContext
                     + "' of the attribute 'vc:"
                     + local
                     + "' is not valid."
+            );
+        }
+    }
+
+    private void ReportUnknown()
+    {
+        for (var i = 0; i < _unknown.Count; i++)
+        {
+            _reporter.Report(
+                XsdRuleCodes.UnknownVersionControlAttribute,
+                new DocumentLocation(_baseUri, _position.Line, _position.Column),
+                "The attribute 'vc:"
+                    + Names.GetString(_attributes[_unknown[i]].Name.Local)
+                    + "' is not a version control attribute."
             );
         }
     }

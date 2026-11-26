@@ -7,8 +7,8 @@ using NetEvolve.Schemas.Xml.Datatypes.QNames;
 
 /// <summary>The version control attributes of Structures 1.1, 4.2.2, and the evaluation of their values.</summary>
 /// <remarks>
-/// Limitation: an attribute of the version control namespace that is not listed here is neither evaluated nor reported;
-/// the specification only encourages a warning.
+/// Limitation: an attribute of the version control namespace that is not listed here is not evaluated; the sink reports it as
+/// the warning <c>vc-unknown-attribute</c> and keeps the element.
 /// </remarks>
 internal static class VersionControl
 {
@@ -32,6 +32,12 @@ internal static class VersionControl
 
     /// <summary>The local name of <c>vc:facetUnavailable</c>.</summary>
     internal const string FacetUnavailable = "facetUnavailable";
+
+    /// <summary>Tells whether a local name is one of the six version control attributes.</summary>
+    /// <param name="localName">The local name of the attribute.</param>
+    /// <returns><see langword="true"/> for a known attribute.</returns>
+    internal static bool IsKnown(string localName) =>
+        localName is MinVersion or MaxVersion or TypeAvailable or TypeUnavailable or FacetAvailable or FacetUnavailable;
 
     /// <summary>Evaluates one attribute of the version control namespace.</summary>
     /// <param name="localName">The local name of the attribute.</param>
