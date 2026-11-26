@@ -18,6 +18,9 @@ internal static class Stage2Run
     /// <summary>The test set of the key-based EHF rules.</summary>
     public const string EhfTestSet = "stage2-ehf-keys";
 
+    /// <summary>The test set that builds every EHF rule set, one case per rule set.</summary>
+    public const string EhfBuildTestSet = "stage2-ehf-build";
+
     /// <summary>The test set of the end user statistics report (EUSR).</summary>
     public const string EusrTestSet = "stage2-eusr";
 
@@ -239,6 +242,29 @@ internal static class Stage2Run
                     "The rule set does not build: "
                     + string.Join(" | ", exception.Issues.Select(i => i.Code).Distinct().Select(c => c.ToString()));
                 results.AddRange(cases.Select(c => new CaseResult(c.Id, c.Syntax, CaseOutcome.Fail, reason)));
+            }
+        }
+
+        // Build gate: every rule set of the package builds, one case per rule set (also those that use no key).
+        foreach (
+            var file in Directory
+                .GetFiles(ehf, "*.sch", SearchOption.AllDirectories)
+                .OrderBy(f => f, StringComparer.Ordinal)
+        )
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            var id = Path.GetRelativePath(ehf, file).Replace(Path.DirectorySeparatorChar, '/');
+            try
+            {
+                _ = En16931Runner.Build(file, globalPatternLets: true);
+                results.Add(new CaseResult(id, EhfBuildTestSet, CaseOutcome.Pass));
+            }
+            catch (SchemaCompilationException exception)
+            {
+                var reason =
+                    "The rule set does not build: "
+                    + string.Join(" | ", exception.Issues.Select(i => i.Code).Distinct().Select(c => c.ToString()));
+                results.Add(new CaseResult(id, EhfBuildTestSet, CaseOutcome.Fail, reason));
             }
         }
 

@@ -405,6 +405,14 @@ dotnet test --project tests/NetEvolve.Schemas.Schematron.Tests.Integration --con
 
 The archive ships each rule set as multi-file source and as a flattened single file. The explicit conformance test `En16931PreprocessedTests` validates every UBL and CII case with both and requires the same set of fired rule ids, which checks the include and abstract-pattern expansion without expectation data. Both rule sets agree on every case, so no case is excluded.
 
+The same archive adds two test sets of positive cases, each with its own rate row. The EDIFACT binding (`edifact/schematron/EN16931-EDIFACT-validation.sch`) validates the ISO 20625 XML form of an invoice; the 9 XML examples of `edifact/examples` run against it, and the `.TXT` interchange files next to them are not read, because no EDIFACT parser is involved. The 29 complete UBL invoices and credit notes of `test/testfiles` run against the UBL rule set. Every document must be valid.
+
+**9 of 9 EDIFACT examples and 29 of 29 UBL test files pass, a rate of 100.0%** on `net10.0`; no case is baselined or excluded.
+
+```bash
+dotnet test --project tests/NetEvolve.Schemas.Schematron.Tests.Integration --configuration Release --framework net10.0 --treenode-filter "/*/*/En16931ExtendedGoldenTests/*"
+```
+
 ## Limitations
 
 - **Compilers older than C# 14.** `SchemaValidator.ForSchematron(...)` is a C# 14 extension member. A compiler without extension member syntax calls the public static extension class directly, named `SchematronSchemaValidatorExtensions` and declared in the namespace `NetEvolve.Schemas`. It has the same overloads and returns the same builder:

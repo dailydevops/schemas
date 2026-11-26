@@ -24,12 +24,14 @@ internal static class En16931Runner
     /// <param name="cases">The cases of one syntax.</param>
     /// <param name="cancellationToken">A token to cancel the run.</param>
     /// <param name="globalPatternLets"><see langword="true"/> to make the pattern-level variables visible from every pattern.</param>
-    /// <returns>One result per case in case order; the test set is the syntax.</returns>
+    /// <param name="testSet">The test set of the results; the syntax of the case when <see langword="null"/>.</param>
+    /// <returns>One result per case in case order.</returns>
     public static IReadOnlyList<CaseResult> Run(
         string schemaPath,
         IReadOnlyList<En16931Case> cases,
         CancellationToken cancellationToken,
-        bool globalPatternLets = false
+        bool globalPatternLets = false,
+        string? testSet = null
     )
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -44,8 +46,8 @@ internal static class En16931Runner
             var reason = problem ?? Compare(testCase, fired!, fatal);
             results.Add(
                 reason is null
-                    ? new CaseResult(testCase.Id, testCase.Syntax, CaseOutcome.Pass)
-                    : new CaseResult(testCase.Id, testCase.Syntax, CaseOutcome.Fail, reason)
+                    ? new CaseResult(testCase.Id, testSet ?? testCase.Syntax, CaseOutcome.Pass)
+                    : new CaseResult(testCase.Id, testSet ?? testCase.Syntax, CaseOutcome.Fail, reason)
             );
         }
 
