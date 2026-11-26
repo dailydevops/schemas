@@ -154,6 +154,38 @@ public class FacetFactoryTests
     }
 
     [Test]
+    public async Task ACompiledPatternOfASingleDeclaration_IsCarriedWithoutCompilingAgain()
+    {
+        PatternFacet.TryCreate(["a+"], XsdVersion.V11, null, out var compiled, out _);
+        var step = new List<FacetDeclaration>
+        {
+            new(FacetKind.Pattern, "a+", new DocumentLocation("file:///f.xsd", 1, 1), false),
+        };
+
+        var reused = FacetFactory.Create(step, null, XsdVersion.V11, compiled);
+        var rebuilt = FacetFactory.Create(step, null, XsdVersion.V11, null);
+
+        await Assert.That(reused.Single()).IsSameReferenceAs(compiled!);
+        await Assert.That(((PatternFacet)rebuilt.Single()).Patterns).IsEquivalentTo(["a+"]);
+    }
+
+    [Test]
+    public async Task ACompiledPatternIsIgnored_WhenTheStepStatesSeveralPatterns()
+    {
+        PatternFacet.TryCreate(["a+"], XsdVersion.V11, null, out var compiled, out _);
+        var where = new DocumentLocation("file:///f.xsd", 1, 1);
+        var step = new List<FacetDeclaration>
+        {
+            new(FacetKind.Pattern, "a+", where, false),
+            new(FacetKind.Pattern, "b+", where, false),
+        };
+
+        var facets = FacetFactory.Create(step, null, XsdVersion.V11, compiled);
+
+        await Assert.That(((PatternFacet)facets.Single()).Patterns).IsEquivalentTo(["a+", "b+"]);
+    }
+
+    [Test]
     public async Task Create_GuardsItsArguments()
     {
         var kit = new ContextKit("<xs:simpleType name=\"s\"><xs:restriction base=\"xs:int\"/></xs:simpleType>");

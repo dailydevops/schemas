@@ -124,6 +124,35 @@ public class FacetValueTests
     }
 
     [Test]
+    public async Task TheOnlyPatternOfAStep_IsReturnedCompiled()
+    {
+        var fixture = new FacetFixture();
+
+        var result = fixture.Check(fixture.Base("string"), FacetFixture.Decl(FacetKind.Pattern, "[a-z]+"));
+
+        await Assert.That(result.CompiledPattern).IsNotNull();
+        await Assert.That(result.CompiledPattern!.Patterns).IsEquivalentTo(["[a-z]+"]);
+    }
+
+    [Test]
+    public async Task SeveralPatternsOrAnInvalidOne_ReturnNoCompiledPattern()
+    {
+        var fixture = new FacetFixture();
+
+        var several = fixture.Check(
+            fixture.Base("string"),
+            FacetFixture.Decl(FacetKind.Pattern, "[a-z]+"),
+            FacetFixture.Decl(FacetKind.Pattern, "[0-9]+")
+        );
+        var invalid = fixture.Check(fixture.Base("string"), FacetFixture.Decl(FacetKind.Pattern, "("));
+        var none = fixture.Check(fixture.Base("string"), FacetFixture.Decl(FacetKind.Length, "3"));
+
+        await Assert.That(several.CompiledPattern).IsNull();
+        await Assert.That(invalid.CompiledPattern).IsNull();
+        await Assert.That(none.CompiledPattern).IsNull();
+    }
+
+    [Test]
     public async Task SeveralPatternsAndEnumerationsInOneStep_AreAllowed()
     {
         var fixture = new FacetFixture();
