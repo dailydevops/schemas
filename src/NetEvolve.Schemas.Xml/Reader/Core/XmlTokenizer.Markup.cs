@@ -69,6 +69,23 @@ internal partial struct XmlTokenizer
             return Fail(input, nameStart, XmlErrorCodes.XML0011);
         }
 
+        // A tag without attributes or white space, `<name>` or `</name>`, is one token when the input holds the closing bracket and
+        // no limit can be crossed inside it.
+        var isStart = kind == XmlTokenKind.StartTagName;
+        if (
+            _coarse
+            && end < input.Length
+            && input[end] == '>'
+            && FitsLimits(end + 1 - _origin, isStart ? _limits.MaxStartTagCharacters : long.MaxValue, end + 1 - pos)
+        )
+        {
+            token = new XmlToken(isStart ? XmlTokenKind.StartTag : XmlTokenKind.EndTag, nameStart, end - nameStart);
+            pos = end + 1;
+            _sawSpace = false;
+            _mode = Mode.Content;
+            return Scan.Token;
+        }
+
         token = new XmlToken(kind, nameStart, end - nameStart);
         pos = end;
         _sawSpace = false;
