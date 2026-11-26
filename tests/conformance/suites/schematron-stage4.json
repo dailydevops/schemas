@@ -50,23 +50,23 @@
     },
     {
       "id": "global-param/raised-minimum.xml",
-      "issue": 832,
-      "reason": "A value for a global xsl:param from the builder parameters is not supported: the schema declares no parameter named like the xsl:param, so the build reports NES3112 (#832)."
+      "issue": 1159,
+      "reason": "A value for a global xsl:param from the builder parameters is not supported: the schema declares no parameter named like the xsl:param, so the build reports NES3112 (#1159)."
     },
     {
       "id": "temporary-tree/known-codes.xml",
-      "issue": 832,
-      "reason": "A global xsl:variable or xsl:param with element content (a temporary tree) is reported NES3204: the global declaration compiles only the select attribute (#832)."
+      "issue": 1160,
+      "reason": "A global xsl:variable or xsl:param with element content (a temporary tree) is reported NES3204: the global declaration compiles only the select attribute (#1160)."
     },
     {
       "id": "temporary-tree/unknown-code.xml",
-      "issue": 832,
-      "reason": "A global xsl:variable or xsl:param with element content (a temporary tree) is reported NES3204: the global declaration compiles only the select attribute (#832)."
+      "issue": 1160,
+      "reason": "A global xsl:variable or xsl:param with element content (a temporary tree) is reported NES3204: the global declaration compiles only the select attribute (#1160)."
     },
     {
       "id": "temporary-tree/retired-code.xml",
-      "issue": 832,
-      "reason": "A global xsl:variable or xsl:param with element content (a temporary tree) is reported NES3204: the global declaration compiles only the select attribute (#832)."
+      "issue": 1160,
+      "reason": "A global xsl:variable or xsl:param with element content (a temporary tree) is reported NES3204: the global declaration compiles only the select attribute (#1160)."
     }
   ]
 }
