@@ -11,21 +11,21 @@ public class ChildListTests
     [Arguments("a", null, "a", null)]
     [Arguments("p:a", "p", "a", null)]
     [Arguments("Q{urn:x}a", null, "a", "urn:x")]
-    public async Task Parse_NameTest_SplitsPrefixLocalNameAndUri(
+    public async Task Parse_NameTest_SplitsPrefixLocalNameAndNamespace(
         string text,
         string? prefix,
         string local,
-        string? uri
+        string? namespaceName
     )
     {
-        var step = (AxisStep)Parse(text);
+        var step = (AxisStep)Parse(text, XPathVersion.V30);
         var test = (NameTest)step.Test;
 
         await Assert.That(test.Kind).IsEqualTo(NameTestKind.QualifiedName);
         await Assert.That(test.Prefix).IsEqualTo(prefix);
         await Assert.That(test.LocalName).IsEqualTo(local);
-        await Assert.That(test.NamespaceUri).IsEqualTo(uri);
-        await Assert.That(test.Location.Length).IsEqualTo(text.Length);
+        await Assert.That(test.NamespaceUri).IsEqualTo(namespaceName);
+        await Assert.That(test.Location.Length).IsEqualTo(step.Location.Length);
     }
 
     [Test]
