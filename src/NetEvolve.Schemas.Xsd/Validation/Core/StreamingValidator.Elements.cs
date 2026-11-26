@@ -223,7 +223,6 @@ internal sealed partial class StreamingValidator
 
         if (!TryStep(parent, id, qname, out var matched, out var byOpenContent))
         {
-            // Limitation: the run ceiling has no catalog code of its own; the nearest engine limit is reported (#610).
             if (parent.Counting is { CeilingExceeded: true })
             {
                 Reject(

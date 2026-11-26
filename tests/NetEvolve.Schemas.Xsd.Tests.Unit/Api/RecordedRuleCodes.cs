@@ -11,6 +11,7 @@ internal static class RecordedRuleCodes
         "4000 ContentModelPositionCeilingExceeded engine-content-model-positions",
         "4001 ContentModelTransitionCeilingExceeded engine-content-model-transitions",
         "4002 DeterminismAnalysisCeilingExceeded engine-determinism-states",
+        "4003 ContentModelRunCeilingExceeded engine-content-model-run",
         "4020 Strict10Assert strict10-assert",
         "4021 Strict10AssertionFacet strict10-assertion-facet",
         "4022 Strict10Alternative strict10-alternative",
