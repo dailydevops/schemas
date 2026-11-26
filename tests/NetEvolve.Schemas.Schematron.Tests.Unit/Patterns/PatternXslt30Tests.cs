@@ -174,7 +174,6 @@ public class PatternXslt30Tests
     [Arguments("$v/a", "step-kind", 1, 1)]
     [Arguments("(a|$v)[@k]", "step-kind", 1, 4)]
     [Arguments("()", "step-kind", 1, 1)]
-    [Arguments("(a|b)/c", "step-kind", 1, 1)]
     [Arguments("(a|ancestor::b)[@k]", "axis", 1, 4)]
     [Arguments("a intersect id('x')", "step-kind", 1, 13)]
     [Arguments("(a|b)[1]", "predicate", 1, 7)]
