@@ -130,6 +130,19 @@ public class SimpleContentTests
     }
 
     [Test]
+    public async Task FixedElementValue_OfAnySimpleType_KeepsItsWhiteSpace()
+    {
+        var schema = new SchemaFixture();
+        schema.Global("r", SchemaFixture.Simple("anySimpleType"), Fixed("a b"));
+
+        var ok = ValidationHarness.Run(schema, "<r>a b</r>");
+        var bad = ValidationHarness.Run(schema, "<r> a b </r>");
+
+        await Assert.That(ok.Count).IsEqualTo(0);
+        await AssertIssue(bad, "cvc-elt", "cvc-elt.5.2.2.2.2", 1, "'r'");
+    }
+
+    [Test]
     public async Task DefaultElementValue_IsAppliedToAnEmptyElementAndReportedToListeners()
     {
         var schema = new SchemaFixture();
