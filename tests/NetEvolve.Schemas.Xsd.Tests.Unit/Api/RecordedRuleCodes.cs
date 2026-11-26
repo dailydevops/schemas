@@ -75,6 +75,7 @@ internal static class RecordedRuleCodes
         "4126 SrcOverride src-override",
         "4127 SrcPatternValue src-pattern-value",
         "4128 SrcEnumerationValue src-enumeration-value",
+        "4129 UnknownVersionControlAttribute vc-unknown-attribute",
         "4300 APropsCorrect a-props-correct",
         "4301 NoXmlns no-xmlns",
         "4302 NoXsi no-xsi",
