@@ -3,9 +3,12 @@ namespace NetEvolve.Schemas.Xsd.Validation.Core;
 using System;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.Xsd.Attributes.Declarations;
+using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Elements;
 using NetEvolve.Schemas.Xsd.IdentityConstraints.Evaluation;
+using NetEvolve.Schemas.Xsd.SchemaDocuments;
+using NetEvolve.Schemas.Xsd.SimpleTypes.Definitions;
 
 internal sealed partial class StreamingValidator
 {
@@ -105,6 +108,7 @@ internal sealed partial class StreamingValidator
         IsEqual(value, fixedValue)
         || (
             type is not null
+            && !IsUrType(type)
             && (_valueSpace ??= new ValueSpace(_assessor, _model.Schema.Version)).AreEqual(
                 type,
                 value,
@@ -115,6 +119,22 @@ internal sealed partial class StreamingValidator
 
     private static bool IsEqual(ReadOnlySpan<char> value, string? expected) =>
         value.Equals((expected ?? string.Empty).AsSpan(), StringComparison.Ordinal);
+
+    // anySimpleType and anyAtomicType keep the white space of their values, which the value space comparison would collapse.
+    private static bool IsUrType(IXsdComponent type)
+    {
+        var name = type switch
+        {
+            XsdBuiltInType builtIn => builtIn.Name,
+            SimpleTypeDefinition definition => definition.Name,
+            _ => default,
+        };
+        return string.Equals(name.NamespaceName, SchemaGrammar.Namespace, StringComparison.Ordinal)
+            && (
+                string.Equals(name.LocalName, "anySimpleType", StringComparison.Ordinal)
+                || string.Equals(name.LocalName, "anyAtomicType", StringComparison.Ordinal)
+            );
+    }
 
     private static string Shorten(ReadOnlySpan<char> value) =>
         value.Length <= MaxReportedValue ? value.ToString() : value.Slice(0, MaxReportedValue).ToString() + "...";
