@@ -308,7 +308,7 @@ internal sealed partial class StreamingValidator
     {
         var value = ValueOf(entry);
         var valid = AssessValue(declaration.TypeDefinition, value, frame.Location, qname, true, out _);
-        if (valid && !SatisfiesFixed(constraint, value))
+        if (valid && !SatisfiesFixed(declaration.TypeDefinition, constraint, value))
         {
             Report(
                 ValidationRules.Au,

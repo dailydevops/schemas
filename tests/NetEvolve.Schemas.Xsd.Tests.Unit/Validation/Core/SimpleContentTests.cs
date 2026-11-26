@@ -1,6 +1,10 @@
 namespace NetEvolve.Schemas.Xsd.Tests.Unit.Validation.Core;
 
+using System;
 using System.Collections.Generic;
+using NetEvolve.Schemas.Xml.Datatypes.Contracts;
+using NetEvolve.Schemas.Xsd.Components;
+using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Elements;
 
 public class SimpleContentTests
@@ -113,6 +117,99 @@ public class SimpleContentTests
         var bad = ValidationHarness.Run(schema, "<r>two</r>");
 
         await Assert.That(ok.Count).IsEqualTo(0);
+        await AssertIssue(bad, "cvc-elt", "cvc-elt.5.2.2.2.2", 1, "'r'");
+    }
+
+    [Test]
+    public async Task FixedElementValue_EqualInTheValueSpace_IsValid()
+    {
+        var schema = new SchemaFixture();
+        schema.Global("r", SchemaFixture.Simple("decimal"), Fixed("1"));
+
+        var ok = ValidationHarness.Run(schema, "<r>1.0</r>");
+        var bad = ValidationHarness.Run(schema, "<r>2.0</r>");
+
+        await Assert.That(ok.Count).IsEqualTo(0);
+        await AssertIssue(bad, "cvc-elt", "cvc-elt.5.2.2.2.2", 1, "'r'");
+    }
+
+    [Test]
+    public async Task FixedElementValue_OfAnySimpleType_KeepsItsWhiteSpace()
+    {
+        var schema = new SchemaFixture();
+        schema.Global("r", SchemaFixture.Simple("anySimpleType"), Fixed("a b"));
+
+        var ok = ValidationHarness.Run(schema, "<r>a b</r>");
+        var bad = ValidationHarness.Run(schema, "<r> a b </r>");
+
+        await Assert.That(ok.Count).IsEqualTo(0);
+        await AssertIssue(bad, "cvc-elt", "cvc-elt.5.2.2.2.2", 1, "'r'");
+    }
+
+    private static IXsdComponent Builtin(string local)
+    {
+        foreach (var type in XsdBuiltInTypes.For(XsdVersion.V11))
+        {
+            if (string.Equals(type.Name.LocalName, local, StringComparison.Ordinal))
+            {
+                return type;
+            }
+        }
+
+        throw new InvalidOperationException("No built-in type " + local);
+    }
+
+    [Test]
+    [Arguments("anySimpleType")]
+    [Arguments("anyAtomicType")]
+    public async Task FixedElementValue_OfABuiltInUrType_KeepsItsWhiteSpace(string urType)
+    {
+        var schema = new SchemaFixture();
+        schema.Global("r", Builtin(urType), Fixed("a b"));
+
+        var ok = ValidationHarness.Run(schema, "<r>a b</r>");
+        var bad = ValidationHarness.Run(schema, "<r> a b </r>");
+
+        await Assert.That(ok.Count).IsEqualTo(0);
+        await AssertIssue(bad, "cvc-elt", "cvc-elt.5.2.2.2.2", 1, "'r'");
+    }
+
+    [Test]
+    public async Task FixedElementValue_OfAnAnyAtomicTypeDefinition_KeepsItsWhiteSpace()
+    {
+        var schema = new SchemaFixture();
+        schema.Global("r", SchemaFixture.Simple("anyAtomicType"), Fixed("a b"));
+
+        var bad = ValidationHarness.Run(schema, "<r> a b </r>");
+
+        await AssertIssue(bad, "cvc-elt", "cvc-elt.5.2.2.2.2", 1, "'r'");
+    }
+
+    [Test]
+    public async Task FixedElementValue_OfABuiltInType_IsComparedInTheValueSpace()
+    {
+        var schema = new SchemaFixture();
+        schema.Global("r", Builtin("decimal"), Fixed("1"));
+
+        var ok = ValidationHarness.Run(schema, "<r>1.0</r>");
+        var bad = ValidationHarness.Run(schema, "<r>2.0</r>");
+
+        await Assert.That(ok.Count).IsEqualTo(0);
+        await AssertIssue(bad, "cvc-elt", "cvc-elt.5.2.2.2.2", 1, "'r'");
+    }
+
+    [Test]
+    public async Task FixedElementValue_WithoutALexicalValue_DiffersFromAnyText()
+    {
+        var schema = new SchemaFixture();
+        schema.Global(
+            "r",
+            SchemaFixture.Simple("string"),
+            new ElementValueConstraint(ElementValueConstraintKind.Fixed, null!)
+        );
+
+        var bad = ValidationHarness.Run(schema, "<r>x</r>");
+
         await AssertIssue(bad, "cvc-elt", "cvc-elt.5.2.2.2.2", 1, "'r'");
     }
 

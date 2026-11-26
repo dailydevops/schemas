@@ -3,8 +3,12 @@ namespace NetEvolve.Schemas.Xsd.Validation.Core;
 using System;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.Xsd.Attributes.Declarations;
+using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Elements;
+using NetEvolve.Schemas.Xsd.IdentityConstraints.Evaluation;
+using NetEvolve.Schemas.Xsd.SchemaDocuments;
+using NetEvolve.Schemas.Xsd.SimpleTypes.Definitions;
 
 internal sealed partial class StreamingValidator
 {
@@ -25,7 +29,7 @@ internal sealed partial class StreamingValidator
             valid
             && !defaulted
             && constraint.Kind == ElementValueConstraintKind.Fixed
-            && !IsEqual(value, constraint.Value)
+            && !IsFixed(frame.SimpleType, value, constraint.Value)
         )
         {
             Invalid(
@@ -153,12 +157,41 @@ internal sealed partial class StreamingValidator
         return false;
     }
 
-    // Limitation: fixed values are compared lexically, not in the value space of the type.
-    private static bool SatisfiesFixed(AttributeValueConstraint constraint, ReadOnlySpan<char> value) =>
-        constraint.Kind != AttributeValueConstraintKind.Fixed || IsEqual(value, constraint.Value);
+    private bool SatisfiesFixed(IXsdComponent? type, AttributeValueConstraint constraint, ReadOnlySpan<char> value) =>
+        constraint.Kind != AttributeValueConstraintKind.Fixed || IsFixed(type, value, constraint.Value);
+
+    // The value equals the fixed value in the value space of the type; the same lexical form is equal without parsing.
+    private bool IsFixed(IXsdComponent? type, ReadOnlySpan<char> value, string? fixedValue) =>
+        IsEqual(value, fixedValue)
+        || (
+            type is not null
+            && !IsUrType(type)
+            && (_valueSpace ??= new ValueSpace(_assessor, _model.Schema.Version)).AreEqual(
+                type,
+                value,
+                type,
+                (fixedValue ?? string.Empty).AsSpan()
+            )
+        );
 
     private static bool IsEqual(ReadOnlySpan<char> value, string? expected) =>
         value.Equals((expected ?? string.Empty).AsSpan(), StringComparison.Ordinal);
+
+    // anySimpleType and anyAtomicType keep the white space of their values, which the value space comparison would collapse.
+    private static bool IsUrType(IXsdComponent type)
+    {
+        var name = type switch
+        {
+            XsdBuiltInType builtIn => builtIn.Name,
+            SimpleTypeDefinition definition => definition.Name,
+            _ => default,
+        };
+        return string.Equals(name.NamespaceName, SchemaGrammar.Namespace, StringComparison.Ordinal)
+            && (
+                string.Equals(name.LocalName, "anySimpleType", StringComparison.Ordinal)
+                || string.Equals(name.LocalName, "anyAtomicType", StringComparison.Ordinal)
+            );
+    }
 
     private static string Shorten(ReadOnlySpan<char> value) =>
         value.Length <= MaxReportedValue ? value.ToString() : value.Slice(0, MaxReportedValue).ToString() + "...";
