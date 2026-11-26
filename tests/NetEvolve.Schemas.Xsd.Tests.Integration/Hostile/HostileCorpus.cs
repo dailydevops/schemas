@@ -98,6 +98,7 @@ internal static class HostileCorpus
         yield return Nested("nesting-sequence-groups", 20_000, "xs:sequence");
         yield return Deep("nesting-instance-elements", 100_000);
         yield return LongValue("value-long-list", 1_000_000, "xs:int", "", list: true);
+        yield return LongValue("value-long-string", 1_000_000, "xs:string", "<xs:maxLength value=\"10\"/>", 4619);
     }
 
     private static string Schema(string body, string attributes = "") =>
@@ -181,7 +182,14 @@ internal static class HostileCorpus
         return Make(id, schema, null, instance.ToString(), 2);
     }
 
-    private static HostileCase LongValue(string id, int length, string baseType, string facet, bool list = false)
+    private static HostileCase LongValue(
+        string id,
+        int length,
+        string baseType,
+        string facet,
+        int code = 4616,
+        bool list = false
+    )
     {
         var item = list
             ? $"<xs:simpleType name=\"i\"><xs:restriction base=\"{baseType}\"/></xs:simpleType>"
@@ -191,6 +199,6 @@ internal static class HostileCorpus
             : $"<xs:simpleType><xs:restriction base=\"{baseType}\">{facet}</xs:restriction></xs:simpleType>";
         var schema = Schema($"{item}<xs:element name=\"root\">{type}</xs:element>");
         var value = list ? string.Join(' ', Enumerable.Repeat("a", length / 2)) : new string('a', length);
-        return Make(id, schema, null, $"<root>{value}</root>", 4616);
+        return Make(id, schema, null, $"<root>{value}</root>", code);
     }
 }
