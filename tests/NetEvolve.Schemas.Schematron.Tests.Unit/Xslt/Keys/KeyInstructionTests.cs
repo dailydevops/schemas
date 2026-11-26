@@ -114,12 +114,25 @@ public class KeyInstructionTests
     }
 
     [Test]
+    public async Task Compile_MatchStartingWithKey_IsCompiledThroughTheSharedMatcher()
+    {
+        var fixture = new KeyFixture();
+
+        // key() may start the pattern of xsl:key as it may start a rule context (#780): the call is compiled as an expression.
+        var key = fixture.CompileOne(Kx.Key("k", "key('k', 'v')/c", "'1'", 10));
+
+        await Assert.That(key).IsNotNull();
+        await Assert.That(fixture.Problems.Problems).IsEmpty();
+        await Assert.That(fixture.Binding.Compiled).Contains("key('k', 'v')");
+    }
+
+    [Test]
     public async Task Compile_MatchOutsideThePatternSubset_IsTheUnsupportedPatternError()
     {
         var fixture = new KeyFixture();
 
-        // key() as a pattern start is the left-out feature of #780: the shared matcher rejects it, in xsl:key as in a rule context.
-        var key = fixture.CompileOne(Kx.Key("k", "key('k', 'v')", "'1'", 10));
+        // id() as a pattern start stays outside the subset (#67), as does a key() call with a computed argument.
+        var key = fixture.CompileOne(Kx.Key("k", "key('k', @id)", "'1'", 10));
 
         await Assert.That(key).IsNull();
         await Assert.That(Codes(fixture.Problems)).StartsWith(SchematronDiagnosticCodes.PatternUnsupported.ToString());

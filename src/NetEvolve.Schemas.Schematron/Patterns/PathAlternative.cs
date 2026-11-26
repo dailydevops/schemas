@@ -1,20 +1,27 @@
 namespace NetEvolve.Schemas.Schematron.Patterns;
 
 using NetEvolve.Schemas.Schematron.Seams;
+using NetEvolve.Schemas.Schematron.Xslt.Construction;
 using NetEvolve.Schemas.XPath.Syntax.Tree;
 using NetEvolve.Schemas.XPath.Xdm.Nodes;
 
-/// <summary>A path alternative of a union pattern: the steps, their anchor, and the default priority (XSLT 2.0 section 6.4).</summary>
+/// <summary>
+/// A path alternative of a union pattern: the steps, their anchor, and the default priority (XSLT 2.0 section 6.4). With a
+/// key start (<c>key('name', 'value')</c>, XSLT 2.0 section 5.5) the anchor is the node set of that call: the first step must
+/// be a child (or, after <c>//</c>, a descendant) of one of its nodes, and without steps the node itself must be one.
+/// </summary>
 internal sealed class PathAlternative : PatternAlternative
 {
     private readonly PathRoot _root;
     private readonly PatternStep[] _steps;
+    private readonly QueryExpression? _keyStart;
 
-    internal PathAlternative(PathRoot root, PatternStep[] steps, decimal priority)
+    internal PathAlternative(PathRoot root, PatternStep[] steps, decimal priority, QueryExpression? keyStart = null)
         : base(priority)
     {
         _root = root;
         _steps = steps;
+        _keyStart = keyStart;
     }
 
     /// <summary>Matches right to left: the last step tests the candidate, each step before it an ancestor.</summary>
@@ -22,6 +29,11 @@ internal sealed class PathAlternative : PatternAlternative
     {
         if (_steps.Length == 0)
         {
+            if (_keyStart is not null)
+            {
+                return KeyAnchored(run, in node, node, false, out matched);
+            }
+
             matched = node.Kind == XdmNodeKind.Document;
             return QueryStatus.Ok;
         }
@@ -42,6 +54,11 @@ internal sealed class PathAlternative : PatternAlternative
         matched = false;
         if (index == 0)
         {
+            if (_keyStart is not null)
+            {
+                return KeyAnchored(run, in node, node.Parent(), step.DescendantBefore, out matched);
+            }
+
             matched = Anchored(in node);
             return QueryStatus.Ok;
         }
@@ -83,5 +100,44 @@ internal sealed class PathAlternative : PatternAlternative
             default:
                 return true;
         }
+    }
+
+    // Evaluates the key call with the matched node as the focus: the document of that node is searched. The candidate is
+    // the node itself (no steps), its parent, or, after "//", any of its ancestors.
+    private QueryStatus KeyAnchored(
+        IQueryRun run,
+        in XPathNode focusNode,
+        XPathNode candidate,
+        bool ancestors,
+        out bool matched
+    )
+    {
+        matched = false;
+        var sink = new ItemSequenceSink(focusNode.Tree!.Names);
+        var status = run.TryEvaluate(_keyStart!, new QueryFocus(focusNode, 1, 1), sink);
+        if (status != QueryStatus.Ok)
+        {
+            return status;
+        }
+
+        var nodes = sink.Result;
+        for (; !candidate.IsEmpty(); candidate = candidate.Parent())
+        {
+            for (var i = 0; i < nodes.Count; i++)
+            {
+                if (nodes[i].TryGetNode(out var found) && found == candidate)
+                {
+                    matched = true;
+                    return QueryStatus.Ok;
+                }
+            }
+
+            if (!ancestors)
+            {
+                break;
+            }
+        }
+
+        return QueryStatus.Ok;
     }
 }
