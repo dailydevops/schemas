@@ -1,0 +1,4 @@
+# case id, then "#issue" for an engine defect or "leniency" for a deliberate difference from libxml2, then the reason; fields are separated by tabs
+extparsedent.xml	leniency	The reader denies external entity access by default and rejects the unresolved reference; libxml2 does not load external entities without entity substitution and accepts the document.
+ns-ent.xml	leniency	libxml2 checks the entity content on its own, where the prefix ns is unbound; in the expanded document ns is bound at both uses, so the document is namespace well formed and the reader accepts it.
+rec_ext_ent.xml	leniency	The reader denies external entity access by default and rejects the reference; libxml2 does not load the external entity without entity substitution and accepts the document.
