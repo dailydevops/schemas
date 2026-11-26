@@ -32,8 +32,9 @@ using NetEvolve.Schemas.Xml.Text.NameTable;
 /// (<see cref="DtdValidityCodes.XML5025"/>) and keeps <see cref="DtdValidityCodes.XML5015"/> for the value. (2) The model keeps
 /// the first declaration of a notation and drops the others; Unique Notation Name is therefore decided from the dropped names
 /// that the parser model records, and a declaration view that is not the parser model records none, so it reports nothing
-/// for this constraint until the anomalies of #608 are part of the view. (3) An optional warning for an entity that is declared
-/// more than once (<see cref="DtdValidityCodes.XML5904"/>) is not reported, for the same reason (#608). (4) The value of an
+/// for this constraint until the anomalies of #608 are part of the view. (3) The optional warning for an entity that is declared
+/// more than once (<see cref="DtdValidityCodes.XML5904"/>) is decided from the dropped declarations that the parser model
+/// records as well, and a view that is not the parser model reports none (#608). (4) The value of an
 /// attribute arrives normalized (XML 1.0, section 3.3.3), so ENTITIES names are separated by exactly one space (production 6)
 /// and any other separator, a leading or trailing space, or an empty value is a token that names no entity. A defaulted value
 /// is checked like a specified one, at each element that receives it. (5) Declaration-time reports use
@@ -68,6 +69,22 @@ internal sealed class DtdNotationStep : IDtdValidationStep
                     IssueSeverity.Error,
                     default,
                     "notation '" + name + "' is declared more than once; the first declaration binds"
+                );
+            }
+        }
+
+        if (declarations is DtdDeclarations repeated)
+        {
+            foreach (var entity in repeated.DuplicateEntities)
+            {
+                context.Report(
+                    DtdValidityCodes.XML5904,
+                    DtdValidityCodes.XML5904.DefaultSeverity,
+                    default,
+                    (entity.IsParameter ? "parameter" : "general")
+                        + " entity '"
+                        + entity.Name
+                        + "' is declared more than once; the first declaration binds"
                 );
             }
         }

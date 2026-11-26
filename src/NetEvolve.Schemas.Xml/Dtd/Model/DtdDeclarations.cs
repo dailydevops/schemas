@@ -18,7 +18,8 @@ internal sealed class DtdDeclarations : IDtdDeclarations
         IReadOnlyDictionary<string, DtdEntityDeclaration> generalEntities,
         IReadOnlyDictionary<string, DtdEntityDeclaration> parameterEntities,
         IReadOnlyDictionary<string, XmlNotation> notations,
-        IReadOnlyList<string>? duplicateNotations = null
+        IReadOnlyList<string>? duplicateNotations = null,
+        IReadOnlyList<DtdEntityDeclaration>? duplicateEntities = null
     )
     {
         Name = name;
@@ -31,6 +32,7 @@ internal sealed class DtdDeclarations : IDtdDeclarations
         ParameterEntities = parameterEntities;
         Notations = notations;
         DuplicateNotations = duplicateNotations ?? Array.Empty<string>();
+        DuplicateEntities = duplicateEntities ?? Array.Empty<DtdEntityDeclaration>();
     }
 
     /// <summary>Gets the root element name of the declaration.</summary>
@@ -69,4 +71,11 @@ internal sealed class DtdDeclarations : IDtdDeclarations
     /// fact that Unique Notation Name (section 4.7) needs until the parse-time anomalies of #608 are recorded for every kind of declaration.
     /// </summary>
     internal IReadOnlyList<string> DuplicateNotations { get; }
+
+    /// <summary>
+    /// Gets every entity declaration (general or parameter, see <see cref="DtdEntityDeclaration.IsParameter"/>) that was dropped
+    /// because an earlier declaration of the same kind and name binds, one entry per dropped declaration in document order. Like
+    /// <see cref="DuplicateNotations"/> this is internal until the parse-time anomalies of #608 are part of the public view.
+    /// </summary>
+    internal IReadOnlyList<DtdEntityDeclaration> DuplicateEntities { get; }
 }
