@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.Xsd.Tests.Unit.Components;
 
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.XPath.Api;
+using NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;
 using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Contracts;
 using static NetEvolve.Schemas.Xsd.Tests.Unit.Components.Fixture;
@@ -97,6 +98,18 @@ public class BuiltInTypeTests
 
         await Assert.That(anyType!.Kind).IsEqualTo(XsdComponentKind.ComplexType);
         await Assert.That(string.Join(">", chain)).IsEqualTo("int>long>integer>decimal>anySimpleType>anyType");
+    }
+
+    [Test]
+    [Arguments(XsdVersion.V10)]
+    [Arguments(XsdVersion.V11)]
+    public async Task AnyType_IsTheContentBearingUrType(XsdVersion version)
+    {
+        var registry = Registered(version);
+
+        _ = registry.TryGet(XsdComponentKind.ComplexType, new XPathQName(Xs, "anyType"), out var anyType);
+
+        await Assert.That(anyType).IsSameReferenceAs(ComplexTypeDefinition.AnyType);
     }
 
     [Test]
