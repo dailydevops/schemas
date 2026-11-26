@@ -64,7 +64,11 @@ internal sealed partial class StreamingValidator
         _binding = new NameBinding(model, Names);
         _xsi = new XsiTypeResolver(model.Schema, _scope, _derivation);
         Array.Resize(ref _countingPool, model.ProgramCount);
-        Array.Resize(ref _allPool, model.ProgramCount);
+        if (_allPool is not null)
+        {
+            Array.Resize(ref _allPool, model.ProgramCount);
+        }
+
         if (_all11Pool is not null)
         {
             Array.Resize(ref _all11Pool, model.ProgramCount);
