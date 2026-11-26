@@ -22,6 +22,10 @@ internal sealed class SchemaSyntaxSink : IXmlSink
     private SchemaSyntaxNode? _current;
     private int _skipDepth;
 
+    // The appinfo or documentation element being read: no node is built for it, only its attributes are checked.
+    private SchemaElementRule? _opaqueRule;
+    private DocumentLocation _opaqueLocation;
+
     internal SchemaSyntaxSink(string? baseUri, XsdIssueReporter reporter)
     {
         ArgumentNullException.ThrowIfNull(reporter);
@@ -52,6 +56,12 @@ internal sealed class SchemaSyntaxSink : IXmlSink
             return;
         }
 
+        if (_opaqueRule is not null)
+        {
+            _skipDepth = 1;
+            return;
+        }
+
         var ns = Names.GetString(name.NamespaceUri);
         var local = Names.GetString(name.Local);
         var location = new DocumentLocation(_baseUri, position.Line, position.Column);
@@ -76,12 +86,6 @@ internal sealed class SchemaSyntaxSink : IXmlSink
         }
 
         var parent = _rules[_rules.Count - 1];
-        if (parent.Opaque)
-        {
-            _skipDepth = 1;
-            return;
-        }
-
         if (
             !IsSchemaElement(ns, local)
             || !parent.Allows(local)
@@ -97,16 +101,21 @@ internal sealed class SchemaSyntaxSink : IXmlSink
             return;
         }
 
-        _ = Push(
-            new SchemaSyntaxNode(new XPathQName(ns, local), location, _current),
-            SchemaGrammar.Find(local, parent.Name)
-        );
+        var rule = SchemaGrammar.Find(local, parent.Name);
+        if (rule.Opaque)
+        {
+            _opaqueRule = rule;
+            _opaqueLocation = location;
+            return;
+        }
+
+        _ = Push(new SchemaSyntaxNode(new XPathQName(ns, local), location, _current), rule);
     }
 
     /// <inheritdoc />
     public void NamespaceDeclaration(XmlSymbol prefix, XmlSymbol uri)
     {
-        if (_skipDepth == 0)
+        if (_skipDepth == 0 && _opaqueRule is null)
         {
             _current?.AddNamespace(Names.GetString(prefix), Names.GetString(uri));
         }
@@ -125,15 +134,12 @@ internal sealed class SchemaSyntaxSink : IXmlSink
         var text = value.ToString();
         if (ns.Length == 0 || string.Equals(ns, SchemaGrammar.Namespace, StringComparison.Ordinal))
         {
-            var rule = _rules[_rules.Count - 1];
+            var rule = _opaqueRule ?? _rules[_rules.Count - 1];
+            var location = _opaqueRule is null ? _current.Location : _opaqueLocation;
             var attribute = ns.Length == 0 ? rule.FindAttribute(local) : null;
             if (attribute is null)
             {
-                Report(
-                    rule.Code,
-                    _current.Location,
-                    "The attribute '" + local + "' is not allowed on '" + rule.Name + "'."
-                );
+                Report(rule.Code, location, "The attribute '" + local + "' is not allowed on '" + rule.Name + "'.");
                 return;
             }
 
@@ -141,10 +147,15 @@ internal sealed class SchemaSyntaxSink : IXmlSink
             {
                 Report(
                     rule.Code,
-                    _current.Location,
+                    location,
                     "The value '" + text + "' of the attribute '" + local + "' on '" + rule.Name + "' is not valid."
                 );
             }
+        }
+
+        if (_opaqueRule is not null)
+        {
+            return;
         }
 
         _attributes.Add(new XsdSyntaxAttribute(new XPathQName(ns, local), text, _current.Location));
@@ -154,6 +165,12 @@ internal sealed class SchemaSyntaxSink : IXmlSink
     public void EndAttributes()
     {
         if (_skipDepth > 0 || _current is null)
+        {
+            return;
+        }
+
+        // No attribute of appinfo or documentation is required (see the grammar), so there is nothing to check at the end.
+        if (_opaqueRule is not null)
         {
             return;
         }
@@ -181,6 +198,12 @@ internal sealed class SchemaSyntaxSink : IXmlSink
         if (_skipDepth > 0)
         {
             _skipDepth--;
+            return;
+        }
+
+        if (_opaqueRule is not null)
+        {
+            _opaqueRule = null;
             return;
         }
 

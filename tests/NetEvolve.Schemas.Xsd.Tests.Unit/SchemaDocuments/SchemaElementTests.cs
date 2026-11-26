@@ -17,18 +17,6 @@ public class SchemaElementTests
         "id=s;targetNamespace=urn:t;version=1;attributeFormDefault=unqualified;elementFormDefault=qualified;blockDefault=#all;finalDefault=extension list;lang=en"
     )]
     [Arguments(Open + "  ^<xs:annotation id=\"a\"><xs:appinfo/></xs:annotation>", "annotation", "id=a")]
-    [Arguments(
-        Open
-            + "  <xs:annotation>^<xs:appinfo source=\"urn:s\"><foreign><xs:element/></foreign></xs:appinfo></xs:annotation>",
-        "annotation/appinfo",
-        "source=urn:s"
-    )]
-    [Arguments(
-        Open
-            + "  <xs:annotation>^<xs:documentation source=\"urn:d\" xml:lang=\"en\">text<b/></xs:documentation></xs:annotation>",
-        "annotation/documentation",
-        "source=urn:d;lang=en"
-    )]
     [Arguments(Open + "  ^<xs:include id=\"i\" schemaLocation=\"a.xsd\"/>", "include", "id=i;schemaLocation=a.xsd")]
     [Arguments(
         Open + "  ^<xs:import id=\"i\" namespace=\"urn:o\" schemaLocation=\"o.xsd\"/>",
