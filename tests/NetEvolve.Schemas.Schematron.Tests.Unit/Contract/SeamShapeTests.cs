@@ -321,7 +321,9 @@ public class SeamShapeTests
         await Assert.That(() => new CompiledSchema(FakeModel.Schema(), null!)).Throws<ArgumentNullException>();
         await Assert.That(() => SchemaSourceHolder.FromStream(null!, null)).Throws<ArgumentNullException>();
         await Assert
-            .That(() => new SchematronValidatorBuilder(SchemaSourceHolder.FromChars("x".AsSpan(), null)).UsePipeline(null!))
+            .That(() =>
+                new SchematronValidatorBuilder(SchemaSourceHolder.FromChars("x".AsSpan(), null)).UsePipeline(null!)
+            )
             .Throws<ArgumentNullException>();
     }
 }

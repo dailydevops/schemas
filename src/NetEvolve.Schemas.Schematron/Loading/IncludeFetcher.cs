@@ -3,8 +3,8 @@
 using System;
 using System.Threading;
 using NetEvolve.Arguments;
+using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Resources;
-using NetEvolve.Schemas.Resources.Default;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Model;
@@ -12,7 +12,7 @@ using NetEvolve.Schemas.Xml.Reader.Pipeline;
 
 /// <summary>
 /// The fetch and parse steps shared by the Schematron include loader and the XInclude resolver (design #137 AP-22): resolves a
-/// reference against its base, asks the core resolver, caps the size, and reads the bytes into a tree.
+/// reference through the core <see cref="ResourceLoader"/> and reads the bytes into a tree.
 /// </summary>
 /// <remarks>
 /// One instance per loader, not thread-safe: it counts. Every <see cref="TryFetch"/> counts against
@@ -21,15 +21,14 @@ using NetEvolve.Schemas.Xml.Reader.Pipeline;
 /// </remarks>
 internal sealed class IncludeFetcher
 {
-    private readonly IResourceResolver _resolver;
-    private int _requests;
+    private readonly ResourceLoader _loader;
 
     internal IncludeFetcher(IResourceResolver resolver, ValidationLimits limits)
     {
         ArgumentNullException.ThrowIfNull(resolver);
         ArgumentNullException.ThrowIfNull(limits);
 
-        _resolver = resolver;
+        _loader = new ResourceLoader(resolver, limits);
         Limits = limits;
     }
 
@@ -60,58 +59,17 @@ internal sealed class IncludeFetcher
         cancellationToken.ThrowIfCancellationRequested();
         ArgumentNullException.ThrowIfNull(href);
 
-        content = default;
-        systemId = string.Empty;
-        if (_requests >= Limits.MaxExternalResources)
+        var result = _loader.Load(ResourceKind.SchemaDocument, href, baseUri, cancellationToken);
+        content = result.Content;
+        systemId = result.SystemId ?? string.Empty;
+        if (result.Status == ResourceLoadStatus.Loaded)
         {
-            problem = new SchematronProblem(
-                CoreDiagnosticCodes.ExternalResourceLimitExceeded,
-                "More than " + Limits.MaxExternalResources + " external resources are referenced.",
-                at
-            );
-            return FetchStatus.Fatal;
+            problem = default;
+            return FetchStatus.Found;
         }
 
-        _requests++;
-        var resolution = UriReference.Resolve(href, baseUri);
-        if (resolution.Uri is null)
-        {
-            problem = new SchematronProblem(
-                resolution.Code,
-                resolution.Code == CoreDiagnosticCodes.ResourceBaseUriMissing
-                    ? "The reference '" + href + "' is relative and the base URI is not absolute."
-                    : "The reference '" + href + "' is not a valid URI reference.",
-                at
-            );
-            return FetchStatus.Recoverable;
-        }
-
-        var request = new ResourceRequest(ResourceKind.SchemaDocument, href, baseUri, resolution.Uri);
-        using var result = _resolver.Resolve(in request, cancellationToken);
-        if (result.Status != ResourceStatus.Found)
-        {
-            var notFound = result.Status == ResourceStatus.NotFound;
-            problem = new SchematronProblem(
-                notFound ? CoreDiagnosticCodes.ResourceNotFound : CoreDiagnosticCodes.ResourceDenied,
-                result.Message ?? "The resource '" + resolution.Uri + (notFound ? "' was not found." : "' was denied."),
-                at
-            );
-            return FetchStatus.Recoverable;
-        }
-
-        systemId = result.SystemId ?? resolution.Uri;
-        if (!ResourceContent.TryRead(in result, Limits.MaxResourceSize, out content))
-        {
-            problem = new SchematronProblem(
-                CoreDiagnosticCodes.ResourceSizeLimitExceeded,
-                "The resource '" + systemId + "' is larger than " + Limits.MaxResourceSize + " bytes.",
-                at
-            );
-            return FetchStatus.Fatal;
-        }
-
-        problem = default;
-        return FetchStatus.Found;
+        problem = new SchematronProblem(result.Code, result.Message, at);
+        return result.Status == ResourceLoadStatus.Failed ? FetchStatus.Recoverable : FetchStatus.Fatal;
     }
 
     /// <summary>Reads the bytes of a fetched resource into a tree.</summary>
