@@ -235,7 +235,8 @@ internal sealed class ComplexTypeBuilder : IComponentBuilder
             content,
             uses,
             wildcard,
-            _context.Reporter
+            _context.Reporter,
+            version: _context.Version
         );
     }
 

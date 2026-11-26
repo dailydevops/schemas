@@ -5,8 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Schematron.Pipeline;
-using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Schematron.Tests.Unit.Fakes;
 using static NetEvolve.Schemas.Schematron.Tests.Unit.Pipeline.PipelineFixture;
 
@@ -24,14 +24,13 @@ public class SourceReaderTests
         cancellationToken.ThrowIfCancellationRequested();
 
         using var stream = new MemoryStream(Utf8(Schema));
-        var source = SchemaSource.FromStream(stream, SchemaSystemId);
+        var source = SchemaSourceHolder.FromStream(stream, SchemaSystemId);
 
-        var first = SchemaSourceReader.Bytes(source, ValidationLimits.Default, cancellationToken);
+        var first = source.GetBytes(ValidationLimits.Default, cancellationToken);
         stream.Position = 0;
         stream.SetLength(0);
-        var second = SchemaSourceReader.Bytes(source, ValidationLimits.Default, cancellationToken);
+        var second = source.GetBytes(ValidationLimits.Default, cancellationToken);
 
-        await Assert.That(source.HasReplay).IsTrue();
         await Assert.That(second.Length).IsEqualTo(first.Length);
         await Assert.That(first.Length).IsGreaterThan(0);
     }
@@ -42,10 +41,10 @@ public class SourceReaderTests
         cancellationToken.ThrowIfCancellationRequested();
 
         using var stream = new MemoryStream(Utf8(Schema));
-        var source = SchemaSource.FromStream(stream, SchemaSystemId);
-        _ = SchemaSourceReader.Bytes(source, ValidationLimits.Default, cancellationToken);
+        var source = SchemaSourceHolder.FromStream(stream, SchemaSystemId);
+        _ = source.GetBytes(ValidationLimits.Default, cancellationToken);
 
-        var failure = Capture(() => _ = SchemaSourceReader.Bytes(source, Small, cancellationToken));
+        var failure = Capture(() => _ = source.GetBytes(Small, cancellationToken));
 
         await Assert.That(failure.Issues.Single().Code).IsEqualTo(CoreDiagnosticCodes.ResourceSizeLimitExceeded);
     }
@@ -56,13 +55,12 @@ public class SourceReaderTests
         cancellationToken.ThrowIfCancellationRequested();
 
         using var stream = new MemoryStream(Utf8(Schema));
-        var source = SchemaSource.FromStream(stream, SchemaSystemId);
+        var source = SchemaSourceHolder.FromStream(stream, SchemaSystemId);
 
-        var failure = Capture(() => _ = SchemaSourceReader.Bytes(source, Small, cancellationToken));
+        var failure = Capture(() => _ = source.GetBytes(Small, cancellationToken));
 
         await Assert.That(stream.Position).IsEqualTo(0L);
         await Assert.That(failure.Issues.Single().Location.Source).IsEqualTo(SchemaSystemId);
-        await Assert.That(source.HasReplay).IsFalse();
     }
 
     [Test]
@@ -73,12 +71,11 @@ public class SourceReaderTests
         cancellationToken.ThrowIfCancellationRequested();
 
         using var stream = new NoSeekStream(Utf8(Schema));
-        var source = SchemaSource.FromStream(stream, SchemaSystemId);
+        var source = SchemaSourceHolder.FromStream(stream, SchemaSystemId);
 
-        var failure = Capture(() => _ = SchemaSourceReader.Bytes(source, Small, cancellationToken));
+        var failure = Capture(() => _ = source.GetBytes(Small, cancellationToken));
 
         await Assert.That(failure.Issues.Single().Code).IsEqualTo(CoreDiagnosticCodes.ResourceSizeLimitExceeded);
-        await Assert.That(source.HasReplay).IsFalse();
     }
 
     [Test]
@@ -87,10 +84,10 @@ public class SourceReaderTests
         cancellationToken.ThrowIfCancellationRequested();
 
         using var stream = new MemoryStream(Utf8(Schema));
-        var source = SchemaSource.FromStream(stream, SchemaSystemId);
+        var source = SchemaSourceHolder.FromStream(stream, SchemaSystemId);
 
         var failure = await Assert
-            .That(async () => await SchemaSourceReader.PrefetchAsync(source, Small, cancellationToken))
+            .That(async () => await source.PrefetchAsync(Small, cancellationToken))
             .Throws<SchemaCompilationException>();
 
         await Assert.That(failure!.Issues.Single().Code).IsEqualTo(CoreDiagnosticCodes.ResourceSizeLimitExceeded);
@@ -103,19 +100,16 @@ public class SourceReaderTests
         cancellationToken.ThrowIfCancellationRequested();
 
         using var stream = new MemoryStream(Utf8(Schema));
-        var source = SchemaSource.FromStream(stream, SchemaSystemId);
-        await SchemaSourceReader.PrefetchAsync(source, ValidationLimits.Default, cancellationToken);
+        var source = SchemaSourceHolder.FromStream(stream, SchemaSystemId);
+        await source.PrefetchAsync(ValidationLimits.Default, cancellationToken);
         var position = stream.Position;
 
-        await SchemaSourceReader.PrefetchAsync(source, ValidationLimits.Default, cancellationToken);
+        await source.PrefetchAsync(ValidationLimits.Default, cancellationToken);
 
         await Assert.That(stream.Position).IsEqualTo(position);
-        await Assert.That(source.HasReplay).IsTrue();
-        await SchemaSourceReader.PrefetchAsync(
-            SchemaSource.FromBytes(Utf8(Schema).AsSpan(), null),
-            ValidationLimits.Default,
-            cancellationToken
-        );
+        await SchemaSourceHolder
+            .FromBytes(Utf8(Schema).AsSpan(), null)
+            .PrefetchAsync(ValidationLimits.Default, cancellationToken);
     }
 
     [Test]

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Resources;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Schematron.Svrl;
@@ -30,7 +31,7 @@ public class StubStageTests
             DenyAllResourceResolver.Instance
         );
 
-    private static SchemaSource Source() => SchemaSource.FromChars("x".AsSpan(), null);
+    private static SchemaSourceHolder Source() => SchemaSourceHolder.FromChars("x".AsSpan(), null);
 
     [Test]
     public async Task StubStage_Pipeline_Throws_DiagnosticWithNotImplementedCode() =>

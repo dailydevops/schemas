@@ -28,12 +28,12 @@ public sealed class SchematronValidatorBuilder
 {
     private const string DefaultPhaseName = "#DEFAULT";
 
-    private readonly SchemaSource _source;
+    private readonly SchemaSourceHolder _source;
     private readonly Dictionary<string, string> _parameters = new(StringComparer.Ordinal);
     private string _phase = DefaultPhaseName;
     private ISchematronPipeline _pipeline = SchematronPipeline.Instance;
 
-    internal SchematronValidatorBuilder(SchemaSource source) => _source = source;
+    internal SchematronValidatorBuilder(SchemaSourceHolder source) => _source = source;
 
     /// <summary>Gets the phase: an id, <c>#ALL</c>, or <c>#DEFAULT</c> (the default, meaning <c>defaultPhase</c> or <c>#ALL</c>).</summary>
     public string Phase => _phase;
@@ -87,7 +87,7 @@ public sealed class SchematronValidatorBuilder
         cancellationToken.ThrowIfCancellationRequested();
 
         // The stream is read asynchronously and kept first; the stages after it are synchronous and find the bytes.
-        await SchemaSourceReader.PrefetchAsync(_source, limits, cancellationToken).ConfigureAwait(false);
+        await _source.PrefetchAsync(limits, cancellationToken).ConfigureAwait(false);
         return Create(limits, resolver, cancellationToken);
     }
 

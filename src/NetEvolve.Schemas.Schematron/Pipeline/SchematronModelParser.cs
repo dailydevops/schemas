@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.Schematron.Pipeline;
 
 using System.Threading;
 using NetEvolve.Arguments;
+using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Schematron.Loading.XInclude;
 using NetEvolve.Schemas.Schematron.Parsing.Core;
 using NetEvolve.Schemas.Schematron.Seams;
@@ -15,7 +16,7 @@ using NetEvolve.Schemas.Xml.Model.Loading;
 /// the parse, which reports an unknown one.
 /// </summary>
 /// <remarks>
-/// Every input kind reaches one read: a source in bytes or text is read as it is, a stream by <see cref="SchemaSourceReader"/>. The
+/// Every input kind reaches one read: a source in bytes or text is read as it is, a stream by <see cref="SchemaSourceHolder"/>. The
 /// problems of the Xml package are reported with its codes and the position of the reader. The schema is a resource, not an instance:
 /// its size is bounded by <c>MaxResourceSize</c>, and the reader keeps its own limits, as it does for a module that is included.
 /// </remarks>
@@ -32,7 +33,7 @@ internal sealed class SchematronModelParser : IModelParser
         _cancellationToken = cancellationToken;
     }
 
-    public bool TryParse(SchemaSource source, IProblemSink problems, out ParsedModule module)
+    public bool TryParse(SchemaSourceHolder source, IProblemSink problems, out ParsedModule module)
     {
         ArgumentNullException.ThrowIfNull(source);
         ArgumentNullException.ThrowIfNull(problems);
@@ -58,18 +59,16 @@ internal sealed class SchematronModelParser : IModelParser
         return true;
     }
 
-    private bool TryRead(SchemaSource source, IProblemSink problems, out XmlDocumentTree tree)
+    private bool TryRead(SchemaSourceHolder source, IProblemSink problems, out XmlDocumentTree tree)
     {
         _cancellationToken.ThrowIfCancellationRequested();
 
         try
         {
             tree =
-                source.Kind == SchemaSourceKind.Chars
-                    ? XmlDocumentLoader.Load(SchemaSourceReader.Chars(source, _settings.Limits).Span)
-                    : XmlDocumentLoader.Load(
-                        SchemaSourceReader.Bytes(source, _settings.Limits, _cancellationToken).Span
-                    );
+                source.Kind == DocumentSourceKind.Chars
+                    ? XmlDocumentLoader.Load(source.GetChars(_settings.Limits).Span)
+                    : XmlDocumentLoader.Load(source.GetBytes(_settings.Limits, _cancellationToken).Span);
             return true;
         }
         catch (XmlParseException failure)

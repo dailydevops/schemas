@@ -5,7 +5,7 @@ namespace NetEvolve.Schemas;
 using System;
 using System.Buffers;
 using System.IO;
-using NetEvolve.Schemas.Schematron.Seams;
+using NetEvolve.Schemas.Formats;
 
 /// <summary>
 /// The Schematron entry point. C# 14 callers write <c>SchemaValidator.ForSchematron(...)</c>; compilers older than C# 14
@@ -25,21 +25,21 @@ public static class SchematronSchemaValidatorExtensions
         /// <param name="systemId">The base URI of the schema for <c>include</c>, or <see langword="null"/>.</param>
         /// <returns>A new builder.</returns>
         public static SchematronValidatorBuilder ForSchematron(Stream schema, string? systemId = null) =>
-            new(SchemaSource.FromStream(schema, systemId));
+            new(SchemaSourceHolder.FromStream(schema, systemId));
 
         /// <summary>Starts a builder for a schema in encoded bytes. The bytes are copied once.</summary>
         /// <param name="schema">The bytes.</param>
         /// <param name="systemId">The base URI of the schema for <c>include</c>, or <see langword="null"/>.</param>
         /// <returns>A new builder.</returns>
         public static SchematronValidatorBuilder ForSchematron(ReadOnlySpan<byte> schema, string? systemId = null) =>
-            new(SchemaSource.FromBytes(schema, systemId));
+            new(SchemaSourceHolder.FromBytes(schema, systemId));
 
         /// <summary>Starts a builder for a schema in text. The characters are copied once.</summary>
         /// <param name="schema">The characters.</param>
         /// <param name="systemId">The base URI of the schema for <c>include</c>, or <see langword="null"/>.</param>
         /// <returns>A new builder.</returns>
         public static SchematronValidatorBuilder ForSchematron(ReadOnlySpan<char> schema, string? systemId = null) =>
-            new(SchemaSource.FromChars(schema, systemId));
+            new(SchemaSourceHolder.FromChars(schema, systemId));
 
         /// <summary>Starts a builder for a schema in a byte sequence. The segments are copied once.</summary>
         /// <param name="schema">The bytes.</param>
@@ -48,7 +48,7 @@ public static class SchematronSchemaValidatorExtensions
         public static SchematronValidatorBuilder ForSchematron(
             ReadOnlySequence<byte> schema,
             string? systemId = null
-        ) => new(SchemaSource.FromBytes(in schema, systemId));
+        ) => new(SchemaSourceHolder.FromBytes(in schema, systemId));
 
         /// <summary>Starts a builder for a schema in a character sequence. The segments are copied once.</summary>
         /// <param name="schema">The characters.</param>
@@ -57,6 +57,6 @@ public static class SchematronSchemaValidatorExtensions
         public static SchematronValidatorBuilder ForSchematron(
             ReadOnlySequence<char> schema,
             string? systemId = null
-        ) => new(SchemaSource.FromChars(in schema, systemId));
+        ) => new(SchemaSourceHolder.FromChars(in schema, systemId));
     }
 }

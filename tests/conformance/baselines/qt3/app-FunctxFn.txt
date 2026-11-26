@@ -1,4 +1,3 @@
-app-FunctxFn/functx-fn-default-collation-1
 app-FunctxFn/functx-fn-doc-available-1
 app-FunctxFn/functx-fn-escape-html-uri-1
 app-FunctxFn/functx-fn-escape-html-uri-2

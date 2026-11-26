@@ -175,9 +175,12 @@ internal sealed class SchemaFixture
         return declaration;
     }
 
+    /// <summary>Gets or sets the XSD version of the frozen set; an <c>all</c> group is compiled with the matcher of that version.</summary>
+    public XsdVersion Version { get; set; } = XsdVersion.V11;
+
     public ValidationModel Model()
     {
-        var set = _registry.Freeze(XsdVersion.V11);
+        var set = _registry.Freeze(Version);
         return ValidationModel.Build(set, _registry.Components, Reporter);
     }
 }
