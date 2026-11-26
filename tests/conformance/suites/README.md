@@ -135,3 +135,24 @@ cases of `xslt-3` are excluded with a reason (SCH-21).
   separated by tabs; a baseline entry without a line, or a line without an entry, fails the test.
 - **Limitation:** the case reader keeps the text of an assertion and not its namespace declarations, so the engine declares the prefix
   `svrl` for the assertions; every assertion of the pinned release uses this prefix only.
+
+## W3C XInclude test suite (`xinclude.json`)
+
+The W3C XInclude test suite (`XIncl20060927.zip`, a static W3C file; W3C test suite licence) is pinned by checksum. The archive
+holds CVS folders, which the runner never reads. The runner lives in
+`tests/NetEvolve.Schemas.Schematron.Tests.Unit/Loading/XInclude/Suite` and drives the internal XInclude resolver of the Schematron
+loader, because the resolver is not public API.
+
+- **Catalog:** `testdescr.xml` lists 174 cases of five contributors (`Imaq`, `FourThought`, `Nist`, `EdUni`, `Harold`). A case has
+  the type `success` or `error`, optional `features`, and a reference result under `result/`.
+- **Comparison:** the resolver reads every resource through a sandboxed file resolver rooted at the suite. A `success` case passes
+  when the merged tree equals the reference result: names compare as expanded names, attributes in ascending order, and
+  namespace declarations and the document type are ignored. An `error` case passes when the input is not well formed or the
+  resolver reports a problem.
+- **Exclusions:** cases with the feature `xpointer-scheme`, `unexpanded-entities`, or `unparsed-entities`, and the four cases
+  that read a live http resource, are skipped with their reason.
+- **Baseline:** `tests/conformance/baselines/xinclude/<contributor>.txt` lists the failed cases of one contributor folder.
+  `known-failure-links.tsv` links each entry to its issue and reason, separated by tabs; an entry without a line, or a line
+  without an entry, fails the test.
+- **Run:** `XIncludeConformanceTests` is explicit and in the `Conformance` category; the baseline guard
+  `XIncludeKnownFailureTests` needs no download.
