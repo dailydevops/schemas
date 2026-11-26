@@ -95,9 +95,13 @@ public class PatternParenthesizedPrefixTests
     {
         var compiled = Compile(new PatternMatcher(new PatternTestBinding(true)), "(a|e)/b");
 
+        var names = compiled.CandidateNames;
+        var count = names.Length;
+        var first = names[0].LocalName;
+
         await Assert.That(compiled.NodeKinds.ToString()).IsEqualTo("Element");
-        await Assert.That(compiled.CandidateNames.Count).IsEqualTo(1);
-        await Assert.That(compiled.CandidateNames[0].LocalName).IsEqualTo("b");
+        await Assert.That(count).IsEqualTo(1);
+        await Assert.That(first).IsEqualTo("b");
     }
 
     [Test]
