@@ -27,15 +27,15 @@ public class FacetAvailabilityTests
         await Assert.That(issues.Count).IsEqualTo(0);
     }
 
-    // The assertion facet is not supported before #321, so it counts as unavailable and its absence selects the fallback.
+    // The assertion facet is supported, so it counts as available and its presence keeps the element.
     [Test]
-    public async Task TheAssertionFacet_IsUnavailableUntilItIsSupported()
+    public async Task TheAssertionFacet_IsAvailable()
     {
         var (available, _) = Run(Element("vc:facetAvailable=\"xs:assertion\""));
         var (unavailable, _) = Run(Element("vc:facetUnavailable=\"xs:assertion\""));
 
-        await Assert.That(available!.ChildCount).IsEqualTo(0);
-        await Assert.That(Children(unavailable!)).IsEqualTo("a");
+        await Assert.That(Children(available!)).IsEqualTo("a");
+        await Assert.That(unavailable!.ChildCount).IsEqualTo(0);
     }
 
     [Test]
