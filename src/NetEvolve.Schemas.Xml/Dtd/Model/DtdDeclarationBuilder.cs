@@ -17,6 +17,7 @@ internal sealed class DtdDeclarationBuilder
     private readonly Dictionary<string, XmlNotation> _notations = new(StringComparer.Ordinal);
     private List<string>? _duplicateNotations;
     private List<DtdEntityDeclaration>? _duplicateEntities;
+    private List<(string Element, DtdAttributeDefinition Definition)>? _duplicateAttributes;
 
     internal DtdDeclarationBuilder(string name, string? publicId, string? systemId)
     {
@@ -51,6 +52,9 @@ internal sealed class DtdDeclarationBuilder
         {
             if (string.Equals(existing.Name, definition.Name, StringComparison.Ordinal))
             {
+                // The optional warning XML5903 is decided from this record; it stays null for a document without a repeat.
+                (_duplicateAttributes ??= []).Add((element, definition));
+
                 return;
             }
         }
@@ -134,7 +138,8 @@ internal sealed class DtdDeclarationBuilder
             _parameter,
             _notations,
             _duplicateNotations,
-            _duplicateEntities
+            _duplicateEntities,
+            _duplicateAttributes
         );
     }
 }
