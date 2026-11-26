@@ -577,12 +577,18 @@ public class ValueConstraintCheckTests
     [Test]
     [Arguments("ID", true)]
     [Arguments("derived", true)]
+    [Arguments("builtin", true)]
     [Arguments("NCName", false)]
     [Arguments("string", false)]
     public async Task ElementOfAnIdType_CannotCarryAValueConstraint(string type, bool isId)
     {
         var fixture = new FacetFixture();
-        var simple = type == "derived" ? fixture.Derive(fixture.Wrapped("ID")) : fixture.Wrapped(type);
+        var simple = type switch
+        {
+            "derived" => (IXsdComponent)fixture.Derive(fixture.Wrapped("ID")),
+            "builtin" => fixture.BuiltIn("ID"),
+            _ => fixture.Wrapped(type),
+        };
 
         foreach (var kind in new[] { ElementValueConstraintKind.Default, ElementValueConstraintKind.Fixed })
         {
