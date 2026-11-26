@@ -150,6 +150,39 @@ namespace NetEvolve.Schemas.Formats
         Bytes = 0,
         Chars = 1,
     }
+    public readonly struct ResourceLoadResult
+    {
+        public NetEvolve.Schemas.DiagnosticCode Code { get; }
+        public System.ReadOnlyMemory<byte> Content { get; }
+        public string Message { get; }
+        public NetEvolve.Schemas.Formats.ResourceLoadStatus Status { get; }
+        public string? SystemId { get; }
+    }
+    public enum ResourceLoadStatus : byte
+    {
+        Loaded = 0,
+        Failed = 1,
+        LimitExceeded = 2,
+    }
+    public sealed class ResourceLoader
+    {
+        public ResourceLoader(NetEvolve.Schemas.Resources.IResourceResolver resolver, NetEvolve.Schemas.ValidationLimits limits) { }
+        public int RequestCount { get; }
+        public NetEvolve.Schemas.Formats.ResourceLoadResult Load(NetEvolve.Schemas.Resources.ResourceKind kind, string reference, string? baseUri, System.Threading.CancellationToken cancellationToken, string? publicId = null, string? namespaceUri = null) { }
+    }
+    public sealed class SchemaSourceHolder
+    {
+        public NetEvolve.Schemas.Formats.DocumentSourceKind Kind { get; }
+        public string? SystemId { get; }
+        public System.ReadOnlyMemory<byte> GetBytes(NetEvolve.Schemas.ValidationLimits limits, System.Threading.CancellationToken cancellationToken = default) { }
+        public System.ReadOnlyMemory<char> GetChars(NetEvolve.Schemas.ValidationLimits limits) { }
+        public System.Threading.Tasks.ValueTask PrefetchAsync(NetEvolve.Schemas.ValidationLimits limits, System.Threading.CancellationToken cancellationToken = default) { }
+        public static NetEvolve.Schemas.Formats.SchemaSourceHolder FromBytes(System.ReadOnlySpan<byte> content, string? systemId = null) { }
+        public static NetEvolve.Schemas.Formats.SchemaSourceHolder FromBytes(in System.Buffers.ReadOnlySequence<byte> content, string? systemId = null) { }
+        public static NetEvolve.Schemas.Formats.SchemaSourceHolder FromChars(System.ReadOnlySpan<char> content, string? systemId = null) { }
+        public static NetEvolve.Schemas.Formats.SchemaSourceHolder FromChars(in System.Buffers.ReadOnlySequence<char> content, string? systemId = null) { }
+        public static NetEvolve.Schemas.Formats.SchemaSourceHolder FromStream(System.IO.Stream stream, string? systemId = null) { }
+    }
     public abstract class SchemaValidatorBase : NetEvolve.Schemas.ISchemaValidator
     {
         protected SchemaValidatorBase(NetEvolve.Schemas.ValidationLimits limits, NetEvolve.Schemas.Resources.IResourceResolver resolver) { }

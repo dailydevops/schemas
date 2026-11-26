@@ -64,7 +64,10 @@ public class ResourceLoaderTests
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var loader = new ResourceLoader(new StubResolver(_ => ResourceResult.Denied("no way")), ValidationLimits.Default);
+        var loader = new ResourceLoader(
+            new StubResolver(_ => ResourceResult.Denied("no way")),
+            ValidationLimits.Default
+        );
 
         var result = loader.Load(ResourceKind.SchemaDocument, "other.xsd", Base, cancellationToken);
 
@@ -106,7 +109,10 @@ public class ResourceLoaderTests
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        var loader = new ResourceLoader(new StubResolver(_ => ResourceResult.NotFound("gone")), ValidationLimits.Default);
+        var loader = new ResourceLoader(
+            new StubResolver(_ => ResourceResult.NotFound("gone")),
+            ValidationLimits.Default
+        );
 
         var result = loader.Load(ResourceKind.SchemaDocument, "other.xsd", Base, cancellationToken);
 
@@ -127,7 +133,9 @@ public class ResourceLoaderTests
 
         await Assert.That(result.Status).IsEqualTo(ResourceLoadStatus.Failed);
         await Assert.That(result.Code).IsEqualTo(CoreDiagnosticCodes.ResourceBaseUriMissing);
-        await Assert.That(result.Message).IsEqualTo("The reference 'other.xsd' is relative and the base URI is not absolute.");
+        await Assert
+            .That(result.Message)
+            .IsEqualTo("The reference 'other.xsd' is relative and the base URI is not absolute.");
         await Assert.That(resolver.Requests).IsEmpty();
         await Assert.That(loader.RequestCount).IsEqualTo(1);
     }
@@ -205,8 +213,10 @@ public class ResourceLoaderTests
     }
 
     [Test]
-    public async Task Load_Cancelled_CancelsBeforeCounting()
+    public async Task Load_Cancelled_CancelsBeforeCounting(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var resolver = new StubResolver(_ => ResourceResult.Found(Content));
         var loader = new ResourceLoader(resolver, ValidationLimits.Default);
         using var cts = new CancellationTokenSource();
@@ -235,8 +245,10 @@ public class ResourceLoaderTests
     }
 
     [Test]
-    public async Task Result_Default_IsLoadedWithEmptyContent()
+    public async Task Result_Default_IsLoadedWithEmptyContent(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var result = default(ResourceLoadResult);
 
         await Assert.That(result.Status).IsEqualTo(ResourceLoadStatus.Loaded);

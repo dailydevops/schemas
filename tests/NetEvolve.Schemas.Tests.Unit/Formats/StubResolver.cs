@@ -14,6 +14,7 @@ internal sealed class StubResolver(Func<ResourceRequest, ResourceResult> answer)
 
     public ResourceResult Resolve(in ResourceRequest request, CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         Requests.Add(request);
         LastToken = cancellationToken;
         return answer(request);

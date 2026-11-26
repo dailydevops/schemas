@@ -41,4 +41,15 @@ internal sealed class ProbeStream(byte[] bytes, bool canSeek = true, int chunk =
         OnRead?.Invoke();
         return Task.FromResult(base.Read(buffer, offset, Math.Min(count, chunk)));
     }
+
+    public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        AsyncReads++;
+        OnRead?.Invoke();
+        var scratch = new byte[Math.Min(buffer.Length, chunk)];
+        var read = base.Read(scratch, 0, scratch.Length);
+        scratch.AsMemory(0, read).CopyTo(buffer);
+        return ValueTask.FromResult(read);
+    }
 }

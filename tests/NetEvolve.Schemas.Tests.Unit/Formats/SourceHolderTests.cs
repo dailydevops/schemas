@@ -16,16 +16,20 @@ using NetEvolve.Schemas.Formats;
 public class SourceHolderTests
 {
     private const string SystemId = "file:///schema.xsd";
-    private static readonly byte[] Content = Encoding.UTF8.GetBytes("<schema>0123456789012345678901234567890123456789</schema>");
+    private static readonly byte[] Content = Encoding.UTF8.GetBytes(
+        "<schema>0123456789012345678901234567890123456789</schema>"
+    );
     private static readonly ValidationLimits Small = ValidationLimits.Default.WithMaxResourceSize(16);
 
     [Test]
-    public async Task Build_OversizeSchemaStream_ReportsNes0007()
+    public async Task Build_OversizeSchemaStream_ReportsNes0007(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         using var stream = new ProbeStream(Content);
         var holder = SchemaSourceHolder.FromStream(stream, SystemId);
 
-        var failure = Capture(() => holder.GetBytes(Small));
+        var failure = Capture(() => holder.GetBytes(Small, cancellationToken));
 
         var issue = failure.Issues.Single();
         await Assert.That(issue.Code).IsEqualTo(CoreDiagnosticCodes.ResourceSizeLimitExceeded);
@@ -35,12 +39,16 @@ public class SourceHolderTests
     }
 
     [Test]
-    public async Task Build_OversizeSchemaStreamThatCannotSeek_ReportsNes0007WhileReading()
+    public async Task Build_OversizeSchemaStreamThatCannotSeek_ReportsNes0007WhileReading(
+        CancellationToken cancellationToken
+    )
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         using var stream = new ProbeStream(Content, canSeek: false);
         var holder = SchemaSourceHolder.FromStream(stream, SystemId);
 
-        var failure = Capture(() => holder.GetBytes(Small));
+        var failure = Capture(() => holder.GetBytes(Small, cancellationToken));
 
         await Assert.That(failure.Issues.Single().Code).IsEqualTo(CoreDiagnosticCodes.ResourceSizeLimitExceeded);
         await Assert.That(stream.SyncReads).IsGreaterThan(0);
@@ -80,8 +88,10 @@ public class SourceHolderTests
     }
 
     [Test]
-    public async Task BuildAsync_Cancelled_Cancels()
+    public async Task BuildAsync_Cancelled_Cancels(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         using var stream = new ProbeStream(Content);
         var holder = SchemaSourceHolder.FromStream(stream, SystemId);
         using var cts = new CancellationTokenSource();
@@ -90,13 +100,17 @@ public class SourceHolderTests
         await Assert
             .That(async () => await holder.PrefetchAsync(ValidationLimits.Default, cts.Token))
             .Throws<OperationCanceledException>();
-        await Assert.That(() => holder.GetBytes(ValidationLimits.Default, cts.Token)).Throws<OperationCanceledException>();
+        await Assert
+            .That(() => holder.GetBytes(ValidationLimits.Default, cts.Token))
+            .Throws<OperationCanceledException>();
         await Assert.That(stream.AsyncReads + stream.SyncReads).IsEqualTo(0);
     }
 
     [Test]
-    public async Task BuildAsync_CancelledWhileReading_Cancels()
+    public async Task BuildAsync_CancelledWhileReading_Cancels(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         using var cts = new CancellationTokenSource();
         using var stream = new ProbeStream(Content, canSeek: false) { OnRead = cts.Cancel };
         var holder = SchemaSourceHolder.FromStream(stream, SystemId);
@@ -107,8 +121,10 @@ public class SourceHolderTests
     }
 
     [Test]
-    public async Task BuildAsync_CancelledByTheLastRead_Cancels()
+    public async Task BuildAsync_CancelledByTheLastRead_Cancels(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         using var cts = new CancellationTokenSource();
         using var stream = new ProbeStream(Content, canSeek: false, chunk: 1_000);
         stream.OnRead = () =>
@@ -126,13 +142,17 @@ public class SourceHolderTests
     }
 
     [Test]
-    public async Task Build_CancelledWhileReading_Cancels()
+    public async Task Build_CancelledWhileReading_Cancels(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         using var cts = new CancellationTokenSource();
         using var stream = new ProbeStream(Content, canSeek: false) { OnRead = cts.Cancel };
         var holder = SchemaSourceHolder.FromStream(stream, SystemId);
 
-        await Assert.That(() => holder.GetBytes(ValidationLimits.Default, cts.Token)).Throws<OperationCanceledException>();
+        await Assert
+            .That(() => holder.GetBytes(ValidationLimits.Default, cts.Token))
+            .Throws<OperationCanceledException>();
     }
 
     [Test]
@@ -189,12 +209,16 @@ public class SourceHolderTests
     }
 
     [Test]
-    public async Task GetBytes_Stream_ReadsFromTheCurrentPositionAndKeepsTheStreamOpen()
+    public async Task GetBytes_Stream_ReadsFromTheCurrentPositionAndKeepsTheStreamOpen(
+        CancellationToken cancellationToken
+    )
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         using var stream = new ProbeStream(Content) { Position = 8 };
         var holder = SchemaSourceHolder.FromStream(stream, SystemId);
 
-        var bytes = holder.GetBytes(ValidationLimits.Default);
+        var bytes = holder.GetBytes(ValidationLimits.Default, cancellationToken);
 
         await Assert.That(bytes.ToArray().SequenceEqual(Content.Skip(8))).IsTrue();
         await Assert.That(stream.CanRead).IsTrue();
@@ -202,13 +226,15 @@ public class SourceHolderTests
     }
 
     [Test]
-    public async Task FromBytes_Span_CopiesTheInput()
+    public async Task FromBytes_Span_CopiesTheInput(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var buffer = (byte[])Content.Clone();
         var holder = SchemaSourceHolder.FromBytes(buffer, SystemId);
         Array.Clear(buffer);
 
-        var bytes = holder.GetBytes(ValidationLimits.Default);
+        var bytes = holder.GetBytes(ValidationLimits.Default, cancellationToken);
 
         await Assert.That(bytes.ToArray().SequenceEqual(Content)).IsTrue();
         await Assert.That(holder.Kind).IsEqualTo(DocumentSourceKind.Bytes);
@@ -216,19 +242,25 @@ public class SourceHolderTests
     }
 
     [Test]
-    public async Task FromBytes_MultiSegmentSequence_CopiesTheInput()
+    public async Task FromBytes_MultiSegmentSequence_CopiesTheInput(CancellationToken cancellationToken)
     {
-        var sequence = Sequence(Content.AsMemory(0, 10), Content.AsMemory(10));
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var sequence = Sequence<byte>(Content.AsMemory(0, 10), Content.AsMemory(10));
 
         var holder = SchemaSourceHolder.FromBytes(in sequence);
 
-        await Assert.That(holder.GetBytes(ValidationLimits.Default).ToArray().SequenceEqual(Content)).IsTrue();
+        await Assert
+            .That(holder.GetBytes(ValidationLimits.Default, cancellationToken).ToArray().SequenceEqual(Content))
+            .IsTrue();
         await Assert.That(holder.SystemId).IsNull();
     }
 
     [Test]
-    public async Task FromChars_Span_CopiesTheInput()
+    public async Task FromChars_Span_CopiesTheInput(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var buffer = "<schema/>".ToCharArray();
         var holder = SchemaSourceHolder.FromChars(buffer, SystemId);
         Array.Clear(buffer);
@@ -240,10 +272,12 @@ public class SourceHolderTests
     }
 
     [Test]
-    public async Task FromChars_MultiSegmentSequence_CopiesTheInput()
+    public async Task FromChars_MultiSegmentSequence_CopiesTheInput(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var text = "<schema/>".ToCharArray();
-        var sequence = Sequence(text.AsMemory(0, 3), text.AsMemory(3));
+        var sequence = Sequence<char>(text.AsMemory(0, 3), text.AsMemory(3));
 
         var holder = SchemaSourceHolder.FromChars(in sequence);
 
@@ -251,12 +285,14 @@ public class SourceHolderTests
     }
 
     [Test]
-    public async Task Get_MemoryOverTheLimit_ReportsNes0007()
+    public async Task Get_MemoryOverTheLimit_ReportsNes0007(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var bytes = SchemaSourceHolder.FromBytes(Content, SystemId);
         var chars = SchemaSourceHolder.FromChars(new string('x', 40), SystemId);
 
-        var first = Capture(() => bytes.GetBytes(Small));
+        var first = Capture(() => bytes.GetBytes(Small, cancellationToken));
         var second = Capture(() => chars.GetChars(Small));
 
         await Assert.That(first.Issues.Single().Code).IsEqualTo(CoreDiagnosticCodes.ResourceSizeLimitExceeded);
@@ -264,12 +300,16 @@ public class SourceHolderTests
     }
 
     [Test]
-    public async Task Get_WrongKind_IsAProgrammerError()
+    public async Task Get_WrongKind_IsAProgrammerError(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var bytes = SchemaSourceHolder.FromBytes(Content);
         var chars = SchemaSourceHolder.FromChars("<a/>");
 
-        await Assert.That(() => chars.GetBytes(ValidationLimits.Default)).Throws<InvalidOperationException>();
+        await Assert
+            .That(() => chars.GetBytes(ValidationLimits.Default, cancellationToken))
+            .Throws<InvalidOperationException>();
         await Assert.That(() => bytes.GetChars(ValidationLimits.Default)).Throws<InvalidOperationException>();
     }
 
@@ -283,7 +323,9 @@ public class SourceHolderTests
         await Assert.That(() => SchemaSourceHolder.FromStream(null!)).Throws<ArgumentNullException>();
         await Assert.That(() => holder.GetBytes(null!)).Throws<ArgumentNullException>();
         await Assert.That(() => holder.GetChars(null!)).Throws<ArgumentNullException>();
-        await Assert.That(async () => await holder.PrefetchAsync(null!, cancellationToken)).Throws<ArgumentNullException>();
+        await Assert
+            .That(async () => await holder.PrefetchAsync(null!, cancellationToken))
+            .Throws<ArgumentNullException>();
     }
 
     private static SchemaCompilationException Capture(Action action)
