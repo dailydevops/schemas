@@ -205,6 +205,20 @@ public class XspecReaderTests
     }
 
     [Test]
+    public async Task Read_FileThatIsNotWellFormed_IsExcludedWithTheParserMessage()
+    {
+        using var fixture = new XspecFixture();
+        _ = fixture.Write("test/schematron-broken.xspec", "<x:description xmlns:x=\"urn:x\"");
+
+        var selection = XspecReader.Read(fixture.Root);
+
+        await Assert.That(selection.Selected).IsEmpty();
+        var excluded = selection.Excluded.Single();
+        await Assert.That(excluded.TestSet).IsEqualTo("test-schematron-broken");
+        await Assert.That(excluded.Reason).Contains("not well formed");
+    }
+
+    [Test]
     public async Task Read_MissingSchemaFile_ExcludesTheFile()
     {
         using var fixture = new XspecFixture();
