@@ -5,6 +5,7 @@ using System.Xml.Linq;
 using NetEvolve.Schemas.Conformance.Baseline;
 using NetEvolve.Schemas.Conformance.Reporting;
 using NetEvolve.Schemas.Conformance.Results;
+using NetEvolve.Schemas.Schematron.Tests.Integration.Conformance.Engine;
 using NetEvolve.Schemas.Schematron.Tests.Integration.Conformance.Runner;
 using NetEvolve.Schemas.Schematron.Tests.Integration.Goldens.En16931;
 
@@ -14,8 +15,10 @@ using NetEvolve.Schemas.Schematron.Tests.Integration.Goldens.En16931;
 /// </summary>
 /// <remarks>
 /// Applicable cases: every <c>test</c> of every file in <c>unit-UBL-PEPPOL</c> and <c>unit-CII-PEPPOL</c>, which test the Peppol rule
-/// sets <c>PEPPOL-EN16931-UBL.sch</c> and <c>PEPPOL-EN16931-CII.sch</c>. No case is excluded. Out of scope: the national unit-test
-/// folders, the envelope rules, the example invoices, and the CEN base rules (tested in the EN 16931 goldens).
+/// sets <c>PEPPOL-EN16931-UBL.sch</c> and <c>PEPPOL-EN16931-CII.sch</c>. The national folders (<c>unit-UBL-DE</c> and the others) test the
+/// same two rule sets, and <c>unit-SBDH</c> tests <c>PeppolBIS-Envelope-Rules.sch</c>; they have their own test sets and their own rate
+/// row, and their known failures are baselined. No case is excluded. Out of scope: the example invoices, and the CEN base rules
+/// (tested in the EN 16931 goldens).
 /// </remarks>
 [Explicit]
 [Category(ConformanceCategory.Name)]
@@ -148,15 +151,89 @@ public class PeppolBis3GoldenTests
         var root = await PeppolBis3Run.GetRootAsync(cancellationToken);
         var expected = Directory
             .EnumerateDirectories(root, "unit-*")
-            .Select(d => Path.GetFileName(d)["unit-".Length..].Replace("-PEPPOL", string.Empty, StringComparison.Ordinal))
-            .Select(n => n.ToLowerInvariant())
+            .Select(d =>
+                Path.GetFileName(d)["unit-".Length..].Replace("-PEPPOL", string.Empty, StringComparison.Ordinal)
+            )
             .OrderBy(n => n, StringComparer.Ordinal)
             .ToArray();
 
         var results = await PeppolBis3Run.GetResultsAsync(cancellationToken);
 
-        await Assert.That(results.Keys.OrderBy(k => k, StringComparer.Ordinal).ToArray()).IsEquivalentTo(expected);
+        await Assert
+            .That(results.Keys.Select(k => k.ToUpperInvariant()).OrderBy(k => k, StringComparer.Ordinal).ToArray())
+            .IsEquivalentTo(expected);
         await Assert.That(results.Values.All(r => r.Count > 0)).IsTrue();
+    }
+
+    [Test]
+    [Arguments("ubl-de")]
+    [Arguments("ubl-dk")]
+    [Arguments("ubl-gr")]
+    [Arguments("ubl-it")]
+    [Arguments("ubl-nl")]
+    [Arguments("ubl-no")]
+    [Arguments("ubl-se")]
+    [Arguments("cii-dk")]
+    [Arguments("cii-it")]
+    [Arguments("cii-nl")]
+    [Arguments("cii-no")]
+    [Arguments("cii-se")]
+    [Arguments("sbdh")]
+    public async Task NationalAndEnvelope_FireExactlyTheExpectedRules_ExceptTheKnownFailures(
+        string testSet,
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        ArgumentNullException.ThrowIfNull(testSet);
+        var results = (await PeppolBis3Run.GetResultsAsync(cancellationToken))[testSet];
+
+        var report = ConformanceReport.Compare(
+            results,
+            new Dictionary<string, KnownFailureBaseline>(StringComparer.Ordinal)
+            {
+                [testSet] = BaselineFiles.Load(PeppolBis3Run.BaselineDirectory, testSet),
+            }
+        );
+        ConformanceRateReporter.Collect(
+            PeppolBis3Run.NationalRatePackage,
+            TargetFrameworkName.Of(typeof(PeppolBis3GoldenTests).Assembly),
+            report
+        );
+
+        await Assert.That(results).IsNotEmpty();
+        await Assert.That(report.TestSets).HasSingleItem();
+        await Assert.That(report.IsSuccess).IsTrue().Because(Format(report.TestSets[0], results));
+    }
+
+    [Test]
+    public async Task Baseline_EveryEntry_HasALinkedBugIssue(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var root = await PeppolBis3Run.GetRootAsync(cancellationToken);
+        var baseline = PeppolBis3Run
+            .TestSets(root)
+            .SelectMany(testSet => BaselineFiles.Load(PeppolBis3Run.BaselineDirectory, testSet).Ids)
+            .ToList();
+
+        var problems = KnownFailureLinks.Verify(
+            baseline,
+            KnownFailureLinks.Parse(
+                await File.ReadAllTextAsync(
+                    Path.Combine(
+                        SchematronSuite.RepositoryRoot,
+                        "tests",
+                        "NetEvolve.Schemas.Schematron.Tests.Integration",
+                        "Goldens",
+                        "PeppolBis3",
+                        "known-failure-links.txt"
+                    ),
+                    cancellationToken
+                )
+            )
+        );
+
+        await Assert.That(problems).IsEmpty().Because(string.Join('\n', problems));
     }
 
     [Test]
