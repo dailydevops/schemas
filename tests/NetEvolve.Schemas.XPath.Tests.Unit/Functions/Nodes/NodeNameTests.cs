@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.XPath.Tests.Unit.Functions.Nodes;
 
 using System.Threading.Tasks;
+using NetEvolve.Schemas.XPath.Context;
 
 /// <summary>
 /// <c>fn:name</c>, <c>fn:local-name</c>, and <c>fn:namespace-uri</c> (Functions and Operators 1.0, 14.1 to 14.3): the lexical name,
@@ -51,6 +52,21 @@ public class NodeNameTests
     [Arguments("namespace-uri", "r", "anyURI:")]
     public async Task Function_WithoutArgument_UsesTheContextItem(string function, string node, string expected) =>
         await Assert.That(NodesHarness.RunWithContextItem("node:" + node, function)).IsEqualTo(expected);
+
+    // The lexical name of a prefixed node is built once per name table, so a rule that reads name() on every node does not allocate a string per call.
+    [Test]
+    public async Task Name_OfAPrefixedNode_ReturnsTheSameStringInstanceOnEveryCall()
+    {
+        _ = NodesHarness.TryResolve("name", 1, out var function);
+        using var context = new XPathEvaluationContext();
+        var argument = NodesHarness.Parse("node:a");
+
+        _ = function!.Call(context, [argument])[0].TryGetString(out var first);
+        _ = function.Call(context, [argument])[0].TryGetString(out var second);
+
+        await Assert.That(first).IsEqualTo("p:a");
+        await Assert.That(ReferenceEquals(first, second)).IsTrue();
+    }
 
     [Test]
     [Arguments("name", "string:")]
