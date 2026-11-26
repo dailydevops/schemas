@@ -23,8 +23,8 @@ using NetEvolve.Schemas.Xsd.SchemaDocuments;
 /// </para>
 /// <para>
 /// Limitations: components of different documents are never equivalent, since the defaults of their document may differ.
-/// A node of the set keeps its ancestors in the overriding document, so its
-/// document-level defaults are those of the overriding document unless a consumer reads them from the unit (#757).
+/// A node of the set keeps its ancestors in the overriding document, so the builders read its document-level defaults
+/// from the unit (<c>SchemaUnit.Root</c>), which is the overridden document (#757).
 /// </para>
 /// </remarks>
 internal sealed class OverrideSet

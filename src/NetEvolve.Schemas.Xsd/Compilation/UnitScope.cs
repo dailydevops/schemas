@@ -16,7 +16,8 @@ internal sealed class UnitScope
         Unit = unit;
         Scope = new SchemaNamespaceScope(
             unit.EffectiveNamespace,
-            unit.EffectiveNamespace.Length > 0 && unit.Root.FindAttribute("targetNamespace") is null
+            unit.EffectiveNamespace.Length > 0 && unit.Root.FindAttribute("targetNamespace") is null,
+            unit.Root
         );
         Particles = new ParticleBuilder(Scope);
         Elements = new ElementDeclarationBuilder(Scope);

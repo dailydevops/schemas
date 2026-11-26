@@ -41,10 +41,9 @@ using NetEvolve.Schemas.Xsd.SchemaDocuments;
 /// conflicting components, as Structures 1.1, 4.2.5 describes; the component registry reports the duplicate. A
 /// set that changes nothing in a document and in the documents it includes leaves each of them a plain unit,
 /// and the document is read once to decide when it is not loaded yet.
-/// Limitation: a replacing node keeps the ancestors of the overriding document, so a builder that reads the defaults of the
-/// schema (<c>elementFormDefault</c>, <c>blockDefault</c>, ...) through the ancestors of a node gets those of the overriding
-/// document, while Structures 1.1, 4.2.5 demands those of the overridden one; the unit carries the right <c>schema</c>
-/// element in <see cref="SchemaUnit.Root"/> (#757).
+/// A replacing node keeps the ancestors of the overriding document, so the builders read the defaults of the schema
+/// (<c>elementFormDefault</c>, <c>blockDefault</c>, ...) from <see cref="SchemaUnit.Root"/>, the <c>schema</c> element of the
+/// overridden document that Structures 1.1, 4.2.5 demands (#757).
 /// </para>
 /// </remarks>
 internal sealed class SchemaDocumentLoader
