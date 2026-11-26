@@ -115,4 +115,49 @@ public class ItemSequenceSinkTests
 
         await Assert.That(SinkTestSupport.Node(sink.Result[0]).StringValue).IsEqualTo(text + text);
     }
+
+    [Test]
+    public async Task Reset_ForgetsItemsAndPendingText_AndKeepsTheSequenceReadBefore()
+    {
+        var sink = new ItemSequenceSink(SinkTestSupport.NewTable());
+        var one = XdmItem.FromInteger(1);
+        var two = XdmItem.FromInteger(2);
+        sink.Item(in one);
+        sink.Item(in two);
+        var before = sink.Result;
+        sink.Text("pending");
+
+        sink.Reset();
+        sink.Item(in two);
+
+        var after = sink.Result;
+        await Assert.That(before.Count).IsEqualTo(2);
+        await Assert.That(before[0]).IsEqualTo(one);
+        await Assert.That(after.Count).IsEqualTo(1);
+        await Assert.That(after[0]).IsEqualTo(two);
+    }
+
+    [Test]
+    public async Task Reset_OfAnEmptySink_StaysEmpty()
+    {
+        var sink = new ItemSequenceSink(SinkTestSupport.NewTable());
+
+        sink.Reset();
+
+        await Assert.That(sink.Result.IsEmpty).IsTrue();
+    }
+
+    [Test]
+    public async Task Items_MoreItemsThanTheInitialCapacity_AreAllKept()
+    {
+        var sink = new ItemSequenceSink(SinkTestSupport.NewTable());
+
+        for (var i = 0; i < 9; i++)
+        {
+            var item = XdmItem.FromInteger(i);
+            sink.Item(in item);
+        }
+
+        await Assert.That(sink.Result.Count).IsEqualTo(9);
+    }
 }

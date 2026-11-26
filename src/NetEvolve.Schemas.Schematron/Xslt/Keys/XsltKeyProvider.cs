@@ -7,6 +7,7 @@ using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Schematron.Xslt.Construction;
 using NetEvolve.Schemas.Xml.Contracts;
+using NetEvolve.Schemas.Xml.Model;
 using NetEvolve.Schemas.XPath.Abstractions;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Errors;
@@ -35,8 +36,12 @@ internal sealed class XsltKeyProvider : IXPathKeyProvider
     private readonly XmlNameTable _names;
     private readonly CancellationToken _cancellationToken;
     private readonly XsltFrame _frame;
-    private readonly Dictionary<(XPathNode Root, XPathQName Name), Dictionary<string, List<XPathNode>>> _indexes = [];
+    private readonly Dictionary<(XPathNode Root, XPathQName Name), Dictionary<string, XsltKeyBucket>> _indexes = [];
     private readonly HashSet<(XPathNode Root, XPathQName Name)> _building = [];
+    private ItemSequenceSink? _spare;
+    private XmlTree? _lastTree;
+    private XPathQName _lastName;
+    private Dictionary<string, XsltKeyBucket>? _lastIndex;
     private SchematronProblem _problem;
 
     /// <summary>Initializes a new instance of the <see cref="XsltKeyProvider"/> class.</summary>
@@ -130,6 +135,64 @@ internal sealed class XsltKeyProvider : IXPathKeyProvider
         ArgumentNullException.ThrowIfNull(node.Tree);
 
         nodes = XdmSequence.Empty;
+        Dictionary<string, XsltKeyBucket> index;
+
+        // Consecutive lookups of one key in one document skip the declaration lookup, the walk to the root, and the tuple hash.
+        if (_lastIndex is not null && ReferenceEquals(node.Tree, _lastTree) && _lastName.Equals(name))
+        {
+            index = _lastIndex;
+        }
+        else
+        {
+            if (TryGetIndex(in name, in node, out index) == QueryStatus.Problem)
+            {
+                return QueryStatus.Problem;
+            }
+
+            _lastTree = node.Tree;
+            _lastName = name;
+            _lastIndex = index;
+        }
+
+        // One value without a subtree gives the bucket as it is: in document order, without duplicates, and already a sequence.
+        if (values.Count == 1 && !subtree)
+        {
+            var single = XsltKeyValue.TryGetKey(values[0], out var singleKey);
+            if (single == XsltKeyValueStatus.Unsupported)
+            {
+                return Fail(null, $"The type of a value of the key '{name}' is not supported as a key value.");
+            }
+
+            if (single == XsltKeyValueStatus.Ok && index.TryGetValue(singleKey, out var only))
+            {
+                nodes = only.Sequence;
+            }
+
+            return QueryStatus.Ok;
+        }
+
+        var found = new List<XPathNode>();
+        for (var i = 0; i < values.Count; i++)
+        {
+            var status = XsltKeyValue.TryGetKey(values[i], out var key);
+            if (status == XsltKeyValueStatus.Unsupported)
+            {
+                return Fail(null, $"The type of a value of the key '{name}' is not supported as a key value.");
+            }
+
+            if (status == XsltKeyValueStatus.Ok && index.TryGetValue(key, out var bucket))
+            {
+                AddNodes(found, bucket.Nodes, in node, subtree);
+            }
+        }
+
+        nodes = ToSequence(found, values.Count > 1);
+        return QueryStatus.Ok;
+    }
+
+    private QueryStatus TryGetIndex(in XPathQName name, in XPathNode node, out Dictionary<string, XsltKeyBucket> index)
+    {
+        index = null!;
         if (!_table.TryGet(in name, out var declarations))
         {
             return Fail("XTDE1260", $"The key '{name}' is not declared by an xsl:key element.");
@@ -149,56 +212,41 @@ internal sealed class XsltKeyProvider : IXPathKeyProvider
             );
         }
 
-        if (!_indexes.TryGetValue((root, name), out var index))
+        if (_indexes.TryGetValue((root, name), out index!))
         {
-            // A match pattern that starts with key() of the key under construction would recurse without end (XTDE0640).
-            if (!_building.Add((root, name)))
-            {
-                return Fail(
-                    "XTDE0640",
-                    $"The definition of the key '{name}' is circular: its match pattern reads the key."
-                );
-            }
-
-            QueryStatus built;
-            try
-            {
-                built = TryBuild(in root, declarations, out index);
-            }
-            finally
-            {
-                _ = _building.Remove((root, name));
-            }
-
-            if (built == QueryStatus.Problem)
-            {
-                return QueryStatus.Problem;
-            }
-
-            _indexes.Add((root, name), index);
-            IndexBuilds++;
+            return QueryStatus.Ok;
         }
 
-        var found = new List<XPathNode>();
-        for (var i = 0; i < values.Count; i++)
+        // A match pattern that starts with key() of the key under construction would recurse without end (XTDE0640).
+        if (!_building.Add((root, name)))
         {
-            var status = XsltKeyValue.TryGetKey(values[i], out var key);
-            if (status == XsltKeyValueStatus.Unsupported)
-            {
-                return Fail(null, $"The type of a value of the key '{name}' is not supported as a key value.");
-            }
-
-            if (status == XsltKeyValueStatus.Ok && index.TryGetValue(key, out var bucket))
-            {
-                AddNodes(found, bucket, in node, subtree);
-            }
+            return Fail(
+                "XTDE0640",
+                $"The definition of the key '{name}' is circular: its match pattern reads the key."
+            );
         }
 
-        nodes = ToSequence(found, values.Count > 1);
+        QueryStatus built;
+        try
+        {
+            built = TryBuild(in root, declarations, out index);
+        }
+        finally
+        {
+            _ = _building.Remove((root, name));
+        }
+
+        if (built == QueryStatus.Problem)
+        {
+            return QueryStatus.Problem;
+        }
+
+        _indexes.Add((root, name), index);
+        IndexBuilds++;
         return QueryStatus.Ok;
     }
 
-    private static void AddNodes(List<XPathNode> found, List<XPathNode> bucket, in XPathNode top, bool subtree)
+    private static void AddNodes(List<XPathNode> found, IReadOnlyList<XPathNode> bucket, in XPathNode top, bool subtree)
     {
         for (var i = 0; i < bucket.Count; i++)
         {
@@ -222,7 +270,7 @@ internal sealed class XsltKeyProvider : IXPathKeyProvider
         return false;
     }
 
-    // One value gives the bucket, which is in document order without duplicates; several values need the union.
+    // Several values or a subtree need the union, sorted into document order.
     private static XdmSequence ToSequence(List<XPathNode> found, bool union)
     {
         if (union)
@@ -245,10 +293,10 @@ internal sealed class XsltKeyProvider : IXPathKeyProvider
     private QueryStatus TryBuild(
         in XPathNode root,
         XsltKeyComponent[] declarations,
-        out Dictionary<string, List<XPathNode>> index
+        out Dictionary<string, XsltKeyBucket> index
     )
     {
-        index = new Dictionary<string, List<XPathNode>>(StringComparer.Ordinal);
+        index = new Dictionary<string, XsltKeyBucket>(StringComparer.Ordinal);
         foreach (var declaration in declarations)
         {
             if (_binder.EnsureBound(declaration.ReferencedSlots) == QueryStatus.Problem)
@@ -300,18 +348,36 @@ internal sealed class XsltKeyProvider : IXPathKeyProvider
     private QueryStatus TryIndexNode(
         XsltKeyComponent[] declarations,
         in XPathNode node,
-        Dictionary<string, List<XPathNode>> index
+        Dictionary<string, XsltKeyBucket> index
     )
     {
         _cancellationToken.ThrowIfCancellationRequested();
 
         var kind = Kinds(node.Kind);
+        var named = node.Kind is XdmNodeKind.Element or XdmNodeKind.Attribute;
+        var nameKnown = false;
+        XPathQName name = default;
         foreach (var declaration in declarations)
         {
             // The kinds of the pattern are a cheap pre-test; most nodes of a document are not candidates.
             if ((declaration.Match.NodeKinds & kind) == QueryNodeKinds.None)
             {
                 continue;
+            }
+
+            // A pattern whose last steps list their names cannot match a node of another name: skip the XPath match.
+            if (named && declaration.Match.CandidateNames.Length > 0)
+            {
+                if (!nameKnown)
+                {
+                    name = NameOf(node);
+                    nameKnown = true;
+                }
+
+                if (!Lists(declaration.Match, name))
+                {
+                    continue;
+                }
             }
 
             if (!TryMatches(declaration, in node, out var matched))
@@ -328,6 +394,30 @@ internal sealed class XsltKeyProvider : IXPathKeyProvider
         return QueryStatus.Ok;
     }
 
+    private static bool Lists(CompiledPattern pattern, XPathQName name)
+    {
+        foreach (var candidate in pattern.CandidateNames)
+        {
+            if (candidate.Equals(name))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static XPathQName NameOf(in XPathNode node)
+    {
+        var symbols = node.Node.Name;
+        var table = node.Tree!.Names;
+
+        return new XPathQName(Text(table, symbols.NamespaceUri), Text(table, symbols.Local));
+    }
+
+    private static string Text(XmlNameTable table, XmlSymbol symbol) =>
+        table.TryGetString(symbol, out var text) && text is not null ? text : string.Empty;
+
     private bool TryMatches(XsltKeyComponent declaration, in XPathNode node, out bool matched)
     {
         if (_matcher.Matches(declaration.Match, _run, in node, out matched) == QueryStatus.Ok)
@@ -343,10 +433,11 @@ internal sealed class XsltKeyProvider : IXPathKeyProvider
     private QueryStatus TryAddKeys(
         XsltKeyComponent declaration,
         in XPathNode node,
-        Dictionary<string, List<XPathNode>> index
+        Dictionary<string, XsltKeyBucket> index
     )
     {
-        var sink = new ItemSequenceSink(_names);
+        var sink = _spare ?? new ItemSequenceSink(_names);
+        _spare = null;
         var focus = new QueryFocus(node, 1, 1);
         QueryStatus status;
         if (declaration.Use is not null)
@@ -366,6 +457,10 @@ internal sealed class XsltKeyProvider : IXPathKeyProvider
         }
 
         var values = sink.Result;
+
+        // The sequence is a copy, so the sink serves the next node; a nested build during the evaluation above had its own.
+        sink.Reset();
+        _spare = sink;
         for (var i = 0; i < values.Count; i++)
         {
             var result = XsltKeyValue.TryGetKey(values[i], out var key);
@@ -379,26 +474,17 @@ internal sealed class XsltKeyProvider : IXPathKeyProvider
 
             if (result == XsltKeyValueStatus.Ok)
             {
-                Add(index, key, node);
+                if (!index.TryGetValue(key, out var bucket))
+                {
+                    bucket = new XsltKeyBucket();
+                    index.Add(key, bucket);
+                }
+
+                bucket.Add(node);
             }
         }
 
         return QueryStatus.Ok;
-    }
-
-    // The nodes arrive in document order, so a node that was added last for a key is the only duplicate that can occur.
-    private static void Add(Dictionary<string, List<XPathNode>> index, string key, XPathNode node)
-    {
-        if (!index.TryGetValue(key, out var bucket))
-        {
-            bucket = [];
-            index.Add(key, bucket);
-        }
-
-        if (bucket.Count == 0 || bucket[bucket.Count - 1] != node)
-        {
-            bucket.Add(node);
-        }
     }
 
     // The flags of QueryNodeKinds are the numbers of XdmNodeKind as bit positions: document 1, element 2, attribute 4, and so on.
