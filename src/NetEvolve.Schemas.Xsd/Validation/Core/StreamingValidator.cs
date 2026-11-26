@@ -30,7 +30,7 @@ using NetEvolve.Schemas.Xsd.Validation.Xsi;
 /// for end tags and text carry no position.
 /// </para>
 /// <para>
-/// Limitations: substitution groups (<see cref="ValidationModel"/>), ID, IDREF, and NOTATION (XSD-14, #303), identity
+/// Limitations: ID, IDREF, and NOTATION (XSD-14, #303), identity
 /// constraints (XSD-15, #304), default values of mixed content, the value space comparison of fixed QName and NOTATION values, which needs the namespace context,
 /// and forwarding of events to an inner sink (#361). A violation that a listener finds does not mark the element invalid,
 /// because the shared reporter has no verdict channel yet. The nesting depth is bounded by the reader

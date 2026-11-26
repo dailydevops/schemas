@@ -572,4 +572,103 @@ public class ValueConstraintCheckTests
             .That(() => ValueConstraintCheck.Check(use, fixture.Assessor, (XsdVersion)7, fixture.Reporter))
             .Throws<ArgumentOutOfRangeException>();
     }
+
+    // A declaration whose type is ID, or derived from ID, has no value constraint (a-props-correct, e-props-correct).
+    [Test]
+    [Arguments("ID", true)]
+    [Arguments("derived", true)]
+    [Arguments("builtin", true)]
+    [Arguments("NCName", false)]
+    [Arguments("string", false)]
+    public async Task ElementOfAnIdType_CannotCarryAValueConstraint(string type, bool isId)
+    {
+        var fixture = new FacetFixture();
+        var simple = type switch
+        {
+            "derived" => (IXsdComponent)fixture.Derive(fixture.Wrapped("ID")),
+            "builtin" => fixture.BuiltIn("ID"),
+            _ => fixture.Wrapped(type),
+        };
+
+        foreach (var kind in new[] { ElementValueConstraintKind.Default, ElementValueConstraintKind.Fixed })
+        {
+            await Assert
+                .That(
+                    ValueConstraintCheck.Check(
+                        Element(simple, kind, "abc"),
+                        fixture.Assessor,
+                        fixture.Version,
+                        fixture.Reporter
+                    )
+                )
+                .IsEqualTo(!isId);
+        }
+
+        await Assert.That(fixture.Issues.Count).IsEqualTo(isId ? 2 : 0);
+        if (isId)
+        {
+            await Assert.That(fixture.Issues[0].Code).IsEqualTo(FacetFixture.CodeOf("e-props-correct"));
+            await Assert.That(fixture.Issues[0].Location.Line).IsEqualTo(5);
+        }
+    }
+
+    [Test]
+    public async Task ElementOfAComplexTypeWithIdSimpleContent_CannotCarryAValueConstraint()
+    {
+        var fixture = new FacetFixture();
+        var complex = ComplexTypeDefinition.FromSimpleContent(
+            Header(),
+            XsdDerivationMethod.Extension,
+            fixture.Derive(fixture.Wrapped("ID")),
+            null,
+            [],
+            null,
+            fixture.Reporter
+        )!;
+
+        await Assert
+            .That(
+                ValueConstraintCheck.Check(
+                    Element(complex, ElementValueConstraintKind.Default, "abc"),
+                    fixture.Assessor,
+                    fixture.Version,
+                    fixture.Reporter
+                )
+            )
+            .IsFalse();
+        await Assert.That(fixture.Issues.Count).IsEqualTo(1);
+        await Assert.That(fixture.Issues[0].Code).IsEqualTo(FacetFixture.CodeOf("e-props-correct"));
+    }
+
+    [Test]
+    [Arguments("ID", true, XsdVersion.V10)]
+    [Arguments("derived", true, XsdVersion.V11)]
+    [Arguments("NCName", false, XsdVersion.V10)]
+    public async Task AttributeOfAnIdType_CannotCarryAValueConstraint(string type, bool isId, XsdVersion version)
+    {
+        var fixture = new FacetFixture(version);
+        var simple = type == "derived" ? fixture.Derive(fixture.Wrapped("ID")) : fixture.Wrapped(type);
+
+        foreach (var kind in new[] { AttributeValueConstraintKind.Default, AttributeValueConstraintKind.Fixed })
+        {
+            var attribute = AttributeDeclaration.Global(
+                "a",
+                Tns,
+                FacetFixture.Where,
+                simple,
+                new AttributeValueConstraint(kind, "abc"),
+                fixture.Reporter
+            )!;
+
+            await Assert
+                .That(ValueConstraintCheck.Check(attribute, fixture.Assessor, fixture.Version, fixture.Reporter))
+                .IsEqualTo(!isId);
+        }
+
+        await Assert.That(fixture.Issues.Count).IsEqualTo(isId ? 2 : 0);
+        if (isId)
+        {
+            await Assert.That(fixture.Issues[0].Code).IsEqualTo(FacetFixture.CodeOf("a-props-correct"));
+        }
+    }
 }

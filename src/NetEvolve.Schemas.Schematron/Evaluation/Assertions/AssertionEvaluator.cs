@@ -30,6 +30,7 @@ internal sealed class AssertionEvaluator : IDisposable
     private readonly TextSink _reference;
     private readonly TextSink _path;
     private readonly AnnotationEvaluator _annotations;
+    private readonly SeverityFilter? _severityFilter;
     private string[] _diagnosticIds = [];
     private string[] _diagnosticTexts = [];
     private string[] _diagnosticLanguages = [];
@@ -50,6 +51,7 @@ internal sealed class AssertionEvaluator : IDisposable
     /// <param name="instanceSystemId">The system identifier of the instance, or <see langword="null"/>.</param>
     /// <param name="maxTextLength">The most characters of one message, diagnostic, or property.</param>
     /// <param name="embedded">Builds the structured content of a property with <c>xsl:copy-of</c>, or <see langword="null"/> when the run has none.</param>
+    /// <param name="severityFilter">The allow-list of severities, or <see langword="null"/> to keep every finding.</param>
     internal AssertionEvaluator(
         IQueryRun run,
         ISlotBinder binder,
@@ -57,7 +59,8 @@ internal sealed class AssertionEvaluator : IDisposable
         IProblemSink problems,
         string? instanceSystemId,
         int maxTextLength,
-        IEmbeddedContent? embedded = null
+        IEmbeddedContent? embedded = null,
+        SeverityFilter? severityFilter = null
     )
     {
         ArgumentNullException.ThrowIfNull(run);
@@ -76,6 +79,7 @@ internal sealed class AssertionEvaluator : IDisposable
         _reference = new TextSink(maxTextLength);
         _path = new TextSink(int.MaxValue);
         _annotations = new AnnotationEvaluator(run, binder, problems, maxTextLength);
+        _severityFilter = severityFilter;
     }
 
     /// <summary>Gets the resolver of the <c>role</c>, <c>flag</c>, and <c>severity</c> values; the run loop tells it where a pattern pass and a firing begin.</summary>
@@ -124,6 +128,10 @@ internal sealed class AssertionEvaluator : IDisposable
     {
         var node = ResolveSubject(assertion, in focus);
         var annotations = _annotations.Resolve(assertion.Annotations, assertion.Constraint, in focus);
+        if (_severityFilter is not null && !_severityFilter.Allows(annotations.Severity.AsSpan()))
+        {
+            return;
+        }
 
         _message.Clear();
         _ = _builder.Build(assertion.Message, in focus, _message);

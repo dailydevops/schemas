@@ -11,6 +11,7 @@ using NetEvolve.Arguments;
 using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Resources;
 using NetEvolve.Schemas.Schematron;
+using NetEvolve.Schemas.Schematron.Evaluation.Assertions;
 using NetEvolve.Schemas.Schematron.Pipeline;
 using NetEvolve.Schemas.Schematron.Seams;
 
@@ -33,6 +34,7 @@ public sealed class SchematronValidatorBuilder
     private string _phase = DefaultPhaseName;
     private bool _globalPatternLets;
     private bool _dtdProcessing;
+    private SeverityFilter? _severityFilter;
     private ISchematronPipeline _pipeline = SchematronPipeline.Instance;
 
     internal SchematronValidatorBuilder(SchemaSourceHolder source) => _source = source;
@@ -103,6 +105,27 @@ public sealed class SchematronValidatorBuilder
         return this;
     }
 
+    /// <summary>
+    /// Keeps only the findings whose <c>severity</c> is in an allow-list (issue #384). A failed <c>assert</c> or a successful
+    /// <c>report</c> whose severity is not listed is dropped from the <see cref="ValidationResult"/> and from the SVRL output alike. A
+    /// finding without a <c>severity</c> is always kept. There is no filter by default, and the last call wins.
+    /// </summary>
+    /// <remarks>
+    /// The <c>severity</c> is an opaque token without a vocabulary or an order (ISO/IEC 19757-3), so the filter compares text only. The list
+    /// is copied; a later change of the caller list has no effect.
+    /// </remarks>
+    /// <param name="severities">The severities to keep; neither <see langword="null"/>, empty, nor containing a <see langword="null"/> or empty entry.</param>
+    /// <param name="comparison">How a finding severity is compared with the list; the default ignores case.</param>
+    /// <returns>This builder.</returns>
+    public SchematronValidatorBuilder WithSeverityFilter(
+        IReadOnlyList<string> severities,
+        StringComparison comparison = StringComparison.OrdinalIgnoreCase
+    )
+    {
+        _severityFilter = new SeverityFilter(severities, comparison);
+        return this;
+    }
+
     internal SchematronValidatorBuilder UsePipeline(ISchematronPipeline pipeline)
     {
         ArgumentNullException.ThrowIfNull(pipeline);
@@ -144,7 +167,8 @@ public sealed class SchematronValidatorBuilder
             _phase,
             parameters,
             limits,
-            resolver
+            resolver,
+            _severityFilter
         );
     }
 

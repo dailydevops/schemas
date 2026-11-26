@@ -1,0 +1,7 @@
+{
+  "key": "libxml2",
+  "url": "https://github.com/GNOME/libxml2/archive/refs/tags/v2.15.4.tar.gz",
+  "sha256": "bb01bd9ac9a7403f9706816fd6d3e7888041d32b0211075feb20e755d2a9f29d",
+  "archive": "tar.gz",
+  "subPath": "libxml2-2.15.4"
+}
