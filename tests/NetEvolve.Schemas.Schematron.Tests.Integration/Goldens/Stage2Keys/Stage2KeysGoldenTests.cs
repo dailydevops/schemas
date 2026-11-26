@@ -25,7 +25,12 @@ public class Stage2KeysGoldenTests
     private static readonly XNamespace Xsl = "http://www.w3.org/1999/XSL/Transform";
 
     public static IEnumerable<Func<string>> TestSets() =>
-        [() => Stage2Run.EhfTestSet, () => Stage2Run.EusrTestSet, () => Stage2Run.TsrTestSet];
+        [
+            () => Stage2Run.EhfTestSet,
+            () => Stage2Run.EhfBuildTestSet,
+            () => Stage2Run.EusrTestSet,
+            () => Stage2Run.TsrTestSet,
+        ];
 
     public static IEnumerable<Func<(string Suite, string Path, string Rule)>> KeyRuleSets() =>
         Stage2Run.LoadRecord().KeyRuleSets.Select(r => (Func<(string, string, string)>)(() => r));

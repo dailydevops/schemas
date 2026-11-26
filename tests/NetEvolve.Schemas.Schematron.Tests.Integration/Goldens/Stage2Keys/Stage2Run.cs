@@ -18,6 +18,9 @@ internal static class Stage2Run
     /// <summary>The test set of the key-based EHF rules.</summary>
     public const string EhfTestSet = "stage2-ehf-keys";
 
+    /// <summary>The test set that builds every EHF rule set, one case per rule set.</summary>
+    public const string EhfBuildTestSet = "stage2-ehf-build";
+
     /// <summary>The test set of the end user statistics report (EUSR).</summary>
     public const string EusrTestSet = "stage2-eusr";
 
