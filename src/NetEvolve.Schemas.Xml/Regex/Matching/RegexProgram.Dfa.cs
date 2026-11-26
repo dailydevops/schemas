@@ -70,6 +70,9 @@ public sealed partial class RegexProgram
 
     private readonly Dfa? _dfa;
 
+    // Whether the boolean match can run on the automaton.
+    internal bool IsDeterministic => _dfa is not null;
+
     // The answer of the deterministic path, or null when the simulation must decide.
     private RegexMatchResult? MatchDeterministic(ReadOnlySpan<char> input)
     {
