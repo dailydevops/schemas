@@ -304,8 +304,10 @@ internal sealed class ComplexTypeBuilder : IComponentBuilder
             return anonymous;
         }
 
+        var facts = FacetBase.Resolve(restricted, _context.Version);
         var check = SimpleTypeFacetCheck.Check(
             restricted,
+            facts,
             _context.FixedOf(restricted),
             step,
             restriction.Location,
@@ -318,7 +320,7 @@ internal sealed class ComplexTypeBuilder : IComponentBuilder
             restriction.Location,
             XsdDerivationMethod.None,
             restricted,
-            FacetFactory.Create(restricted, step, _context.Version),
+            FacetFactory.Create(step, facts, _context.Version, check.CompiledPattern),
             _context.Reporter
         );
         if (type is not null)
