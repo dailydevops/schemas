@@ -117,6 +117,19 @@ public class SimpleContentTests
     }
 
     [Test]
+    public async Task FixedElementValue_EqualInTheValueSpace_IsValid()
+    {
+        var schema = new SchemaFixture();
+        schema.Global("r", SchemaFixture.Simple("decimal"), Fixed("1"));
+
+        var ok = ValidationHarness.Run(schema, "<r>1.0</r>");
+        var bad = ValidationHarness.Run(schema, "<r>2.0</r>");
+
+        await Assert.That(ok.Count).IsEqualTo(0);
+        await AssertIssue(bad, "cvc-elt", "cvc-elt.5.2.2.2.2", 1, "'r'");
+    }
+
+    [Test]
     public async Task DefaultElementValue_IsAppliedToAnEmptyElementAndReportedToListeners()
     {
         var schema = new SchemaFixture();
