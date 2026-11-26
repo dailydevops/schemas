@@ -12,6 +12,7 @@ using NetEvolve.Schemas.Schematron.Scopes;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Schematron.Xslt.Embedding;
 using NetEvolve.Schemas.Schematron.Xslt.Functions;
+using NetEvolve.Schemas.Schematron.Xslt.Keys;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Text.NameTable;
 using NetEvolve.Schemas.XPath.Xdm.Nodes;
@@ -110,6 +111,19 @@ internal static class ValidationRun
                 cancellationToken
             );
             functionRun.FunctionCalls = new XsltFunctionHost(tables.Functions, caller, functionRun);
+        }
+
+        if (program.XsltTables is { Keys.Count: > 0 } keyTables && run is IXsltFunctionRun keyRun)
+        {
+            // One provider per run: its indexes belong to the documents of this run.
+            keyRun.Keys = new XsltKeyProvider(
+                keyTables.Keys,
+                program.Matcher,
+                run,
+                binder,
+                new SpanInterningNameTable(XmlReaderLimits.Default.MaxDistinctNames),
+                cancellationToken
+            );
         }
 
         foreach (var parameter in parameters)

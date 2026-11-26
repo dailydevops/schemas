@@ -1,5 +1,6 @@
 namespace NetEvolve.Schemas.Schematron.Seams;
 
+using NetEvolve.Schemas.XPath.Abstractions;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>
@@ -29,6 +30,12 @@ internal interface IXsltFunctionRun : IQueryRun
     /// type of the value is the concern of the XSLT library, which the layering rule keeps out of reach of a binding.
     /// </summary>
     object? FunctionCalls { get; set; }
+
+    /// <summary>
+    /// Gets or sets the key provider of this run, or <see langword="null"/> when the schema declares no <c>xsl:key</c>. The run hands
+    /// it to the keys host slot of the expressions it evaluates, which the XPath function <c>key</c> reads (#776).
+    /// </summary>
+    IXPathKeyProvider? Keys { get; set; }
 
     /// <summary>
     /// Makes the problem of a failed call the problem of the run: the <see cref="IQueryRun.GetProblem"/> of the evaluation that made

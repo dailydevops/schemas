@@ -40,6 +40,7 @@ internal sealed class XPathQueryRun : IXsltFunctionRun
     private int _level;
     private bool _nested;
     private object? _functions;
+    private IXPathKeyProvider? _keys;
     private XdmSequence[] _values = new XdmSequence[16];
     private bool[] _bound = new bool[16];
     private SchematronProblem _problem;
@@ -62,6 +63,20 @@ internal sealed class XPathQueryRun : IXsltFunctionRun
             foreach (var context in _contexts)
             {
                 context.Host.HostState = value;
+            }
+        }
+    }
+
+    /// <inheritdoc />
+    public IXPathKeyProvider? Keys
+    {
+        get => _keys;
+        set
+        {
+            _keys = value;
+            foreach (var context in _contexts)
+            {
+                context.Host.Keys = value;
             }
         }
     }
@@ -291,6 +306,7 @@ internal sealed class XPathQueryRun : IXsltFunctionRun
     {
         context.Host.DecimalFormats = NoDecimalFormats.Instance;
         context.Host.HostState = _functions;
+        context.Host.Keys = _keys;
     }
 
     private void SetFocus(XPathEvaluationContext context, in QueryFocus focus)
