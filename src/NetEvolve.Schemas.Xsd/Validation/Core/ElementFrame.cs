@@ -36,8 +36,16 @@ internal sealed class ElementFrame
     internal bool UndeclaredRoot;
     internal bool UndeclaredStrict;
     internal int NamespaceMark;
+    internal int ErrorMark;
 
-    internal void Start(XmlName name, XPathQName qname, DocumentLocation location, int ordinal, int namespaceMark)
+    internal void Start(
+        XmlName name,
+        XPathQName qname,
+        DocumentLocation location,
+        int ordinal,
+        int namespaceMark,
+        int errorMark
+    )
     {
         Name = name;
         QName = qname;
@@ -62,5 +70,6 @@ internal sealed class ElementFrame
         UndeclaredRoot = false;
         UndeclaredStrict = false;
         NamespaceMark = namespaceMark;
+        ErrorMark = errorMark;
     }
 }

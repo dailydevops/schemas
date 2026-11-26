@@ -38,8 +38,9 @@ using NetEvolve.Schemas.Xsd.SchemaDocuments;
 /// documents it includes or overrides), becomes a unit of its own whose components are those of the document with the
 /// matching ones replaced by the overriding nodes (see <see cref="OverrideSet"/>). A document reached under another set of
 /// overriding nodes is another unit, so a document that is included or redefined and also overridden is present twice with
-/// conflicting components, as Structures 1.1, 4.2.5 describes; the component registry reports the duplicate. Limitation: a
-/// set that changes nothing in a document leaves it a plain unit, decided on the document and not on the documents it includes (#753).
+/// conflicting components, as Structures 1.1, 4.2.5 describes; the component registry reports the duplicate. A
+/// set that changes nothing in a document and in the documents it includes leaves each of them a plain unit,
+/// and the document is read once to decide when it is not loaded yet.
 /// A replacing node keeps the ancestors of the overriding document, so the builders read the defaults of the schema
 /// (<c>elementFormDefault</c>, <c>blockDefault</c>, ...) from <see cref="SchemaUnit.Root"/>, the <c>schema</c> element of the
 /// overridden document that Structures 1.1, 4.2.5 demands (#757).
@@ -62,7 +63,12 @@ internal sealed class SchemaDocumentLoader
     private readonly List<SchemaUnit> _units = [];
     private readonly Queue<SchemaUnit> _pending = new();
     private readonly List<Redefinition> _redefinitions = [];
-    private readonly Dictionary<SchemaSyntaxNode, int> _nodeIdentities = [];
+    private readonly Dictionary<object, int> _nodeIdentities = [];
+    private readonly Dictionary<string, SchemaUnit> _roots = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, ResourceLoadResult> _kept = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, (SchemaSyntaxNode? Root, string? BaseUri)> _peeked = new(
+        StringComparer.Ordinal
+    );
     private CancellationToken _cancellationToken;
     private ResourceLoader _loader;
     private bool _limitReported;
@@ -99,6 +105,9 @@ internal sealed class SchemaDocumentLoader
         _pending.Clear();
         _redefinitions.Clear();
         _nodeIdentities.Clear();
+        _roots.Clear();
+        _kept.Clear();
+        _peeked.Clear();
         _loader = new ResourceLoader(_resolver, _limits) { PassMissingBaseToResolver = true };
         _limitReported = false;
 
@@ -154,6 +163,7 @@ internal sealed class SchemaDocumentLoader
         _pending.Enqueue(unit);
         if (baseUri is not null)
         {
+            _roots[baseUri] = unit;
             _byKey[Key(baseUri, Scope(effectiveNamespace, overrides))] = unit;
         }
 
@@ -339,7 +349,7 @@ internal sealed class SchemaDocumentLoader
             overrides is not null
             && uri is not null
             && _byKey.TryGetValue(Key(uri, effectiveNamespace), out var plain)
-            && overrides.LeavesUnchanged(plain.Root)
+            && ChangesNothing(overrides, plain.Root, plain.Document.BaseUri, effectiveNamespace, [uri])
         )
         {
             _byKey[Key(uri, scope)] = plain;
@@ -347,13 +357,7 @@ internal sealed class SchemaDocumentLoader
         }
 
         // The cache lookups above stay here, before the load (D5 of #529); the loader counts every request it gets.
-        var result = _loader.Load(
-            ResourceKind.SchemaDocument,
-            reference,
-            unit.Document.BaseUri,
-            _cancellationToken,
-            namespaceUri: importNamespace
-        );
+        var result = LoadDocument(uri, reference, unit.Document.BaseUri, importNamespace);
         var document = Retrieve(in result, scope, node, rule, out var systemId, out known);
         if (known is not null)
         {
@@ -372,6 +376,109 @@ internal sealed class SchemaDocumentLoader
         }
 
         return loaded;
+    }
+
+    /// <summary>
+    /// Tells whether a set changes nothing in a document and in the documents it includes: an include becomes an override of
+    /// the same set (F.2, clause 3), so a set that touches none of them leaves all of them plain units (Structures 1.1, 4.2.5).
+    /// A redefine is not reached, and the override of the document holds every component of the set, so it changes nothing.
+    /// </summary>
+    /// <remarks>
+    /// A document that is not loaded yet is read once to decide and kept, so the later load of that unit takes the kept
+    /// result and the resolver sees every location once. A document that cannot be read or has another namespace counts
+    /// as changed; the load reports it the way it did before.
+    /// </remarks>
+    private bool ChangesNothing(
+        OverrideSet overrides,
+        SchemaSyntaxNode root,
+        string? baseUri,
+        string effectiveNamespace,
+        HashSet<string> visited
+    )
+    {
+        if (!overrides.LeavesUnchanged(root))
+        {
+            return false;
+        }
+
+        for (var i = 0; i < root.ChildCount; i++)
+        {
+            var child = root.GetChildNode(i);
+            var location = child.FindAttribute("schemaLocation");
+            if (location is null || !IsSchemaElement(child, "include"))
+            {
+                continue;
+            }
+
+            var resolution = UriReference.Resolve(location, baseUri);
+            if (resolution.Uri is null)
+            {
+                return false;
+            }
+
+            var uri = WithoutFragment(resolution.Uri);
+            if (!visited.Add(uri))
+            {
+                continue;
+            }
+
+            var (target, targetBase) = Peek(uri, location, baseUri);
+            if (
+                target is null
+                || !NamespaceMatches(TargetNamespaceOf(target), effectiveNamespace, false)
+                || !ChangesNothing(overrides, target, targetBase, effectiveNamespace, visited)
+            )
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /// <summary>Gives the root of a document for the decision of <see cref="ChangesNothing"/>, from a known unit or one read.</summary>
+    private (SchemaSyntaxNode? Root, string? BaseUri) Peek(string uri, string location, string? baseUri)
+    {
+        if (_roots.TryGetValue(uri, out var known))
+        {
+            return (known.Root, known.Document.BaseUri);
+        }
+
+        if (_peeked.TryGetValue(uri, out var peeked))
+        {
+            return peeked;
+        }
+
+        var result = _loader.Load(ResourceKind.SchemaDocument, location, baseUri, _cancellationToken);
+        _kept[uri] = result;
+        SchemaSyntaxNode? root = null;
+        string? systemId = null;
+        if (result.Status == ResourceLoadStatus.Loaded)
+        {
+            systemId = result.SystemId is null ? null : WithoutFragment(result.SystemId);
+            root = SchemaDocumentParser
+                .Parse(result.Content.Span, systemId, new XsdIssueReporter(new ValidationIssueCollector(_limits)))
+                .Root;
+        }
+
+        return _peeked[uri] = (root, systemId);
+    }
+
+    private ResourceLoadResult LoadDocument(string? uri, string reference, string? baseUri, string? importNamespace)
+    {
+        if (uri is not null && importNamespace is null && _kept.TryGetValue(uri, out var kept))
+        {
+            _ = _kept.Remove(uri);
+            return kept;
+        }
+
+        return _loader.Load(
+            ResourceKind.SchemaDocument,
+            reference,
+            baseUri,
+            _cancellationToken,
+            namespaceUri: importNamespace
+        );
     }
 
     private void ReportLimit(SchemaSyntaxNode node, XsdRule rule)
@@ -404,7 +511,16 @@ internal sealed class SchemaDocumentLoader
         var found = TargetNamespaceOf(document.Root!);
         if (NamespaceMatches(found, effectiveNamespace, exact))
         {
-            if (overrides is null || !overrides.LeavesUnchanged(document.Root!))
+            if (
+                overrides is null
+                || !ChangesNothing(
+                    overrides,
+                    document.Root!,
+                    systemId,
+                    effectiveNamespace,
+                    systemId is null ? [] : [systemId]
+                )
+            )
             {
                 return Add(document, effectiveNamespace, systemId, overrides);
             }

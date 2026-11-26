@@ -110,34 +110,7 @@ public class XspecConformanceTests
         }
     }
 
-    /// <summary>Regenerates the baseline files from the failures of the run; run it with the explicit filter after a deliberate change.</summary>
-    [Test]
-    public async Task Baseline_Regenerate(CancellationToken cancellationToken)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-        var run = await XspecSuite.RunAsync(cancellationToken);
-        _ = Directory.CreateDirectory(XspecSuite.BaselineDirectory);
-
-        foreach (var testSet in TestSets(run))
-        {
-            var failures = run
-                .Results.Where(r =>
-                    string.Equals(r.TestSet, testSet, StringComparison.Ordinal) && r.Outcome == CaseOutcome.Fail
-                )
-                .Select(r => r.CaseId)
-                .ToList();
-            if (failures.Count == 0)
-            {
-                File.Delete(BaselineFiles.PathFor(XspecSuite.BaselineDirectory, testSet));
-            }
-            else
-            {
-                BaselineFiles.Save(XspecSuite.BaselineDirectory, testSet, failures);
-            }
-        }
-    }
-
-    private static IReadOnlyList<string> TestSets(XspecRun run) =>
+    internal static IReadOnlyList<string> TestSets(XspecRun run) =>
         [.. run.Selection.Selected.Select(c => c.TestSet).Distinct(StringComparer.Ordinal)];
 
     private static Dictionary<string, KnownFailureBaseline> Baselines(XspecRun run) =>

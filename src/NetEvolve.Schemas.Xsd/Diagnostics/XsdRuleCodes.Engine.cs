@@ -15,6 +15,9 @@ public static partial class XsdRuleCodes
     /// <summary>The unique particle attribution analysis of a content model exceeds its internal state ceiling.</summary>
     public static readonly DiagnosticCode DeterminismAnalysisCeilingExceeded = new(4002);
 
+    /// <summary>A content model run exceeds the internal ceiling of 1,024 configurations.</summary>
+    public static readonly DiagnosticCode ContentModelRunCeilingExceeded = new(4003);
+
     /// <summary>XSD 1.1 construct xs:assert is not allowed in strict 1.0 mode.</summary>
     public static readonly DiagnosticCode Strict10Assert = new(4020);
 
@@ -139,6 +142,14 @@ public static partial class XsdRuleCodes
             DeterminismAnalysisCeilingExceeded,
             "engine-determinism-states",
             "The unique particle attribution analysis of a content model exceeds its internal state ceiling",
+            XsdRuleKind.Engine,
+            XsdVersionMask.All,
+            ""
+        ),
+        new(
+            ContentModelRunCeilingExceeded,
+            "engine-content-model-run",
+            "A content model run exceeds the internal ceiling of 1,024 configurations",
             XsdRuleKind.Engine,
             XsdVersionMask.All,
             ""
