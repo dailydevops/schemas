@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.Xsd.Tests.Unit.Validation.Core;
 
 using System.Collections.Generic;
 using NetEvolve.Schemas.Xml.Contracts;
+using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;
 using NetEvolve.Schemas.Xsd.Elements;
@@ -110,15 +111,21 @@ public class ElementAssessmentTests
     }
 
     [Test]
-    [Arguments("<r><a/><b/></r>", 0)]
-    [Arguments("<r><b/><a/></r>", 0)]
-    [Arguments("<r><b/></r>", 0)]
-    [Arguments("<r><a/></r>", 1)]
-    [Arguments("<r><b/><b/></r>", 1)]
-    [Arguments("<r><b/><c/></r>", 1)]
-    public async Task AllGroup_AcceptsAnyOrderAndEachMemberOnce(string xml, int expectedIssues)
+    [Arguments("<r><a/><b/></r>", 0, XsdVersion.V10)]
+    [Arguments("<r><b/><a/></r>", 0, XsdVersion.V10)]
+    [Arguments("<r><b/></r>", 0, XsdVersion.V10)]
+    [Arguments("<r><a/></r>", 1, XsdVersion.V10)]
+    [Arguments("<r><b/><b/></r>", 1, XsdVersion.V10)]
+    [Arguments("<r><b/><c/></r>", 1, XsdVersion.V10)]
+    [Arguments("<r><a/><b/></r>", 0, XsdVersion.V11)]
+    [Arguments("<r><b/><a/></r>", 0, XsdVersion.V11)]
+    [Arguments("<r><b/></r>", 0, XsdVersion.V11)]
+    [Arguments("<r><a/></r>", 1, XsdVersion.V11)]
+    [Arguments("<r><b/><b/></r>", 1, XsdVersion.V11)]
+    [Arguments("<r><b/><c/></r>", 1, XsdVersion.V11)]
+    public async Task AllGroup_AcceptsAnyOrderAndEachMemberOnce(string xml, int expectedIssues, XsdVersion version)
     {
-        var schema = new SchemaFixture();
+        var schema = new SchemaFixture { Version = version };
         schema.Global(
             "r",
             schema.ElementOnly(

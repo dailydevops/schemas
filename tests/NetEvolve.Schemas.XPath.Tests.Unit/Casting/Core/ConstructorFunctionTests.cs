@@ -87,7 +87,7 @@ public class ConstructorFunctionTests
             builder.Add(
                 new CastRow(
                     XdmTypeId.XsString,
-                    XdmTypes.Get("dateTimeStamp"),
+                    XdmTypes.Get("anyAtomicType"),
                     CastCell.ValueDependent,
                     static (in XdmItem source, out XdmItem result) =>
                     {
@@ -106,11 +106,11 @@ public class ConstructorFunctionTests
             }
         });
 
-        var result = Evaluate("xs:dateTimeStamp('x')", catalog.Table, functions.Registry);
+        var result = Evaluate("xs:anyAtomicType('x')", catalog.Table, functions.Registry);
 
         await Assert.That(result.Count).IsEqualTo(1);
         await Assert.That(Render(result[0])).IsEqualTo("string:an int");
-        await Assert.That(Code("xs:dateTimeStamp('x')")).IsEqualTo("XPST0017");
+        await Assert.That(Code("xs:anyAtomicType('x')")).IsEqualTo("XPST0017");
     }
 
     [Test]

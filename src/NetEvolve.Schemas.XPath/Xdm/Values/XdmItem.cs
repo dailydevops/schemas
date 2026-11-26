@@ -64,10 +64,10 @@ public readonly struct XdmItem : IEquatable<XdmItem>
             ? FromInteger((long)value)
             : new(XdmItemKind.XsDecimal, XdmTypeId.XsInteger, 0, new XsdDecimal(value, 0));
 
-    /// <summary>Gives an <c>xs:integer</c> or <c>xs:string</c> item the type annotation of a type derived from it.</summary>
+    /// <summary>Gives an <c>xs:integer</c>, <c>xs:string</c>, or <c>xs:dateTime</c> item the type annotation of a type derived from it.</summary>
     /// <param name="type">The type; the caller guarantees that the value belongs to it.</param>
     /// <returns>The item with the same value and the annotation <paramref name="type"/>.</returns>
-    /// <remarks>Only the integer and string families have derived types in the data model, so the kinds and the value are kept as they are.</remarks>
+    /// <remarks>Only the integer, string, and dateTime families have derived types in the data model, so the kinds and the value are kept as they are.</remarks>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="type"/> is <see langword="default"/>.</exception>
     internal XdmItem WithTypeId(XdmTypeId type)
     {

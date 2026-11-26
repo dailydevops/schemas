@@ -30,8 +30,7 @@ using NetEvolve.Schemas.Xsd.Validation.Core;
 /// <para>
 /// Limitations: the white space facet of a user-defined type is not applied, only that of its built-in ancestor; a value of <c>xs:QName</c>
 /// or <c>xs:NOTATION</c> needs the namespace context of the node, so it stays <c>xs:untypedAtomic</c> instead of resolving an unprefixed name
-/// against no namespace (#604); and <c>xs:dateTimeStamp</c> is the only built-in atomic type that the casting table has no row for, so its item is
-/// the <c>xs:dateTime</c> of the same value, while <see cref="DataModelType"/> reports <c>xs:dateTimeStamp</c>.
+/// against no namespace (#604).
 /// </para>
 /// </remarks>
 internal static class TypedValues
@@ -201,7 +200,7 @@ internal static class TypedValues
         }
     }
 
-    // Casts to the built-in type. Only a type that has no row in the casting table (xs:dateTimeStamp, and the abstract xs:NOTATION) takes the
+    // Casts to the built-in type. Only a type that has no row in the casting table (the abstract xs:NOTATION) takes the
     // row of its nearest ancestor; a cast that fails, and a type that needs the namespaces of the node (xs:QName), keep the untyped value.
     private static void AppendBuiltIn(string localName, string text, List<XdmItem> items)
     {

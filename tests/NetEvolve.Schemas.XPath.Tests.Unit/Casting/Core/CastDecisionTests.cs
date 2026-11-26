@@ -73,8 +73,8 @@ public class CastDecisionTests
             .IsEqualTo(CastCell.Always);
     }
 
-    // Decision D4: a built-in atomic type without a row is rejected while compiling, with XPST0051 and a message that says why. The derived types of
-    // XP-23 have their rows now; xs:dateTimeStamp, a type of XPath 3.1, is the one built-in atomic type left without one.
+    // Decision D4: a built-in atomic type without a row is rejected while compiling, with XPST0051 and a message that says why. Every built-in atomic
+    // type of the default table has its rows; the table of this test has none for xs:dateTimeStamp, a type of XPath 3.1.
     [Test]
     [Arguments("xs:dateTimeStamp", "xs:dateTimeStamp")]
     public async Task BuiltInTypeWithoutARow_IsRejectedWithAMessageThatNamesTheLimit(string type, string named)
@@ -82,7 +82,8 @@ public class CastDecisionTests
         var expression = "'x' cast as " + type;
         _ = XPathParser.TryParse(expression.AsSpan(), out var syntax, out _);
         var statics = Statics.ToBuilder().WithVersion(XPathVersion.V31).Build();
-        _ = ExpressionCompiler.TryCompile(syntax!, expression, statics, Registry(), out _, out var diagnostic);
+        var table = new CastingCatalog().Table;
+        _ = ExpressionCompiler.TryCompile(syntax!, expression, statics, Registry(table), out _, out var diagnostic);
 
         await Assert.That(diagnostic.Code).IsEqualTo("XPST0051");
         await Assert.That(diagnostic.Message).Contains(named);

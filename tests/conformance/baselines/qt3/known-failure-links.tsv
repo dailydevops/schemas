@@ -1,6 +1,5 @@
 # One line per baseline entry: case id, #issue, reason, separated by tabs. A baseline entry without a line fails the guard test.
 # Every issue number must also be listed in known-open-issues.lst (no network access in the test).
-app-FunctxFn/functx-fn-default-collation-1	#887	fn:default-collation is not implemented (XPST0017).
 app-FunctxFn/functx-fn-doc-available-1	#886	fn:node-name, fn:nilled and fn:document-uri are not available with an argument (XPST0017).
 app-FunctxFn/functx-fn-escape-html-uri-1	#96	fn:escape-html-uri is not implemented (XPST0017).
 app-FunctxFn/functx-fn-escape-html-uri-2	#96	fn:escape-html-uri is not implemented (XPST0017).
@@ -160,10 +159,6 @@ fn-compare/compare-001	#901	The runner skips the compound assertions any-of, all
 fn-data/cbcl-data-001	#901	The runner skips the compound assertions any-of, all-of and not.
 fn-deep-equal/K-SeqDeepEqualFunc-4	#901	The runner skips the compound assertions any-of, all-of and not.
 fn-deep-equal/K-SeqDeepEqualFunc-5	#901	The runner skips the compound assertions any-of, all-of and not.
-fn-default-collation/K-ContextDefaultCollationFunc-3	#887	fn:default-collation is not implemented (XPST0017).
-fn-default-collation/cbcl-default-collation-001	#887	fn:default-collation is not implemented (XPST0017).
-fn-default-collation/cbcl-default-collation-002	#887	fn:default-collation is not implemented (XPST0017).
-fn-default-collation/fn-default-collation-2	#887	fn:default-collation is not implemented (XPST0017).
 fn-distinct-values/K-SeqDistinctValuesFunc-14	#901	The runner skips the compound assertions any-of, all-of and not.
 fn-distinct-values/K-SeqDistinctValuesFunc-2	#901	The runner skips the compound assertions any-of, all-of and not.
 fn-distinct-values/K-SeqDistinctValuesFunc-5	#901	The runner skips the compound assertions any-of, all-of and not.

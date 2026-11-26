@@ -8,6 +8,7 @@ using NetEvolve.Schemas.Xml.Datatypes.DateTime;
 using NetEvolve.Schemas.Xml.Datatypes.Duration;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Functions.Sequences;
+using NetEvolve.Schemas.XPath.Types;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>
@@ -34,6 +35,9 @@ public class TemporalEqualityTests
                 XsdDuration.Parse(lexical, DurationKind.DayTime).Value,
                 DurationKind.DayTime
             ),
+            "dateTimeStamp" => XdmItem
+                .FromTemporal(XsdDateTime.Parse(lexical, XsdDateTimeKind.DateTime, XsdVersion.V10).Value)
+                .WithTypeId(XdmTypes.Get("dateTimeStamp")),
             "integer" => XdmItem.FromInteger(long.Parse(lexical, CultureInfo.InvariantCulture)),
             _ => XdmItem.FromTemporal(XsdDateTime.Parse(lexical, KindOf(type), XsdVersion.V10).Value),
         };
@@ -219,5 +223,43 @@ public class TemporalEqualityTests
         await Assert
             .That(AtomicEquality.HashCode(in left, timezone))
             .IsEqualTo(AtomicEquality.HashCode(in right, timezone));
+    }
+
+    [Test]
+    [Arguments("distinct-values", "dateTimeStamp:2000-01-01T12:00:00+02:00|dateTime:2000-01-01T10:00:00Z", 1)]
+    [Arguments("distinct-values", "dateTimeStamp:2000-01-01T12:00:00+02:00|dateTimeStamp:2000-01-01T10:00:00Z", 1)]
+    [Arguments("distinct-values", "dateTimeStamp:2000-01-01T12:00:00Z|dateTime:2000-01-01T10:00:00Z", 2)]
+    public async Task DistinctValues_DateTimeStampBehavesLikeDateTime(
+        string function,
+        string items,
+        int expectedCount
+    ) => await Assert.That(Count(Run(function, 0, items))).IsEqualTo(expectedCount);
+
+    [Test]
+    public async Task IndexOf_DateTimeStampAgainstDateTime_FindsThePosition() =>
+        await Assert
+            .That(
+                Run(
+                    "index-of",
+                    0,
+                    "dateTime:2000-01-01T10:00:00Z|dateTimeStamp:2000-01-01T12:00:00+02:00",
+                    "dateTimeStamp:2000-01-01T10:00:00Z"
+                )
+            )
+            .IsEqualTo("integer:1,integer:2");
+
+    [Test]
+    public async Task DeepEqual_DateTimeStampAgainstDateTime_IsTrue() =>
+        await Assert
+            .That(Run("deep-equal", 0, "dateTimeStamp:2000-01-01T12:00:00+02:00", "dateTime:2000-01-01T10:00:00Z"))
+            .IsEqualTo("boolean:true");
+
+    [Test]
+    public async Task HashCode_DateTimeStampAgreesWithDateTime()
+    {
+        var stamp = Item("dateTimeStamp:2000-01-01T12:00:00+02:00");
+        var moment = Item("dateTime:2000-01-01T10:00:00Z");
+
+        await Assert.That(AtomicEquality.HashCode(in stamp)).IsEqualTo(AtomicEquality.HashCode(in moment));
     }
 }

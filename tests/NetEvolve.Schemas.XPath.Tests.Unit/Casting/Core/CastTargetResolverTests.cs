@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.XPath.Tests.Unit.Casting.Core;
 
 using NetEvolve.Schemas.XPath.Api;
+using NetEvolve.Schemas.XPath.Casting.Core;
 using NetEvolve.Schemas.XPath.Compilation;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Errors;
@@ -19,7 +20,8 @@ public class CastTargetResolverTests
     private static CompiledExpression? Compile(
         string expression,
         out XPathDiagnostic diagnostic,
-        XPathStaticContext? statics = null
+        XPathStaticContext? statics = null,
+        CastingTable? table = null
     )
     {
         _ = XPathParser.TryParse(expression.AsSpan(), out var syntax, out diagnostic);
@@ -27,7 +29,7 @@ public class CastTargetResolverTests
             syntax!,
             expression,
             statics ?? SchemaDefault,
-            CastFixture.Registry(),
+            CastFixture.Registry(table),
             out var compiled,
             out diagnostic
         );
@@ -48,14 +50,28 @@ public class CastTargetResolverTests
     [Test]
     public async Task UnprefixedTarget_WithoutARow_NamesTheTypeAsWritten()
     {
+        var table = new CastingCatalog();
         var compiled = Compile(
             "'x' cast as dateTimeStamp",
             out var diagnostic,
-            SchemaDefault.ToBuilder().WithVersion(XPathVersion.V31).Build()
+            SchemaDefault.ToBuilder().WithVersion(XPathVersion.V31).Build(),
+            table.Table
         );
 
         await Assert.That(compiled).IsNull();
         await Assert.That(diagnostic.Code).IsEqualTo("XPST0051");
         await Assert.That(diagnostic.Message).Contains("'dateTimeStamp'");
+    }
+
+    [Test]
+    public async Task UnprefixedDateTimeStamp_ResolvesInXPath31()
+    {
+        var compiled = Compile(
+            "'2020-01-02T03:04:05Z' cast as dateTimeStamp",
+            out _,
+            SchemaDefault.ToBuilder().WithVersion(XPathVersion.V31).Build()
+        );
+
+        await Assert.That(compiled).IsNotNull();
     }
 }

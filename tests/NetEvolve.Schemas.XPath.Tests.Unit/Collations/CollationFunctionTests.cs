@@ -178,8 +178,17 @@ public class CollationFunctionTests
     }
 
     [Test]
+    public async Task DefaultCollation_ReturnsTheCodepointCollationUri() =>
+        await Assert.That(Shown("default-collation")).IsEqualTo("string:" + Codepoint);
+
+    [Test]
+    public async Task DefaultCollation_WithAnArgument_IsNotResolved() =>
+        await Assert.That(SequencesHarness.TryResolve("default-collation", 1, out _)).IsFalse();
+
+    [Test]
     [Arguments("compare", 2, 3)]
     [Arguments("codepoint-equal", 2, 2)]
+    [Arguments("default-collation", 0, 0)]
     public async Task DefaultCatalog_ResolvesTheFunctionForItsArityRangeOnly(string local, int minArity, int maxArity)
     {
         for (var arity = 0; arity <= 5; arity++)

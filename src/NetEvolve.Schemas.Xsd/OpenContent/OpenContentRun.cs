@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.Xsd.ContentModels.AllGroups;
+using NetEvolve.Schemas.Xsd.ContentModels.AllGroups11;
 using NetEvolve.Schemas.Xsd.ContentModels.Automaton;
 using NetEvolve.Schemas.Xsd.Contracts;
 
@@ -29,6 +30,7 @@ internal struct OpenContentRun
     private readonly OpenContentProperty? _open;
     private readonly CountingRun? _counting;
     private readonly AllGroupRun? _all;
+    private readonly AllGroup11Run? _all11;
     private bool _inSuffix;
 
     internal OpenContentRun(OpenContentProperty open, CountingRun counting)
@@ -39,6 +41,7 @@ internal struct OpenContentRun
         _open = open;
         _counting = counting;
         _all = null;
+        _all11 = null;
         _inSuffix = false;
     }
 
@@ -50,6 +53,19 @@ internal struct OpenContentRun
         _open = open;
         _counting = null;
         _all = all;
+        _all11 = null;
+        _inSuffix = false;
+    }
+
+    internal OpenContentRun(OpenContentProperty open, AllGroup11Run all)
+    {
+        ArgumentNullException.ThrowIfNull(open);
+        ArgumentNullException.ThrowIfNull(all);
+
+        _open = open;
+        _counting = null;
+        _all = null;
+        _all11 = all;
         _inSuffix = false;
     }
 
@@ -75,11 +91,15 @@ internal struct OpenContentRun
         _inSuffix = false;
         _counting?.Reset();
         _all?.Reset();
+        _all11?.Reset();
     }
 
     /// <summary>Determines whether the content may end now.</summary>
     /// <returns><see langword="true"/> when the content model is complete.</returns>
-    public readonly bool CanEnd() => _counting is not null ? _counting.CanEnd() : _all!.CanEnd();
+    public readonly bool CanEnd() =>
+        _counting is not null ? _counting.CanEnd()
+        : _all is not null ? _all.CanEnd()
+        : _all11!.CanEnd();
 
     /// <summary>Tries to accept a child element. A refused child leaves the run unchanged.</summary>
     /// <param name="schemaNameId">The bound schema name id, <c>-1</c> when the name is unknown to the schema.</param>
@@ -117,7 +137,7 @@ internal struct OpenContentRun
     }
 
     private readonly bool StepContentModel(int schemaNameId, XPathQName name, out MatchedParticle matched) =>
-        _counting is not null
-            ? _counting.TryStep(schemaNameId, name, out matched)
-            : _all!.TryStep(schemaNameId, out matched);
+        _counting is not null ? _counting.TryStep(schemaNameId, name, out matched)
+        : _all is not null ? _all.TryStep(schemaNameId, out matched)
+        : _all11!.TryStep(schemaNameId, name, out matched);
 }
