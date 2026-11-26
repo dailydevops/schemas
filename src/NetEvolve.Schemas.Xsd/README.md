@@ -271,6 +271,8 @@ Here the result has one issue, and `IsTruncated` is `true`.
 
 A schema document over `MaxResourceSize` ends the build with a `SchemaCompilationException` whose issue has the code `NES0007`. Before the schema sources moved to the shared `SchemaSourceHolder`, the same condition was reported as `NES0001` against `MaxInputSize`; `MaxInputSize` now bounds instances only.
 
+The documents that a schema names with `include`, `import`, `redefine`, or `override`, and the schema location hints of an instance, are loaded by the shared `ResourceLoader` of `NetEvolve.Schemas`, which counts every request against `MaxExternalResources` and caps each resource at `MaxResourceSize` with `NES0007`. A relative location without an absolute base URI is still passed to the resolver, with `ResolvedUri` set to `null`, so a custom resolver can serve it; the default resolver refuses it with `NES0100`.
+
 ### Document type declarations
 
 A document type declaration in an instance ends the run with a reader error by default. `WithDtdProcessing(true)` reads the internal subset, so `ENTITY` and `ENTITIES` values are checked against its unparsed entity declarations. Only the internal subset is read; the entities of an external subset are not visible.
