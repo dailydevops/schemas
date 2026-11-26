@@ -44,9 +44,13 @@ public class NotationTests
     }
 
     [Test]
-    public async Task Notation_WithAPrefix_IsNotAssessed_BecauseThePrefixNeedsTheNamespaceContext()
+    public async Task Notation_WithABoundPrefix_IsNotAssessedAgainstTheDeclaredNotations()
     {
-        var issues = IdFixture.Run(IdFixture.Schema(), "<r><e note=\"p:gif\"/><n>p:png</n></r>", "gif");
+        var issues = IdFixture.Run(
+            IdFixture.Schema(),
+            "<r xmlns:p=\"urn:a\"><e note=\"p:gif\"/><n>p:png</n></r>",
+            "gif"
+        );
 
         await Assert.That(issues.Count).IsEqualTo(0);
     }

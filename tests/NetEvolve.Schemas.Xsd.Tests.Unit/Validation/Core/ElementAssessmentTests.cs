@@ -184,7 +184,7 @@ public class ElementAssessmentTests
         var issues = ValidationHarness.Run(schema, "<r>\n" + Repeat("<a/>", 5000) + "</r>");
 
         await Assert.That(issues.Count).IsEqualTo(1);
-        await Assert.That(issues[0].Code).IsEqualTo(ValidationHarness.Code("engine-content-model-transitions"));
+        await Assert.That(issues[0].Code).IsEqualTo(ValidationHarness.Code("engine-content-model-run"));
         await Assert.That(issues[0].Severity).IsEqualTo(IssueSeverity.Error);
         await Assert.That(issues[0].Location.Line).IsEqualTo(2);
         await Assert.That(issues[0].Message).Contains("1024");

@@ -9,6 +9,12 @@ internal sealed class XsdIssueReporter
 {
     private readonly ValidationIssueCollector _collector;
 
+    /// <summary>
+    /// Gets the number of errors reported so far, whether the collector kept them or not: the verdict channel of the streaming validator
+    /// (design #146 DP-12) reads it to learn that a listener found a violation.
+    /// </summary>
+    internal int ErrorCount { get; private set; }
+
     internal XsdIssueReporter(ValidationIssueCollector collector)
     {
         ArgumentNullException.ThrowIfNull(collector);
@@ -26,6 +32,7 @@ internal sealed class XsdIssueReporter
         ArgumentNullException.ThrowIfNull(rule);
         ArgumentNullException.ThrowIfNull(message);
 
+        CountError(rule.DefaultSeverity);
         _collector.Add(new ValidationIssue(rule.Code, rule.DefaultSeverity, message, location, clause ?? rule.Id));
     }
 
@@ -35,6 +42,7 @@ internal sealed class XsdIssueReporter
     {
         ArgumentNullException.ThrowIfNull(issue);
 
+        CountError(issue.Severity);
         _collector.Add(issue);
     }
 
@@ -44,4 +52,12 @@ internal sealed class XsdIssueReporter
     /// <param name="message">The message.</param>
     internal void Report(DiagnosticCode code, DocumentLocation location, string message) =>
         Report(XsdRuleLookup.Find(code), location, message);
+
+    private void CountError(IssueSeverity severity)
+    {
+        if (severity == IssueSeverity.Error)
+        {
+            ErrorCount++;
+        }
+    }
 }

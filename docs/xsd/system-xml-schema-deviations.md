@@ -7,7 +7,7 @@ This document lists every difference that the differential run over the W3C XML 
 | Baseline | `System.Xml.Schema` of the .NET runtime 10.0, compared on the `net10.0` test leg only (`baseline-runtime: 10.0`) |
 | Corpus | XSTS cases of XSD 1.0 (schema tests and instance tests), pinned in `tests/conformance/suites/xsts.json` |
 | Data file | `tests/NetEvolve.Schemas.Xsd.Tests.Integration/DifferentialData/xsts-1.0-deviations.txt`, one entry per difference: case id, difference kind, observed difference, specification reference, reason |
-| Entries | 13954 entries for 13918 cases |
+| Entries | 13962 entries for 13926 cases |
 
 The list is valid for the recorded baseline runtime version only. A run on another runtime version fails until the list is compared again. System.Xml.Schema implements XSD 1.0 only, so cases of XSD 1.1 are not compared.
 
@@ -27,10 +27,10 @@ No builder option, switch, or code path in the library reproduces System.Xml.Sch
 
 | Class | Entries | Cases |
 |---|---:|---:|
-| Verdict differences: this library follows the specification | 1701 | 1669 |
+| Verdict differences: this library follows the specification | 1702 | 1670 |
 | Verdict differences: documented limitations of this library | 21 | 17 |
-| Position differences: equivalent | 12232 | 12232 |
-| Differences on cases that a bug issue tracks (no entry) | 881 | |
+| Position differences: equivalent | 12238 | 12238 |
+| Differences on cases that a bug issue tracks (no entry) | 875 | |
 
 ## Differences on cases that a bug issue tracks
 
@@ -45,7 +45,6 @@ The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTe
 | #870 | 22 | feat(xsd): add notation declarations as components |
 | #62 | 19 | feat(xml): support xml 1.1 |
 | #896 | 7 | feat(xsd): compare fixed values in the value space when validating instances |
-| #602 | 6 | feat(xsd): apply default values to elements with mixed content |
 | #1079 | 3 | feat(xsd): evaluate the enumeration facet of hexBinary and base64Binary restrictions |
 | #604 | 2 | feat(xsd): resolve QName and NOTATION instance values with the namespace context |
 | #863 | 2 | bug(xsd): particle restriction reports errors for restrictions that the XSTS accepts |
@@ -1986,6 +1985,18 @@ sunMeta-ElemDecl/1.0/targetns00401m/targetNS00401m1_n
 sunMeta-ElemDecl/1.0/targetns00402m/targetNS00402m1_n
 ```
 
+### A QName value with an unbound prefix
+
+The prefix of the QName value is bound to no namespace in scope of the element or attribute, so the value does not resolve and the instance is invalid. System.Xml.Schema accepts it.
+
+- Difference: InstanceVerdict `instance verdict: ours=Invalid, baseline=Valid` (1)
+- Specification: XSD 1.0 Part 1, 3.15.4 (cvc-resolve-instance: QName resolution)
+- Cases: 1
+
+```text
+msMeta-DataTypes_w3c/1.0/QName009_2092/QName009_2092.v
+```
+
 ### A value that is not in the lexical space of its type
 
 The value is not in the lexical space of its datatype, so the instance is invalid. System.Xml.Schema accepts it.
@@ -2078,12 +2089,13 @@ msMeta-Particles_w3c/1.0/particlesZ036_b2/particlesZ036_b2.i
 
 The value of the element is not the fixed value of its declaration, so the instance is invalid. System.Xml.Schema accepts it.
 
-- Difference: InstanceVerdict `instance verdict: ours=Invalid, baseline=Valid` (2)
+- Difference: InstanceVerdict `instance verdict: ours=Invalid, baseline=Valid` (3)
 - Specification: XSD 1.0 Part 1, 3.3.4 (Element Locally Valid (Element), cvc-elt.5.2.2.2.2)
-- Cases: 2
+- Cases: 3
 
 ```text
 msMeta-Additional_w3c/1.0/test93160/test93160.i
+sunMeta-ElemDecl/1.0/valueconstraint00801m1/Negative
 sunMeta-ElemDecl/1.0/valueconstraint00901m1/Negative
 ```
 
@@ -2196,9 +2208,9 @@ msMeta-AttributeGroup_w3c/1.0/attgD003/attgD003.v
 
 Both engines reject the document with the same number of issues on the same lines, and the verdicts agree. They anchor an issue at different columns of the same construct. Issue positions are not part of the specification, so the difference is equivalent.
 
-- Difference: IssuePositions `issue positions` (3314)
+- Difference: IssuePositions `issue positions` (3317)
 - Specification: XSD 1.0 Part 1, 5.2 and C.1 (the assessment outcome is the validity property; positions and number of reports are not specified)
-- Cases: 3314
+- Cases: 3317
 
 ```text
 ibmMeta-anyAttribute/1.0/s3_10_6ii01/s3_10_6v01i
@@ -2281,6 +2293,8 @@ msMeta-Additional_w3c/1.0/isDefault010/isDefault010.i
 msMeta-Additional_w3c/1.0/isDefault011/isDefault011.i
 msMeta-Additional_w3c/1.0/isDefault060_2/isDefault060_2
 msMeta-Additional_w3c/1.0/isDefault069/isDefault069
+msMeta-Additional_w3c/1.0/isDefault070/isDefault070.i
+msMeta-Additional_w3c/1.0/isDefault077/isDefault077.i
 msMeta-Annotations_w3c/1.0/annotB001/annotB001
 msMeta-Annotations_w3c/1.0/annotB004/annotB004
 msMeta-Annotations_w3c/1.0/annotB005/annotB005
@@ -2533,6 +2547,7 @@ msMeta-ComplexType_w3c/1.0/ctZ009_c/ctZ009_c.i
 msMeta-ComplexType_w3c/1.0/ctZ010a/ctZ010a
 msMeta-ComplexType_w3c/1.0/ctZ010d/ctZ010d
 msMeta-ComplexType_w3c/1.0/ctZ010e/ctZ010e
+msMeta-ComplexType_w3c/1.0/ctZ013e/ctZ013e.i
 msMeta-DataTypes_w3c/1.0/IDREFS_enumeration001_409/IDREFS_enumeration001_409
 msMeta-DataTypes_w3c/1.0/IDREFS_length001_390/IDREFS_length001_390
 msMeta-DataTypes_w3c/1.0/IDREFS_length002_391/IDREFS_length002_391
@@ -14319,9 +14334,9 @@ sunMeta-suntest/1.0/xsd007.e/xsd007.e
 
 Both engines reject the document and the verdicts agree. System.Xml.Schema reports more issues than this library for the same document; the engines group and follow up violations differently. The number and the positions of reported issues are not part of the specification, so the difference is equivalent.
 
-- Difference: IssuePositions `issue positions` (121)
+- Difference: IssuePositions `issue positions` (124)
 - Specification: XSD 1.0 Part 1, 5.2 and C.1 (the assessment outcome is the validity property; positions and number of reports are not specified)
-- Cases: 121
+- Cases: 124
 
 ```text
 ibmMeta-identityConstraint/1.0/s2_2_4si04/s2_2_4si04s
@@ -14347,6 +14362,8 @@ msMeta-ComplexType_w3c/1.0/ctG078/ctG078
 msMeta-ComplexType_w3c/1.0/ctG080/ctG080
 msMeta-ComplexType_w3c/1.0/ctH078/ctH078
 msMeta-ComplexType_w3c/1.0/ctH080/ctH080
+msMeta-ComplexType_w3c/1.0/ctZ013c/ctZ013c.i
+msMeta-ComplexType_w3c/1.0/ctZ013d/ctZ013d.i
 msMeta-DataTypes_w3c/1.0/int_maxExclusive004b_692/int_maxExclusive004b_692
 msMeta-DataTypes_w3c/1.0/int_maxExclusive004c_693/int_maxExclusive004c_693
 msMeta-DataTypes_w3c/1.0/int_maxExclusive004f_696/int_maxExclusive004f_696
@@ -14439,6 +14456,7 @@ sunMeta-ElemDecl/1.0/name00502m2/name00502m2
 sunMeta-ElemDecl/1.0/name00503m2/name00503m2
 sunMeta-ElemDecl/1.0/nillable00302m/nillable00302m1_n
 sunMeta-ElemDecl/1.0/scope00201m2/scope00201m2
+sunMeta-ElemDecl/1.0/valueconstraint00701m1/Negative
 sunMeta-suntest/1.0/idc006.nogen/idc006.nogen.n01
 sunMeta-suntest/1.0/xsd009.e/xsd009.e
 sunMeta-suntest/1.0/xsd010.e/xsd010.e

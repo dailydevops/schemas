@@ -1,0 +1,12 @@
+# One line per baseline entry: case id, #issue, reason, separated by tabs. A baseline entry without a line fails the conformance test.
+stage-2/can_25_withheld.xml	#1366	The notice language is ENG and a description has languageID DEU, so BT-196-notice_C fails by its own XPath; the expected report omits it.
+stage-2/can_25_withheld_lots.xml	#1366	The notice language is ENG and a description has languageID DEU, so BT-196-notice_C fails by its own XPath; the expected report omits it.
+stage-3/can-social_23.xml	#1366	A TermCode has no listName and a ValueKnownIndicator comes with another term code than yes, so the rules fail by their own XPath; the expected report omits them.
+stage-3/can_25_withheld.xml	#1366	The notice language is ENG and a description has languageID DEU, so BT-196-notice_C fails by its own XPath; the expected report omits it.
+stage-4/can-social_23.xml	#1366	A TermCode has no listName and a ValueKnownIndicator comes with another term code than yes, so the rules fail by their own XPath; the expected report omits them.
+stage-5/INVALID_can_24_stage-1.xml	#1366	The expected report fires ids of stage 5 patterns that predate the per-subtype split; the rule set of the release fires other ids at the same location.
+stage-5/INVALID_can_24_stage-2.xml	#1366	The expected report fires ids of stage 5 patterns that predate the per-subtype split; the rule set of the release fires other ids at the same location.
+stage-5/INVALID_cn_24_multiple.xml	#1366	The expected report fires ids of stage 5 patterns that predate the per-subtype split; the rule set of the release fires other ids at the same location.
+stage-5/INVALID_cn_24_stage-1.xml	#1366	The expected report fires ids of stage 5 patterns that predate the per-subtype split; the rule set of the release fires other ids at the same location.
+stage-5/INVALID_cn_24_stage-2.xml	#1366	The expected report fires ids of stage 5 patterns that predate the per-subtype split; the rule set of the release fires other ids at the same location.
+stage-5/change-cn_24_void.xml	#1367	The engine fires BR-BT-00005-0151 on a void change notice where the expected report does not; the cause is not settled.
