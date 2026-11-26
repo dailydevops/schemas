@@ -7,12 +7,11 @@ using NetEvolve.Schemas.XPath.Functions.Binding;
 /// <summary>
 /// The registration file of the boolean and numeric group: its module initializer stages <see cref="Register"/> into the default
 /// catalog (#123, AP8, option B), so no shared list names the group. The group holds <c>fn:abs</c>, <c>fn:ceiling</c>, <c>fn:floor</c>,
-/// <c>fn:round</c>, <c>fn:round-half-to-even</c>, <c>fn:number</c>, <c>fn:true</c>, <c>fn:false</c>, <c>fn:boolean</c>, and <c>fn:not</c>.
+/// <c>fn:round</c> (one argument, and two for XPath 3.0 and 3.1), <c>fn:round-half-to-even</c>, <c>fn:number</c>, <c>fn:true</c>, <c>fn:false</c>, <c>fn:boolean</c>, and <c>fn:not</c>.
 /// </summary>
 /// <remarks>
 /// Limitation: the design names the folders <c>Functions/Numeric</c> and <c>Functions/Boolean</c>; the work package owns
-/// <c>Functions/Numerics</c>, so the two groups share this registration file. <c>fn:round</c> with a precision belongs to XPath 3.0 and
-/// is not registered (#727).
+/// <c>Functions/Numerics</c>, so the two groups share this registration file.
 /// </remarks>
 internal static class Registration
 {
@@ -33,6 +32,7 @@ internal static class Registration
         builder.Add(new CeilingFunction());
         builder.Add(new FloorFunction());
         builder.Add(new RoundFunction());
+        builder.Add(new RoundWithPrecisionFunction());
         builder.Add(new RoundHalfToEvenFunction());
         builder.Add(new NumberFunction());
         builder.Add(new TrueFunction());
