@@ -194,14 +194,7 @@ internal ref partial struct ExpressionParser
                 }
 
                 _ = Advance();
-                var name = CreateName(token);
-                return new NameTest(
-                    token.Span,
-                    NameTestKind.QualifiedName,
-                    name.Prefix,
-                    name.LocalName,
-                    name.NamespaceUri
-                );
+                return CreateNameTest(token);
             default:
                 throw Unexpected();
         }
@@ -387,17 +380,20 @@ internal ref partial struct ExpressionParser
     }
 
     // [48] ArgumentList; in 3.0 an argument may be the placeholder "?".
-    private List<Expression> ParseArguments()
+    private IReadOnlyList<Expression> ParseArguments()
     {
         Expect(XPathTokenKind.LeftParen);
-        List<Expression> arguments = [];
-        if (_current.Kind != XPathTokenKind.RightParen)
+        if (_current.Kind == XPathTokenKind.RightParen)
         {
-            do
-            {
-                arguments.Add(ParseArgument());
-            } while (Accept(XPathTokenKind.Comma));
+            _ = Advance();
+            return Array.Empty<Expression>();
         }
+
+        List<Expression> arguments = [];
+        do
+        {
+            arguments.Add(ParseArgument());
+        } while (Accept(XPathTokenKind.Comma));
 
         Expect(XPathTokenKind.RightParen);
         return arguments;
@@ -501,6 +497,34 @@ internal ref partial struct ExpressionParser
 
         _ = Advance();
         return CreateName(token);
+    }
+
+    // Same split as CreateName, without the intermediate QualifiedName that would be dropped.
+    private readonly NameTest CreateNameTest(XPathToken token)
+    {
+        var text = TextOf(token);
+        if (token.Kind == XPathTokenKind.BracedName)
+        {
+            var close = text.IndexOf('}');
+            return new NameTest(
+                token.Span,
+                NameTestKind.QualifiedName,
+                null,
+                text.Slice(close + 1).ToString(),
+                text.Slice(2, close - 2).ToString()
+            );
+        }
+
+        var colon = text.IndexOf(':');
+        return colon < 0
+            ? new NameTest(token.Span, NameTestKind.QualifiedName, null, text.ToString(), null)
+            : new NameTest(
+                token.Span,
+                NameTestKind.QualifiedName,
+                text.Slice(0, colon).ToString(),
+                text.Slice(colon + 1).ToString(),
+                null
+            );
     }
 
     private readonly QualifiedName CreateName(XPathToken token)
