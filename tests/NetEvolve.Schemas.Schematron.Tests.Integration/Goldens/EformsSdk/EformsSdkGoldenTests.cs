@@ -54,6 +54,21 @@ public class EformsSdkGoldenTests
     }
 
     [Test]
+    public async Task Results_EveryTestSet_IsBaselinedOrTheExcludedDynamicStage(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var results = await EformsSdkRun.GetResultsAsync(cancellationToken);
+
+        var unknown = results
+            .Select(r => r.TestSet)
+            .Distinct(StringComparer.Ordinal)
+            .Except(BaselineTestSets().Append("stage-6"), StringComparer.Ordinal)
+            .ToList();
+
+        await Assert.That(unknown).IsEmpty().Because($"test sets without a baseline: {string.Join(", ", unknown)}");
+    }
+
+    [Test]
     public async Task Baseline_EveryEntry_IsACaseOfItsTestSet(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
