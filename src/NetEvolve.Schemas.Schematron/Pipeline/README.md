@@ -14,7 +14,6 @@ source ──> Parse ──> Resolve ──> Expand ──> Compile ──> Comp
 | File                          | Role                                                                                                         |
 | ----------------------------- | ------------------------------------------------------------------------------------------------------------ |
 | `SchematronPipeline.cs`       | `ISchematronPipeline`: runs the four stages in order; a stage with problems stops the later ones.            |
-| `SchemaSourceReader.cs`       | Reads a stream source (sync or async), bounded by `MaxResourceSize`, and keeps its bytes for a second build. |
 | `SchematronModelParser.cs`    | Stage Parse: Xml tree, `xi:include`, object model, edition.                                                  |
 | `ModelExpander.cs`            | Stage Expand: abstract rules, then abstract patterns.                                                        |
 | `SchematronSchemaCompiler.cs` | Stage Compile: binding, parameters, phase, scopes, rule sets.                                                |
