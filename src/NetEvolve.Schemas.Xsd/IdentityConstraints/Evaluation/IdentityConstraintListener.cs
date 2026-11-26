@@ -40,8 +40,7 @@ using NetEvolve.Schemas.Xsd.Validation.Core;
 /// <para>
 /// Limitations: one object per selected element and one per scope, one key-sequence per qualified element, so memory grows with
 /// the number of matches and is otherwise independent of the size of the document. An element that the validator does not hand
-/// to the listeners (a skipped or rejected subtree) takes no part. A nilled element is not told apart (<c>xsi:nil</c> is XSD-55, #308), so its value counts. Key tables over the date and
-/// time types, durations, and binary values compare every pair (see <see cref="ValueSpace"/>).
+/// to the listeners (a skipped or rejected subtree) takes no part. A nilled element is not told apart (<c>xsi:nil</c> is XSD-55, #308), so its value counts.
 /// </para>
 /// <para>Not thread-safe; one instance serves one run at a time and may be reused for the next.</para>
 /// </remarks>

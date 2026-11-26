@@ -10,6 +10,7 @@ using NetEvolve.Schemas.Xml.Datatypes.Core;
 using NetEvolve.Schemas.Xml.Datatypes.DateTime;
 using NetEvolve.Schemas.Xml.Datatypes.Decimals;
 using NetEvolve.Schemas.Xml.Datatypes.Duration;
+using NetEvolve.Schemas.Xml.Datatypes.Ordering;
 using NetEvolve.Schemas.Xml.Datatypes.Strings;
 using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Contracts;
@@ -31,9 +32,9 @@ using NetEvolve.Schemas.Xsd.Validation.Core;
 /// keeps the comparisons few.
 /// </para>
 /// <para>
-/// Limitations: the hash is exact for the string types, the decimal types, <c>boolean</c>, <see cref="float"/>, and <see cref="double"/>. The
-/// date and time types, <c>duration</c>, and the binary types share one hash value per type, so a key table over such values
-/// compares every pair and grows quadratically with the number of keys. <c>QName</c> and <c>NOTATION</c> values are compared by
+/// The hash is exact for every datatype except <c>QName</c> and <c>NOTATION</c>: date and time values hash by their instant on the
+/// timeline (timezone offsets folded in), durations by months and seconds, and binary values by their octets.
+/// Limitations: <c>QName</c> and <c>NOTATION</c> values are compared by
 /// their collapsed text because no namespace context reaches the listener (#604).
 /// </para>
 /// </remarks>
@@ -134,14 +135,35 @@ internal sealed class ValueSpace
             case IDatatypeDescriptor<XsdString>:
                 var text = shape.AsString().Parse(lexical);
                 return text.Success ? HashText(lexical, text.Value.Mode) : 0;
-            case IDatatypeDescriptor<XsdDateTime>:
-            case IDatatypeDescriptor<XsdDuration>:
-            case IDatatypeDescriptor<XsdBinary>:
-                return 0;
+            case IDatatypeDescriptor<XsdDateTime> dates:
+                var moment = dates.Parse(lexical);
+                return moment.Success ? HashDateTime(moment.Value) : 0;
+            case IDatatypeDescriptor<XsdDuration> durations:
+                var span = durations.Parse(lexical);
+                return span.Success ? span.Value.GetHashCode() : 0;
+            case IDatatypeDescriptor<XsdBinary> binaries:
+                var octets = binaries.Parse(lexical);
+                return octets.Success ? HashOctets(octets.Value.AsSpan()) : 0;
             default:
                 return HashText(lexical, WhitespaceMode.Collapse);
         }
     }
+
+    // FNV over the octets: the multiplier 31 of the value type folds the low octets of a counter into a few hundred hash values.
+    private static int HashOctets(ReadOnlySpan<byte> octets)
+    {
+        var hash = FnvOffset;
+        for (var i = 0; i < octets.Length; i++)
+        {
+            hash = unchecked((hash * FnvPrime) ^ octets[i]);
+        }
+
+        return hash;
+    }
+
+    // Values equal on the timeline share the instant, so the offset is folded in; the kind keeps the Gregorian types apart.
+    private static int HashDateTime(XsdDateTime value) =>
+        unchecked(((int)value.Kind * 397) ^ DateTimeTimeline.TimeOnTimeline(in value, 0).GetHashCode());
 
     // Zero has one value, and NaN is equal or identical to itself; the hash of a double does not promise either on every target.
     private static int HashDouble(double value) =>

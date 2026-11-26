@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.Xsd.Tests.Unit.IdentityConstraints.Evaluation;
 
 using System;
+using System.Collections.Generic;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xml.Datatypes.Core;
 using NetEvolve.Schemas.Xsd.Components;
@@ -264,10 +265,78 @@ public class ValueSpaceTests
     }
 
     [Test]
+    [Arguments("dateTime", "2020-01-01T12:00:00Z", "2020-01-01T14:00:00+02:00")]
+    [Arguments("dateTime", "2020-01-01T12:00:00Z", "2020-01-01T12:00:00.000+00:00")]
+    [Arguments("dateTime", "2020-01-01T24:00:00", "2020-01-02T00:00:00")]
+    [Arguments("date", "2020-01-01Z", "2020-01-01+00:00")]
+    [Arguments("time", "12:00:00Z", "14:00:00+02:00")]
+    [Arguments("gYear", "2020Z", "2020+00:00")]
+    [Arguments("gMonthDay", "--01-01Z", "--01-01+00:00")]
+    [Arguments("duration", "P1Y", "P12M")]
+    [Arguments("duration", "P1D", "PT24H")]
+    [Arguments("duration", "PT1.50S", "PT1.5S")]
+    [Arguments("hexBinary", "0aFF", "0AFF")]
+    [Arguments("base64Binary", "AQID", "AQ ID")]
+    public async Task Hash_EqualDateTimeDurationAndBinaryValues_HaveOneHash(string type, string a, string b)
+    {
+        var space = Space(XsdVersion.V11);
+        var component = BuiltIn(type, XsdVersion.V11);
+
+        await Assert.That(space.AreEqual(component, a, component, b)).IsTrue();
+        await Assert.That(space.Hash(component, a)).IsEqualTo(space.Hash(component, b));
+    }
+
+    [Test]
+    [Arguments("dateTime", "2020-01-01T12:00:00Z", "2020-01-01T12:00:01Z")]
+    [Arguments("date", "2020-01-01", "2020-01-02")]
+    [Arguments("duration", "P1Y", "P2Y")]
+    [Arguments("hexBinary", "0A", "0B")]
+    public async Task Hash_DifferentDateTimeDurationAndBinaryValues_HaveDifferentHashes(string type, string a, string b)
+    {
+        var space = Space(XsdVersion.V11);
+        var component = BuiltIn(type, XsdVersion.V11);
+
+        await Assert.That(space.Hash(component, a)).IsNotEqualTo(space.Hash(component, b));
+    }
+
+    [Test]
+    [Arguments("dateTime", 0)]
+    [Arguments("duration", 1)]
+    [Arguments("hexBinary", 2)]
+    public async Task Hash_ManyDistinctValues_SpreadOverManyHashValues(string type, int shape)
+    {
+        var space = Space(XsdVersion.V11);
+        var component = BuiltIn(type, XsdVersion.V11);
+
+        foreach (var count in new[] { 100, 1000, 10000 })
+        {
+            var hashes = new HashSet<int>();
+            for (var i = 0; i < count; i++)
+            {
+                var lexical = shape switch
+                {
+                    0 => new DateTime(2000, 1, 1, 0, 0, 0, DateTimeKind.Utc)
+                        .AddMinutes(i)
+                        .ToString("yyyy-MM-ddTHH:mm:ssZ", System.Globalization.CultureInfo.InvariantCulture),
+                    1 => $"PT{i}S",
+                    _ => i.ToString("X8", System.Globalization.CultureInfo.InvariantCulture),
+                };
+                _ = hashes.Add(space.Hash(component, lexical));
+            }
+
+            // distinct values must not collapse into one bucket: at least nine in ten hash values are distinct
+            await Assert.That(hashes.Count).IsGreaterThanOrEqualTo(count * 9 / 10 - 5);
+        }
+    }
+
+    [Test]
     [Arguments("decimal", "abc")]
     [Arguments("double", "abc")]
     [Arguments("float", "abc")]
     [Arguments("boolean", "abc")]
+    [Arguments("dateTime", "abc")]
+    [Arguments("duration", "abc")]
+    [Arguments("hexBinary", "abc")]
     [Arguments("string", "\uFFFE")]
     public async Task Hash_OfAValueThatIsNotInTheLexicalSpace_IsZero(string type, string lexical)
     {
