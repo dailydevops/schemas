@@ -64,8 +64,23 @@ internal sealed class SimpleTypeBuilder : IComponentBuilder
         ArgumentNullException.ThrowIfNull(definition);
 
         var node = definition.Node;
+        var finalAttribute = node.FindAttribute("final");
+        if (
+            _context.Version == XsdVersion.V10
+            && finalAttribute is not null
+            && Array.IndexOf(SyntaxValues.Split(finalAttribute), "extension") >= 0
+        )
+        {
+            // Structures 1.0 lets the final attribute of a simple type name list, union, and restriction only.
+            _context.Report(
+                XsdRuleCodes.SrcSimpleType,
+                node.Location,
+                "The final attribute of a simple type must not name extension in XSD 1.0."
+            );
+        }
+
         var final = SyntaxValues.ParseMethods(
-            node.FindAttribute("final") ?? definition.Unit.Root.FindAttribute("finalDefault"),
+            finalAttribute ?? definition.Unit.Root.FindAttribute("finalDefault"),
             FinalMethods
         );
         var type = Construct(node, definition.Unit, definition.Name, final);
@@ -144,6 +159,20 @@ internal sealed class SimpleTypeBuilder : IComponentBuilder
         var baseType = ReadType(restriction, unit, "base");
         if (baseType is null)
         {
+            return null;
+        }
+
+        if (
+            _context.Version == XsdVersion.V10
+            && ReferenceEquals(_context.AsSimple(baseType), _context.AnySimpleType())
+        )
+        {
+            // The base of a simple type restriction is atomic or a primitive type in Structures 1.0; anySimpleType is neither.
+            _context.Report(
+                XsdRuleCodes.CosStRestricts,
+                restriction.Location,
+                "The base type of a restriction must not be anySimpleType in XSD 1.0."
+            );
             return null;
         }
 
@@ -234,9 +263,20 @@ internal sealed class SimpleTypeBuilder : IComponentBuilder
             }
         }
 
-        // The document parser reports a union without member types (src-union-memberTypes-or-simpleTypes).
+        // The document parser reports a union without a memberTypes attribute and without simpleType children (src-union-memberTypes-or-simpleTypes).
         if (memberTypes is null && anonymous == 0)
         {
+            return null;
+        }
+
+        if (!failed && members.Count == 0 && _context.Version == XsdVersion.V10)
+        {
+            // Structures 1.0 requires a non-empty memberTypes list or a simpleType child; Structures 1.1 allows the empty union.
+            _context.Report(
+                XsdRuleCodes.SrcUnionMemberTypesOrSimpleTypes,
+                union.Location,
+                "A union has a non-empty 'memberTypes' attribute or 'simpleType' children."
+            );
             return null;
         }
 

@@ -4,11 +4,7 @@
 1.0/stE066/stE066.v
 1.0/stG011/stG011.i
 1.0/stH008/stH008.i
-1.0/stZ005/stZ005
-1.0/stZ006/stZ006
 1.0/stZ010/stZ010
-1.0/stZ011/stZ011
-1.0/stZ041/stZ041
 1.0/stZ058/stZ058.v
 1.0/stZ059/stZ059.i
 1.0/stZ060/stZ060.i

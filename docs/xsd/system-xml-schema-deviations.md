@@ -7,7 +7,7 @@ This document lists every difference that the differential run over the W3C XML 
 | Baseline | `System.Xml.Schema` of the .NET runtime 10.0, compared on the `net10.0` test leg only (`baseline-runtime: 10.0`) |
 | Corpus | XSTS cases of XSD 1.0 (schema tests and instance tests), pinned in `tests/conformance/suites/xsts.json` |
 | Data file | `tests/NetEvolve.Schemas.Xsd.Tests.Integration/DifferentialData/xsts-1.0-deviations.txt`, one entry per difference: case id, difference kind, observed difference, specification reference, reason |
-| Entries | 14594 entries for 14558 cases |
+| Entries | 14601 entries for 14565 cases |
 
 The list is valid for the recorded baseline runtime version only. A run on another runtime version fails until the list is compared again. System.Xml.Schema implements XSD 1.0 only, so cases of XSD 1.1 are not compared.
 
@@ -27,31 +27,34 @@ No builder option, switch, or code path in the library reproduces System.Xml.Sch
 
 | Class | Entries | Cases |
 |---|---:|---:|
-| Verdict differences: this library follows the specification | 1700 | 1668 |
+| Verdict differences: this library follows the specification | 1701 | 1669 |
 | Verdict differences: documented limitations of this library | 21 | 17 |
-| Position differences: equivalent | 12873 | 12873 |
-| Differences on cases that a bug issue tracks (no entry) | 902 | |
+| Position differences: equivalent | 12879 | 12879 |
+| Differences on cases that a bug issue tracks (no entry) | 896 | |
 
 ## Differences on cases that a bug issue tracks
 
-The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTests/known-failures.txt` and `tests/NetEvolve.Schemas.Xsd.Tests.Integration/InstanceTests/known-failures.txt` record every case of XSD 1.0 that this library does not pass yet, each with its bug issue. At the time of this triage the run found 906 differences on these cases:
+The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTests/known-failures.txt` and `tests/NetEvolve.Schemas.Xsd.Tests.Integration/InstanceTests/known-failures.txt` record every case of XSD 1.0 that this library does not pass yet, each with its bug issue. At the time of this triage the run found 896 differences on these cases:
 
 | Issue | Differences | Title |
 |---|---:|---|
 | #1077 | 654 | feat(xsd): evaluate the enumeration facet of list simple types in the value space |
 | #1078 | 101 | feat(xsd): evaluate the enumeration facet of union simple types in the value space |
 | #963 | 35 | test(conformance): run the xsts instance tests of groups without a schema document through schema location hints |
-| #869 | 23 | feat(xsd): check redefinitions against the redefined component |
+| #869 | 24 | feat(xsd): check redefinitions against the redefined component |
 | #870 | 22 | feat(xsd): add notation declarations as components |
-| #874 | 22 | bug(xsd): schema constraints that the pipeline does not check yet |
 | #62 | 19 | feat(xml): support xml 1.1 |
+| #871 | 15 | feat(xsd): reject a value constraint on an attribute or element of type ID |
 | #896 | 7 | feat(xsd): compare fixed values in the value space when validating instances |
 | #602 | 6 | feat(xsd): apply default values to elements with mixed content |
-| #871 | 5 | feat(xsd): reject a value constraint on an attribute or element of type ID |
 | #1079 | 3 | feat(xsd): evaluate the enumeration facet of hexBinary and base64Binary restrictions |
 | #604 | 2 | feat(xsd): resolve QName and NOTATION instance values with the namespace context |
 | #863 | 2 | bug(xsd): particle restriction reports errors for restrictions that the XSTS accepts |
+| #1179 | 2 | feat(xsd): reject an xml:lang value of an annotation element that is not a language in XSD 1.0 |
 | #410 | 1 | feat(xml): support caller-selectable xml 1.1 name productions |
+| #1180 | 1 | feat(xsd): reject a facet that does not apply to the simple content of a simpleContent restriction |
+| #1181 | 1 | feat(xsd): reject anyURI values of a schema that are no URI references in XSD 1.0 |
+| #1183 | 1 | feat(xsd): build a schema with unions that name each other as members, as the XSTS case ste110 expects |
 
 ## Verdict differences: this library follows the specification
 
@@ -562,6 +565,18 @@ msMeta-Regex_w3c/1.0/reG33/reG33
 msMeta-Regex_w3c/1.0/reH19/reH19
 msMeta-Regex_w3c/1.0/reH20/reH20
 msMeta-Regex_w3c/1.0/reH21/reH21
+```
+
+### A final attribute that names extension on a simple type
+
+The final attribute of the simple type names extension, which XSD 1.0 does not allow on a simple type, so the schema is invalid. System.Xml.Schema accepts it.
+
+- Difference: SchemaVerdict `schema verdict: ours=Invalid, baseline=Valid` (1)
+- Specification: XSD 1.0 Part 1, 3.14.2 (the final attribute of a simple type lists list, union, and restriction only)
+- Cases: 1
+
+```text
+msMeta-SimpleType_w3c/1.0/stZ041/stZ041
 ```
 
 ### A facet value outside the value space of the base type
@@ -2182,9 +2197,9 @@ msMeta-AttributeGroup_w3c/1.0/attgD003/attgD003.v
 
 Both engines reject the document with the same number of issues on the same lines, and the verdicts agree. They anchor an issue at different columns of the same construct. Issue positions are not part of the specification, so the difference is equivalent.
 
-- Difference: IssuePositions `issue positions` (3826)
+- Difference: IssuePositions `issue positions` (3827)
 - Specification: XSD 1.0 Part 1, 5.2 and C.1 (the assessment outcome is the validity property; positions and number of reports are not specified)
-- Cases: 3826
+- Cases: 3827
 
 ```text
 ibmMeta-anyAttribute/1.0/s3_10_6ii01/s3_10_6v01i
@@ -2197,6 +2212,7 @@ ibmMeta-anyAttribute/1.0/s3_10_6ii04/s3_10_6v04s
 ibmMeta-anyAttribute/1.0/s3_10_6si01/s3_10_6si01s
 ibmMeta-anyAttribute/1.0/s3_10_6si02/s3_10_6si02s
 ibmMeta-constraintsOnAttribute/1.0/s3_2_3si05/s3_2_3si05s
+ibmMeta-unitsLength/1.0/d2_4_1_3si01/d2_4_1_3si01s
 ibmMeta-wildcard/1.0/s3_10_1ii01/s3_10_1ii01i
 ibmMeta-wildcard/1.0/s3_10_1ii03/s3_10_1ii03i
 ibmMeta-wildcard/1.0/s3_10_1ii04/s3_10_1ii04i
@@ -5348,7 +5364,6 @@ msMeta-SimpleType_w3c/1.0/stK017/stK017
 msMeta-SimpleType_w3c/1.0/stK018/stK018
 msMeta-SimpleType_w3c/1.0/stK019/stK019
 msMeta-SimpleType_w3c/1.0/stZ002/stZ002
-msMeta-SimpleType_w3c/1.0/stZ003/stZ003
 msMeta-SimpleType_w3c/1.0/stZ013/stZ013
 msMeta-SimpleType_w3c/1.0/stZ018/stZ018
 msMeta-SimpleType_w3c/1.0/stZ019/stZ019
@@ -6020,9 +6035,9 @@ sunMeta-suntest/1.0/xsd023.e/xsd023.e
 
 Both engines reject the document with the same number of issues, and the verdicts agree. They attribute the issues to different constructs of the document. Issue positions are not part of the specification, so the difference is equivalent.
 
-- Difference: IssuePositions `issue positions` (8568)
+- Difference: IssuePositions `issue positions` (8574)
 - Specification: XSD 1.0 Part 1, 5.2 and C.1 (the assessment outcome is the validity property; positions and number of reports are not specified)
-- Cases: 8568
+- Cases: 8574
 
 ```text
 ibmMeta-identityConstraint/1.0/s2_2_4si06/s2_2_4si06s
@@ -6036,6 +6051,8 @@ msMeta-Additional_w3c/1.0/addB069/addB069.i
 msMeta-Additional_w3c/1.0/addB098/addB098.i
 msMeta-Additional_w3c/1.0/addB102/addB102.i
 msMeta-Additional_w3c/1.0/addB109/addB109.i
+msMeta-Additional_w3c/1.0/addB110/addB110
+msMeta-Additional_w3c/1.0/addB111/addB111
 msMeta-Additional_w3c/1.0/addB113/addB113
 msMeta-Additional_w3c/1.0/addB118/addB118
 msMeta-Additional_w3c/1.0/addB137/addB137
@@ -6728,7 +6745,11 @@ msMeta-SimpleType_w3c/1.0/stH006/stH006.i
 msMeta-SimpleType_w3c/1.0/stI004/stI004
 msMeta-SimpleType_w3c/1.0/stJ003/stJ003
 msMeta-SimpleType_w3c/1.0/stK003/stK003
+msMeta-SimpleType_w3c/1.0/stZ005/stZ005
+msMeta-SimpleType_w3c/1.0/stZ006/stZ006
 msMeta-SimpleType_w3c/1.0/stZ009/stZ009
+msMeta-SimpleType_w3c/1.0/stZ011/stZ011
+msMeta-SimpleType_w3c/1.0/stZ012/stZ012
 msMeta-SimpleType_w3c/1.0/stZ014/stZ014
 msMeta-SimpleType_w3c/1.0/stZ032/stZ032.i
 msMeta-SimpleType_w3c/1.0/stZ033/stZ033.i
@@ -14599,9 +14620,9 @@ sunMeta-suntest/1.0/xsd022/xsd022.n00
 
 Both engines reject the document and the verdicts agree. This library reports more issues than System.Xml.Schema for the same document; the engines group and follow up violations differently. The number and the positions of reported issues are not part of the specification, so the difference is equivalent.
 
-- Difference: IssuePositions `issue positions` (335)
+- Difference: IssuePositions `issue positions` (336)
 - Specification: XSD 1.0 Part 1, 5.2 and C.1 (the assessment outcome is the validity property; positions and number of reports are not specified)
-- Cases: 335
+- Cases: 336
 
 ```text
 ibmMeta-cyclicRedefineIncludeImportOverride/1.0/s4_2_4si02/s4_2_4si02s
@@ -14907,6 +14928,7 @@ msMeta-SimpleType_w3c/1.0/stC023/stC023
 msMeta-SimpleType_w3c/1.0/stC028/stC028
 msMeta-SimpleType_w3c/1.0/stC032/stC032
 msMeta-SimpleType_w3c/1.0/stD010/stD010
+msMeta-SimpleType_w3c/1.0/stZ003/stZ003
 msMeta-Wildcards_w3c/1.0/wildB020/wildB020
 msMeta-Wildcards_w3c/1.0/wildB022/wildB022
 msMeta-Wildcards_w3c/1.0/wildB023/wildB023
@@ -14945,9 +14967,9 @@ sunMeta-suntest/1.0/xsd007.e/xsd007.e
 
 Both engines reject the document and the verdicts agree. System.Xml.Schema reports more issues than this library for the same document; the engines group and follow up violations differently. The number and the positions of reported issues are not part of the specification, so the difference is equivalent.
 
-- Difference: IssuePositions `issue positions` (122)
+- Difference: IssuePositions `issue positions` (121)
 - Specification: XSD 1.0 Part 1, 5.2 and C.1 (the assessment outcome is the validity property; positions and number of reports are not specified)
-- Cases: 122
+- Cases: 121
 
 ```text
 ibmMeta-identityConstraint/1.0/s2_2_4si04/s2_2_4si04s
@@ -15039,7 +15061,6 @@ msMeta-Particles_w3c/1.0/particlesEa020/particlesEa020.i
 msMeta-Particles_w3c/1.0/particlesEc009/particlesEc009
 msMeta-Schema_w3c/1.0/schN13i/schN13i
 msMeta-SimpleType_w3c/1.0/stE071/stE071.i
-msMeta-SimpleType_w3c/1.0/stZ012/stZ012
 msMeta-SimpleType_w3c/1.0/stZ038/stZ038
 msMeta-SimpleType_w3c/1.0/stZ051/stZ051.i
 saxonMeta-Complex/1.0/complex011/complex011.n3.xml

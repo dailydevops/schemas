@@ -5,41 +5,38 @@
 ibmMeta-anyAttribute	1.0/s3_10_6ii01/s3_10_6v01s	-	The test group has no version attribute but its schema uses an XSD 1.1 construct, which strict 1.0 mode rejects (design 146, DP-16).
 ibmMeta-anyAttribute	1.0/s3_10_6ii02/s3_10_6v02s	-	The test group has no version attribute but its schema uses an XSD 1.1 construct, which strict 1.0 mode rejects (design 146, DP-16).
 ibmMeta-anyAttribute	1.0/s3_10_6ii04/s3_10_6v04s	-	The test group has no version attribute but its schema uses an XSD 1.1 construct, which strict 1.0 mode rejects (design 146, DP-16).
-ibmMeta-unitsLength	1.0/d2_4_1_3si01/d2_4_1_3si01s	#874	A schema constraint that the pipeline does not check; not analyzed yet.
 ibmMeta-wildcard	1.0/s3_10_1ii08/s3_10_1ii08s	-	The test group has no version attribute but its schema uses an XSD 1.1 construct, which strict 1.0 mode rejects (design 146, DP-16).
 ibmMeta-wildcard	1.0/s3_10_1ii09/s3_10_1ii09s	-	The test group has no version attribute but its schema uses an XSD 1.1 construct, which strict 1.0 mode rejects (design 146, DP-16).
-msMeta-Additional_w3c	1.0/addB078/addB078	#874	A schema constraint that the pipeline does not check; not analyzed yet.
-msMeta-Additional_w3c	1.0/addB078A/addB078A	#874	A schema constraint that the pipeline does not check; not analyzed yet.
-msMeta-Additional_w3c	1.0/addB078B/addB078B	#874	A schema constraint that the pipeline does not check; not analyzed yet.
-msMeta-Additional_w3c	1.0/addB110/addB110	#874	A schema constraint that the pipeline does not check; not analyzed yet.
-msMeta-Additional_w3c	1.0/addB111/addB111	#874	A schema constraint that the pipeline does not check; not analyzed yet.
+msMeta-Additional_w3c	1.0/addB078/addB078	#871	A value constraint on a declaration of type ID is accepted.
+msMeta-Additional_w3c	1.0/addB078A/addB078A	#871	A value constraint on a declaration of type ID is accepted.
+msMeta-Additional_w3c	1.0/addB078B/addB078B	#871	A value constraint on a declaration of type ID is accepted.
 msMeta-Additional_w3c	1.0/addC001/addC001	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
-msMeta-Additional_w3c	1.0/isDefault060_2/isDefault060_2	#874	A schema constraint that the pipeline does not check; not analyzed yet.
-msMeta-Additional_w3c	1.0/isDefault069/isDefault069	#874	A schema constraint that the pipeline does not check; not analyzed yet.
+msMeta-Additional_w3c	1.0/isDefault060_2/isDefault060_2	#871	A value constraint on a declaration of type ID is accepted.
+msMeta-Additional_w3c	1.0/isDefault069/isDefault069	#871	A value constraint on a declaration of type ID is accepted.
 msMeta-Additional_w3c	1.0/isDefault078/isDefault078	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
 msMeta-Annotations_w3c	1.0/annotA014/annotA014	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
 msMeta-Annotations_w3c	1.0/annotB025/annotB025	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
-msMeta-Annotations_w3c	1.0/annotF001/annotF001	#874	A schema constraint that the pipeline does not check; not analyzed yet.
-msMeta-Annotations_w3c	1.0/annotF003/annotF003	#874	A schema constraint that the pipeline does not check; not analyzed yet.
-msMeta-AttributeGroup_w3c	1.0/attgC028/attgC028	#874	A schema constraint that the pipeline does not check; not analyzed yet.
+msMeta-Annotations_w3c	1.0/annotF001/annotF001	#1179	The xml:lang value of an annotation element is not checked as a language.
+msMeta-Annotations_w3c	1.0/annotF003/annotF003	#1179	The xml:lang value of an annotation element is not checked as a language.
+msMeta-AttributeGroup_w3c	1.0/attgC028/attgC028	#869	A redefinition is not checked against the redefined component.
 msMeta-AttributeGroup_w3c	1.0/attgZ002/attgZ002	#869	A redefinition is not checked against the redefined component.
 msMeta-AttributeGroup_w3c	1.0/attgZ003/attgZ003	#869	A redefinition is not checked against the redefined component.
 msMeta-Attribute_w3c	1.0/attZ013a/attZ013a	#871	A value constraint on a declaration of type ID is accepted.
 msMeta-Attribute_w3c	1.0/attZ013b/attZ013b	#871	A value constraint on a declaration of type ID is accepted.
 msMeta-DataTypes_w3c	1.0/anyURI_a002_1337/anyURI_a002_1337	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
-msMeta-DataTypes_w3c	1.0/anyURI_a003_1338/anyURI_a003_1338	#874	A schema constraint that the pipeline does not check; not analyzed yet.
+msMeta-DataTypes_w3c	1.0/anyURI_a003_1338/anyURI_a003_1338	#1181	An anyURI value that is no URI reference is accepted in XSD 1.0.
 msMeta-DataTypes_w3c	1.0/anyURI_a004_1339/anyURI_a004_1339	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
 msMeta-DataTypes_w3c	1.0/anyURI_a006_1341/anyURI_a006_1341	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
 msMeta-DataTypes_w3c	1.0/anyURI_a009_1344/anyURI_a009_1344	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
-msMeta-DataTypes_w3c	1.0/anyURI_b004_1354/anyURI_b004_1354	#874	A schema constraint that the pipeline does not check; not analyzed yet.
-msMeta-DataTypes_w3c	1.0/anyURI_b006_1356/anyURI_b006_1356	#874	A schema constraint that the pipeline does not check; not analyzed yet.
-msMeta-DataTypes_w3c	1.0/dtZ107447_a_2245/dtZ107447_a_2245	#874	A schema constraint that the pipeline does not check; not analyzed yet.
+msMeta-DataTypes_w3c	1.0/anyURI_b004_1354/anyURI_b004_1354	#1181	An anyURI value that is no URI reference is accepted in XSD 1.0.
+msMeta-DataTypes_w3c	1.0/anyURI_b006_1356/anyURI_b006_1356	#1181	An anyURI value that is no URI reference is accepted in XSD 1.0.
+msMeta-DataTypes_w3c	1.0/dtZ107447_a_2245/dtZ107447_a_2245	#871	A value constraint on a declaration of type ID is accepted.
 msMeta-Element_w3c	1.0/elemZ006/elemZ006	#872	A component of a document that is not imported or included is visible.
 msMeta-Element_w3c	1.0/elemZ007/elemZ007	#872	A component of a document that is not imported or included is visible.
 msMeta-Element_w3c	1.0/elemZ028c/elemZ028c	-	The unique particle attribution check does not cover an all group, so a member of a substitution group that is also listed is accepted.
 msMeta-Element_w3c	1.0/elemZ032a/elemZ032a	#871	A value constraint on a declaration of type ID is accepted.
 msMeta-Element_w3c	1.0/elemZ032b/elemZ032b	#871	A value constraint on a declaration of type ID is accepted.
-msMeta-IdentityConstraint_w3c	1.0/idC019/idC019	#874	A schema constraint that the pipeline does not check; not analyzed yet.
+msMeta-IdentityConstraint_w3c	1.0/idC019/idC019	#872	A component of a document that is not imported or included is visible.
 msMeta-IdentityConstraint_w3c	1.0/idZ011/idZ011	#871	A value constraint on a declaration of type ID is accepted.
 msMeta-ModelGroups_w3c	1.0/mgO013/mgO013	#869	A redefinition is not checked against the redefined component.
 msMeta-Notations_w3c	1.0/notatB001/notatB001	#870	Notation declarations are not components yet.
@@ -68,11 +65,7 @@ msMeta-Schema_w3c	1.0/schR5/schR5	#869	A redefinition is not checked against the
 msMeta-Schema_w3c	1.0/schZ004/schZ004	#872	A component of a document that is not imported or included is visible.
 msMeta-Schema_w3c	1.0/schZ005/schZ005	#872	A component of a document that is not imported or included is visible.
 msMeta-Schema_w3c	1.0/schZ006/schZ006	#869	A redefinition is not checked against the redefined component.
-msMeta-SimpleType_w3c	1.0/stZ005/stZ005	#874	A schema constraint that the pipeline does not check; not analyzed yet.
-msMeta-SimpleType_w3c	1.0/stZ006/stZ006	#874	A schema constraint that the pipeline does not check; not analyzed yet.
-msMeta-SimpleType_w3c	1.0/stZ010/stZ010	#874	A schema constraint that the pipeline does not check; not analyzed yet.
-msMeta-SimpleType_w3c	1.0/stZ011/stZ011	#874	A schema constraint that the pipeline does not check; not analyzed yet.
-msMeta-SimpleType_w3c	1.0/stZ041/stZ041	#874	A schema constraint that the pipeline does not check; not analyzed yet.
+msMeta-SimpleType_w3c	1.0/stZ010/stZ010	#1180	A facet that does not apply to the simple content of a simpleContent restriction is accepted.
 saxonMeta-Missing	1.0/missing001/missing001.xsd	-	A reference to a type that no document declares is src-resolve here; the suite accepts incomplete schemas.
 saxonMeta-Missing	1.0/missing002/missing001.xsd	-	A reference to an element declaration that no document declares is src-resolve here; the suite accepts incomplete schemas.
 saxonMeta-Missing	1.0/missing003/missing003.xsd	-	A reference to a type that no document declares is src-resolve here; the suite accepts incomplete schemas.
@@ -82,9 +75,9 @@ saxonMeta-VC	1.0/vc002/vc002.xsd	-	The test group has no version attribute but i
 saxonMeta-VC	1.0/vc014/vc014.xsd	-	The test group has no version attribute but its schema uses an XSD 1.1 construct, which strict 1.0 mode rejects (design 146, DP-16).
 saxonMeta-VC	1.0/vc024-11/vc024-11.xsd	-	The test group has no version attribute but its schema uses an XSD 1.1 construct, which strict 1.0 mode rejects (design 146, DP-16).
 saxonMeta-XmlVersions	1.0/xv004/xv004.xsd	#410	The schema uses names that only XML 1.0 Fifth Edition allows; the XSD 1.0 mode applies the Second Edition name classes.
-sunMeta-ElemDecl	1.0/valueconstraint01001m2/valueConstraint01001m2	#874	A schema constraint that the pipeline does not check; not analyzed yet.
-sunMeta-ElemDecl	1.0/valueconstraint01001m3/valueConstraint01001m3	#874	A schema constraint that the pipeline does not check; not analyzed yet.
-sunMeta-ElemDecl	1.0/valueconstraint01001m5/valueConstraint01001m5	#874	A schema constraint that the pipeline does not check; not analyzed yet.
-sunMeta-ElemDecl	1.0/valueconstraint01001m6/valueConstraint01001m6	#874	A schema constraint that the pipeline does not check; not analyzed yet.
+sunMeta-ElemDecl	1.0/valueconstraint01001m2/valueConstraint01001m2	#871	A value constraint on a declaration of type ID is accepted.
+sunMeta-ElemDecl	1.0/valueconstraint01001m3/valueConstraint01001m3	#871	A value constraint on a declaration of type ID is accepted.
+sunMeta-ElemDecl	1.0/valueconstraint01001m5/valueConstraint01001m5	#871	A value constraint on a declaration of type ID is accepted.
+sunMeta-ElemDecl	1.0/valueconstraint01001m6/valueConstraint01001m6	#871	A value constraint on a declaration of type ID is accepted.
 sunMeta-Notation	1.0/name00101m2/name00101m2	#870	Notation declarations are not components yet.
 sunMeta-Notation	1.0/publicid00201m1/publicId00201m1	#870	Notation declarations are not components yet.
