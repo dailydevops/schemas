@@ -1,6 +1,7 @@
 ﻿namespace NetEvolve.Schemas.Xsd.ContentModels.Automaton;
 
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using NetEvolve.Arguments;
@@ -47,7 +48,7 @@ internal static class CountingAutomatonCompiler
         ArgumentNullException.ThrowIfNull(root);
         ArgumentNullException.ThrowIfNull(reporter);
 
-        var builder = new Builder();
+        using var builder = new Builder();
         return builder.Build(root, reporter, location);
     }
 
@@ -103,10 +104,36 @@ internal static class CountingAutomatonCompiler
         public int ActionCount { get; }
     }
 
-    private sealed class Builder
+    // The edges of one build: a pooled array that grows by doubling, so the many short-lived arrays of the growth do not reach the
+    // garbage collector; the transitions that the automaton keeps are copied out of it.
+    private sealed class EdgeBuffer : IDisposable
+    {
+        private Edge[] _items = ArrayPool<Edge>.Shared.Rent(64);
+
+        public int Count { get; private set; }
+
+        public Edge this[int index] => _items[index];
+
+        public void Add(Edge edge)
+        {
+            if (Count == _items.Length)
+            {
+                var larger = ArrayPool<Edge>.Shared.Rent(Count * 2);
+                Array.Copy(_items, larger, Count);
+                ArrayPool<Edge>.Shared.Return(_items);
+                _items = larger;
+            }
+
+            _items[Count++] = edge;
+        }
+
+        public void Dispose() => ArrayPool<Edge>.Shared.Return(_items);
+    }
+
+    private sealed class Builder : IDisposable
     {
         private readonly List<Node> _positions = [];
-        private readonly List<Edge> _edges = [];
+        private readonly EdgeBuffer _edges = new();
         private readonly List<AutomatonAction> _actions = [];
         private readonly List<long> _slotMinimums = [];
         private int _slots;
@@ -365,9 +392,9 @@ internal static class CountingAutomatonCompiler
         private int[] GroupBySource(int positionCount, out AutomatonTransition[] transitions)
         {
             var sourceStart = new int[positionCount + 2];
-            foreach (var edge in _edges)
+            for (var i = 0; i < _edges.Count; i++)
             {
-                sourceStart[edge.Source + 1]++;
+                sourceStart[_edges[i].Source + 1]++;
             }
 
             for (var i = 0; i <= positionCount; i++)
@@ -378,8 +405,9 @@ internal static class CountingAutomatonCompiler
             var next = new int[positionCount + 1];
             Array.Copy(sourceStart, next, positionCount + 1);
             transitions = new AutomatonTransition[_edges.Count];
-            foreach (var edge in _edges)
+            for (var i = 0; i < _edges.Count; i++)
             {
+                var edge = _edges[i];
                 transitions[next[edge.Source]++] = new AutomatonTransition(
                     edge.Target,
                     edge.ActionStart,
@@ -389,6 +417,8 @@ internal static class CountingAutomatonCompiler
 
             return sourceStart;
         }
+
+        public void Dispose() => _edges.Dispose();
 
         private CountingAutomaton? Finish(Node root)
         {

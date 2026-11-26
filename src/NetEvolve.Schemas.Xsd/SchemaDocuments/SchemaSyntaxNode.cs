@@ -12,16 +12,21 @@ using NetEvolve.Schemas.Xsd.Contracts;
 /// </remarks>
 internal sealed class SchemaSyntaxNode : ISchemaSyntaxElement
 {
-    private readonly List<XsdSyntaxAttribute> _attributes = [];
-    private readonly List<SchemaSyntaxNode> _children = [];
-    private readonly List<KeyValuePair<string, string>> _namespaces = [];
+    // Most elements have few or no children and no namespace declarations; the lists exist only once they are needed, and the
+    // attributes are one exactly sized array (the sink collects them and sets them at the end of the start tag).
+    private static readonly List<SchemaSyntaxNode> NoChildren = [];
+    private static readonly List<KeyValuePair<string, string>> NoNamespaces = [];
+
+    private XsdSyntaxAttribute[] _attributes = [];
+    private List<SchemaSyntaxNode>? _children;
+    private List<KeyValuePair<string, string>>? _namespaces;
 
     internal SchemaSyntaxNode(XPathQName name, DocumentLocation location, SchemaSyntaxNode? parent)
     {
         Name = name;
         Location = location;
         Parent = parent;
-        parent?._children.Add(this);
+        parent?.AddChild(this);
     }
 
     /// <inheritdoc />
@@ -31,10 +36,10 @@ internal sealed class SchemaSyntaxNode : ISchemaSyntaxElement
     public DocumentLocation Location { get; }
 
     /// <inheritdoc />
-    public int AttributeCount => _attributes.Count;
+    public int AttributeCount => _attributes.Length;
 
     /// <inheritdoc />
-    public int ChildCount => _children.Count;
+    public int ChildCount => _children?.Count ?? 0;
 
     /// <summary>Gets the parent element, <see langword="null"/> for the root.</summary>
     internal SchemaSyntaxNode? Parent { get; }
@@ -43,19 +48,19 @@ internal sealed class SchemaSyntaxNode : ISchemaSyntaxElement
     public XsdSyntaxAttribute GetAttribute(int index) => _attributes[index];
 
     /// <inheritdoc />
-    public ISchemaSyntaxElement GetChild(int index) => _children[index];
+    public ISchemaSyntaxElement GetChild(int index) => (_children ?? NoChildren)[index];
 
     /// <summary>Gets a child element.</summary>
     /// <param name="index">The zero-based index.</param>
     /// <returns>The child.</returns>
-    internal SchemaSyntaxNode GetChildNode(int index) => _children[index];
+    internal SchemaSyntaxNode GetChildNode(int index) => (_children ?? NoChildren)[index];
 
     /// <summary>Finds an attribute that has no namespace.</summary>
     /// <param name="localName">The local name.</param>
     /// <returns>The value, <see langword="null"/> when absent.</returns>
     internal string? FindAttribute(string localName)
     {
-        for (var i = 0; i < _attributes.Count; i++)
+        for (var i = 0; i < _attributes.Length; i++)
         {
             var name = _attributes[i].Name;
             if (name.NamespaceName.Length == 0 && string.Equals(name.LocalName, localName, StringComparison.Ordinal))
@@ -72,10 +77,11 @@ internal sealed class SchemaSyntaxNode : ISchemaSyntaxElement
     /// <returns>The number of children.</returns>
     internal int CountChildren(string localName)
     {
+        var children = _children ?? NoChildren;
         var count = 0;
-        for (var i = 0; i < _children.Count; i++)
+        for (var i = 0; i < children.Count; i++)
         {
-            if (string.Equals(_children[i].Name.LocalName, localName, StringComparison.Ordinal))
+            if (string.Equals(children[i].Name.LocalName, localName, StringComparison.Ordinal))
             {
                 count++;
             }
@@ -92,11 +98,12 @@ internal sealed class SchemaSyntaxNode : ISchemaSyntaxElement
     {
         for (var node = this; node is not null; node = node.Parent)
         {
-            for (var i = node._namespaces.Count - 1; i >= 0; i--)
+            var namespaces = node._namespaces ?? NoNamespaces;
+            for (var i = namespaces.Count - 1; i >= 0; i--)
             {
-                if (string.Equals(node._namespaces[i].Key, prefix, StringComparison.Ordinal))
+                if (string.Equals(namespaces[i].Key, prefix, StringComparison.Ordinal))
                 {
-                    namespaceUri = node._namespaces[i].Value;
+                    namespaceUri = namespaces[i].Value;
                     return true;
                 }
             }
@@ -106,14 +113,17 @@ internal sealed class SchemaSyntaxNode : ISchemaSyntaxElement
         return false;
     }
 
-    internal void AddAttribute(in XsdSyntaxAttribute attribute) => _attributes.Add(attribute);
+    /// <summary>Sets the attributes of the start tag; the array is sized exactly.</summary>
+    /// <param name="attributes">The attributes in document order.</param>
+    internal void SetAttributes(List<XsdSyntaxAttribute> attributes) =>
+        _attributes = attributes.Count == 0 ? [] : attributes.ToArray();
 
     /// <summary>Replaces the value of an attribute that has no namespace, keeping its location; composition uses it for the redefine rewrite.</summary>
     /// <param name="localName">The local name.</param>
     /// <param name="value">The new value.</param>
     internal void SetAttribute(string localName, string value)
     {
-        for (var i = 0; i < _attributes.Count; i++)
+        for (var i = 0; i < _attributes.Length; i++)
         {
             var attribute = _attributes[i];
             if (
@@ -128,5 +138,7 @@ internal sealed class SchemaSyntaxNode : ISchemaSyntaxElement
     }
 
     internal void AddNamespace(string prefix, string uri) =>
-        _namespaces.Add(new KeyValuePair<string, string>(prefix, uri));
+        (_namespaces ??= []).Add(new KeyValuePair<string, string>(prefix, uri));
+
+    private void AddChild(SchemaSyntaxNode child) => (_children ??= []).Add(child);
 }

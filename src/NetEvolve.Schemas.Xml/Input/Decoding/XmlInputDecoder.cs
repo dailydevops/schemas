@@ -121,8 +121,24 @@ internal sealed class XmlInputDecoder
             return false;
         }
 
+        // Where a byte below 0x80 is one character (UTF-8, ISO-8859-1, US-ASCII) a run of them is widened at once; the rest of the
+        // loop decodes one code point at a time.
+        var widensAscii =
+            !_reportNonChar
+            && _encoding is XmlInputEncoding.Utf8 or XmlInputEncoding.Iso88591 or XmlInputEncoding.UsAscii;
         while (pos < bytes.Length)
         {
+            if (widensAscii)
+            {
+                var run = WidenAscii(bytes.Slice(pos), free.Slice(written));
+                pos += run;
+                written += run;
+                if (pos >= bytes.Length)
+                {
+                    break;
+                }
+            }
+
             var status = XmlCodePointReader.Read(_encoding, bytes.Slice(pos), out var consumed, out var codePoint);
             if (status == XmlCodePointReader.ReadStatus.Ok && !IsReportedNonChar(codePoint))
             {
@@ -152,6 +168,25 @@ internal sealed class XmlInputDecoder
         }
 
         return true;
+    }
+
+    // The number of leading ASCII bytes, widened into the destination, which holds at least as many characters as there are bytes.
+    private static int WidenAscii(ReadOnlySpan<byte> source, Span<char> destination)
+    {
+#if NET8_0_OR_GREATER
+        _ = System.Text.Ascii.ToUtf16(source, destination, out var written);
+        return written;
+#else
+        var length = Math.Min(source.Length, destination.Length);
+        var i = 0;
+        while (i < length && source[i] < 0x80)
+        {
+            destination[i] = (char)source[i];
+            i++;
+        }
+
+        return i;
+#endif
     }
 
     private bool IsReportedNonChar(int codePoint) => _reportNonChar && !XmlCharClass.IsChar(codePoint);
