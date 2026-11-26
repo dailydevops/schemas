@@ -190,5 +190,15 @@ public class AtomizationTests
             typedValue = value;
             return node.IsSameNode(annotated);
         }
+
+        public bool TryGetTypedValues(in XPathNode node, out XdmSequence values)
+        {
+            values = XdmSequence.Empty;
+            return false;
+        }
+
+        public bool HasTypedValue(in XPathNode node) => true;
+
+        public bool IsNilled(in XPathNode node) => false;
     }
 }
