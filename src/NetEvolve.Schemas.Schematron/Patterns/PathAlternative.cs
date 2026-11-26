@@ -113,11 +113,6 @@ internal sealed class PathAlternative : PatternAlternative
     )
     {
         matched = false;
-        if (candidate.IsEmpty())
-        {
-            return QueryStatus.Ok;
-        }
-
         var sink = new ItemSequenceSink(focusNode.Tree!.Names);
         var status = run.TryEvaluate(_keyStart!, new QueryFocus(focusNode, 1, 1), sink);
         if (status != QueryStatus.Ok)
