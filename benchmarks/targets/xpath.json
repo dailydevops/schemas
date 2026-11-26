@@ -56,6 +56,12 @@
     "baselineRatio": 8.3
   },
   {
+    "name": "XPathPositionalRangeBenchmarks.EvaluatePositionalRanges",
+    "meanNs": 5500.0,
+    "allocatedBytes": 768,
+    "baselineRatio": 0.4
+  },
+  {
     "name": "XPathStringFunctionBenchmarks.LowerCase",
     "meanNs": 12000.0,
     "allocatedBytes": 800,

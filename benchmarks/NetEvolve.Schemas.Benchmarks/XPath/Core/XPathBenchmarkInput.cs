@@ -21,6 +21,14 @@ internal static class XPathBenchmarkInput
         "/Invoice/TaxTotal/TaxSubtotal[Rate = 19]/TaxAmount",
     ];
 
+    /// <summary>Gets the XPath 1.0 compatible expressions whose predicate selects a range of positions.</summary>
+    public static string[] PositionalRanges { get; } =
+    [
+        "/Invoice/InvoiceLine[position() > 10 and position() < 20]/LineAmount",
+        "/Invoice/InvoiceLine[position() >= 40 and position() <= 60 and position() > 45]",
+        "/Invoice/InvoiceLine[position() > 90 and position() <= 95]/LineAmount",
+    ];
+
     /// <summary>Gets the XPath 1.0 compatible expressions that are dominated by comparisons.</summary>
     public static string[] Comparisons { get; } =
     [
