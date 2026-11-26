@@ -1,6 +1,7 @@
 ﻿namespace NetEvolve.Schemas.Xsd.Tests.Unit.Composition;
 
 using System;
+using System.Text;
 using System.Threading;
 using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Resources;
@@ -313,6 +314,57 @@ public class CompositionTests
         );
 
         await Assert.That(set.Units.Count).IsEqualTo(1);
+        await Assert.That(issues.Count).IsEqualTo(1);
+        await Assert.That(issues[0].Code).IsEqualTo(CoreDiagnosticCodes.ResourceSizeLimitExceeded);
+    }
+
+    [Test]
+    public async Task RelativeReference_WithoutBaseUri_ReachesTheResolverWithoutAResolvedUri()
+    {
+        var resolver = new ScriptedResolver(_ => ResourceResult.NotFound("served by the custom resolver"));
+
+        var (_, issues) = LoadWithoutBase(Schema("<xs:include schemaLocation=\"a.xsd\"/>"), resolver);
+
+        await Assert.That(resolver.Calls).IsEqualTo(1);
+        await Assert.That(issues.Count).IsEqualTo(1);
+        await Assert.That(issues[0].Code).IsEqualTo(CoreDiagnosticCodes.ResourceNotFound);
+    }
+
+    [Test]
+    public async Task RelativeReference_WithoutBaseUri_CarriesANullResolvedUri()
+    {
+        ResourceRequest? seen = null;
+        var resolver = new ScriptedResolver(request =>
+        {
+            seen = request;
+            return ResourceResult.NotFound("missing");
+        });
+
+        _ = LoadWithoutBase(Schema("<xs:include schemaLocation=\"a.xsd\"/>"), resolver);
+
+        await Assert.That(seen!.Value.Reference).IsEqualTo("a.xsd");
+        await Assert.That(seen.Value.ResolvedUri).IsNull();
+        await Assert.That(seen.Value.BaseUri).IsNull();
+    }
+
+    [Test]
+    public async Task ResourceSize_RedirectToAnAlreadyKnownUnit_StillReportsTheOversizeContent()
+    {
+        var small = Schema(string.Empty);
+        var large = Schema(new string(' ', 4096));
+        var resolver = new ScriptedResolver(request =>
+            request.Reference == "a.xsd"
+                ? ResourceResult.Found(Encoding.UTF8.GetBytes(small), "file:///a.xsd")
+                : ResourceResult.Found(Encoding.UTF8.GetBytes(large), "file:///a.xsd")
+        );
+
+        var (set, issues) = Load(
+            Schema("<xs:include schemaLocation=\"a.xsd\"/><xs:include schemaLocation=\"b.xsd\"/>"),
+            resolver,
+            ValidationLimits.Default.WithMaxResourceSize(1024)
+        );
+
+        await Assert.That(set.Units.Count).IsEqualTo(2);
         await Assert.That(issues.Count).IsEqualTo(1);
         await Assert.That(issues[0].Code).IsEqualTo(CoreDiagnosticCodes.ResourceSizeLimitExceeded);
     }
