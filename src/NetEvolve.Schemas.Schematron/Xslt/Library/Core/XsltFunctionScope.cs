@@ -10,12 +10,12 @@ using NetEvolve.Schemas.XPath.Functions.Binding;
 
 /// <summary>
 /// The functions in scope for the expressions of one binding: the XPath catalog under the host flags of the binding, the core library
-/// of this folder (<c>current</c>, <c>system-property</c>, <c>function-available</c>), the document functions of <see cref="XsltDocumentFunctions"/> (<c>document</c>, <c>doc</c>,
-/// <c>doc-available</c>, <c>unparsed-text</c>, <c>unparsed-text-available</c>, bound to the base URI of the expressions), and the
-/// stylesheet functions. An XSLT binding
-/// sets the XSLT 2.0 host flag of the XPath package, which makes <c>generate-id</c> visible there; this folder holds no second
-/// implementation of it (design #150 ownership table, rule: a host function is added only if the catalog does not define it). An
-/// XPath binding sets no flag and adds no function, so none of the XSLT functions is found. Immutable and thread-safe.
+/// of this folder (<c>current</c>, <c>system-property</c>, <c>function-available</c>), the document functions of
+/// <see cref="XsltDocumentFunctions"/> (<c>document</c>, <c>doc</c>, <c>doc-available</c>, <c>unparsed-text</c>,
+/// <c>unparsed-text-available</c>, bound to the base URI of the expressions), and the stylesheet functions. An XSLT binding sets the
+/// XSLT 2.0 host flag of the XPath package, which makes <c>generate-id</c> visible there; this folder holds no second implementation
+/// of it (design #150 ownership table, rule: a host function is added only if the catalog does not define it). An XPath binding sets
+/// no flag and adds no function, so none of the XSLT functions is found. Immutable and thread-safe.
 /// </summary>
 /// <remarks>
 /// Limitations: the one-argument form of <c>function-available</c> probes the arities 0 to <see cref="MaxProbedArity"/>, because the

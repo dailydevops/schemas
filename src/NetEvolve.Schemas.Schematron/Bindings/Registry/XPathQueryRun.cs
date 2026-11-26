@@ -272,6 +272,13 @@ internal sealed class XPathQueryRun : IXsltFunctionRun, IXPathResourceResolver
         _cancellationToken.ThrowIfCancellationRequested();
 
         _nested = false;
+        if (_level == 0 && _loading is { } loading)
+        {
+            // A breach belongs to the call that met it: a limit hit by an earlier call, which did not fail (doc-available), is no
+            // reason of a later failure.
+            loading.Breach = null;
+        }
+
         var context = Acquire();
         SetFocus(context, in focus);
         var slots = query.ReferencedSlots;
@@ -383,6 +390,7 @@ internal sealed class XPathQueryRun : IXsltFunctionRun, IXPathResourceResolver
 
         if (_loading?.Breach is { } breach && IsResourceError(diagnostic.QName.LocalName))
         {
+            _loading.Breach = null;
             _problem = new SchematronProblem(breach.Code, breach.Message, query.Location, diagnostic.QName.LocalName);
             return QueryStatus.Problem;
         }

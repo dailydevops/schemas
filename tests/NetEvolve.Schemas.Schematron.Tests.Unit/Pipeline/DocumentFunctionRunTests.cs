@@ -273,6 +273,96 @@ public class DocumentFunctionRunTests
         await Assert.That(result.IsValid).IsTrue();
     }
 
+    private static ValidationResult RunAsserts(string[] tests, FakeResources files, ValidationLimits? limits = null)
+    {
+        var asserts = string.Concat(tests.Select(t => $"<assert test=\"{t}\">Failed.</assert>"));
+        var builder = SchemaValidator
+            .ForSchematron(
+                Wrap(
+                    $"<pattern id=\"p\"><rule context=\"doc\">{asserts}</rule></pattern>",
+                    $" queryBinding=\"xslt2\" schematronEdition=\"2025\" {Xsl}"
+                ),
+                Schema
+            )
+            .WithResolver(files);
+        if (limits is not null)
+        {
+            _ = builder.WithLimits(limits);
+        }
+
+        return Validate(builder.Build(), Instance);
+    }
+
+    [Test]
+    public async Task Doc_AfterABreachThatDidNotFail_ReportsTheOwnFailure()
+    {
+        var result = RunAsserts(
+            ["not(doc-available('large.xml'))", "doc('missing.xml')"],
+            Files().Add("file:///schemas/large.xml", Large),
+            ValidationLimits.Default.WithMaxResourceSize(2000)
+        );
+
+        var issue = result.Issues.Single();
+        await Assert.That(issue.Constraint).IsEqualTo("FODC0002");
+        await Assert.That(issue.Code).IsNotEqualTo(CoreDiagnosticCodes.ResourceSizeLimitExceeded);
+    }
+
+    [Test]
+    public async Task Doc_AfterAReportedBreach_ReportsTheOwnFailureOfTheNextCall()
+    {
+        var result = RunAsserts(
+            ["doc('large.xml')", "doc('missing.xml')"],
+            Files().Add("file:///schemas/large.xml", Large),
+            ValidationLimits.Default.WithMaxResourceSize(2000)
+        );
+
+        await Assert.That(result.Issues.Count).IsEqualTo(2);
+        await Assert.That(result.Issues[0].Code).IsEqualTo(CoreDiagnosticCodes.ResourceSizeLimitExceeded);
+        await Assert.That(result.Issues[1].Code).IsNotEqualTo(CoreDiagnosticCodes.ResourceSizeLimitExceeded);
+        await Assert.That(result.Issues[1].Constraint).IsEqualTo("FODC0002");
+    }
+
+    [Test]
+    public async Task Document_BaseNodeFromALoadedDocument_ResolvesAgainstTheSystemIdOfThatDocument()
+    {
+        var files = Files()
+            .Add("file:///schemas/sub/inner.xml", "<codes><c>Y</c></codes>")
+            .Add("file:///schemas/sub/outer.xml", "<o/>");
+
+        var result = Run("document('inner.xml', doc('sub/outer.xml'))//c = 'Y'", files);
+
+        await Assert.That(result.IsValid).IsTrue();
+        await Assert.That(files.Requests.Last()).IsEqualTo("file:///schemas/sub/inner.xml");
+    }
+
+    private static ISchematronValidator FunctionBodyValidator(FakeResources files) =>
+        SchemaValidator
+            .ForSchematron(
+                Wrap(
+                    "<ns prefix=\"f\" uri=\"urn:f\"/>"
+                        + "<xsl:function name=\"f:d\"><xsl:sequence select=\"doc('codes.xml')\"/></xsl:function>"
+                        + "<pattern id=\"p\"><rule context=\"doc\"><assert test=\"not(doc('codes.xml') is f:d())\">Failed.</assert></rule></pattern>",
+                    $" queryBinding=\"xslt2\" schematronEdition=\"2025\" {Xsl} xmlns:f=\"urn:f\""
+                ),
+                Schema
+            )
+            .WithResolver(files)
+            .Build();
+
+    [Test]
+    public async Task Doc_InAStylesheetFunctionBody_LoadsAgainOnTheContextOfTheCall()
+    {
+        // Documented limit: the pool of loaded documents belongs to one evaluation context, so the body of a function does not see
+        // the node of the rule that called it.
+        var files = Files();
+        var validator = FunctionBodyValidator(files);
+
+        var result = Validate(validator, Instance);
+
+        await Assert.That(result.IsValid).IsTrue();
+        await Assert.That(files.Requests.Count).IsEqualTo(2);
+    }
+
     [Test]
     public async Task Doc_WithACanceledToken_Cancels()
     {
