@@ -123,4 +123,28 @@ public class WriterBufferingTests
 
         await Assert.That(bytes.WrittenCount).IsEqualTo(2500);
     }
+
+    [Test]
+    public async Task Names_BeyondTheInitialCache_AreWrittenAndNamespaceUrisWithInvalidCharactersAreRejected()
+    {
+        var table = NewTable();
+        var buffer = new ArrayBufferWriter<char>();
+        using var writer = new XmlWriter(buffer, table);
+        writer.Start("r");
+        var expected = new StringBuilder("<r>");
+        for (var i = 0; i < 200; i++)
+        {
+            writer.Start("e" + i);
+            writer.End("e" + i);
+            _ = expected.Append("<e").Append(i).Append("/>");
+        }
+
+        writer.End("r");
+        writer.EndDocument();
+
+        await Assert.That(buffer.WrittenSpan.ToString()).IsEqualTo(expected.Append("</r>").ToString());
+
+        using var other = new XmlWriter(new ArrayBufferWriter<char>(), table);
+        await Assert.That(() => other.StartElement(N(table, "a", "", "urn:"), default)).Throws<XmlWriteException>();
+    }
 }
