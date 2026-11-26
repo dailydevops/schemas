@@ -1,8 +1,8 @@
 namespace NetEvolve.Schemas.Xsd.Tests.Integration.EInvoicing;
 
 using System.Text.Json;
-
-/// <summary>
+/// The record <c>tests/conformance/suites/xsd-einvoicing.json</c>: the schema sets of the pinned e-invoicing archives with their
+/// documents, the excluded documents, and the documented known failures.
 /// The record <c>tests/conformance/suites/xsd-einvoicing.json</c>: the schema sets of the pinned e-invoicing archives, their
 /// documents, the excluded documents, and the documented known failures.
 /// </summary>
