@@ -228,7 +228,9 @@ internal static class Stage2Run
             };
             try
             {
-                results.AddRange(En16931Runner.Run(Path.Combine(ehf, path), cases, cancellationToken));
+                results.AddRange(
+                    En16931Runner.Run(Path.Combine(ehf, path), cases, cancellationToken, globalPatternLets: true)
+                );
             }
             catch (SchemaCompilationException exception)
             {

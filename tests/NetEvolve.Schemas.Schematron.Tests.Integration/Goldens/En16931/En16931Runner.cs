@@ -23,17 +23,19 @@ internal static class En16931Runner
     /// <param name="schemaPath">The full path of the validation schema; its includes are resolved relative to it.</param>
     /// <param name="cases">The cases of one syntax.</param>
     /// <param name="cancellationToken">A token to cancel the run.</param>
+    /// <param name="globalPatternLets"><see langword="true"/> to make the pattern-level variables visible from every pattern.</param>
     /// <returns>One result per case in case order; the test set is the syntax.</returns>
     public static IReadOnlyList<CaseResult> Run(
         string schemaPath,
         IReadOnlyList<En16931Case> cases,
-        CancellationToken cancellationToken
+        CancellationToken cancellationToken,
+        bool globalPatternLets = false
     )
     {
         cancellationToken.ThrowIfCancellationRequested();
         ArgumentNullException.ThrowIfNullOrWhiteSpace(schemaPath);
         ArgumentNullException.ThrowIfNull(cases);
-        var validator = Build(schemaPath);
+        var validator = Build(schemaPath, globalPatternLets);
         var results = new List<CaseResult>(cases.Count);
         foreach (var testCase in cases)
         {
@@ -52,13 +54,15 @@ internal static class En16931Runner
 
     /// <summary>Builds the validator of a schema, which expands its abstract patterns and reads its includes.</summary>
     /// <param name="schemaPath">The full path of the schema.</param>
+    /// <param name="globalPatternLets"><see langword="true"/> to make the pattern-level variables visible from every pattern.</param>
     /// <returns>The validator.</returns>
-    public static ISchematronValidator Build(string schemaPath)
+    public static ISchematronValidator Build(string schemaPath, bool globalPatternLets = false)
     {
         ArgumentNullException.ThrowIfNullOrWhiteSpace(schemaPath);
         return SchemaValidator
             .ForSchematron(File.ReadAllBytes(schemaPath), new Uri(schemaPath).AbsoluteUri)
             .WithResolver(new SandboxedFileSystemResourceResolver(Path.GetDirectoryName(schemaPath)!))
+            .WithGlobalPatternLets(globalPatternLets)
             .Build();
     }
 
