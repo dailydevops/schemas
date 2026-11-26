@@ -45,6 +45,7 @@ namespace NetEvolve.Schemas
         public string Phase { get; }
         protected override NetEvolve.Schemas.ISchematronValidator CreateValidator(NetEvolve.Schemas.ValidationLimits limits, NetEvolve.Schemas.Resources.IResourceResolver resolver) { }
         protected override System.Threading.Tasks.ValueTask<NetEvolve.Schemas.ISchematronValidator> CreateValidatorAsync(NetEvolve.Schemas.ValidationLimits limits, NetEvolve.Schemas.Resources.IResourceResolver resolver, System.Threading.CancellationToken cancellationToken) { }
+        public NetEvolve.Schemas.SchematronValidatorBuilder WithDtdProcessing(bool enabled) { }
         public NetEvolve.Schemas.SchematronValidatorBuilder WithGlobalPatternLets(bool enabled) { }
         public NetEvolve.Schemas.SchematronValidatorBuilder WithParameter(string name, string value) { }
         public NetEvolve.Schemas.SchematronValidatorBuilder WithPhase(string phase) { }

@@ -1,0 +1,81 @@
+# Known failures of the W3C XInclude test suite: case id, issue, reason (tab separated).
+FourThought-include-01	#1354	xml:base of included content is absolute instead of relative.
+FourThought-include-02	#1354	xml:base of included content is absolute instead of relative.
+Nist-include-01	#1355	A document type declaration in the input or the included document is refused.
+Nist-include-02	#1354	xml:base of included content is absolute instead of relative.
+Nist-include-04	#1354	xml:base of included content is absolute instead of relative.
+Nist-include-09	#1354	xml:base of included content is absolute instead of relative.
+Nist-include-10	#1354	xml:base of included content is absolute instead of relative.
+Nist-include-16	#1355	A document type declaration in the input or the included document is refused.
+Nist-include-17	#70	The xpointer attribute is not supported.
+Nist-include-21	#1355	A document type declaration in the input or the included document is refused.
+Nist-include-22	#1356	Fallback, root include, accept, and bad IRI rules differ from the specification.
+Nist-include-26	#1354	xml:base of included content is absolute instead of relative.
+Nist-include-27	#1354	xml:base of included content is absolute instead of relative.
+Nist-include-28	#1355	A document type declaration in the input or the included document is refused.
+Nist-include-29	#1355	A document type declaration in the input or the included document is refused.
+Nist-include-30	#1355	A document type declaration in the input or the included document is refused.
+Nist-include-31	#70	The xpointer attribute is not supported.
+Nist-include-34	#70	The xpointer attribute is not supported.
+Nist-include-35	#70	The xpointer attribute is not supported.
+Nist-include-36	#70	The xpointer attribute is not supported.
+Nist-include-37	#70	The xpointer attribute is not supported.
+Nist-include-38	#70	The xpointer attribute is not supported.
+Nist-include-50	#1355	A document type declaration in the input or the included document is refused.
+eduni-1	#1355	A document type declaration in the input or the included document is refused.
+eduni-2	#1355	A document type declaration in the input or the included document is refused.
+eduni-3	#70	The xpointer attribute is not supported.
+harold-01	#1357	Unmarked UCS-2 text and xml:base of the including document are not handled.
+harold-02	#70	The xpointer attribute is not supported.
+harold-03	#1357	Unmarked UCS-2 text and xml:base of the including document are not handled.
+harold-04	#70	The xpointer attribute is not supported.
+harold-05	#1355	A document type declaration in the input or the included document is refused.
+harold-06	#1355	A document type declaration in the input or the included document is refused.
+harold-07	#1354	xml:base of included content is absolute instead of relative.
+harold-08	#70	The xpointer attribute is not supported.
+harold-09	#70	The xpointer attribute is not supported.
+harold-10	#1355	A document type declaration in the input or the included document is refused.
+harold-11	#1355	A document type declaration in the input or the included document is refused.
+harold-12	#70	The xpointer attribute is not supported.
+harold-13	#1356	Fallback, root include, accept, and bad IRI rules differ from the specification.
+harold-14	#1356	Fallback, root include, accept, and bad IRI rules differ from the specification.
+harold-18	#1354	xml:base of included content is absolute instead of relative.
+harold-20	#1354	xml:base of included content is absolute instead of relative.
+harold-21	#70	The xpointer attribute is not supported.
+harold-22	#70	The xpointer attribute is not supported.
+harold-27	#1354	xml:base of included content is absolute instead of relative.
+harold-28	#70	The xpointer attribute is not supported.
+harold-29	#70	The xpointer attribute is not supported.
+harold-32	#1354	xml:base of included content is absolute instead of relative.
+harold-34	#70	The xpointer attribute is not supported.
+harold-35	#1354	xml:base of included content is absolute instead of relative.
+harold-36	#1354	xml:base of included content is absolute instead of relative.
+harold-40	#1355	A document type declaration in the input or the included document is refused.
+harold-41	#1356	Fallback, root include, accept, and bad IRI rules differ from the specification.
+harold-42	#1356	Fallback, root include, accept, and bad IRI rules differ from the specification.
+harold-55	#1355	A document type declaration in the input or the included document is refused.
+harold-57	#70	The xpointer attribute is not supported.
+harold-59	#70	The xpointer attribute is not supported.
+harold-60	#70	The xpointer attribute is not supported.
+harold-63	#70	The xpointer attribute is not supported.
+harold-64	#70	The xpointer attribute is not supported.
+harold-65	#70	The xpointer attribute is not supported.
+harold-66	#70	The xpointer attribute is not supported.
+harold-67	#70	The xpointer attribute is not supported.
+harold-68	#70	The xpointer attribute is not supported.
+harold-72	#70	The xpointer attribute is not supported.
+harold-73	#70	The xpointer attribute is not supported.
+harold-77	#1357	Unmarked UCS-2 text and xml:base of the including document are not handled.
+harold-78	#1357	Unmarked UCS-2 text and xml:base of the including document are not handled.
+harold-79	#1357	Unmarked UCS-2 text and xml:base of the including document are not handled.
+harold-92	#70	The xpointer attribute is not supported.
+harold-93	#1355	A document type declaration in the input or the included document is refused.
+harold-95	#70	The xpointer attribute is not supported.
+harold-96	#70	The xpointer attribute is not supported.
+imaq-include-xml-01	#1354	xml:base of included content is absolute instead of relative.
+imaq-include-xml-02	#1354	xml:base of included content is absolute instead of relative.
+imaq-include-xml-04	#1355	A document type declaration in the input or the included document is refused.
+imaq-pex1-01	#1356	Fallback, root include, accept, and bad IRI rules differ from the specification.
+imaq-pex11-05	#1356	Fallback, root include, accept, and bad IRI rules differ from the specification.
+nist-include-39	#1354	xml:base of included content is absolute instead of relative.
+nist-include-40	#1354	xml:base of included content is absolute instead of relative.

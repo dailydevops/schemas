@@ -81,6 +81,22 @@ public class BuilderContractTests
     }
 
     [Test]
+    public async Task Builder_DtdProcessing_IsOffByDefault_AndTheLastCallWins()
+    {
+        var byDefault = new FakePipeline();
+        var on = new FakePipeline();
+        var last = new FakePipeline();
+
+        _ = NewBuilder(byDefault).BuildNow();
+        _ = NewBuilder(on).WithDtdProcessing(true).BuildNow();
+        _ = NewBuilder(last).WithDtdProcessing(true).WithDtdProcessing(false).BuildNow();
+
+        await Assert.That(byDefault.LastSettings!.DtdProcessing).IsFalse();
+        await Assert.That(on.LastSettings!.DtdProcessing).IsTrue();
+        await Assert.That(last.LastSettings!.DtdProcessing).IsFalse();
+    }
+
+    [Test]
     public async Task Builder_Parameters_AreACopyWithOrdinalKeys()
     {
         var builder = NewBuilder(new FakePipeline()).WithParameter("country", "DE");
