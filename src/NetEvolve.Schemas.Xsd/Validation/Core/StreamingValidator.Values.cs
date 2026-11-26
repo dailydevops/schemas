@@ -20,7 +20,15 @@ internal sealed partial class StreamingValidator
         var constraint = frame.Declaration?.ValueConstraint ?? default;
         var defaulted = !frame.HasText && constraint.Kind != ElementValueConstraintKind.None;
         var value = defaulted ? constraint.Value.AsSpan() : _text.AsSpan(0, _textLength);
-        var valid = AssessValue(frame.SimpleType, value, frame.Location, frame.QName, false, out var member);
+        var valid = AssessValue(
+            frame.SimpleType,
+            value,
+            frame.Location,
+            frame.QName,
+            false,
+            out var member,
+            !defaulted
+        );
         if (
             valid
             && !defaulted
@@ -65,7 +73,8 @@ internal sealed partial class StreamingValidator
         DocumentLocation location,
         XPathQName name,
         bool isAttribute,
-        out int memberIndex
+        out int memberIndex,
+        bool resolve = true
     )
     {
         memberIndex = -1;
@@ -77,6 +86,24 @@ internal sealed partial class StreamingValidator
         var result = _assessor.Assess(type, value, out memberIndex);
         if (result.IsValid)
         {
+            // A default or fixed value of a declaration resolves against the schema document, whose declarations are not in scope here.
+            if (resolve && !QNameResolution.Resolves(type, value, _scope, _assessor))
+            {
+                Report(
+                    ValidationRules.ResolveInstance,
+                    location,
+                    "The value '"
+                        + Shorten(value)
+                        + "' of "
+                        + (isAttribute ? "attribute " : "element ")
+                        + Display(name)
+                        + " has a prefix that is not bound to a namespace.",
+                    null
+                );
+                memberIndex = -1;
+                return false;
+            }
+
             return true;
         }
 

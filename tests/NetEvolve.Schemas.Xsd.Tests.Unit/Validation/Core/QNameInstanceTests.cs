@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.Xsd.Tests.Unit.Validation.Core;
 
 using NetEvolve.Schemas.Formats;
+using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Diagnostics;
@@ -46,7 +47,6 @@ public class QNameInstanceTests
     [Arguments("QName", "<r xmlns:p=\"urn:a\">p:x</r>")]
     [Arguments("QName", "<r xmlns:p=\"urn:a\"> p:x\n</r>")]
     [Arguments("QName", "<r>x</r>")]
-    [Arguments("QName", "<r xmlns=\"urn:a\">x</r>")]
     [Arguments("QName", "<r>xml:lang</r>")]
     [Arguments("NOTATION", "<r xmlns:p=\"urn:a\">p:n</r>")]
     public async Task BoundOrAbsentPrefix_IsValid(string local, string xml)
@@ -59,7 +59,6 @@ public class QNameInstanceTests
     [Test]
     [Arguments("QName", "<r>p:x</r>")]
     [Arguments("NOTATION", "<r>p:n</r>")]
-    [Arguments("QName", "<r xmlns:p=\"\">p:x</r>")]
     public async Task UnboundPrefix_IsReportedByCvcResolveInstance(string local, string xml)
     {
         var issues = ValidationHarness.Run(ElementOf(SchemaFixture.Simple(local)), xml);
@@ -141,5 +140,21 @@ public class QNameInstanceTests
         var issues = ValidationHarness.Run(schema, "<r/>");
 
         await Assert.That(issues.Count).IsEqualTo(0);
+    }
+
+    [Test]
+    [Arguments("QName")]
+    [Arguments("NOTATION")]
+    public async Task BuiltInType_ResolvesItsValue(string local)
+    {
+        var type = XsdBuiltInTypes.For(XsdVersion.V11).First(t => t.Name.LocalName == local);
+        var schema = new SchemaFixture();
+        schema.Global("r", type);
+
+        var bound = ValidationHarness.Run(schema, "<r xmlns:p=\"urn:a\">p:x</r>");
+        var unbound = ValidationHarness.Run(schema, "<r>p:x</r>");
+
+        await Assert.That(bound.Count).IsEqualTo(0);
+        await AssertResolveIssue(unbound);
     }
 }

@@ -31,8 +31,7 @@ using NetEvolve.Schemas.Xsd.Validation.Xsi;
 /// <para>
 /// Limitations: substitution groups (<see cref="ValidationModel"/>), ID, IDREF, and NOTATION (XSD-14, #303), identity
 /// constraints (XSD-15, #304), default values of mixed content, the value space
-/// comparison of fixed values (they are compared lexically), QName and NOTATION values that need the namespace context,
-/// and forwarding of events to an inner sink (#361). A violation that a listener finds does not mark the element invalid,
+/// comparison of fixed values (they are compared lexically), and forwarding of events to an inner sink (#361). A violation that a listener finds does not mark the element invalid,
 /// because the shared reporter has no verdict channel yet. The nesting depth is bounded by the reader
 /// (<see cref="XmlReaderLimits.MaxElementDepth"/>, which the assembly of #335 sets from <c>ValidationLimits.MaxDepth</c>), not here.
 /// </para>

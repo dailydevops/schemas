@@ -164,7 +164,6 @@ msMeta-DataTypes_w3c	1.0/NOTATION_minLength002_1376/NOTATION_minLength002_1376.v
 msMeta-DataTypes_w3c	1.0/NOTATION_minLength003_1377/NOTATION_minLength003_1377.i	#870	Notation declarations are not components yet, so a NOTATION value cannot be checked.
 msMeta-DataTypes_w3c	1.0/NOTATION_minLength004_1378/NOTATION_minLength004_1378.v	#870	Notation declarations are not components yet, so a NOTATION value cannot be checked.
 msMeta-DataTypes_w3c	1.0/NOTATION_pattern001_1382/NOTATION_pattern001_1382.v	#870	Notation declarations are not components yet, so a NOTATION value cannot be checked.
-msMeta-DataTypes_w3c	1.0/QName009_2092/QName009_2092.v	#604	QName values are resolved without the namespace context, so an unbound prefix is accepted and two prefixes of one namespace give different key values.
 msMeta-DataTypes_w3c	1.0/anyURI_a002_1337/anyURI_a002_1337.v	-	The schema is incomplete (a missing component or document); the suite accepts it, the validator reports src-resolve.
 msMeta-DataTypes_w3c	1.0/base64Binary_enumeration001_1319/base64Binary_enumeration001_1319.i	#1079	The enumeration of a binary type is not evaluated and the case expects it to reject the value.
 msMeta-DataTypes_w3c	1.0/hexBinary_enumeration001_1305/hexBinary_enumeration001_1305.i	#1079	The enumeration of a binary type is not evaluated and the case expects it to reject the value.
