@@ -6,14 +6,14 @@ using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.SchemaDocuments;
 
-/// <summary>A built-in type of the schema namespace: <c>anyType</c> or a datatype of the Xml package.</summary>
+/// <summary>A built-in type of the schema namespace: a datatype of the Xml package.</summary>
 internal sealed class XsdBuiltInType : IXsdComponent
 {
     internal XsdBuiltInType(
         XsdComponentKind kind,
         string localName,
         IDatatypeDescriptor? descriptor,
-        XsdBuiltInType? baseType
+        IXsdComponent? baseType
     )
     {
         ArgumentNullException.ThrowIfNullOrEmpty(localName);
@@ -36,6 +36,6 @@ internal sealed class XsdBuiltInType : IXsdComponent
     /// <summary>Gets the datatype, <see langword="null"/> for <c>anyType</c>.</summary>
     public IDatatypeDescriptor? Descriptor { get; }
 
-    /// <summary>Gets the base type, <see langword="null"/> for <c>anyType</c> whose base is itself.</summary>
-    public XsdBuiltInType? BaseType { get; }
+    /// <summary>Gets the base type: another built-in type, or the ur-type <c>anyType</c> for <c>anySimpleType</c>.</summary>
+    public IXsdComponent? BaseType { get; }
 }

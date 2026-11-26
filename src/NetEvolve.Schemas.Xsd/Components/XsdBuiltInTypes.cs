@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xml.Datatypes.Core;
+using NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;
 using NetEvolve.Schemas.Xsd.Contracts;
 
 /// <summary>
@@ -44,7 +45,7 @@ internal static class XsdBuiltInTypes
     private static List<IXsdComponent> Create(XsdVersion version)
     {
         var registry = BuiltInDatatypes.For(version);
-        var anyType = new XsdBuiltInType(XsdComponentKind.ComplexType, "anyType", null, null);
+        var anyType = ComplexTypeDefinition.AnyType;
         var anySimpleDescriptor = registry.Get("anySimpleType");
         var anySimpleType = new XsdBuiltInType(
             XsdComponentKind.SimpleType,

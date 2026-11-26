@@ -327,7 +327,7 @@ internal sealed class ValueSpace
 
         var primitive = builtIn;
         while (
-            primitive.BaseType is { } parent
+            primitive.BaseType is XsdBuiltInType parent
             && parent.Descriptor is not null
             && !string.Equals(parent.Name.LocalName, AnySimpleType, StringComparison.Ordinal)
         )
