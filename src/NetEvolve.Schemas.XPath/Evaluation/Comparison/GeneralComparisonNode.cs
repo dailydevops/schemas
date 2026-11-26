@@ -78,7 +78,12 @@ internal sealed class GeneralComparisonNode : ExecutableNode
 
     /// <inheritdoc />
     /// <exception cref="XPathException">An <c>xs:untypedAtomic</c> item is not a value of the type it is cast to (FORG0001), or the types of a pair have no operator (XPTY0004).</exception>
-    public override XdmSequence Evaluate(XPathEvaluationContext context)
+    public override XdmSequence Evaluate(XPathEvaluationContext context) =>
+        XdmSequence.Create(XdmItem.FromBoolean(EvaluateBoolean(context)));
+
+    /// <inheritdoc />
+    /// <exception cref="XPathException">An <c>xs:untypedAtomic</c> item is not a value of the type it is cast to (FORG0001), or the types of a pair have no operator (XPTY0004).</exception>
+    public override bool EvaluateBoolean(XPathEvaluationContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
 
@@ -93,12 +98,12 @@ internal sealed class GeneralComparisonNode : ExecutableNode
             {
                 if (Holds(left[i], right[j], context))
                 {
-                    return XdmSequence.Create(XdmItem.FromBoolean(true));
+                    return true;
                 }
             }
         }
 
-        return XdmSequence.Create(XdmItem.FromBoolean(false));
+        return false;
     }
 
     private bool Holds(XdmItem left, XdmItem right, XPathEvaluationContext context)

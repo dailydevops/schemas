@@ -28,6 +28,7 @@ internal sealed class PathNode : ExecutableNode, IOrderedNodeSequence, IItemList
     private readonly PathStep[] _steps;
     private readonly XPathOrderRequirement[] _requirements;
     private readonly SourceSpan _location;
+    private readonly bool _stopsAtFirst;
     private int _limit;
 
     /// <summary>Initializes a new instance of the <see cref="PathNode"/> class.</summary>
@@ -48,6 +49,10 @@ internal sealed class PathNode : ExecutableNode, IOrderedNodeSequence, IItemList
         _steps = steps;
         _requirements = Analyze(steps);
         _location = location ?? new SourceSpan(-1, 0);
+
+        // A last step that can only deliver nodes, already in order, is enough once it delivered one: the truth is known.
+        var last = steps.Length - 1;
+        _stopsAtFirst = last >= 0 && steps[last].CanLimit && _requirements[last] == XPathOrderRequirement.None;
     }
 
     /// <summary>Gets the number of result nodes that is enough, zero when the path delivers every node.</summary>
@@ -114,8 +119,38 @@ internal sealed class PathNode : ExecutableNode, IOrderedNodeSequence, IItemList
         var next = new XdmItemList(limit, _location);
         try
         {
-            EvaluateSteps(context, ref current, ref next);
+            EvaluateSteps(context, ref current, ref next, _limit);
             return current.ToSequence();
+        }
+        finally
+        {
+            current.Dispose();
+            next.Dispose();
+        }
+    }
+
+    /// <inheritdoc />
+    /// <remarks>
+    /// A path whose last step can stop early runs with a limit of one node and answers whether it found one, which is the effective boolean
+    /// value of a sequence of nodes. The compile-time limit of the path is not touched. The result size limit is not checked against nodes the
+    /// path no longer reads, as with <see cref="TryLimit"/>.
+    /// </remarks>
+    public override bool EvaluateBoolean(XPathEvaluationContext context)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+
+        if (!_stopsAtFirst)
+        {
+            return base.EvaluateBoolean(context);
+        }
+
+        var limit = context.Limits.MaxSequenceSize;
+        var current = new XdmItemList(limit, _location);
+        var next = new XdmItemList(limit, _location);
+        try
+        {
+            EvaluateSteps(context, ref current, ref next, 1);
+            return current.Count > 0;
         }
         finally
         {
@@ -134,7 +169,7 @@ internal sealed class PathNode : ExecutableNode, IOrderedNodeSequence, IItemList
         var next = new XdmItemList(limit, _location);
         try
         {
-            EvaluateSteps(context, ref current, ref next);
+            EvaluateSteps(context, ref current, ref next, _limit);
             results.AddRange(current.Items);
         }
         finally
@@ -144,13 +179,13 @@ internal sealed class PathNode : ExecutableNode, IOrderedNodeSequence, IItemList
         }
     }
 
-    // Leaves the result in current; the caller disposes both lists.
-    private void EvaluateSteps(XPathEvaluationContext context, ref XdmItemList current, ref XdmItemList next)
+    // Leaves the result in current; the caller disposes both lists. The limit applies to the last step only, as the field of the same name does.
+    private void EvaluateSteps(XPathEvaluationContext context, ref XdmItemList current, ref XdmItemList next, int limit)
     {
         var index = 0;
         if (_root == PathRoot.Relative)
         {
-            _steps[0].EvaluateFromContext(context, ref current, _steps.Length == 1 ? _limit : 0);
+            _steps[0].EvaluateFromContext(context, ref current, _steps.Length == 1 ? limit : 0);
             Finish(ref current, 0);
             index = 1;
         }
@@ -161,7 +196,7 @@ internal sealed class PathNode : ExecutableNode, IOrderedNodeSequence, IItemList
 
         for (; index < _steps.Length; index++)
         {
-            _steps[index].EvaluateOver(context, current.Items, ref next, index == _steps.Length - 1 ? _limit : 0);
+            _steps[index].EvaluateOver(context, current.Items, ref next, index == _steps.Length - 1 ? limit : 0);
             Finish(ref next, index);
             (current, next) = (next, current);
             next.Clear();

@@ -66,7 +66,16 @@ internal sealed class ValueComparisonNode : ExecutableNode
 
     /// <inheritdoc />
     /// <exception cref="XPathException">An operand has more than one item, or the operand types have no operator (XPTY0004).</exception>
-    public override XdmSequence Evaluate(XPathEvaluationContext context)
+    public override XdmSequence Evaluate(XPathEvaluationContext context) =>
+        Compare(context) is { } truth ? XdmSequence.Create(XdmItem.FromBoolean(truth)) : XdmSequence.Empty;
+
+    /// <inheritdoc />
+    /// <exception cref="XPathException">An operand has more than one item, or the operand types have no operator (XPTY0004).</exception>
+    /// <remarks>The empty sequence of an empty operand has the effective boolean value <see langword="false"/>.</remarks>
+    public override bool EvaluateBoolean(XPathEvaluationContext context) => Compare(context) is true;
+
+    // Null for the empty sequence.
+    private bool? Compare(XPathEvaluationContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
 
@@ -74,13 +83,13 @@ internal sealed class ValueComparisonNode : ExecutableNode
         var right = XPathAtomization.Atomize(_right.Evaluate(context));
         if (left.IsEmpty || right.IsEmpty)
         {
-            return XdmSequence.Empty;
+            return null;
         }
 
         var leftItem = ComparisonOperands.ValueOperand(left);
         var rightItem = ComparisonOperands.ValueOperand(right);
         return _table.TryGetContextual(_relation, leftItem.TypeId, rightItem.TypeId, out var implementation)
-            ? XdmSequence.Create(XdmItem.FromBoolean(implementation!(_relation, leftItem, rightItem, context)))
+            ? implementation!(_relation, leftItem, rightItem, context)
             : throw XPathErrors.Exception(XPathErrorCodes.XPTY0004);
     }
 }
