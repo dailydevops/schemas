@@ -61,36 +61,5 @@
       "reason": "Stale upstream example: every country code of the document (FI, PT) is valid, so SCH-EUSR-30 cannot fire."
     }
   ],
-  "knownFailures": [
-    {
-      "id": "EHF-ORDER-3.0/unique-line-ids.xml",
-      "issue": 615,
-      "reason": "The rule set builds only after the deferred opt-in global visibility of pattern-level let (#615): it reads a pattern-level let (a code list) from a later pattern, which is lexical today, so the build reports NES3300 (SCH-VAR-UNDEFINED)."
-    },
-    {
-      "id": "EHF-ORDER-3.0/duplicate-line-ids.xml",
-      "issue": 615,
-      "reason": "The rule set builds only after the deferred opt-in global visibility of pattern-level let (#615): it reads a pattern-level let (a code list) from a later pattern, which is lexical today, so the build reports NES3300 (SCH-VAR-UNDEFINED)."
-    },
-    {
-      "id": "EHF-P09-3.0-ORDER-INITIATION/unique-line-ids.xml",
-      "issue": 615,
-      "reason": "The rule set builds only after the deferred opt-in global visibility of pattern-level let (#615): it reads a pattern-level let (a code list) from a later pattern, which is lexical today, so the build reports NES3300 (SCH-VAR-UNDEFINED)."
-    },
-    {
-      "id": "EHF-P09-3.0-ORDER-INITIATION/duplicate-line-ids.xml",
-      "issue": 615,
-      "reason": "The rule set builds only after the deferred opt-in global visibility of pattern-level let (#615): it reads a pattern-level let (a code list) from a later pattern, which is lexical today, so the build reports NES3300 (SCH-VAR-UNDEFINED)."
-    },
-    {
-      "id": "EHF-P09-3.0-ORDER-CHANGE/unique-line-ids.xml",
-      "issue": 615,
-      "reason": "The rule set builds only after the deferred opt-in global visibility of pattern-level let (#615): it reads a pattern-level let (a code list) from a later pattern, which is lexical today, so the build reports NES3300 (SCH-VAR-UNDEFINED)."
-    },
-    {
-      "id": "EHF-P09-3.0-ORDER-CHANGE/duplicate-line-ids.xml",
-      "issue": 615,
-      "reason": "The rule set builds only after the deferred opt-in global visibility of pattern-level let (#615): it reads a pattern-level let (a code list) from a later pattern, which is lexical today, so the build reports NES3300 (SCH-VAR-UNDEFINED)."
-    }
-  ]
+  "knownFailures": []
 }
