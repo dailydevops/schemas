@@ -1,3 +1,5 @@
+boeingMeta-BoeingXSDTestSet	36
+common-introspection	184
 ibmMeta-allGroup	15
 ibmMeta-anyAttribute	26
 ibmMeta-assert	79
@@ -87,3 +89,5 @@ sunMeta-SType	676
 sunMeta-Schema	24
 sunMeta-Wildcard	122
 sunMeta-suntest	498
+wgMeta-IRI	13
+wgMeta-substitution-groups	28

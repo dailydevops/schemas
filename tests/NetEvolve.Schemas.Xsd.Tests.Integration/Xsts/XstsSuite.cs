@@ -48,8 +48,14 @@ internal static class XstsSuite
             cancellationToken
         );
         var cases = XstsReader.Read(root);
-        var v10 = XstsSelector.Select(cases, new XstsFilter(XstsVersions.V10, XstsFilter.AcceptedStatuses));
-        var v11 = XstsSelector.Select(cases, new XstsFilter(XstsVersions.V11, XstsFilter.AcceptedStatuses));
+        var v10 = XstsSelector.Select(
+            cases,
+            new XstsFilter(XstsVersions.V10, XstsFilter.AcceptedStatuses, XstsFilter.DefaultStatusLessTestSets)
+        );
+        var v11 = XstsSelector.Select(
+            cases,
+            new XstsFilter(XstsVersions.V11, XstsFilter.AcceptedStatuses, XstsFilter.DefaultStatusLessTestSets)
+        );
         return (root, new XstsSelection([.. v10.Selected, .. v11.Selected], [.. v10.Excluded, .. v11.Excluded]));
     }
 
