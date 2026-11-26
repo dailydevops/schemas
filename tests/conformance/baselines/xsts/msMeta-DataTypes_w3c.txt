@@ -25,7 +25,6 @@
 1.0/anyURI_b004_1354/anyURI_b004_1354
 1.0/anyURI_b006_1356/anyURI_b006_1356
 1.0/base64Binary_enumeration001_1319/base64Binary_enumeration001_1319.i
-1.0/dtZ107447_a_2245/dtZ107447_a_2245
 1.0/hexBinary_enumeration001_1305/hexBinary_enumeration001_1305.i
 1.0/hexBinary_enumeration003_1307/hexBinary_enumeration003_1307.i
 1.1/IDREFS_enumeration001_1442/IDREFS_enumeration001_1442

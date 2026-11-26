@@ -2,8 +2,6 @@
 1.0/elemZ007/elemZ007
 1.0/elemZ017/elemZ017.v
 1.0/elemZ028c/elemZ028c
-1.0/elemZ032a/elemZ032a
-1.0/elemZ032b/elemZ032b
 1.0/elemZ033b/elemZ033b.v
 1.1/QFE1700a1/QFE1700a1
 1.1/QFE1700a1/QFE1700a1.v

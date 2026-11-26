@@ -5,6 +5,7 @@ using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xsd.Attributes.Declarations;
 using NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;
+using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Declarations11;
 using NetEvolve.Schemas.Xsd.Derivation.Types;
@@ -213,7 +214,14 @@ internal static class ValueConstraintCheck
         bool attribute = false
     )
     {
-        if (type is not SimpleTypeDefinition simple || !IdAttributeUses.IsIdType(simple))
+        var isId = type switch
+        {
+            SimpleTypeDefinition simple => IdAttributeUses.IsIdType(simple),
+            // No other built-in type derives from ID.
+            XsdBuiltInType builtIn => string.Equals(builtIn.Name.LocalName, "ID", StringComparison.Ordinal),
+            _ => false,
+        };
+        if (!isId)
         {
             return false;
         }
