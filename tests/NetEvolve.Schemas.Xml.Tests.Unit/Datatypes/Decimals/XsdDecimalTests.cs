@@ -45,6 +45,42 @@ public class XsdDecimalTests
     }
 
     [Test]
+    [Arguments("18446744073709551615", "18446744073709551615", 0)] // ulong.MaxValue, 20 digits, stays inline
+    [Arguments("18446744073709551616", "18446744073709551616", 0)] // ulong.MaxValue + 1
+    [Arguments("99999999999999999999", "99999999999999999999", 0)] // 20 digits
+    [Arguments("-12345678901234567890.5", "-123456789012345678905", 1)]
+    [Arguments("0012345678901234567890123450000", "1234567890123456789012345", -4)] // leading and trailing zeros
+    [Arguments("12345678901234567890123456789012345678", "12345678901234567890123456789012345678", 0)] // 38 digits
+    [Arguments("99999999999999999999999999999999999999", "99999999999999999999999999999999999999", 0)] // 38 nines
+    [Arguments("1234567890123456789012345678901234567.8", "12345678901234567890123456789012345678", 1)]
+    [Arguments("0.00012345678901234567890123456789012345678000", "12345678901234567890123456789012345678", 41)]
+    [Arguments("123456789012345678901234567890123456789", "123456789012345678901234567890123456789", 0)] // 39 digits
+    [Arguments("+1234567890123456789012345678.9012345678901", "12345678901234567890123456789012345678901", 13)]
+    public async Task Parse_20To39SignificantDigits_KeepsTheExactMantissaSignAndScale(
+        string lexical,
+        string digits,
+        int scale
+    )
+    {
+        var value = P(lexical);
+
+        await Assert.That(value.Mantissa).IsEqualTo(BigInteger.Parse(digits, CultureInfo.InvariantCulture));
+        await Assert.That(value.Scale).IsEqualTo(scale);
+    }
+
+    [Test]
+    [Arguments("18446744073709551615", true)]
+    [Arguments("18446744073709551616", false)]
+    [Arguments("99999999999999999999", false)]
+    [Arguments("10000000000000000000", true)]
+    public async Task Parse_TwentyDigitMagnitude_IsInlineExactlyWhenItFitsSixtyFourBits(string lexical, bool inline)
+    {
+        var value = P(lexical);
+
+        await Assert.That(value.TryGetInlineMagnitude(out _)).IsEqualTo(inline);
+    }
+
+    [Test]
     public async Task Parse_EmptyLoneSignTwoPoints_ReturnsInvalidLexicalForm()
     {
         var empty = XsdDecimal.Parse(ReadOnlySpan<char>.Empty);
