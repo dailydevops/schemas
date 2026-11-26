@@ -1,5 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Functions.Regex;
 
+using NetEvolve.Schemas.Xml.Regex.Contracts;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
@@ -17,27 +18,15 @@ internal sealed class MatchesFunction : RegexFunction
     {
         var operations = Compile(invocation.Arguments, 2);
         var input = Text(invocation.Arguments[0]);
-        var found = false;
-        var segments = new MatchSegmentEnumerator(operations, input.AsSpan());
-        try
-        {
-            while (!found && segments.MoveNext())
-            {
-                found = segments.Current.Kind == MatchSegmentKind.Match;
-            }
+        var result = operations.IsMatch(input.AsSpan());
 
-            // A search that reached its ceiling before it found a match has no answer; one that found a match is true.
-            if (!found && segments.IsAborted)
-            {
-                throw RegexErrors.StepCeiling();
-            }
-        }
-        finally
+        // A search that reached its ceiling before it found a match has no answer; one that found a match is true.
+        if (result == RegexMatchResult.Aborted)
         {
-            segments.Dispose();
+            throw RegexErrors.StepCeiling();
         }
 
-        invocation.Result = XdmSequence.Create(XdmItem.FromBoolean(found));
+        invocation.Result = XdmSequence.Create(XdmItem.FromBoolean(result == RegexMatchResult.Match));
         return XPathEvaluationStatus.Ok;
     }
 }

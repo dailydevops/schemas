@@ -16,6 +16,8 @@ public sealed partial class RegexProgram
     // True for a program compiled with capture instructions for the automaton, see TryCompileForOperations.
     private bool _recordsCaptures;
 
+    internal bool RecordsCaptures => _recordsCaptures;
+
     // Compiles a tree for the operations: like TryCompile, but a pattern with capture groups and without back references also
     // gets the capture instructions, which only the backtracking machine would otherwise have.
     internal static RegexError TryCompileForOperations(RegexTree tree, out RegexProgram? program)

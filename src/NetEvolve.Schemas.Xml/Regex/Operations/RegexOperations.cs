@@ -24,9 +24,14 @@ using NetEvolve.Schemas.Xml.Regex.Parsing;
 public sealed class RegexOperations
 {
     private readonly RegexProgram _program;
+    private readonly RegexTree _tree;
 
-    private RegexOperations(RegexProgram program, int groupCount, bool matchesEmptyString)
+    // The program without capture instructions for IsMatch, compiled on first use; a race compiles it twice, both are equal.
+    private RegexProgram? _matchProgram;
+
+    private RegexOperations(RegexTree tree, RegexProgram program, int groupCount, bool matchesEmptyString)
     {
+        _tree = tree;
         _program = program;
         GroupCount = groupCount;
         MatchesEmptyString = matchesEmptyString;
@@ -60,7 +65,7 @@ public sealed class RegexOperations
         var probe = new int[2 * (groupCount + 1)];
         var matchesEmptyString =
             program!.FindGroups(ReadOnlySpan<char>.Empty, 0, null, probe) == RegexMatchResult.Match;
-        operations = new RegexOperations(program, groupCount, matchesEmptyString);
+        operations = new RegexOperations(tree, program, groupCount, matchesEmptyString);
         return RegexError.None;
     }
 
@@ -70,6 +75,29 @@ public sealed class RegexOperations
     /// <returns>The enumerator; dispose it, or use it in a <see langword="foreach"/> loop.</returns>
     public RegexMatchEnumerator EnumerateMatches(ReadOnlySpan<char> input, RegexStepLimits? limits = null) =>
         new(this, input, limits);
+
+    // Whether any part of the input matches, the boolean that fn:matches needs: it skips the enumerator and the capture state.
+    internal RegexMatchResult IsMatch(ReadOnlySpan<char> input, RegexStepLimits? limits = null) =>
+        MatchProgram().Match(input, limits ?? RegexStepLimits.Default);
+
+    // A pattern compiled with capture instructions (groups, no back reference) runs on a second program without capture instructions; the others
+    // reuse the program, which already is that program.
+    private RegexProgram MatchProgram()
+    {
+        if (_matchProgram is { } cached)
+        {
+            return cached;
+        }
+
+        var program = _program;
+        if (program.RecordsCaptures && RegexProgram.TryCompile(_tree, out var plain) == RegexError.None)
+        {
+            program = plain!;
+        }
+
+        _matchProgram = program;
+        return program;
+    }
 
     /// <summary>Replaces every match with the replacement string and returns the result as a string.</summary>
     /// <param name="input">The input.</param>
