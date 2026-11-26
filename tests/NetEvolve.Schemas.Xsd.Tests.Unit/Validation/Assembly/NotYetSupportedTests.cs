@@ -21,11 +21,6 @@ public class NotYetSupportedTests
         StringComparer.Ordinal
     )
     {
-        ["assert"] = (
-            "<xs:complexType name=\"c\"><xs:sequence/><xs:assert test=\"true()\"/></xs:complexType>",
-            "",
-            4060
-        ),
         ["assertion"] = (
             "<xs:simpleType name=\"s\"><xs:restriction base=\"xs:integer\"><xs:assertion test=\"$value gt 0\"/></xs:restriction></xs:simpleType>",
             "",
@@ -126,7 +121,8 @@ public class NotYetSupportedTests
     {
         var counterparts = Xsd11ConstructTable.Entries.Select(e => e.NotYetSupported.Code.Number).ToArray();
 
-        foreach (var entry in Strict10ConstructTable.Entries)
+        // The assert element of a complex type is wired (XSD-78, #360), so it has no row any more.
+        foreach (var entry in Strict10ConstructTable.Entries.Where(e => e.IsAttribute || e.Name != "assert"))
         {
             await Assert.That(counterparts).Contains(entry.Rule.Code.Number + 40);
         }

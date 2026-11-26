@@ -5,6 +5,7 @@ using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xml.Datatypes.Facets.Core;
 using NetEvolve.Schemas.XPath.Api;
+using NetEvolve.Schemas.Xsd.Assertions.ComplexTypes;
 using NetEvolve.Schemas.Xsd.Attributes.Declarations;
 using NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;
 using NetEvolve.Schemas.Xsd.Components;
@@ -96,6 +97,9 @@ internal sealed class BuildContext
 
     /// <summary>Gets every complex type that was built, named and anonymous.</summary>
     public List<ComplexTypeDefinition> BuiltComplexTypes { get; } = [];
+
+    /// <summary>Gets the assertions that each built complex type declares itself (XSD 1.1), in document order; a type without any is not listed.</summary>
+    public Dictionary<ComplexTypeDefinition, IReadOnlyList<ComplexTypeAssertion>> ComplexTypeAssertions { get; } = [];
 
     /// <summary>Gets every attribute declaration that was built, global and local.</summary>
     public List<AttributeDeclaration> BuiltAttributes { get; } = [];

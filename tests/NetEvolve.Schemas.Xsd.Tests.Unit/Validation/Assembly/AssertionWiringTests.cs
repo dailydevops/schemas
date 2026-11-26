@@ -14,13 +14,13 @@ public class AssertionWiringTests
             <xs:element name="a" type="xs:int"/>
             <xs:element name="b" type="xs:int"/>
           </xs:sequence>
-          <xs:assert test="a lt b"/>
+          <xs:assert test="a lt b" xpathDefaultNamespace="##targetNamespace"/>
         </xs:complexType>
         <xs:complexType name="derived">
           <xs:complexContent>
             <xs:extension base="t:base">
               <xs:sequence><xs:element name="c" type="xs:int"/></xs:sequence>
-              <xs:assert test="c gt b"/>
+              <xs:assert test="c gt b" xpathDefaultNamespace="##targetNamespace"/>
             </xs:extension>
           </xs:complexContent>
         </xs:complexType>

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
+using NetEvolve.Schemas.Xsd.Assertions.ComplexTypes;
 using NetEvolve.Schemas.Xsd.Attributes.Declarations;
 using NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;
 using NetEvolve.Schemas.Xsd.Contracts;
@@ -21,7 +22,7 @@ using NetEvolve.Schemas.Xsd.SimpleTypes.Definitions;
 /// <remarks>
 /// A type that violates a representation constraint still is built, as an empty restriction of <c>anyType</c>, so later phases see
 /// no missing component and report no second error. Limitations: <c>openContent</c> and <c>defaultOpenContent</c> (XSD 1.1) are not
-/// read (XSD-78, #360), and neither are the XSD 1.1 <c>assert</c> children and <c>defaultAttributesApply</c>.
+/// read (XSD-78, #360), and neither is <c>defaultAttributesApply</c>; the <c>assert</c> children are collected under XSD 1.1.
 /// </remarks>
 internal sealed class ComplexTypeBuilder : IComponentBuilder
 {
@@ -168,6 +169,15 @@ internal sealed class ComplexTypeBuilder : IComponentBuilder
     {
         var type = Create(node, unit, header, out var content) ?? Fallback(header);
         _context.BuiltComplexTypes.Add(type);
+        if (_context.Version == XsdVersion.V11)
+        {
+            var assertions = ComplexTypeAssertion.Collect(node, unit.Scope, _context.Version, _context.Reporter);
+            if (assertions.Count > 0)
+            {
+                _context.ComplexTypeAssertions[type] = assertions;
+            }
+        }
+
         Scan(content, unit);
         return type;
     }

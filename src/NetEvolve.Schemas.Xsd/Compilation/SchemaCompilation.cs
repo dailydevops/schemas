@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.Xsd.Compilation;
 
 using System.Collections.Generic;
 using NetEvolve.Arguments;
+using NetEvolve.Schemas.Xsd.Assertions.ComplexTypes;
 using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Elements;
@@ -22,7 +23,8 @@ internal sealed class SchemaCompilation
         IReadOnlyDictionary<ElementDeclaration, IReadOnlyList<IdentityConstraintDefinition>>? identityConstraints =
             null,
         ListenerKinds listeners = ListenerKinds.None,
-        IReadOnlyList<IXsdComponent>? components = null
+        IReadOnlyList<IXsdComponent>? components = null,
+        ComplexTypeAssertions? assertions = null
     )
     {
         ArgumentNullException.ThrowIfNull(result);
@@ -33,6 +35,7 @@ internal sealed class SchemaCompilation
         IdentityConstraints = identityConstraints ?? NoConstraints;
         _listeners = listeners;
         Components = components ?? [];
+        Assertions = assertions;
     }
 
     private static IReadOnlyDictionary<
@@ -57,6 +60,9 @@ internal sealed class SchemaCompilation
         ElementDeclaration,
         IReadOnlyList<IdentityConstraintDefinition>
     > IdentityConstraints { get; }
+
+    /// <summary>Gets the assertions of the complex types (XSD 1.1), <see langword="null"/> when no type has one.</summary>
+    public ComplexTypeAssertions? Assertions { get; }
 
     /// <summary>Gets a value indicating whether the schema names an ID, IDREF, IDREFS, or NOTATION type, so the ID listener has work.</summary>
     public bool NeedsIdListener => _listeners.HasFlag(ListenerKinds.Ids);
