@@ -19,7 +19,7 @@ Collation Algorithm collations (DEF-43, #55), and the HTML ASCII case-insensitiv
 | `Collation`         | A collation: `Compare`, `AreEqual`, and the substring matching `StartsWith`, `EndsWith`, and `TryFind`.    |
 | `CodepointCollation`| The one built-in collation; a match never starts or ends inside a surrogate pair.                          |
 | `CollationRegistry` | Maps a collation URI to a collation; immutable, `With` returns a new registry; `Resolve` raises `FOCH0002`. |
-| `CompareFunction`, `CodepointEqualFunction` | `fn:compare` and `fn:codepoint-equal`.                                                     |
+| `CompareFunction`, `CodepointEqualFunction`, `DefaultCollationFunction` | `fn:compare`, `fn:codepoint-equal`, and `fn:default-collation`. |
 
 ## Resolution of a URI
 
