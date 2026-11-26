@@ -5,6 +5,7 @@ using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Functions.Binding;
 using NetEvolve.Schemas.XPath.Syntax.Tree;
+using NetEvolve.Schemas.XPath.Types;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>
@@ -15,6 +16,8 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 internal sealed class ConstructorFunction : XPathFunction
 {
     private static readonly XPathParameterType[] Parameters = [new(XPathItemType.AnyAtomic, Occurrence.ZeroOrOne)];
+
+    private static readonly XdmTypeId DateTimeStampType = XdmTypes.Get("dateTimeStamp");
 
     private readonly XdmTypeId _target;
     private readonly CastingTable _table;
@@ -34,6 +37,11 @@ internal sealed class ConstructorFunction : XPathFunction
         _target = target;
         _table = table;
     }
+
+    /// <inheritdoc />
+    /// <remarks><c>xs:dateTimeStamp</c> is a type of XPath 3.1 alone, so its constructor function is too.</remarks>
+    public override XPathVersionMask Versions =>
+        _target == DateTimeStampType ? XPathVersionMask.V31 : XPathVersionMask.All;
 
     /// <inheritdoc />
     public override XPathEvaluationStatus Invoke(ref XPathFunctionCall invocation)

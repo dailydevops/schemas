@@ -12,7 +12,7 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// Immutable and thread-safe.
 /// </summary>
 /// <remarks>
-/// A pair without a row is not allowed (XPTY0004). A value of a type derived from <c>xs:integer</c> or <c>xs:string</c> is cast as its nearest
+/// A pair without a row is not allowed (XPTY0004). A value of a type derived from <c>xs:integer</c>, <c>xs:string</c>, or <c>xs:dateTime</c> (<c>xs:dateTimeStamp</c>) is cast as its nearest
 /// ancestor type that has a row (Functions and Operators, 17.3), so the rows of the derived types as a source are those of their ancestors; the
 /// rows of the derived types as a target are staged by the registration file of <c>Casting/Derived</c> (17.2, 17.4, and 17.5).
 /// </remarks>
@@ -109,7 +109,7 @@ internal sealed class CastingTable
 
     internal static long Key(XdmTypeId source, XdmTypeId target) => ((long)source.Value << 32) | (uint)target.Value;
 
-    // The row of the source type or, for a type derived from xs:integer or xs:string, of its nearest ancestor with a row. The walk stops at those two
+    // The row of the source type or, for a type derived from xs:integer, xs:string, or xs:dateTime, of its nearest ancestor with a row. The walk stops at those three
     // types: they are the roots of the only derived families of the data model, so no other source type walks.
     private bool TryFindRow(XdmTypeId source, XdmTypeId target, out CastRow? row)
     {
@@ -121,7 +121,12 @@ internal sealed class CastingTable
                 return true;
             }
 
-            if (type == XdmTypeId.XsInteger || type == XdmTypeId.XsString || !IsDerivedFamily(type))
+            if (
+                type == XdmTypeId.XsInteger
+                || type == XdmTypeId.XsString
+                || type == XdmTypeId.DateTime
+                || !IsDerivedFamily(type)
+            )
             {
                 break;
             }
@@ -134,7 +139,9 @@ internal sealed class CastingTable
     }
 
     private static bool IsDerivedFamily(XdmTypeId type) =>
-        XdmTypes.IsDerivedFrom(type, XdmTypeId.XsInteger) || XdmTypes.IsDerivedFrom(type, XdmTypeId.XsString);
+        XdmTypes.IsDerivedFrom(type, XdmTypeId.XsInteger)
+        || XdmTypes.IsDerivedFrom(type, XdmTypeId.XsString)
+        || XdmTypes.IsDerivedFrom(type, XdmTypeId.DateTime);
 
     // The same for an item: the conversion of an ancestor row receives the item as a value of that ancestor type, because the conversions return a
     // value of the source type unchanged where the target is the same, and the result must not keep the annotation of a derived type.

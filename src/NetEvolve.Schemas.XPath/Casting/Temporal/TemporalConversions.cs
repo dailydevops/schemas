@@ -6,6 +6,7 @@ using NetEvolve.Schemas.Xml.Datatypes.DateTime;
 using NetEvolve.Schemas.Xml.Datatypes.Decimals;
 using NetEvolve.Schemas.Xml.Datatypes.Duration;
 using NetEvolve.Schemas.XPath.Casting.Core;
+using NetEvolve.Schemas.XPath.Types;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>
@@ -33,6 +34,7 @@ internal static class TemporalConversions
     private static readonly DatatypeRegistry V11 = BuiltInDatatypes.For(XsdVersion.V11);
 
     private static readonly IDatatypeDescriptor<XsdDateTime> DateTimeType = Temporal(V10, "dateTime");
+    private static readonly XdmTypeId DateTimeStampType = XdmTypes.Get("dateTimeStamp");
     private static readonly IDatatypeDescriptor<XsdDateTime> DateType = Temporal(V10, "date");
     private static readonly IDatatypeDescriptor<XsdDateTime> TimeType = Temporal(V10, "time");
     private static readonly IDatatypeDescriptor<XsdDateTime> GYearMonthType = Temporal(V10, "gYearMonth");
@@ -53,6 +55,29 @@ internal static class TemporalConversions
     /// <returns>The status.</returns>
     public static CastStatus ToDateTime(in XdmItem source, out XdmItem result) =>
         ToTemporal(in source, XsdDateTimeKind.DateTime, DateTimeType, out result);
+
+    /// <summary>Converts to <c>xs:dateTimeStamp</c>, the <c>xs:dateTime</c> of XPath 3.1 that has an explicit timezone.</summary>
+    /// <param name="source">The source value.</param>
+    /// <param name="result">The result, an <c>xs:dateTime</c> item with the annotation of the type.</param>
+    /// <returns>The status; a value without a timezone is <see cref="CastStatus.InvalidLexical"/> (FORG0001).</returns>
+    public static CastStatus ToDateTimeStamp(in XdmItem source, out XdmItem result)
+    {
+        var status = ToDateTime(in source, out result);
+        if (status != CastStatus.Ok)
+        {
+            return status;
+        }
+
+        _ = result.TryGetTemporal(out var value);
+        if (value.TimezoneOffsetMinutes is null)
+        {
+            result = default;
+            return CastStatus.InvalidLexical;
+        }
+
+        result = result.WithTypeId(DateTimeStampType);
+        return CastStatus.Ok;
+    }
 
     /// <summary>Converts to <c>xs:date</c>.</summary>
     /// <param name="source">The source value.</param>

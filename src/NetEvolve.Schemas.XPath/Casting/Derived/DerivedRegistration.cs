@@ -25,7 +25,7 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// </para>
 /// <para>
 /// Left out: the two duration subtypes, which the temporal rows cover; <c>xs:NMTOKENS</c>, <c>xs:IDREFS</c>, and <c>xs:ENTITIES</c>, which are list
-/// types and no atomic type; <c>xs:NOTATION</c>, which is abstract; and <c>xs:dateTimeStamp</c>, a type of XPath 3.1. A type defined by a schema
+/// types and no atomic type; <c>xs:NOTATION</c>, which is abstract; and <c>xs:dateTimeStamp</c>, whose rows the temporal registration holds. A type defined by a schema
 /// is not available until schema-aware processing exists (DEF-40, #52).
 /// </para>
 /// <para>

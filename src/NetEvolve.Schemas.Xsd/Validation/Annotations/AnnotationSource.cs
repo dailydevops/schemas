@@ -33,7 +33,7 @@ using NetEvolve.Schemas.Xsd.Validation.Core;
 /// <para>
 /// An empty element that took the default or fixed value of its declaration has no text in the tree; its record keeps the value, so the typed
 /// value and the atomization see it (design #146 DP-19), while the string value of the tree node stays empty. A value of <c>xs:QName</c> or
-/// <c>xs:NOTATION</c> stays <c>xs:untypedAtomic</c> (#604), and the item of <c>xs:dateTimeStamp</c> is an <c>xs:dateTime</c>.
+/// <c>xs:NOTATION</c> stays <c>xs:untypedAtomic</c> (#604).
 /// </para>
 /// </remarks>
 internal sealed class AnnotationSource : IXdmTypeAnnotationSource
