@@ -158,6 +158,8 @@ The `queryBinding` of the schema selects the language of the expressions. Names 
 
 The expressions run on the XPath engine of `NetEvolve.Schemas.XPath`, so its function library bounds what an expression can call. A rule context keeps XPath 2.0 semantics under every binding ([#838](https://github.com/dailydevops/schemas/issues/838)).
 
+In XPath 2.0 expressions, the prefix `xs` is predeclared and bound to `http://www.w3.org/2001/XMLSchema`, so `xs:decimal(.)` works without an `ns` element, as it does in the reference implementation. A schema that declares its own `xs` through `ns` keeps that binding. No other prefix is predeclared, and expressions in XPath 1.0 compatibility mode are unchanged.
+
 ### Edition detection
 
 The edition is read from the `schematronEdition` attribute of the `schema` element: an absent attribute and the value `2016` select the semantics of the earlier edition, the value `2025` selects the semantics of the 2025 edition, and any other value, compared exactly, fails at `Build` with `NES3009`. An element or an attribute that exists only in the 2025 edition, such as `param`, fails with `NES3008` unless the schema declares `schematronEdition="2025"`. The edition of the validator is `ISchematronValidator.Edition`, and the SVRL output carries `schematronEdition` for the 2025 edition only.
