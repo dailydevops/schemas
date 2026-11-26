@@ -79,8 +79,8 @@ internal sealed class ValueComparisonNode : ExecutableNode
     {
         ArgumentNullException.ThrowIfNull(context);
 
-        var left = XPathAtomization.Atomize(_left.Evaluate(context));
-        var right = XPathAtomization.Atomize(_right.Evaluate(context));
+        var left = XPathAtomization.Atomize(_left.Evaluate(context), context.Annotations);
+        var right = XPathAtomization.Atomize(_right.Evaluate(context), context.Annotations);
         if (left.IsEmpty || right.IsEmpty)
         {
             return null;

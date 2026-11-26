@@ -32,8 +32,8 @@ public interface IXsdValidator : ISchemaValidator
     /// </para>
     /// <para>
     /// Limitations: the model holds no unparsed entities and no document type declaration (#731), so
-    /// a case that depends on them can differ from the streaming path. The XPath evaluator takes no annotation source yet, so typed values
-    /// of the annotated tree are read through the annotations, not through <c>fn:data</c> inside an expression (#791). An issue of an
+    /// a case that depends on them can differ from the streaming path. The assertion evaluation does not carry the annotation source yet (#318), so typed values
+    /// of the annotated tree are read through the annotations, not through <c>fn:data</c> inside an expression. An issue of an
     /// attribute belongs to the element that owns it.
     /// </para>
     /// </remarks>

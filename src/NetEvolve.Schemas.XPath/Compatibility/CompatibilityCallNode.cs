@@ -67,7 +67,8 @@ internal sealed class CompatibilityCallNode : ExecutableNode
             {
                 values[i] = CompatibilityFunctionConversion.Convert(
                     _arguments[i].Evaluate(context),
-                    _function.ParameterTypeAt(i)
+                    _function.ParameterTypeAt(i),
+                    context.Annotations
                 );
             }
 

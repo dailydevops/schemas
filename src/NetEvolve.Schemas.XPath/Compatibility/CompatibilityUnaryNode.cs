@@ -48,7 +48,7 @@ internal sealed class CompatibilityUnaryNode : ExecutableNode
     {
         ArgumentNullException.ThrowIfNull(context);
 
-        var operand = XPathAtomization.Atomize(_operand.Evaluate(context));
+        var operand = XPathAtomization.Atomize(_operand.Evaluate(context), context.Annotations);
         if (operand.IsEmpty)
         {
             return NaN;

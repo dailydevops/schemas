@@ -144,7 +144,7 @@ internal sealed class XdmArray : XdmFunction
     {
         ArgumentNullException.ThrowIfNull(context);
 
-        var position = FunctionConversion.Convert(arguments[0], Position)[0].GetSaturatedInteger();
+        var position = FunctionConversion.Convert(arguments[0], Position, context.Annotations)[0].GetSaturatedInteger();
         return position >= 1 && position <= Size
             ? _members[_offset + (int)position - 1]
             : throw XPathErrors.Exception(XPathErrorCodes.FOAY0001);

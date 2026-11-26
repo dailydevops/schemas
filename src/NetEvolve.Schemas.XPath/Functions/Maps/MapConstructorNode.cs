@@ -58,7 +58,7 @@ internal sealed class MapConstructorNode : ExecutableNode
         var map = XdmMap.Empty;
         for (var i = 0; i < _keys.Length; i++)
         {
-            var key = XPathAtomization.Atomize(_keys[i].Evaluate(context));
+            var key = XPathAtomization.Atomize(_keys[i].Evaluate(context), context.Annotations);
             var location = _locations[i];
             if (key.Count != 1)
             {

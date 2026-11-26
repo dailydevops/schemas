@@ -65,7 +65,8 @@ internal sealed class PartialApplicationNode : ExecutableNode
                 // The conversion happens once here, so a wrong argument is an error of the application, not of its calls.
                 fixedArguments[i] = FunctionConversion.Convert(
                     argument.Evaluate(context),
-                    target.Signature.Parameter(i).Conversion
+                    target.Signature.Parameter(i).Conversion,
+                    context.Annotations
                 );
             }
         }

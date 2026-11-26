@@ -46,7 +46,7 @@ internal sealed class UnaryArithmeticNode : ExecutableNode
     {
         ArgumentNullException.ThrowIfNull(context);
 
-        var operand = XPathAtomization.Atomize(_operand.Evaluate(context));
+        var operand = XPathAtomization.Atomize(_operand.Evaluate(context), context.Annotations);
         if (operand.IsEmpty)
         {
             return XdmSequence.Empty;

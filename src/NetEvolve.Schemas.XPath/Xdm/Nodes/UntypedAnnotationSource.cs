@@ -19,4 +19,17 @@ internal sealed class UntypedAnnotationSource : IXdmTypeAnnotationSource
         typedValue = default;
         return false;
     }
+
+    /// <inheritdoc />
+    public bool TryGetTypedValues(in XPathNode node, out XdmSequence values)
+    {
+        values = XdmSequence.Empty;
+        return false;
+    }
+
+    /// <inheritdoc />
+    public bool HasTypedValue(in XPathNode node) => true;
+
+    /// <inheritdoc />
+    public bool IsNilled(in XPathNode node) => false;
 }

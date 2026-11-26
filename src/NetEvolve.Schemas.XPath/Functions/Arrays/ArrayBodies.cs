@@ -297,7 +297,10 @@ internal static class ArrayBodies
         for (var i = 0; i < keys.Length; i++)
         {
             call[0] = array[i];
-            keys[i] = XPathAtomization.Atomize(key is null ? array[i] : Call(key, invocation.Context, call));
+            keys[i] = XPathAtomization.Atomize(
+                key is null ? array[i] : Call(key, invocation.Context, call),
+                invocation.Context.Annotations
+            );
         }
 
         var order = new int[keys.Length];

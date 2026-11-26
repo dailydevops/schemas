@@ -25,9 +25,10 @@ internal static class CompatibilityFunctionConversion
     /// <summary>Applies the conversions of compatibility mode to one argument.</summary>
     /// <param name="argument">The argument as evaluated.</param>
     /// <param name="type">The expected type.</param>
+    /// <param name="source">The annotation source that supplies typed values.</param>
     /// <returns>The argument for the function conversion rules; the argument itself when it is of the expected type, or when the expected type is not a single item.</returns>
     /// <exception cref="XPathException">The value cannot be converted to a number (XPTY0004 for a value of several atomic items, FOCA0001 beyond the digit cap).</exception>
-    public static XdmSequence Convert(in XdmSequence argument, XPathParameterType type)
+    public static XdmSequence Convert(in XdmSequence argument, XPathParameterType type, IXdmTypeAnnotationSource source)
     {
         // Only a type of one item or of an optional item takes part; item()* and the other sequence types pass unread, so a lazy argument stays lazy.
         if (type.Occurrence is not (Occurrence.ExactlyOne or Occurrence.ZeroOrOne))
@@ -41,7 +42,9 @@ internal static class CompatibilityFunctionConversion
             case XPathItemType.String:
                 return IsOfType(value, type, XdmItemKind.XsString) ? value : XdmSequence.Create(AsString(value));
             case XPathItemType.Double:
-                return IsOfType(value, type, XdmItemKind.XsDouble) ? value : XdmSequence.Create(AsNumber(value));
+                return IsOfType(value, type, XdmItemKind.XsDouble)
+                    ? value
+                    : XdmSequence.Create(AsNumber(value, source));
             default:
                 return value;
         }
@@ -65,9 +68,9 @@ internal static class CompatibilityFunctionConversion
     }
 
     // fn:number: NaN for the empty sequence and for a value without a number; a node is atomized first.
-    private static XdmItem AsNumber(in XdmSequence value)
+    private static XdmItem AsNumber(in XdmSequence value, IXdmTypeAnnotationSource source)
     {
-        var atomized = XPathAtomization.Atomize(value);
+        var atomized = XPathAtomization.Atomize(value, source);
         return atomized.Count switch
         {
             0 => XdmItem.FromDouble(double.NaN),

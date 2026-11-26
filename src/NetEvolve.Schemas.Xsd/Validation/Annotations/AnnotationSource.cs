@@ -24,11 +24,9 @@ using NetEvolve.Schemas.Xsd.Validation.Core;
 /// </para>
 /// <para>
 /// Limitations: a node that the validator did not annotate (an unassessed element, a node of another tree) is not annotated and reads as
-/// untyped. The slot of the node adapter holds one item per node, so it is filled for a typed value of exactly one item; a list type with
-/// another number of items, a nilled element, and an element with element-only content leave it empty, and atomization then falls back to
-/// <c>xs:untypedAtomic</c>. Reading those through <see cref="XsdAnnotation.CopyTypedValue"/> is complete. The XPath evaluator does not take an
-/// annotation source yet, so <c>fn:data</c> inside an expression sees the untyped default; <see cref="Data"/> applies the atomization of
-/// <c>fn:data</c> with this source. The evaluator wiring and the multi-item slot are #791.
+/// untyped. The source fills the annotation slot of the node adapter completely: a list type yields all its items, a nilled element and
+/// empty content yield none, and an element with element-only content raises FOTY0012 on atomization. An evaluation context that carries
+/// this source atomizes with it at every operator, conversion, and cast; <see cref="Data"/> applies the atomization of <c>fn:data</c> directly.
 /// </para>
 /// <para>
 /// An empty element that took the default or fixed value of its declaration has no text in the tree; its record keeps the value, so the typed
@@ -132,6 +130,26 @@ internal sealed class AnnotationSource : IXdmTypeAnnotationSource
         typedValue = default;
         return false;
     }
+
+    /// <inheritdoc />
+    public bool TryGetTypedValues(in XPathNode node, out XdmSequence values)
+    {
+        if (TryGetAnnotation(node.Node, out var annotation) && annotation.TypedValueKind != XsdTypedValueKind.None)
+        {
+            annotation.GetTypedValues(out values);
+            return true;
+        }
+
+        values = XdmSequence.Empty;
+        return false;
+    }
+
+    /// <inheritdoc />
+    public bool HasTypedValue(in XPathNode node) =>
+        !TryGetAnnotation(node.Node, out var annotation) || annotation.TypedValueKind != XsdTypedValueKind.None;
+
+    /// <inheritdoc />
+    public bool IsNilled(in XPathNode node) => TryGetAnnotation(node.Node, out var annotation) && annotation.IsNilled;
 
     /// <summary>Atomizes a sequence the way <c>fn:data</c> does, with the typed values of the annotated nodes.</summary>
     /// <param name="sequence">The sequence.</param>

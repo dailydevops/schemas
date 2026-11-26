@@ -84,7 +84,7 @@ internal abstract class XPathFunction : XPathHostFunction
         {
             for (var i = 0; i < count; i++)
             {
-                converted[i] = FunctionConversion.Convert(arguments[i], ParameterTypeAt(i));
+                converted[i] = FunctionConversion.Convert(arguments[i], ParameterTypeAt(i), context.Annotations);
             }
 
             return Run(context, new ReadOnlySpan<XdmSequence>(converted, 0, count));

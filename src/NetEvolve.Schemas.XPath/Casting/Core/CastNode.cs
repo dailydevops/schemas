@@ -60,7 +60,7 @@ internal sealed class CastNode : ExecutableNode
     {
         ArgumentNullException.ThrowIfNull(context);
 
-        var value = XPathAtomization.Atomize(_operand.Evaluate(context));
+        var value = XPathAtomization.Atomize(_operand.Evaluate(context), context.Annotations);
         if (value.Count == 0 && _allowsEmpty)
         {
             return XdmSequence.Empty;
