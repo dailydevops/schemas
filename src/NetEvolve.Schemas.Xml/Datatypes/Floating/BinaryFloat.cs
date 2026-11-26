@@ -18,6 +18,36 @@ internal static class BinaryFloat
     // 10^19 is the largest power of ten that fits 64 bits; it bounds the decimal exponent of the allocation-free path.
     private const int MaxFastExponent = 19;
 
+    // 10^22 is the largest power of ten that a double holds exactly.
+    private const int MaxExactPower = 22;
+
+    private static readonly double[] ExactPowersOfTen =
+    [
+        1e0,
+        1e1,
+        1e2,
+        1e3,
+        1e4,
+        1e5,
+        1e6,
+        1e7,
+        1e8,
+        1e9,
+        1e10,
+        1e11,
+        1e12,
+        1e13,
+        1e14,
+        1e15,
+        1e16,
+        1e17,
+        1e18,
+        1e19,
+        1e20,
+        1e21,
+        1e22,
+    ];
+
     /// <summary>Rounds <c>mantissa x 10^exponent</c> to the nearest binary value, ties to even.</summary>
     /// <param name="mantissa">The positive mantissa.</param>
     /// <param name="exponent">The decimal exponent.</param>
@@ -81,7 +111,7 @@ internal static class BinaryFloat
     /// <param name="exponent">The decimal exponent.</param>
     /// <param name="single">Round to 24 bits instead of 53; the result is still returned as the exactly equal double.</param>
     /// <param name="result">The rounded magnitude.</param>
-    /// <returns><see langword="false"/> when the exponent is outside -19 to 19; <see cref="Round"/> then decides.</returns>
+    /// <returns><see langword="false"/> when the exponent is outside -19 to 19 and the exact-double shortcut does not apply; <see cref="Round"/> then decides.</returns>
     /// <remarks>
     /// Within that window the value lies between 10^-19 and 2^128, far from the subnormal and overflow ranges of both types.
     /// The mantissa is multiplied by 10^exponent exactly (128 bits), or shifted and divided by 10^-exponent so that the quotient has
@@ -90,6 +120,18 @@ internal static class BinaryFloat
     internal static bool TryRound(ulong mantissa, int exponent, bool single, out double result)
     {
         result = 0.0;
+
+        // Both operands are exact doubles (a mantissa up to 2^53, a power of ten up to 10^22), so one IEEE operation is already the
+        // correctly rounded result, ties to even; no 128-bit arithmetic is needed.
+        if (!single && mantissa <= HiddenBit << 1 && exponent is >= -MaxExactPower and <= MaxExactPower)
+        {
+            result =
+                exponent >= 0
+                    ? (double)mantissa * ExactPowersOfTen[exponent]
+                    : (double)mantissa / ExactPowersOfTen[-exponent];
+            return true;
+        }
+
         if (exponent is < -MaxFastExponent or > MaxFastExponent)
         {
             return false;

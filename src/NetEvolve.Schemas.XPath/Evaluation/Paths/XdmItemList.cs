@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Evaluation.Paths;
 
 using System;
-using System.Buffers;
 using System.Runtime.InteropServices;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Limits;
@@ -23,6 +22,9 @@ internal struct XdmItemList : IDisposable
 {
     private XdmItem[]? _array;
     private int _capacity;
+
+    // The most items the array has held since it was rented or last released; the items beyond Count may still be set.
+    private int _used;
     private readonly int _limit;
     private readonly SourceSpan _location;
 
@@ -93,7 +95,11 @@ internal struct XdmItemList : IDisposable
     }
 
     /// <summary>Removes all items; the array stays.</summary>
-    public void Clear() => Count = 0;
+    public void Clear()
+    {
+        _used = Math.Max(_used, Count);
+        Count = 0;
+    }
 
     /// <summary>Keeps the first items only.</summary>
     /// <param name="count">The number of items to keep, not more than <see cref="Count"/>.</param>
@@ -103,6 +109,7 @@ internal struct XdmItemList : IDisposable
         ArgumentOutOfRangeException.ThrowIfLessThan(count, 0);
         ArgumentOutOfRangeException.ThrowIfGreaterThan(count, Count);
 
+        _used = Math.Max(_used, Count);
         Count = count;
     }
 
@@ -119,11 +126,12 @@ internal struct XdmItemList : IDisposable
     {
         if (_array is { } array)
         {
+            // Cleared up to the high-water mark: the array holds tree references that a pooled array must not keep alive.
+            SmallArrayCache<XdmItem>.Return(array, Math.Max(_used, Count));
             _array = null;
             _capacity = 0;
             Count = 0;
-            // Cleared: the array holds tree references that a pooled array must not keep alive.
-            ArrayPool<XdmItem>.Shared.Return(array, clearArray: true);
+            _used = 0;
         }
     }
 
@@ -136,12 +144,12 @@ internal struct XdmItemList : IDisposable
             throw XPathLimitErrors.SequenceSize(limit, _location);
         }
 
-        var pool = ArrayPool<XdmItem>.Shared;
-        var bigger = pool.Rent(Math.Min(Math.Max(needed, Count * 2), limit));
+        var bigger = SmallArrayCache<XdmItem>.Rent(Math.Min(Math.Max(needed, Count * 2), limit));
         if (_array is not null)
         {
             Array.Copy(_array, bigger, Count);
-            pool.Return(_array, clearArray: true);
+            SmallArrayCache<XdmItem>.Return(_array, Math.Max(_used, Count));
+            _used = 0;
         }
 
         _array = bigger;

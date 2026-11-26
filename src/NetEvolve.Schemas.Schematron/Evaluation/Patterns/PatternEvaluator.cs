@@ -12,6 +12,7 @@ using NetEvolve.Schemas.Schematron.Evaluation.Dispatch;
 using NetEvolve.Schemas.Schematron.Scopes;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Xml.Contracts;
+using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Xdm.Nodes;
 
 /// <summary>
@@ -242,12 +243,41 @@ internal sealed class PatternEvaluator
         var kind = KindOf(node.Kind);
         var candidate = new XPathNode(node);
         var rules = set.Rules;
+        var named = node.Kind is XmlNodeKind.Element or XmlNodeKind.Attribute;
+        var nameKnown = false;
+        XPathQName name = default;
         for (var i = 0; i < rules.Length; i++)
         {
             var rule = rules[i];
             if ((rule.Context.NodeKinds & kind) == QueryNodeKinds.None)
             {
                 continue;
+            }
+
+            // A context whose last steps list their names cannot match a node of another name: skip the XPath match.
+            var names = rule.Context.CandidateNames;
+            if (named && names.Length > 0)
+            {
+                if (!nameKnown)
+                {
+                    name = NameOf(node);
+                    nameKnown = true;
+                }
+
+                var listed = false;
+                foreach (var candidateName in names)
+                {
+                    if (candidateName.Equals(name))
+                    {
+                        listed = true;
+                        break;
+                    }
+                }
+
+                if (!listed)
+                {
+                    continue;
+                }
             }
 
             var matched = false;
@@ -312,6 +342,17 @@ internal sealed class PatternEvaluator
 
         return IssueLimitReached;
     }
+
+    private static XPathQName NameOf(XmlNode node)
+    {
+        var symbols = node.Name;
+        var table = node.Tree!.Names;
+
+        return new XPathQName(Text(table, symbols.NamespaceUri), Text(table, symbols.Local));
+    }
+
+    private static string Text(XmlNameTable table, XmlSymbol symbol) =>
+        table.TryGetString(symbol, out var text) && text is not null ? text : string.Empty;
 
     private void ReportContextError(int ruleIndex)
     {

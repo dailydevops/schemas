@@ -15,7 +15,7 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// nodes; the result is in document order without duplicates. An operand that is known to be in document order is not sorted; the
 /// others are sorted and deduplicated, and the two sorted operands are merged.
 /// </summary>
-internal sealed class SetOperationNode : ExecutableNode, IOrderedNodeSequence
+internal sealed class SetOperationNode : ExecutableNode, IOrderedNodeSequence, IItemListProducer
 {
     private readonly SetOperator _operator;
     private readonly ExecutableNode _left;
@@ -55,15 +55,31 @@ internal sealed class SetOperationNode : ExecutableNode, IOrderedNodeSequence
     {
         ArgumentNullException.ThrowIfNull(context);
 
-        var leftSource = new XdmSequenceNodeSource(_left.Evaluate(context));
-        var left = XPathDocumentOrder.Normalize(ref leftSource, LeftRequirement, null);
+        var result = default(XdmItemList);
         try
         {
-            var rightSource = new XdmSequenceNodeSource(_right.Evaluate(context));
-            var right = XPathDocumentOrder.Normalize(ref rightSource, RightRequirement, null);
+            EvaluateInto(context, ref result);
+            return result.ToSequence();
+        }
+        finally
+        {
+            result.Dispose();
+        }
+    }
+
+    /// <inheritdoc />
+    /// <exception cref="XPathException">An operand has an item that is not a node (XPTY0004).</exception>
+    public void EvaluateInto(XPathEvaluationContext context, ref XdmItemList results)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+
+        var left = Operand(_left, LeftRequirement, context);
+        try
+        {
+            var right = Operand(_right, RightRequirement, context);
             try
             {
-                return Merge(left.Nodes, right.Nodes);
+                Merge(left.Nodes, right.Nodes, ref results);
             }
             finally
             {
@@ -76,52 +92,77 @@ internal sealed class SetOperationNode : ExecutableNode, IOrderedNodeSequence
         }
     }
 
+    // An operand that is a path or a set operation hands over its items in a pooled list; the copy into a sequence is skipped.
+    private static XPathNodeBuffer Operand(
+        ExecutableNode operand,
+        XPathOrderRequirement requirement,
+        XPathEvaluationContext context
+    )
+    {
+        if (operand is IItemListProducer producer)
+        {
+            var items = default(XdmItemList);
+            try
+            {
+                producer.EvaluateInto(context, ref items);
+                var span = items.Items;
+                for (var i = 0; i < span.Length; i++)
+                {
+                    if (!span[i].IsNode)
+                    {
+                        throw XPathErrors.Exception(XPathErrorCodes.XPTY0004);
+                    }
+                }
+
+                var listSource = items.GetNodeSource();
+                return XPathDocumentOrder.Normalize(ref listSource, requirement, null);
+            }
+            finally
+            {
+                items.Dispose();
+            }
+        }
+
+        var source = new XdmSequenceNodeSource(operand.Evaluate(context));
+        return XPathDocumentOrder.Normalize(ref source, requirement, null);
+    }
+
     private static XPathOrderRequirement RequirementOf(ExecutableNode operand) =>
         operand is IOrderedNodeSequence { IsDocumentOrdered: true }
             ? XPathOrderRequirement.None
             : XPathOrderRequirement.Sort;
 
     // Both operands are in document order without duplicates, so one walk over both decides every node.
-    private XdmSequence Merge(ReadOnlySpan<XPathNode> left, ReadOnlySpan<XPathNode> right)
+    private void Merge(ReadOnlySpan<XPathNode> left, ReadOnlySpan<XPathNode> right, ref XdmItemList result)
     {
-        var result = default(XdmItemList);
-        try
+        int l = 0,
+            r = 0;
+        while (l < left.Length && r < right.Length)
         {
-            int l = 0,
-                r = 0;
-            while (l < left.Length && r < right.Length)
+            var order = left[l].CompareDocumentOrder(right[r]);
+            if (order < 0)
             {
-                var order = left[l].CompareDocumentOrder(right[r]);
-                if (order < 0)
-                {
-                    AddIf(ref result, left[l++], _operator != SetOperator.Intersect);
-                }
-                else if (order > 0)
-                {
-                    AddIf(ref result, right[r++], _operator == SetOperator.Union);
-                }
-                else
-                {
-                    AddIf(ref result, left[l++], _operator != SetOperator.Except);
-                    r++;
-                }
+                AddIf(ref result, left[l++], _operator != SetOperator.Intersect);
             }
-
-            for (; l < left.Length; l++)
+            else if (order > 0)
             {
-                AddIf(ref result, left[l], _operator != SetOperator.Intersect);
+                AddIf(ref result, right[r++], _operator == SetOperator.Union);
             }
-
-            for (; r < right.Length; r++)
+            else
             {
-                AddIf(ref result, right[r], _operator == SetOperator.Union);
+                AddIf(ref result, left[l++], _operator != SetOperator.Except);
+                r++;
             }
-
-            return result.ToSequence();
         }
-        finally
+
+        for (; l < left.Length; l++)
         {
-            result.Dispose();
+            AddIf(ref result, left[l], _operator != SetOperator.Intersect);
+        }
+
+        for (; r < right.Length; r++)
+        {
+            AddIf(ref result, right[r], _operator == SetOperator.Union);
         }
     }
 

@@ -11,14 +11,7 @@ internal sealed class NameFunction : NodeNameFunction
         : base("name") { }
 
     /// <inheritdoc />
-    protected override string Part(in XPathNode node)
-    {
-        var names = node.Tree!.Names;
-        var name = node.Name();
-        var local = names.GetString(name.Local);
-        var prefix = names.GetString(name.Prefix);
-        return prefix.Length == 0 ? local : prefix + ":" + local;
-    }
+    protected override string Part(in XPathNode node) => LexicalNames.Get(node.Tree!.Names, node.Name());
 
     /// <inheritdoc />
     protected override XdmItem Create(string text) => XdmItem.FromString(text);

@@ -120,6 +120,27 @@ public readonly struct XsdDecimal : IEquatable<XsdDecimal>, IComparable<XsdDecim
         Scale = scale;
     }
 
+    /// <summary>Creates a normalized value from a magnitude kept inline, without a <see cref="BigInteger"/>.</summary>
+    /// <param name="negative"><see langword="true"/> for a negative value.</param>
+    /// <param name="magnitude">The magnitude of the mantissa.</param>
+    /// <param name="scale">The scale before normalization, between 0 and 19.</param>
+    /// <returns>The value, normalized as the public constructor does.</returns>
+    internal static XsdDecimal FromInline(bool negative, ulong magnitude, int scale)
+    {
+        if (magnitude == 0)
+        {
+            return default;
+        }
+
+        while (magnitude % 10 == 0)
+        {
+            magnitude /= 10;
+            scale--;
+        }
+
+        return new XsdDecimal(negative ? -1 : 1, magnitude, default, scale);
+    }
+
     /// <summary>Gets the value zero.</summary>
     public static XsdDecimal Zero => default;
 

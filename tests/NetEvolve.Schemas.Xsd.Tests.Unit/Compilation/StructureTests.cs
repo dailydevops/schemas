@@ -34,6 +34,25 @@ public class StructureTests
     }
 
     [Test]
+    [Arguments(62, true)]
+    [Arguments(63, true)]
+    [Arguments(64, true)]
+    [Arguments(65, true)]
+    [Arguments(200, true)]
+    [Arguments(63, false)]
+    [Arguments(64, false)]
+    [Arguments(200, false)]
+    public async Task IsValid_ForALongListOfChildren_FollowsTheModel(int count, bool valid)
+    {
+        // The children of the schema element cross the 64 positions that a position set holds inline. An include after the
+        // declarations breaks the order of the model at the far end of the list.
+        var declarations = string.Concat(Enumerable.Repeat("<xs:element name=\"e\"/>", count));
+        var body = valid ? declarations : declarations + "<xs:include schemaLocation=\"a.xsd\"/>";
+
+        await Assert.That(IsValid(body)).IsEqualTo(valid);
+    }
+
+    [Test]
     [Arguments("<xs:simpleType name=\"s\"><xs:annotation/><xs:restriction base=\"xs:int\"/></xs:simpleType>")]
     [Arguments(
         "<xs:simpleType name=\"s\"><xs:restriction base=\"xs:int\"><xs:annotation/><xs:minInclusive value=\"1\"/><xs:pattern value=\"1\"/><xs:pattern value=\"2\"/></xs:restriction></xs:simpleType>"

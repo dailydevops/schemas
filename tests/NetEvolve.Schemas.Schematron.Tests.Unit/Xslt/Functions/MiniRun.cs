@@ -22,6 +22,8 @@ internal sealed class MiniRun : IXsltFunctionRun
 
     public object? FunctionCalls { get; set; }
 
+    public NetEvolve.Schemas.XPath.Abstractions.IXPathKeyProvider? Keys { get; set; }
+
     internal List<QueryFocus> Focuses { get; } = [];
 
     internal List<string> Events { get; } = [];

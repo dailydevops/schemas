@@ -6,6 +6,7 @@ using NetEvolve.Schemas.XPath.Abstractions;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Errors;
+using NetEvolve.Schemas.XPath.Xdm.Nodes;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
 public class ContextImplementationTests
@@ -213,7 +214,13 @@ public class ContextImplementationTests
 
     private sealed class FakeKeys : IXPathKeyProvider
     {
-        public bool TryGetNodes(XPathQName name, in XdmItem value, out XdmSequence nodes)
+        public bool TryLookup(
+            in XPathQName name,
+            in XdmSequence values,
+            in XPathNode node,
+            bool subtree,
+            out XdmSequence nodes
+        )
         {
             nodes = default;
             return false;

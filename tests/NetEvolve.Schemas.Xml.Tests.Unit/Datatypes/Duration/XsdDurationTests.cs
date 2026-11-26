@@ -43,6 +43,32 @@ public class XsdDurationTests
     }
 
     [Test]
+    [Arguments("PT0S", "0")]
+    [Arguments("-PT0S", "0")]
+    [Arguments("PT10S", "10")]
+    [Arguments("PT1.500S", "1.5")]
+    [Arguments("-PT0.000S", "0")]
+    [Arguments("P1DT0.25S", "86400.25")]
+    [Arguments("-P1DT1H1M1.000000000000000001S", "-90061.000000000000000001")]
+    [Arguments("PT0.123456789012345678S", "0.123456789012345678")]
+    [Arguments("PT0.1234567890123456789S", "0.1234567890123456789")]
+    [Arguments("PT99999999999999999S", "99999999999999999")]
+    [Arguments("P99999999999999999D", "8639999999999999913600")]
+    [Arguments("PT999999999999S", "999999999999")]
+    [Arguments("PT1000000000001S", "1000000000001")]
+    [Arguments(
+        "P1000000000000DT1000000000000H1000000000000M1000000000000.999999999999999999S",
+        "90061000000000000.999999999999999999"
+    )]
+    public async Task Parse_SecondCount_MapsExactly(string lexical, string expected)
+    {
+        var result = Get("duration", XsdVersion.V11).Parse(lexical);
+
+        await Assert.That(result.Success).IsTrue();
+        await Assert.That(result.Value.Seconds).IsEqualTo(XsdDecimal.Parse(expected).Value);
+    }
+
+    [Test]
     public async Task Parse_Negative_KeepsSignOnBothComponents()
     {
         var value = Get("duration", XsdVersion.V11).Parse("-P1Y2M3DT4H5M6.7S").Value;

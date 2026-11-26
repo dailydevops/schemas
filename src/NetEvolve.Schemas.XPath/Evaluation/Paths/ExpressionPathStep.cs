@@ -35,7 +35,7 @@ internal sealed class ExpressionPathStep : PathStep
         ArgumentNullException.ThrowIfNull(context);
 
         // The first step runs in the focus of the whole path, unchanged.
-        results.AddRange(_expression.Evaluate(context));
+        Append(context, ref results);
     }
 
     /// <inheritdoc />
@@ -59,12 +59,25 @@ internal sealed class ExpressionPathStep : PathStep
             for (var i = 0; i < inputs.Length; i++)
             {
                 _ = context.EnterFocus(inputs[i], i + 1, inputs.Length);
-                results.AddRange(_expression.Evaluate(context));
+                Append(context, ref results);
             }
         }
         finally
         {
             context.RestoreFocus(outer);
+        }
+    }
+
+    // A path or a set operation appends to the list without the copy into a sequence array.
+    private void Append(XPathEvaluationContext context, ref XdmItemList results)
+    {
+        if (_expression is IItemListProducer producer)
+        {
+            producer.EvaluateInto(context, ref results);
+        }
+        else
+        {
+            results.AddRange(_expression.Evaluate(context));
         }
     }
 

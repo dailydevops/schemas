@@ -93,6 +93,20 @@ public class SinglePassDispatchTests
     }
 
     [Test]
+    public async Task Dispatch_RulesOfOnePattern_AreOnlyAskedForTheirNames()
+    {
+        var schema = Schema(Group("g", Rule("r1", "a"), Rule("r2", "b"), Rule("r3", "@x"), Rule("r4", "c")));
+        using var h = new PatternHarness(schema, E("r", E("a", A("x", "1")), E("b"), E("b")));
+        var evaluator = NamedContexts.Evaluator(h, out var sets);
+
+        _ = evaluator.Evaluate(sets, h.Document);
+
+        // One a, two b, and one x: each node is matched by the one rule that names it.
+        await Assert.That(h.Matcher.MatchCalls).IsEqualTo(4);
+        await Assert.That(h.Log.Fired).IsEqualTo("r1,r3,r2,r2");
+    }
+
+    [Test]
     public async Task Dispatch_NameTestAndFallbackInOnePattern_UnionOfBoth()
     {
         var schema = Schema(Group("g", Rule("r1", "a"), Rule("r2", "*")), Pattern("p", Rule("r3", "c")));

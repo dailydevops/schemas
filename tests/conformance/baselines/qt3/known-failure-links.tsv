@@ -1,0 +1,965 @@
+# One line per baseline entry: case id, #issue, reason, separated by tabs. A baseline entry without a line fails the guard test.
+# Every issue number must also be listed in known-open-issues.lst (no network access in the test).
+app-FunctxFn/functx-fn-default-collation-1	#887	fn:default-collation is not implemented (XPST0017).
+app-FunctxFn/functx-fn-doc-available-1	#886	fn:node-name, fn:nilled and fn:document-uri are not available with an argument (XPST0017).
+app-FunctxFn/functx-fn-escape-html-uri-1	#96	fn:escape-html-uri is not implemented (XPST0017).
+app-FunctxFn/functx-fn-escape-html-uri-2	#96	fn:escape-html-uri is not implemented (XPST0017).
+app-FunctxFn/functx-fn-escape-html-uri-all	#96	fn:escape-html-uri is not implemented (XPST0017).
+app-FunctxFn/functx-fn-resolve-uri-4	#901	The runner skips the compound assertions any-of, all-of and not.
+app-FunctxFn/functx-fn-resolve-uri-5	#901	The runner skips the compound assertions any-of, all-of and not.
+app-FunctxFn/functx-fn-resolve-uri-all	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-QName/K-ExpandedQNameConstructFunc-10	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+fn-QName/K-ExpandedQNameConstructFunc-4	#644	The xs:QName constructor function resolves a prefix against no namespaces (FONS0004).
+fn-QName/K-ExpandedQNameConstructFunc-9	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+fn-abs/K2-ABSFunc-35	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/K2-ABSFunc-36	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/K2-ABSFunc-37	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/K2-ABSFunc-38	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/K2-ABSFunc-39	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/K2-ABSFunc-40	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/K2-ABSFunc-41	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/K2-ABSFunc-42	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/K2-ABSFunc-43	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/K2-ABSFunc-44	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/K2-ABSFunc-45	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/K2-ABSFunc-46	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-abs-more-args-001	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-abs-more-args-002	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-abs-more-args-003	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-abs-more-args-004	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-abs-more-args-005	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-abs-more-args-006	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-abs-more-args-007	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-abs-more-args-008	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-abs-more-args-009	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-abs-more-args-010	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-abs-more-args-011	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-abs-more-args-012	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-abs-more-args-013	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-abs-more-args-014	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-abs-more-args-015	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-abs-more-args-016	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-abs-more-args-017	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-abs-more-args-018	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-abs-more-args-019	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-abs-more-args-020	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-abs-more-args-021	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-abs-more-args-022	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-abs-more-args-023	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-abs-more-args-024	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-absdbl1args-1	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-absdbl1args-2	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-absdbl1args-3	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-absdec1args-1	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-absdec1args-2	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-absdec1args-3	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-absflt1args-1	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-absflt1args-2	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-absflt1args-3	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-absint1args-1	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-absint1args-2	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-absint1args-3	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-absintg1args-1	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-absintg1args-2	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-absintg1args-3	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-abslng1args-1	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-abslng1args-2	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-abslng1args-3	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-absnint1args-1	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-absnint1args-2	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-absnint1args-3	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-absnni1args-1	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-absnni1args-2	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-absnni1args-3	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-absnpi1args-1	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-absnpi1args-2	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-absnpi1args-3	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-abspint1args-1	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-abspint1args-2	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-abspint1args-3	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-abssht1args-1	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-abssht1args-2	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-abssht1args-3	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-absulng1args-1	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-absulng1args-2	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-absulng1args-3	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-absusht1args-1	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-absusht1args-2	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-abs/fn-absusht1args-3	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-adjust-date-to-timezone/cbcl-adjust-date-to-timezone-002	#889	Dates and dateTimes beyond the supported year range are accepted.
+fn-adjust-date-to-timezone/cbcl-adjust-date-to-timezone-003	#889	Dates and dateTimes beyond the supported year range are accepted.
+fn-adjust-dateTime-to-timezone/cbcl-adjust-dateTime-to-timezone-002	#889	Dates and dateTimes beyond the supported year range are accepted.
+fn-adjust-dateTime-to-timezone/cbcl-adjust-dateTime-to-timezone-003	#889	Dates and dateTimes beyond the supported year range are accepted.
+fn-avg/cbcl-avg-001	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-avg/cbcl-avg-002	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-avg/cbcl-avg-009	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-avg/cbcl-avg-010	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-avg/cbcl-avg-013	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-avg/fn-avg-7	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-avg/fn-avg-8	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-avg/fn-avg-9	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-avg/fn-avg-mix-args-009	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-avg/fn-avg-mix-args-018	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-avg/fn-avg-mix-args-047	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-avg/fn-avg-mix-args-056	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-avg/fn-avgflt2args-1	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-ceiling/fn-ceiling-decimal-1	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-ceiling/fn-ceiling-decimal-2	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-ceiling/fn-ceiling-decimal-3	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-ceiling/fn-ceiling-decimal-4	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-ceiling/fn-ceiling-decimal-5	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-ceiling/fn-ceiling-decimal-6	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-ceiling/fn-ceiling-decimal-7	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-ceiling/fn-ceiling-double-1	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-ceiling/fn-ceiling-double-10	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-ceiling/fn-ceiling-double-11	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-ceiling/fn-ceiling-double-2	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-ceiling/fn-ceiling-double-3	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-ceiling/fn-ceiling-double-4	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-ceiling/fn-ceiling-double-5	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-ceiling/fn-ceiling-double-6	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-ceiling/fn-ceiling-double-7	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-ceiling/fn-ceiling-double-8	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-ceiling/fn-ceiling-double-9	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-ceiling/fn-ceiling-float-1	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-ceiling/fn-ceiling-float-10	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-ceiling/fn-ceiling-float-11	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-ceiling/fn-ceiling-float-2	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-ceiling/fn-ceiling-float-3	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-ceiling/fn-ceiling-float-4	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-ceiling/fn-ceiling-float-5	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-ceiling/fn-ceiling-float-6	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-ceiling/fn-ceiling-float-7	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-ceiling/fn-ceiling-float-8	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-ceiling/fn-ceiling-float-9	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-codepoints-to-string/K-CodepointToStringFunc-14	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-codepoints-to-string/K-CodepointToStringFunc-15	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-codepoints-to-string/K-CodepointToStringFunc-8	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-collection/K2-SeqCollectionFunc-1	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-collection/K2-SeqCollectionFunc-2	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-collection/cbcl-collection-001	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-collection/collection-001	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-collection/collection-002	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-collection/collection-003	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-collection/collection-004	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-collection/collection-005	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-collection/collection-006	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-collection/collection-007	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-collection/collection-008	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-collection/collection-010	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-collection/collection-902	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-collection/fn-collection-3	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-collection/fn-collection-4	#61	fn:collection beyond the error case is not supported (FODC0002).
+fn-collection/fn-collection-4d	#61	fn:collection beyond the error case is not supported (FODC0002).
+fn-collection/fn-collection-5	#61	fn:collection beyond the error case is not supported (FODC0002).
+fn-collection/fn-collection-5d	#61	fn:collection beyond the error case is not supported (FODC0002).
+fn-collection/fn-collection-7	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-collection/fn-collection-8	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-compare/K-compareFunc-15	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-compare/compare-001	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-data/cbcl-data-001	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-deep-equal/K-SeqDeepEqualFunc-4	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-deep-equal/K-SeqDeepEqualFunc-5	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-deep-equal/K2-SeqDeepEqualFunc-40	#732	Dates, times and durations are not compared by value with the implicit timezone in distinct-values and deep-equal.
+fn-default-collation/K-ContextDefaultCollationFunc-3	#887	fn:default-collation is not implemented (XPST0017).
+fn-default-collation/cbcl-default-collation-001	#887	fn:default-collation is not implemented (XPST0017).
+fn-default-collation/cbcl-default-collation-002	#887	fn:default-collation is not implemented (XPST0017).
+fn-default-collation/fn-default-collation-2	#887	fn:default-collation is not implemented (XPST0017).
+fn-distinct-values/K-SeqDistinctValuesFunc-14	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-distinct-values/K-SeqDistinctValuesFunc-2	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-distinct-values/K-SeqDistinctValuesFunc-5	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-distinct-values/K-SeqDistinctValuesFunc-7	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-distinct-values/K-SeqDistinctValuesFunc-8	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-distinct-values/cbcl-distinct-values-003	#732	Dates, times and durations are not compared by value with the implicit timezone in distinct-values and deep-equal.
+fn-distinct-values/cbcl-distinct-values-016	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-distinct-values/fn-distinct-values-mixed-args-001	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-distinct-values/fn-distinct-values-mixed-args-003	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-distinct-values/fn-distinct-values-mixed-args-024	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-distinct-values/fn-distinct-values-mixed-args-027	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-distinct-values/fn-distinct-values-mixed-args-028	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-doc-available/K2-SeqDocAvailableFunc-1	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-doc-available/cbcl-doc-available-002	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-doc-available/fn-doc-available-3	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-doc-available/fn-doc-available-4	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-doc-available/fn-doc-available-5	#886	fn:node-name, fn:nilled and fn:document-uri are not available with an argument (XPST0017).
+fn-doc/K2-SeqDocFunc-7	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-doc/K2-SeqDocFunc-8	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-doc/K2-SeqDocFunc-9	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-doc/fn-doc-1	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-doc/fn-doc-15	#886	fn:node-name, fn:nilled and fn:document-uri are not available with an argument (XPST0017).
+fn-doc/fn-doc-16	#886	fn:node-name, fn:nilled and fn:document-uri are not available with an argument (XPST0017).
+fn-doc/fn-doc-17	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-doc/fn-doc-24	#946	The QT3 engine serves no environment sources or resources through a resolver for fn:doc.
+fn-doc/fn-doc-25	#946	The QT3 engine serves no environment sources or resources through a resolver for fn:doc.
+fn-doc/fn-doc-26	#946	The QT3 engine serves no environment sources or resources through a resolver for fn:doc.
+fn-doc/fn-doc-27	#946	The QT3 engine serves no environment sources or resources through a resolver for fn:doc.
+fn-doc/fn-doc-28	#946	The QT3 engine serves no environment sources or resources through a resolver for fn:doc.
+fn-doc/fn-doc-29	#946	The QT3 engine serves no environment sources or resources through a resolver for fn:doc.
+fn-doc/fn-doc-30	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-doc/fn-doc-31	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-doc/fn-doc-32	#946	The QT3 engine serves no environment sources or resources through a resolver for fn:doc.
+fn-doc/fn-doc-34	#946	The QT3 engine serves no environment sources or resources through a resolver for fn:doc.
+fn-doc/fn-doc-36	#946	The QT3 engine serves no environment sources or resources through a resolver for fn:doc.
+fn-document-uri/K-DocumentURIFunc-3	#886	fn:node-name, fn:nilled and fn:document-uri are not available with an argument (XPST0017).
+fn-document-uri/fn-document-uri-12	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-document-uri/fn-document-uri-13	#886	fn:node-name, fn:nilled and fn:document-uri are not available with an argument (XPST0017).
+fn-document-uri/fn-document-uri-14	#886	fn:node-name, fn:nilled and fn:document-uri are not available with an argument (XPST0017).
+fn-document-uri/fn-document-uri-15	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-document-uri/fn-document-uri-16	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-document-uri/fn-document-uri-17	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-document-uri/fn-document-uri-18	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-document-uri/fn-document-uri-19	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-document-uri/fn-document-uri-20	#886	fn:node-name, fn:nilled and fn:document-uri are not available with an argument (XPST0017).
+fn-document-uri/fn-document-uri-21	#886	fn:node-name, fn:nilled and fn:document-uri are not available with an argument (XPST0017).
+fn-element-with-id/fn-element-with-id-1	#91	fn:element-with-id is not implemented (XPST0017).
+fn-element-with-id/fn-element-with-id-2	#91	fn:element-with-id is not implemented (XPST0017).
+fn-element-with-id/fn-element-with-id-3	#91	fn:element-with-id is not implemented (XPST0017).
+fn-element-with-id/fn-element-with-id-4	#91	fn:element-with-id is not implemented (XPST0017).
+fn-element-with-id/fn-element-with-id-5	#91	fn:element-with-id is not implemented (XPST0017).
+fn-error/K-ErrorFunc-4	#1144	fn:error with an empty sequence raises FOER0000 where XPTY0004 is expected.
+fn-error/K2-ErrorFunc-1	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-error/cbcl-error-002	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-error/cbcl-error-003	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-error/cbcl-error-004	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-error/cbcl-error-005	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-error/cbcl-error-006	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-error/cbcl-error-007	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-error/cbcl-error-008	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-error/cbcl-error-009	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-error/cbcl-error-010	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-error/cbcl-error-011	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-error/cbcl-error-012	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-error/cbcl-error-013	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-error/cbcl-error-014	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-error/cbcl-error-017	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-error/cbcl-error-018	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-error/cbcl-error-019	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-error/cbcl-error-020	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-error/cbcl-error-023	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-error/cbcl-error-024	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-error/cbcl-error-025	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-error/cbcl-error-026	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-error/cbcl-error-027	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-error/cbcl-error-030	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-error/cbcl-error-031	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-error/cbcl-error-032	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-error/cbcl-error-033	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-error/cbcl-error-034	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-error/cbcl-error-035	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-escape-html-uri/K-EscapeHTMLURIFunc-3	#96	fn:escape-html-uri is not implemented (XPST0017).
+fn-escape-html-uri/K-EscapeHTMLURIFunc-4	#96	fn:escape-html-uri is not implemented (XPST0017).
+fn-escape-html-uri/K-EscapeHTMLURIFunc-5	#96	fn:escape-html-uri is not implemented (XPST0017).
+fn-escape-html-uri/cbcl-escape-html-uri-001	#96	fn:escape-html-uri is not implemented (XPST0017).
+fn-escape-html-uri/fn-escape-html-uri-1	#96	fn:escape-html-uri is not implemented (XPST0017).
+fn-escape-html-uri/fn-escape-html-uri-10	#96	fn:escape-html-uri is not implemented (XPST0017).
+fn-escape-html-uri/fn-escape-html-uri-11	#96	fn:escape-html-uri is not implemented (XPST0017).
+fn-escape-html-uri/fn-escape-html-uri-12	#96	fn:escape-html-uri is not implemented (XPST0017).
+fn-escape-html-uri/fn-escape-html-uri-13	#96	fn:escape-html-uri is not implemented (XPST0017).
+fn-escape-html-uri/fn-escape-html-uri-14	#96	fn:escape-html-uri is not implemented (XPST0017).
+fn-escape-html-uri/fn-escape-html-uri-15	#96	fn:escape-html-uri is not implemented (XPST0017).
+fn-escape-html-uri/fn-escape-html-uri-16	#96	fn:escape-html-uri is not implemented (XPST0017).
+fn-escape-html-uri/fn-escape-html-uri-17	#96	fn:escape-html-uri is not implemented (XPST0017).
+fn-escape-html-uri/fn-escape-html-uri-18	#96	fn:escape-html-uri is not implemented (XPST0017).
+fn-escape-html-uri/fn-escape-html-uri-19	#96	fn:escape-html-uri is not implemented (XPST0017).
+fn-escape-html-uri/fn-escape-html-uri-2	#96	fn:escape-html-uri is not implemented (XPST0017).
+fn-escape-html-uri/fn-escape-html-uri-20	#96	fn:escape-html-uri is not implemented (XPST0017).
+fn-escape-html-uri/fn-escape-html-uri-21	#96	fn:escape-html-uri is not implemented (XPST0017).
+fn-escape-html-uri/fn-escape-html-uri-3	#96	fn:escape-html-uri is not implemented (XPST0017).
+fn-escape-html-uri/fn-escape-html-uri-4	#96	fn:escape-html-uri is not implemented (XPST0017).
+fn-escape-html-uri/fn-escape-html-uri-5	#96	fn:escape-html-uri is not implemented (XPST0017).
+fn-escape-html-uri/fn-escape-html-uri-6	#96	fn:escape-html-uri is not implemented (XPST0017).
+fn-escape-html-uri/fn-escape-html-uri-7	#96	fn:escape-html-uri is not implemented (XPST0017).
+fn-escape-html-uri/fn-escape-html-uri-8	#96	fn:escape-html-uri is not implemented (XPST0017).
+fn-escape-html-uri/fn-escape-html-uri-9	#96	fn:escape-html-uri is not implemented (XPST0017).
+fn-escape-html-uri/fn-escape-html-uri1args-1	#96	fn:escape-html-uri is not implemented (XPST0017).
+fn-escape-html-uri/fn-escape-html-uri1args-2	#96	fn:escape-html-uri is not implemented (XPST0017).
+fn-escape-html-uri/fn-escape-html-uri1args-3	#96	fn:escape-html-uri is not implemented (XPST0017).
+fn-escape-html-uri/fn-escape-html-uri1args-4	#96	fn:escape-html-uri is not implemented (XPST0017).
+fn-escape-html-uri/fn-escape-html-uri1args-5	#96	fn:escape-html-uri is not implemented (XPST0017).
+fn-false/fn-false-1	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-floor/fn-floor-decimal-1	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-floor/fn-floor-decimal-2	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-floor/fn-floor-decimal-3	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-floor/fn-floor-decimal-4	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-floor/fn-floor-decimal-5	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-floor/fn-floor-decimal-6	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-floor/fn-floor-decimal-7	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-floor/fn-floor-double-1	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-floor/fn-floor-double-10	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-floor/fn-floor-double-11	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-floor/fn-floor-double-2	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-floor/fn-floor-double-3	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-floor/fn-floor-double-4	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-floor/fn-floor-double-5	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-floor/fn-floor-double-6	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-floor/fn-floor-double-7	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-floor/fn-floor-double-8	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-floor/fn-floor-double-9	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-floor/fn-floor-float-1	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-floor/fn-floor-float-10	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-floor/fn-floor-float-11	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-floor/fn-floor-float-2	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-floor/fn-floor-float-3	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-floor/fn-floor-float-4	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-floor/fn-floor-float-5	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-floor/fn-floor-float-6	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-floor/fn-floor-float-7	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-floor/fn-floor-float-8	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-floor/fn-floor-float-9	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-id/K2-SeqIDFunc-10	#79	xml:id attributes are not typed as ID, so fn:id does not find them.
+fn-id/K2-SeqIDFunc-11	#79	xml:id attributes are not typed as ID, so fn:id does not find them.
+fn-id/K2-SeqIDFunc-12	#79	xml:id attributes are not typed as ID, so fn:id does not find them.
+fn-id/K2-SeqIDFunc-13	#79	xml:id attributes are not typed as ID, so fn:id does not find them.
+fn-id/K2-SeqIDFunc-14	#79	xml:id attributes are not typed as ID, so fn:id does not find them.
+fn-id/K2-SeqIDFunc-15	#79	xml:id attributes are not typed as ID, so fn:id does not find them.
+fn-idref/fn-idref-dtd-12	#886	fn:node-name, fn:nilled and fn:document-uri are not available with an argument (XPST0017).
+fn-insert-before/K-SeqInsertBeforeFunc-16	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-iri-to-uri/K-IRIToURIfunc-4	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-lang/K-NodeLangFunc-2	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-lang/K-NodeLangFunc-3	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-last/K-ContextLastFunc-10	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-last/K-ContextLastFunc-15	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-last/K-ContextLastFunc-16	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-last/K-ContextLastFunc-17	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-last/K-ContextLastFunc-18	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-last/K-ContextLastFunc-7	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-last/K-ContextLastFunc-8	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-last/K-ContextLastFunc-9	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-last/last-19	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-last/last-25	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-local-name-from-QName/fn-local-name-from-qname-022	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-local-name-from-QName/fn-local-name-from-qname-023	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-local-name-from-QName/fn-local-name-from-qname-024	#886	fn:node-name, fn:nilled and fn:document-uri are not available with an argument (XPST0017).
+fn-local-name/K-NodeLocalNameFunc-2	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-local-name/fn-local-name-66	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-lower-case/fn-lower-case-19	#1145	fn:lower-case and fn:upper-case differ from the expected code points for the Greek and Coptic block.
+fn-matches/cbcl-matches-004	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-max/K2-SeqMAXFunc-6	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-max/fn-max-13	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-max/fn-max-14	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-max/fn-max-16	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-max/fn-max-17	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-max/fn-max-18	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-max/fn-max-8	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-max/fn-max-9	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-min/K2-SeqMINFunc-5	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-min/fn-min-13	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-min/fn-min-14	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-min/fn-min-16	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-min/fn-min-17	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-min/fn-min-18	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-min/fn-min-8	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-min/fn-min-9	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-name/K-NameFunc-2	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-name/fn-name-16	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-namespace-uri/K-NodeNamespaceURIFunc-2	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-nilled/K-NilledFunc-3	#886	fn:node-name, fn:nilled and fn:document-uri are not available with an argument (XPST0017).
+fn-nilled/K-NilledFunc-4	#886	fn:node-name, fn:nilled and fn:document-uri are not available with an argument (XPST0017).
+fn-nilled/fn-nilled-1	#886	fn:node-name, fn:nilled and fn:document-uri are not available with an argument (XPST0017).
+fn-nilled/fn-nilled-2	#886	fn:node-name, fn:nilled and fn:document-uri are not available with an argument (XPST0017).
+fn-nilled/fn-nilled-3	#886	fn:node-name, fn:nilled and fn:document-uri are not available with an argument (XPST0017).
+fn-node-name/K-NodeNameFunc-3	#886	fn:node-name, fn:nilled and fn:document-uri are not available with an argument (XPST0017).
+fn-node-name/K2-NodeNameFunc-2	#886	fn:node-name, fn:nilled and fn:document-uri are not available with an argument (XPST0017).
+fn-node-name/K2-NodeNameFunc-3	#886	fn:node-name, fn:nilled and fn:document-uri are not available with an argument (XPST0017).
+fn-node-name/K3-NodeNameFunc-1	#886	fn:node-name, fn:nilled and fn:document-uri are not available with an argument (XPST0017).
+fn-node-name/fn-node-name-1	#886	fn:node-name, fn:nilled and fn:document-uri are not available with an argument (XPST0017).
+fn-node-name/fn-node-name-2	#886	fn:node-name, fn:nilled and fn:document-uri are not available with an argument (XPST0017).
+fn-node-name/fn-node-name-3	#886	fn:node-name, fn:nilled and fn:document-uri are not available with an argument (XPST0017).
+fn-normalize-space/K-NormalizeSpaceFunc-2	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-normalize-space/K-NormalizeSpaceFunc-9	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-normalize-space/fn-normalize-space-10	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-normalize-space/fn-normalize-space-11	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-normalize-space/fn-normalize-space-12	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-normalize-space/fn-normalize-space-13	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-normalize-space/fn-normalize-space-14	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-normalize-space/fn-normalize-space-15	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-normalize-space/fn-normalize-space-16	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-normalize-space/fn-normalize-space-17	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-normalize-space/fn-normalize-space-18	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-normalize-space/fn-normalize-space-9	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-normalize-space/fn-normalize-space1args-4	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-normalize-unicode/K-NormalizeUnicodeFunc-13	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-normalize-unicode/cbcl-fn-normalize-unicode-001	#87	The fully-normalized form of fn:normalize-unicode is not supported (FOCH0003).
+fn-normalize-unicode/cbcl-fn-normalize-unicode-006	#87	The fully-normalized form of fn:normalize-unicode is not supported (FOCH0003).
+fn-number/fn-number-10	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-number/fn-number-5	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-number/fn-number-6	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-number/fn-number-7	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-number/fn-number-8	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-number/fn-number-9	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-number/fn-numberflt1args-3	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-number/fn-numbernpi1args-2	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-number/fn-numberulng1args-2	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-position/position-19	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-prefix-from-QName/fn-prefix-from-qname-10	#644	The xs:QName constructor function resolves a prefix against no namespaces (FONS0004).
+fn-prefix-from-QName/fn-prefix-from-qname-11	#644	The xs:QName constructor function resolves a prefix against no namespaces (FONS0004).
+fn-prefix-from-QName/fn-prefix-from-qname-12	#644	The xs:QName constructor function resolves a prefix against no namespaces (FONS0004).
+fn-prefix-from-QName/fn-prefix-from-qname-13	#644	The xs:QName constructor function resolves a prefix against no namespaces (FONS0004).
+fn-prefix-from-QName/fn-prefix-from-qname-14	#644	The xs:QName constructor function resolves a prefix against no namespaces (FONS0004).
+fn-prefix-from-QName/fn-prefix-from-qname-15	#644	The xs:QName constructor function resolves a prefix against no namespaces (FONS0004).
+fn-prefix-from-QName/fn-prefix-from-qname-16	#644	The xs:QName constructor function resolves a prefix against no namespaces (FONS0004).
+fn-prefix-from-QName/fn-prefix-from-qname-17	#644	The xs:QName constructor function resolves a prefix against no namespaces (FONS0004).
+fn-prefix-from-QName/fn-prefix-from-qname-18	#644	The xs:QName constructor function resolves a prefix against no namespaces (FONS0004).
+fn-prefix-from-QName/fn-prefix-from-qname-19	#644	The xs:QName constructor function resolves a prefix against no namespaces (FONS0004).
+fn-prefix-from-QName/fn-prefix-from-qname-20	#644	The xs:QName constructor function resolves a prefix against no namespaces (FONS0004).
+fn-prefix-from-QName/fn-prefix-from-qname-21	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-prefix-from-QName/fn-prefix-from-qname-22	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-prefix-from-QName/fn-prefix-from-qname-23	#886	fn:node-name, fn:nilled and fn:document-uri are not available with an argument (XPST0017).
+fn-prefix-from-QName/fn-prefix-from-qname-5	#644	The xs:QName constructor function resolves a prefix against no namespaces (FONS0004).
+fn-prefix-from-QName/fn-prefix-from-qname-6	#644	The xs:QName constructor function resolves a prefix against no namespaces (FONS0004).
+fn-prefix-from-QName/fn-prefix-from-qname-9	#644	The xs:QName constructor function resolves a prefix against no namespaces (FONS0004).
+fn-remove/K-SeqRemoveFunc-13	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-remove/K-SeqRemoveFunc-14	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-remove/K-SeqRemoveFunc-15	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-remove/K-SeqRemoveFunc-5	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-resolve-QName/K-ResolveQNameConstructFunc-4	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-resolve-uri/fn-resolve-uri-32	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-resolve-uri/fn-resolve-uri-33	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-resolve-uri/fn-resolve-uri-9	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-reverse/K-SeqReverseFunc-3	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-reverse/K-SeqReverseFunc-5	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-reverse/K-SeqReverseFunc-6	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-reverse/cbcl-reverse-1	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-root/K-NodeRootFunc-4	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-root/fn-root-2	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-root/fn-root-2a	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-root/fn-root-2b	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-root/fn-root-3	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/K2-RoundEvenFunc-17	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/K2-RoundEvenFunc-18	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/K2-RoundEvenFunc-19	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/K2-RoundEvenFunc-20	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/K2-RoundEvenFunc-21	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/K2-RoundEvenFunc-22	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/K2-RoundEvenFunc-23	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/K2-RoundEvenFunc-24	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/K2-RoundEvenFunc-25	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/K2-RoundEvenFunc-26	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/K2-RoundEvenFunc-27	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/K2-RoundEvenFunc-28	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/fn-round-half-to-even-10	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/fn-round-half-to-even-11	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/fn-round-half-to-even-12	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/fn-round-half-to-even-13	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/fn-round-half-to-even-14	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/fn-round-half-to-even-15	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/fn-round-half-to-even-16	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/fn-round-half-to-even-17	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/fn-round-half-to-even-18	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/fn-round-half-to-even-19	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/fn-round-half-to-even-20	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/fn-round-half-to-even-21	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/fn-round-half-to-even-22	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/fn-round-half-to-even-23	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/fn-round-half-to-even-24	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/fn-round-half-to-even-24a	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/fn-round-half-to-even-25	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/fn-round-half-to-even-26	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/fn-round-half-to-even-27	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/fn-round-half-to-even-28	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/fn-round-half-to-even-29	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/fn-round-half-to-even-3	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/fn-round-half-to-even-30	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/fn-round-half-to-even-31	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/fn-round-half-to-even-32	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/fn-round-half-to-even-33	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/fn-round-half-to-even-34	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/fn-round-half-to-even-35	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/fn-round-half-to-even-36	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/fn-round-half-to-even-37	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/fn-round-half-to-even-38	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/fn-round-half-to-even-39	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/fn-round-half-to-even-4	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/fn-round-half-to-even-40	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/fn-round-half-to-even-41	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/fn-round-half-to-even-5	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/fn-round-half-to-even-6	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/fn-round-half-to-even-7	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/fn-round-half-to-even-8	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/fn-round-half-to-even-9	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/fn-round-half-to-evendbl1args-1	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/fn-round-half-to-evendbl1args-3	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/fn-round-half-to-evenflt1args-1	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round-half-to-even/fn-round-half-to-evenflt1args-3	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round/K2-RoundFunc-1	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round/K2-RoundFunc-10	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round/K2-RoundFunc-11	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round/K2-RoundFunc-12	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round/K2-RoundFunc-2	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round/K2-RoundFunc-3	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round/K2-RoundFunc-4	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round/K2-RoundFunc-5	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round/K2-RoundFunc-54	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round/K2-RoundFunc-6	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round/K2-RoundFunc-7	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round/K2-RoundFunc-8	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round/K2-RoundFunc-9	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round/fn-round-decimal-2	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round/fn-round-decimal-3	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round/fn-round-decimal-4	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round/fn-round-decimal-5	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round/fn-round-decimal-6	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round/fn-round-decimal-7	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round/fn-rounddbl1args-2	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round/fn-rounddec1args-2	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round/fn-roundflt1args-2	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-round/fn-roundint1args-1	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-static-base-uri/fn-static-base-15	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-string-length/K-StringLengthFunc-7	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-string/K-StringFunc-2	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-string/fn-string-2	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-subsequence/K-SeqSubsequenceFunc-4	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-subsequence/cbcl-subsequence-008	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-subsequence/cbcl-subsequence-010	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-subsequence/cbcl-subsequence-011	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-subsequence/cbcl-subsequence-012	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-subsequence/cbcl-subsequence-013	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-subsequence/cbcl-subsequence-014	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-substring-after/fn-substring-after-1	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-substring-after/fn-substring-after-10	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-substring-after/fn-substring-after-13	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-substring-after/fn-substring-after-14	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-substring-after/fn-substring-after-15	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-substring-after/fn-substring-after-16	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-substring-after/fn-substring-after-17	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-substring-after/fn-substring-after-2	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-substring-after/fn-substring-after-21	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-substring-after/fn-substring-after-23	#752	A relative collation URI needs the static base URI, which the function call does not reach (FOCH0002).
+fn-substring-after/fn-substring-after-3	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-substring-after/fn-substring-after-4	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-substring-after/fn-substring-after-5	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-substring-after/fn-substring-after-6	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-substring-after/fn-substring-after-7	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-substring-after/fn-substring-after-9	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-substring-before/fn-substring-before-1	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-substring-before/fn-substring-before-10	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-substring-before/fn-substring-before-13	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-substring-before/fn-substring-before-14	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-substring-before/fn-substring-before-15	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-substring-before/fn-substring-before-16	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-substring-before/fn-substring-before-17	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-substring-before/fn-substring-before-18	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-substring-before/fn-substring-before-19	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-substring-before/fn-substring-before-2	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-substring-before/fn-substring-before-20	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-substring-before/fn-substring-before-21	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-substring-before/fn-substring-before-23	#752	A relative collation URI needs the static base URI, which the function call does not reach (FOCH0002).
+fn-substring-before/fn-substring-before-3	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-substring-before/fn-substring-before-4	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-substring-before/fn-substring-before-5	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-substring-before/fn-substring-before-6	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-substring-before/fn-substring-before-7	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-substring-before/fn-substring-before-9	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-substring/fn-substring-1	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-sum/fn-sum-10	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-sum/fn-sum-14	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-sum/fn-sum-7	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-sum/fn-sum-9	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-sum/fn-sumdbl3args-1	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-sum/fn-sumdbl3args-6	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-sum/fn-sumflt3args-1	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-sum/fn-sumflt3args-6	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-trace/K-TraceFunc-5	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-trace/fn-trace-19	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-true/fn-true-1	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-unordered/K-SeqUnorderedFunc-6	#901	The runner skips the compound assertions any-of, all-of and not.
+fn-upper-case/fn-upper-case-19	#1145	fn:lower-case and fn:upper-case differ from the expected code points for the Greek and Coptic block.
+fn-year-from-date/fn-year-from-date-7	#901	The runner skips the compound assertions any-of, all-of and not.
+op-QName-equal/K-QNameEQ-1	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-QName-equal/K-QNameEQ-2	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-QName-equal/K-QNameEQ-3	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-QName-equal/K-QNameEQ-4	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-QName-equal/op-qname-equal-1	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-QName-equal/op-qname-equal-10	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-QName-equal/op-qname-equal-11	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-QName-equal/op-qname-equal-12	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-QName-equal/op-qname-equal-13	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-QName-equal/op-qname-equal-14	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-QName-equal/op-qname-equal-15	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-QName-equal/op-qname-equal-16	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-QName-equal/op-qname-equal-17	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-QName-equal/op-qname-equal-18	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-QName-equal/op-qname-equal-19	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-QName-equal/op-qname-equal-2	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-QName-equal/op-qname-equal-20	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-QName-equal/op-qname-equal-21	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-QName-equal/op-qname-equal-22	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-QName-equal/op-qname-equal-23	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-QName-equal/op-qname-equal-24	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-QName-equal/op-qname-equal-3	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-QName-equal/op-qname-equal-4	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-QName-equal/op-qname-equal-5	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-QName-equal/op-qname-equal-6	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-QName-equal/op-qname-equal-7	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-QName-equal/op-qname-equal-8	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-QName-equal/op-qname-equal-9	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-add-dayTimeDuration-to-date/op-add-dayTimeDuration-to-date-8	#901	The runner skips the compound assertions any-of, all-of and not.
+op-add-dayTimeDuration-to-dateTime/op-add-dayTimeDuration-to-dateTime-8	#901	The runner skips the compound assertions any-of, all-of and not.
+op-add-yearMonthDuration-to-date/op-add-yearMonthDuration-to-date-8	#901	The runner skips the compound assertions any-of, all-of and not.
+op-add-yearMonthDuration-to-dateTime/op-add-yearMonthDuration-to-dateTime-8	#901	The runner skips the compound assertions any-of, all-of and not.
+op-base64Binary-equal/K-Base64BinaryEQ-1	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-base64Binary-equal/K-Base64BinaryEQ-2	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-base64Binary-equal/K-Base64BinaryEQ-3	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-base64Binary-equal/base64BinaryEqual-1	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-base64Binary-equal/base64BinaryEqual-10	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-base64Binary-equal/base64BinaryEqual-11	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-base64Binary-equal/base64BinaryEqual-12	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-base64Binary-equal/base64BinaryEqual-13	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-base64Binary-equal/base64BinaryEqual-14	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-base64Binary-equal/base64BinaryEqual-2	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-base64Binary-equal/base64BinaryEqual-3	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-base64Binary-equal/base64BinaryEqual-4	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-base64Binary-equal/base64BinaryEqual-6	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-base64Binary-equal/base64BinaryEqual-7	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-base64Binary-equal/base64BinaryEqual-8	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-base64Binary-equal/base64BinaryEqual-9	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-base64Binary-equal/base64binaryequal-5	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-base64Binary-equal/op-base64Binary-equal2args-1	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-base64Binary-equal/op-base64Binary-equal2args-10	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-base64Binary-equal/op-base64Binary-equal2args-2	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-base64Binary-equal/op-base64Binary-equal2args-3	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-base64Binary-equal/op-base64Binary-equal2args-4	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-base64Binary-equal/op-base64Binary-equal2args-5	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-base64Binary-equal/op-base64Binary-equal2args-6	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-base64Binary-equal/op-base64Binary-equal2args-7	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-base64Binary-equal/op-base64Binary-equal2args-8	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-base64Binary-equal/op-base64Binary-equal2args-9	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-concatenate/op-concatenate-mix-args-019	#901	The runner skips the compound assertions any-of, all-of and not.
+op-date-equal/cbcl-date-eq-001	#901	The runner skips the compound assertions any-of, all-of and not.
+op-date-equal/cbcl-date-ne-001	#901	The runner skips the compound assertions any-of, all-of and not.
+op-date-greater-than/cbcl-date-gt-001	#901	The runner skips the compound assertions any-of, all-of and not.
+op-date-less-than/cbcl-date-ge-001	#901	The runner skips the compound assertions any-of, all-of and not.
+op-divide-dayTimeDuration-by-dayTimeDuration/cbcl-divide-dayTimeDuration-by-dayTimeDuration-001	#901	The runner skips the compound assertions any-of, all-of and not.
+op-divide-dayTimeDuration-by-dayTimeDuration/cbcl-divide-dayTimeDuration-by-dayTimeDuration-002	#901	The runner skips the compound assertions any-of, all-of and not.
+op-divide-dayTimeDuration-by-dayTimeDuration/cbcl-divide-dayTimeDuration-by-dayTimeDuration-003	#901	The runner skips the compound assertions any-of, all-of and not.
+op-divide-dayTimeDuration-by-dayTimeDuration/op-divide-dayTimeDuration-by-dTD-1	#901	The runner skips the compound assertions any-of, all-of and not.
+op-divide-dayTimeDuration/cbcl-divide-dayTimeDuration-003	#901	The runner skips the compound assertions any-of, all-of and not.
+op-duration-equal/distinct-duration-equal-1	#901	The runner skips the compound assertions any-of, all-of and not.
+op-duration-equal/distinct-duration-equal-2	#901	The runner skips the compound assertions any-of, all-of and not.
+op-except/fn-except-node-args-011	#901	The runner skips the compound assertions any-of, all-of and not.
+op-except/fn-except-node-args-014	#901	The runner skips the compound assertions any-of, all-of and not.
+op-except/fn-except-node-args-015	#901	The runner skips the compound assertions any-of, all-of and not.
+op-except/fn-except-node-args-016	#901	The runner skips the compound assertions any-of, all-of and not.
+op-hexBinary-equal/K-HexBinaryEQ-1	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-hexBinary-equal/K-HexBinaryEQ-2	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-hexBinary-equal/K-HexBinaryEQ-3	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-hexBinary-equal/K-HexBinaryEQ-4	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-hexBinary-equal/K-HexBinaryEQ-5	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-hexBinary-equal/K-HexBinaryEQ-6	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-hexBinary-equal/K-HexBinaryEQ-7	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-hexBinary-equal/K-HexBinaryEQ-8	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-hexBinary-equal/hexBinary-1	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-hexBinary-equal/hexBinary-10	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-hexBinary-equal/hexBinary-11	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-hexBinary-equal/hexBinary-12	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-hexBinary-equal/hexBinary-13	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-hexBinary-equal/hexBinary-14	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-hexBinary-equal/hexBinary-2	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-hexBinary-equal/hexBinary-3	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-hexBinary-equal/hexBinary-4	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-hexBinary-equal/hexBinary-5	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-hexBinary-equal/hexBinary-6	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-hexBinary-equal/hexBinary-7	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-hexBinary-equal/hexBinary-8	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-hexBinary-equal/hexBinary-9	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-hexBinary-equal/op-hexBinary-equal2args-1	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-hexBinary-equal/op-hexBinary-equal2args-10	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-hexBinary-equal/op-hexBinary-equal2args-2	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-hexBinary-equal/op-hexBinary-equal2args-3	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-hexBinary-equal/op-hexBinary-equal2args-4	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-hexBinary-equal/op-hexBinary-equal2args-5	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-hexBinary-equal/op-hexBinary-equal2args-6	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-hexBinary-equal/op-hexBinary-equal2args-7	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-hexBinary-equal/op-hexBinary-equal2args-8	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-hexBinary-equal/op-hexBinary-equal2args-9	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+op-intersect/combiningnodeseqintersecthc2	#901	The runner skips the compound assertions any-of, all-of and not.
+op-intersect/fn-intersect-node-args-014	#901	The runner skips the compound assertions any-of, all-of and not.
+op-is-same-node/K-NodeSame-1	#901	The runner skips the compound assertions any-of, all-of and not.
+op-is-same-node/K-NodeSame-2	#901	The runner skips the compound assertions any-of, all-of and not.
+op-is-same-node/K-NodeSame-4	#901	The runner skips the compound assertions any-of, all-of and not.
+op-is-same-node/nodecomparisonerr-1	#901	The runner skips the compound assertions any-of, all-of and not.
+op-is-same-node/nodeexpression1	#901	The runner skips the compound assertions any-of, all-of and not.
+op-is-same-node/nodeexpression13	#901	The runner skips the compound assertions any-of, all-of and not.
+op-is-same-node/nodeexpression3	#901	The runner skips the compound assertions any-of, all-of and not.
+op-is-same-node/nodeexpression4	#901	The runner skips the compound assertions any-of, all-of and not.
+op-is-same-node/nodeexpression9	#901	The runner skips the compound assertions any-of, all-of and not.
+op-node-after/K-NodeAfter-1	#901	The runner skips the compound assertions any-of, all-of and not.
+op-node-after/K-NodeAfter-2	#901	The runner skips the compound assertions any-of, all-of and not.
+op-node-after/K-NodeAfter-4	#901	The runner skips the compound assertions any-of, all-of and not.
+op-node-after/nodecomparisonerr-3	#901	The runner skips the compound assertions any-of, all-of and not.
+op-node-after/nodeexpression33	#901	The runner skips the compound assertions any-of, all-of and not.
+op-node-after/nodeexpression35	#901	The runner skips the compound assertions any-of, all-of and not.
+op-node-after/nodeexpression36	#901	The runner skips the compound assertions any-of, all-of and not.
+op-node-after/nodeexpression41	#901	The runner skips the compound assertions any-of, all-of and not.
+op-node-after/nodeexpression44	#901	The runner skips the compound assertions any-of, all-of and not.
+op-node-after/nodeexpression45	#901	The runner skips the compound assertions any-of, all-of and not.
+op-node-before/K-NodeBefore-1	#901	The runner skips the compound assertions any-of, all-of and not.
+op-node-before/K-NodeBefore-2	#901	The runner skips the compound assertions any-of, all-of and not.
+op-node-before/K-NodeBefore-4	#901	The runner skips the compound assertions any-of, all-of and not.
+op-node-before/nodecomparisonerr-2	#901	The runner skips the compound assertions any-of, all-of and not.
+op-node-before/nodeexpression17	#901	The runner skips the compound assertions any-of, all-of and not.
+op-node-before/nodeexpression19	#901	The runner skips the compound assertions any-of, all-of and not.
+op-node-before/nodeexpression20	#901	The runner skips the compound assertions any-of, all-of and not.
+op-node-before/nodeexpression25	#901	The runner skips the compound assertions any-of, all-of and not.
+op-node-before/nodeexpression28	#901	The runner skips the compound assertions any-of, all-of and not.
+op-node-before/nodeexpression29	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-add/K-NumericAdd-34	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-add/K-NumericAdd-35	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-add/K-NumericAdd-38	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-add/K-NumericAdd-39	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-add/K-NumericAdd-40	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-add/K-NumericAdd-41	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-add/K-NumericAdd-50	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-add/K-NumericAdd-51	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-add/K-NumericAdd-52	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-add/K-NumericAdd-53	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-add/K-NumericAdd-54	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-add/K-NumericAdd-55	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-add/K-NumericAdd-56	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-add/K-NumericAdd-57	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-add/K-NumericAdd-58	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-add/K-NumericAdd-61	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-add/K-NumericAdd-62	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-add/op-numeric-addmix2args-1	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-divide/K-NumericDivide-39	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-divide/K-NumericDivide-40	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-divide/K-NumericDivide-41	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-divide/K-NumericDivide-42	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-divide/K-NumericDivide-43	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-divide/cbcl-numeric-divide-015	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-divide/op-numeric-divide-big-01	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-divide/op-numeric-dividedec2args-2	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-divide/op-numeric-dividedec2args-4	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-divide/op-numeric-divideintg2args-2	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-divide/op-numeric-divideintg2args-4	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-divide/op-numeric-dividelng2args-2	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-divide/op-numeric-dividelng2args-4	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-divide/op-numeric-dividemix2args-1	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-divide/op-numeric-dividenint2args-2	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-divide/op-numeric-dividenint2args-3	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-divide/op-numeric-dividenint2args-4	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-divide/op-numeric-dividenpi2args-2	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-divide/op-numeric-dividenpi2args-4	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-divide/op-numeric-dividepint2args-4	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-divide/op-numeric-dividepint2args-5	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-divide/op-numeric-dividesht2args-3	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-equal/op-numeric-equal-emptyseq	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-integer-divide/K-NumericIntegerDivide-52	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-integer-divide/K-NumericIntegerDivide-53	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-integer-divide/cbcl-numeric-idivide-008	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-integer-divide/op-numeric-integer-dividemix2args-1	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-mod/K-NumericMod-28	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-mod/K-NumericMod-29	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-mod/K2-NumericMod-5	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-mod/K2-NumericMod-7	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-mod/K2-NumericMod-8	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-mod/op-numeric-modmix2args-1	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-multiply/K-NumericMultiply-32	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-multiply/K-NumericMultiply-33	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-multiply/op-numeric-multiplymix2args-1	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-subtract/K-NumericSubtract-29	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-subtract/K-NumericSubtract-30	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-subtract/K-NumericSubtract-31	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-subtract/K-NumericSubtract-36	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-subtract/K-NumericSubtract-37	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-subtract/K-NumericSubtract-38	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-subtract/cbcl-numeric-subtract-001	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-subtract/cbcl-numeric-subtract-002	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-subtract/op-numeric-subtract-big-01	#901	The runner skips the compound assertions any-of, all-of and not.
+op-numeric-subtract/op-numeric-subtractmix2args-1	#901	The runner skips the compound assertions any-of, all-of and not.
+op-subtract-dayTimeDuration-from-date/op-subtract-dayTimeDuration-from-date-8	#901	The runner skips the compound assertions any-of, all-of and not.
+op-subtract-yearMonthDuration-from-date/op-subtract-yearMonthDuration-from-date2args-5	#901	The runner skips the compound assertions any-of, all-of and not.
+op-subtract-yearMonthDuration-from-dateTime/op-subtract-yearMonthDuration-from-dateTime2args-5	#901	The runner skips the compound assertions any-of, all-of and not.
+op-to/K-RangeExpr-1	#901	The runner skips the compound assertions any-of, all-of and not.
+op-to/K-RangeExpr-4	#901	The runner skips the compound assertions any-of, all-of and not.
+op-to/K-RangeExpr-5	#901	The runner skips the compound assertions any-of, all-of and not.
+op-to/RangeExpr-409c	#639	The evaluation limits reject integers beyond the supported width in a range expression.
+op-to/RangeExpr-409d	#639	The evaluation limits reject integers beyond the supported width in a range expression.
+op-to/rangeExpr-28	#901	The runner skips the compound assertions any-of, all-of and not.
+op-to/rangeExpr-29	#901	The runner skips the compound assertions any-of, all-of and not.
+op-to/rangeExpr-5	#901	The runner skips the compound assertions any-of, all-of and not.
+op-union/fn-union-node-args-003	#901	The runner skips the compound assertions any-of, all-of and not.
+op-union/fn-union-node-args-014	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-AxisStep.unabbr/unabbreviatedSyntax-4	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-AxisStep.unabbr/unabbreviatedSyntax-5	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-AxisStep/K2-Axes-34	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-AxisStep/K2-Axes-35	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-AxisStep/K2-Axes-38	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-AxisStep/K2-Axes-39	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-AxisStep/K2-Axes-43	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-AxisStep/K2-Axes-44	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-AxisStep/K2-Axes-45	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-AxisStep/K2-Axes-55	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-AxisStep/K2-Axes-56	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-AxisStep/K2-Axes-97	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastExpr/CastAs169	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastExpr/CastAs182	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastExpr/CastAs183	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastExpr/CastAs184	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastExpr/CastAs185	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastExpr/CastAs186	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastExpr/CastAs187	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastExpr/CastAs188	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastExpr/CastAs189	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastExpr/CastAs190	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastExpr/CastAs191	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastExpr/CastAs196	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastExpr/CastAs197	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastExpr/CastAs198	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastExpr/CastAs204	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastExpr/CastAs213	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastExpr/CastAs406	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastExpr/CastAs408	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastExpr/CastAs419	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastExpr/CastAs423	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastExpr/CastAs426	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastExpr/CastAs429	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastExpr/CastAs647	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastExpr/CastAs676	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastExpr/CastFOCA0001-1	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastExpr/CastFOCA0003-1	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastExpr/K-SeqExprCast-1264	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+prod-CastExpr/K-SeqExprCast-1265	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+prod-CastExpr/K-SeqExprCast-1266	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+prod-CastExpr/K-SeqExprCast-1304	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+prod-CastExpr/K-SeqExprCast-1306	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+prod-CastExpr/K-SeqExprCast-1316	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+prod-CastExpr/K-SeqExprCast-1317	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+prod-CastExpr/K-SeqExprCast-1318	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+prod-CastExpr/K-SeqExprCast-1356	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+prod-CastExpr/K-SeqExprCast-1358	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+prod-CastExpr/K-SeqExprCast-1420	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+prod-CastExpr/K-SeqExprCast-144	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastExpr/K-SeqExprCast-1491	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastExpr/K-SeqExprCast-42	#644	The xs:QName constructor function resolves a prefix against no namespaces (FONS0004).
+prod-CastExpr/K-SeqExprCast-55	#644	The xs:QName constructor function resolves a prefix against no namespaces (FONS0004).
+prod-CastExpr/K-SeqExprCast-63	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastExpr/K-SeqExprCast-64	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastExpr/K-SeqExprCast-67	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastExpr/K-SeqExprCast-69	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastExpr/K-SeqExprCast-70	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+prod-CastExpr/K2-SeqExprCast-1	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
+prod-CastExpr/K2-SeqExprCast-17	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastExpr/K2-SeqExprCast-2	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastExpr/K2-SeqExprCast-201	#644	The xs:QName constructor function resolves a prefix against no namespaces (FONS0004).
+prod-CastExpr/K2-SeqExprCast-207	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastExpr/K2-SeqExprCast-22	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastExpr/K2-SeqExprCast-299	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastExpr/K2-SeqExprCast-421	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastExpr/K2-SeqExprCast-78	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastExpr/K2-SeqExprCast-90	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastableExpr/CastableAs406	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastableExpr/CastableAs408	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastableExpr/CastableAs419	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastableExpr/CastableAs423	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastableExpr/CastableAs426	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastableExpr/CastableAs429	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastableExpr/K-SeqExprCastable-14	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastableExpr/K-SeqExprCastable-15	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastableExpr/K-SeqExprCastable-16	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastableExpr/K-SeqExprCastable-22	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastableExpr/K2-SeqExprCastable-3	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastableExpr/K2-SeqExprCastable-8	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastableExpr/cbcl-castable-date-001	#889	Dates and dateTimes beyond the supported year range are accepted.
+prod-CastableExpr/cbcl-castable-date-002	#889	Dates and dateTimes beyond the supported year range are accepted.
+prod-CastableExpr/cbcl-castable-dateTime-001	#889	Dates and dateTimes beyond the supported year range are accepted.
+prod-CastableExpr/cbcl-castable-dateTime-002	#889	Dates and dateTimes beyond the supported year range are accepted.
+prod-CastableExpr/cbcl-castable-dayTimeDuration-001	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastableExpr/cbcl-castable-dayTimeDuration-002	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastableExpr/cbcl-castable-decimal-007	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastableExpr/cbcl-castable-decimal-008	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastableExpr/cbcl-castable-decimal-009	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastableExpr/cbcl-castable-decimal-010	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastableExpr/cbcl-castable-integer-001	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastableExpr/cbcl-castable-integer-002	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastableExpr/cbcl-castable-integer-003	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastableExpr/cbcl-castable-integer-004	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastableExpr/cbcl-castable-long-001	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastableExpr/cbcl-castable-long-002	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-CastableExpr/cbcl-castable-unsignedLong-001	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-ContextItemExpr/externalcontextitem-23	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-ContextItemExpr/internalcontextitem-9	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-ForClause/K-ForExprWithout-18	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-ForClause/K-ForExprWithout-19	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-ForClause/K-ForExprWithout-20	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-ForClause/K-ForExprWithout-21	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-ForClause/K2-ForExprWithout-45	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-FunctionCall/K-FunctionCallExpr-10	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-FunctionCall/K-FunctionCallExpr-18	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-FunctionCall/K-FunctionCallExpr-19	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-FunctionCall/K-FunctionCallExpr-20	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-FunctionCall/K-FunctionCallExpr-21	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-FunctionCall/K-FunctionCallExpr-6	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-GeneralComp.eq/K-GenCompEq-10	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-GeneralComp.eq/K-GenCompEq-32	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-GeneralComp.eq/K-GenCompEq-33	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-GeneralComp.eq/K-GenCompEq-34	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-GeneralComp.eq/K-GenCompEq-35	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-GeneralComp.eq/K-GenCompEq-9	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-IfExpr/CondExpr016	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-IfExpr/CondExpr017	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-InstanceofExpr/K-SeqExprInstanceOf-54	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-InstanceofExpr/K-SeqExprInstanceOf-55	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-InstanceofExpr/K-SeqExprInstanceOf-56	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-InstanceofExpr/K-SeqExprInstanceOf-57	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-InstanceofExpr/K-SeqExprInstanceOf-58	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-InstanceofExpr/K-SeqExprInstanceOf-59	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-InstanceofExpr/K-SeqExprInstanceOf-62	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-InstanceofExpr/K-SeqExprInstanceOf-63	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-Literal/K2-Literals-10	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-Literal/K2-Literals-11	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-Literal/K2-Literals-12	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-Literal/K2-Literals-13	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-Literal/K2-Literals-14	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-Literal/K2-Literals-15	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-Literal/K2-Literals-4	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-Literal/K2-Literals-5	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-Literal/K2-Literals-6	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-Literal/K2-Literals-7	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-Literal/K2-Literals-8	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-Literal/K2-Literals-9	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-NameTest/K2-NameTest-84	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-NameTest/NodeTest004	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-NameTest/NodeTest005	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-OrExpr/K-LogicExpr-46	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-OrExpr/op-logical-and-066	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-OrExpr/op-logical-and-068	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-OrExpr/op-logical-or-066	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-OrExpr/op-logical-or-068	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-PathExpr/PathExpr-10	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-Predicate/K-FilterExpr-30	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-Predicate/K-FilterExpr-49	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-Predicate/K-FilterExpr-51	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-Predicate/K-FilterExpr-52	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-Predicate/K-FilterExpr-54	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-Predicate/K-FilterExpr-55	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-Predicate/K-FilterExpr-56	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-Predicate/K-FilterExpr-57	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-Predicate/K-FilterExpr-58	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-Predicate/K-FilterExpr-59	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-Predicate/K-FilterExpr-76	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-Predicate/K-FilterExpr-77	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-Predicate/K-FilterExpr-82	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-Predicate/K-FilterExpr-83	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-Predicate/K-FilterExpr-84	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-Predicate/K-FilterExpr-85	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-Predicate/K-FilterExpr-88	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-Predicate/filterexpressionhc22	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-Predicate/predicates-2	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-Predicate/predicates-6	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-Predicate/predicates-7	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-Predicate/predicatesns-2	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-Predicate/predicatesns-6	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-Predicate/predicatesns-7	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-QuantifiedExpr/K-QuantExprWithout-33	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-ReturnClause/K2-ReturnExpr-1	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-StepExpr/K2-Steps-8	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-TreatExpr/K-SeqExprTreat-11	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-TreatExpr/K-SeqExprTreat-12	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-TreatExpr/K-SeqExprTreat-13	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-TreatExpr/K-SeqExprTreat-15	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-ValueComp/K-ValCompTypeChecking-13	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-ValueComp/K-ValCompTypeChecking-14	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-ValueComp/K-ValCompTypeChecking-15	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-ValueComp/K-ValCompTypeChecking-39	#901	The runner skips the compound assertions any-of, all-of and not.
+prod-ValueComp/K-ValCompTypeChecking-41	#901	The runner skips the compound assertions any-of, all-of and not.
