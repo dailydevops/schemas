@@ -142,6 +142,24 @@ public class PeppolBis3GoldenTests
     }
 
     [Test]
+    public async Task Results_EveryUnitTestFolderOfTheArchive_IsOneTestSet(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var root = await PeppolBis3Run.GetRootAsync(cancellationToken);
+        var expected = Directory
+            .EnumerateDirectories(root, "unit-*")
+            .Select(d => Path.GetFileName(d)["unit-".Length..].Replace("-PEPPOL", string.Empty, StringComparison.Ordinal))
+            .Select(n => n.ToLowerInvariant())
+            .OrderBy(n => n, StringComparer.Ordinal)
+            .ToArray();
+
+        var results = await PeppolBis3Run.GetResultsAsync(cancellationToken);
+
+        await Assert.That(results.Keys.OrderBy(k => k, StringComparer.Ordinal).ToArray()).IsEquivalentTo(expected);
+        await Assert.That(results.Values.All(r => r.Count > 0)).IsTrue();
+    }
+
+    [Test]
     public async Task Manifest_PinsAReleaseTagArchiveByChecksum()
     {
         var manifest = PeppolBis3Run.LoadManifest();
