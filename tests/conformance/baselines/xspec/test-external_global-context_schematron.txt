@@ -1,0 +1,2 @@
+test-external_global-context_schematron/0001 Global context while validating foo :: x:expect-report global-context-while-validating-foo-is-root-document-node-of-foo
+test-external_global-context_schematron/0002 Global context while validating bar :: x:expect-report global-context-while-validating-bar-is-root-document-node-of-bar

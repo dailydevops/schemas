@@ -1,0 +1,10 @@
+tutorial-schematron-xqs-demo-03/0001 demo 3 inline context valid :: x:expect-not-assert a0001
+tutorial-schematron-xqs-demo-03/0002 demo 3 inline context valid :: x:expect-valid
+tutorial-schematron-xqs-demo-03/0003 demo 3 inline context not valid :: x:expect-assert a0001
+tutorial-schematron-xqs-demo-03/0004 demo 3 inline context valid with warning :: x:expect-valid
+tutorial-schematron-xqs-demo-03/0005 demo 3 inline context valid with warning :: x:expect-report a0003
+tutorial-schematron-xqs-demo-03/0006 demo 3 file as context valid file with warning :: x:expect-valid
+tutorial-schematron-xqs-demo-03/0007 demo 3 file as context valid file with warning :: x:expect-assert a0002
+tutorial-schematron-xqs-demo-03/0008 demo 3 file as context valid file with warning :: x:expect-report a0003
+tutorial-schematron-xqs-demo-03/0009 demo 3 file as context not valid file :: x:expect-assert a0001
+tutorial-schematron-xqs-demo-03/0011 demo 3 id or role can be placed on on the rule :: x:expect-report a0004

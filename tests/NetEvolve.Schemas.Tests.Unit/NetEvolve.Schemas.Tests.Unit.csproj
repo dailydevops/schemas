@@ -5,5 +5,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/NetEvolve.Schemas/NetEvolve.Schemas.csproj" SetTargetFramework="$(LibraryLegTargetFramework)" />
+    <!-- Fetches the pinned libxml2 archive by checksum for the URI conformance run. -->
+    <ProjectReference Include="../NetEvolve.Schemas.Conformance/NetEvolve.Schemas.Conformance.csproj" />
   </ItemGroup>
 </Project>

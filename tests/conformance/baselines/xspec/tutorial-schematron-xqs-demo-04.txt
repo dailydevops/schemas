@@ -1,0 +1,6 @@
+tutorial-schematron-xqs-demo-04/0001 demo 4 XPath location with namespaces using oXygen's Copy XPath :: x:expect-assert
+tutorial-schematron-xqs-demo-04/0002 demo 4 XPath location with namespaces using oXygen's Copy XPath :: x:expect-assert
+tutorial-schematron-xqs-demo-04/0003 demo 4 XPath location with namespaces using oXygen's Copy XPath :: x:expect-assert
+tutorial-schematron-xqs-demo-04/0004 demo 4 XPath location with namespaces using XPath without [1] or leading / :: x:expect-assert
+tutorial-schematron-xqs-demo-04/0005 demo 4 XPath location with namespaces using XPath without [1] or leading / :: x:expect-assert
+tutorial-schematron-xqs-demo-04/0006 demo 4 XPath location with namespaces using XPath without [1] or leading / :: x:expect-assert

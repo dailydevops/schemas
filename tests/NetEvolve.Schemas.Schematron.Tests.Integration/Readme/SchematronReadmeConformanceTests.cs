@@ -132,6 +132,26 @@ public class SchematronReadmeConformanceTests
         await Assert.That(readme).Contains(statement);
     }
 
+    [Test]
+    public async Task Readme_StatesTheCountsOfTheEn16931ExtendedTestSets(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var results = await En16931Run.GetExtendedResultsAsync(cancellationToken);
+        var readme = ReadmeSamples.ReadText(Readme);
+
+        var passed = results.Values.Sum(r => r.Count(c => c.Outcome == CaseOutcome.Pass));
+        var total = results.Values.Sum(r => r.Count);
+        await Assert.That(passed).IsEqualTo(total);
+        await Assert
+            .That(readme)
+            .Contains(
+                string.Create(
+                    CultureInfo.InvariantCulture,
+                    $"**{results["edifact"].Count} of {results["edifact"].Count} EDIFACT examples and {results["ubl-testfiles"].Count} of {results["ubl-testfiles"].Count} UBL test files pass, a rate of 100.0%**"
+                )
+            );
+    }
+
     private static async Task<ConformanceReport> Report(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
