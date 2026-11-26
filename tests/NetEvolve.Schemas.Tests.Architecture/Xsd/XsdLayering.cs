@@ -38,7 +38,8 @@ internal static class XsdLayering
             "Components",
             "SchemaDocuments",
             "Contracts",
-            "Diagnostics"
+            "Diagnostics",
+            "ComplexTypes"
         ),
         LayerRules.Never(
             "SchemaModelDoesNotDependOnTheRuntimeValidator",

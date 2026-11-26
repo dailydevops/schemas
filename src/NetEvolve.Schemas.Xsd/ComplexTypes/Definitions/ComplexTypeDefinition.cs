@@ -39,8 +39,7 @@ using NetEvolve.Schemas.Xsd.Wildcards.Core;
 /// schema, see <see cref="OpenContentRules"/> for the limitation of the extension case; at most one attribute of type ID
 /// (<c>ct-props-correct.5</c>) is not checked because the simple type definition cannot tell derivation from <c>ID</c> yet;
 /// circular derivation cannot arise because the base is resolved before the type exists, so the pipeline that orders the
-/// construction reports it (<c>ct-props-correct.3</c>); the registered <c>anyType</c> is a placeholder without content, it is
-/// recognized as <see cref="AnyType"/>; the emptiness of a restricted mixed base for a <c>simpleContent</c> restriction is not
+/// construction reports it (<c>ct-props-correct.3</c>); <see cref="AnyType"/> is the ur-type the registry registers; the emptiness of a restricted mixed base for a <c>simpleContent</c> restriction is not
 /// checked (<c>derivation-ok-restriction.5</c>).
 /// </para>
 /// </remarks>
@@ -230,8 +229,7 @@ internal sealed class ComplexTypeDefinition : IReferencingComponent, IBlockedTyp
     {
         GuardDerivation(method, baseType, attributeUses, reporter);
 
-        var parent = AsComplex(baseType);
-        if (parent is null)
+        if (baseType is not ComplexTypeDefinition parent)
         {
             ReportRepresentation(
                 reporter,
@@ -298,7 +296,7 @@ internal sealed class ComplexTypeDefinition : IReferencingComponent, IBlockedTyp
     {
         GuardDerivation(method, baseType, attributeUses, reporter);
 
-        var parent = AsComplex(baseType);
+        var parent = baseType as ComplexTypeDefinition;
         var restriction = method == XsdDerivationMethod.Restriction;
         SimpleTypeDefinition? contentType = null;
         if (parent is not null)
@@ -619,15 +617,6 @@ internal sealed class ComplexTypeDefinition : IReferencingComponent, IBlockedTyp
         string clause,
         string message
     ) => reporter.Report(XsdRuleLookup.Find(XsdRuleCodes.SrcCt), location, message, clause);
-
-    // The registered xs:anyType has no content; ComplexTypeDefinition.AnyType is the ur-type with its properties.
-    private static ComplexTypeDefinition? AsComplex(IXsdComponent type) =>
-        type switch
-        {
-            ComplexTypeDefinition complex => complex,
-            XsdBuiltInType { Kind: XsdComponentKind.ComplexType } => AnyType,
-            _ => null,
-        };
 
     // A registered built-in simple type wraps its datatype, which is what a simple type definition is made of.
     private static SimpleTypeDefinition? AsSimple(IXsdComponent type) =>

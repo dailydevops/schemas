@@ -44,14 +44,14 @@ internal sealed class TypeFixture
     public static XPathQName Name(string name) => name.Length == 0 ? default : new XPathQName(Tns, name);
 
     /// <summary>The registered built-in type, as a name lookup in a schema set finds it.</summary>
-    public static XsdBuiltInType Registered(string localName)
+    public static IXsdComponent Registered(string localName)
     {
         var types = XsdBuiltInTypes.For(XsdVersion.V11);
         for (var i = 0; i < types.Count; i++)
         {
             if (string.Equals(types[i].Name.LocalName, localName, StringComparison.Ordinal))
             {
-                return (XsdBuiltInType)types[i];
+                return types[i];
             }
         }
 
@@ -61,7 +61,7 @@ internal sealed class TypeFixture
     /// <summary>A built-in simple type as the components of a schema see it: a wrapper without a base type.</summary>
     public static SimpleTypeDefinition Xs(string localName)
     {
-        var registered = Registered(localName);
+        var registered = (XsdBuiltInType)Registered(localName);
         return SimpleTypeDefinition.FromDatatype(registered.Name, Where, registered.Descriptor!);
     }
 

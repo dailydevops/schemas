@@ -357,9 +357,6 @@ internal sealed partial class StreamingValidator
             case ComplexTypeDefinition complex:
                 OpenComplex(frame, complex);
                 break;
-            case XsdBuiltInType { Kind: XsdComponentKind.ComplexType }:
-                OpenComplex(frame, ComplexTypeDefinition.AnyType);
-                break;
             default:
                 frame.Content = FrameContent.SimpleType;
                 frame.SimpleType = type;

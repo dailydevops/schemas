@@ -207,9 +207,6 @@ internal sealed class ValidationModel
                     case ElementDeclaration element:
                         Push(element.TypeDefinition ?? ComplexTypeDefinition.AnyType);
                         break;
-                    case XsdBuiltInType { Kind: XsdComponentKind.ComplexType }:
-                        Push(ComplexTypeDefinition.AnyType);
-                        break;
                     case ComplexTypeDefinition type:
                         Compile(type);
                         break;

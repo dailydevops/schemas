@@ -14,7 +14,7 @@ using NetEvolve.Schemas.Xsd.SimpleTypes.Definitions;
 /// <summary>What the derivation checks need to know about a type component, whichever form it takes.</summary>
 /// <remarks>
 /// A type is represented by a <see cref="ComplexTypeDefinition"/>, a <see cref="SimpleTypeDefinition"/>, or the registered
-/// <see cref="XsdBuiltInType"/>, and a built-in type reaches a schema as a wrapper of its datatype that is a new object on every
+/// <see cref="XsdBuiltInType"/> (simple types only), and a built-in type reaches a schema as a wrapper of its datatype that is a new object on every
 /// use. Two named type components therefore are the same type definition when their expanded names are equal (a symbol space
 /// holds one type per name); anonymous ones only by reference.
 /// </remarks>
@@ -34,7 +34,7 @@ internal static class TypeComponents
         return ReferenceEquals(left, right) || (left.Name != default && left.Name == right.Name);
     }
 
-    /// <summary>Determines whether a type component is the ur-type <c>xs:anyType</c>, which has two forms.</summary>
+    /// <summary>Determines whether a type component is the ur-type <c>xs:anyType</c>, .</summary>
     /// <param name="type">The type.</param>
     /// <returns><see langword="true"/> for the ur-type.</returns>
     internal static bool IsUrType(IXsdComponent type)
@@ -61,19 +61,14 @@ internal static class TypeComponents
         };
     }
 
-    /// <summary>Views a type component as a complex type definition; the registered ur-type is <see cref="ComplexTypeDefinition.AnyType"/>.</summary>
+    /// <summary>Views a type component as a complex type definition; the ur-type is <see cref="ComplexTypeDefinition.AnyType"/>.</summary>
     /// <param name="type">The type.</param>
     /// <returns>The complex type definition, <see langword="null"/> for a simple type.</returns>
     internal static ComplexTypeDefinition? AsComplex(IXsdComponent type)
     {
         ArgumentNullException.ThrowIfNull(type);
 
-        return type switch
-        {
-            ComplexTypeDefinition complex => complex,
-            XsdBuiltInType { Kind: XsdComponentKind.ComplexType } => ComplexTypeDefinition.AnyType,
-            _ => null,
-        };
+        return type as ComplexTypeDefinition;
     }
 
     /// <summary>Indexes attribute uses by expanded name.</summary>

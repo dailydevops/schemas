@@ -91,7 +91,7 @@ public class BuiltInTypeTests
         _ = registry.TryGet(XsdComponentKind.ComplexType, new XPathQName(Xs, "anyType"), out var anyType);
         _ = registry.TryGet(XsdComponentKind.SimpleType, new XPathQName(Xs, "int"), out var type);
         var chain = new List<string>();
-        for (var t = (XsdBuiltInType?)type; t is not null; t = t.BaseType)
+        for (var t = type; t is not null; t = (t as XsdBuiltInType)?.BaseType)
         {
             chain.Add(t.Name.LocalName);
         }
