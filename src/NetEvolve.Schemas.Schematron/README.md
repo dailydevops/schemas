@@ -301,10 +301,22 @@ The builder that `ForSchematron` returns takes the options of a build:
 | `WithParameter` | Sets the value of a `param` of the schema. |
 | `WithGlobalPatternLets` | Makes the `let` declarations of the active patterns schema-level variables (off by default), see [Global pattern-level variables](#global-pattern-level-variables). |
 | `WithDtdProcessing` | Lets a schema document start with a document type declaration whose internal subset declares entities (off by default: `NES1201`), see [Entities in a schema](#entities-in-a-schema). |
+| `WithSeverityFilter` | Keeps only the findings whose `severity` is in an allow-list (off by default), see [Severity filter](#severity-filter). |
 | `WithLimits` | Sets the `ValidationLimits` of the core package that bound the documents and the schema. |
 | `WithResolver` | Sets the `IResourceResolver` for external resources; the default is `DenyAllResourceResolver`. |
 
 `WithReportSink` is a method of the built validator, not of the builder: it returns the view that delivers the events of a validation to an `ISchematronReportSink`, see [SVRL](#svrl).
+
+### Severity filter
+
+`WithSeverityFilter(severities, comparison)` is an allow-list of `severity` values (issue [#384](https://github.com/dailydevops/schemas/issues/384)). A failed `assert` or a successful `report` whose `severity` is not in the list is dropped from the `ValidationResult` and from the SVRL output alike; a finding without a `severity` is always kept. The `severity` is an opaque token without a vocabulary or an order, so the filter compares text only: by default ignoring case, or with the `StringComparison` you pass. The list must not be null or empty and must not contain a null or empty entry; the last call wins, and without a call every finding is kept.
+
+```csharp
+var validator = SchemaValidator
+    .ForSchematron(schemaText)
+    .WithSeverityFilter(["fatal", "error"])
+    .Build();
+```
 
 ### Resolvers and security defaults
 

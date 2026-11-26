@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using NetEvolve.Schemas;
 using NetEvolve.Schemas.Schematron.Svrl;
+using NetEvolve.Schemas.Schematron.Tests.Unit.Fakes;
 using NetEvolve.Schemas.Schematron.Tests.Unit.Svrl;
 using static NetEvolve.Schemas.Schematron.Tests.Unit.Pipeline.PipelineFixture;
 
@@ -30,23 +31,24 @@ public class SeverityFilterTests
     private static string[] Constraints(ValidationResult result) =>
         [.. result.Issues.Select(i => i.Constraint ?? string.Empty).OrderBy(c => c, StringComparer.Ordinal)];
 
+    private static async Task Expect(ValidationResult result, params string[] expected) =>
+        await Assert.That(string.Join(",", Constraints(result))).IsEqualTo(string.Join(",", expected));
+
     [Test]
     public async Task NoFilter_KeepsEveryFinding()
     {
         var result = Validate(Build(Schema), "<a/>");
 
-        await Assert
-            .That(Constraints(result))
-            .IsEquivalentTo(new[] { "fatal-1", "fatal-2", "minor-1", "minor-2", "none-1" });
+        await Expect(result, "fatal-1", "fatal-2", "minor-1", "minor-2", "none-1");
     }
 
     [Test]
     public async Task Filter_DropsUnlistedFailedAssertsAndReports_AndKeepsFindingsWithoutSeverity()
     {
-        var validator = Builder(Schema).WithSeverityFilter(["fatal"]).Build();
+        var validator = Builder(Schema).WithSeverityFilter(["fatal"]).BuildNow();
         var result = Validate(validator, "<a/>");
 
-        await Assert.That(Constraints(result)).IsEquivalentTo(new[] { "fatal-1", "fatal-2", "none-1" });
+        await Expect(result, "fatal-1", "fatal-2", "none-1");
     }
 
     [Test]
@@ -56,7 +58,7 @@ public class SeverityFilterTests
             "<pattern><rule context=\"a\"><assert test=\"false()\" severity=\"minor\">m</assert></rule></pattern>",
             " schematronEdition=\"2025\""
         );
-        var result = Validate(Builder(schema).WithSeverityFilter(["fatal"]).Build(), "<a/>");
+        var result = Validate(Builder(schema).WithSeverityFilter(["fatal"]).BuildNow(), "<a/>");
 
         await Assert.That(result.IsValid).IsTrue();
         await Assert.That(result.Issues).IsEmpty();
@@ -65,27 +67,27 @@ public class SeverityFilterTests
     [Test]
     public async Task Filter_DefaultComparison_IgnoresCase()
     {
-        var result = Validate(Builder(Schema).WithSeverityFilter(["MINOR"]).Build(), "<a/>");
+        var result = Validate(Builder(Schema).WithSeverityFilter(["MINOR"]).BuildNow(), "<a/>");
 
-        await Assert.That(Constraints(result)).IsEquivalentTo(new[] { "minor-1", "minor-2", "none-1" });
+        await Expect(result, "minor-1", "minor-2", "none-1");
     }
 
     [Test]
     public async Task Filter_OrdinalComparison_IsCaseSensitive()
     {
-        var validator = Builder(Schema).WithSeverityFilter(["minor"], StringComparison.Ordinal).Build();
+        var validator = Builder(Schema).WithSeverityFilter(["minor"], StringComparison.Ordinal).BuildNow();
         var result = Validate(validator, "<a/>");
 
-        await Assert.That(Constraints(result)).IsEquivalentTo(new[] { "minor-2", "none-1" });
+        await Expect(result, "minor-2", "none-1");
     }
 
     [Test]
     public async Task Filter_LastCallWins()
     {
-        var validator = Builder(Schema).WithSeverityFilter(["fatal"]).WithSeverityFilter(["minor"]).Build();
+        var validator = Builder(Schema).WithSeverityFilter(["fatal"]).WithSeverityFilter(["minor"]).BuildNow();
         var result = Validate(validator, "<a/>");
 
-        await Assert.That(Constraints(result)).IsEquivalentTo(new[] { "minor-1", "minor-2", "none-1" });
+        await Expect(result, "minor-1", "minor-2", "none-1");
     }
 
     [Test]
@@ -94,9 +96,9 @@ public class SeverityFilterTests
         var severities = new[] { "fatal" };
         var builder = Builder(Schema).WithSeverityFilter(severities);
         severities[0] = "minor";
-        var result = Validate(builder.Build(), "<a/>");
+        var result = Validate(builder.BuildNow(), "<a/>");
 
-        await Assert.That(Constraints(result)).IsEquivalentTo(new[] { "fatal-1", "fatal-2", "none-1" });
+        await Expect(result, "fatal-1", "fatal-2", "none-1");
     }
 
     [Test]
@@ -106,7 +108,7 @@ public class SeverityFilterTests
         ValidationResult result;
         using (var sink = new SvrlReportSink(output))
         {
-            result = Validate(Builder(Schema).WithSeverityFilter(["fatal"]).Build().WithReportSink(sink), "<a/>");
+            result = Validate(Builder(Schema).WithSeverityFilter(["fatal"]).BuildNow().WithReportSink(sink), "<a/>");
         }
 
         var svrl = XDocument.Parse(SvrlRuns.Text(output.WrittenSpan.ToArray()));
@@ -116,8 +118,8 @@ public class SeverityFilterTests
             .OrderBy(i => i, StringComparer.Ordinal)
             .ToArray();
 
-        await Assert.That(ids).IsEquivalentTo(new[] { "fatal-1", "fatal-2", "none-1" });
-        await Assert.That(Constraints(result)).IsEquivalentTo(ids!);
+        await Assert.That(string.Join(",", ids)).IsEqualTo("fatal-1,fatal-2,none-1");
+        await Expect(result, ids!);
     }
 
     [Test]
