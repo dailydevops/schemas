@@ -214,28 +214,7 @@ internal static class SchemaStructure
 
         internal bool Contains(int position) => (Word(position >> 6) & (1UL << (position & 63))) != 0;
 
-        internal Positions Add(int position)
-        {
-            var index = position >> 6;
-            var bit = 1UL << (position & 63);
-            if (_words is null)
-            {
-                if (_word == 0)
-                {
-                    return new Positions(index, bit);
-                }
-
-                if (index == _index)
-                {
-                    return new Positions(index, _word | bit);
-                }
-            }
-
-            var words = new ulong[Math.Max(WordCount, index + 1)];
-            CopyTo(words);
-            words[index] |= bit;
-            return new Positions(words);
-        }
+        internal Positions Add(int position) => Union(new Positions(position >> 6, 1UL << (position & 63)));
 
         internal Positions Union(Positions other)
         {
