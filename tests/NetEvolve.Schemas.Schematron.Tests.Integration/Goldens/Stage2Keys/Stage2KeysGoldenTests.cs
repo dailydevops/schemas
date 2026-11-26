@@ -25,7 +25,12 @@ public class Stage2KeysGoldenTests
     private static readonly XNamespace Xsl = "http://www.w3.org/1999/XSL/Transform";
 
     public static IEnumerable<Func<string>> TestSets() =>
-        [() => Stage2Run.EhfTestSet, () => Stage2Run.EusrTestSet, () => Stage2Run.TsrTestSet];
+        [
+            () => Stage2Run.EhfTestSet,
+            () => Stage2Run.EhfBuildTestSet,
+            () => Stage2Run.EusrTestSet,
+            () => Stage2Run.TsrTestSet,
+        ];
 
     public static IEnumerable<Func<(string Suite, string Path, string Rule)>> KeyRuleSets() =>
         Stage2Run.LoadRecord().KeyRuleSets.Select(r => (Func<(string, string, string)>)(() => r));
@@ -62,6 +67,23 @@ public class Stage2KeysGoldenTests
         await Assert.That(results).IsNotEmpty();
         await Assert.That(report.TestSets).HasSingleItem();
         await Assert.That(report.IsSuccess).IsTrue().Because(Format(report.TestSets[0], results));
+    }
+
+    [Test]
+    public async Task EhfBuildTestSet_HoldsOneCasePerRuleSetOfThePinnedArchive(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var root = await Stage2Run.GetRootAsync("stage2-ehf", cancellationToken);
+        var ruleSets = Directory.GetFiles(root, "*.sch", SearchOption.AllDirectories).Length;
+
+        var ids = (await Stage2Run.GetResultsAsync(cancellationToken))
+            .Where(r => string.Equals(r.TestSet, Stage2Run.EhfBuildTestSet, StringComparison.Ordinal))
+            .Select(r => r.CaseId)
+            .ToList();
+
+        await Assert.That(ruleSets).IsEqualTo(18);
+        await Assert.That(ids.Count).IsEqualTo(ruleSets);
+        await Assert.That(ids.Distinct(StringComparer.Ordinal).Count()).IsEqualTo(ruleSets);
     }
 
     [Test]

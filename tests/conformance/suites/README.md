@@ -137,6 +137,22 @@ the schema set to the binding (`xslt1`, `xslt2`); a test set is named `<binding>
 - **Limitation:** the case reader keeps the text of an assertion and not its namespace declarations, so the engine declares the prefix
   `svrl` for the assertions; every assertion of the pinned release uses this prefix only.
 
+## OASIS XLIFF 2.1 (`xliff.json`)
+
+The OASIS XLIFF TC repository is pinned by commit archive (`.../archive/<commit>.zip`) with the `subPath`
+`<archive-root>/xliff-21`. The archive is about 45 MB. GitHub does not promise byte-identical generated archives;
+the limitation of `xsts.json` applies. The runner lives in
+`tests/NetEvolve.Schemas.Schematron.Tests.Integration/Goldens/Xliff`.
+
+- **Selection:** every `.xlf` file of the `valid` and `invalid` folders of `test-suite/core` and `test-suite/modules`
+  (221 cases). The `in-out` folder holds no verdict and is not selected.
+- **Verdict:** the folder is the expected verdict. The observed verdict is the XSD step (core and module schemas in one
+  validator) and the Schematron step (all nine rule sets, as the upstream NVDL script attaches them to every document)
+  together.
+- **Rule sets:** the rule sets declare internal entities in a document type declaration; the runner builds them with
+  the DTD processing opt-in (`WithDtdProcessing`).
+- **Known failures:** 41 cases, each linked to its issue in `XliffRun.KnownFailures` (#1362, #1363).
+
 ## W3C XInclude test suite (`xinclude.json`)
 
 The W3C XInclude test suite (`XIncl20060927.zip`, a static W3C file; W3C test suite licence) is pinned by checksum. The archive
@@ -157,3 +173,18 @@ loader, because the resolver is not public API.
   without an entry, fails the test.
 - **Run:** `XIncludeConformanceTests` is explicit and in the `Conformance` category; the baseline guard
   `XIncludeKnownFailureTests` needs no download.
+
+## parse-number-fxx test data (`parse-number-fxx.json`)
+
+The parse-number-fxx test data (Apache-2.0, no tags, last push 2022) is pinned by its commit archive, `.../archive/<commit>.zip`,
+with the `subPath` of its `data` folder; the archive is about 96 MB. The runner lives in
+`tests/NetEvolve.Schemas.Xml.Tests.Unit/Datatypes/Floating` and checks `XsdFloatingPoint.ParseDouble` and `ParseSingle`.
+
+- **Format:** one case per line: the hexadecimal bit patterns of the expected float16, float32 and float64 at the columns 0, 5 and 14,
+  then the input string from column 31. The float16 column is not used.
+- **Comparison:** an input in the lexical space of finite `xs:double` and `xs:float` values (an `xs:decimal` mantissa with an optional
+  integer exponent) must parse with the exact expected bits of float32 and float64. An input outside it (hex floats, `inf`, `nan`) must be
+  rejected by both parsers. The XSD 1.0 lexical rules apply.
+- **Baseline:** empty. `ParseNumberFxxConformanceTests` runs every data file as one test and fails on any differing line.
+- **Run:** the full corpus is read, which takes about one minute. The tests are explicit and in the `Conformance` category; the
+  line check `ParseNumberFxxTests` needs no download.
