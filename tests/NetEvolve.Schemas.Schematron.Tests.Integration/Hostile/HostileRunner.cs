@@ -34,7 +34,7 @@ internal static class HostileRunner
         var delay = Task.Delay(TimeBound, bound.Token);
         if (await Task.WhenAny(work, delay) != work)
         {
-            // Stop the leftover work so a hostile case cannot bleed into the next one.
+            // Cancellation is cooperative: the engine observes it between steps, so a real CPU-bound hang is reported but not stopped.
             await CancelAsync(bound);
             throw new TimeoutException($"Case '{hostileCase.Id}' ({input}) exceeded the time bound of {TimeBound}.");
         }
@@ -82,11 +82,6 @@ internal static class HostileRunner
         catch (SchemaCompilationException e)
         {
             return [.. e.Issues.Select(static issue => issue.Code.Number)];
-        }
-
-        if (hostileCase.Instance is null)
-        {
-            return [];
         }
 
         var bytes = Encoding.UTF8.GetBytes(hostileCase.Instance);
