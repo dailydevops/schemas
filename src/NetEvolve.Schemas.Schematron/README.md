@@ -113,6 +113,10 @@ var result = await validator.ValidateAsync(
 
 Here the phase `strict` is active and the parameter `limit` is `200`, so the first pattern passes, and the only issue is the failed assertion of the second pattern.
 
+### Entities in a schema
+
+A schema document that starts with a document type declaration, as the OASIS XLIFF rule sets do with literal entities such as `<!ENTITY version "2.1">`, is rejected at `Build` with `NES1201` by default. `WithDtdProcessing(true)` reads the internal subset and expands its entities in titles, attributes, and messages (issue [#1361](https://github.com/dailydevops/schemas/issues/1361)). Only the internal subset is read: an external subset or an external entity is never fetched. The expansion stays bounded by `ValidationLimits.MaxEntityExpansion` and `MaxEntityDepth`, so an entity bomb fails the build. The switch covers the schema and the modules it includes, not the instance document, which still refuses a document type declaration.
+
 ### Global pattern-level variables
 
 By default a `let` of a pattern or group is lexical: it is visible only inside its pattern, a `let` with the name of a schema-level `let` shadows it, and a reference from a later pattern or from the body of a stylesheet function fails at `Build` with `NES3300`. This follows the decided rule that an inner declaration shadows an outer one (design [#150](https://github.com/dailydevops/schemas/issues/150), EP-4). `WithGlobalPatternLets(true)` is an opt-in switch for rule sets that declare a variable in one pattern and read it elsewhere, such as the KoSIT XRechnung rules ([#615](https://github.com/dailydevops/schemas/issues/615)). When it is on, the `let` declarations of the patterns that the selected phase activates become schema-level variables, placed after the schema `let` declarations in document order:
@@ -296,6 +300,7 @@ The builder that `ForSchematron` returns takes the options of a build:
 | `WithPhase` | Selects the phase: an `id`, `#ALL`, or `#DEFAULT` (the default). |
 | `WithParameter` | Sets the value of a `param` of the schema. |
 | `WithGlobalPatternLets` | Makes the `let` declarations of the active patterns schema-level variables (off by default), see [Global pattern-level variables](#global-pattern-level-variables). |
+| `WithDtdProcessing` | Lets a schema document start with a document type declaration whose internal subset declares entities (off by default: `NES1201`), see [Entities in a schema](#entities-in-a-schema). |
 | `WithLimits` | Sets the `ValidationLimits` of the core package that bound the documents and the schema. |
 | `WithResolver` | Sets the `IResourceResolver` for external resources; the default is `DenyAllResourceResolver`. |
 
@@ -316,15 +321,15 @@ var validator = await SchemaValidator
     .BuildAsync(cancellationToken);
 ```
 
-No other path reaches a resource. A document type declaration in the schema or in a document is rejected, so no external entity or subset is read, and the expressions of a schema open a resource only through `document`, `doc`, and `unparsed-text` under an XSLT binding, which load through the resolver of the builder, so the default resolver denies them. The documents and the schema are read under `ValidationLimits` (size, depth, attributes, and entity expansion), and a schema is bounded by `MaxResourceSize`.
+No other path reaches a resource. A document type declaration in the schema or in a document is rejected unless `WithDtdProcessing(true)` admits the internal subset of the schema (see [Entities in a schema](#entities-in-a-schema)), so no external entity or subset is read, and the expressions of a schema open a resource only through `document`, `doc`, and `unparsed-text` under an XSLT binding, which load through the resolver of the builder, so the default resolver denies them. The documents and the schema are read under `ValidationLimits` (size, depth, attributes, and entity expansion), and a schema is bounded by `MaxResourceSize`.
 
 ## Conformance
 
-The package is measured against the official Schematron conformance suite, release 2.0, pinned by checksum in [`tests/conformance/suites/schematron-conformance.json`](https://github.com/dailydevops/schemas/blob/main/tests/conformance/suites/schematron-conformance.json); no part of the suite is committed. The run selects the cases of the suite bindings `xslt-1` and `xslt-2` and runs each through `SchemaValidator.ForSchematron` and the SVRL report sink. The rate is passed / (passed + failed), truncated to one decimal, as the [Conformance workflow](https://github.com/dailydevops/schemas/blob/main/.github/workflows/conformance.yml) publishes it in its job summary.
+The package is measured against the official Schematron conformance suite, release 2.0, pinned by checksum in [`tests/conformance/suites/schematron-conformance.json`](https://github.com/dailydevops/schemas/blob/main/tests/conformance/suites/schematron-conformance.json); no part of the suite is committed. The run selects the cases of the suite bindings `xslt-1` and `xslt-2` and runs each case once per selected binding through `SchemaValidator.ForSchematron` and the SVRL report sink, with the `queryBinding` of the schema set to that binding (`xslt1` and `xslt2`); the test sets are named `<binding>.<case folder>`. The rate is passed / (passed + failed), truncated to one decimal, as the [Conformance workflow](https://github.com/dailydevops/schemas/blob/main/.github/workflows/conformance.yml) publishes it in its job summary.
 
 ### Schematron conformance suite
 
-**68 of 84 applicable cases pass, a rate of 80.9%** on `net10.0`, the leg that runs the suites. The other cases are the 16 known failures below, and 3 excluded cases do not count. Every known failure is a case of the committed baseline in `tests/conformance/baselines/schematron-conformance/` (16 baseline entries in 5 files, one file per test set), linked to an issue; a regression and an unexpected pass fail the run.
+**134 of 166 applicable cases pass, a rate of 80.7%** on `net10.0`, the leg that runs the suites. The other cases are the 32 known failures below, and 3 excluded cases do not count. The 84 selected cases run once per selected binding, so a case that fails under both bindings counts twice and the lists below name it once. Every known failure is a case of the committed baseline in `tests/conformance/baselines/schematron-conformance/` (32 baseline entries in 10 files, one file per test set), linked to an issue; a regression and an unexpected pass fail the run.
 
 Reproduce the numbers on a clone: set `GITHUB_STEP_SUMMARY` to a file and run the conformance tests; the table of the rate per test set is appended to that file.
 
@@ -334,13 +339,18 @@ dotnet test --project tests/NetEvolve.Schemas.Schematron.Tests.Integration --con
 
 | Test set | Applicable | Passed | Rate |
 | --- | --- | --- | --- |
-| `iso-instance-document-selection` | 2 | 0 | 0.0% |
-| `iso-pattern-templating` | 12 | 8 | 66.6% |
-| `iso-reporting` | 45 | 41 | 91.1% |
-| `iso-rule-based-validation` | 14 | 13 | 92.8% |
-| `iso-schema-composition` | 11 | 6 | 54.5% |
+| `xslt-1.iso-instance-document-selection` | 2 | 0 | 0.0% |
+| `xslt-2.iso-instance-document-selection` | 2 | 0 | 0.0% |
+| `xslt-1.iso-schema-composition` | 11 | 6 | 54.5% |
+| `xslt-2.iso-schema-composition` | 11 | 6 | 54.5% |
+| `xslt-1.iso-pattern-templating` | 12 | 8 | 66.6% |
+| `xslt-2.iso-pattern-templating` | 12 | 8 | 66.6% |
+| `xslt-1.iso-reporting` | 45 | 41 | 91.1% |
+| `xslt-2.iso-reporting` | 45 | 41 | 91.1% |
+| `xslt-1.iso-rule-based-validation` | 12 | 11 | 91.6% |
+| `xslt-2.iso-rule-based-validation` | 14 | 13 | 92.8% |
 
-The acceptance of XSLT stage 4 (own test schemas and four cases of the suite, which are also among the 84) publishes its own row in the job summary, `NetEvolve.Schemas.Schematron (stage 4 goldens)`: 12 of 17 cases pass, a rate of 70.5%. The other 5 wait for [#877](https://github.com/dailydevops/schemas/issues/877) (a `let` with element content binds a document node), for temporary trees in global declarations ([#1160](https://github.com/dailydevops/schemas/issues/1160)), and for builder parameters of a global `xsl:param` ([#1159](https://github.com/dailydevops/schemas/issues/1159)).
+The acceptance of XSLT stage 4 (own test schemas and four cases of the suite, which are also among the 84 and run once per binding, `xslt1` and `xslt2`) publishes its own row in the job summary, `NetEvolve.Schemas.Schematron (stage 4 goldens)`: 15 of 21 cases pass, a rate of 71.4%. The other 6 wait for [#877](https://github.com/dailydevops/schemas/issues/877) (a `let` with element content binds a document node, failing in both bindings), for temporary trees in global declarations ([#1160](https://github.com/dailydevops/schemas/issues/1160)), and for builder parameters of a global `xsl:param` ([#1159](https://github.com/dailydevops/schemas/issues/1159)).
 
 #### Excluded cases
 

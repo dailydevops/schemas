@@ -1,0 +1,13 @@
+1.1/iri-001/URI-3986-invalid-001
+1.1/iri-001/URI-3986-invalid-002
+1.1/iri-001/URI-3986-invalid-003
+1.1/iri-001/URI-3986-valid-001
+1.1/iri-001/URI-3986-valid-002
+1.1/iri-001/URI-3986-valid-003
+1.1/iri-001/absolute-URI-3986-invalid-001
+1.1/iri-001/absolute-URI-3986-invalid-002
+1.1/iri-001/absolute-URI-3986-invalid-003
+1.1/iri-001/absolute-URI-3986-valid-001
+1.1/iri-001/absolute-URI-3986-valid-002
+1.1/iri-001/absolute-URI-3986-valid-003
+1.1/iri-001/iri-001

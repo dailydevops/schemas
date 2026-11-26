@@ -28,9 +28,17 @@ internal static class XstsSelector
             var reason = xstsCase.ExclusionReason ?? FeatureReason(feature);
             if (reason is null && (xstsCase.Status is null || !filter.Statuses.Contains(xstsCase.Status)))
             {
-                reason = xstsCase.Status is null
-                    ? "The case has no current status."
-                    : $"The status '{xstsCase.Status}' is not accepted.";
+                if (xstsCase.Status is null)
+                {
+                    reason =
+                        filter.StatusLessTestSets?.ContainsKey(xstsCase.TestSet) == true
+                            ? null
+                            : "The case has no current status.";
+                }
+                else
+                {
+                    reason = $"The status '{xstsCase.Status}' is not accepted.";
+                }
             }
 
             var validity = reason is null ? ResolveValidity(xstsCase, filter.Version, out reason) : null;
