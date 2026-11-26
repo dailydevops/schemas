@@ -15,5 +15,15 @@
     "name": "RegexStepLimitBenchmarks.MatchUntilStepLimit",
     "meanNs": 783746.0,
     "allocatedBytes": 0
+  },
+  {
+    "name": "RegexXPathMatchBenchmarks.MatchBoolean",
+    "meanNs": 6880.0,
+    "allocatedBytes": 0
+  },
+  {
+    "name": "RegexXPathMatchBenchmarks.MatchEnumerated",
+    "meanNs": 13189.0,
+    "allocatedBytes": 0
   }
 ]
