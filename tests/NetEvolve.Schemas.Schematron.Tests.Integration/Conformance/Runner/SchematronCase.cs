@@ -12,7 +12,7 @@
 /// The XPath assertions on the SVRL output. The runner compares the outcome and the observation of the validator;
 /// the validator of the Engine folder evaluates the assertions on the SVRL it produced.
 /// </param>
-/// <param name="Bindings">The ids of the query bindings whose suites list the case.</param>
+/// <param name="Bindings">The ids of the query bindings whose suites list the case; for a selected case, the selected bindings it runs under.</param>
 internal sealed record SchematronCase(
     string Id,
     string TestSet,

@@ -37,6 +37,22 @@ public class BindingFilterTests
     }
 
     [Test]
+    public async Task Select_SelectedCase_KeepsOnlyTheSelectedBindings()
+    {
+        using var fixture = new FixtureDirectory();
+        var cases = SchematronCatalogReader.Read(fixture.Path, Rules);
+
+        var selection = BindingFilter.Select(cases, Rules);
+
+        await Assert
+            .That(selection.Selected.Single(c => c.Id == "set-b/only-xslt2.xml").Bindings)
+            .IsEquivalentTo(["xslt-2"]);
+        await Assert
+            .That(selection.Selected.Single(c => c.Id == "set-a/one.xml").Bindings)
+            .IsEquivalentTo(["xslt-1", "xslt-2"]);
+    }
+
+    [Test]
     public async Task Select_NoBindingSelected_ExcludesEveryCaseAndEveryExclusionHasAReason()
     {
         using var fixture = new FixtureDirectory();

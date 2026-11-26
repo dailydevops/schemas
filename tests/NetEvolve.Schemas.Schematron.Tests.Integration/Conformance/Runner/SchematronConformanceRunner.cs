@@ -5,7 +5,7 @@ using NetEvolve.Schemas.Conformance.Results;
 /// <summary>Runs the selected cases through a validator and records one result per case.</summary>
 internal static class SchematronConformanceRunner
 {
-    /// <summary>Runs the selection.</summary>
+    /// <summary>Runs the selection: every selected case once per selected binding, in the test set <c>&lt;binding&gt;.&lt;case folder&gt;</c>.</summary>
     /// <param name="selection">The selection; excluded cases become skipped results with their reason.</param>
     /// <param name="validator">The validator seam.</param>
     /// <param name="cancellationToken">A token to cancel the run.</param>
@@ -19,20 +19,24 @@ internal static class SchematronConformanceRunner
         cancellationToken.ThrowIfCancellationRequested();
         ArgumentNullException.ThrowIfNull(selection);
         ArgumentNullException.ThrowIfNull(validator);
-        var results = new List<CaseResult>(selection.Selected.Count + selection.Excluded.Count);
+        var results = new List<CaseResult>(selection.Selected.Sum(c => c.Bindings.Count) + selection.Excluded.Count);
         foreach (var schematronCase in selection.Selected)
         {
-            var observed = await validator.ValidateAsync(schematronCase, cancellationToken);
-            results.Add(
-                observed.Outcome == schematronCase.Expect && observed.Reason is null
-                    ? new CaseResult(schematronCase.Id, schematronCase.TestSet, CaseOutcome.Pass)
-                    : new CaseResult(
-                        schematronCase.Id,
-                        schematronCase.TestSet,
-                        CaseOutcome.Fail,
-                        Describe(schematronCase, observed)
-                    )
-            );
+            foreach (var binding in schematronCase.Bindings)
+            {
+                var testSet = binding + "." + schematronCase.TestSet;
+                var observed = await validator.ValidateAsync(schematronCase, binding, cancellationToken);
+                results.Add(
+                    observed.Outcome == schematronCase.Expect && observed.Reason is null
+                        ? new CaseResult(schematronCase.Id, testSet, CaseOutcome.Pass)
+                        : new CaseResult(
+                            schematronCase.Id,
+                            testSet,
+                            CaseOutcome.Fail,
+                            Describe(schematronCase, observed)
+                        )
+                );
+            }
         }
 
         foreach (var (schematronCase, reason) in selection.Excluded)

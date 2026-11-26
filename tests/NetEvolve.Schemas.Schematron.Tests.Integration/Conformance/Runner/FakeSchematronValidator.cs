@@ -4,10 +4,14 @@ internal sealed class FakeSchematronValidator(Func<SchematronCase, SchematronOut
 {
     public List<string> Calls { get; } = [];
 
-    public Task<SchematronObservation> ValidateAsync(SchematronCase schematronCase, CancellationToken cancellationToken)
+    public Task<SchematronObservation> ValidateAsync(
+        SchematronCase schematronCase,
+        string binding,
+        CancellationToken cancellationToken
+    )
     {
         cancellationToken.ThrowIfCancellationRequested();
-        Calls.Add(schematronCase.Id);
+        Calls.Add(schematronCase.Id + "@" + binding);
         return Task.FromResult(new SchematronObservation(verdict(schematronCase)));
     }
 }

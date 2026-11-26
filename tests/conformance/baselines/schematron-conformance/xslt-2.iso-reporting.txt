@@ -1,0 +1,4 @@
+iso-reporting/svrl-active-pattern-documents-primary.xml
+iso-reporting/svrl-active-pattern-documents.xml
+iso-reporting/svrl-fired-rule-document-primary.xml
+iso-reporting/svrl-fired-rule-document.xml

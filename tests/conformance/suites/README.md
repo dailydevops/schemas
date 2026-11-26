@@ -123,7 +123,8 @@ The W3C XML Conformance Test Suite is pinned by its official release archive,
 
 The Schematron conformance suite is pinned by release tag (`v2.0`); the runner lives in
 `tests/NetEvolve.Schemas.Schematron.Tests.Integration/Conformance`. The bindings `xslt-1` and `xslt-2` are selected, and the
-cases of `xslt-3` are excluded with a reason (SCH-21).
+cases of `xslt-3` are excluded with a reason (SCH-21). Every selected case runs once per selected binding, with the `queryBinding` of
+the schema set to the binding (`xslt1`, `xslt2`); a test set is named `<binding>.<case folder>` and has its own baseline file.
 
 - **Comparison:** the suite states its expectations as XPath assertions on the SVRL output, not as expected SVRL files. The engine
   validates each case with the public `SchemaValidator.ForSchematron` entry point and the SVRL report sink, loads the SVRL output,

@@ -3,7 +3,10 @@ namespace NetEvolve.Schemas.Schematron.Tests.Integration.Conformance.Runner;
 /// <summary>Selects cases by query binding.</summary>
 internal static class BindingFilter
 {
-    /// <summary>A case is selected when at least one binding that lists it is selected.</summary>
+    /// <summary>
+    /// A case is selected when at least one binding that lists it is selected; a selected case keeps only its selected bindings,
+    /// the bindings it runs under.
+    /// </summary>
     /// <param name="cases">The catalog.</param>
     /// <param name="rules">The binding rules.</param>
     /// <returns>The selection; the order of the catalog is kept.</returns>
@@ -16,7 +19,7 @@ internal static class BindingFilter
         foreach (var schematronCase in cases)
         {
             var reasons = new List<string>();
-            var isSelected = false;
+            var selectedBindings = new List<string>();
             foreach (var rule in rules)
             {
                 if (!schematronCase.Bindings.Contains(rule.Binding, StringComparer.Ordinal))
@@ -24,16 +27,20 @@ internal static class BindingFilter
                     continue;
                 }
 
-                isSelected |= rule.IsSelected;
+                if (rule.IsSelected)
+                {
+                    selectedBindings.Add(rule.Binding);
+                }
+
                 if (rule.ExclusionReason is { } reason && !reasons.Contains(reason))
                 {
                     reasons.Add(reason);
                 }
             }
 
-            if (isSelected)
+            if (selectedBindings.Count > 0)
             {
-                selected.Add(schematronCase);
+                selected.Add(schematronCase with { Bindings = selectedBindings });
             }
             else
             {
