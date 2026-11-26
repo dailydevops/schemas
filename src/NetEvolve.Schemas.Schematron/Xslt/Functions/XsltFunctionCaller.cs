@@ -35,6 +35,7 @@ internal sealed class XsltFunctionCaller
     private readonly CancellationToken _cancellationToken;
     private readonly int _maxDepth;
     private readonly XsltFrame _frame;
+    private ItemSequenceSink?[] _sinks = [];
     private SchematronProblem _problem;
 
     /// <summary>Initializes a new instance of the <see cref="XsltFunctionCaller"/> class.</summary>
@@ -122,7 +123,7 @@ internal sealed class XsltFunctionCaller
                 return status;
             }
 
-            var sink = new ItemSequenceSink(_names);
+            var sink = SinkForDepth();
             if (function.Body.TryExecute(_frame, sink) == QueryStatus.Problem)
             {
                 return FailInRun();
@@ -141,6 +142,30 @@ internal sealed class XsltFunctionCaller
             Restore(function, saved);
             Depth--;
         }
+    }
+
+    // A sink per nesting level: a call returns a copy of the sink, so the next call at the same depth reuses it, and a nested call
+    // is one level deeper and uses its own.
+    private ItemSequenceSink SinkForDepth()
+    {
+        var index = Depth - 1;
+        if (index >= _sinks.Length)
+        {
+            Array.Resize(ref _sinks, Math.Max(index + 1, _sinks.Length * 2));
+        }
+
+        var sink = _sinks[index];
+        if (sink is null)
+        {
+            sink = new ItemSequenceSink(_names);
+            _sinks[index] = sink;
+        }
+        else
+        {
+            sink.Reset();
+        }
+
+        return sink;
     }
 
     /// <summary>Gets the problem of the last call that returned <see cref="QueryStatus.Problem"/>.</summary>

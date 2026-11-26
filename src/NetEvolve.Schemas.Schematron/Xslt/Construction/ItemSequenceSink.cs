@@ -1,7 +1,6 @@
 ﻿namespace NetEvolve.Schemas.Schematron.Xslt.Construction;
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Xml.Contracts;
@@ -15,8 +14,9 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// </summary>
 internal sealed class ItemSequenceSink : TemporaryTreeSink
 {
-    private readonly List<XdmItem> _items = [];
-    private char[] _pending = new char[64];
+    private XdmItem[] _items = [];
+    private int _count;
+    private char[] _pending = [];
     private int _pendingLength;
 
     internal ItemSequenceSink(XmlNameTable names)
@@ -32,8 +32,16 @@ internal sealed class ItemSequenceSink : TemporaryTreeSink
         get
         {
             FlushText();
-            return XdmSequence.Create(_items.ToArray());
+            return XdmSequence.Create(_items.AsSpan(0, _count));
         }
+    }
+
+    /// <summary>Forgets the items and the pending text so the sink serves the next sequence; a sequence read before is a copy and stays valid.</summary>
+    internal void Reset()
+    {
+        Array.Clear(_items, 0, _count);
+        _count = 0;
+        _pendingLength = 0;
     }
 
     public override void Item(in XdmItem item)
@@ -41,14 +49,14 @@ internal sealed class ItemSequenceSink : TemporaryTreeSink
         Debug.Assert(item.Kind != XdmItemKind.None, "An item must have a value.");
 
         FlushText();
-        _items.Add(item);
+        Add(item);
     }
 
     public override void Text(ReadOnlySpan<char> text)
     {
         if (_pendingLength + text.Length > _pending.Length)
         {
-            Array.Resize(ref _pending, Math.Max(_pending.Length * 2, _pendingLength + text.Length));
+            Array.Resize(ref _pending, Math.Max(Math.Max(_pending.Length * 2, _pendingLength + text.Length), 64));
         }
 
         text.CopyTo(_pending.AsSpan(_pendingLength));
@@ -65,6 +73,16 @@ internal sealed class ItemSequenceSink : TemporaryTreeSink
         using var builder = new XmlTreeBuilder(Names, null, false);
         builder.Text(_pending.AsSpan(0, _pendingLength), XmlTextKind.Text);
         _pendingLength = 0;
-        _items.Add(XdmItem.FromNode(new XPathNode(new XmlNode(builder.Complete(), 0))));
+        Add(XdmItem.FromNode(new XPathNode(new XmlNode(builder.Complete(), 0))));
+    }
+
+    private void Add(in XdmItem item)
+    {
+        if (_count == _items.Length)
+        {
+            Array.Resize(ref _items, Math.Max(_items.Length * 2, 4));
+        }
+
+        _items[_count++] = item;
     }
 }

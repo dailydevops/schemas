@@ -1,5 +1,6 @@
 namespace NetEvolve.Schemas.Schematron.Xslt.Functions;
 
+using System.Threading;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.XPath.Api;
@@ -20,16 +21,34 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// </remarks>
 internal sealed class XsltUserFunction : XPathFunction
 {
+    private XsltResolvedFunction? _resolved;
+
     internal XsltUserFunction(XPathQName name, int arity)
         : base(name, arity, arity, []) { }
+
+    // The runs of one validator share one table, so the last resolution serves them; a run of another table replaces it (a benign race).
+    private bool TryResolve(XsltFunctionHost host, out XsltFunctionComponent function)
+    {
+        var resolved = Volatile.Read(ref _resolved);
+        if (resolved is not null && ReferenceEquals(resolved.Table, host.Table))
+        {
+            function = resolved.Component;
+            return true;
+        }
+
+        if (!host.Table.TryGet(Name, MinArity, out function))
+        {
+            return false;
+        }
+
+        Volatile.Write(ref _resolved, new XsltResolvedFunction(host.Table, function));
+        return true;
+    }
 
     /// <inheritdoc />
     public override XPathEvaluationStatus Invoke(ref XPathFunctionCall invocation)
     {
-        if (
-            invocation.Context.Host.HostState is not XsltFunctionHost host
-            || !host.Table.TryGet(Name, MinArity, out var function)
-        )
+        if (invocation.Context.Host.HostState is not XsltFunctionHost host || !TryResolve(host, out var function))
         {
             // The public code type, not the internal table of the XPath package, which the seam rule keeps out of reach.
             invocation.Diagnostic = new XPathDiagnostic(
