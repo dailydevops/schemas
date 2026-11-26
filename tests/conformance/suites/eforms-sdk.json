@@ -1,0 +1,7 @@
+{
+  "key": "eforms-sdk",
+  "url": "https://github.com/OP-TED/eForms-SDK/archive/refs/tags/1.16.0.zip",
+  "sha256": "21a1c95268418d0cdd6555bcfecf2a360dfcd101b1f91f9fb25e6e180622f4da",
+  "archive": "zip",
+  "subPath": "eForms-SDK-1.16.0"
+}
