@@ -14,6 +14,7 @@ internal sealed class PlanRun
     private readonly IQueryBinding _binding;
     private readonly IProblemSink _problems;
     private readonly IReadOnlyList<GlobalDeclaration> _globals;
+    private readonly bool _hoist;
     private string[] _names = [];
     private bool _ok = true;
 
@@ -21,7 +22,8 @@ internal sealed class PlanRun
         SchematronSchema schema,
         IQueryBinding binding,
         IProblemSink problems,
-        IReadOnlyList<GlobalDeclaration> globals
+        IReadOnlyList<GlobalDeclaration> globals,
+        bool hoistPatternLets = false
     )
     {
         ArgumentNullException.ThrowIfNull(schema);
@@ -33,25 +35,36 @@ internal sealed class PlanRun
         _binding = binding;
         _problems = problems;
         _globals = globals;
+        _hoist = hoistPatternLets;
     }
 
     internal bool Execute(PhaseSelection selection, out ScopePlan plan)
     {
         ArgumentNullException.ThrowIfNull(selection);
 
-        var schemaCount = _schema.Parameters.Count + _globals.Count + _schema.Lets.Count;
-        var patternStart = schemaCount + selection.Lets.Count;
+        var hoisted = 0;
         var maxPatternLets = 0;
         var maxRuleLets = 0;
         foreach (var pattern in selection.Patterns)
         {
-            maxPatternLets = Math.Max(maxPatternLets, pattern.Lets.Count);
+            if (_hoist)
+            {
+                hoisted += pattern.Lets.Count;
+            }
+            else
+            {
+                maxPatternLets = Math.Max(maxPatternLets, pattern.Lets.Count);
+            }
+
             foreach (var rule in pattern.Rules)
             {
                 maxRuleLets = Math.Max(maxRuleLets, rule.Lets.Count);
             }
         }
 
+        var letCount = _schema.Lets.Count;
+        var schemaCount = _schema.Parameters.Count + _globals.Count + letCount + hoisted;
+        var patternStart = schemaCount + selection.Lets.Count;
         var ruleStart = patternStart + maxPatternLets;
         _names = new string[ruleStart + maxRuleLets];
         Clear(0);
@@ -61,6 +74,7 @@ internal sealed class PlanRun
         var globalStart = _schema.Parameters.Count;
         ReserveGlobals(globalStart);
         DeclareLets(_schema.Lets, globalStart + _globals.Count, 0, ScopeLevel.Schema, globals);
+        DeclareHoisted(selection, globalStart + _globals.Count + letCount, globals);
         DeclareGlobals(globalStart, schemaCount, globals);
         var globalScope = Snapshot(schemaCount, null);
 
@@ -77,12 +91,35 @@ internal sealed class PlanRun
         return _ok;
     }
 
+    // The lets of the active patterns become schema-level lets after the schema lets, in document order (#615, option B of #150 EP-4): the
+    // duplicate check runs from the first schema slot, so a collision with a parameter, a global, a schema let, or an earlier pattern let is
+    // SCH-LET-DUPLICATE. A phase let is declared later at its own level and still shadows.
+    private void DeclareHoisted(PhaseSelection selection, int first, List<VariableSlot> into)
+    {
+        if (!_hoist)
+        {
+            return;
+        }
+
+        var slot = first;
+        foreach (var pattern in selection.Patterns)
+        {
+            DeclareLets(pattern.Lets, slot, 0, ScopeLevel.Schema, into);
+            slot += pattern.Lets.Count;
+        }
+    }
+
     private PatternScope PlanPattern(SchematronPatternBase pattern, int patternStart, int ruleStart)
     {
         Clear(patternStart);
-        var lets = new List<VariableSlot>(pattern.Lets.Count);
-        DeclareLets(pattern.Lets, patternStart, patternStart, ScopeLevel.Pattern, lets);
-        var scope = Snapshot(patternStart + pattern.Lets.Count, null);
+        var lets = new List<VariableSlot>(_hoist ? 0 : pattern.Lets.Count);
+        var letCount = _hoist ? 0 : pattern.Lets.Count;
+        if (!_hoist)
+        {
+            DeclareLets(pattern.Lets, patternStart, patternStart, ScopeLevel.Pattern, lets);
+        }
+
+        var scope = Snapshot(patternStart + letCount, null);
 
         var rules = new List<RuleScope>(pattern.Rules.Count);
         foreach (var rule in pattern.Rules)

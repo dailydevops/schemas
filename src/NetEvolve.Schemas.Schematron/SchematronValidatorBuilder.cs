@@ -31,6 +31,7 @@ public sealed class SchematronValidatorBuilder
     private readonly SchemaSourceHolder _source;
     private readonly Dictionary<string, string> _parameters = new(StringComparer.Ordinal);
     private string _phase = DefaultPhaseName;
+    private bool _globalPatternLets;
     private ISchematronPipeline _pipeline = SchematronPipeline.Instance;
 
     internal SchematronValidatorBuilder(SchemaSourceHolder source) => _source = source;
@@ -62,6 +63,25 @@ public sealed class SchematronValidatorBuilder
         ArgumentNullException.ThrowIfNull(value);
 
         _parameters[name] = value;
+        return this;
+    }
+
+    /// <summary>
+    /// Selects whether a <see langword="let"/> of a pattern or group is a schema-level variable. Off by default: a pattern <see langword="let"/>
+    /// is then lexical, visible only inside its pattern, and it shadows a schema <see langword="let"/> of the same name. When on, the
+    /// <see langword="let"/> declarations of the patterns of the selected phase are visible from every pattern, from global
+    /// <c>xsl:variable</c> values, and from function bodies, and a pattern <see langword="let"/> whose name is already declared at the
+    /// schema level or by another pattern is a build error (<c>SCH-LET-DUPLICATE</c>, ISO/IEC 19757-3:2016 clause 5.4.5).
+    /// </summary>
+    /// <remarks>
+    /// A phase <see langword="let"/> and a rule <see langword="let"/> still shadow a hoisted one. Only the patterns that the selected phase activates
+    /// are hoisted. A hoisted value can read the declarations that come before it, a forward reference is <c>SCH-VAR-UNDEFINED</c>.
+    /// </remarks>
+    /// <param name="enabled"><see langword="true"/> to hoist the pattern-level variables.</param>
+    /// <returns>This builder.</returns>
+    public SchematronValidatorBuilder WithGlobalPatternLets(bool enabled)
+    {
+        _globalPatternLets = enabled;
         return this;
     }
 
@@ -99,7 +119,7 @@ public sealed class SchematronValidatorBuilder
     {
         cancellationToken.ThrowIfCancellationRequested();
         var parameters = Snapshot(_parameters);
-        var settings = new BuildSettings(_phase, parameters, limits, resolver);
+        var settings = new BuildSettings(_phase, parameters, limits, resolver, _globalPatternLets);
 
         return new SchematronValidator(
             _pipeline.Load(_source, settings, cancellationToken),

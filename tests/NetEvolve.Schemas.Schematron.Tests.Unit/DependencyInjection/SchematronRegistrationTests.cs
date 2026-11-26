@@ -53,6 +53,35 @@ public class SchematronRegistrationTests
     }
 
     [Test]
+    public async Task ConfigureCallback_EnablesGlobalPatternLets_ForPlainAndKeyedRegistrations(
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        const string schema =
+            "<schema xmlns=\"http://purl.oclc.org/dsdl/schematron\"><pattern id=\"d\"><let name=\"v\" value=\"1\"/><rule context=\"nothing\"><assert test=\"true()\">x</assert></rule></pattern>"
+            + "<pattern id=\"u\"><rule context=\"a\"><assert test=\"$v = 2\">v is not 2.</assert></rule></pattern></schema>";
+        using var provider = new ServiceCollection()
+            .AddSchematronValidator(_ => Open(schema), (_, builder) => builder.WithGlobalPatternLets(true))
+            .AddKeyedSchematronValidator(
+                "k",
+                (_, _) => Open(schema),
+                (_, _, builder) => builder.WithGlobalPatternLets(true)
+            )
+            .BuildServiceProvider();
+
+        var plain = provider.GetRequiredService<ISchematronValidator>();
+        var keyed = provider.GetRequiredKeyedService<ISchematronValidator>("k");
+
+        await Assert
+            .That(plain.Validate("<a/>".AsSpan(), cancellationToken: cancellationToken).Issues.Count)
+            .IsEqualTo(1);
+        await Assert
+            .That(keyed.Validate("<a/>".AsSpan(), cancellationToken: cancellationToken).Issues.Count)
+            .IsEqualTo(1);
+    }
+
+    [Test]
     public async Task ConfigureCallback_SetsThePhase_ForPlainAndKeyedRegistrations()
     {
         using var provider = new ServiceCollection()

@@ -37,15 +37,13 @@ internal static class XRechnungRun
     public const string BuildBlockedPrefix = "The rule set does not build";
 
     /// <summary>
-    /// The diagnostic codes that keep the rules from building, each with the open issue that tracks it: NES3300 is the deferred global
-    /// visibility of a pattern-level <see langword="let"/> (#615).
+    /// The diagnostic codes that keep the rules from building, each with the open issue that tracks it. Empty since the rules build with the
+    /// opt-in global visibility of a pattern-level <see langword="let"/> (<c>WithGlobalPatternLets</c>, #615), which <see cref="Build"/> switches on.
     /// </summary>
     public static readonly IReadOnlyDictionary<string, int> BuildBlockers = new Dictionary<string, int>(
         StringComparer.Ordinal
     )
-    {
-        ["NES3300"] = 615,
-    };
+    { };
 
     private static readonly XNamespace Svrl = "http://purl.oclc.org/dsdl/svrl";
     private static readonly HttpClient Client = new() { Timeout = TimeSpan.FromMinutes(10) };
@@ -76,6 +74,7 @@ internal static class XRechnungRun
         ArgumentNullException.ThrowIfNullOrWhiteSpace(schemaPath);
         return SchemaValidator
             .ForSchematron(File.ReadAllBytes(schemaPath), new Uri(schemaPath).AbsoluteUri)
+            .WithGlobalPatternLets(true)
             .WithResolver(
                 new SandboxedFileSystemResourceResolver(Path.GetDirectoryName(Path.GetDirectoryName(schemaPath))!)
             )
