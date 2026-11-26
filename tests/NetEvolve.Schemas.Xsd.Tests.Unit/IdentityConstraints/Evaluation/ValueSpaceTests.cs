@@ -334,6 +334,9 @@ public class ValueSpaceTests
     [Arguments("double", "abc")]
     [Arguments("float", "abc")]
     [Arguments("boolean", "abc")]
+    [Arguments("dateTime", "abc")]
+    [Arguments("duration", "abc")]
+    [Arguments("hexBinary", "abc")]
     [Arguments("string", "\uFFFE")]
     public async Task Hash_OfAValueThatIsNotInTheLexicalSpace_IsZero(string type, string lexical)
     {
