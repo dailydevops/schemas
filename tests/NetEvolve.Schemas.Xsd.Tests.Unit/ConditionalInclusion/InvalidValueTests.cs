@@ -94,15 +94,6 @@ public class InvalidValueTests
     }
 
     [Test]
-    public async Task AnUnknownVersionControlAttribute_IsNeitherEvaluatedNorReported()
-    {
-        var (root, issues) = Run(Element("vc:futureAttribute=\"3.2\""));
-
-        await Assert.That(Children(root!)).IsEqualTo("a");
-        await Assert.That(issues.Count).IsEqualTo(0);
-    }
-
-    [Test]
     public async Task InStrict10Mode_AnInvalidValueIsIgnored()
     {
         var (root, issues) = Run(Element("vc:minVersion=\"x\""), XsdVersion.V10);

@@ -258,6 +258,7 @@ namespace NetEvolve.Schemas.Xsd
         public static readonly NetEvolve.Schemas.DiagnosticCode TaPropsCorrect;
         public static readonly NetEvolve.Schemas.DiagnosticCode TimezoneValidRestriction;
         public static readonly NetEvolve.Schemas.DiagnosticCode TotalDigitsValidRestriction;
+        public static readonly NetEvolve.Schemas.DiagnosticCode UnknownVersionControlAttribute;
         public static readonly NetEvolve.Schemas.DiagnosticCode WPropsCorrect;
         public static readonly NetEvolve.Schemas.DiagnosticCode WhiteSpaceValidRestriction;
         public static readonly NetEvolve.Schemas.DiagnosticCode XpathValid;
