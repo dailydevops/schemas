@@ -184,8 +184,6 @@ fn-doc/K2-SeqDocFunc-7	#901	The runner skips the compound assertions any-of, all
 fn-doc/K2-SeqDocFunc-8	#901	The runner skips the compound assertions any-of, all-of and not.
 fn-doc/K2-SeqDocFunc-9	#901	The runner skips the compound assertions any-of, all-of and not.
 fn-doc/fn-doc-1	#901	The runner skips the compound assertions any-of, all-of and not.
-fn-doc/fn-doc-15	#886	fn:node-name, fn:nilled and fn:document-uri are not available with an argument (XPST0017).
-fn-doc/fn-doc-16	#886	fn:node-name, fn:nilled and fn:document-uri are not available with an argument (XPST0017).
 fn-doc/fn-doc-17	#901	The runner skips the compound assertions any-of, all-of and not.
 fn-doc/fn-doc-24	#946	The QT3 engine serves no environment sources or resources through a resolver for fn:doc.
 fn-doc/fn-doc-25	#946	The QT3 engine serves no environment sources or resources through a resolver for fn:doc.
@@ -198,10 +196,7 @@ fn-doc/fn-doc-31	#901	The runner skips the compound assertions any-of, all-of an
 fn-doc/fn-doc-32	#946	The QT3 engine serves no environment sources or resources through a resolver for fn:doc.
 fn-doc/fn-doc-34	#946	The QT3 engine serves no environment sources or resources through a resolver for fn:doc.
 fn-doc/fn-doc-36	#946	The QT3 engine serves no environment sources or resources through a resolver for fn:doc.
-fn-document-uri/K-DocumentURIFunc-3	#886	fn:node-name, fn:nilled and fn:document-uri are not available with an argument (XPST0017).
 fn-document-uri/fn-document-uri-12	#901	The runner skips the compound assertions any-of, all-of and not.
-fn-document-uri/fn-document-uri-13	#886	fn:node-name, fn:nilled and fn:document-uri are not available with an argument (XPST0017).
-fn-document-uri/fn-document-uri-14	#886	fn:node-name, fn:nilled and fn:document-uri are not available with an argument (XPST0017).
 fn-document-uri/fn-document-uri-15	#901	The runner skips the compound assertions any-of, all-of and not.
 fn-document-uri/fn-document-uri-16	#901	The runner skips the compound assertions any-of, all-of and not.
 fn-document-uri/fn-document-uri-17	#901	The runner skips the compound assertions any-of, all-of and not.
@@ -310,7 +305,6 @@ fn-id/K2-SeqIDFunc-12	#79	xml:id attributes are not typed as ID, so fn:id does n
 fn-id/K2-SeqIDFunc-13	#79	xml:id attributes are not typed as ID, so fn:id does not find them.
 fn-id/K2-SeqIDFunc-14	#79	xml:id attributes are not typed as ID, so fn:id does not find them.
 fn-id/K2-SeqIDFunc-15	#79	xml:id attributes are not typed as ID, so fn:id does not find them.
-fn-idref/fn-idref-dtd-12	#886	fn:node-name, fn:nilled and fn:document-uri are not available with an argument (XPST0017).
 fn-insert-before/K-SeqInsertBeforeFunc-16	#901	The runner skips the compound assertions any-of, all-of and not.
 fn-iri-to-uri/K-IRIToURIfunc-4	#901	The runner skips the compound assertions any-of, all-of and not.
 fn-lang/K-NodeLangFunc-2	#901	The runner skips the compound assertions any-of, all-of and not.
@@ -327,7 +321,6 @@ fn-last/last-19	#901	The runner skips the compound assertions any-of, all-of and
 fn-last/last-25	#901	The runner skips the compound assertions any-of, all-of and not.
 fn-local-name-from-QName/fn-local-name-from-qname-022	#901	The runner skips the compound assertions any-of, all-of and not.
 fn-local-name-from-QName/fn-local-name-from-qname-023	#901	The runner skips the compound assertions any-of, all-of and not.
-fn-local-name-from-QName/fn-local-name-from-qname-024	#886	fn:node-name, fn:nilled and fn:document-uri are not available with an argument (XPST0017).
 fn-local-name/K-NodeLocalNameFunc-2	#901	The runner skips the compound assertions any-of, all-of and not.
 fn-local-name/fn-local-name-66	#901	The runner skips the compound assertions any-of, all-of and not.
 fn-lower-case/fn-lower-case-19	#1145	fn:lower-case and fn:upper-case differ from the expected code points for the Greek and Coptic block.
@@ -351,18 +344,6 @@ fn-min/fn-min-9	#901	The runner skips the compound assertions any-of, all-of and
 fn-name/K-NameFunc-2	#901	The runner skips the compound assertions any-of, all-of and not.
 fn-name/fn-name-16	#901	The runner skips the compound assertions any-of, all-of and not.
 fn-namespace-uri/K-NodeNamespaceURIFunc-2	#901	The runner skips the compound assertions any-of, all-of and not.
-fn-nilled/K-NilledFunc-3	#886	fn:node-name, fn:nilled and fn:document-uri are not available with an argument (XPST0017).
-fn-nilled/K-NilledFunc-4	#886	fn:node-name, fn:nilled and fn:document-uri are not available with an argument (XPST0017).
-fn-nilled/fn-nilled-1	#886	fn:node-name, fn:nilled and fn:document-uri are not available with an argument (XPST0017).
-fn-nilled/fn-nilled-2	#886	fn:node-name, fn:nilled and fn:document-uri are not available with an argument (XPST0017).
-fn-nilled/fn-nilled-3	#886	fn:node-name, fn:nilled and fn:document-uri are not available with an argument (XPST0017).
-fn-node-name/K-NodeNameFunc-3	#886	fn:node-name, fn:nilled and fn:document-uri are not available with an argument (XPST0017).
-fn-node-name/K2-NodeNameFunc-2	#886	fn:node-name, fn:nilled and fn:document-uri are not available with an argument (XPST0017).
-fn-node-name/K2-NodeNameFunc-3	#886	fn:node-name, fn:nilled and fn:document-uri are not available with an argument (XPST0017).
-fn-node-name/K3-NodeNameFunc-1	#886	fn:node-name, fn:nilled and fn:document-uri are not available with an argument (XPST0017).
-fn-node-name/fn-node-name-1	#886	fn:node-name, fn:nilled and fn:document-uri are not available with an argument (XPST0017).
-fn-node-name/fn-node-name-2	#886	fn:node-name, fn:nilled and fn:document-uri are not available with an argument (XPST0017).
-fn-node-name/fn-node-name-3	#886	fn:node-name, fn:nilled and fn:document-uri are not available with an argument (XPST0017).
 fn-normalize-space/K-NormalizeSpaceFunc-2	#901	The runner skips the compound assertions any-of, all-of and not.
 fn-normalize-space/K-NormalizeSpaceFunc-9	#901	The runner skips the compound assertions any-of, all-of and not.
 fn-normalize-space/fn-normalize-space-10	#901	The runner skips the compound assertions any-of, all-of and not.
@@ -402,7 +383,6 @@ fn-prefix-from-QName/fn-prefix-from-qname-19	#644	The xs:QName constructor funct
 fn-prefix-from-QName/fn-prefix-from-qname-20	#644	The xs:QName constructor function resolves a prefix against no namespaces (FONS0004).
 fn-prefix-from-QName/fn-prefix-from-qname-21	#901	The runner skips the compound assertions any-of, all-of and not.
 fn-prefix-from-QName/fn-prefix-from-qname-22	#901	The runner skips the compound assertions any-of, all-of and not.
-fn-prefix-from-QName/fn-prefix-from-qname-23	#886	fn:node-name, fn:nilled and fn:document-uri are not available with an argument (XPST0017).
 fn-prefix-from-QName/fn-prefix-from-qname-5	#644	The xs:QName constructor function resolves a prefix against no namespaces (FONS0004).
 fn-prefix-from-QName/fn-prefix-from-qname-6	#644	The xs:QName constructor function resolves a prefix against no namespaces (FONS0004).
 fn-prefix-from-QName/fn-prefix-from-qname-9	#644	The xs:QName constructor function resolves a prefix against no namespaces (FONS0004).

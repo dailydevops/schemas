@@ -1,3 +1,2 @@
 fn-local-name-from-QName/fn-local-name-from-qname-022
 fn-local-name-from-QName/fn-local-name-from-qname-023
-fn-local-name-from-QName/fn-local-name-from-qname-024
