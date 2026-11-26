@@ -63,6 +63,27 @@ public class CountingAutomatonTests
     }
 
     [Test]
+    public async Task LongSequenceOfOptionalElements_AcceptsEverySubsequenceInOrder()
+    {
+        // 40 optional elements have 40 * 41 / 2 follow transitions, well beyond the first buffer of the compiler.
+        const int count = 40;
+        var children = new AutomatonParticle[count];
+        for (var i = 0; i < count; i++)
+        {
+            children[i] = El(i, 0, 1);
+        }
+
+        var m = Compile(Seq(children));
+
+        await Assert.That(Accepts(m)).IsTrue();
+        await Assert.That(Accepts(m, 0, 17, 39)).IsTrue();
+        await Assert.That(Accepts(m, 5, 6, 7, 8, 9)).IsTrue();
+        await Assert.That(Accepts(m, 39)).IsTrue();
+        await Assert.That(Accepts(m, 17, 5)).IsFalse();
+        await Assert.That(Accepts(m, 3, 3)).IsFalse();
+    }
+
+    [Test]
     public async Task EmptiableBodyUnderACounter_AcceptsFewerIterations()
     {
         // (a?){2}: empty iterations pad the minimum.

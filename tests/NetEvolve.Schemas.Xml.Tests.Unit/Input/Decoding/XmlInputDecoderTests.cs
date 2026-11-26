@@ -130,6 +130,59 @@ internal sealed class XmlInputDecoderTests
     }
 
     [Test]
+    [Arguments(1)]
+    [Arguments(7)]
+    [Arguments(40)]
+    public async Task Decode_AsciiRunsBetweenMultibyteCharacters_EqualsTheFrameworkAtEverySplit(int run)
+    {
+        var text =
+            new string('a', run)
+            + "é"
+            + new string('b', run)
+            + "€"
+            + new string('c', run)
+            + "😀"
+            + new string('d', run);
+        var bytes = Encoding.UTF8.GetBytes(text);
+        for (var split = 0; split <= bytes.Length; split++)
+        {
+            var (decoded, error) = split == 0 || split == bytes.Length ? Decode(bytes) : Decode(bytes, split);
+
+            await Assert.That(error).IsNull().Because($"split {split}");
+            await Assert.That(decoded).IsEqualTo(text).Because($"split {split}");
+        }
+    }
+
+    [Test]
+    public async Task TryDecode_ReportingNonChars_StopsAtAControlCharacterInAnAsciiRun()
+    {
+        var bytes = Encoding.UTF8.GetBytes("abcdefgh");
+        XmlInputDecoder.TryCreate(Detect(bytes), out var decoder, out _, reportNonChar: true);
+        using var output = new PooledBuffer<char>();
+
+        var ok = decoder!.TryDecode(bytes, true, output, out var error);
+
+        await Assert.That(ok).IsFalse();
+        await Assert.That(error.Code).IsEqualTo(XmlErrorCodes.XML0002);
+        await Assert.That(error.ByteOffset).IsEqualTo(6L);
+        await Assert.That(output.WrittenSpan.ToString()).IsEqualTo("abcdef");
+    }
+
+    [Test]
+    public async Task TryDecode_Latin1AsciiRunBeforeAHighByte_DecodesTheRunAndTheByte()
+    {
+        var bytes = Hex("3C 3F 78 6D 6C 20 61 62 63 64 65 66 E9 67");
+        XmlInputDecoder.TryCreate(Detect(bytes), out var decoder, out _);
+        decoder!.TryConfirmEncoding("ISO-8859-1".AsSpan(), out _);
+        using var output = new PooledBuffer<char>();
+
+        var ok = decoder.TryDecode(bytes, true, output, out _);
+
+        await Assert.That(ok).IsTrue();
+        await Assert.That(output.WrittenSpan.ToString()).IsEqualTo("<?xml abcdefég");
+    }
+
+    [Test]
     public async Task Decode_Latin1ControlCharacter_PassesThrough()
     {
         var bytes = Hex("61 01 62");

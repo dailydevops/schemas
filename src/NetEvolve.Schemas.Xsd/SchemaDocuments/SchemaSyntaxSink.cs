@@ -18,6 +18,7 @@ internal sealed class SchemaSyntaxSink : IXmlSink
     private readonly string? _baseUri;
     private readonly XsdIssueReporter _reporter;
     private readonly List<SchemaElementRule> _rules = [];
+    private readonly List<XsdSyntaxAttribute> _attributes = [];
     private SchemaSyntaxNode? _current;
     private int _skipDepth;
 
@@ -146,7 +147,7 @@ internal sealed class SchemaSyntaxSink : IXmlSink
             }
         }
 
-        _current.AddAttribute(new XsdSyntaxAttribute(new XPathQName(ns, local), text, _current.Location));
+        _attributes.Add(new XsdSyntaxAttribute(new XPathQName(ns, local), text, _current.Location));
     }
 
     /// <inheritdoc />
@@ -156,6 +157,9 @@ internal sealed class SchemaSyntaxSink : IXmlSink
         {
             return;
         }
+
+        _current.SetAttributes(_attributes);
+        _attributes.Clear();
 
         var rule = _rules[_rules.Count - 1];
         foreach (var attribute in rule.Attributes)

@@ -53,6 +53,59 @@ public class StructureTests
     }
 
     [Test]
+    [Arguments(63, 1, true)]
+    [Arguments(64, 64, true)]
+    [Arguments(127, 1, true)]
+    [Arguments(128, 129, true)]
+    [Arguments(191, 2, true)]
+    [Arguments(192, 192, true)]
+    [Arguments(300, 5, true)]
+    [Arguments(64, 64, false)]
+    [Arguments(128, 129, false)]
+    [Arguments(192, 192, false)]
+    public async Task IsValid_ForChildrenThatCrossWordBoundaries_FollowsTheModel(
+        int imports,
+        int declarations,
+        bool valid
+    )
+    {
+        // A step of the model reaches neighbors of a position, so a set usually sits in one 64-bit word; the sets here straddle words
+        // (an import list followed by declarations, with an include that breaks the order after the declarations when invalid).
+        var body =
+            string.Concat(Enumerable.Repeat("<xs:import namespace=\"urn:a\"/>", imports))
+            + string.Concat(Enumerable.Repeat("<xs:element name=\"e\"/><xs:annotation/>", declarations))
+            + (valid ? string.Empty : "<xs:include schemaLocation=\"a.xsd\"/>");
+
+        await Assert.That(IsValid(body)).IsEqualTo(valid);
+    }
+
+    [Test]
+    public async Task GetChild_ForAnElementWithoutChildren_Throws()
+    {
+        var root = Parse("<xs:element name=\"e\"/>");
+        var leaf = root.GetChildNode(0);
+
+        await Assert.That(leaf.ChildCount).IsEqualTo(0);
+        await Assert.That(leaf.CountChildren("annotation")).IsEqualTo(0);
+        await Assert.That(() => leaf.GetChildNode(0)).Throws<ArgumentOutOfRangeException>();
+        await Assert.That(() => leaf.GetChild(0)).Throws<ArgumentOutOfRangeException>();
+    }
+
+    [Test]
+    public async Task Parse_Attributes_AreKeptInDocumentOrderAndFoundByName()
+    {
+        var root = Parse("<xs:element name=\"e\" type=\"xs:int\" minOccurs=\"0\"/>");
+        var element = root.GetChildNode(0);
+
+        await Assert.That(element.AttributeCount).IsEqualTo(3);
+        await Assert.That(element.GetAttribute(0).Name.LocalName).IsEqualTo("name");
+        await Assert.That(element.GetAttribute(2).Value).IsEqualTo("0");
+        await Assert.That(element.FindAttribute("type")).IsEqualTo("xs:int");
+        await Assert.That(element.FindAttribute("ref")).IsNull();
+        await Assert.That(root.AttributeCount).IsGreaterThan(0);
+    }
+
+    [Test]
     [Arguments("<xs:simpleType name=\"s\"><xs:annotation/><xs:restriction base=\"xs:int\"/></xs:simpleType>")]
     [Arguments(
         "<xs:simpleType name=\"s\"><xs:restriction base=\"xs:int\"><xs:annotation/><xs:minInclusive value=\"1\"/><xs:pattern value=\"1\"/><xs:pattern value=\"2\"/></xs:restriction></xs:simpleType>"

@@ -57,6 +57,9 @@ internal static class SchemaStructure
 
     private static readonly Dictionary<string, Node> Models = Build();
 
+    // A model never changes the list, so the many elements without children share one.
+    private static readonly List<string> NoNames = [];
+
     /// <summary>Tells whether the children of an element are in an order and number that its content model allows.</summary>
     /// <param name="node">The element, an element of the schema namespace.</param>
     /// <returns><see langword="true"/> when the content is valid or the element has no content model.</returns>
@@ -69,7 +72,7 @@ internal static class SchemaStructure
             return true;
         }
 
-        var names = new List<string>(node.ChildCount);
+        var names = node.ChildCount == 0 ? NoNames : new List<string>(node.ChildCount);
         for (var i = 0; i < node.ChildCount; i++)
         {
             var child = node.GetChildNode(i);
@@ -100,12 +103,19 @@ internal static class SchemaStructure
         var name = node.Name.LocalName;
         return name switch
         {
-            "restriction" => name + "@" + (parent is "simpleType" or "simpleContent" ? parent : "complexContent"),
-            "extension" => name
-                + "@"
-                + (string.Equals(parent, "simpleContent", StringComparison.Ordinal) ? parent : "complexContent"),
-            "group" or "attributeGroup" => name
-                + (parent is "schema" or "redefine" or "override" ? "@definition" : "@reference"),
+            "restriction" => parent switch
+            {
+                "simpleType" => "restriction@simpleType",
+                "simpleContent" => "restriction@simpleContent",
+                _ => "restriction@complexContent",
+            },
+            "extension" => string.Equals(parent, "simpleContent", StringComparison.Ordinal)
+                ? "extension@simpleContent"
+                : "extension@complexContent",
+            "group" => parent is "schema" or "redefine" or "override" ? "group@definition" : "group@reference",
+            "attributeGroup" => parent is "schema" or "redefine" or "override"
+                ? "attributeGroup@definition"
+                : "attributeGroup@reference",
             _ => name,
         };
     }
@@ -171,67 +181,76 @@ internal static class SchemaStructure
 
     private static Node Parse(string text) => new Parser(text).ParseAll();
 
-    // A set of positions in a child list, as a bit set. The first 64 positions are held inline, so a list of up to 64 children (all
-    // but a few elements of a schema document) matches without allocating; a longer list adds an array for the positions above.
+    // A set of positions in a child list, as a bit set. A set whose positions share one 64-bit word (the usual case, also deep in a
+    // long child list: a step reaches the neighbors of a position) holds that word inline and allocates nothing; a set that spans
+    // words holds all of them in an array indexed by word.
     private readonly struct Positions
     {
-        private readonly ulong _low;
-        private readonly ulong[]? _high;
+        private readonly int _index;
+        private readonly ulong _word;
+        private readonly ulong[]? _words;
 
-        private Positions(ulong low, ulong[]? high)
+        private Positions(int index, ulong word)
         {
-            _low = low;
-            _high = high;
+            _index = index;
+            _word = word;
+            _words = null;
+        }
+
+        private Positions(ulong[] words)
+        {
+            _index = 0;
+            _word = 0;
+            _words = words;
         }
 
         internal static Positions Empty => default;
 
-        internal static Positions Start => new(1, null);
+        internal static Positions Start => new(0, 1);
 
-        internal bool IsEmpty => _low == 0 && IsHighEmpty();
+        internal bool IsEmpty => _words is null ? _word == 0 : IsWideEmpty();
+
+        private int WordCount => _words?.Length ?? _index + 1;
 
         internal bool Contains(int position) => (Word(position >> 6) & (1UL << (position & 63))) != 0;
 
-        internal Positions Add(int position)
-        {
-            var index = position >> 6;
-            if (index == 0)
-            {
-                return new Positions(_low | (1UL << position), _high);
-            }
-
-            var high = new ulong[Math.Max(index, _high?.Length ?? 0)];
-            _high?.CopyTo(high, 0);
-            high[index - 1] |= 1UL << (position & 63);
-            return new Positions(_low, high);
-        }
+        internal Positions Add(int position) => Union(new Positions(position >> 6, 1UL << (position & 63)));
 
         internal Positions Union(Positions other)
         {
-            if (_high is null && other._high is null)
+            if (_words is null && other._words is null)
             {
-                return new Positions(_low | other._low, null);
+                if (_word == 0)
+                {
+                    return other;
+                }
+
+                if (other._word == 0)
+                {
+                    return this;
+                }
+
+                if (_index == other._index)
+                {
+                    return new Positions(_index, _word | other._word);
+                }
             }
 
-            var high = new ulong[Math.Max(_high?.Length ?? 0, other._high?.Length ?? 0)];
-            for (var i = 0; i < high.Length; i++)
+            var words = new ulong[Math.Max(WordCount, other.WordCount)];
+            CopyTo(words);
+            for (var i = 0; i < other.WordCount; i++)
             {
-                high[i] = Word(i + 1) | other.Word(i + 1);
+                words[i] |= other.Word(i);
             }
 
-            return new Positions(_low | other._low, high);
+            return new Positions(words);
         }
 
         internal bool IsSupersetOf(Positions other)
         {
-            if ((other._low & ~_low) != 0)
+            for (var i = 0; i < other.WordCount; i++)
             {
-                return false;
-            }
-
-            for (var i = 0; i < (other._high?.Length ?? 0); i++)
-            {
-                if ((other._high![i] & ~Word(i + 1)) != 0)
+                if ((other.Word(i) & ~Word(i)) != 0)
                 {
                     return false;
                 }
@@ -243,7 +262,7 @@ internal static class SchemaStructure
         // The first position from the given one on, or -1.
         internal int Next(int from)
         {
-            var words = 1 + (_high?.Length ?? 0);
+            var words = WordCount;
             var position = from;
             while ((position >> 6) < words)
             {
@@ -266,20 +285,29 @@ internal static class SchemaStructure
         }
 
         private ulong Word(int index) =>
-            index == 0 ? _low
-            : _high is not null && index <= _high.Length ? _high[index - 1]
+            _words is null ? (index == _index ? _word : 0)
+            : index < _words.Length ? _words[index]
             : 0;
 
-        private bool IsHighEmpty()
+        private void CopyTo(ulong[] words)
         {
-            if (_high is not null)
+            if (_words is null)
             {
-                foreach (var word in _high)
+                words[_index] = _word;
+            }
+            else
+            {
+                _words.CopyTo(words, 0);
+            }
+        }
+
+        private bool IsWideEmpty()
+        {
+            foreach (var word in _words!)
+            {
+                if (word != 0)
                 {
-                    if (word != 0)
-                    {
-                        return false;
-                    }
+                    return false;
                 }
             }
 

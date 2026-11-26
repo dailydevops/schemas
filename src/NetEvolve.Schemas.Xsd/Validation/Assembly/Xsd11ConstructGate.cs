@@ -42,8 +42,11 @@ internal static class Xsd11ConstructGate
         var local = node.Name.LocalName;
         var parent = node.Parent?.Name.LocalName ?? string.Empty;
         var inSchema = string.Equals(node.Name.NamespaceName, SchemaGrammar.Namespace, StringComparison.Ordinal);
-        foreach (var construct in Xsd11ConstructTable.Entries)
+        // Indexed, so the list enumerator is not boxed once per node.
+        var constructs = Xsd11ConstructTable.Entries;
+        for (var c = 0; c < constructs.Count; c++)
         {
+            var construct = constructs[c];
             if (construct.IsAttribute)
             {
                 ReportAttributes(node, construct, local, parent, reporter);

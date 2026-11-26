@@ -92,7 +92,17 @@ public sealed class XmlPipelineReader : IXmlReader, IDisposable
     public static XmlPipelineReader Create(ReadOnlySpan<byte> input, XmlReaderOptions? options = null)
     {
         options ??= XmlReaderOptions.Default;
-        var owned = new PooledBuffer<char>(Math.Min(input.Length, DecodeChunkLength));
+        // No encoding yields more characters than bytes, so the buffer does not grow; growth would rent a larger array each time, and
+        // one above the pool limit is a fresh allocation. Decoding stops one chunk past the document limit, which bounds the size.
+        // The byte count is a loose upper bound (up to 4x for UTF-16 or UCS-4); the limit is capped first so the sum cannot overflow.
+        var owned = new PooledBuffer<char>(
+            (int)
+                Math.Min(
+                    input.Length,
+                    Math.Min(options.Limits.MaxDocumentCharacters, long.MaxValue - DecodeChunkLength)
+                        + DecodeChunkLength
+                )
+        );
         var pending = Decode(input, options.Limits.MaxDocumentCharacters, owned);
         return new XmlPipelineReader(options, owned.WrittenMemory, owned, pending);
     }
