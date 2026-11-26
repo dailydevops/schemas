@@ -309,14 +309,7 @@ The builder that `ForSchematron` returns takes the options of a build:
 
 ### Severity filter
 
-`WithSeverityFilter(severities, comparison)` is an allow-list of `severity` values (issue [#384](https://github.com/dailydevops/schemas/issues/384)). A failed `assert` or a successful `report` whose `severity` is not in the list is dropped from the `ValidationResult` and from the SVRL output alike; a finding without a `severity` is always kept. The `severity` is an opaque token without a vocabulary or an order, so the filter compares text only: by default ignoring case, or with the `StringComparison` you pass. The list must not be null or empty and must not contain a null or empty entry; the last call wins, and without a call every finding is kept.
-
-```csharp
-var validator = SchemaValidator
-    .ForSchematron(schemaText)
-    .WithSeverityFilter(["fatal", "error"])
-    .Build();
-```
+`WithSeverityFilter(severities, comparison)` is an allow-list of `severity` values (issue [#384](https://github.com/dailydevops/schemas/issues/384)). A failed `assert` or a successful `report` whose `severity` is not in the list is dropped from the `ValidationResult` and from the SVRL output alike; a finding without a `severity` is always kept. The `severity` is an opaque token without a vocabulary or an order, so the filter compares text only: by default ignoring case, or with the `StringComparison` you pass. The list must not be null or empty and must not contain a null or empty entry; the last call wins, and without a call every finding is kept. For example, `WithSeverityFilter(["fatal", "error"])` keeps the findings with the severity `fatal` or `error` in any letter case, plus those without a severity.
 
 ### Resolvers and security defaults
 
