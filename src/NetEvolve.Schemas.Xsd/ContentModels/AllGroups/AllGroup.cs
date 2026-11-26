@@ -10,7 +10,7 @@ using NetEvolve.Schemas.Xsd.Contracts;
 /// </summary>
 /// <remarks>
 /// Limitations: this is the XSD 1.0 shape (design #146 DP-7). Every member occurs at most once; <c>maxOccurs</c> above 1,
-/// wildcards, and group references (XSD 1.1) are XSD-19, and schema errors for groups outside the 1.0 limits are XSD-60.
+/// wildcards, and group references (XSD 1.1) are <c>AllGroup11</c>, and schema errors for groups outside the 1.0 limits are XSD-60.
 /// A name id shared by two members is a schema error that is not detected here; the lookup then picks one of them.
 /// The members are numbered by their order; <see cref="MatchedParticle.ParticleIndex"/> is that number.
 /// </remarks>

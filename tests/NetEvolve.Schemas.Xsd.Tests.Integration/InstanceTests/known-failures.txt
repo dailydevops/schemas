@@ -82,7 +82,6 @@ msMeta-Element_w3c	1.0/elemZ017/elemZ017.v	#963	The group has no schema document
 msMeta-Element_w3c	1.0/elemZ033b/elemZ033b.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-Particles_w3c	1.0/particlesZ001/particlesZ001.i	#863	The schema does not build: see the schema test of the same case.
 msMeta-Particles_w3c	1.0/particlesZ025/particlesZ025.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-Regex_w3c	1.0/reZ006i/reZ006i.i	#1080	The pattern escape for name characters rejects a name character that the case expects to be valid.
 msMeta-Schema_w3c	1.0/schA4/schA4.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-Schema_w3c	1.0/schA8/schA8.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-Schema_w3c	1.0/schD7/schD7.v	-	The schema is incomplete (a missing component or document); the suite accepts it, the validator reports src-resolve.
@@ -881,9 +880,6 @@ saxonMeta-XmlVersions	1.0/xv007/xv007.v01.xml	#62	The instance document declares
 saxonMeta-XmlVersions	1.0/xv008/xv008.v01.xml	#62	The instance document declares XML 1.1, which the reader does not accept; XML 1.1 is not supported (#62).
 saxonMeta-XmlVersions	1.0/xv009/xv009.v01.xml	#62	The instance document declares XML 1.1, which the reader does not accept; XML 1.1 is not supported (#62).
 saxonMeta-XmlVersions	1.0/xv009/xv009.v02.xml	#62	The instance document declares XML 1.1, which the reader does not accept; XML 1.1 is not supported (#62).
-saxonMeta-XmlVersions	1.0/xv100c/xv100c.c.xml	#1080	The pattern escape for name characters rejects a name character that the case expects to be valid.
-saxonMeta-XmlVersions	1.0/xv100c/xv100c.i.xml	#1080	The pattern escape for name characters rejects a name character that the case expects to be valid.
-saxonMeta-XmlVersions	1.0/xv100i/xv100i.i.xml	#1080	The pattern escape for name characters rejects a name character that the case expects to be valid.
 sunMeta-ElemDecl	1.0/valueconstraint00701m1/Negative	#602	The fixed value of an element with mixed content is not enforced; the element value constraint covers simple content only.
 sunMeta-ElemDecl	1.0/valueconstraint00801m1/Negative	#602	The fixed value of an element with mixed content is not enforced; the element value constraint covers simple content only.
 sunMeta-suntest	1.0/identitytestsuitetest002/test.2.v	#604	QName values are resolved without the namespace context, so an unbound prefix is accepted and two prefixes of one namespace give different key values.

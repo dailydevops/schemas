@@ -305,8 +305,8 @@ The conformance run executes the W3C XML Schema Test Suite (XSTS), pinned by che
 | Part | Applicable | Passed | Known failures | Rate |
 | --- | --- | --- | --- | --- |
 | Schema tests | 14357 | 14271 | 86 | 99.4% |
-| Instance tests | 24914 | 24028 | 886 | 96.4% |
-| Both | 39271 | 38299 | 972 | 97.5% |
+| Instance tests | 24914 | 24032 | 882 | 96.4% |
+| Both | 39271 | 38303 | 968 | 97.5% |
 
 The last row adds the two published rows; the job summary shows no row for the sum. The selection also leaves 214 excluded cases of XSD 1.0 out of these counts: cases whose status is not accepted, whose expected outcome is not definite, or that depend on a processor feature that the runner does not model. Every known failure is a case of the committed baseline in `tests/conformance/baselines/xsts/`, and it is listed with its reason and, where a bug issue exists, its issue in `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTests/known-failures.txt` and `tests/NetEvolve.Schemas.Xsd.Tests.Integration/InstanceTests/known-failures.txt`. A regression and an unexpected pass fail the run. To reproduce the numbers, run the conformance tests of the integration project on one leg, with a file in `GITHUB_STEP_SUMMARY` to receive the rows:
 
@@ -321,7 +321,7 @@ The summary file then also holds the row `NetEvolve.Schemas.Xsd`, which counts t
 
 - XSD 1.1 is the default but incomplete: see [XSD 1.1 status](#xsd-11-status). The wiring of the 1.1 features is #360, and the assertions of complex types are #318.
 - Incomplete schemas are rejected: a schema with a reference to a component that is not there fails the build, instead of failing only where the component is used (#956).
-- The enumeration facet of a restriction is not evaluated when instance values are validated for list types (#1077), union types (#1078), and hexBinary and base64Binary (#1079); the other facets of a user-defined simple type are evaluated. The multi-character escape for name characters of the pattern facet does not match every name character (#1080).
+- The enumeration facet of a restriction is not evaluated when instance values are validated for list types (#1077), union types (#1078), and hexBinary and base64Binary (#1079); the other facets of a user-defined simple type are evaluated.
 - Substitution groups are not supported yet (#868), notation declarations are not components yet (#870), and a redefinition is not checked against the redefined component (#869). `xs:include`, `xs:import`, and `xs:redefine` otherwise work through the resolver.
 - Some schema constraints are not checked yet (#874), and the datatype `xs:precisionDecimal` is not supported (#64).
 - `AddSchemaLocation` is not available on the builder (#897).

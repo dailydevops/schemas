@@ -7,7 +7,7 @@ This document lists every difference that the differential run over the W3C XML 
 | Baseline | `System.Xml.Schema` of the .NET runtime 10.0, compared on the `net10.0` test leg only (`baseline-runtime: 10.0`) |
 | Corpus | XSTS cases of XSD 1.0 (schema tests and instance tests), pinned in `tests/conformance/suites/xsts.json` |
 | Data file | `tests/NetEvolve.Schemas.Xsd.Tests.Integration/DifferentialData/xsts-1.0-deviations.txt`, one entry per difference: case id, difference kind, observed difference, specification reference, reason |
-| Entries | 14590 entries for 14554 cases |
+| Entries | 14594 entries for 14558 cases |
 
 The list is valid for the recorded baseline runtime version only. A run on another runtime version fails until the list is compared again. System.Xml.Schema implements XSD 1.0 only, so cases of XSD 1.1 are not compared.
 
@@ -27,10 +27,10 @@ No builder option, switch, or code path in the library reproduces System.Xml.Sch
 
 | Class | Entries | Cases |
 |---|---:|---:|
-| Verdict differences: this library follows the specification | 1696 | 1664 |
+| Verdict differences: this library follows the specification | 1700 | 1668 |
 | Verdict differences: documented limitations of this library | 21 | 17 |
 | Position differences: equivalent | 12873 | 12873 |
-| Differences on cases that a bug issue tracks (no entry) | 906 | |
+| Differences on cases that a bug issue tracks (no entry) | 902 | |
 
 ## Differences on cases that a bug issue tracks
 
@@ -48,7 +48,6 @@ The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTe
 | #896 | 7 | feat(xsd): compare fixed values in the value space when validating instances |
 | #602 | 6 | feat(xsd): apply default values to elements with mixed content |
 | #871 | 5 | feat(xsd): reject a value constraint on an attribute or element of type ID |
-| #1080 | 4 | fix(xml): match every XML name character with the multi-character escape c in the pattern facet |
 | #1079 | 3 | feat(xsd): evaluate the enumeration facet of hexBinary and base64Binary restrictions |
 | #604 | 2 | feat(xsd): resolve QName and NOTATION instance values with the namespace context |
 | #863 | 2 | bug(xsd): particle restriction reports errors for restrictions that the XSTS accepts |
@@ -1828,12 +1827,16 @@ nistMeta-NISTXMLSchemaDatatypes/1.0/atomic-QName-minLength-4/NISTXML-SV-IV-atomi
 
 The value matches the pattern when characters are Unicode code points and the character classes follow the Unicode properties of the grammar, so the instance is valid. System.Xml.Schema reports that the pattern constraint failed.
 
-- Difference: InstanceVerdict `instance verdict: ours=Valid, baseline=Invalid` (1)
+- Difference: InstanceVerdict `instance verdict: ours=Valid, baseline=Invalid` (5)
 - Specification: XSD 1.0 Part 2, 4.3.4.4 (pattern valid) and F (Regular Expressions)
-- Cases: 1
+- Cases: 5
 
 ```text
 msMeta-Regex_w3c/1.0/reG50/reG50.i
+msMeta-Regex_w3c/1.0/reZ006i/reZ006i.i
+saxonMeta-XmlVersions/1.0/xv100c/xv100c.c.xml
+saxonMeta-XmlVersions/1.0/xv100c/xv100c.i.xml
+saxonMeta-XmlVersions/1.0/xv100i/xv100i.i.xml
 ```
 
 ### A schema document that declares XML 1.1
