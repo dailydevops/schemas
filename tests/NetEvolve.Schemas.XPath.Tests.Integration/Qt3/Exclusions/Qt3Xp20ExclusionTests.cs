@@ -69,6 +69,29 @@ public class Qt3Xp20ExclusionTests
         await Assert.That(fromFiles.SequenceEqual(fromSelection)).IsTrue();
     }
 
+    [Test]
+    public async Task Files_NoCase_IsBothExcludedAndInABaseline()
+    {
+        var excluded = Qt3Xp20Exclusions.Load().Select(static e => e.CaseId);
+        var baseline = Qt3Suite.LoadBaselines().Values.SelectMany(static b => b.Ids);
+
+        var both = Overlap(excluded, baseline);
+
+        await Assert.That(both).IsEmpty().Because(string.Join(Environment.NewLine, both));
+    }
+
+    [Test]
+    public async Task Overlap_CaseInBothSets_IsReported()
+    {
+        var both = Overlap(["set/a", "set/b"], ["set/b", "set/c"]);
+
+        await Assert.That(both).HasSingleItem();
+        await Assert.That(both[0]).IsEqualTo("set/b");
+    }
+
+    private static List<string> Overlap(IEnumerable<string> excluded, IEnumerable<string> baseline) =>
+        [.. excluded.Intersect(baseline, StringComparer.Ordinal).Order(StringComparer.Ordinal)];
+
     /// <summary>Rewrites the exclusion files; run it with the explicit filter after a deliberate change of the filter or of the pinned suite.</summary>
     [Test]
     [Explicit]
