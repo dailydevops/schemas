@@ -2,7 +2,7 @@
 
 using BenchmarkDotNet.Attributes;
 
-/// <summary>Evaluation of path expressions that are select a range of positions, against <c>System.Xml.XPath</c> on the same invoice.</summary>
+/// <summary>Evaluation of path expressions that select a range of positions, against <c>System.Xml.XPath</c> on the same invoice.</summary>
 #pragma warning disable CA1515, CA1001 // BenchmarkDotNet requires public, unsealed benchmark classes; GlobalCleanup disposes the evaluation
 public class XPathPositionalRangeBenchmarks
 #pragma warning restore CA1515, CA1001
