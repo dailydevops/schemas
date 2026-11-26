@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Evaluation.Arithmetic;
 using NetEvolve.Schemas.XPath.Evaluation.Comparison;
+using NetEvolve.Schemas.XPath.Evaluation.Temporal;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>
@@ -16,8 +17,11 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// </summary>
 /// <remarks>
 /// <para>
-/// Limitation: the date, time, and duration types are left to #732, so two such values are equal when they have the same type and the same
-/// representation, which is stricter than <c>eq</c> (<c>xs:date("2000-01-01Z")</c> and <c>xs:date("2000-01-01+00:00")</c> are different here).
+/// Dates, times, dateTimes, and the Gregorian types compare through <see cref="TemporalAggregation.TryCompare"/> with the implicit timezone
+/// of the dynamic context, so a value without a timezone is read in that timezone, and a date is different from a dateTime without an
+/// error. The three duration types compare by their months and seconds. The hash of a date or time value is the hash of its position on the
+/// timeline after the implicit timezone is applied, so it agrees with <c>eq</c> across timezones; the hash of a duration is the hash of its
+/// months and seconds. Without a context, a date or time value is equal to another only by its representation.
 /// </para>
 /// <para>
 /// Limitation: the hash of a number is the hash of the <c>xs:float</c> it rounds to, so that values that promotion makes equal collide;
@@ -48,7 +52,6 @@ internal static class AtomicEquality
         XPathEvaluationContext? context = null
     )
     {
-        _ = context;
         var family = FamilyOf(left);
         if (family != FamilyOf(right))
         {
@@ -69,6 +72,21 @@ internal static class AtomicEquality
                 _ = left.TryGetBoolean(out var a);
                 _ = right.TryGetBoolean(out var b);
                 return a == b;
+            case Family.Duration:
+                _ = left.TryGetDuration(out var x);
+                _ = right.TryGetDuration(out var y);
+                return x.Equals(y);
+            case Family.Temporal:
+                // Without a context there is no implicit timezone to read a value in, so the representation decides.
+                return context is null
+                    ? left.Equals(right)
+                    : TemporalAggregation.TryCompare(
+                        ComparisonRelation.Equal,
+                        in left,
+                        in right,
+                        context,
+                        out var holds
+                    ) && holds;
             case Family.Other:
                 return left.Equals(right);
             default:
@@ -82,7 +100,6 @@ internal static class AtomicEquality
     /// <returns>The hash code.</returns>
     public static int HashCode(in XdmItem item, int implicitTimezoneMinutes = 0)
     {
-        _ = implicitTimezoneMinutes;
         switch (FamilyOf(item))
         {
             case Family.Numeric:
@@ -104,6 +121,12 @@ internal static class AtomicEquality
             case Family.Boolean:
                 _ = item.TryGetBoolean(out var truth);
                 return truth ? 1 : 2;
+            case Family.Duration:
+                _ = item.TryGetDuration(out var duration);
+                return duration.GetHashCode();
+            case Family.Temporal:
+                _ = item.TryGetTemporal(out var moment);
+                return TemporalValues.Instant(in moment, implicitTimezoneMinutes).GetHashCode();
             default:
                 return item.GetHashCode();
         }
@@ -126,6 +149,8 @@ internal static class AtomicEquality
                 Family.Numeric,
             XdmItemKind.XsString or XdmItemKind.UntypedAtomic or XdmItemKind.AnyUri => Family.Text,
             XdmItemKind.Boolean => Family.Boolean,
+            XdmItemKind.Duration or XdmItemKind.YearMonthDuration or XdmItemKind.DayTimeDuration => Family.Duration,
+            >= XdmItemKind.DateTime and <= XdmItemKind.GMonth => Family.Temporal,
             XdmItemKind.None or XdmItemKind.Node => Family.None,
             _ => Family.Other,
         };
@@ -136,6 +161,8 @@ internal static class AtomicEquality
         Numeric,
         Text,
         Boolean,
+        Duration,
+        Temporal,
         Other,
     }
 

@@ -123,7 +123,8 @@ public class TemporalEqualityTests
     [Arguments(120, "dateTime:2000-01-01T10:00:00|dateTime:2000-01-01T08:00:00Z", 1)]
     [Arguments(0, "dateTime:2000-01-01T10:00:00|dateTime:2000-01-01T08:00:00Z", 2)]
     [Arguments(0, "dateTime:2000-01-01T10:00:00|dateTime:2000-01-01T10:00:00Z", 1)]
-    [Arguments(-60, "dateTime:2000-01-01T10:00:00|dateTime:2000-01-01T11:00:00Z|dateTime:2000-01-01T12:00:00+01:00", 2)]
+    [Arguments(-60, "dateTime:2000-01-01T10:00:00|dateTime:2000-01-01T11:00:00Z|dateTime:2000-01-01T12:00:00+01:00", 1)]
+    [Arguments(0, "dateTime:2000-01-01T10:00:00|dateTime:2000-01-01T11:00:00Z|dateTime:2000-01-01T12:00:00+01:00", 2)]
     [Arguments(0, "gYear:2000|gYear:2000Z", 1)]
     [Arguments(0, "gYear:2000|gYear:2000+01:00", 2)]
     [Arguments(60, "gYear:2000|gYear:2000+01:00", 1)]
@@ -196,7 +197,7 @@ public class TemporalEqualityTests
     {
         var left = Item("date:2000-01-01Z");
         var same = Item("date:2000-01-01Z");
-        var other = Item("date:2000-01-01+00:00");
+        var other = Item("date:2000-01-01+01:00");
 
         await Assert.That(AtomicEquality.AreEqual(in left, in same, nanEqual: true)).IsTrue();
         await Assert.That(AtomicEquality.AreEqual(in left, in other, nanEqual: true)).IsFalse();
@@ -206,7 +207,7 @@ public class TemporalEqualityTests
     [Arguments(0, "dateTime:2000-01-01T10:00:00", "dateTime:2000-01-01T10:00:00Z")]
     [Arguments(120, "dateTime:2000-01-01T10:00:00", "dateTime:2000-01-01T08:00:00Z")]
     [Arguments(-840, "date:2000-01-01", "date:2000-01-01-14:00")]
-    [Arguments(0, "time:23:30:00-02:00", "time:01:30:00Z")]
+    [Arguments(0, "time:10:00:00+02:00", "time:08:00:00Z")]
     public async Task HashCode_AgreesWithEqualityForTheImplicitTimezone(int timezone, string first, string second)
     {
         var left = Item(first);
