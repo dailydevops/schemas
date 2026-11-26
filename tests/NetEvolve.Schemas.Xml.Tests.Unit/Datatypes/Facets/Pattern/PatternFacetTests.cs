@@ -214,15 +214,53 @@ public class PatternFacetTests
     }
 
     [Test]
-    [Arguments(XsdVersion.V10, false)]
-    [Arguments(XsdVersion.V11, true)]
-    public async Task NameEscapes_FollowTheNameEditionOfTheVersion(XsdVersion version, bool expected)
+    [Arguments(XsdVersion.V10)]
+    [Arguments(XsdVersion.V11)]
+    public async Task NameEscapes_UseTheFifthEditionInBothVersions(XsdVersion version)
     {
-        // U+0132 is a name start character in the Fifth Edition only.
+        // U+0132 is a name start character in the Fifth Edition only; the name datatypes split by version, the regex escapes do not.
         var created = PatternFacet.TryCreate([@"\i"], version, null, out var facet, out _);
 
         await Assert.That(created).IsTrue();
-        await Assert.That(facet!.IsSatisfiedBy("Ĳ".AsSpan())).IsEqualTo(expected);
+        await Assert.That(facet!.IsSatisfiedBy("Ĳ".AsSpan())).IsTrue();
+    }
+
+    [Test]
+    [Arguments(XsdVersion.V10, @"\i", "Ĳ", true)]
+    [Arguments(XsdVersion.V10, @"\i", "͆", false)]
+    [Arguments(XsdVersion.V10, @"\i", "𐀀", true)]
+    [Arguments(XsdVersion.V10, @"\c", "Ĳ", true)]
+    [Arguments(XsdVersion.V10, @"\c", "͆", true)]
+    [Arguments(XsdVersion.V10, @"\c", "𐀀", true)]
+    [Arguments(XsdVersion.V10, @"\I", "Ĳ", false)]
+    [Arguments(XsdVersion.V10, @"\I", "͆", true)]
+    [Arguments(XsdVersion.V10, @"\I", "𐀀", false)]
+    [Arguments(XsdVersion.V10, @"\C", "Ĳ", false)]
+    [Arguments(XsdVersion.V10, @"\C", "͆", false)]
+    [Arguments(XsdVersion.V10, @"\C", "𐀀", false)]
+    [Arguments(XsdVersion.V11, @"\i", "Ĳ", true)]
+    [Arguments(XsdVersion.V11, @"\i", "͆", false)]
+    [Arguments(XsdVersion.V11, @"\i", "𐀀", true)]
+    [Arguments(XsdVersion.V11, @"\c", "Ĳ", true)]
+    [Arguments(XsdVersion.V11, @"\c", "͆", true)]
+    [Arguments(XsdVersion.V11, @"\c", "𐀀", true)]
+    [Arguments(XsdVersion.V11, @"\I", "Ĳ", false)]
+    [Arguments(XsdVersion.V11, @"\I", "͆", true)]
+    [Arguments(XsdVersion.V11, @"\I", "𐀀", false)]
+    [Arguments(XsdVersion.V11, @"\C", "Ĳ", false)]
+    [Arguments(XsdVersion.V11, @"\C", "͆", false)]
+    [Arguments(XsdVersion.V11, @"\C", "𐀀", false)]
+    public async Task NameEscapes_MatchTheFifthEditionClasses(
+        XsdVersion version,
+        string pattern,
+        string text,
+        bool expected
+    )
+    {
+        var created = PatternFacet.TryCreate([pattern], version, null, out var facet, out _);
+
+        await Assert.That(created).IsTrue();
+        await Assert.That(facet!.IsSatisfiedBy(text.AsSpan())).IsEqualTo(expected);
     }
 
     [Test]

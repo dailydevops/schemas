@@ -27,8 +27,10 @@ using NetEvolve.Schemas.Xml.Regex.XPathDialect;
 /// machine stops a loop at the first iteration that matches the empty string, as backtracking engines do, while the automaton
 /// drops such an iteration; for a loop whose body can match the empty string, such as <c>(?:b?|c)*</c>, the two can therefore
 /// pick different matches, each of them a valid one. The backtracking machine keeps its stack in a pooled array that grows with
-/// the work done, at most 3 integers per step. The instance is
-/// immutable and may be shared between threads; a call keeps its state on the stack or in a pooled array. Capture
+/// the work done, at most 3 integers per step. The compiled program is
+/// immutable, but an XSD program also holds a lazily built cache of automaton states (at most 256 states, each with a table
+/// of 128 transition slots, so up to about 256 KB per program). The cache is built under a lock and read without one, so the
+/// instance may be shared between threads; a call keeps its state on the stack or in a pooled array. Capture
 /// enumeration, replace, and tokenize are not part of this type (DT-57).
 /// </remarks>
 public sealed partial class RegexProgram : IRegexMatcher
@@ -64,6 +66,7 @@ public sealed partial class RegexProgram : IRegexMatcher
         _backtracking = backtracking;
         _captureSlots = captureSlots;
         _slotCount = slotCount;
+        _dfa = dialect == RegexDialect.Xsd ? new Dfa() : null;
     }
 
     /// <inheritdoc/>
@@ -154,7 +157,22 @@ public sealed partial class RegexProgram : IRegexMatcher
 
     /// <inheritdoc/>
     /// <remarks>For the XPath dialect this is a search: <see cref="RegexMatchResult.Match"/> when any part of the input matches.</remarks>
-    public RegexMatchResult Match(ReadOnlySpan<char> input, RegexStepLimits limits) => Match(input, limits, out _);
+    public RegexMatchResult Match(ReadOnlySpan<char> input, RegexStepLimits limits)
+    {
+        // The simulation takes at most (length + 1) times the program size in steps; below the ceiling no abort is possible,
+        // so the deterministic path answers exactly as the simulation does.
+        var effective = limits ?? RegexStepLimits.Default;
+        if (
+            _dfa is not null
+            && (input.Length + 1L) * _program.Length <= effective.MaxNfaSteps
+            && MatchDeterministic(input) is { } result
+        )
+        {
+            return result;
+        }
+
+        return Match(input, effective, out _);
+    }
 
     /// <summary>Finds the first match, from an index of the input.</summary>
     /// <param name="input">The input.</param>

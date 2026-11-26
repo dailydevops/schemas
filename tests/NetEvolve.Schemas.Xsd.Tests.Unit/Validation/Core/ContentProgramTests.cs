@@ -1,5 +1,6 @@
 namespace NetEvolve.Schemas.Xsd.Tests.Unit.Validation.Core;
 
+using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;
 using NetEvolve.Schemas.Xsd.Components;
@@ -47,9 +48,9 @@ public class ContentProgramTests
     }
 
     [Test]
-    public async Task AllGroup_IsCompiledToTheBitsetMatcher()
+    public async Task AllGroup_InXsd10_IsCompiledToTheBitsetMatcher()
     {
-        var schema = new SchemaFixture();
+        var schema = new SchemaFixture { Version = XsdVersion.V10 };
         var type = schema.ElementOnly(
             SchemaFixture.All(
                 SchemaFixture.Part("a", SchemaFixture.Simple("string"), 0, 1),
@@ -63,8 +64,32 @@ public class ContentProgramTests
 
         await Assert.That(program).IsNotNull();
         await Assert.That(program!.Automaton).IsNull();
+        await Assert.That(program.AllGroup11).IsNull();
         await Assert.That(program.AllGroup!.MemberCount).IsEqualTo(2);
         await Assert.That(program.Terms.Count).IsEqualTo(2);
+    }
+
+    [Test]
+    public async Task AllGroup_InXsd11_IsCompiledToTheCountingMatcher()
+    {
+        var schema = new SchemaFixture();
+        var type = schema.ElementOnly(
+            SchemaFixture.All(
+                SchemaFixture.Part("a", SchemaFixture.Simple("string"), 0, 2),
+                SchemaFixture.Part("b", SchemaFixture.Simple("string"))
+            )
+        );
+        schema.Global("r", type);
+        var model = schema.Model();
+
+        var program = model.GetProgram(type);
+
+        await Assert.That(program).IsNotNull();
+        await Assert.That(program!.Automaton).IsNull();
+        await Assert.That(program.AllGroup).IsNull();
+        await Assert.That(program.AllGroup11!.MemberCount).IsEqualTo(2);
+        await Assert.That(program.Terms.Count).IsEqualTo(2);
+        await Assert.That(program.IsUsable).IsTrue();
     }
 
     [Test]

@@ -4,6 +4,7 @@ using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;
 using NetEvolve.Schemas.Xsd.ContentModels.AllGroups;
+using NetEvolve.Schemas.Xsd.ContentModels.AllGroups11;
 using NetEvolve.Schemas.Xsd.ContentModels.Automaton;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Elements;
@@ -24,6 +25,7 @@ internal sealed class ElementFrame
     internal ContentProgram? Program;
     internal CountingRun? Counting;
     internal AllGroupRun? AllRun;
+    internal AllGroup11Run? AllRun11;
     internal OpenContentRun Open;
     internal bool IsValid;
     internal bool ContentFailed;
@@ -48,6 +50,7 @@ internal sealed class ElementFrame
         Program = null;
         Counting = null;
         AllRun = null;
+        AllRun11 = null;
         Open = default;
         IsValid = true;
         ContentFailed = false;

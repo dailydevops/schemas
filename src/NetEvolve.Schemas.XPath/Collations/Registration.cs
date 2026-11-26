@@ -6,7 +6,7 @@ using NetEvolve.Schemas.XPath.Functions.Binding;
 
 /// <summary>
 /// The registration file of the collation group: its module initializer stages <see cref="Register"/> into the default catalog
-/// (#123, AP8, option B), so no shared list names the group. The group holds <c>fn:compare</c> and <c>fn:codepoint-equal</c>.
+/// (#123, AP8, option B), so no shared list names the group. The group holds <c>fn:compare</c>, <c>fn:codepoint-equal</c>, and <c>fn:default-collation</c>.
 /// </summary>
 /// <remarks>
 /// Limitations: the codepoint collation is the only collation that ships; every other collation URI is FOCH0002 (#123 AP19, DEF-43 (#55),
@@ -30,5 +30,6 @@ internal static class Registration
 
         builder.Add(new CompareFunction());
         builder.Add(new CodepointEqualFunction());
+        builder.Add(new DefaultCollationFunction());
     }
 }
