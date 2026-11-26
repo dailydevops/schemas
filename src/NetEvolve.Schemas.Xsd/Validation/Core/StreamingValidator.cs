@@ -70,7 +70,7 @@ internal sealed partial class StreamingValidator : IXmlSink
     private NameBinding _binding;
     private XsiTypeResolver _xsi;
     private Stack<CountingRun>?[] _countingPool;
-    private Stack<AllGroupRun>?[] _allPool;
+    private Stack<AllGroupRun>?[]? _allPool; // allocated on the first XSD 1.0 all group, so an XSD 1.1 session pays nothing
     private Stack<AllGroup11Run>?[]? _all11Pool; // allocated on the first XSD 1.1 all group, so a session without one pays nothing
     private ElementFrame[] _frames = new ElementFrame[8];
     private int _depth;
@@ -125,7 +125,6 @@ internal sealed partial class StreamingValidator : IXmlSink
         _xsi = new XsiTypeResolver(model.Schema, _scope, derivation);
         _nil = new XsiNil(model.Schema.Version);
         _countingPool = new Stack<CountingRun>?[model.ProgramCount];
-        _allPool = new Stack<AllGroupRun>?[model.ProgramCount];
 
         var all = new List<ValidationListener>(listeners.Count);
         for (var i = 0; i < listeners.Count; i++)
