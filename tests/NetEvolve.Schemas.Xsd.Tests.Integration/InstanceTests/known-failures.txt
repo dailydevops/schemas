@@ -168,7 +168,7 @@ msMeta-Schema_w3c	1.0/schU4/schU4.i	#869	The schema does not build: a redefiniti
 msMeta-Schema_w3c	1.0/schU5/schU5.i	#869	The schema does not build: a redefinition is not checked against the redefined component.
 msMeta-SimpleType_w3c	1.0/stE050/stE050.v	#896	The fixed value is compared lexically, not in the value space.
 msMeta-SimpleType_w3c	1.0/stE055/stE055.v	#896	The fixed value is compared lexically, not in the value space.
-msMeta-SimpleType_w3c	1.0/stE065/stE065.v	#870	The fixed value of the element is compared lexically, so its trailing space differs from the normalized instance value of the union type.
+msMeta-SimpleType_w3c	1.0/stE065/stE065.v	#896	The fixed value of the element is compared lexically, so its trailing space differs from the normalized instance value of the union type.
 msMeta-SimpleType_w3c	1.0/stE066/stE066.v	#896	The fixed value is compared lexically, not in the value space.
 msMeta-SimpleType_w3c	1.0/stG011/stG011.i	#1077	The enumeration of a list type is not evaluated and the case expects it to reject the value.
 msMeta-SimpleType_w3c	1.0/stH008/stH008.i	#1078	The enumeration of a union type is not evaluated and the case expects it to reject the value.
