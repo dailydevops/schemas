@@ -46,8 +46,7 @@ internal sealed class XPathQueryRun : IXsltFunctionRun, IXPathResourceResolver
     private XdmSequence[] _values = new XdmSequence[16];
     private bool[] _bound = new bool[16];
     private SchematronProblem _problem;
-    private ResourceLoader? _loader;
-    private ResourceLoadResult _breach;
+    private RunLoading? _loading;
 
     internal XPathQueryRun(QueryResources resources, CancellationToken cancellationToken)
     {
@@ -202,8 +201,8 @@ internal sealed class XPathQueryRun : IXsltFunctionRun, IXPathResourceResolver
     ResourceResult IResourceResolver.Resolve(in ResourceRequest request, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        _loader ??= new ResourceLoader(_resources.Resolver, _resources.Limits);
-        var loaded = _loader.Load(
+        var loading = _loading ??= new RunLoading(new ResourceLoader(_resources.Resolver, _resources.Limits));
+        var loaded = loading.Loader.Load(
             request.Kind,
             request.Reference,
             request.BaseUri,
@@ -216,7 +215,7 @@ internal sealed class XPathQueryRun : IXsltFunctionRun, IXPathResourceResolver
             case ResourceLoadStatus.Loaded:
                 return ResourceResult.Found(loaded.Content, loaded.SystemId);
             case ResourceLoadStatus.LimitExceeded:
-                _breach = loaded;
+                loading.Breach = loaded;
                 return ResourceResult.Denied(loaded.Message);
             default:
                 return loaded.Code == CoreDiagnosticCodes.ResourceNotFound
@@ -382,9 +381,9 @@ internal sealed class XPathQueryRun : IXsltFunctionRun, IXPathResourceResolver
             return QueryStatus.Problem;
         }
 
-        if (_breach.Status == ResourceLoadStatus.LimitExceeded && IsResourceError(diagnostic.QName.LocalName))
+        if (_loading?.Breach is { } breach && IsResourceError(diagnostic.QName.LocalName))
         {
-            _problem = new SchematronProblem(_breach.Code, _breach.Message, query.Location, diagnostic.QName.LocalName);
+            _problem = new SchematronProblem(breach.Code, breach.Message, query.Location, diagnostic.QName.LocalName);
             return QueryStatus.Problem;
         }
 
@@ -401,6 +400,14 @@ internal sealed class XPathQueryRun : IXsltFunctionRun, IXPathResourceResolver
 
     // The codes that a failed load of the document functions ends in: fn:doc, the text functions, and document().
     private static bool IsResourceError(string code) => code is "FODC0002" or "FODC0005" or "FOUT1170" or "XTRE1160";
+
+    // The loader of a run and the first breached limit, created together on the first load so that a run without a load carries one reference.
+    private sealed class RunLoading(ResourceLoader loader)
+    {
+        internal ResourceLoader Loader { get; } = loader;
+
+        internal ResourceLoadResult? Breach { get; set; }
+    }
 
     // The slot of the decimal formats of a run: there is no format yet, so the default format applies and a named one is unknown.
     private sealed class NoDecimalFormats : IXPathDecimalFormatProvider
