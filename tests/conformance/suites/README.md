@@ -138,7 +138,7 @@ cases of `xslt-3` are excluded with a reason (SCH-21).
 
 ## XSpec Schematron scenarios (`xspec.json`)
 
-The XSpec project is pinned by its release tag archive (`v4.1.2`, MIT licence) with the `subPath` `xspec-4.1.2`. The reader and the
+The XSpec project is pinned by its release tag archive (`v4.1.2`, MIT license) with the `subPath` `xspec-4.1.2`. The reader and the
 runner live in `tests/NetEvolve.Schemas.Schematron.Tests.Integration/Conformance/Xspec`; the class `XspecConformanceTests` is explicit and
 selected by the conformance category.
 

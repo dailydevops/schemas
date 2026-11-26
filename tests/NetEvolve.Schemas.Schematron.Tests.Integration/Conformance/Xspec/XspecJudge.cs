@@ -15,6 +15,11 @@ using NetEvolve.Arguments;
 /// Limitation: the role fallback and the id fallback use the nearest preceding <c>svrl:fired-rule</c> and <c>svrl:active-pattern</c>, the
 /// layout of the ISO SVRL; the <c>ruleId</c>, <c>patternId</c>, and <c>groupId</c> attributes of the newer SVRL layout are not read.
 /// </para>
+/// <para>
+/// <c>x:expect-valid</c> reads only the role on the assertion itself, with no fallback to the fired rule or active pattern, unlike the id and
+/// role matching. An assertion without a role under a rule with <c>role="warn"</c> therefore counts as an error; this is deliberate and may need
+/// revisiting when more XSpec suites run.
+/// </para>
 /// </remarks>
 internal static class XspecJudge
 {
