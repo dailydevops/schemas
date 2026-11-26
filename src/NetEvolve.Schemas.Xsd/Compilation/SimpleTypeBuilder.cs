@@ -269,7 +269,7 @@ internal sealed class SimpleTypeBuilder : IComponentBuilder
             return null;
         }
 
-        if (members.Count == 0 && _context.Version == XsdVersion.V10)
+        if (!failed && members.Count == 0 && _context.Version == XsdVersion.V10)
         {
             // Structures 1.0 requires a non-empty memberTypes list or a simpleType child; Structures 1.1 allows the empty union.
             _context.Report(
