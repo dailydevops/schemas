@@ -2,6 +2,7 @@
 # One line per case, sorted by test set and case id: test set, case id, issue (- when no issue is open), reason.
 # The test KnownFailuresTests keeps this list equal to the baseline: a case that starts to pass leaves both.
 # Regenerate the baseline with SchemaBaselineTests.Baseline_Regenerate, then update this list.
+common-introspection	1.0/introspection/introspect-testSet-schema	#1350	The schema common/xsts.xsd imports the xlink and xml namespaces through http locations that the runner does not resolve, so the schema does not compile.
 ibmMeta-anyAttribute	1.0/s3_10_6ii01/s3_10_6v01s	-	The test group has no version attribute but its schema uses an XSD 1.1 construct, which strict 1.0 mode rejects (design 146, DP-16).
 ibmMeta-anyAttribute	1.0/s3_10_6ii02/s3_10_6v02s	-	The test group has no version attribute but its schema uses an XSD 1.1 construct, which strict 1.0 mode rejects (design 146, DP-16).
 ibmMeta-anyAttribute	1.0/s3_10_6ii04/s3_10_6v04s	-	The test group has no version attribute but its schema uses an XSD 1.1 construct, which strict 1.0 mode rejects (design 146, DP-16).

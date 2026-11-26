@@ -19,10 +19,10 @@ public class XstsConformanceTests
     private static readonly ConcurrentBag<string> InstanceCaseKeys = [];
 
     /// <summary>The number of cases the pinned suite selects for XSD 1.0; a new pin changes it on purpose.</summary>
-    private const int SelectedCaseCount10 = 39271;
+    private const int SelectedCaseCount10 = 39381;
 
     /// <summary>The number of cases the pinned suite selects for XSD 1.1; a new pin changes it on purpose.</summary>
-    private const int SelectedCaseCount11 = 41389;
+    private const int SelectedCaseCount11 = 41540;
 
     /// <summary>The number of cases excluded because they need the precisionDecimal datatype (DEF-52, #64).</summary>
     private const int PrecisionDecimalExcludedCount = 122;
