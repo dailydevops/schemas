@@ -6,9 +6,11 @@ using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xsd.Attributes.Declarations;
 using NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;
 using NetEvolve.Schemas.Xsd.Contracts;
+using NetEvolve.Schemas.Xsd.Declarations11;
 using NetEvolve.Schemas.Xsd.Derivation.Types;
 using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.Elements;
+using NetEvolve.Schemas.Xsd.SimpleTypes.Definitions;
 using NetEvolve.Schemas.Xsd.Validation.Core;
 
 /// <summary>
@@ -18,7 +20,7 @@ using NetEvolve.Schemas.Xsd.Validation.Core;
 /// </summary>
 /// <remarks>
 /// Limitations: the value is assessed through the assessor, which evaluates the own facets of a user-defined simple type;
-/// the rule that an ID type may not carry a value constraint is not checked; the lexical value is not converted to its canonical
+/// a type that is ID or derived from ID by restriction cannot carry a value constraint (a-props-correct, e-props-correct); the lexical value is not converted to its canonical
 /// form, as the specification does not need it for the check. An attribute use is checked against the type of its declaration; the
 /// agreement of a use with the value constraint of its declaration is checked when the use is built.
 /// </remarks>
@@ -56,14 +58,15 @@ internal static class ValueConstraintCheck
             case ComplexTypeDefinition complex:
                 return CheckComplexType(element, complex, constraint.Value, assessor, reporter);
             case { Kind: XsdComponentKind.SimpleType } simple:
-                return CheckValue(
-                    simple,
-                    constraint.Value,
-                    assessor,
-                    XsdRuleCodes.CosValidDefault,
-                    element.Location,
-                    reporter
-                );
+                return !IsIdWithConstraint(simple, element.Location, reporter)
+                    && CheckValue(
+                        simple,
+                        constraint.Value,
+                        assessor,
+                        XsdRuleCodes.CosValidDefault,
+                        element.Location,
+                        reporter
+                    );
             default:
                 // A built-in complex type is anyType, which is mixed with a particle that can be empty.
                 return true;
@@ -87,6 +90,14 @@ internal static class ValueConstraintCheck
         ArgumentNullException.ThrowIfNull(assessor);
         ArgumentNullException.ThrowIfNull(reporter);
         GuardVersion(version);
+
+        if (
+            attribute.ValueConstraint.Kind != AttributeValueConstraintKind.None
+            && IsIdWithConstraint(attribute.TypeDefinition, attribute.Location, reporter, true)
+        )
+        {
+            return false;
+        }
 
         return CheckAttributeValue(
             attribute.ValueConstraint,
@@ -170,13 +181,16 @@ internal static class ValueConstraintCheck
         {
             case ComplexContentKind.Simple:
                 return type.SimpleContentType is null
-                    || CheckValue(
-                        type.SimpleContentType,
-                        value,
-                        assessor,
-                        XsdRuleCodes.CosValidDefault,
-                        element.Location,
-                        reporter
+                    || (
+                        !IsIdWithConstraint(type.SimpleContentType, element.Location, reporter)
+                        && CheckValue(
+                            type.SimpleContentType,
+                            value,
+                            assessor,
+                            XsdRuleCodes.CosValidDefault,
+                            element.Location,
+                            reporter
+                        )
                     );
             case ComplexContentKind.Mixed
                 when type.ContentParticle is null || ParticleRules.IsEmptiable(type.ContentParticle):
@@ -189,6 +203,27 @@ internal static class ValueConstraintCheck
                 );
                 return false;
         }
+    }
+
+    // The type of the declaration, or the simple content of its complex type, is ID or derived from ID (Structures 3.2.6 and 3.3.6).
+    private static bool IsIdWithConstraint(
+        IXsdComponent type,
+        DocumentLocation location,
+        XsdIssueReporter reporter,
+        bool attribute = false
+    )
+    {
+        if (type is not SimpleTypeDefinition simple || !IdAttributeUses.IsIdType(simple))
+        {
+            return false;
+        }
+
+        reporter.Report(
+            attribute ? XsdRuleCodes.APropsCorrect : XsdRuleCodes.EPropsCorrect,
+            location,
+            "A declaration whose type is ID or derived from ID cannot have a default or fixed value."
+        );
+        return true;
     }
 
     private static bool CheckValue(
