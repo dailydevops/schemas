@@ -12,7 +12,8 @@ internal sealed class BuildSettings
         IReadOnlyDictionary<string, string> parameters,
         ValidationLimits limits,
         IResourceResolver resolver,
-        bool globalPatternLets = false
+        bool globalPatternLets = false,
+        bool dtdProcessing = false
     )
     {
         ArgumentNullException.ThrowIfNull(phase);
@@ -25,6 +26,7 @@ internal sealed class BuildSettings
         Limits = limits;
         Resolver = resolver;
         GlobalPatternLets = globalPatternLets;
+        DtdProcessing = dtdProcessing;
     }
 
     internal string Phase { get; }
@@ -37,4 +39,7 @@ internal sealed class BuildSettings
 
     /// <summary>Gets a value indicating whether the pattern-level <see langword="let"/> declarations are hoisted into the schema level (#615).</summary>
     internal bool GlobalPatternLets { get; }
+
+    /// <summary>Gets a value indicating whether the internal subset of a document type declaration of a schema document is read (#1361).</summary>
+    internal bool DtdProcessing { get; }
 }

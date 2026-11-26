@@ -113,6 +113,10 @@ var result = await validator.ValidateAsync(
 
 Here the phase `strict` is active and the parameter `limit` is `200`, so the first pattern passes, and the only issue is the failed assertion of the second pattern.
 
+### Entities in a schema
+
+A schema document that starts with a document type declaration, as the OASIS XLIFF rule sets do with literal entities such as `<!ENTITY version "2.1">`, is rejected at `Build` with `NES1201` by default. `WithDtdProcessing(true)` reads the internal subset and expands its entities in titles, attributes, and messages (issue [#1361](https://github.com/dailydevops/schemas/issues/1361)). Only the internal subset is read: an external subset or an external entity is never fetched. The expansion stays bounded by `ValidationLimits.MaxEntityExpansion` and `MaxEntityDepth`, so an entity bomb fails the build. The switch covers the schema and the modules it includes, not the instance document, which still refuses a document type declaration.
+
 ### Global pattern-level variables
 
 By default a `let` of a pattern or group is lexical: it is visible only inside its pattern, a `let` with the name of a schema-level `let` shadows it, and a reference from a later pattern or from the body of a stylesheet function fails at `Build` with `NES3300`. This follows the decided rule that an inner declaration shadows an outer one (design [#150](https://github.com/dailydevops/schemas/issues/150), EP-4). `WithGlobalPatternLets(true)` is an opt-in switch for rule sets that declare a variable in one pattern and read it elsewhere, such as the KoSIT XRechnung rules ([#615](https://github.com/dailydevops/schemas/issues/615)). When it is on, the `let` declarations of the patterns that the selected phase activates become schema-level variables, placed after the schema `let` declarations in document order:
@@ -296,6 +300,7 @@ The builder that `ForSchematron` returns takes the options of a build:
 | `WithPhase` | Selects the phase: an `id`, `#ALL`, or `#DEFAULT` (the default). |
 | `WithParameter` | Sets the value of a `param` of the schema. |
 | `WithGlobalPatternLets` | Makes the `let` declarations of the active patterns schema-level variables (off by default), see [Global pattern-level variables](#global-pattern-level-variables). |
+| `WithDtdProcessing` | Lets a schema document start with a document type declaration whose internal subset declares entities (off by default: `NES1201`), see [Entities in a schema](#entities-in-a-schema). |
 | `WithLimits` | Sets the `ValidationLimits` of the core package that bound the documents and the schema. |
 | `WithResolver` | Sets the `IResourceResolver` for external resources; the default is `DenyAllResourceResolver`. |
 
@@ -316,7 +321,7 @@ var validator = await SchemaValidator
     .BuildAsync(cancellationToken);
 ```
 
-No other path reaches a resource. A document type declaration in the schema or in a document is rejected, so no external entity or subset is read, and the expressions of a schema open a resource only through `document`, `doc`, and `unparsed-text` under an XSLT binding, which load through the resolver of the builder, so the default resolver denies them. The documents and the schema are read under `ValidationLimits` (size, depth, attributes, and entity expansion), and a schema is bounded by `MaxResourceSize`.
+No other path reaches a resource. A document type declaration in the schema or in a document is rejected unless `WithDtdProcessing(true)` admits the internal subset of the schema (see [Entities in a schema](#entities-in-a-schema)), so no external entity or subset is read, and the expressions of a schema open a resource only through `document`, `doc`, and `unparsed-text` under an XSLT binding, which load through the resolver of the builder, so the default resolver denies them. The documents and the schema are read under `ValidationLimits` (size, depth, attributes, and entity expansion), and a schema is bounded by `MaxResourceSize`.
 
 ## Conformance
 

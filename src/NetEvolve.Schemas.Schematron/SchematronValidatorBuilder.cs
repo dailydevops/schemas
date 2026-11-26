@@ -32,6 +32,7 @@ public sealed class SchematronValidatorBuilder
     private readonly Dictionary<string, string> _parameters = new(StringComparer.Ordinal);
     private string _phase = DefaultPhaseName;
     private bool _globalPatternLets;
+    private bool _dtdProcessing;
     private ISchematronPipeline _pipeline = SchematronPipeline.Instance;
 
     internal SchematronValidatorBuilder(SchemaSourceHolder source) => _source = source;
@@ -85,6 +86,23 @@ public sealed class SchematronValidatorBuilder
         return this;
     }
 
+    /// <summary>
+    /// Selects whether the schema documents may start with a document type declaration whose internal subset declares entities, as
+    /// the OASIS XLIFF rule sets do. Off by default: a document type declaration then fails the build with <c>NES1201</c>.
+    /// </summary>
+    /// <remarks>
+    /// Security: only the internal subset is read, an external subset or an external entity is never fetched, and the expansion is
+    /// bounded by <see cref="ValidationLimits.MaxEntityExpansion"/> and <see cref="ValidationLimits.MaxEntityDepth"/>, so an
+    /// entity bomb fails the build. The switch applies to the schema and to the modules it includes, not to the instance.
+    /// </remarks>
+    /// <param name="enabled"><see langword="true"/> to expand the internal entities of a schema document.</param>
+    /// <returns>This builder.</returns>
+    public SchematronValidatorBuilder WithDtdProcessing(bool enabled)
+    {
+        _dtdProcessing = enabled;
+        return this;
+    }
+
     internal SchematronValidatorBuilder UsePipeline(ISchematronPipeline pipeline)
     {
         ArgumentNullException.ThrowIfNull(pipeline);
@@ -119,7 +137,7 @@ public sealed class SchematronValidatorBuilder
     {
         cancellationToken.ThrowIfCancellationRequested();
         var parameters = Snapshot(_parameters);
-        var settings = new BuildSettings(_phase, parameters, limits, resolver, _globalPatternLets);
+        var settings = new BuildSettings(_phase, parameters, limits, resolver, _globalPatternLets, _dtdProcessing);
 
         return new SchematronValidator(
             _pipeline.Load(_source, settings, cancellationToken),

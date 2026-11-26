@@ -1,5 +1,6 @@
 namespace NetEvolve.Schemas.Schematron.Tests.Unit.Pipeline;
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using NetEvolve.Schemas;
@@ -12,7 +13,8 @@ using static NetEvolve.Schemas.Schematron.Tests.Unit.Pipeline.PipelineFixture;
 /// </summary>
 public class DtdProcessingBuildTests
 {
-    private const string Doctype = "<!DOCTYPE schema [ <!ENTITY version \"2.1\"> <!ENTITY big \"&version;&version;&version;\"> ]>";
+    private const string Doctype =
+        "<!DOCTYPE schema [ <!ENTITY version \"2.1\"> <!ENTITY big \"&version;&version;&version;\"> ]>";
 
     private const string Attributes = " queryBinding=\"xslt2\" schematronEdition=\"2025\"";
 
@@ -30,7 +32,9 @@ public class DtdProcessingBuildTests
     {
         var failure = BuildFailure(Source());
 
-        await Assert.That(failure.Issues.Any(i => i.Code.ToString().Contains("1201"))).IsTrue();
+        await Assert
+            .That(failure.Issues.Any(i => i.Code.ToString().Contains("1201", StringComparison.Ordinal)))
+            .IsTrue();
     }
 
     [Test]
