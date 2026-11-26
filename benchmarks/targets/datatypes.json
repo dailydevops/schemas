@@ -154,9 +154,19 @@
     "allocatedBytes": 0
   },
   {
+    "name": "DecimalRoundingBenchmarks.Round(Size=Long)",
+    "meanNs": 3300.0,
+    "allocatedBytes": 1344
+  },
+  {
     "name": "DecimalRoundingBenchmarks.Floor(Size=Typical)",
     "meanNs": 8.0,
     "allocatedBytes": 0
+  },
+  {
+    "name": "DecimalRoundingBenchmarks.Floor(Size=Long)",
+    "meanNs": 3300.0,
+    "allocatedBytes": 1344
   },
   {
     "name": "DecimalRoundingBenchmarks.ToBigInteger(Size=Typical)",
@@ -164,9 +174,19 @@
     "allocatedBytes": 0
   },
   {
+    "name": "DecimalRoundingBenchmarks.ToBigInteger(Size=Long)",
+    "meanNs": 3300.0,
+    "allocatedBytes": 1048
+  },
+  {
     "name": "DecimalRoundingBenchmarks.ToDouble(Size=Typical)",
     "meanNs": 8.0,
     "allocatedBytes": 0
+  },
+  {
+    "name": "DecimalRoundingBenchmarks.ToDouble(Size=Long)",
+    "meanNs": 6000.0,
+    "allocatedBytes": 3552
   },
   {
     "name": "DoubleParseBenchmarks.ParseDouble(Size=Short)",
