@@ -36,8 +36,9 @@ internal static class NodesHarness
 
     private static readonly XmlDocumentTree Main = BuildMain();
     private static readonly XmlDocumentTree Second = BuildSecond();
+    private static readonly XmlDocumentTree Third = BuildThird();
 
-    /// <summary>The nodes by key: doc, r, r@lang, r@id, a, a@x, a@y, a/t, b, b@lang, c, d, d@lang, e, cm, pi, f, f@lang, g, h; and o.doc, o, q of the second tree.</summary>
+    /// <summary>The nodes by key: doc, r, r@lang, r@id, a, a@x, a@y, a/t, b, b@lang, c, d, d@lang, e, cm, pi, f, f@lang, g, h; o.doc, o, q of the second tree; and u.doc, u of the third tree, whose document URI is http://example.com/u.xml.</summary>
     internal static readonly Dictionary<string, XPathNode> Nodes = Index();
 
     /// <summary>Resolves a built-in function of the default catalog for a language version and the host flags that are set.</summary>
@@ -188,6 +189,16 @@ internal static class NodesHarness
             return "node:unknown";
         }
 
+        if (item.TryGetQName(out var qname))
+        {
+            return "QName:"
+                + (qname!.Prefix is null ? string.Empty : qname.Prefix + ":")
+                + qname.Name.LocalName
+                + "{"
+                + qname.Name.NamespaceName
+                + "}";
+        }
+
         if (item.TryGetString(out var text))
         {
             return "string:" + text;
@@ -298,6 +309,15 @@ internal static class NodesHarness
         return b.Complete();
     }
 
+    private static XmlDocumentTree BuildThird()
+    {
+        using var b = new XmlTreeBuilder(documentUri: new Uri("http://example.com/u.xml"));
+        b.StartDocument(new XmlDeclaration("1.0", "utf-8", null));
+        Leaf(b, Name(b, "u"));
+        b.EndDocument();
+        return b.Complete();
+    }
+
     private static Dictionary<string, XPathNode> Index()
     {
         var doc = new XPathNode(Main.Document);
@@ -308,6 +328,7 @@ internal static class NodesHarness
         var e = d.NextSibling();
         var f = e.NextSibling();
         var o = new XPathNode(Second.Document);
+        var u = new XPathNode(Third.Document);
         return new Dictionary<string, XPathNode>(StringComparer.Ordinal)
         {
             ["doc"] = doc,
@@ -333,6 +354,8 @@ internal static class NodesHarness
             ["o.doc"] = o,
             ["o"] = o.FirstChild(),
             ["q"] = o.FirstChild().FirstChild(),
+            ["u.doc"] = u,
+            ["u"] = u.FirstChild(),
         };
     }
 }
