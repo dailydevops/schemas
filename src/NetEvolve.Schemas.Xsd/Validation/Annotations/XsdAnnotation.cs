@@ -215,7 +215,6 @@ public readonly struct XsdAnnotation : IEquatable<XsdAnnotation>
             ComplexTypeDefinition { ContentKind: ComplexContentKind.ElementOnly } => XsdTypedValueKind.None,
             ComplexTypeDefinition { ContentKind: ComplexContentKind.Simple } => XsdTypedValueKind.Atomic,
             ComplexTypeDefinition => XsdTypedValueKind.Untyped,
-            XsdBuiltInType { Kind: XsdComponentKind.ComplexType } => XsdTypedValueKind.Untyped,
             _ => XsdTypedValueKind.Atomic,
         };
 

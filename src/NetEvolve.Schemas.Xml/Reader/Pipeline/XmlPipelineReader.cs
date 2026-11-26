@@ -28,7 +28,7 @@ using NetEvolve.Schemas.Xml.Reader.EntityInput;
 /// internal option <c>ExternalAccess</c> (XML-20, XML-62), through its resolver and its flags. Not thread-safe. Dispose the
 /// reader to return its buffers.
 /// </remarks>
-public sealed class XmlPipelineReader : IXmlReader, IDisposable
+public sealed class XmlPipelineReader : IXmlReader, IXmlPositionSource, IDisposable
 {
     private const int DecodeChunkLength = 16_384;
 
@@ -64,6 +64,8 @@ public sealed class XmlPipelineReader : IXmlReader, IDisposable
 
     /// <inheritdoc />
     public XmlPosition Position => _parser.Position;
+
+    XmlPosition IXmlPositionSource.Current => _parser.EventPosition;
 
     /// <inheritdoc />
     public XmlDiagnostic? Diagnostic => _parser.Diagnostic ?? _diagnostic;

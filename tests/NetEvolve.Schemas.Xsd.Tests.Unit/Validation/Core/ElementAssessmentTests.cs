@@ -63,11 +63,11 @@ public class ElementAssessmentTests
     }
 
     [Test]
-    public async Task Sequence_MissingChild_IsReportedAtTheStartTagOfTheParent()
+    public async Task Sequence_MissingChild_IsReportedAtTheEndTagOfTheParent()
     {
         var issues = ValidationHarness.Run(SequenceOfAAndB(), "\n<r>\n<a/>\n</r>");
 
-        await AssertIssue(issues, "cvc-complex-type", "cvc-complex-type.2.4", 2, "'b'");
+        await AssertIssue(issues, "cvc-complex-type", "cvc-complex-type.2.4", 4, "'b'");
     }
 
     [Test]
@@ -184,7 +184,7 @@ public class ElementAssessmentTests
         var issues = ValidationHarness.Run(schema, "<r>\n" + Repeat("<a/>", 5000) + "</r>");
 
         await Assert.That(issues.Count).IsEqualTo(1);
-        await Assert.That(issues[0].Code).IsEqualTo(ValidationHarness.Code("engine-content-model-transitions"));
+        await Assert.That(issues[0].Code).IsEqualTo(ValidationHarness.Code("engine-content-model-run"));
         await Assert.That(issues[0].Severity).IsEqualTo(IssueSeverity.Error);
         await Assert.That(issues[0].Location.Line).IsEqualTo(2);
         await Assert.That(issues[0].Message).Contains("1024");
@@ -215,7 +215,7 @@ public class ElementAssessmentTests
 
         var issues = ValidationHarness.Run(schema, "<r>\n<a/>oops\n</r>");
 
-        await AssertIssue(issues, "cvc-complex-type", "cvc-complex-type.2.3", 1);
+        await AssertIssue(issues, "cvc-complex-type", "cvc-complex-type.2.3", 2);
     }
 
     [Test]

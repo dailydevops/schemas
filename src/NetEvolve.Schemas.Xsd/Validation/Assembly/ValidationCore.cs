@@ -45,7 +45,7 @@ using ValidationResult = NetEvolve.Schemas.ValidationResult;
 /// </para>
 /// <para>
 /// Limitations: DTD processing reads the internal subset only (design #146 DP-21); the assessment is strict and declaration driven
-/// (DP-23); a violation that a listener finds does not mark the element invalid yet (#605); the ID and the entity listener exist
+/// (DP-23); the ID and the entity listener exist
 /// only when the schema names a type of their check (<see cref="ListenerDemand"/>), so an <c>xsi:type</c> that names such a built-in
 /// type for a schema that never names it is not checked. A tree run does not see the document type declaration, which the model does not
 /// keep (#731).
@@ -187,11 +187,12 @@ internal sealed class ValidationCore : IValidationCore
         }
 
         internal void Pump<TReader>(TReader reader)
-            where TReader : IXmlReader
+            where TReader : IXmlReader, IXmlPositionSource
         {
             ArgumentNullException.ThrowIfNull(reader);
 
             var sink = CreateSink();
+            sink.UsePositions(reader);
             if (reader.Pump(ref sink) != XmlReadStatus.Completed)
             {
                 Report(reader.Diagnostic);

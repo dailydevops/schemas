@@ -16,6 +16,7 @@ internal sealed class ElementFrame
     internal XmlName Name;
     internal XPathQName QName;
     internal DocumentLocation Location;
+    internal DocumentLocation TextLocation;
     internal int Ordinal;
     internal FrameContent Content;
     internal ElementDeclaration? Declaration;
@@ -31,16 +32,26 @@ internal sealed class ElementFrame
     internal bool ContentFailed;
     internal bool TextReported;
     internal bool HasText;
+    internal bool HasChild;
     internal bool IsNilled;
     internal bool UndeclaredRoot;
     internal bool UndeclaredStrict;
     internal int NamespaceMark;
+    internal int ErrorMark;
 
-    internal void Start(XmlName name, XPathQName qname, DocumentLocation location, int ordinal, int namespaceMark)
+    internal void Start(
+        XmlName name,
+        XPathQName qname,
+        DocumentLocation location,
+        int ordinal,
+        int namespaceMark,
+        int errorMark
+    )
     {
         Name = name;
         QName = qname;
         Location = location;
+        TextLocation = location;
         Ordinal = ordinal;
         Content = FrameContent.Unassessed;
         Declaration = null;
@@ -56,9 +67,11 @@ internal sealed class ElementFrame
         ContentFailed = false;
         TextReported = false;
         HasText = false;
+        HasChild = false;
         IsNilled = false;
         UndeclaredRoot = false;
         UndeclaredStrict = false;
         NamespaceMark = namespaceMark;
+        ErrorMark = errorMark;
     }
 }

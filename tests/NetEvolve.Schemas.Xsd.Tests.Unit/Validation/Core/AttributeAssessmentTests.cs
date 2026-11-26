@@ -67,13 +67,13 @@ public class AttributeAssessmentTests
     }
 
     [Test]
-    public async Task UndeclaredAttribute_WithoutWildcard_IsAnError()
+    public async Task UndeclaredAttribute_WithoutWildcard_IsAnErrorAtTheAttribute()
     {
         var schema = RootWith(s => s.Empty(s.Use("a")));
 
         var issues = ValidationHarness.Run(schema, "<r\n a=\"1\" z=\"2\"/>");
 
-        await AssertIssue(issues, "cvc-complex-type", "cvc-complex-type.3.2.1", 1, "'z'");
+        await AssertIssue(issues, "cvc-complex-type", "cvc-complex-type.3.2.1", 2, "'z'");
     }
 
     [Test]
@@ -232,6 +232,22 @@ public class AttributeAssessmentTests
 
         var ok = ValidationHarness.Run(schema, "<r a=\"one\"/>");
         var bad = ValidationHarness.Run(schema, "<r a=\"two\"/>");
+
+        await Assert.That(ok.Count).IsEqualTo(0);
+        await AssertIssue(bad, "cvc-au", "cvc-au", 1, "'a'");
+    }
+
+    [Test]
+    public async Task FixedAttribute_EqualInTheValueSpace_IsValid()
+    {
+        var schema = RootWith(s =>
+            s.Empty(
+                s.Use("a", "decimal", constraint: new AttributeValueConstraint(AttributeValueConstraintKind.Fixed, "1"))
+            )
+        );
+
+        var ok = ValidationHarness.Run(schema, "<r a=\"1.0\"/>");
+        var bad = ValidationHarness.Run(schema, "<r a=\"2.0\"/>");
 
         await Assert.That(ok.Count).IsEqualTo(0);
         await AssertIssue(bad, "cvc-au", "cvc-au", 1, "'a'");

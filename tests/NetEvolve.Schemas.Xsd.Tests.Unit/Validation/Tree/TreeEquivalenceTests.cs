@@ -27,7 +27,9 @@ public class TreeEquivalenceTests
 
         var tree = TreeFixture.Validator().Validate(TreeFixture.Load(instance).Document, cancellationToken);
 
-        await Assert.That(TreeFixture.Describe(tree.Result)).IsEqualTo(TreeFixture.Describe(streamed));
+        await Assert
+            .That(TreeFixture.Describe(tree.Result, lineOnly: true))
+            .IsEqualTo(TreeFixture.Describe(streamed, lineOnly: true));
     }
 
     [Test]

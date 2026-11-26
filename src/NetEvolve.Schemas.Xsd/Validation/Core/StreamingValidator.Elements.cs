@@ -21,6 +21,7 @@ internal sealed partial class StreamingValidator
     /// <inheritdoc />
     public void StartElement(XmlName name, XmlPosition position)
     {
+        _inText = false;
         _ordinal++;
         if (_skip > 0)
         {
@@ -45,6 +46,7 @@ internal sealed partial class StreamingValidator
     /// <inheritdoc />
     public void EndElement(XmlName name)
     {
+        _inText = false;
         if (_skip > 0)
         {
             _skip--;
@@ -58,21 +60,24 @@ internal sealed partial class StreamingValidator
             case FrameContent.SimpleContent:
                 EndSimpleContent(frame);
                 break;
-            case FrameContent.ElementOnly:
             case FrameContent.Mixed:
+                EndMixedValue(frame);
+                EndElementContent(frame);
+                break;
+            case FrameContent.ElementOnly:
                 EndElementContent(frame);
                 break;
             default:
                 break;
         }
 
-        if (_onEnd.Length > 0)
+        // Verdict channel (design #146 DP-12, #605): an error that a listener reports while the element is open invalidates it, and Pop
+        // hands the invalidity to the parent. The check repeats after every end hook, so a later listener sees the verdict of an earlier one.
+        Settle(frame);
+        for (var i = 0; i < _onEnd.Length; i++)
         {
-            var info = new ElementEndInfo(frame.Ordinal, frame.IsValid, frame.IsNilled, frame.Type);
-            for (var i = 0; i < _onEnd.Length; i++)
-            {
-                _onEnd[i].EndElement(info);
-            }
+            _onEnd[i].EndElement(new ElementEndInfo(frame.Ordinal, frame.IsValid, frame.IsNilled, frame.Type));
+            Settle(frame);
         }
 
         Pop(frame);
@@ -87,6 +92,16 @@ internal sealed partial class StreamingValidator
         }
 
         var frame = _frames[_depth - 1];
+        if (!_inText)
+        {
+            _inText = true;
+            _textStart = Here(frame.Location);
+            if (!frame.HasText)
+            {
+                frame.TextLocation = _textStart;
+            }
+        }
+
         frame.HasText = true;
         switch (frame.Content)
         {
@@ -105,6 +120,7 @@ internal sealed partial class StreamingValidator
                     frame.ContentFailed = true;
                     Invalid(
                         frame,
+                        _textStart,
                         ValidationRules.ComplexType,
                         "The content type of element "
                             + Display(frame.QName)
@@ -117,12 +133,21 @@ internal sealed partial class StreamingValidator
             case FrameContent.Nilled:
                 ReportNilledText(frame);
                 break;
+            case FrameContent.Mixed:
+                // Only the fixed value of an element without children is compared with its text.
+                if (!frame.HasChild && frame.Declaration?.ValueConstraint.Kind == ElementValueConstraintKind.Fixed)
+                {
+                    AppendText(text);
+                }
+
+                break;
             case FrameContent.ElementOnly:
                 if (!frame.TextReported && !IsWhitespace(text))
                 {
                     frame.TextReported = true;
                     Invalid(
                         frame,
+                        _textStart,
                         ValidationRules.ComplexType,
                         "The content type of element "
                             + Display(frame.QName)
@@ -151,6 +176,7 @@ internal sealed partial class StreamingValidator
 
     private void StartChild(ElementFrame parent, XmlName name, int id, XPathQName qname, DocumentLocation location)
     {
+        parent.HasChild = true;
         if (parent.ContentFailed)
         {
             _skip = 1;
@@ -223,7 +249,6 @@ internal sealed partial class StreamingValidator
 
         if (!TryStep(parent, id, qname, out var matched, out var byOpenContent))
         {
-            // Limitation: the run ceiling has no catalog code of its own; the nearest engine limit is reported (#610).
             if (parent.Counting is { CeilingExceeded: true })
             {
                 Reject(
@@ -346,9 +371,6 @@ internal sealed partial class StreamingValidator
             case ComplexTypeDefinition complex:
                 OpenComplex(frame, complex);
                 break;
-            case XsdBuiltInType { Kind: XsdComponentKind.ComplexType }:
-                OpenComplex(frame, ComplexTypeDefinition.AnyType);
-                break;
             default:
                 frame.Content = FrameContent.SimpleType;
                 frame.SimpleType = type;
@@ -373,6 +395,7 @@ internal sealed partial class StreamingValidator
             default:
                 frame.Content =
                     complex.ContentKind == ComplexContentKind.Mixed ? FrameContent.Mixed : FrameContent.ElementOnly;
+                _textLength = 0;
                 if (!frame.IsNilled)
                 {
                     AcquireRun(frame, complex);
@@ -426,7 +449,7 @@ internal sealed partial class StreamingValidator
 
         var frame = _frames[_depth] ??= new ElementFrame();
         _depth++;
-        frame.Start(name, qname, location, _ordinal, _scope.Count);
+        frame.Start(name, qname, location, _ordinal, _scope.Count, _reporter.ErrorCount);
         return frame;
     }
 
@@ -470,6 +493,7 @@ internal sealed partial class StreamingValidator
         {
             Invalid(
                 frame,
+                Here(frame.Location),
                 ValidationRules.ComplexType,
                 "The content of element " + Display(frame.QName) + " is not complete. " + Expected(frame, true),
                 "cvc-complex-type.2.4"
@@ -545,9 +569,20 @@ internal sealed partial class StreamingValidator
         return false;
     }
 
-    private void Invalid(ElementFrame frame, XsdRule rule, string message, string clause)
+    private void Settle(ElementFrame frame)
     {
-        Report(rule, frame.Location, message, clause);
+        if (_reporter.ErrorCount != frame.ErrorMark)
+        {
+            frame.IsValid = false;
+        }
+    }
+
+    private void Invalid(ElementFrame frame, XsdRule rule, string message, string clause) =>
+        Invalid(frame, frame.Location, rule, message, clause);
+
+    private void Invalid(ElementFrame frame, DocumentLocation location, XsdRule rule, string message, string clause)
+    {
+        Report(rule, location, message, clause);
         frame.IsValid = false;
     }
 

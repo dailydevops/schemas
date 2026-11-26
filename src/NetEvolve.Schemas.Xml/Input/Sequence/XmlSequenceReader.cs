@@ -24,7 +24,7 @@ using NetEvolve.Schemas.Xml.Reader.Pipeline;
 /// a declaration longer than that reports the limit instead of a conflicting declared encoding; the document type declaration is
 /// handled as by <see cref="XmlPipelineReader"/>. Not thread-safe. The benchmarks of this path belong to the reader benchmarks.
 /// </remarks>
-public readonly struct XmlSequenceReader : IXmlReader, IDisposable, IEquatable<XmlSequenceReader>
+public readonly struct XmlSequenceReader : IXmlReader, IXmlPositionSource, IDisposable, IEquatable<XmlSequenceReader>
 {
     private readonly XmlPipelineReader? _span;
     private readonly XmlSequenceFeeder? _feeder;
@@ -44,6 +44,9 @@ public readonly struct XmlSequenceReader : IXmlReader, IDisposable, IEquatable<X
     /// <inheritdoc />
     /// <exception cref="InvalidOperationException">The reader is a default value, not created by <c>Create</c>.</exception>
     public XmlPosition Position => _span?.Position ?? Feeder.Position;
+
+    XmlPosition IXmlPositionSource.Current =>
+        _span is not null ? ((IXmlPositionSource)_span).Current : Feeder.EventPosition;
 
     /// <inheritdoc />
     /// <exception cref="InvalidOperationException">The reader is a default value, not created by <c>Create</c>.</exception>

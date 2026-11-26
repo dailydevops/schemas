@@ -2,7 +2,9 @@ namespace NetEvolve.Schemas.Xsd.Override;
 
 using System;
 using System.Collections.Generic;
+using System.Text;
 using NetEvolve.Arguments;
+using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.SchemaDocuments;
 
 /// <summary>
@@ -11,21 +13,24 @@ using NetEvolve.Schemas.Xsd.SchemaDocuments;
 /// </summary>
 /// <remarks>
 /// <para>
-/// A set holds syntax nodes of the overriding documents and never copies them, so the identity of a set is the identity of
-/// its nodes (<see cref="Key"/>); a schema document reached under the same set is the same unit, which ends cycles.
+/// A set holds syntax nodes of the overriding documents and never copies them. The identity of a set (<see cref="Key"/>) is
+/// the identity of its components by content: components of one document with the same name, the same attributes, the
+/// same namespaces behind the prefixes their values use, and the same children are one component, so two
+/// <see langword="override"/> elements with equivalent children give one unit of the target (Structures 1.1, 4.2.5). A
+/// schema document reached under the same set is the same unit, which ends cycles.
 /// Where a target contains an <see langword="override"/> of its own, both sets merge and the outer one wins, with the
 /// children of the target first and the unmatched children of the outer set after them (F.2, clause 4).
 /// </para>
 /// <para>
-/// Limitations: the same document overridden by two <see langword="override"/> elements with equivalent children is two units,
-/// not one, because equivalence is not compared deeply; the specification calls such overrides allowed. A target that includes
-/// another document is never treated as left unchanged by a set, since its <see langword="include"/> becomes an
-/// <see langword="override"/> (F.2, clause 3), even when nothing below it matches (#753). A node of the set keeps its ancestors in the overriding document, so its
-/// document-level defaults are those of the overriding document unless a consumer reads them from the unit (#757).
+/// Limitations: components of different documents are never equivalent, since the defaults of their document may differ.
+/// A node of the set keeps its ancestors in the overriding document, so the builders read its document-level defaults
+/// from the unit (<c>SchemaUnit.Root</c>), which is the overridden document (#757).
 /// </para>
 /// </remarks>
 internal sealed class OverrideSet
 {
+    private static readonly char[] Separators = [' ', '\t', '\r', '\n'];
+
     private readonly List<SchemaSyntaxNode> _children;
 
     private OverrideSet(List<SchemaSyntaxNode> children, string key)
@@ -45,7 +50,7 @@ internal sealed class OverrideSet
     internal static OverrideSet? Create(
         SchemaSyntaxNode element,
         OverrideSet? outer,
-        Dictionary<SchemaSyntaxNode, int> identities
+        Dictionary<object, int> identities
     )
     {
         ArgumentNullException.ThrowIfNull(element);
@@ -82,17 +87,84 @@ internal sealed class OverrideSet
         var ids = new List<int>(children.Count);
         foreach (var child in children)
         {
-            if (!identities.TryGetValue(child, out var id))
-            {
-                id = identities.Count + 1;
-                identities.Add(child, id);
-            }
-
-            ids.Add(id);
+            ids.Add(Identify(child, identities));
         }
 
         ids.Sort();
         return new OverrideSet(children, string.Join(",", ids));
+    }
+
+    /// <summary>Gives a component the identity of its content, so equivalent components of one document are one node of a key.</summary>
+    private static int Identify(SchemaSyntaxNode node, Dictionary<object, int> identities)
+    {
+        var root = node;
+        while (root.Parent is not null)
+        {
+            root = root.Parent;
+        }
+
+        if (!identities.TryGetValue(root, out var document))
+        {
+            document = identities.Count + 1;
+            identities.Add(root, document);
+        }
+
+        var content = new StringBuilder();
+        _ = content.Append(document).Append('|');
+        Describe(node, content);
+        var fingerprint = content.ToString();
+        if (!identities.TryGetValue(fingerprint, out var id))
+        {
+            id = identities.Count + 1;
+            identities.Add(fingerprint, id);
+        }
+
+        return id;
+    }
+
+    /// <summary>Writes the name, the attributes in name order, the namespaces their values use, and the children of a node.</summary>
+    private static void Describe(SchemaSyntaxNode node, StringBuilder content)
+    {
+        _ = content.Append('{').Append(node.Name.NamespaceName).Append('}').Append(node.Name.LocalName).Append('(');
+        var attributes = new List<XsdSyntaxAttribute>(node.AttributeCount);
+        for (var i = 0; i < node.AttributeCount; i++)
+        {
+            attributes.Add(node.GetAttribute(i));
+        }
+
+        attributes.Sort(CompareByName);
+        foreach (var attribute in attributes)
+        {
+            _ = content
+                .Append('{')
+                .Append(attribute.Name.NamespaceName)
+                .Append('}')
+                .Append(attribute.Name.LocalName)
+                .Append('=')
+                .Append(attribute.Value.Length)
+                .Append(':')
+                .Append(attribute.Value);
+            foreach (var token in attribute.Value.Split(Separators, StringSplitOptions.RemoveEmptyEntries))
+            {
+                var colon = token.AsSpan().IndexOf(':');
+                var prefix = colon < 0 ? string.Empty : token.Substring(0, colon);
+                _ = content.Append('[').Append(node.TryResolvePrefix(prefix, out var uri) ? uri : "?").Append(']');
+            }
+        }
+
+        _ = content.Append(')');
+        for (var i = 0; i < node.ChildCount; i++)
+        {
+            Describe(node.GetChildNode(i), content);
+        }
+
+        _ = content.Append(';');
+    }
+
+    private static int CompareByName(XsdSyntaxAttribute x, XsdSyntaxAttribute y)
+    {
+        var space = string.CompareOrdinal(x.Name.NamespaceName, y.Name.NamespaceName);
+        return space != 0 ? space : string.CompareOrdinal(x.Name.LocalName, y.Name.LocalName);
     }
 
     /// <summary>Gives the component that takes the place of a top-level component of a target.</summary>
@@ -105,11 +177,11 @@ internal sealed class OverrideSet
         return Find(original) ?? original;
     }
 
-    /// <summary>Tells whether overriding a document with this set changes nothing in it (F.2, with the cycle note of 4.2.5).</summary>
+    /// <summary>Tells whether overriding a document with this set changes nothing in the document itself (F.2, with the cycle note of 4.2.5); the documents it includes, redefines, or overrides are the business of the loader.</summary>
     /// <param name="schema">The <c>schema</c> element of the document.</param>
     /// <returns>
     /// <see langword="true"/> when no component, no component of a <c>redefine</c>, and no child of an
-    /// <see langword="override"/> of the document is replaced or added, and the document includes nothing.
+    /// <see langword="override"/> of the document is replaced or added.
     /// </returns>
     internal bool LeavesUnchanged(SchemaSyntaxNode schema)
     {
@@ -125,8 +197,6 @@ internal sealed class OverrideSet
 
             switch (child.Name.LocalName)
             {
-                case "include":
-                    return false;
                 case "redefine":
                     if (ChangesChildren(child))
                     {

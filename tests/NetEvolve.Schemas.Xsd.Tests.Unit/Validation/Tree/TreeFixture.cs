@@ -122,7 +122,11 @@ internal static class TreeFixture
         }
     }
 
-    public static string Describe(ValidationResult result)
+    /// <summary>
+    /// Describes the issues. A tree keeps the start position of elements only, so the exact position of an attribute, of text, and of an
+    /// end tag (issue #606) is a property of the streaming path; <paramref name="lineOnly"/> compares the line of both paths.
+    /// </summary>
+    public static string Describe(ValidationResult result, bool lineOnly = false)
     {
         var text = new StringBuilder();
         foreach (var issue in result.Issues)
@@ -139,7 +143,7 @@ internal static class TreeFixture
                 .Append('|')
                 .Append(issue.Location.Line)
                 .Append(':')
-                .Append(issue.Location.Column)
+                .Append(lineOnly ? 0 : issue.Location.Column)
                 .Append('\n');
         }
 

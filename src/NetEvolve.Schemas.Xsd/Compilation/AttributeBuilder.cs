@@ -155,7 +155,7 @@ internal sealed class AttributeBuilder : IComponentBuilder
             : AttributeDeclaration.Local(
                 name,
                 unit.TargetNamespace,
-                FormOf(node),
+                FormOf(node, unit.Root),
                 node.Location,
                 type,
                 constraint,
@@ -170,9 +170,9 @@ internal sealed class AttributeBuilder : IComponentBuilder
     }
 
     // The form of a local declaration: its own attribute, else the default of the schema (Structures 3.2.2).
-    private static AttributeForm FormOf(SchemaSyntaxNode node) =>
+    private static AttributeForm FormOf(SchemaSyntaxNode node, SchemaSyntaxNode root) =>
         string.Equals(
-            node.FindAttribute("form") ?? SyntaxValues.Root(node).FindAttribute("attributeFormDefault"),
+            node.FindAttribute("form") ?? root.FindAttribute("attributeFormDefault"),
             "qualified",
             StringComparison.Ordinal
         )

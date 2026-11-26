@@ -101,7 +101,7 @@ internal sealed class ElementDeclarationBuilder : IComponentBuilder
         }
 
         var (typeName, inlineType) = ReadType(node, reporter);
-        var root = Root(node);
+        var root = _scope.SchemaElement ?? Root(node);
         var form = node.FindAttribute("form") ?? root.FindAttribute("elementFormDefault");
         var qualifiedName =
             name is null || name.Length == 0 ? default
