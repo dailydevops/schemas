@@ -24,7 +24,7 @@ public class AssemblyEdgeTests
     }
 
     [Test]
-    public async Task Build_SeekableStreamLargerThanMaxInputSize_ThrowsWithTheInputLimitCode(
+    public async Task Build_SeekableStreamLargerThanMaxResourceSize_ThrowsWithTheResourceLimitCode(
         CancellationToken cancellationToken
     )
     {
@@ -32,14 +32,14 @@ public class AssemblyEdgeTests
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(AssemblyFixture.Schema));
         var builder = SchemaValidator
             .ForXsd()
-            .WithLimits(ValidationLimits.Default.WithMaxInputSize(10))
+            .WithLimits(ValidationLimits.Default.WithMaxResourceSize(10))
             .AddSchema(stream);
 
         var exception = await Assert
             .That(async () => await builder.BuildAsync(cancellationToken))
             .Throws<SchemaCompilationException>();
 
-        await Assert.That(exception!.Issues[0].Code).IsEqualTo(CoreDiagnosticCodes.InputSizeLimitExceeded);
+        await Assert.That(exception!.Issues[0].Code).IsEqualTo(CoreDiagnosticCodes.ResourceSizeLimitExceeded);
         await Assert
             .That(stream.Position)
             .IsEqualTo(0L)

@@ -82,7 +82,7 @@ Here `result.IsValid` is `false`, and the single issue has the code `NES4625` (a
 
 ### Input kinds
 
-The schema is added with `AddSchema`, as `ReadOnlyMemory<char>`, `ReadOnlyMemory<byte>`, or a `Stream`; the `systemId` is the base URI of the document, which `include` and `import` resolve against. A stream is read from its current position at `Build` or `BuildAsync` and is never disposed. An instance is validated with `Validate` (synchronous) or `ValidateAsync` from a `Stream`, `ReadOnlyMemory<char>`, `ReadOnlyMemory<byte>`, `ReadOnlySequence<char>`, or `ReadOnlySequence<byte>`; the synchronous overloads also take spans, and a `string` binds to the `ReadOnlySpan<char>` overload.
+The schema is added with `AddSchema`, as `ReadOnlyMemory<char>`, `ReadOnlyMemory<byte>`, or a `Stream`; the `systemId` is the base URI of the document, which `include` and `import` resolve against. `ReadOnlyMemory` input is copied, so the caller may reuse its buffer after `AddSchema` returns. A stream is read from its current position at `Build` or `BuildAsync` and is never disposed. The bytes of a stream are kept, so a second `Build` does not read it again, even if it cannot seek. An instance is validated with `Validate` (synchronous) or `ValidateAsync` from a `Stream`, `ReadOnlyMemory<char>`, `ReadOnlyMemory<byte>`, `ReadOnlySequence<char>`, or `ReadOnlySequence<byte>`; the synchronous overloads also take spans, and a `string` binds to the `ReadOnlySpan<char>` overload.
 
 In the sample, `schemaStream` and `instanceStream` are streams over the schema document and over `<order>7</order>`.
 
@@ -255,7 +255,7 @@ Here `deniedCode` is `NES0100`, and the validator that has the resolver is built
 | `MaxEntityExpansion` | 10,000,000 characters |
 | `MaxEntityDepth` | 16 |
 | `MaxExternalResources` | 16 per validation or compilation |
-| `MaxResourceSize` | 16 MiB per resolved resource |
+| `MaxResourceSize` | 16 MiB per resolved resource and per schema document given to `AddSchema` |
 
 ```csharp
 var validator = await SchemaValidator
@@ -268,6 +268,8 @@ var result = validator.Validate("<list><n>a</n><n>b</n></list>", null, cancellat
 ```
 
 Here the result has one issue, and `IsTruncated` is `true`.
+
+A schema document over `MaxResourceSize` ends the build with a `SchemaCompilationException` whose issue has the code `NES0007`. Before the schema sources moved to the shared `SchemaSourceHolder`, the same condition was reported as `NES0001` against `MaxInputSize`; `MaxInputSize` now bounds instances only.
 
 ### Document type declarations
 

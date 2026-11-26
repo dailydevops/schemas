@@ -22,6 +22,20 @@ public sealed partial class XmlWriter
         public int ValLen;
     }
 
+    /// <summary>One in-scope namespace binding.</summary>
+    private readonly struct Binding
+    {
+        public Binding(int prefix, int uri)
+        {
+            Prefix = prefix;
+            Uri = uri;
+        }
+
+        public int Prefix { get; }
+
+        public int Uri { get; }
+    }
+
     private void FixDeclarations(int count)
     {
         for (var i = 0; i < count; i++)
@@ -132,9 +146,9 @@ public sealed partial class XmlWriter
     {
         for (var i = _bindCount - 1; i >= 0; i--)
         {
-            if (_bindPrefix[i] == prefix)
+            if (_bindings[i].Prefix == prefix)
             {
-                uri = _bindUri[i];
+                uri = _bindings[i].Uri;
                 return true;
             }
         }
@@ -148,8 +162,8 @@ public sealed partial class XmlWriter
     {
         for (var i = _bindCount - 1; i >= 0; i--)
         {
-            var candidate = _bindPrefix[i];
-            if (_bindUri[i] == uri && candidate != 0 && TryLookup(candidate, out var current) && current == uri)
+            var candidate = _bindings[i].Prefix;
+            if (_bindings[i].Uri == uri && candidate != 0 && TryLookup(candidate, out var current) && current == uri)
             {
                 prefix = candidate;
                 return true;
@@ -164,7 +178,7 @@ public sealed partial class XmlWriter
     {
         for (var i = mark; i < _bindCount; i++)
         {
-            if (_bindPrefix[i] == prefix)
+            if (_bindings[i].Prefix == prefix)
             {
                 return true;
             }
@@ -175,14 +189,12 @@ public sealed partial class XmlWriter
 
     private void AddBinding(int prefix, int uri)
     {
-        if (_bindCount == _bindPrefix.Length)
+        if (_bindCount == _bindings.Length)
         {
-            Array.Resize(ref _bindPrefix, _bindCount * 2);
-            Array.Resize(ref _bindUri, _bindCount * 2);
+            Array.Resize(ref _bindings, _bindCount * 2);
         }
 
-        _bindPrefix[_bindCount] = prefix;
-        _bindUri[_bindCount] = uri;
+        _bindings[_bindCount] = new Binding(prefix, uri);
         _bindCount++;
     }
 

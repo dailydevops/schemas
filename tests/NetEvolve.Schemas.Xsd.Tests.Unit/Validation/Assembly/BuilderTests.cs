@@ -143,18 +143,18 @@ public class BuilderTests
     }
 
     [Test]
-    public async Task Build_SchemaLargerThanMaxInputSize_ThrowsWithTheInputLimitCode()
+    public async Task Build_SchemaLargerThanMaxResourceSize_ThrowsWithTheResourceLimitCode()
     {
         foreach (var build in OversizedBuilds())
         {
             var exception = AssemblyFixture.Failure(build);
 
-            await Assert.That(exception.Issues[0].Code).IsEqualTo(CoreDiagnosticCodes.InputSizeLimitExceeded);
+            await Assert.That(exception.Issues[0].Code).IsEqualTo(CoreDiagnosticCodes.ResourceSizeLimitExceeded);
         }
     }
 
     [Test]
-    public async Task BuildAsync_StreamLargerThanMaxInputSize_ThrowsWithTheInputLimitCode(
+    public async Task BuildAsync_StreamLargerThanMaxResourceSize_ThrowsWithTheResourceLimitCode(
         CancellationToken cancellationToken
     )
     {
@@ -162,14 +162,14 @@ public class BuilderTests
         using var stream = new UnseekableStream(Utf8.GetBytes(AssemblyFixture.Schema));
         var builder = SchemaValidator
             .ForXsd()
-            .WithLimits(ValidationLimits.Default.WithMaxInputSize(10))
+            .WithLimits(ValidationLimits.Default.WithMaxResourceSize(10))
             .AddSchema(stream);
 
         var exception = await Assert
             .That(async () => await builder.BuildAsync(cancellationToken))
             .Throws<SchemaCompilationException>();
 
-        await Assert.That(exception!.Issues[0].Code).IsEqualTo(CoreDiagnosticCodes.InputSizeLimitExceeded);
+        await Assert.That(exception!.Issues[0].Code).IsEqualTo(CoreDiagnosticCodes.ResourceSizeLimitExceeded);
     }
 
     [Test]
@@ -210,7 +210,7 @@ public class BuilderTests
 
     private static Func<IXsdValidator>[] OversizedBuilds()
     {
-        var limits = ValidationLimits.Default.WithMaxInputSize(10);
+        var limits = ValidationLimits.Default.WithMaxResourceSize(10);
         var bytes = Utf8.GetBytes(AssemblyFixture.Schema);
 
         return

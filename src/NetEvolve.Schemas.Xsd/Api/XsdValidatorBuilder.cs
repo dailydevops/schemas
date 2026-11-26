@@ -11,6 +11,7 @@ using NetEvolve.Arguments;
 using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Resources;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
+using NetEvolve.Schemas.Xsd.Compilation;
 using NetEvolve.Schemas.Xsd.Validation.Assembly;
 
 /// <summary>Fluent builder for an XSD validator: version, limits, and resolver. Builders are not thread-safe.</summary>
@@ -22,7 +23,7 @@ using NetEvolve.Schemas.Xsd.Validation.Assembly;
 /// </remarks>
 public sealed class XsdValidatorBuilder : SchemaValidatorBuilder<XsdValidatorBuilder, IXsdValidator>
 {
-    private readonly List<SchemaSource> _sources = [];
+    private readonly List<SchemaSourceHolder> _sources = [];
     private XsdVersion _version = XsdVersion.V11;
     private bool _dtdProcessing;
     private bool _schemaLocationHints;
@@ -44,23 +45,23 @@ public sealed class XsdValidatorBuilder : SchemaValidatorBuilder<XsdValidatorBui
         return this;
     }
 
-    /// <summary>Adds a schema document given as characters; the memory is borrowed until <c>Build</c> returns.</summary>
+    /// <summary>Adds a schema document given as characters; the characters are copied, so the caller may reuse its buffer.</summary>
     /// <param name="content">The document.</param>
     /// <param name="systemId">The system identifier and base URI of the document, or <see langword="null"/>.</param>
     /// <returns>This builder.</returns>
     public XsdValidatorBuilder AddSchema(ReadOnlyMemory<char> content, string? systemId = null)
     {
-        _sources.Add(SchemaSource.FromChars(content, systemId));
+        _sources.Add(SchemaSourceHolder.FromChars(content.Span, systemId));
         return this;
     }
 
-    /// <summary>Adds a schema document given as bytes; the memory is borrowed until <c>Build</c> returns.</summary>
+    /// <summary>Adds a schema document given as bytes; the bytes are copied, so the caller may reuse its buffer.</summary>
     /// <param name="content">The document.</param>
     /// <param name="systemId">The system identifier and base URI of the document, or <see langword="null"/>.</param>
     /// <returns>This builder.</returns>
     public XsdValidatorBuilder AddSchema(ReadOnlyMemory<byte> content, string? systemId = null)
     {
-        _sources.Add(SchemaSource.FromBytes(content, systemId));
+        _sources.Add(SchemaSourceHolder.FromBytes(content.Span, systemId));
         return this;
     }
 
@@ -72,7 +73,7 @@ public sealed class XsdValidatorBuilder : SchemaValidatorBuilder<XsdValidatorBui
     {
         ArgumentNullException.ThrowIfNull(stream);
 
-        _sources.Add(SchemaSource.FromStream(stream, systemId));
+        _sources.Add(SchemaSourceHolder.FromStream(stream, systemId));
         return this;
     }
 
@@ -114,7 +115,7 @@ public sealed class XsdValidatorBuilder : SchemaValidatorBuilder<XsdValidatorBui
             _dtdProcessing,
             limits,
             resolver,
-            SchemaSources.Read(_sources, limits),
+            ReadInputs(limits, CancellationToken.None),
             CancellationToken.None,
             _schemaLocationHints
         );
@@ -124,14 +125,39 @@ public sealed class XsdValidatorBuilder : SchemaValidatorBuilder<XsdValidatorBui
         ValidationLimits limits,
         IResourceResolver resolver,
         CancellationToken cancellationToken
-    ) =>
-        ValidatorAssembly.Create(
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        foreach (var source in _sources)
+        {
+            await source.PrefetchAsync(limits, cancellationToken).ConfigureAwait(false);
+        }
+
+        return ValidatorAssembly.Create(
             _version,
             _dtdProcessing,
             limits,
             resolver,
-            await SchemaSources.ReadAsync(_sources, limits, cancellationToken).ConfigureAwait(false),
+            ReadInputs(limits, cancellationToken),
             cancellationToken,
             _schemaLocationHints
         );
+    }
+
+    // A schema is a resource: every document is bounded by MaxResourceSize (NES0007), and a stream is read once and replayed.
+    private List<SchemaInput> ReadInputs(ValidationLimits limits, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var inputs = new List<SchemaInput>(_sources.Count);
+        foreach (var source in _sources)
+        {
+            inputs.Add(
+                source.Kind == DocumentSourceKind.Chars
+                    ? SchemaInput.FromChars(source.GetChars(limits), source.SystemId)
+                    : SchemaInput.FromBytes(source.GetBytes(limits, cancellationToken), source.SystemId)
+            );
+        }
+
+        return inputs;
+    }
 }
