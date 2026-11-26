@@ -177,7 +177,7 @@ public class GroupCompileTests
     [Test]
     public async Task Compile_APatternBeyondTheSubsetOfTheSharedMatcher_IsTheUnsupportedPatternError()
     {
-        var harness = new GroupHarness(Ending("*", "key('k', 'v')", 10, Members(11)));
+        var harness = new GroupHarness(Ending("*", "id('v')", 10, Members(11)));
 
         await Assert.That(harness.Executable).IsNull();
         await Assert.That(harness.CompileCodes).StartsWith(SchematronDiagnosticCodes.PatternUnsupported.ToString());
