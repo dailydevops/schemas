@@ -53,4 +53,13 @@ internal enum XmlTokenKind
 
     /// <summary>A document type declaration; only with a doctype handler. The parts are in <see cref="XmlTokenizer.LastDoctype"/>.</summary>
     Doctype = 16,
+
+    /// <summary>Coarse token (only with coarse tokens enabled): a complete attribute `name="value"` with a literal value; the first slice is the name, the second the value.</summary>
+    Attribute = 17,
+
+    /// <summary>Coarse token: a start tag without attributes, `&lt;name&gt;`; the slice is the name.</summary>
+    StartTag = 18,
+
+    /// <summary>Coarse token: an end tag without white space, `&lt;/name&gt;`; the slice is the name.</summary>
+    EndTag = 19,
 }

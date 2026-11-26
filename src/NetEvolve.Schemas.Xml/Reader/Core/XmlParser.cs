@@ -86,7 +86,8 @@ internal sealed partial class XmlParser : IXmlReader, IDisposable
             limits,
             doctypeHandler is not null,
             entityStack is not null,
-            allowXml11Declaration
+            allowXml11Declaration,
+            coarseTokens: true
         );
         _replacementTokenizer = XmlTokenizer.ForReplacementText(limits);
         _nodes = new XmlBudget(limits.MaxNodeCount, XmlErrorCodes.XML1108);
@@ -326,6 +327,13 @@ internal sealed partial class XmlParser : IXmlReader, IDisposable
                 return AttributeName(token.First(span), position);
             case XmlTokenKind.AttributeValueEnd:
                 return true;
+            case XmlTokenKind.Attribute:
+                return AttributeName(token.First(span), position)
+                    && (token.Length2 == 0 || AppendValue(token.Second(span), position));
+            case XmlTokenKind.StartTag:
+                return StartTag(token.First(span), position) && FinishStartTag(ref sink, false);
+            case XmlTokenKind.EndTag:
+                return EndTagName(token.First(span), position) && EndTagEnd(ref sink);
             case XmlTokenKind.StartTagEnd:
                 return FinishStartTag(ref sink, false);
             case XmlTokenKind.EmptyTagEnd:

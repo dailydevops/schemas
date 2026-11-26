@@ -68,6 +68,7 @@ internal partial struct XmlTokenizer
     private int _line;
     private int _column;
     private readonly bool _allowXml11Declaration;
+    private readonly bool _coarse;
     private long _offset;
     private bool _afterCr;
     private long _scanned;
@@ -83,13 +84,16 @@ internal partial struct XmlTokenizer
     /// <param name="allowDoctype">Whether a document type declaration is scanned (a handler is installed) or rejected.</param>
     /// <param name="allowEntityReferences">Whether references to other entities become tokens (an entity input stack is installed) or are rejected.</param>
     /// <param name="allowXml11Declaration">Whether the version <c>1.1</c> in the XML declaration is accepted.</param>
+    /// <param name="coarseTokens">Whether a construct that is complete in the input and far from every limit is returned as one token (<see cref="XmlTokenKind.Attribute"/>, <see cref="XmlTokenKind.StartTag"/>, <see cref="XmlTokenKind.EndTag"/>) instead of several fine grained tokens; the fine grained path stays the reference for everything else. Not for replacement text.</param>
     internal XmlTokenizer(
         XmlReaderLimits limits,
         bool allowDoctype,
         bool allowEntityReferences,
-        bool allowXml11Declaration = false
+        bool allowXml11Declaration = false,
+        bool coarseTokens = false
     )
     {
+        _coarse = coarseTokens;
         _allowXml11Declaration = allowXml11Declaration;
         _limits = limits;
         _allowDoctype = allowDoctype;
@@ -201,7 +205,13 @@ internal partial struct XmlTokenizer
             return XmlTokenStatus.Error;
         }
 
-        if (!ChargeLimits(input, pos, result == Scan.Token && token.Kind == XmlTokenKind.StartTagName))
+        if (
+            !ChargeLimits(
+                input,
+                pos,
+                result == Scan.Token && token.Kind is XmlTokenKind.StartTagName or XmlTokenKind.StartTag
+            )
+        )
         {
             return XmlTokenStatus.Error;
         }
@@ -343,11 +353,61 @@ internal partial struct XmlTokenizer
             return Fail(input, pos, XmlErrorCodes.XML0011);
         }
 
+        if (_coarse && TryScanAttribute(input, pos, end, out token))
+        {
+            pos = token.Start2 + token.Length2 + 1;
+            _mode = Mode.TagBody;
+            _sawSpace = false;
+            return Scan.Token;
+        }
+
         token = new XmlToken(XmlTokenKind.AttributeName, pos, end - pos);
         pos = end;
         _mode = Mode.AfterAttributeName;
         return Scan.Token;
     }
+
+    // The common attribute `name="value"` (no white space around the equals sign, no reference or line break in the value, the
+    // closing quote in the input) as one token, when neither the document nor the start tag limit can be crossed inside it: the
+    // fine grained path reports every limit error at the exact character.
+    private readonly bool TryScanAttribute(ReadOnlySpan<char> input, int nameStart, int nameEnd, out XmlToken token)
+    {
+        token = default;
+        if (!_tagAtStart || nameEnd + 1 >= input.Length || input[nameEnd] != '=')
+        {
+            return false;
+        }
+
+        var quote = input[nameEnd + 1];
+        if (quote is not ('"' or '\''))
+        {
+            return false;
+        }
+
+        var valueStart = nameEnd + 2;
+        var length = input.Slice(valueStart).IndexOfAny(quote == '"' ? DoubleQuoteStops : SingleQuoteStops);
+        if (
+            length < 0
+            || input[valueStart + length] != quote
+            || length > _limits.MaxAttributeValueLength
+            || !FitsLimits(
+                valueStart + length + 1 - _origin,
+                _limits.MaxStartTagCharacters - _tagCharacters,
+                valueStart + length + 1 - _origin
+            )
+            || XmlCharClass.IndexOfNonChar(input.Slice(valueStart, length)) >= 0
+        )
+        {
+            return false;
+        }
+
+        token = new XmlToken(XmlTokenKind.Attribute, nameStart, nameEnd - nameStart, valueStart, length);
+        return true;
+    }
+
+    // Whether `consumed` characters of this call stay within the document limit and the given start tag room.
+    private readonly bool FitsLimits(int consumed, long tagRoom, int tagUsed) =>
+        consumed <= _limits.MaxDocumentCharacters - _offset && tagUsed <= tagRoom;
 
     // The end of a start tag: '>' or '/>' (production 40 and 44).
     private Scan ScanTagEnd(ReadOnlySpan<char> input, ref int pos, bool isFinal, out XmlToken token)
