@@ -174,6 +174,34 @@ loader, because the resolver is not public API.
 - **Run:** `XIncludeConformanceTests` is explicit and in the `Conformance` category; the baseline guard
   `XIncludeKnownFailureTests` needs no download.
 
+## libxml2 regression corpus (`libxml2.json`)
+
+The libxml2 source archive is pinned by tag (`v2.15.4`, MIT licence): `https://github.com/GNOME/libxml2/archive/refs/tags/v2.15.4.tar.gz`
+with the `subPath` `libxml2-2.15.4`. Only three sub-trees whose expectations do not depend on libxml2 output formats are run. Pairs
+of input and expectation are matched by path convention, because the corpus has no catalog.
+
+- **Byte stability:** GitHub generates tag archives on request and does not promise byte-identical output over time (two
+  downloads on 2026-11-26 had the same SHA-256). If it changes, re-pin as described for QT3.
+- **URI (`test/URI/uri.data`, `result/URI/uri.data`):** each line is resolved against `http://foo.com/path/to/index.html?orig#help`
+  with the internal reference resolver and compared with the result line; `::ERROR::` expects a refused reference. The parse-only
+  files `*.uri` (no base, normalization only) are not run. The runner lives in `tests/NetEvolve.Schemas.Tests.Unit/Resources/Libxml2`.
+- **Regexp (`test/regexp/*`, `result/regexp/*`):** every pattern runs on the XSD dialect of the regex engine. A line with `=>` (or the
+  first line of a file) is a pattern that must compile or, when the result says `failed to compile`, must not; the lines that follow
+  are inputs that must match as a whole (`Ok`) or must not (`Fail`). As in the libxml2 driver, blank lines and `#` lines are skipped
+  and a pattern that does not compile ends the file. The case id is `<file>/<pattern>/<input>` (one-based). The runner lives in
+  `tests/NetEvolve.Schemas.Xml.Tests.Integration/Libxml2`.
+- **Errors (`test/errors/*.xml`):** a document must be rejected by the pipeline reader (DTD processing on, no external access)
+  when its message file `result/errors/<name>.err` holds a parser, namespace, or I/O error; a document with warnings only, or
+  without a message file, must be accepted. The `.ent` and `.str` result variants, `test/errors10`, and the message texts are not
+  compared (libxml2-specific).
+- **Baselines:** `tests/conformance/baselines/libxml2-<tree>/<test set>.txt` lists known failures; the URI and regexp trees have none.
+  `libxml2-errors/known-failure-links.tsv` gives each entry `#issue` (engine defect) or `leniency` (deliberate difference from
+  libxml2) and its reason, separated by tabs; an entry without a line, or a line without an entry, fails the guard
+  `Libxml2KnownFailureTests`, which needs no download.
+- **Run:** the tests in `Libxml2ConformanceTests` and `Libxml2UriConformanceTests` are explicit and in the `Conformance` category;
+  `Baseline_Regenerate` rewrites the baseline files after a deliberate change.
+- **Out of scope:** `test/c14n` (Canonical XML is not implemented), `test/xmlid`, SAX dumps, and message files.
+
 ## parse-number-fxx test data (`parse-number-fxx.json`)
 
 The parse-number-fxx test data (Apache-2.0, no tags, last push 2022) is pinned by its commit archive, `.../archive/<commit>.zip`,
