@@ -28,8 +28,8 @@ public class ListenerVerdictTests
 
         await Assert.That(issues.Count).IsEqualTo(1);
         await Assert.That(recorder.Events).Contains("end #1 (invalid)");
-        await Assert.That(recorder.Events).Contains("end #2");
-        await Assert.That(recorder.Events).Contains("end #3 (invalid)");
+        await Assert.That(recorder.Events).Contains("end #2 (invalid)");
+        await Assert.That(recorder.Events).Contains("end #3");
     }
 
     [Test]

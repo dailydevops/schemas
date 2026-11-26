@@ -69,13 +69,13 @@ internal sealed partial class StreamingValidator
                 break;
         }
 
-        if (_onEnd.Length > 0)
+        // Verdict channel (design #146 DP-12, #605): an error that a listener reports while the element is open invalidates it, and Pop
+        // hands the invalidity to the parent. The check repeats after every end hook, so a later listener sees the verdict of an earlier one.
+        Settle(frame);
+        for (var i = 0; i < _onEnd.Length; i++)
         {
-            var info = new ElementEndInfo(frame.Ordinal, frame.IsValid, frame.IsNilled, frame.Type);
-            for (var i = 0; i < _onEnd.Length; i++)
-            {
-                _onEnd[i].EndElement(info);
-            }
+            _onEnd[i].EndElement(new ElementEndInfo(frame.Ordinal, frame.IsValid, frame.IsNilled, frame.Type));
+            Settle(frame);
         }
 
         Pop(frame);
@@ -439,7 +439,7 @@ internal sealed partial class StreamingValidator
 
         var frame = _frames[_depth] ??= new ElementFrame();
         _depth++;
-        frame.Start(name, qname, location, _ordinal, _scope.Count);
+        frame.Start(name, qname, location, _ordinal, _scope.Count, _reporter.ErrorCount);
         return frame;
     }
 
@@ -556,6 +556,14 @@ internal sealed partial class StreamingValidator
 
         declaration = null!;
         return false;
+    }
+
+    private void Settle(ElementFrame frame)
+    {
+        if (_reporter.ErrorCount != frame.ErrorMark)
+        {
+            frame.IsValid = false;
+        }
     }
 
     private void Invalid(ElementFrame frame, XsdRule rule, string message, string clause)
