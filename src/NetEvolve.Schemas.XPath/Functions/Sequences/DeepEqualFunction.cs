@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.XPath.Functions.Sequences;
 
 using NetEvolve.Schemas.XPath.Api;
+using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
@@ -23,11 +24,13 @@ internal sealed class DeepEqualFunction : SequenceFunction
 
         var first = invocation.Arguments[0];
         var second = invocation.Arguments[1];
-        invocation.Result = XdmSequence.Create(XdmItem.FromBoolean(SequencesEqual(in first, in second)));
+        invocation.Result = XdmSequence.Create(
+            XdmItem.FromBoolean(SequencesEqual(in first, in second, invocation.Context))
+        );
         return XPathEvaluationStatus.Ok;
     }
 
-    private static bool SequencesEqual(in XdmSequence first, in XdmSequence second)
+    private static bool SequencesEqual(in XdmSequence first, in XdmSequence second, XPathEvaluationContext context)
     {
         var count = first.Count;
         if (count != second.Count)
@@ -37,7 +40,7 @@ internal sealed class DeepEqualFunction : SequenceFunction
 
         for (var i = 0; i < count; i++)
         {
-            if (!ItemsEqual(first[i], second[i]))
+            if (!ItemsEqual(first[i], second[i], context))
             {
                 return false;
             }
@@ -46,13 +49,13 @@ internal sealed class DeepEqualFunction : SequenceFunction
         return true;
     }
 
-    private static bool ItemsEqual(in XdmItem first, in XdmItem second)
+    private static bool ItemsEqual(in XdmItem first, in XdmItem second, XPathEvaluationContext context)
     {
         if (first.TryGetNode(out var a))
         {
             return second.TryGetNode(out var b) && NodeEquality.DeepEqual(in a, in b);
         }
 
-        return !second.IsNode && AtomicEquality.AreEqual(in first, in second, nanEqual: true);
+        return !second.IsNode && AtomicEquality.AreEqual(in first, in second, nanEqual: true, context);
     }
 }

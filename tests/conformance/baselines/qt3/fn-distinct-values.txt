@@ -3,7 +3,6 @@ fn-distinct-values/K-SeqDistinctValuesFunc-2
 fn-distinct-values/K-SeqDistinctValuesFunc-5
 fn-distinct-values/K-SeqDistinctValuesFunc-7
 fn-distinct-values/K-SeqDistinctValuesFunc-8
-fn-distinct-values/cbcl-distinct-values-003
 fn-distinct-values/cbcl-distinct-values-016
 fn-distinct-values/fn-distinct-values-mixed-args-001
 fn-distinct-values/fn-distinct-values-mixed-args-003

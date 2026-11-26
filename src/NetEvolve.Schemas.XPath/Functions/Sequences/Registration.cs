@@ -11,9 +11,8 @@ using NetEvolve.Schemas.XPath.Functions.Binding;
 /// that cut and rearrange a sequence.
 /// </summary>
 /// <remarks>
-/// Limitation: the design names the folder <c>Functions/Sequence</c>; the work package owns <c>Functions/Sequences</c>. The equality
-/// of dates, times, and durations in <c>fn:distinct-values</c>, <c>fn:index-of</c>, and <c>fn:deep-equal</c> is left to #732, and the
-/// collations other than the codepoint collation to XP-25 (#267).
+/// Limitation: the design names the folder <c>Functions/Sequence</c>; the work package owns <c>Functions/Sequences</c>. The
+/// collations other than the codepoint collation are left to XP-25 (#267).
 /// </remarks>
 internal static class Registration
 {
