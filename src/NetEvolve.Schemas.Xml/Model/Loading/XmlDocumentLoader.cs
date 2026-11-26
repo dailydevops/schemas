@@ -173,7 +173,20 @@ public static class XmlDocumentLoader
         cancellationToken.ThrowIfCancellationRequested();
 
         using var builder = NewBuilder(options, baseUri);
-        using var reader = new XmlStreamReader<XmlTreeBuilder>(stream, builder, options, leaveOpen: true);
+        if (options.DtdProcessing)
+        {
+            using var classReader = new XmlStreamReader<XmlTreeBuilder>(stream, builder, options, leaveOpen: true);
+            var classStatus = await classReader.ReadAsync(cancellationToken).ConfigureAwait(false);
+
+            return Complete(builder, options, classStatus, classReader.Diagnostic);
+        }
+
+        using var reader = new XmlStreamReader<XmlTreeBuilderSink>(
+            stream,
+            new XmlTreeBuilderSink(builder),
+            options,
+            leaveOpen: true
+        );
         var status = await reader.ReadAsync(cancellationToken).ConfigureAwait(false);
 
         return Complete(builder, options, status, reader.Diagnostic);
@@ -183,8 +196,18 @@ public static class XmlDocumentLoader
         where TReader : IXmlReader
     {
         using var builder = NewBuilder(options, baseUri);
-        var sink = builder;
-        var status = reader.Pump(ref sink);
+        XmlReadStatus status;
+        if (options.DtdProcessing)
+        {
+            // Only a sink of a reference type is offered the attribute facts of the declared attributes.
+            var sink = builder;
+            status = reader.Pump(ref sink);
+        }
+        else
+        {
+            var sink = new XmlTreeBuilderSink(builder);
+            status = reader.Pump(ref sink);
+        }
 
         return Complete(builder, options, status, reader.Diagnostic);
     }
