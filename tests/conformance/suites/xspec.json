@@ -1,0 +1,7 @@
+{
+  "key": "xspec",
+  "url": "https://github.com/xspec/xspec/archive/refs/tags/v4.1.2.zip",
+  "sha256": "9faa894ad87e360e794624d5306d476e9049e22e1386ecba3d0033e00602dd7e",
+  "archive": "zip",
+  "subPath": "xspec-4.1.2"
+}
