@@ -2,8 +2,6 @@ fn-doc/K2-SeqDocFunc-7
 fn-doc/K2-SeqDocFunc-8
 fn-doc/K2-SeqDocFunc-9
 fn-doc/fn-doc-1
-fn-doc/fn-doc-15
-fn-doc/fn-doc-16
 fn-doc/fn-doc-17
 fn-doc/fn-doc-24
 fn-doc/fn-doc-25

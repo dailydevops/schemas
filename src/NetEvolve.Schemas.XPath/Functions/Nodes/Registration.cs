@@ -33,6 +33,9 @@ internal static class Registration
         builder.Add(new NameFunction());
         builder.Add(new LocalNameFunction());
         builder.Add(new NamespaceUriFunction());
+        builder.Add(new NodeQNameFunction());
+        builder.Add(new NilledFunction());
+        builder.Add(new DocumentUriFunction());
         builder.Add(new RootFunction());
         builder.Add(new LangFunction());
         builder.Add(new PositionFunction());
