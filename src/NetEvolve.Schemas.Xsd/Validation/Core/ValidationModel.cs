@@ -20,7 +20,7 @@ using NetEvolve.Schemas.Xsd.Substitution;
 /// Everything is computed when the model is built, so the model is safe to share between runs and threads (design #146 DP-4).
 /// </summary>
 /// <remarks>
-/// Limitations: substitution groups are not applied, because <see cref="ElementDeclaration"/> carries no affiliation yet; a
+/// Limitations: an element reference matches the declaration and every non-abstract member of its substitution group; a
 /// <c>all</c> group is compiled with the XSD 1.0 matcher in 1.0 mode (members with <c>maxOccurs</c> above 1 and wildcards are
 /// left out) and with the XSD 1.1 matcher in 1.1 mode. A circular model group
 /// definition is a schema error that the resolver reports; here the repeated group is left out so that building terminates.

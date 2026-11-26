@@ -49,6 +49,7 @@ namespace NetEvolve.Schemas
         public NetEvolve.Schemas.SchematronValidatorBuilder WithGlobalPatternLets(bool enabled) { }
         public NetEvolve.Schemas.SchematronValidatorBuilder WithParameter(string name, string value) { }
         public NetEvolve.Schemas.SchematronValidatorBuilder WithPhase(string phase) { }
+        public NetEvolve.Schemas.SchematronValidatorBuilder WithSeverityFilter(System.Collections.Generic.IReadOnlyList<string> severities, System.StringComparison comparison = 5) { }
     }
 }
 namespace NetEvolve.Schemas.Schematron

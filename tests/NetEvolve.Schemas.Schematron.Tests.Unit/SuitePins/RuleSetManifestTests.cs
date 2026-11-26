@@ -12,6 +12,7 @@ public class RuleSetManifestTests
     [Arguments("peppol-reporting.json", "stage2-peppol-reporting")]
     [Arguments("factur-x.json", "stage3-factur-x")]
     [Arguments("french-ctc.json", "stage3-french-ctc")]
+    [Arguments("eforms-sdk.json", "eforms-sdk")]
     public async Task Manifest_PinsOneReleaseEntryWithChecksum(string fileName, string key)
     {
         var manifest = SuitePinFiles.Load(fileName);
@@ -29,6 +30,7 @@ public class RuleSetManifestTests
     [Arguments("peppol-reporting.json", "peppol-end-user-statistics-reporting-1.1.0.sch")]
     [Arguments("factur-x.json", "FACTUR-X_BASIC-WL.sch")]
     [Arguments("french-ctc.json", "EXTENDED-CTC-FR-CII.sch")]
+    [Arguments("eforms-sdk.json", "complete-validation.sch")]
     public async Task Fetch_DownloadsEntryAndVerifiesChecksum(
         string fileName,
         string expectedFile,

@@ -1,10 +1,6 @@
 1.0/addA006/addA006.v
 1.0/addA008/addA008.v
 1.0/addB063/addB063.i
-1.0/addB078/addB078
-1.0/addB078A/addB078A
-1.0/addB078B/addB078B
-1.0/addB104/addB104.v
 1.0/addB120/addB120.i
 1.0/addB124/addB124.i
 1.0/addB134/addB134.v
@@ -29,10 +25,6 @@
 1.0/addC001/addC001
 1.0/addC001/addC001.v
 1.0/adda007/adda007.v
-1.0/isDefault060_2/isDefault060_2
-1.0/isDefault069/isDefault069
-1.0/isDefault070/isDefault070.i
-1.0/isDefault077/isDefault077.i
 1.0/isDefault078/isDefault078
 1.0/isDefault078/isDefault078.v
 1.1/addA001/addA001

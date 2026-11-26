@@ -101,7 +101,6 @@ ibmMeta-wildcard	1.0/s3_10_1ii09/s3_10_1ii09i	-	The test group has no version at
 msMeta-Additional_w3c	1.0/addA006/addA006.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-Additional_w3c	1.0/addA008/addA008.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-Additional_w3c	1.0/addB063/addB063.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-Additional_w3c	1.0/addB104/addB104.v	#896	Fixed values are compared lexically, not in the value space, so a fixed value that differs from the instance value only in white space or lexical form rejects a valid instance.
 msMeta-Additional_w3c	1.0/addB120/addB120.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-Additional_w3c	1.0/addB124/addB124.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-Additional_w3c	1.0/addB134/addB134.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
@@ -125,8 +124,6 @@ msMeta-Additional_w3c	1.0/addB202a/addB202a.i	#963	The group has no schema docum
 msMeta-Additional_w3c	1.0/addB202b/addB202b.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-Additional_w3c	1.0/addC001/addC001.v	-	The schema is incomplete (a missing component or document); the suite accepts it, the validator reports src-resolve.
 msMeta-Additional_w3c	1.0/adda007/adda007.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-Additional_w3c	1.0/isDefault070/isDefault070.i	#602	The fixed value of an element with mixed content is not enforced; the element value constraint covers simple content only.
-msMeta-Additional_w3c	1.0/isDefault077/isDefault077.i	#602	The fixed value of an element with mixed content is not enforced; the element value constraint covers simple content only.
 msMeta-Additional_w3c	1.0/isDefault078/isDefault078.v	-	The schema is incomplete (a missing component or document); the suite accepts it, the validator reports src-resolve.
 msMeta-AttributeGroup_w3c	1.0/attgD003/attgD003.v	-	The instance has more attributes on one element than the default MaxAttributesPerElement allows.
 msMeta-Attribute_w3c	1.0/attMd001/attMd001.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
@@ -140,13 +137,7 @@ msMeta-Attribute_w3c	1.0/attMd008/attMd008.i	#963	The group has no schema docume
 msMeta-Attribute_w3c	1.0/attMd009/attMd009.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-Attribute_w3c	1.0/attMd010/attMd010.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-Attribute_w3c	1.0/attMd011/attMd011.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-Attribute_w3c	1.0/attO006/attO006.v	#896	Fixed values are compared lexically, not in the value space, so a fixed value that differs from the instance value only in white space or lexical form rejects a valid instance.
-msMeta-Attribute_w3c	1.0/attO009/attO009.v	#896	Fixed values are compared lexically, not in the value space, so a fixed value that differs from the instance value only in white space or lexical form rejects a valid instance.
-msMeta-Attribute_w3c	1.0/attO011/attO011.v	#896	Fixed values are compared lexically, not in the value space, so a fixed value that differs from the instance value only in white space or lexical form rejects a valid instance.
 msMeta-ComplexType_w3c	1.0/ctZ011_a/ctZ011_a.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-ComplexType_w3c	1.0/ctZ013c/ctZ013c.i	#602	The fixed value of an element with mixed content is not enforced; the element value constraint covers simple content only.
-msMeta-ComplexType_w3c	1.0/ctZ013d/ctZ013d.i	#602	The fixed value of an element with mixed content is not enforced; the element value constraint covers simple content only.
-msMeta-ComplexType_w3c	1.0/ctZ013e/ctZ013e.i	#602	The fixed value of an element with mixed content is not enforced; the element value constraint covers simple content only.
 msMeta-DataTypes_w3c	1.0/IDREFS_enumeration001_1442/IDREFS_enumeration001_1442.i	#1077	The enumeration of a list type is not evaluated and the case expects it to reject the value.
 msMeta-DataTypes_w3c	1.0/IDREFS_enumeration003_1444/IDREFS_enumeration003_1444.i	#1077	The enumeration of a list type is not evaluated and the case expects it to reject the value.
 msMeta-DataTypes_w3c	1.0/NMTOKENS_enumeration001_1471/NMTOKENS_enumeration001_1471.i	#1077	The enumeration of a list type is not evaluated and the case expects it to reject the value.
@@ -178,10 +169,6 @@ msMeta-Schema_w3c	1.0/schD7/schD7.v	-	The schema is incomplete (a missing compon
 msMeta-Schema_w3c	1.0/schU3/schU3.i	#869	The schema does not build: a redefinition is not checked against the redefined component.
 msMeta-Schema_w3c	1.0/schU4/schU4.i	#869	The schema does not build: a redefinition is not checked against the redefined component.
 msMeta-Schema_w3c	1.0/schU5/schU5.i	#869	The schema does not build: a redefinition is not checked against the redefined component.
-msMeta-SimpleType_w3c	1.0/stE050/stE050.v	#896	The fixed value is compared lexically, not in the value space.
-msMeta-SimpleType_w3c	1.0/stE055/stE055.v	#896	The fixed value is compared lexically, not in the value space.
-msMeta-SimpleType_w3c	1.0/stE065/stE065.v	#870	Notation declarations are not components yet, so a NOTATION value cannot be checked.
-msMeta-SimpleType_w3c	1.0/stE066/stE066.v	#896	The fixed value is compared lexically, not in the value space.
 msMeta-SimpleType_w3c	1.0/stG011/stG011.i	#1077	The enumeration of a list type is not evaluated and the case expects it to reject the value.
 msMeta-SimpleType_w3c	1.0/stH008/stH008.i	#1078	The enumeration of a union type is not evaluated and the case expects it to reject the value.
 msMeta-SimpleType_w3c	1.0/stZ058/stZ058.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
@@ -970,7 +957,5 @@ saxonMeta-XmlVersions	1.0/xv007/xv007.v01.xml	#62	The instance document declares
 saxonMeta-XmlVersions	1.0/xv008/xv008.v01.xml	#62	The instance document declares XML 1.1, which the reader does not accept; XML 1.1 is not supported (#62).
 saxonMeta-XmlVersions	1.0/xv009/xv009.v01.xml	#62	The instance document declares XML 1.1, which the reader does not accept; XML 1.1 is not supported (#62).
 saxonMeta-XmlVersions	1.0/xv009/xv009.v02.xml	#62	The instance document declares XML 1.1, which the reader does not accept; XML 1.1 is not supported (#62).
-sunMeta-ElemDecl	1.0/valueconstraint00701m1/Negative	#602	The fixed value of an element with mixed content is not enforced; the element value constraint covers simple content only.
-sunMeta-ElemDecl	1.0/valueconstraint00801m1/Negative	#602	The fixed value of an element with mixed content is not enforced; the element value constraint covers simple content only.
 sunMeta-suntest	1.0/identitytestsuitetest002/test.2.v	#604	QName values are resolved without the namespace context, so an unbound prefix is accepted and two prefixes of one namespace give different key values.
 sunMeta-suntest	1.0/identitytestsuitetest002/test.3.n	#604	QName values are resolved without the namespace context, so an unbound prefix is accepted and two prefixes of one namespace give different key values.

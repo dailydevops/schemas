@@ -11,6 +11,7 @@ using NetEvolve.Schemas.Xsd.ContentModels.AllGroups11;
 using NetEvolve.Schemas.Xsd.ContentModels.Automaton;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Diagnostics;
+using NetEvolve.Schemas.Xsd.IdentityConstraints.Evaluation;
 using NetEvolve.Schemas.Xsd.Validation.SchemaLocation;
 using NetEvolve.Schemas.Xsd.Validation.Xsi;
 
@@ -29,9 +30,9 @@ using NetEvolve.Schemas.Xsd.Validation.Xsi;
 /// for end tags and text carry no position.
 /// </para>
 /// <para>
-/// Limitations: substitution groups (<see cref="ValidationModel"/>), ID, IDREF, and NOTATION (XSD-14, #303), identity
-/// constraints (XSD-15, #304), default values of mixed content, the value space
-/// comparison of fixed values (they are compared lexically), and forwarding of events to an inner sink (#361). A violation that a listener finds does not mark the element invalid,
+/// Limitations: ID, IDREF, and NOTATION (XSD-14, #303), identity
+/// constraints (XSD-15, #304), the value space comparison of fixed QName and NOTATION values, which needs the namespace context,
+/// and forwarding of events to an inner sink (#361). A violation that a listener finds does not mark the element invalid,
 /// because the shared reporter has no verdict channel yet. The nesting depth is bounded by the reader
 /// (<see cref="XmlReaderLimits.MaxElementDepth"/>, which the assembly of #335 sets from <c>ValidationLimits.MaxDepth</c>), not here.
 /// </para>
@@ -53,6 +54,7 @@ internal sealed partial class StreamingValidator : IXmlSink
     private readonly IDerivationCheck? _derivation;
     private readonly SchemaLocationHints? _hints;
     private readonly ISimpleValueAssessor _assessor;
+    private ValueSpace? _valueSpace;
     private readonly XsdIssueReporter _reporter;
     private readonly ValidationLimits _limits;
     private readonly string? _documentUri;

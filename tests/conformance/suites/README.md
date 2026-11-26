@@ -137,6 +137,60 @@ the schema set to the binding (`xslt1`, `xslt2`); a test set is named `<binding>
 - **Limitation:** the case reader keeps the text of an assertion and not its namespace declarations, so the engine declares the prefix
   `svrl` for the assertions; every assertion of the pinned release uses this prefix only.
 
+## eForms SDK (`eforms-sdk.json`)
+
+The eForms SDK is pinned by its release tag `1.16.0` (CC-BY-4.0); the runner lives in
+`tests/NetEvolve.Schemas.Schematron.Tests.Integration/Goldens/EformsSdk`. The `subPath` is the SDK root, so the static rule set is
+`schematrons/static/complete-validation.sch` and the notices and expected reports are in `examples/notices` and `examples/reports`.
+
+- **Byte stability:** GitHub generates the tag archive on request and does not promise byte-identical output over time. If the
+  checksum stops matching while the tag is unchanged, download the archive for the same tag again, verify its content, and update
+  `sha256`. The archive is about 330 MB uncompressed, so a change of this manifest invalidates the cached archive of every suite
+  that shares the cache.
+- **Selection:** the 92 example notices, including the `INVALID_*` notices, each with the expected report of the same name. The
+  static rule set is used; the dynamic rule set fetches the changed notice over HTTP in its stage 6 and is not run.
+- **Phase:** the phase of the expected report (`eforms-<subtype>`) selects the rules of the notice, as the SDK does. The rule set
+  includes about 260 files, so the run raises `MaxExternalResources` to 1000; the default of 16 is meant for untrusted input.
+- **Comparison, rule ids:** one case per notice and validation stage in the test sets `stage-1` to `stage-5`, taken from the stage
+  in the id of the active pattern. The failed assertions and successful reports are compared as a multiset of assertion id, role, and
+  location. A notice that fires nothing on both sides is a case of the test set `valid`. Only findings of patterns that the expected
+  report names as active are compared, because the reports of 1.16.0 predate some per-subtype patterns of the rule set.
+- **Comparison, locations:** the engine writes the path of a node with `local-name()` and `namespace-uri()` steps and a position on
+  every step; the reference writes prefixed names, the root without prefix, and a position only where siblings of the same name
+  exist. Both are brought to the form of the reference with `[1]` removed. The reference leaves the location empty for an attribute
+  context, so the location of a path that ends in an attribute is dropped.
+- **Comparison, text:** a separate verdict in the test set `text`: the findings that both sides share must carry the same text with
+  collapsed white space.
+- **Baseline:** `tests/conformance/baselines/eforms-sdk/<test set>.txt` lists the known failures; each entry has a line in
+  `known-failure-links.txt` of the same folder with its issue and its reason, separated by tabs. Regenerate the files with the
+  explicit test `EformsSdkBaselineTests.Baseline_Regenerate` after a deliberate change.
+
+## XSpec Schematron scenarios (`xspec.json`)
+
+The XSpec project is pinned by its release tag archive (`v4.1.2`, MIT license) with the `subPath` `xspec-4.1.2`. The reader and the
+runner live in `tests/NetEvolve.Schemas.Schematron.Tests.Integration/Conformance/Xspec`; the class `XspecConformanceTests` is explicit and
+selected by the conformance category.
+
+- **Selection:** every `.xspec` file below `test` and `tutorial` whose path names Schematron. A test set is one such file, named by its path
+  with `/` replaced by `-` and without the extension. A case is one declarative expectation: `x:expect-assert`, `x:expect-not-assert`,
+  `x:expect-report`, `x:expect-not-report`, or `x:expect-valid`, with `id`, `role`, `location`, `count`, and text content. `x:import` adds the
+  scenarios of the imported file, and the parameter `phase` (also `schxslt:phase`) selects the phase.
+- **Exclusions:** every skipped file, scenario, or expectation keeps its reason in the selection result. Left out are everything that needs
+  an XSLT or XQuery processor (`x:variable`, `x:call`, `x:helper`, `x:expect`, `x:like`, `x:expect-rule`, other parameters, `x:context/@select`,
+  placeholders and value templates in a context), `pending` and `shared` scenarios, a file without a `schematron` attribute, a file that is not
+  well formed XML 1.0, and the files listed in `XspecReader.ExcludedPaths`, which test XSpec itself (error handling, pending, focus, and
+  failing expectations on purpose).
+- **Outcome rules:** the SVRL output decides, as in XSpec. An id or role is the one of the assertion, else the one of the nearest preceding
+  rule, else the one of the nearest preceding pattern. A location is an XPath expression whose selected node must equal the node of the
+  location in the SVRL. The negative expectations and `x:expect-valid` also require that a rule fired. `x:expect-valid` fails on a failed
+  assertion or a successful report without a role or with the role `error` or `fatal`, and tolerates every other role.
+- **Baseline:** `tests/conformance/baselines/xspec/<test set>.txt` lists the known failures of one `.xspec` file as `<test set>/<case>`, one per
+  line, and only files with failures have one. Each entry has a line in
+  `tests/NetEvolve.Schemas.Schematron.Tests.Integration/Conformance/Xspec/known-failure-links.txt` with its issue and its reason, separated by
+  tabs. Regenerate the files with the explicit test `XspecConformanceTests.Baseline_Regenerate` after a deliberate change.
+- **Limitation:** XSpec compiles the schema to XSLT and runs the scenario on it; here the schema runs on the library validator. A scenario that
+  XSpec reports as failed on purpose, or that checks XSpec itself, is excluded, not counted as a failure of the library.
+
 ## OASIS XLIFF 2.1 (`xliff.json`)
 
 The OASIS XLIFF TC repository is pinned by commit archive (`.../archive/<commit>.zip`) with the `subPath`
@@ -173,6 +227,34 @@ loader, because the resolver is not public API.
   without an entry, fails the test.
 - **Run:** `XIncludeConformanceTests` is explicit and in the `Conformance` category; the baseline guard
   `XIncludeKnownFailureTests` needs no download.
+
+## libxml2 regression corpus (`libxml2.json`)
+
+The libxml2 source archive is pinned by tag (`v2.15.4`, MIT licence): `https://github.com/GNOME/libxml2/archive/refs/tags/v2.15.4.tar.gz`
+with the `subPath` `libxml2-2.15.4`. Only three sub-trees whose expectations do not depend on libxml2 output formats are run. Pairs
+of input and expectation are matched by path convention, because the corpus has no catalog.
+
+- **Byte stability:** GitHub generates tag archives on request and does not promise byte-identical output over time (two
+  downloads on 2026-11-26 had the same SHA-256). If it changes, re-pin as described for QT3.
+- **URI (`test/URI/uri.data`, `result/URI/uri.data`):** each line is resolved against `http://foo.com/path/to/index.html?orig#help`
+  with the internal reference resolver and compared with the result line; `::ERROR::` expects a refused reference. The parse-only
+  files `*.uri` (no base, normalization only) are not run. The runner lives in `tests/NetEvolve.Schemas.Tests.Unit/Resources/Libxml2`.
+- **Regexp (`test/regexp/*`, `result/regexp/*`):** every pattern runs on the XSD dialect of the regex engine. A line with `=>` (or the
+  first line of a file) is a pattern that must compile or, when the result says `failed to compile`, must not; the lines that follow
+  are inputs that must match as a whole (`Ok`) or must not (`Fail`). As in the libxml2 driver, blank lines and `#` lines are skipped
+  and a pattern that does not compile ends the file. The case id is `<file>/<pattern>/<input>` (one-based). The runner lives in
+  `tests/NetEvolve.Schemas.Xml.Tests.Integration/Libxml2`.
+- **Errors (`test/errors/*.xml`):** a document must be rejected by the pipeline reader (DTD processing on, no external access)
+  when its message file `result/errors/<name>.err` holds a parser, namespace, or I/O error; a document with warnings only, or
+  without a message file, must be accepted. The `.ent` and `.str` result variants, `test/errors10`, and the message texts are not
+  compared (libxml2-specific).
+- **Baselines:** `tests/conformance/baselines/libxml2-<tree>/<test set>.txt` lists known failures; the URI and regexp trees have none.
+  `libxml2-errors/known-failure-links.tsv` gives each entry `#issue` (engine defect) or `leniency` (deliberate difference from
+  libxml2) and its reason, separated by tabs; an entry without a line, or a line without an entry, fails the guard
+  `Libxml2KnownFailureTests`, which needs no download.
+- **Run:** the tests in `Libxml2ConformanceTests` and `Libxml2UriConformanceTests` are explicit and in the `Conformance` category;
+  `Baseline_Regenerate` rewrites the baseline files after a deliberate change.
+- **Out of scope:** `test/c14n` (Canonical XML is not implemented), `test/xmlid`, SAX dumps, and message files.
 
 ## parse-number-fxx test data (`parse-number-fxx.json`)
 

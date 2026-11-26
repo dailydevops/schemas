@@ -338,7 +338,7 @@ public class OpenContentValidationTests
         var issues = Run(Schema(content, OwnOpen(mode, "##any")), "<r>" + elements + "</r>");
 
         await Assert.That(issues.Count).IsEqualTo(1);
-        await Assert.That(issues[0].Code).IsEqualTo(ValidationHarness.Code("engine-content-model-transitions"));
+        await Assert.That(issues[0].Code).IsEqualTo(ValidationHarness.Code("engine-content-model-run"));
     }
 
     // ---- messages ----------------------------------------------------------------------------------------------------

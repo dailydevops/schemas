@@ -88,6 +88,7 @@ namespace NetEvolve.Schemas.Xsd
         public static readonly NetEvolve.Schemas.DiagnosticCode CPropsCorrect;
         public static readonly NetEvolve.Schemas.DiagnosticCode CSelectorXpath;
         public static readonly NetEvolve.Schemas.DiagnosticCode ContentModelPositionCeilingExceeded;
+        public static readonly NetEvolve.Schemas.DiagnosticCode ContentModelRunCeilingExceeded;
         public static readonly NetEvolve.Schemas.DiagnosticCode ContentModelTransitionCeilingExceeded;
         public static readonly NetEvolve.Schemas.DiagnosticCode CosAllLimited;
         public static readonly NetEvolve.Schemas.DiagnosticCode CosApplicableFacets;

@@ -238,6 +238,22 @@ public class AttributeAssessmentTests
     }
 
     [Test]
+    public async Task FixedAttribute_EqualInTheValueSpace_IsValid()
+    {
+        var schema = RootWith(s =>
+            s.Empty(
+                s.Use("a", "decimal", constraint: new AttributeValueConstraint(AttributeValueConstraintKind.Fixed, "1"))
+            )
+        );
+
+        var ok = ValidationHarness.Run(schema, "<r a=\"1.0\"/>");
+        var bad = ValidationHarness.Run(schema, "<r a=\"2.0\"/>");
+
+        await Assert.That(ok.Count).IsEqualTo(0);
+        await AssertIssue(bad, "cvc-au", "cvc-au", 1, "'a'");
+    }
+
+    [Test]
     [Arguments(true)]
     [Arguments(false)]
     public async Task FixedAttribute_ReachedThroughAnAttributeWildcard_WithAnotherValue_IsAnError(bool strict)
