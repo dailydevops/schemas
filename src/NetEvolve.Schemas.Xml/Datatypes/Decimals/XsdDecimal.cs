@@ -467,7 +467,9 @@ public readonly struct XsdDecimal : IEquatable<XsdDecimal>, IComparable<XsdDecim
 
     private BigInteger Aligned(int scale) => Scale == scale ? Mantissa : Mantissa * BigInteger.Pow(10, scale - Scale);
 
-    private int MantissaDigits()
+    /// <summary>Gets the number of digits of the mantissa magnitude; zero counts as one digit.</summary>
+    /// <returns>The digit count.</returns>
+    internal int MantissaDigits()
     {
         if (!_big.IsZero)
         {
