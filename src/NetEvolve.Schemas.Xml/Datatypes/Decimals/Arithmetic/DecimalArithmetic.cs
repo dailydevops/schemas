@@ -407,21 +407,21 @@ public static class DecimalArithmetic
             quotient = magnitude / unit;
             var remainder = magnitude % unit;
 
-            // Compares the remainder with its complement, which avoids overflowing 2 x remainder.
-            half = remainder == 0 ? -2 : remainder.CompareTo(unit - remainder);
+            // A normalized mantissa has no trailing zero, so the remainder is never zero. Comparing it with its complement avoids overflowing 2 x remainder.
+            half = remainder.CompareTo(unit - remainder);
         }
         else
         {
             return false;
         }
 
-        // half: -2 exact, -1 below a half, 0 a tie, 1 above a half
+        // half: -1 below a half, 0 a tie, 1 above a half
         var increment = mode switch
         {
             RoundingMode.HalfUp => half > 0 || (half == 0 && !negative),
             RoundingMode.HalfEven => half > 0 || (half == 0 && (quotient & 1) != 0),
-            RoundingMode.Floor => negative && half != -2,
-            _ => !negative && half != -2,
+            RoundingMode.Floor => negative,
+            _ => !negative,
         };
 
         if (increment)
