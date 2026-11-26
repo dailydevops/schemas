@@ -47,7 +47,7 @@ public class ConditionalInclusionContractTests
             await Assert.That(ProcessorCapabilities.IsFacetAvailable(string.Empty, name)).IsFalse();
         }
 
-        await Assert.That(ProcessorCapabilities.IsFacetAvailable(XsdNamespace, "assertion")).IsTrue()
+        await Assert.That(ProcessorCapabilities.IsFacetAvailable(XsdNamespace, "assertion")).IsTrue();
         await Assert.That(ProcessorCapabilities.IsFacetAvailable(string.Empty, "assertion")).IsFalse();
         await Assert.That(ProcessorCapabilities.IsFacetAvailable(XsdNamespace, "assertions")).IsFalse();
         await Assert.That(ProcessorCapabilities.IsFacetAvailable(XsdNamespace, "string")).IsFalse();
