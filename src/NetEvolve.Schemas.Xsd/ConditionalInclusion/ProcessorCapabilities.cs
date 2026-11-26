@@ -11,8 +11,7 @@ using NetEvolve.Schemas.Xsd.SchemaDocuments;
 /// <summary>What this processor knows, as far as conditional inclusion asks (Structures 1.1, 4.2.2).</summary>
 /// <remarks>
 /// The types are the built-in types of the version 1.1 registry, so a datatype that the registry does not hold yet is not
-/// available. Limitation: the facet <c>assertion</c> is known but not supported before #321, so it is not available; add it
-/// to the facet list in the change that supports it.
+/// available.
 /// </remarks>
 internal static class ProcessorCapabilities
 {
@@ -35,6 +34,7 @@ internal static class ProcessorCapabilities
         "totalDigits",
         "fractionDigits",
         "explicitTimezone",
+        "assertion",
     ];
 
     private static readonly Lazy<HashSet<string>> Types = new(static () => CollectTypes());
