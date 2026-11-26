@@ -23,6 +23,7 @@ internal static class En16931Run
     private static readonly EnumerationOptions XmlFiles = new() { MatchCasing = MatchCasing.CaseInsensitive };
     private static readonly SemaphoreSlim Gate = new(1, 1);
     private static Dictionary<string, IReadOnlyList<CaseResult>>? s_results;
+    private static IReadOnlyDictionary<string, IReadOnlyList<CaseResult>>? s_extended;
     private static string? s_root;
 
     /// <summary>Gets the directory of the suite manifests.</summary>
@@ -139,4 +140,66 @@ internal static class En16931Run
             _ = Gate.Release();
         }
     }
+
+    /// <summary>The test sets beyond the UBL and CII unit-test corpus, each with its own rate row.</summary>
+    public static readonly string[] ExtendedTestSets = ["edifact", "ubl-testfiles"];
+
+    /// <summary>Reads the cases of an extended test set.</summary>
+    /// <param name="root">The suite root.</param>
+    /// <param name="testSet">The test set, one of <see cref="ExtendedTestSets"/>.</param>
+    /// <returns>The cases in a stable order.</returns>
+    public static IReadOnlyList<En16931Case> LoadExtendedCases(string root, string testSet) =>
+        testSet switch
+        {
+            "edifact" => LoadDocuments(Path.Combine(root, "edifact", "examples"), "edifact", "examples"),
+            "ubl-testfiles" => LoadDocuments(Path.Combine(root, "test", "testfiles"), "ubl", "testfiles"),
+            _ => throw new ArgumentOutOfRangeException(nameof(testSet), testSet, "Unknown test set."),
+        };
+
+    /// <summary>Gets the results of every extended test set.</summary>
+    /// <param name="cancellationToken">A token to cancel the run.</param>
+    /// <returns>The results by test set.</returns>
+    public static async Task<IReadOnlyDictionary<string, IReadOnlyList<CaseResult>>> GetExtendedResultsAsync(
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var root = await GetRootAsync(cancellationToken);
+        await Gate.WaitAsync(cancellationToken);
+        try
+        {
+            return s_extended ??= ExtendedTestSets.ToDictionary(
+                testSet => testSet,
+                testSet =>
+                {
+                    var cases = LoadExtendedCases(root, testSet);
+                    return En16931Runner.Run(
+                        SchemaPath(root, cases[0].Syntax),
+                        cases,
+                        cancellationToken,
+                        testSet: testSet
+                    );
+                },
+                StringComparer.Ordinal
+            );
+        }
+        finally
+        {
+            _ = Gate.Release();
+        }
+    }
+
+    private static List<En16931Case> LoadDocuments(string directory, string syntax, string prefix) =>
+        Directory
+            .EnumerateFiles(directory, "*.xml", XmlFiles)
+            .OrderBy(f => f, StringComparer.Ordinal)
+            .Select(file => new En16931Case(
+                syntax,
+                $"{prefix}/{Path.GetFileName(file)}",
+                File.ReadAllBytes(file),
+                [],
+                [],
+                isExample: true
+            ))
+            .ToList();
 }

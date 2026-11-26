@@ -17,12 +17,14 @@ using ValidationResult = NetEvolve.Schemas.ValidationResult;
 internal sealed class OursEngine : IDifferentialEngine
 {
     private readonly string _suiteRoot;
+    private readonly ValidationLimits _limits;
     private readonly ConcurrentDictionary<string, Task<Built>> _builds = new(StringComparer.Ordinal);
 
-    public OursEngine(string suiteRoot)
+    public OursEngine(string suiteRoot, ValidationLimits? limits = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(suiteRoot);
         _suiteRoot = Path.GetFullPath(suiteRoot);
+        _limits = limits ?? ValidationLimits.Default;
     }
 
     public async Task<EngineResult> RunAsync(DifferentialCase differentialCase, CancellationToken cancellationToken) =>
@@ -88,6 +90,7 @@ internal sealed class OursEngine : IDifferentialEngine
                 .WithVersion(XsdVersion.V10)
                 .WithDtdProcessing(true)
                 .WithSchemaLocationHints(true)
+                .WithLimits(_limits)
                 .WithResolver(new SandboxedFileSystemResourceResolver(_suiteRoot));
             foreach (var path in paths)
             {
