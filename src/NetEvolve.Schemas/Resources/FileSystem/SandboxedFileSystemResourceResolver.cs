@@ -1,4 +1,4 @@
-﻿namespace NetEvolve.Schemas.Resources.FileSystem;
+namespace NetEvolve.Schemas.Resources.FileSystem;
 
 using System;
 using System.IO;
