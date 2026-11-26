@@ -1,5 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Compilation.Optimization;
 
+using System;
 using System.Collections.Generic;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Evaluation.Comparison;
@@ -8,7 +9,7 @@ using NetEvolve.Schemas.XPath.Evaluation.Paths;
 
 /// <summary>
 /// Turns a positional predicate at the front of a predicate list into a <see cref="PositionalCutoff"/> (XPath 2.0, 3.2.2): <c>[N]</c>,
-/// <c>[position() op N]</c> over an integer literal, and <c>[last()]</c>. The cutoff keeps the positions it names without evaluating a predicate
+/// <c>[position() op N]</c> over an integer literal, such comparisons joined by <see langword="and"/>, and <c>[last()]</c>. The cutoff keeps the positions it names without evaluating a predicate
 /// per item, and a bounded one stops the walk of a step, or of the path that a filter expression reads.
 /// </summary>
 /// <remarks>
@@ -45,12 +46,30 @@ internal static class PositionalCutoffRewrite
             case not null when BuiltInCall.Is(predicate, "last", 0):
                 cutoff = PositionalCutoff.LastItem();
                 return true;
+            default:
+                return TryRecognizeBoolean(predicate, out cutoff);
+        }
+    }
+
+    // A comparison of position() with an integer literal, or such comparisons joined by and. Both operands of an and depend on the position
+    // only and cannot raise an error, so their conjunction keeps the intersection of the ranges. A number or last() as an operand is an
+    // effective boolean value, not a position, and does not qualify.
+    private static bool TryRecognizeBoolean(ExecutableNode? predicate, out PositionalCutoff cutoff)
+    {
+        cutoff = default;
+        switch (predicate)
+        {
             case ValueComparisonNode { Right: ConstantNode bound } value
                 when BuiltInCall.Is(value.Left, "position", 0) && TryGetInteger(bound, out var number):
                 return TryRelate(value.Relation, number, out cutoff);
             case GeneralComparisonNode { Right: ConstantNode bound } general
                 when BuiltInCall.Is(general.Left, "position", 0) && TryGetInteger(bound, out var number):
                 return TryRelate(general.Relation, number, out cutoff);
+            case LogicalNode { IsAnd: true } logical
+                when TryRecognizeBoolean(logical.Left, out var left)
+                    && TryRecognizeBoolean(logical.Right, out var right):
+                cutoff = PositionalCutoff.Range(Math.Max(left.First, right.First), Math.Min(left.Last, right.Last));
+                return true;
             default:
                 return false;
         }

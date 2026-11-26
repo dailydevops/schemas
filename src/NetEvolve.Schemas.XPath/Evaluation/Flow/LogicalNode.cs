@@ -40,6 +40,9 @@ internal sealed class LogicalNode : ExecutableNode
         _right = right;
     }
 
+    /// <summary>Gets a value indicating whether the operator is <see langword="and"/>.</summary>
+    public bool IsAnd => !_decisive;
+
     /// <summary>Gets the first operand.</summary>
     public ExecutableNode Left => _left;
 
