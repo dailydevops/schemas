@@ -66,7 +66,7 @@ internal static class En16931Runner
             .Build();
     }
 
-    private static (HashSet<string>? Fired, HashSet<string> Fatal, string? Problem) Validate(
+    internal static (HashSet<string>? Fired, HashSet<string> Fatal, string? Problem) Validate(
         ISchematronValidator validator,
         string schemaPath,
         En16931Case testCase,

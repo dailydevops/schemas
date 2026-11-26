@@ -403,6 +403,8 @@ The CEN EN 16931 validation artefacts, release 1.3.17, are a real rule set. The 
 dotnet test --project tests/NetEvolve.Schemas.Schematron.Tests.Integration --configuration Release --framework net10.0 --treenode-filter "/*/*/En16931GoldenTests/*"
 ```
 
+The archive ships each rule set as multi-file source and as a flattened single file. The explicit conformance test `En16931PreprocessedTests` validates every UBL and CII case with both and requires the same set of fired rule ids, which checks the include and abstract-pattern expansion without expectation data. Both rule sets agree on every case, so no case is excluded.
+
 ## Limitations
 
 - **Compilers older than C# 14.** `SchemaValidator.ForSchematron(...)` is a C# 14 extension member. A compiler without extension member syntax calls the public static extension class directly, named `SchematronSchemaValidatorExtensions` and declared in the namespace `NetEvolve.Schemas`. It has the same overloads and returns the same builder:
