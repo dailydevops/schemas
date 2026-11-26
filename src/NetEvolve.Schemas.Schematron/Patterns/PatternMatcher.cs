@@ -18,7 +18,7 @@ using NetEvolve.Schemas.XPath.Xdm.Nodes;
 /// pattern are accepted under every XSLT binding (<c>xslt</c>, <c>xslt2</c>, <c>xslt3</c>), so also where the version
 /// predates them, which makes the matcher a superset there; the <c>xpath</c> family keeps the XSLT 2.0 subset and reports
 /// them as unsupported. No binding version reaches the matcher. Patterns rooted at a variable reference, and
-/// <c>id()</c> and <c>key()</c> patterns raise the unsupported-pattern error (DEF-60, DEF-55). The pattern use makes no
+/// and <c>id()</c> patterns raise the unsupported-pattern error (DEF-60, DEF-55); a pattern may start with <c>key()</c> under an XSLT binding (#780). The pattern use makes no
 /// difference yet. A predicate is judged numeric by its syntax (see <see cref="PatternPredicates"/>).
 /// </remarks>
 internal sealed class PatternMatcher : IPatternMatcher
