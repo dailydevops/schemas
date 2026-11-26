@@ -12,7 +12,7 @@ The format-agnostic core of the NetEvolve schema libraries: the validator contra
 - Result model - an immutable `ValidationResult` of `ValidationIssue` entries with stable diagnostic codes and one-based document locations, see [Result model](#result-model)
 - Bounded validation - `ValidationLimits` with finite defaults and ceilings, see [Configuration](#configuration)
 - Deny-by-default resources - external resources are refused unless an `IResourceResolver` is set, and `SandboxedFileSystemResourceResolver` serves `file` URIs below one root directory, see [External resources](#external-resources)
-- Building blocks for format packages - `SchemaValidatorBuilder<TBuilder, TValidator>`, `SchemaValidatorBase`, `DocumentSource`, and `ValidationIssueCollector`, see [Writing a format package](#writing-a-format-package)
+- Building blocks for format packages - `SchemaValidatorBuilder<TBuilder, TValidator>`, `SchemaValidatorBase`, `DocumentSource`, `ValidationIssueCollector`, `SchemaSourceHolder`, and `ResourceLoader`, see [Writing a format package](#writing-a-format-package)
 - Diagnostic code ranges - `DiagnosticCode` (printed as `NES` and four digits) and the `DiagnosticRanges` of each package, see [Diagnostic codes](#diagnostic-codes)
 
 ## Installation
@@ -122,6 +122,10 @@ Here `resolved.Status` is `ResourceStatus.Denied`.
 ### Writing a format package
 
 A format package derives its builder from `SchemaValidatorBuilder<TBuilder, TValidator>` and its validator from `SchemaValidatorBase`. The base class funnels every `Validate` and `ValidateAsync` overload into one `ValidateCore` method that receives a `DocumentSource`: a `ref struct` that exposes the input as bytes or characters, as a span or a sequence, with its `Kind`, `Length`, and `SystemId`. A `ValidationIssueCollector` implements the drop policy of `MaxIssues` once, so no format handles it itself: it keeps at most `MaxIssues` issues, records a drop in `IsTruncated` and `HasDroppedErrors`, and `Stop` appends a final error issue and ignores the rest.
+
+A builder that holds a schema document keeps it in a `SchemaSourceHolder`. `FromBytes` and `FromChars` copy a span or a sequence, so the caller may reuse its buffer afterwards; `FromStream` keeps the stream unread and never disposes it. `GetBytes`, `GetChars`, and `PrefetchAsync` (which reads with `ReadAsync` and observes the token at every read) enforce `MaxResourceSize` and throw a `SchemaCompilationException` with `NES0007` above it. The bytes of a stream that was read are kept, so a second build does not read it again, even if it cannot seek.
+
+A format that loads further resources (an include, an import) uses a `ResourceLoader`. It resolves the reference against its base, calls the `IResourceResolver`, caps the size at `MaxResourceSize`, and counts every request against `MaxExternalResources`, refused and missing ones included (`RequestCount`). `Load` returns a `ResourceLoadResult` with a `ResourceLoadStatus` (`Loaded`, `Failed` for a recoverable problem, `LimitExceeded`), the `Content`, the `SystemId` after redirects, and the `Code` and `Message` of a failure: `NES0100` denied, `NES0101` base missing, `NES0102` not found, `NES0103` invalid reference, `NES0006` too many resources, `NES0007` resource too large. The loader returns data only, so each format turns it into its own issue type.
 
 ### Diagnostic codes
 
