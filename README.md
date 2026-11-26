@@ -191,6 +191,8 @@ The rates were measured on `main` at commit `a2d4119` with `net10.0`. The `Confo
 | XSTS 1.1, schema and instance tests | `NetEvolve.Schemas.Xsd` | 41,389 | 0 | 0.0% | derived from the same run: the row for all of XSTS (80,660 applicable, 38,252 passed, 47.4%) minus both XSTS 1.0 rows |
 | Schematron conformance suite 2.0, bindings `xslt-1` and `xslt-2` | `NetEvolve.Schemas.Schematron` | 84 | 55 | 65.4% | `NetEvolve.Schemas.Schematron.Tests.Integration`, filter `/*/*Conformance*/*/*`; 29 baselined cases in `tests/conformance/baselines/schematron-conformance`, 3 excluded |
 | EN 16931 (CEN) validation artefacts 1.3.17, golden tests | `NetEvolve.Schemas.Schematron` | 1,174 | 1,174 | 100.0% | `NetEvolve.Schemas.Schematron.Tests.Integration`, filter `/*/*/En16931GoldenTests/*`; no baselined cases |
+| EN 16931 (CEN) 1.3.17, EDIFACT binding, ISO 20625 XML examples | `NetEvolve.Schemas.Schematron` | 9 | 9 | 100.0% | `NetEvolve.Schemas.Schematron.Tests.Integration`, filter `/*/*/En16931ExtendedGoldenTests/*`; no baselined cases |
+| EN 16931 (CEN) 1.3.17, UBL rule set, complete invoices of `test/testfiles` | `NetEvolve.Schemas.Schematron` | 29 | 29 | 100.0% | same run; no baselined cases |
 
 Not yet reported:
 
