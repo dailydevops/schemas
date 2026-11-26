@@ -59,12 +59,21 @@ public class HintLimitTests
         await Assert.That(result.IsValid).IsTrue();
     }
 
+    private const string SmallBaseSchema =
+        "<xs:schema xmlns:xs=\""
+        + HintFixture.Xs
+        + "\" targetNamespace=\""
+        + HintFixture.Base
+        + "\"><xs:element name=\"r\"/></xs:schema>";
+
     [Test]
     public async Task ADocumentLargerThanTheSizeLimit_IsReportedWithTheSizeCode()
     {
+        // The configured schema is a resource too, so it must fit the limit that the larger hinted document exceeds.
         var validator = HintFixture.Build(
+            SmallBaseSchema,
             HintFixture.Resolver(),
-            limits: ValidationLimits.Default.WithMaxResourceSize(16)
+            limits: ValidationLimits.Default.WithMaxResourceSize(200)
         );
 
         var result = HintFixture.Run(validator, HintFixture.BaseRoot(Hint, string.Empty));

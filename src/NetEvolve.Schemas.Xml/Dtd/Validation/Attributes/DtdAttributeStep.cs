@@ -38,9 +38,9 @@ using NetEvolve.Schemas.Xml.Text.NameTable;
 /// <para>
 /// Limitations: (1) The attributes <c>xml:*</c> and <c>xmlns*</c> are declared like any other attribute; XML 1.0 has no
 /// exemption. (2) A document without a document type declaration (the empty name of the model) reports nothing here; the
-/// document step reports it once. (3) The second definition of an attribute is dropped by the declaration model, so the
-/// optional warning for it (<see cref="DtdValidityCodes.XML5903"/>) is not reported until the dropped definitions are
-/// recorded (#909, #608). (4) A default value that the reader refuses (an undeclared, external, or unparsed entity, a
+/// document step reports it once. (3) The second definition of an attribute is dropped by the declaration model; the
+/// optional warning for it (<see cref="DtdValidityCodes.XML5903"/>) is decided from the dropped definitions that the parser
+/// model records, and a view that is not the parser model reports none (#608). (4) A default value that the reader refuses (an undeclared, external, or unparsed entity, a
 /// <c>&lt;</c>, a recursion, or a value beyond the limits of the reader) does not expand and is neither checked for its
 /// syntax nor compared; the reader reports it as a well-formedness error where the default is applied. (5) The declaration-time
 /// reports use <see cref="DtdValidationContext.DocumentTypeLocation"/> until per-declaration locations exist (#608). (6) An
@@ -75,6 +75,23 @@ internal sealed class DtdAttributeStep : IDtdValidationStep
         if (_context is null)
         {
             return;
+        }
+
+        if (declarations is DtdDeclarations repeated)
+        {
+            foreach (var (element, definition) in repeated.DuplicateAttributes)
+            {
+                context.Report(
+                    DtdValidityCodes.XML5903,
+                    DtdValidityCodes.XML5903.DefaultSeverity,
+                    default,
+                    "attribute '"
+                        + definition.Name
+                        + "' of element type '"
+                        + element
+                        + "' is defined more than once; the first definition binds"
+                );
+            }
         }
 
         foreach (var pair in lists)
