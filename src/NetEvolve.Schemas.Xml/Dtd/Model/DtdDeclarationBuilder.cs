@@ -16,6 +16,7 @@ internal sealed class DtdDeclarationBuilder
     private readonly Dictionary<string, DtdEntityDeclaration> _parameter = new(StringComparer.Ordinal);
     private readonly Dictionary<string, XmlNotation> _notations = new(StringComparer.Ordinal);
     private List<string>? _duplicateNotations;
+    private List<DtdEntityDeclaration>? _duplicateEntities;
 
     internal DtdDeclarationBuilder(string name, string? publicId, string? systemId)
     {
@@ -59,8 +60,19 @@ internal sealed class DtdDeclarationBuilder
 
     /// <summary>Adds an entity declaration unless the entity of that kind is already declared.</summary>
     /// <param name="declaration">The declaration.</param>
-    internal void AddEntity(DtdEntityDeclaration declaration) =>
-        AddFirst(declaration.IsParameter ? _parameter : _general, declaration.Name, declaration);
+    internal void AddEntity(DtdEntityDeclaration declaration)
+    {
+        var map = declaration.IsParameter ? _parameter : _general;
+        if (!map.TryGetValue(declaration.Name, out _))
+        {
+            map.Add(declaration.Name, declaration);
+        }
+        else
+        {
+            // The optional warning XML5904 is decided from this record; it stays null for a document without a repeat.
+            (_duplicateEntities ??= []).Add(declaration);
+        }
+    }
 
     /// <summary>Adds a notation unless it is already declared.</summary>
     /// <param name="notation">The notation.</param>
@@ -121,7 +133,8 @@ internal sealed class DtdDeclarationBuilder
             _general,
             _parameter,
             _notations,
-            _duplicateNotations
+            _duplicateNotations,
+            _duplicateEntities
         );
     }
 }

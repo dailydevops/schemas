@@ -49,7 +49,12 @@ public class EntityDeclaredMoreThanOnceTests
     [Test]
     public async Task ThreeDeclarations_ReportEachDeclarationBeyondTheFirst()
     {
-        var model = new NotationModel().Entity(Parsed("a")).Entity(Parsed("a")).Entity(Parsed("b")).Entity(Parsed("a")).Build();
+        var model = new NotationModel()
+            .Entity(Parsed("a"))
+            .Entity(Parsed("a"))
+            .Entity(Parsed("b"))
+            .Entity(Parsed("a"))
+            .Build();
 
         await Assert.That(Begin(model).Count).IsEqualTo(2);
     }
@@ -80,8 +85,6 @@ public class EntityDeclaredMoreThanOnceTests
     }
 
     [Test]
-    public async Task AViewThatIsNotTheParserModel_ReportsNothing()
-    {
+    public async Task AViewThatIsNotTheParserModel_ReportsNothing() =>
         await Assert.That(Begin(new Contracts.Fakes.FakeDtdDeclarations()).Count).IsEqualTo(0);
-    }
 }
