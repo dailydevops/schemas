@@ -6,7 +6,7 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// <summary>
 /// <c>fn:round</c> (Functions and Operators 1.0, 6.4.4): the closest integer to the argument, in the type of the argument, a tie toward positive infinity: 2.5 gives 3 and -2.5 gives -2. A floating-point value from -0.5 up to 0 gives negative zero. The empty sequence gives the empty sequence.
 /// </summary>
-/// <remarks>Limitation: the function takes one argument; a second argument (a precision) is a function of XPath 3.0 and later (#727).</remarks>
+/// <remarks>The function takes one argument; the form with a precision is <see cref="RoundWithPrecisionFunction"/>, which XPath 3.0 and 3.1 add.</remarks>
 internal sealed class RoundFunction : NumericFunction
 {
     /// <summary>Initializes a new instance of the <see cref="RoundFunction"/> class.</summary>
