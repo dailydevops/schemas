@@ -87,10 +87,10 @@ internal static class OrderXRun
         await Gate.WaitAsync(cancellationToken);
         try
         {
-            s_root ??= await new SuiteFetcher(new HttpSuiteTransport(Client), ConformanceCache.ResolveRoot()).FetchAsync(
-                LoadManifest(),
-                cancellationToken
-            );
+            s_root ??= await new SuiteFetcher(
+                new HttpSuiteTransport(Client),
+                ConformanceCache.ResolveRoot()
+            ).FetchAsync(LoadManifest(), cancellationToken);
             return s_root;
         }
         finally
@@ -108,7 +108,13 @@ internal static class OrderXRun
         var name = Profiles.Single(p => p.Profile == profile).Name.ToUpperInvariant();
         return Directory
             .EnumerateFiles(
-                Path.Combine(root, DocsDirectory, "05-ORDER-X_EXAMPLES", $"_ORDER-x_EXAMPLES_{name}", "_XML for direct access"),
+                Path.Combine(
+                    root,
+                    DocsDirectory,
+                    "05-ORDER-X_EXAMPLES",
+                    $"_ORDER-x_EXAMPLES_{name}",
+                    "_XML for direct access"
+                ),
                 "*.xml"
             )
             .OrderBy(f => f, StringComparer.Ordinal)
