@@ -151,6 +151,19 @@ public class PipelineInputAndGuardTests
     }
 
     [Test]
+    public async Task Pipeline_MaxDocumentCharactersOfLongMaxValue_ReadsTheBytes()
+    {
+        var options = XmlReaderOptions.Default.WithLimits(
+            XmlReaderLimits.Default.WithMaxDocumentCharacters(long.MaxValue)
+        );
+
+        using var reader = XmlPipelineReader.Create(Utf16("<r>0123456789</r>"), options);
+        var result = DtdValidatingPipeline.Validate(Utf16("<r>0123456789</r>"), null, options);
+
+        await Assert.That(result.IsWellFormed).IsTrue();
+    }
+
+    [Test]
     public async Task Guards_NullArguments_Throw()
     {
         await Assert.That(() => DtdValidatingPipeline.CreateSteps(null!)).Throws<ArgumentNullException>();
