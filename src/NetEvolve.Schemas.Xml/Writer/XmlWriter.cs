@@ -53,10 +53,9 @@ public sealed partial class XmlWriter : IXmlSink, IDisposable
     private int _entryCount;
     private XmlName[] _open = new XmlName[16];
     private int[] _openMark = new int[16];
-    private byte[] _symbolFlags = new byte[64];
+    private byte[] _symbolFlags = [];
     private int _depth;
-    private int[] _bindPrefix = new int[16];
-    private int[] _bindUri = new int[16];
+    private Binding[] _bindings = new Binding[16];
     private int _bindCount;
     private XmlName _pending;
     private bool _inTag;
@@ -417,7 +416,15 @@ public sealed partial class XmlWriter : IXmlSink, IDisposable
     }
 
     /// <summary>Releases the buffers of the writer.</summary>
-    public void Dispose() => _chars.Dispose();
+    public void Dispose()
+    {
+        _chars.Dispose();
+        if (_symbolFlags.Length > 0)
+        {
+            ArrayPool<byte>.Shared.Return(_symbolFlags);
+            _symbolFlags = [];
+        }
+    }
 
     private void Emit() => _adapter?.Flush();
 

@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.Xml.Writer;
 
 using System;
+using System.Buffers;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Text.CharClasses;
 
@@ -48,16 +49,26 @@ public sealed partial class XmlWriter
         {
             if (index >= _symbolFlags.Length)
             {
-                Array.Resize(
-                    ref _symbolFlags,
-                    Math.Min(Math.Max(_symbolFlags.Length * 2, index + 1), MaxCachedSymbols)
-                );
+                GrowFlags(index + 1);
             }
 
             _symbolFlags[index] |= flag;
         }
 
         return true;
+    }
+
+    private void GrowFlags(int required)
+    {
+        var old = _symbolFlags;
+        var grown = ArrayPool<byte>.Shared.Rent(Math.Max(old.Length * 2, required));
+        Array.Clear(grown, 0, grown.Length);
+        old.AsSpan().CopyTo(grown);
+        _symbolFlags = grown;
+        if (old.Length > 0)
+        {
+            ArrayPool<byte>.Shared.Return(old);
+        }
     }
 
     private void ValidateName(XmlName name)
