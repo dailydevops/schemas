@@ -1,0 +1,7 @@
+{
+  "key": "scapval",
+  "url": "https://github.com/usnistgov/scapval/archive/refs/tags/v1.4.3.zip",
+  "sha256": "15fe4cb1025b902cf3ad91754ed2d9e6d1b075f0c162bcdaddedde089ffcc052",
+  "archive": "zip",
+  "subPath": "scapval-1.4.3/scap-schematron-rules/src"
+}
