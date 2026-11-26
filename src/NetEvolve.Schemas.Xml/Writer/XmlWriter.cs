@@ -53,6 +53,7 @@ public sealed partial class XmlWriter : IXmlSink, IDisposable
     private int _entryCount;
     private XmlName[] _open = new XmlName[16];
     private int[] _openMark = new int[16];
+    private byte[] _symbolFlags = new byte[64];
     private int _depth;
     private int[] _bindPrefix = new int[16];
     private int[] _bindUri = new int[16];
@@ -129,6 +130,7 @@ public sealed partial class XmlWriter : IXmlSink, IDisposable
 
         if (_omitDeclaration || !hasDeclaration)
         {
+            Emit();
             return;
         }
 
@@ -144,6 +146,7 @@ public sealed partial class XmlWriter : IXmlSink, IDisposable
         }
 
         Put("?>");
+        Emit();
     }
 
     /// <inheritdoc />
@@ -171,6 +174,7 @@ public sealed partial class XmlWriter : IXmlSink, IDisposable
 
         ValidateName(name);
         CloseTag();
+        Emit();
         _rootSeen = true;
         _pending = name;
         _inTag = true;
@@ -267,6 +271,7 @@ public sealed partial class XmlWriter : IXmlSink, IDisposable
         Push(_pending, mark);
         _inTag = false;
         _tagOpen = true;
+        Emit();
     }
 
     /// <inheritdoc />
@@ -290,6 +295,7 @@ public sealed partial class XmlWriter : IXmlSink, IDisposable
         {
             _tagOpen = false;
             Put("/>");
+            Emit();
             return;
         }
 
@@ -297,6 +303,7 @@ public sealed partial class XmlWriter : IXmlSink, IDisposable
         Put("</");
         PutName(top);
         Put('>');
+        Emit();
     }
 
     /// <inheritdoc />
@@ -323,6 +330,8 @@ public sealed partial class XmlWriter : IXmlSink, IDisposable
         {
             PutEscaped(text, attribute: false);
         }
+
+        Emit();
     }
 
     /// <inheritdoc />
@@ -339,6 +348,7 @@ public sealed partial class XmlWriter : IXmlSink, IDisposable
         Put("<!--");
         Put(text);
         Put("-->");
+        Emit();
     }
 
     /// <inheritdoc />
@@ -372,6 +382,7 @@ public sealed partial class XmlWriter : IXmlSink, IDisposable
         }
 
         Put("?>");
+        Emit();
     }
 
     /// <inheritdoc />
@@ -402,10 +413,13 @@ public sealed partial class XmlWriter : IXmlSink, IDisposable
         }
 
         WriteDoctype(doctype);
+        Emit();
     }
 
     /// <summary>Releases the buffers of the writer.</summary>
     public void Dispose() => _chars.Dispose();
+
+    private void Emit() => _adapter?.Flush();
 
     private static bool HasBothQuotes(ReadOnlySpan<char> text) => text.IndexOf('"') >= 0 && text.IndexOf('\'') >= 0;
 

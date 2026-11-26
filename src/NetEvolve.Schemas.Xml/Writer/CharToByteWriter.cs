@@ -16,6 +16,7 @@ internal sealed class CharToByteWriter : IBufferWriter<char>
     private readonly IBufferWriter<byte> _bytes;
     private readonly bool _utf16;
     private readonly char[] _scratch = new char[ScratchLength];
+    private int _count;
     private char _high;
 
     internal CharToByteWriter(IBufferWriter<byte> bytes, bool utf16)
@@ -33,18 +34,66 @@ internal sealed class CharToByteWriter : IBufferWriter<char>
         _bytes.Advance(2);
     }
 
-    public Memory<char> GetMemory(int sizeHint = 0) => _scratch;
+    public Memory<char> GetMemory(int sizeHint = 0)
+    {
+        Flush();
+        return _scratch;
+    }
 
-    public Span<char> GetSpan(int sizeHint = 0) => _scratch;
+    public Span<char> GetSpan(int sizeHint = 0)
+    {
+        Flush();
+        return _scratch;
+    }
 
     public void Advance(int count)
     {
-        if (count == 0)
+        _count = count;
+        Flush();
+    }
+
+    /// <summary>Appends text without the round trip through <see cref="GetSpan"/> and <see cref="Advance"/>.</summary>
+    /// <param name="text">The characters.</param>
+    internal void Write(ReadOnlySpan<char> text)
+    {
+        while (!text.IsEmpty)
+        {
+            var free = _scratch.Length - _count;
+            if (free == 0)
+            {
+                Flush();
+                continue;
+            }
+
+            var count = Math.Min(free, text.Length);
+            text.Slice(0, count).CopyTo(_scratch.AsSpan(_count));
+            _count += count;
+            text = text.Slice(count);
+        }
+    }
+
+    /// <summary>Appends one character.</summary>
+    /// <param name="c">The character.</param>
+    internal void Write(char c)
+    {
+        if (_count == _scratch.Length)
+        {
+            Flush();
+        }
+
+        _scratch[_count++] = c;
+    }
+
+    /// <summary>Encodes the characters collected so far into the byte buffer.</summary>
+    internal void Flush()
+    {
+        if (_count == 0)
         {
             return;
         }
 
-        var chars = new ReadOnlySpan<char>(_scratch, 0, count);
+        var chars = new ReadOnlySpan<char>(_scratch, 0, _count);
+        _count = 0;
         if (_utf16)
         {
             EncodeUtf16(chars);
@@ -71,9 +120,20 @@ internal sealed class CharToByteWriter : IBufferWriter<char>
     {
         var dest = _bytes.GetSpan((chars.Length * 3) + 3);
         var written = 0;
-        foreach (var c in chars)
+        if (_high == 0)
         {
-            var current = c;
+            // Plain ASCII dominates markup: copy the leading run without the surrogate bookkeeping.
+            var ascii = dest.Slice(0, chars.Length);
+            while (written < ascii.Length && chars[written] < 0x80)
+            {
+                ascii[written] = (byte)chars[written];
+                written++;
+            }
+        }
+
+        for (var i = written; i < chars.Length; i++)
+        {
+            var current = chars[i];
             if (_high != 0)
             {
                 if (char.IsLowSurrogate(current))
