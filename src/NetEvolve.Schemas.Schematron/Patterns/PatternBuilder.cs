@@ -17,7 +17,7 @@ using NetEvolve.Schemas.XPath.Syntax.Tree;
 /// <remarks>
 /// Limitation (DEF-60): the XSLT 3.0 forms <c>intersect</c>, <c>except</c>, parentheses, and predicates on a parenthesized
 /// pattern are accepted under every XSLT binding, so also under <c>xslt</c> and <c>xslt2</c>, which is a superset of
-/// those versions. Patterns rooted at a variable reference are not supported. A key start (<c>key('name', 'value')</c>,
+/// those versions. A parenthesized pattern as the first step of a path (<c>(a | b)/c</c>) is built the same way (#1285). Patterns rooted at a variable reference are not supported. A key start (<c>key('name', 'value')</c>,
 /// alone or followed by a relative path) is built under an XSLT binding only: the call is compiled as a node expression
 /// and evaluated against the key index of the run (#780).
 /// </remarks>
@@ -128,6 +128,9 @@ internal sealed class PatternBuilder(
                 return TryBuildNode(inner, prefilter, out alternative, out problem);
             case FilterExpression { Primary: ParenthesizedExpression { Inner: not null } } filter when extended:
                 return TryBuildFiltered(filter, prefilter, out alternative, out problem);
+            case PathExpression { Root: PathRoot.Relative, Steps.Count: > 1 } path
+                when extended && IsPrefix(path.Steps[0]):
+                return TryBuildPrefixPath(path, prefilter, out alternative, out problem);
             default:
                 if (extended && KeyCall(expression) is { } keyCall)
                 {
@@ -291,6 +294,51 @@ internal sealed class PatternBuilder(
         return TryBuildSteps(PathRoot.Relative, rest, keyStart, prefilter, out alternative, out problem);
     }
 
+    // A parenthesized pattern, with or without predicates, as the first step of a relative path (XSLT 3.0 section 5.5).
+    private static bool IsPrefix(Expression step) =>
+        step is ParenthesizedExpression { Inner: not null }
+        || step is FilterExpression { Primary: ParenthesizedExpression { Inner: not null } };
+
+    private bool TryBuildPrefixPath(
+        PathExpression path,
+        Prefilter prefilter,
+        out PatternAlternative alternative,
+        out SchematronProblem problem
+    )
+    {
+        alternative = null!;
+
+        // The prefix only constrains the parent or an ancestor, so it adds nothing to the prefilter.
+        if (!TryBuildNode(path.Steps[0], new Prefilter(), out var prefix, out problem))
+        {
+            return false;
+        }
+
+        var rest = new List<Expression>();
+        for (var i = 1; i < path.Steps.Count; i++)
+        {
+            rest.Add(path.Steps[i]);
+        }
+
+        if (
+            !PatternProfile.Checker.Accepts(
+                new PathExpression(path.Location, PathRoot.Relative, rest),
+                out var violation
+            )
+        )
+        {
+            problem = new SchematronProblem(
+                SchematronDiagnosticCodes.PatternUnsupported,
+                violation.Message,
+                locator.Locate(violation.Offset),
+                violation.QName.LocalName
+            );
+            return false;
+        }
+
+        return TryBuildSteps(PathRoot.Relative, rest, null, prefilter, out alternative, out problem, prefix);
+    }
+
     private static bool IsKeyArgument(Expression argument) => argument is StringLiteral or VariableReference;
 
     private bool TryBuildSteps(
@@ -299,7 +347,8 @@ internal sealed class PatternBuilder(
         QueryExpression? keyStart,
         Prefilter prefilter,
         out PatternAlternative alternative,
-        out SchematronProblem problem
+        out SchematronProblem problem,
+        PatternAlternative? prefix = null
     )
     {
         alternative = null!;
@@ -340,9 +389,9 @@ internal sealed class PatternBuilder(
             prefilter.AnyName |= !TryAddName(last, prefilter.Names);
         }
 
-        // A pattern with a key start has the priority 0.5 (XSLT 2.0 section 6.4: not a single step).
-        var priority = keyStart is null ? PatternPriority.Of(root, axisSteps) : 0.5m;
-        alternative = new PathAlternative(root, steps.ToArray(), priority, keyStart);
+        // A pattern with a key start or a parenthesized prefix has the priority 0.5 (XSLT 2.0 section 6.4: not a single step).
+        var priority = keyStart is null && prefix is null ? PatternPriority.Of(root, axisSteps) : 0.5m;
+        alternative = new PathAlternative(root, steps.ToArray(), priority, keyStart, prefix);
         return true;
     }
 
