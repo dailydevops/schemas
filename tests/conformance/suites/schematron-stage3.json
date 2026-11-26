@@ -41,9 +41,5 @@
     { "subject": "Z.example/TEST/CII, Z.example/TEST/UBL, Z.example/TEST/CDAR", "reason": "The invoices are samples of the French CTC rule sets, which do not use document(); the CII/EN16931 copies are the same documents as the Factur-X EN16931 invoices under FX." },
     { "subject": "Z.example/TEST/FX PDF files", "reason": "The PDF files embed the CII invoice that is already a case; the rule sets validate XML." }
   ],
-  "knownFailures": [
-    { "id": "stage3-default-resolver/factur-x-basic-wl", "issue": 312, "reason": "The schema build and the lookups work since the document() support landed (#1205), but the default resolver does not deny the lookup of the code database: the validation of the first invoice succeeds without a NES0100 denial; the denial of document() by default stays an acceptance criterion of #312." },
-    { "id": "stage3-default-resolver/factur-x-en16931", "issue": 312, "reason": "The schema build and the lookups work since the document() support landed (#1205), but the default resolver does not deny the lookup of the code database: the validation of the first invoice succeeds without a NES0100 denial; the denial of document() by default stays an acceptance criterion of #312." },
-    { "id": "stage3-default-resolver/factur-x-extended", "issue": 312, "reason": "The schema build and the lookups work since the document() support landed (#1205), but the default resolver does not deny the lookup of the code database: the validation of the first invoice succeeds without a NES0100 denial; the denial of document() by default stays an acceptance criterion of #312." }
-  ]
+  "knownFailures": []
 }

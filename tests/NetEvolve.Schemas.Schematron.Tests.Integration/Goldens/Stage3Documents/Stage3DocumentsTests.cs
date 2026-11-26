@@ -225,6 +225,44 @@ public class Stage3DocumentsTests
         await Assert.That(results[0].Reason!).Contains("The validation succeeded.");
     }
 
+    [Test]
+    public async Task RunDefaultResolver_DeniedDocument_PassesWithTheEvaluationError(
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        using var directory = new StageDirectory();
+        directory.Write("rules.sch", DocumentSchema);
+        directory.Write("d/one.xml", "<root><a/></root>");
+        var manifest = Stage3Manifest.Parse(
+            """{"stage":3,"suite":"s","excluded":[],"knownFailures":[],"ruleSets":[{"name":"r","schema":"rules.sch","documents":[{"document":"d/one.xml","valid":false,"rules":[]}]}]}"""
+        );
+
+        var results = Stage3Runner.RunDefaultResolver(manifest, directory.Root, cancellationToken);
+
+        await Assert.That(results).HasSingleItem();
+        await Assert.That(results[0].Outcome).IsEqualTo(CaseOutcome.Pass);
+    }
+
+    [Test]
+    public async Task RunDefaultResolver_WithoutError_NamesTheExpectedCode(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        using var directory = new StageDirectory();
+        directory.Write("rules.sch", PlainSchema);
+        directory.Write("d/one.xml", "<root><a/></root>");
+        var manifest = Stage3Manifest.Parse(
+            """{"stage":3,"suite":"s","excluded":[],"knownFailures":[],"ruleSets":[{"name":"r","schema":"rules.sch","documents":[{"document":"d/one.xml","valid":false,"rules":["a-rule"]}]}]}"""
+        );
+
+        var results = Stage3Runner.RunDefaultResolver(manifest, directory.Root, cancellationToken);
+
+        await Assert.That(results[0].Reason!).Contains("NES3301");
+    }
+
+    private const string DocumentSchema =
+        """<sch:schema xmlns:sch="http://purl.oclc.org/dsdl/schematron" queryBinding="xslt2"><sch:pattern><sch:rule context="a"><sch:assert id="a-rule" test="exists(document('codedb.xml'))"/></sch:rule></sch:pattern></sch:schema>""";
+
     private const string PlainSchema =
         """<sch:schema xmlns:sch="http://purl.oclc.org/dsdl/schematron"><sch:pattern><sch:rule context="a"><sch:assert id="a-rule" test="false()"/></sch:rule></sch:pattern></sch:schema>""";
 
