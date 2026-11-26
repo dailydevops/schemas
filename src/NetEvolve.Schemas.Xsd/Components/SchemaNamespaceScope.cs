@@ -19,13 +19,21 @@ internal readonly struct SchemaNamespaceScope
     /// <summary>Initializes a new instance of the <see cref="SchemaNamespaceScope"/> struct.</summary>
     /// <param name="targetNamespace">The effective target namespace, the including namespace for a chameleon.</param>
     /// <param name="isChameleon">Whether the document has no target namespace of its own and was included.</param>
-    internal SchemaNamespaceScope(string targetNamespace, bool isChameleon)
+    /// <param name="schemaElement">The <c>schema</c> element whose document-level defaults apply, <see langword="null"/> to take those of the ancestors of a node.</param>
+    internal SchemaNamespaceScope(string targetNamespace, bool isChameleon, SchemaSyntaxNode? schemaElement = null)
     {
         ArgumentNullException.ThrowIfNull(targetNamespace);
 
         TargetNamespace = targetNamespace;
         IsChameleon = isChameleon;
+        SchemaElement = schemaElement;
     }
+
+    /// <summary>
+    /// Gets the <c>schema</c> element of the unit, the source of the document-level defaults: a component that an
+    /// <see langword="override"/> replaces takes those of the overridden document (Structures 1.1, 4.2.5), not of the ancestors of its node.
+    /// </summary>
+    public SchemaSyntaxNode? SchemaElement { get; }
 
     /// <summary>Gets the effective target namespace.</summary>
     public string TargetNamespace { get; }

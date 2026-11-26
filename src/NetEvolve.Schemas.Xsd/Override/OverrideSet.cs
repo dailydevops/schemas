@@ -20,8 +20,8 @@ using NetEvolve.Schemas.Xsd.SchemaDocuments;
 /// Limitations: the same document overridden by two <see langword="override"/> elements with equivalent children is two units,
 /// not one, because equivalence is not compared deeply; the specification calls such overrides allowed. A target that includes
 /// another document is never treated as left unchanged by a set, since its <see langword="include"/> becomes an
-/// <see langword="override"/> (F.2, clause 3), even when nothing below it matches (#753). A node of the set keeps its ancestors in the overriding document, so its
-/// document-level defaults are those of the overriding document unless a consumer reads them from the unit (#757).
+/// <see langword="override"/> (F.2, clause 3), even when nothing below it matches (#753). A node of the set keeps its ancestors in the overriding document, so the builders read
+/// its document-level defaults from the unit (<c>SchemaUnit.Root</c>), which is the overridden document (#757).
 /// </para>
 /// </remarks>
 internal sealed class OverrideSet
