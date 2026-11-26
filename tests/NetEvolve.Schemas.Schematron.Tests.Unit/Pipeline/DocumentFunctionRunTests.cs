@@ -19,11 +19,11 @@ public class DocumentFunctionRunTests
     private static readonly string Large = "<codes>" + new string('x', 3000) + "</codes>";
     private const string Instance = "<doc><sub/></doc>";
 
-    private static SchematronValidatorBuilder Builder(string test, string attributes = "") =>
+    private static SchematronValidatorBuilder Builder(string test, string attributes = "", string binding = "xslt2") =>
         SchemaValidator.ForSchematron(
             Wrap(
                 $"<pattern id=\"p\"><rule context=\"doc\"><assert test=\"{test}\">Failed.</assert></rule></pattern>",
-                $" queryBinding=\"xslt2\" schematronEdition=\"2025\" {Xsl}{attributes}"
+                $" queryBinding=\"{binding}\" schematronEdition=\"2025\" {Xsl}{attributes}"
             ),
             Schema
         );
@@ -34,10 +34,11 @@ public class DocumentFunctionRunTests
         string test,
         FakeResources? files = null,
         string attributes = "",
-        ValidationLimits? limits = null
+        ValidationLimits? limits = null,
+        string binding = "xslt2"
     )
     {
-        var builder = Builder(test, attributes);
+        var builder = Builder(test, attributes, binding);
         if (files is not null)
         {
             _ = builder.WithResolver(files);
@@ -55,8 +56,9 @@ public class DocumentFunctionRunTests
         string test,
         FakeResources? files = null,
         string attributes = "",
-        ValidationLimits? limits = null
-    ) => Validate(Validator(test, files, attributes, limits), Instance);
+        ValidationLimits? limits = null,
+        string binding = "xslt2"
+    ) => Validate(Validator(test, files, attributes, limits, binding), Instance);
 
     private static string Code(ValidationResult result) => result.Issues.Single().Constraint!;
 
@@ -69,6 +71,21 @@ public class DocumentFunctionRunTests
 
         await Assert.That(result.IsValid).IsTrue();
         await Assert.That(files.Requests.Single()).IsEqualTo("file:///schemas/codes.xml");
+    }
+
+    [Test]
+    [Arguments("xslt")]
+    [Arguments("xslt1")]
+    [Arguments("xslt3")]
+    public async Task Document_UnderTheOtherXsltBindings_LoadsTheDocument(string binding)
+    {
+        var result = Run(
+            "count(document('codes.xml')//c) = 2 and count(doc('codes.xml')//c) = 2",
+            Files(),
+            binding: binding
+        );
+
+        await Assert.That(result.IsValid).IsTrue();
     }
 
     [Test]
