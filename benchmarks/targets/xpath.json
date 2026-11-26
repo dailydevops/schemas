@@ -6,6 +6,18 @@
     "baselineRatio": 1.1
   },
   {
+    "name": "XPathBooleanBenchmarks.EvaluateBooleans",
+    "meanNs": 130000.0,
+    "allocatedBytes": 19960,
+    "baselineRatio": 15.5
+  },
+  {
+    "name": "XPathBooleanBenchmarks.EvaluateThenReduce",
+    "meanNs": 140000.0,
+    "allocatedBytes": 24808,
+    "baselineRatio": 16.5
+  },
+  {
     "name": "XPathComparisonBenchmarks.EvaluateComparisons",
     "meanNs": 116743.5,
     "allocatedBytes": 18786,
