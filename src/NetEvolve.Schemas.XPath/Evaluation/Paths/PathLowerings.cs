@@ -1,5 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Evaluation.Paths;
 
+using System;
 using System.Collections.Generic;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Compilation;
@@ -48,56 +49,63 @@ internal static class PathLowerings
 
     private static PathNode LowerPath(PathExpression node, LoweringContext context)
     {
-        var syntax = new List<Expression>(node.Steps.Count + 1);
-        if (node.Root == PathRoot.RootDescendants)
+        // A RootDescendants path starts with a synthetic descendant-or-self::node() step at virtual index 0; the lowered steps are
+        // written once into an array of the upper bound and shrunk only when look-ahead merged steps.
+        var offset = node.Root == PathRoot.RootDescendants ? 1 : 0;
+        var count = node.Steps.Count + offset;
+        var steps = new PathStep[count];
+        var written = 0;
+        for (var i = 0; i < count; i++)
         {
-            syntax.Add(new AxisStep(node.Location, Axis.DescendantOrSelf, new AnyKindTest(node.Location), []));
-        }
-
-        for (var i = 0; i < node.Steps.Count; i++)
-        {
-            syntax.Add(node.Steps[i]);
-        }
-
-        var steps = new List<PathStep>(syntax.Count);
-        for (var i = 0; i < syntax.Count; i++)
-        {
-            if (IsDescendantAttribute(syntax, i, context, out var attributeTest))
+            if (IsDescendantAttribute(node, offset, i, context, out var attributeTest))
             {
-                steps.Add(new DescendantAttributeStep(attributeTest));
+                steps[written++] = new DescendantAttributeStep(attributeTest);
                 i++;
             }
-            else if (IsDescendantUnion(syntax, i, context, out var union))
+            else if (IsDescendantUnion(node, offset, i, context, out var union))
             {
-                steps.Add(new ExpressionPathStep(context.Lower(union), isContextItem: false));
+                steps[written++] = new ExpressionPathStep(context.Lower(union), isContextItem: false);
                 i++;
             }
-            else if (IsDescendantShortcut(syntax, i, context))
+            else if (IsDescendantShortcut(node, offset, i, context))
             {
-                var child = (AxisStep)syntax[i + 1];
-                steps.Add(
-                    LowerAxisStep(new AxisStep(child.Location, Axis.Descendant, child.Test, child.Predicates), context)
+                var child = (AxisStep)StepAt(node, offset, i + 1);
+                steps[written++] = LowerAxisStep(
+                    new AxisStep(child.Location, Axis.Descendant, child.Test, child.Predicates),
+                    context
                 );
                 i++;
             }
             else
             {
-                steps.Add(LowerStep(syntax[i], context));
+                steps[written++] = LowerStep(StepAt(node, offset, i), context);
             }
         }
 
-        return new PathNode(node.Root, steps.ToArray(), node.Location);
+        if (written < count)
+        {
+            Array.Resize(ref steps, written);
+        }
+
+        return new PathNode(node.Root, steps, node.Location);
     }
 
+    // The step at a virtual index: the synthetic descendant-or-self::node() step of a RootDescendants path, then the syntax steps.
+    private static Expression StepAt(PathExpression node, int offset, int index) =>
+        index < offset
+            ? new AxisStep(node.Location, Axis.DescendantOrSelf, new AnyKindTest(node.Location), [])
+            : node.Steps[index - offset];
+
     // descendant-or-self::node()/child::T, with no predicate on the first step and none on the second that can select by position.
-    private static bool IsDescendantShortcut(List<Expression> steps, int index, LoweringContext context) =>
-        IsDescendantOrSelfNode(steps, index)
-        && steps[index + 1] is AxisStep { Axis: Axis.Child } child
+    private static bool IsDescendantShortcut(PathExpression node, int offset, int index, LoweringContext context) =>
+        IsDescendantOrSelfNode(node, offset, index)
+        && StepAt(node, offset, index + 1) is AxisStep { Axis: Axis.Child } child
         && Selects(child, context);
 
     // descendant-or-self::node()/attribute::T without predicates, T a plain node test: the attributes of the elements, in one walk.
     private static bool IsDescendantAttribute(
-        List<Expression> steps,
+        PathExpression node,
+        int offset,
         int index,
         LoweringContext context,
         out XPathNodeTest test
@@ -105,15 +113,16 @@ internal static class PathLowerings
     {
         test = default;
 
-        return IsDescendantOrSelfNode(steps, index)
-            && steps[index + 1] is AxisStep { Axis: Axis.Attribute, Predicates.Count: 0 } attribute
+        return IsDescendantOrSelfNode(node, offset, index)
+            && StepAt(node, offset, index + 1) is AxisStep { Axis: Axis.Attribute, Predicates.Count: 0 } attribute
             && XPathNodeTest.TryFromSyntax(attribute.Test, Axis.Attribute, context.StaticContext, out test);
     }
 
     // descendant-or-self::node()/(A|B|...) where every operand is a child step that may become a descendant step: the union of the
     // descendant steps. Each node of the document then does not evaluate a union of its own.
     private static bool IsDescendantUnion(
-        List<Expression> steps,
+        PathExpression node,
+        int offset,
         int index,
         LoweringContext context,
         out Expression union
@@ -121,8 +130,8 @@ internal static class PathLowerings
     {
         union = null!;
         if (
-            !IsDescendantOrSelfNode(steps, index)
-            || steps[index + 1]
+            !IsDescendantOrSelfNode(node, offset, index)
+            || StepAt(node, offset, index + 1)
                 is not ParenthesizedExpression { Inner: SetExpression { Operator: SetOperator.Union } set }
         )
         {
@@ -158,9 +167,13 @@ internal static class PathLowerings
         }
     }
 
-    private static bool IsDescendantOrSelfNode(List<Expression> steps, int index) =>
-        index + 1 < steps.Count
-        && steps[index] is AxisStep { Axis: Axis.DescendantOrSelf, Test: AnyKindTest, Predicates.Count: 0 };
+    private static bool IsDescendantOrSelfNode(PathExpression node, int offset, int index) =>
+        index + 1 < node.Steps.Count + offset
+        && (
+            index < offset
+            || node.Steps[index - offset]
+                is AxisStep { Axis: Axis.DescendantOrSelf, Test: AnyKindTest, Predicates.Count: 0 }
+        );
 
     // A child step without a predicate, or with predicates that cannot select by position: the candidates are the same nodes whether the
     // step runs per node or once over the descendants.
@@ -200,6 +213,11 @@ internal static class PathLowerings
 
     private static ExecutableNode[] LowerPredicates(IReadOnlyList<Expression> predicates, LoweringContext context)
     {
+        if (predicates.Count == 0)
+        {
+            return [];
+        }
+
         var lowered = new ExecutableNode[predicates.Count];
         for (var i = 0; i < lowered.Length; i++)
         {

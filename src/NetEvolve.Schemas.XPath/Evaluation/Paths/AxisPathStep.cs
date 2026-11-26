@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.XPath.Evaluation.Paths;
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.XPath.Compilation;
@@ -28,8 +29,9 @@ internal class AxisPathStep : PathStep
 {
     private readonly Axis _axis;
     private readonly XPathNodeTest _test;
-    private readonly ItemTypeMatcher _typed;
-    private readonly bool _hasType;
+
+    // The 40-byte matcher of element(N, T), attribute(N, T), and schema tests lives behind a reference: name and kind tests have none.
+    private readonly StrongBox<ItemTypeMatcher>? _typed;
     private readonly ExecutableNode[] _predicates;
 
     /// <summary>Initializes a new instance of the <see cref="AxisPathStep"/> class.</summary>
@@ -49,8 +51,7 @@ internal class AxisPathStep : PathStep
 
         _axis = axis;
         _test = test;
-        _hasType = typed.HasValue;
-        _typed = typed.GetValueOrDefault();
+        _typed = typed.HasValue ? new StrongBox<ItemTypeMatcher>(typed.GetValueOrDefault()) : null;
         _predicates = predicates;
     }
 
@@ -67,8 +68,8 @@ internal class AxisPathStep : PathStep
     /// <returns>The step.</returns>
     public AxisPathStep With(ExecutableNode[] predicates, PositionalCutoff? cutoff) =>
         cutoff is { } value
-            ? new CutoffAxisPathStep(_axis, _test, _hasType ? _typed : null, predicates, value)
-            : new AxisPathStep(_axis, _test, _hasType ? _typed : null, predicates);
+            ? new CutoffAxisPathStep(_axis, _test, _typed?.Value, predicates, value)
+            : new AxisPathStep(_axis, _test, _typed?.Value, predicates);
 
     /// <inheritdoc />
     public override bool CanLimit => _predicates.Length == 0 && Cutoff is null;
@@ -166,8 +167,8 @@ internal class AxisPathStep : PathStep
         {
             var current = XdmItem.FromNode(iterator.Current);
             if (
-                !_hasType
-                || _typed.Matches(
+                _typed is null
+                || _typed.Value.Matches(
                     current,
                     UntypedAnnotationSource.Instance,
                     ref state.TypedTree,
