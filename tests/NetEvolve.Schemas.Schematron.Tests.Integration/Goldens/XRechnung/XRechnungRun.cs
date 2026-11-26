@@ -38,14 +38,13 @@ internal static class XRechnungRun
 
     /// <summary>
     /// The diagnostic codes that keep the rules from building, each with the open issue that tracks it: NES3300 is the deferred global
-    /// visibility of a pattern-level <see langword="let"/> (#615), NES3203 is the deferred parenthesized pattern as the prefix of a path (#1285).
+    /// visibility of a pattern-level <see langword="let"/> (#615).
     /// </summary>
     public static readonly IReadOnlyDictionary<string, int> BuildBlockers = new Dictionary<string, int>(
         StringComparer.Ordinal
     )
     {
         ["NES3300"] = 615,
-        ["NES3203"] = 1285,
     };
 
     private static readonly XNamespace Svrl = "http://purl.oclc.org/dsdl/svrl";
