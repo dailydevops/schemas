@@ -71,6 +71,10 @@ public sealed class RegexOperations
     public RegexMatchEnumerator EnumerateMatches(ReadOnlySpan<char> input, RegexStepLimits? limits = null) =>
         new(this, input, limits);
 
+    // Whether any part of the input matches: the boolean that fn:matches needs.
+    internal RegexMatchResult IsMatch(ReadOnlySpan<char> input, RegexStepLimits? limits = null) =>
+        throw new NotImplementedException();
+
     /// <summary>Replaces every match with the replacement string and returns the result as a string.</summary>
     /// <param name="input">The input.</param>
     /// <param name="replacement">The replacement string: <c>$N</c> is the text of group N (<c>$0</c> the whole match, empty for a group that took no part or does not exist), <c>\$</c> a dollar sign, and <c>\\</c> a backslash.</param>
