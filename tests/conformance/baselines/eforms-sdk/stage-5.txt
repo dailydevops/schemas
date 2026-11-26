@@ -1,0 +1,6 @@
+stage-5/INVALID_can_24_stage-1.xml
+stage-5/INVALID_can_24_stage-2.xml
+stage-5/INVALID_cn_24_multiple.xml
+stage-5/INVALID_cn_24_stage-1.xml
+stage-5/INVALID_cn_24_stage-2.xml
+stage-5/change-cn_24_void.xml
