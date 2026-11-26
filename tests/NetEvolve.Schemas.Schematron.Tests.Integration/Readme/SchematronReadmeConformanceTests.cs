@@ -50,7 +50,8 @@ public class SchematronReadmeConformanceTests
         cancellationToken.ThrowIfCancellationRequested();
         var readme = ReadmeSamples.ReadText(Readme);
 
-        foreach (var set in (await Report(cancellationToken)).TestSets)
+        // A test set without applicable cases holds only the excluded cases of a folder; it has no row.
+        foreach (var set in (await Report(cancellationToken)).TestSets.Where(s => s.Counts.Applicable > 0))
         {
             var row = $"| `{set.TestSet}` | {set.Counts.Applicable} | {set.Counts.Passed} | {Rate(set.Counts)} |";
 

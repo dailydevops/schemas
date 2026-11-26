@@ -8,8 +8,9 @@ public class SchematronEngineTests
 {
     private static Task<SchematronObservation> Run(
         SchematronCase schematronCase,
-        CancellationToken cancellationToken
-    ) => SchematronEngine.Instance.ValidateAsync(schematronCase, cancellationToken);
+        CancellationToken cancellationToken,
+        string binding = "xslt-2"
+    ) => SchematronEngine.Instance.ValidateAsync(schematronCase, binding, cancellationToken);
 
     [Test]
     public async Task ValidateAsync_NoFailedAssertion_IsValid(CancellationToken cancellationToken)
@@ -45,6 +46,31 @@ public class SchematronEngineTests
         var observation = await Run(Case(SchematronOutcome.Error, [Schema("(")]), cancellationToken);
 
         await Assert.That(observation.Outcome).IsEqualTo(SchematronOutcome.Error);
+    }
+
+    [Test]
+    public async Task ValidateAsync_BindingOfTheRun_IsSetOnTheSchema(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var schematronCase = Case(SchematronOutcome.Error, [Schema("true()")]);
+
+        var observation = await Run(schematronCase, cancellationToken, binding: "unknown-9");
+
+        await Assert.That(observation.Outcome).IsEqualTo(SchematronOutcome.Error);
+    }
+
+    [Test]
+    public async Task ValidateAsync_BindingDeclaredByTheSchema_IsReplacedByTheBindingOfTheRun(
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var schema = Schema("true()")
+            .Replace("<sch:schema ", "<sch:schema queryBinding=\"unknown\" ", StringComparison.Ordinal);
+
+        var observation = await Run(Case(SchematronOutcome.Valid, [schema]), cancellationToken);
+
+        await Assert.That(observation).IsEqualTo(new SchematronObservation(SchematronOutcome.Valid));
     }
 
     [Test]

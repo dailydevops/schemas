@@ -24,8 +24,16 @@ public class SchematronConformanceRunnerTests
 
         var results = await SchematronConformanceRunner.RunAsync(Selection(fixture), validator, cancellationToken);
 
-        await Assert.That(results.Count(r => r.Outcome == CaseOutcome.Pass)).IsEqualTo(3);
-        await Assert.That(validator.Calls).IsEquivalentTo(["set-a/one.xml", "set-a/two.xml", "set-b/only-xslt2.xml"]);
+        await Assert.That(results.Count(r => r.Outcome == CaseOutcome.Pass)).IsEqualTo(5);
+        await Assert
+            .That(validator.Calls)
+            .IsEquivalentTo([
+                "set-a/one.xml@xslt-1",
+                "set-a/one.xml@xslt-2",
+                "set-a/two.xml@xslt-1",
+                "set-a/two.xml@xslt-2",
+                "set-b/only-xslt2.xml@xslt-2",
+            ]);
     }
 
     [Test]
@@ -37,9 +45,11 @@ public class SchematronConformanceRunnerTests
 
         var results = await SchematronConformanceRunner.RunAsync(Selection(fixture), validator, cancellationToken);
 
-        var failed = results.Single(r => string.Equals(r.CaseId, "set-a/one.xml", StringComparison.Ordinal));
+        var failed = results.Single(r => r.CaseId == "set-a/one.xml" && r.TestSet == "xslt-2.set-a");
         await Assert.That(failed.Outcome).IsEqualTo(CaseOutcome.Fail);
-        await Assert.That(failed.TestSet).IsEqualTo("set-a");
+        await Assert
+            .That(results.Count(r => r.CaseId == "set-a/one.xml" && r.Outcome == CaseOutcome.Fail))
+            .IsEqualTo(2);
         await Assert.That(failed.Reason).IsEqualTo("Expected Invalid but observed Valid.");
     }
 
@@ -54,7 +64,7 @@ public class SchematronConformanceRunnerTests
 
         var results = await SchematronConformanceRunner.RunAsync(Selection(fixture), validator, cancellationToken);
 
-        var failed = results.Single(r => string.Equals(r.CaseId, "set-a/one.xml", StringComparison.Ordinal));
+        var failed = results.First(r => string.Equals(r.CaseId, "set-a/one.xml", StringComparison.Ordinal));
         await Assert.That(failed.Outcome).IsEqualTo(CaseOutcome.Fail);
         await Assert.That(failed.Reason).IsEqualTo("assertion 'x' does not hold.");
     }
@@ -68,7 +78,7 @@ public class SchematronConformanceRunnerTests
 
         var results = await SchematronConformanceRunner.RunAsync(Selection(fixture), validator, cancellationToken);
 
-        var failed = results.Single(r => string.Equals(r.CaseId, "set-a/one.xml", StringComparison.Ordinal));
+        var failed = results.First(r => string.Equals(r.CaseId, "set-a/one.xml", StringComparison.Ordinal));
         await Assert.That(failed.Reason).IsEqualTo("Expected Invalid but observed Valid. no schema.");
     }
 
@@ -99,7 +109,7 @@ public class SchematronConformanceRunnerTests
             cancellationToken
         );
 
-        await Assert.That(results.Count(r => r.Outcome == CaseOutcome.Fail)).IsEqualTo(3);
+        await Assert.That(results.Count(r => r.Outcome == CaseOutcome.Fail)).IsEqualTo(5);
         await Assert.That(results.Count(r => r.Outcome == CaseOutcome.Pass)).IsEqualTo(0);
     }
 
@@ -119,7 +129,7 @@ public class SchematronConformanceRunnerTests
         await Assert.That(report.IsSuccess).IsFalse();
         await Assert
             .That(report.TestSets.SelectMany(t => t.Regressions))
-            .IsEquivalentTo(["set-a/one.xml", "set-a/two.xml"]);
+            .IsEquivalentTo(["set-a/one.xml", "set-a/one.xml", "set-a/two.xml", "set-a/two.xml"]);
     }
 
     [Test]
@@ -134,7 +144,7 @@ public class SchematronConformanceRunnerTests
             results,
             new Dictionary<string, KnownFailureBaseline>(StringComparer.Ordinal)
             {
-                ["set-a"] = KnownFailureBaseline.Parse("set-a/one.xml\n"),
+                ["xslt-1.set-a"] = KnownFailureBaseline.Parse("set-a/one.xml\n"),
             }
         );
 
@@ -142,10 +152,25 @@ public class SchematronConformanceRunnerTests
         await Assert.That(report.TestSets.SelectMany(t => t.UnexpectedPasses)).IsEquivalentTo(["set-a/one.xml"]);
     }
 
+    [Test]
+    public async Task Run_SameCaseUnderTwoBindings_HasOneTestSetPerBinding(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        using var fixture = new FixtureDirectory();
+        var validator = new FakeSchematronValidator(c => c.Expect);
+
+        var results = await SchematronConformanceRunner.RunAsync(Selection(fixture), validator, cancellationToken);
+
+        await Assert
+            .That(results.Where(r => r.CaseId == "set-a/one.xml").Select(r => r.TestSet))
+            .IsEquivalentTo(["xslt-1.set-a", "xslt-2.set-a"]);
+    }
+
     private sealed class ReasonValidator(Func<SchematronCase, SchematronObservation> observe) : ISchematronValidator
     {
         public Task<SchematronObservation> ValidateAsync(
             SchematronCase schematronCase,
+            string binding,
             CancellationToken cancellationToken
         ) => Task.FromResult(observe(schematronCase));
     }

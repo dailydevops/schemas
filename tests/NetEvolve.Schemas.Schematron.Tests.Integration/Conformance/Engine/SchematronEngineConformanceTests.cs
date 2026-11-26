@@ -7,7 +7,7 @@ using NetEvolve.Schemas.Conformance.Results;
 using NetEvolve.Schemas.Schematron.Tests.Integration.Conformance.Runner;
 
 /// <summary>
-/// The Schematron conformance suite on the real validator: every selected core and SVRL case of the bindings xslt-1 and xslt-2 runs, and a
+/// The Schematron conformance suite on the real validator: every selected core and SVRL case runs once per selected binding, xslt-1 and xslt-2, and a
 /// test set fails on a regression, on an unexpected pass, and on a baseline entry without a linked bug issue.
 /// </summary>
 /// <remarks>
@@ -66,12 +66,18 @@ public class SchematronEngineConformanceTests
         var selection = await SchematronSuite.LoadSelectionAsync(cancellationToken);
 
         await Assert
-            .That(selection.Selected.Select(c => c.TestSet).Distinct(StringComparer.Ordinal))
+            .That(
+                selection
+                    .Selected.SelectMany(c => c.Bindings.Select(binding => binding + "." + c.TestSet))
+                    .Distinct(StringComparer.Ordinal)
+            )
             .IsEquivalentTo(SchematronEngineRun.TestSets);
         foreach (var testSet in SchematronEngineRun.TestSets)
         {
             var ids = selection
-                .Selected.Where(c => string.Equals(c.TestSet, testSet, StringComparison.Ordinal))
+                .Selected.Where(c =>
+                    c.Bindings.Any(b => string.Equals(b + "." + c.TestSet, testSet, StringComparison.Ordinal))
+                )
                 .Select(c => c.Id);
             foreach (var id in BaselineFiles.Load(SchematronSuite.BaselineDirectory, testSet).Ids)
             {

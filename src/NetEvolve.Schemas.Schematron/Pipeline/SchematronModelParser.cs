@@ -65,10 +65,11 @@ internal sealed class SchematronModelParser : IModelParser
 
         try
         {
+            var options = _settings.DtdProcessing ? EntityOptions(_settings.Limits) : null;
             tree =
                 source.Kind == DocumentSourceKind.Chars
-                    ? XmlDocumentLoader.Load(source.GetChars(_settings.Limits).Span)
-                    : XmlDocumentLoader.Load(source.GetBytes(_settings.Limits, _cancellationToken).Span);
+                    ? XmlDocumentLoader.Load(source.GetChars(_settings.Limits).Span, options)
+                    : XmlDocumentLoader.Load(source.GetBytes(_settings.Limits, _cancellationToken).Span, options);
             return true;
         }
         catch (XmlParseException failure)
@@ -79,4 +80,14 @@ internal sealed class SchematronModelParser : IModelParser
             return false;
         }
     }
+
+    // The schema keeps the reader's own limits, except the entity expansion, which follows the validator limits.
+    private static XmlReaderOptions EntityOptions(ValidationLimits limits) =>
+        XmlReaderOptions
+            .Default.WithDtdProcessing(true)
+            .WithLimits(
+                XmlReaderLimits
+                    .Default.WithMaxEntityExpansionCharacters(limits.MaxEntityExpansion)
+                    .WithMaxEntityDepth(limits.MaxEntityDepth)
+            );
 }

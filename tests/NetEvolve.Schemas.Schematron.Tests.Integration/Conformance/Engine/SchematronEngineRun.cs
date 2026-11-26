@@ -6,8 +6,8 @@ using NetEvolve.Schemas.Schematron.Tests.Integration.Conformance.Runner;
 /// <summary>Runs the selected cases of the pinned suite on the engine once per process; every test set reads its results from this run.</summary>
 internal static class SchematronEngineRun
 {
-    /// <summary>The test sets of the pinned suite, one baseline file each when it has known failures.</summary>
-    public static IReadOnlyList<string> TestSets { get; } =
+    /// <summary>The case folders of the pinned suite.</summary>
+    private static readonly string[] Folders =
     [
         "iso-instance-document-selection",
         "iso-pattern-templating",
@@ -15,6 +15,13 @@ internal static class SchematronEngineRun
         "iso-rule-based-validation",
         "iso-schema-composition",
     ];
+
+    /// <summary>The selected bindings of the pinned suite whose cases run.</summary>
+    private static readonly string[] Bindings = ["xslt-1", "xslt-2"];
+
+    /// <summary>The test sets, one per selected binding and case folder (<c>xslt-2.iso-reporting</c>), one baseline file each when it has known failures.</summary>
+    public static IReadOnlyList<string> TestSets { get; } =
+    [.. Bindings.SelectMany(binding => Folders.Select(folder => binding + "." + folder))];
 
     private static readonly SemaphoreSlim Gate = new(1, 1);
     private static IReadOnlyList<CaseResult>? s_results;

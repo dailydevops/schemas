@@ -6,6 +6,7 @@
   <ItemGroup>
     <ProjectReference Include="../NetEvolve.Schemas.Conformance/NetEvolve.Schemas.Conformance.csproj" />
     <ProjectReference Include="../../src/NetEvolve.Schemas.Schematron/NetEvolve.Schemas.Schematron.csproj" SetTargetFramework="$(LibraryLegTargetFramework)" />
+    <ProjectReference Include="../../src/NetEvolve.Schemas.Xsd/NetEvolve.Schemas.Xsd.csproj" SetTargetFramework="$(LibraryLegTargetFramework)" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Verify.TUnit" />
