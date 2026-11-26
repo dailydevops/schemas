@@ -23,7 +23,8 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// <remarks>
 /// The function <c>key</c> of the XPath package reaches the provider through <see cref="IXPathKeyProvider"/>, which names the
 /// context node or the top node (#776, #777); a problem of that lookup is an <see cref="XPathException"/>. The index holds every matching node, so its size is proportional to the matches, as the key tables of
-/// identity constraints are (design #146).
+/// identity constraints are (design #146). A match pattern may start with <c>key()</c> (#780); a key whose pattern reads the key
+/// under construction is the circularity error XTDE0640.
 /// </remarks>
 internal sealed class XsltKeyProvider : IXPathKeyProvider
 {
@@ -35,6 +36,7 @@ internal sealed class XsltKeyProvider : IXPathKeyProvider
     private readonly CancellationToken _cancellationToken;
     private readonly XsltFrame _frame;
     private readonly Dictionary<(XPathNode Root, XPathQName Name), Dictionary<string, List<XPathNode>>> _indexes = [];
+    private readonly HashSet<(XPathNode Root, XPathQName Name)> _building = [];
     private SchematronProblem _problem;
 
     /// <summary>Initializes a new instance of the <see cref="XsltKeyProvider"/> class.</summary>
@@ -149,7 +151,18 @@ internal sealed class XsltKeyProvider : IXPathKeyProvider
 
         if (!_indexes.TryGetValue((root, name), out var index))
         {
-            if (TryBuild(in root, declarations, out index) == QueryStatus.Problem)
+            // A match pattern that starts with key() of the key under construction would recurse without end (XTDE0640).
+            if (!_building.Add((root, name)))
+            {
+                return Fail(
+                    "XTDE0640",
+                    $"The definition of the key '{name}' is circular: its match pattern reads the key."
+                );
+            }
+
+            var built = TryBuild(in root, declarations, out index);
+            _ = _building.Remove((root, name));
+            if (built == QueryStatus.Problem)
             {
                 return QueryStatus.Problem;
             }

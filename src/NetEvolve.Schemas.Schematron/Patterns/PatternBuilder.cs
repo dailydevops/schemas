@@ -17,7 +17,9 @@ using NetEvolve.Schemas.XPath.Syntax.Tree;
 /// <remarks>
 /// Limitation (DEF-60): the XSLT 3.0 forms <c>intersect</c>, <c>except</c>, parentheses, and predicates on a parenthesized
 /// pattern are accepted under every XSLT binding, so also under <c>xslt</c> and <c>xslt2</c>, which is a superset of
-/// those versions. Patterns rooted at a variable reference are not supported.
+/// those versions. Patterns rooted at a variable reference are not supported. A key start (<c>key('name', 'value')</c>,
+/// alone or followed by a relative path) is built under an XSLT binding only: the call is compiled as a node expression
+/// and evaluated against the key index of the run (#780).
 /// </remarks>
 internal sealed class PatternBuilder(
     IQueryBinding binding,
@@ -127,6 +129,11 @@ internal sealed class PatternBuilder(
             case FilterExpression { Primary: ParenthesizedExpression { Inner: not null } } filter when extended:
                 return TryBuildFiltered(filter, prefilter, out alternative, out problem);
             default:
+                if (extended && KeyCall(expression) is { } keyCall)
+                {
+                    return TryBuildKeyPath(expression, keyCall, prefilter, out alternative, out problem);
+                }
+
                 if (extended && !PatternProfile.Checker.Accepts(expression, out var violation))
                 {
                     problem = new SchematronProblem(
@@ -214,12 +221,89 @@ internal sealed class PatternBuilder(
         out SchematronProblem problem
     )
     {
+        var path = expression as PathExpression;
+        var raw = path is null ? (IReadOnlyList<Expression>)new[] { expression } : path.Steps;
+        return TryBuildSteps(path?.Root ?? PathRoot.Relative, raw, null, prefilter, out alternative, out problem);
+    }
+
+    // The call of key() that starts a pattern: alone, or as the first step of a relative path (XSLT 2.0 IdKeyPattern).
+    private static FunctionCall? KeyCall(Expression expression)
+    {
+        var first = expression is PathExpression { Root: PathRoot.Relative, Steps.Count: > 0 } path
+            ? path.Steps[0]
+            : expression;
+        return first is FunctionCall { Name: { Prefix: null, LocalName: "key" } } call ? call : null;
+    }
+
+    private bool TryBuildKeyPath(
+        Expression expression,
+        FunctionCall call,
+        Prefilter prefilter,
+        out PatternAlternative alternative,
+        out SchematronProblem problem
+    )
+    {
+        alternative = null!;
+        if (call.Arguments.Count != 2 || !IsKeyArgument(call.Arguments[0]) || !IsKeyArgument(call.Arguments[1]))
+        {
+            problem = new SchematronProblem(
+                SchematronDiagnosticCodes.PatternUnsupported,
+                "The call of key() that starts a pattern takes two arguments, each a string literal or a variable reference.",
+                locator.Locate(call.Location.Offset),
+                "key"
+            );
+            return false;
+        }
+
+        var rest = new List<Expression>();
+        if (expression is PathExpression path)
+        {
+            for (var i = 1; i < path.Steps.Count; i++)
+            {
+                rest.Add(path.Steps[i]);
+            }
+        }
+
+        if (
+            rest.Count > 0
+            && !PatternProfile.Checker.Accepts(
+                new PathExpression(expression.Location, PathRoot.Relative, rest),
+                out var violation
+            )
+        )
+        {
+            problem = new SchematronProblem(
+                SchematronDiagnosticCodes.PatternUnsupported,
+                violation.Message,
+                locator.Locate(violation.Offset),
+                violation.QName.LocalName
+            );
+            return false;
+        }
+
+        var source = text.Substring(call.Location.Offset, call.Location.Length);
+        if (!binding.TryCompile(source.AsSpan(), QueryExpressionKind.Nodes, scope, out var keyStart, out problem))
+        {
+            return false;
+        }
+
+        _ = _slots.Add(keyStart);
+        return TryBuildSteps(PathRoot.Relative, rest, keyStart, prefilter, out alternative, out problem);
+    }
+
+    private static bool IsKeyArgument(Expression argument) => argument is StringLiteral or VariableReference;
+
+    private bool TryBuildSteps(
+        PathRoot root,
+        IReadOnlyList<Expression> raw,
+        QueryExpression? keyStart,
+        Prefilter prefilter,
+        out PatternAlternative alternative,
+        out SchematronProblem problem
+    )
+    {
         alternative = null!;
         problem = default;
-        var path = expression as PathExpression;
-        var root = path?.Root ?? PathRoot.Relative;
-        var raw = path is null ? (IReadOnlyList<Expression>)new[] { expression } : path.Steps;
-
         var steps = new List<PatternStep>();
         var axisSteps = new List<AxisStep>();
         var descendant = false;
@@ -243,9 +327,22 @@ internal sealed class PatternBuilder(
         }
 
         var last = axisSteps.Count == 0 ? null : axisSteps[axisSteps.Count - 1];
-        prefilter.Kinds |= KindsOf(last);
-        prefilter.AnyName |= !TryAddName(last, prefilter.Names);
-        alternative = new PathAlternative(root, steps.ToArray(), PatternPriority.Of(root, axisSteps));
+        if (keyStart is not null && last is null)
+        {
+            // Every node of the key can match, whatever its kind and name.
+            prefilter.Kinds |= QueryNodeKinds.Document | QueryNodeKinds.Element | QueryNodeKinds.Attribute;
+            prefilter.Kinds |= QueryNodeKinds.Text | QueryNodeKinds.Comment | QueryNodeKinds.ProcessingInstruction;
+            prefilter.AnyName = true;
+        }
+        else
+        {
+            prefilter.Kinds |= KindsOf(last);
+            prefilter.AnyName |= !TryAddName(last, prefilter.Names);
+        }
+
+        // A pattern with a key start has the priority 0.5 (XSLT 2.0 section 6.4: not a single step).
+        var priority = keyStart is null ? PatternPriority.Of(root, axisSteps) : 0.5m;
+        alternative = new PathAlternative(root, steps.ToArray(), priority, keyStart);
         return true;
     }
 

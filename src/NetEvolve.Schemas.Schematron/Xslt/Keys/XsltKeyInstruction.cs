@@ -19,7 +19,7 @@ using NetEvolve.Schemas.XPath.Api;
 /// <remarks>
 /// Limitations: only the codepoint collation is supported (DEF-43, #55), so another <c>collation</c> is XTSE1210 as an explicit
 /// error; the XSLT 3.0 attribute <c>composite</c> is reported as not supported (#779); <c>match</c> is limited to the pattern subset of the
-/// shared matcher, so <c>id()</c> and <c>key()</c> inside it are the unsupported-pattern error (#67, #780). The compile scope of the element is the
+/// shared matcher, so <c>id()</c> inside it is the unsupported-pattern error (#67); <c>key()</c> may start the pattern (#780). The compile scope of the element is the
 /// scope the compiler gives a declaration: the schema-level names, as for <c>xsl:function</c> (design #150), so <c>match</c> and
 /// <c>use</c> see no phase, pattern, or rule variable.
 /// </remarks>
