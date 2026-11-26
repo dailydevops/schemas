@@ -24,7 +24,7 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// </para>
 /// <para>
 /// Limitations: a prefixed name is resolved by no namespace context until a call reaches the static namespaces (#752), as for
-/// <c>format-number</c>. <c>key</c> as the start of a rule context or of an <c>xsl:key</c> match pattern is not supported (#780).
+/// <c>format-number</c>.
 /// </para>
 /// </remarks>
 internal sealed class KeyFunction : NodeFunction

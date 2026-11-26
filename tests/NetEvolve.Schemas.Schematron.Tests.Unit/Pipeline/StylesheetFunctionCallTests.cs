@@ -314,4 +314,41 @@ public class StylesheetFunctionCallTests
 
         await Assert.That(result.IsValid).IsEqualTo(expected);
     }
+
+    // A local variable with a sequence constructor in a function body (#629), the shape of the BIS 3 helper functions.
+    private const string ContentVariableModule =
+        "<xsl:function name=\"f:digits\" as=\"xs:string\"><xsl:param name=\"s\" as=\"xs:string\"/>"
+        + "<xsl:variable name=\"d\" as=\"xs:string\"><xsl:sequence select=\"translate($s, 'ABC ', '')\"/></xsl:variable>"
+        + "<xsl:sequence select=\"$d\"/></xsl:function>"
+        + "<xsl:function name=\"f:tree-text\" as=\"xs:string\"><xsl:param name=\"s\" as=\"xs:string\"/>"
+        + "<xsl:variable name=\"t\"><e><xsl:value-of select=\"$s\"/></e></xsl:variable>"
+        + "<xsl:sequence select=\"string($t/e)\"/></xsl:function>"
+        + "<xsl:function name=\"f:typed\" as=\"xs:integer\"><xsl:param name=\"s\" as=\"xs:string\"/>"
+        + "<xsl:variable name=\"n\" as=\"xs:integer\"><xsl:sequence select=\"$s\"/></xsl:variable>"
+        + "<xsl:sequence select=\"$n\"/></xsl:function>";
+
+    [Test]
+    [Arguments("f:digits(string(.)) = '12'", "AB12 C", true)]
+    [Arguments("f:digits(string(.)) = '12'", "13", false)]
+    [Arguments("f:tree-text(string(.)) = 'x'", "x", true)]
+    [Arguments("f:tree-text(string(.)) = 'x'", "y", false)]
+    public async Task Call_OfAFunctionWithAContentVariable_DecidesTheAssertion(string test, string text, bool expected)
+    {
+        var validator = FromModule(ContentVariableModule, test);
+
+        var result = Validate(validator, $"<a>{text}</a>");
+
+        await Assert.That(result.IsValid).IsEqualTo(expected);
+    }
+
+    [Test]
+    public async Task Call_OfAFunctionWithAContentVariableOfTheWrongType_ReportsTheTypeError()
+    {
+        var validator = FromModule(ContentVariableModule, "f:typed(string(.)) = 1");
+
+        var result = Validate(validator, "<a>abc</a>");
+
+        await Assert.That(result.IsValid).IsFalse();
+        await Assert.That(Messages(result)).Contains("XTTE0570");
+    }
 }
