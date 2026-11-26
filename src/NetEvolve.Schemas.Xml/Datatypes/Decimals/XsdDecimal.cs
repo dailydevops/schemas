@@ -244,6 +244,11 @@ public readonly struct XsdDecimal : IEquatable<XsdDecimal>, IComparable<XsdDecim
     /// <returns>The sum.</returns>
     public XsdDecimal Add(XsdDecimal other)
     {
+        if (_big.IsZero && other._big.IsZero && TryAddInline(other, out var inline))
+        {
+            return inline;
+        }
+
         var scale = Math.Max(Scale, other.Scale);
         return new XsdDecimal(Aligned(scale) + other.Aligned(scale), scale);
     }
@@ -257,7 +262,10 @@ public readonly struct XsdDecimal : IEquatable<XsdDecimal>, IComparable<XsdDecim
     /// <param name="other">The other value.</param>
     /// <returns>The product.</returns>
     /// <exception cref="OverflowException">The scale of the product does not fit a 32-bit integer.</exception>
-    public XsdDecimal Multiply(XsdDecimal other) => new(Mantissa * other.Mantissa, checked(Scale + other.Scale));
+    public XsdDecimal Multiply(XsdDecimal other) =>
+        _big.IsZero && other._big.IsZero && TryMultiplyInline(other, out var inline)
+            ? inline
+            : new(Mantissa * other.Mantissa, checked(Scale + other.Scale));
 
     /// <summary>Negates the value.</summary>
     /// <returns>The value with the opposite sign; zero stays zero.</returns>
@@ -366,6 +374,97 @@ public readonly struct XsdDecimal : IEquatable<XsdDecimal>, IComparable<XsdDecim
     /// <returns><see langword="true"/> when greater or equal.</returns>
     public static bool operator >=(XsdDecimal left, XsdDecimal right) => left.CompareTo(right) >= 0;
 
+    // Both magnitudes are inline. Anything that does not fit 64 bits, or could overflow the 32-bit scale while stripping zeros, takes the BigInteger path.
+    private bool TryAddInline(XsdDecimal other, out XsdDecimal result)
+    {
+        result = default;
+        if (_sign == 0 || other._sign == 0)
+        {
+            result = _sign == 0 ? other : this;
+            return true;
+        }
+
+        var scale = Math.Max(Scale, other.Scale);
+        if (
+            scale < int.MinValue + Pow10.Length
+            || !TryScaleUp(_mag, (long)scale - Scale, out var left)
+            || !TryScaleUp(other._mag, (long)scale - other.Scale, out var right)
+        )
+        {
+            return false;
+        }
+
+        if (_sign == other._sign)
+        {
+            var sum = left + right;
+            if (sum < left)
+            {
+                return false;
+            }
+
+            result = FromInline(_sign < 0, sum, scale);
+        }
+        else
+        {
+            result =
+                left >= right
+                    ? FromInline(_sign < 0, left - right, scale)
+                    : FromInline(other._sign < 0, right - left, scale);
+        }
+
+        return true;
+    }
+
+    private bool TryMultiplyInline(XsdDecimal other, out XsdDecimal result)
+    {
+        result = default;
+        var scale = (long)Scale + other.Scale;
+        if (scale < int.MinValue + Pow10.Length || scale > int.MaxValue)
+        {
+            return false;
+        }
+
+        if (_sign == 0 || other._sign == 0)
+        {
+            return true;
+        }
+
+#if NET
+        var high = Math.BigMul(_mag, other._mag, out var low);
+#else
+        var a0 = _mag & 0xFFFFFFFFUL;
+        var a1 = _mag >> 32;
+        var b0 = other._mag & 0xFFFFFFFFUL;
+        var b1 = other._mag >> 32;
+        var p00 = a0 * b0;
+        var p01 = a0 * b1;
+        var p10 = a1 * b0;
+        var middle = (p00 >> 32) + (p01 & 0xFFFFFFFFUL) + (p10 & 0xFFFFFFFFUL);
+        var low = (p00 & 0xFFFFFFFFUL) | (middle << 32);
+        var high = (a1 * b1) + (p01 >> 32) + (p10 >> 32) + (middle >> 32);
+#endif
+        if (high != 0)
+        {
+            return false;
+        }
+
+        result = FromInline(_sign != other._sign, low, (int)scale);
+        return true;
+    }
+
+    // Multiplies by 10^power in 64 bits; false when the power exceeds 19 or the result does not fit.
+    private static bool TryScaleUp(ulong magnitude, long power, out ulong scaled)
+    {
+        if (power >= Pow10.Length || magnitude > ulong.MaxValue / Pow10[power])
+        {
+            scaled = 0;
+            return false;
+        }
+
+        scaled = magnitude * Pow10[power];
+        return true;
+    }
+
     private BigInteger Aligned(int scale) => Scale == scale ? Mantissa : Mantissa * BigInteger.Pow(10, scale - Scale);
 
     private int MantissaDigits()
@@ -401,6 +500,22 @@ public readonly struct XsdDecimal : IEquatable<XsdDecimal>, IComparable<XsdDecim
         }
 
         // Equal exponents mean the digit counts differ by the scale difference only, so the alignment is bounded.
+        if (_big.IsZero && other._big.IsZero)
+        {
+            // A magnitude scaled past 64 bits exceeds the other side, which fits.
+            return Scale > other.Scale
+                ? (
+                    TryScaleUp(other._mag, (long)Scale - other.Scale, out var scaledOther)
+                        ? _mag.CompareTo(scaledOther)
+                        : -1
+                )
+                : (
+                    TryScaleUp(_mag, (long)other.Scale - Scale, out var scaledThis)
+                        ? scaledThis.CompareTo(other._mag)
+                        : 1
+                );
+        }
+
         return Scale > other.Scale
             ? Magnitude.CompareTo(other.Magnitude * BigInteger.Pow(10, Scale - other.Scale))
             : (Magnitude * BigInteger.Pow(10, other.Scale - Scale)).CompareTo(other.Magnitude);
