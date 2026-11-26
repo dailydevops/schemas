@@ -20,6 +20,9 @@ using NetEvolve.Schemas.Xml.Dtd.Model;
 /// <para>
 /// Every array is written once by the builder and never changed afterwards, so any number of threads can read one
 /// tree at the same time without synchronization.
+/// The two name indexes (elements and attributes by local name) are the only state built later: the first walks that ask for
+/// one read the rows, a later walk builds it from the arrays and publishes it with <see cref="Interlocked"/>. Racing threads may
+/// each build one, one wins, and the loser's copy is dropped; a published index never changes.
 /// </para>
 /// <para>
 /// Limitation: the implicit <c>xml</c> namespace node of XDM is not materialized; only declared bindings are in scope.
