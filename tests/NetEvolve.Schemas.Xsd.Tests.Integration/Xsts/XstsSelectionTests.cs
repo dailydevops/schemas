@@ -130,6 +130,52 @@ public class XstsSelectionTests
     }
 
     [Test]
+    public async Task StatusLessAllowList_ListedTestSet_SelectsItsStatusLessCasesOnly()
+    {
+        using var fixture = new FixtureDirectory();
+        var allowList = new Dictionary<string, string>(StringComparer.Ordinal) { ["metaA-alpha"] = "Fixture reason." };
+
+        var selection = XstsSelector.Select(
+            XstsReader.Read(fixture.Path),
+            new XstsFilter(XstsVersions.V10, XstsFilter.AcceptedStatuses, allowList)
+        );
+
+        await Assert.That(Ids(selection)).Contains("metaA-alpha:1.0/statuses/no-status");
+        await Assert.That(Ids(selection)).DoesNotContain("metaA-alpha:1.0/statuses/queried");
+        await Assert.That(Ids(selection)).DoesNotContain("metaA-alpha:1.0/statuses/submitted");
+    }
+
+    [Test]
+    public async Task StatusLessAllowList_UnlistedTestSet_KeepsStatusLessCasesExcluded()
+    {
+        using var fixture = new FixtureDirectory();
+        var allowList = new Dictionary<string, string>(StringComparer.Ordinal) { ["metaB-alpha"] = "Fixture reason." };
+
+        var selection = XstsSelector.Select(
+            XstsReader.Read(fixture.Path),
+            new XstsFilter(XstsVersions.V10, XstsFilter.AcceptedStatuses, allowList)
+        );
+
+        await Assert.That(Ids(selection)).DoesNotContain("metaA-alpha:1.0/statuses/no-status");
+    }
+
+    [Test]
+    public async Task StatusLessAllowList_Default_EveryEntryCarriesAReason()
+    {
+        var allowList = XstsFilter.DefaultStatusLessTestSets;
+
+        await Assert
+            .That(allowList.Keys)
+            .IsEquivalentTo([
+                "boeingMeta-BoeingXSDTestSet",
+                "common-introspection",
+                "wgMeta-IRI",
+                "wgMeta-substitution-groups",
+            ]);
+        await Assert.That(allowList.Values.All(r => !string.IsNullOrWhiteSpace(r))).IsTrue();
+    }
+
+    [Test]
     public async Task Selection_DifferentExpectedValidityPerVersion_YieldsTheRightExpectationPerVersion()
     {
         using var fixture = new FixtureDirectory();
