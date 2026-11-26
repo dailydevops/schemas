@@ -70,6 +70,23 @@ public class Stage2KeysGoldenTests
     }
 
     [Test]
+    public async Task EhfBuildTestSet_HoldsOneCasePerRuleSetOfThePinnedArchive(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var root = await Stage2Run.GetRootAsync("stage2-ehf", cancellationToken);
+        var ruleSets = Directory.GetFiles(root, "*.sch", SearchOption.AllDirectories).Length;
+
+        var ids = (await Stage2Run.GetResultsAsync(cancellationToken))
+            .Where(r => string.Equals(r.TestSet, Stage2Run.EhfBuildTestSet, StringComparison.Ordinal))
+            .Select(r => r.CaseId)
+            .ToList();
+
+        await Assert.That(ruleSets).IsEqualTo(18);
+        await Assert.That(ids.Count).IsEqualTo(ruleSets);
+        await Assert.That(ids.Distinct(StringComparer.Ordinal).Count()).IsEqualTo(ruleSets);
+    }
+
+    [Test]
     public async Task KnownFailures_EveryEntry_NamesARunCaseAndHasAnIssueAndAReason(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
