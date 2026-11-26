@@ -21,7 +21,7 @@ internal sealed class CallNode : ExecutableNode
 
     /// <summary>Initializes a new instance of the <see cref="CallNode"/> class.</summary>
     /// <param name="function">The function.</param>
-    /// <param name="arguments">The argument expressions, one per argument; the list is copied.</param>
+    /// <param name="arguments">The argument expressions, one per argument; the node takes ownership of the array, so the caller must not change it afterwards.</param>
     /// <exception cref="ArgumentNullException">An argument or one of the expressions is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The number of arguments lies outside the arity range of the function.</exception>
     public CallNode(XPathFunction function, ExecutableNode[] arguments)
@@ -32,13 +32,12 @@ internal sealed class CallNode : ExecutableNode
         ArgumentOutOfRangeException.ThrowIfGreaterThan(arguments.Length, function.MaxArity);
 
         _function = function;
-        _arguments = new ExecutableNode[arguments.Length];
         for (var i = 0; i < arguments.Length; i++)
         {
             ArgumentNullException.ThrowIfNull(arguments[i]);
-
-            _arguments[i] = arguments[i];
         }
+
+        _arguments = arguments;
     }
 
     /// <summary>Gets the function.</summary>

@@ -12,9 +12,8 @@ using NetEvolve.Schemas.Conformance.Results;
 /// <remarks>
 /// Applicable cases: every instance of the test suite whose name ends in <c>_ubl.xml</c> or <c>_uncefact.xml</c>, so the pass rate is
 /// 100 % of all instances and no case is excluded. The suite holds only instances that are valid for XRechnung; the expected result of
-/// each is "valid". The rules do not build yet, so every instance is a known failure linked to the issue of each blocker
-/// (<see cref="XRechnungRun.BuildBlockers"/>); once the blockers are fixed the instances pass, the unexpected-pass check fails, and
-/// the known failures are removed, which leaves the 100 % acceptance.
+/// each is "valid". The rules build with the opt-in global visibility of a pattern-level <see langword="let"/> (#615) and every instance passes. A new build
+/// blocker is a known failure of every instance, linked to its issue in <see cref="XRechnungRun.BuildBlockers"/>.
 /// </remarks>
 [Explicit("Fetches the pinned KoSIT archives; run through the conformance category.")]
 [Category(ConformanceCategory.Name)]

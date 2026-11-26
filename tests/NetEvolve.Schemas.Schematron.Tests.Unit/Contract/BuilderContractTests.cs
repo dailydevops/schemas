@@ -65,6 +65,22 @@ public class BuilderContractTests
     }
 
     [Test]
+    public async Task Builder_GlobalPatternLets_IsOffByDefault_AndTheLastCallWins()
+    {
+        var byDefault = new FakePipeline();
+        var on = new FakePipeline();
+        var last = new FakePipeline();
+
+        _ = NewBuilder(byDefault).BuildNow();
+        _ = NewBuilder(on).WithGlobalPatternLets(true).BuildNow();
+        _ = NewBuilder(last).WithGlobalPatternLets(true).WithGlobalPatternLets(false).BuildNow();
+
+        await Assert.That(byDefault.LastSettings!.GlobalPatternLets).IsFalse();
+        await Assert.That(on.LastSettings!.GlobalPatternLets).IsTrue();
+        await Assert.That(last.LastSettings!.GlobalPatternLets).IsFalse();
+    }
+
+    [Test]
     public async Task Builder_Parameters_AreACopyWithOrdinalKeys()
     {
         var builder = NewBuilder(new FakePipeline()).WithParameter("country", "DE");

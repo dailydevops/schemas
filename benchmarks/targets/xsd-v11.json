@@ -1,0 +1,52 @@
+[
+  {
+    "name": "AssertionDocument10000Benchmarks.ValidateSpan",
+    "meanNs": 5962474,
+    "allocatedBytes": 17752
+  },
+  {
+    "name": "AssertionDocument10000Benchmarks.ValidateStream",
+    "meanNs": 4774376,
+    "allocatedBytes": 17856
+  },
+  {
+    "name": "AssertionDocument1000Benchmarks.ValidateSpan",
+    "meanNs": 423204,
+    "allocatedBytes": 17752
+  },
+  {
+    "name": "AssertionDocument1000Benchmarks.ValidateStream",
+    "meanNs": 476017,
+    "allocatedBytes": 17856
+  },
+  {
+    "name": "AssertionSubtree1000Benchmarks.ValidateStream",
+    "meanNs": 528832,
+    "allocatedBytes": 190408
+  },
+  {
+    "name": "AssertionSubtree100Benchmarks.ValidateStream",
+    "meanNs": 56103,
+    "allocatedBytes": 27512
+  },
+  {
+    "name": "CiiModeBenchmarks.ValidateStreamV10",
+    "meanNs": 360970,
+    "allocatedBytes": 30520
+  },
+  {
+    "name": "CiiModeBenchmarks.ValidateStreamV11",
+    "meanNs": 357409,
+    "allocatedBytes": 30520
+  },
+  {
+    "name": "UblModeBenchmarks.ValidateStreamV10",
+    "meanNs": 320097,
+    "allocatedBytes": 43936
+  },
+  {
+    "name": "UblModeBenchmarks.ValidateStreamV11",
+    "meanNs": 321393,
+    "allocatedBytes": 43936
+  }
+]

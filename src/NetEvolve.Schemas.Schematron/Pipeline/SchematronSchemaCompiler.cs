@@ -98,7 +98,8 @@ internal sealed class SchematronSchemaCompiler : ISchemaCompiler
                 globals.Globals.Declarations,
                 binding,
                 problems,
-                out var plannedGlobals
+                out var plannedGlobals,
+                settings.GlobalPatternLets
             );
             plan = plannedGlobals;
             ok &= XsltDeclarations.TryCompileFunctions(
@@ -114,7 +115,7 @@ internal sealed class SchematronSchemaCompiler : ISchemaCompiler
         }
         else
         {
-            ok &= ScopePlanner.TryPlan(effective, selection, binding, problems, out plan);
+            ok &= ScopePlanner.TryPlan(effective, selection, binding, problems, out plan, settings.GlobalPatternLets);
         }
 
         var matcher = new PatternMatcher(binding);

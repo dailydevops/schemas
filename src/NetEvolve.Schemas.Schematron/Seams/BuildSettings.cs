@@ -11,7 +11,8 @@ internal sealed class BuildSettings
         string phase,
         IReadOnlyDictionary<string, string> parameters,
         ValidationLimits limits,
-        IResourceResolver resolver
+        IResourceResolver resolver,
+        bool globalPatternLets = false
     )
     {
         ArgumentNullException.ThrowIfNull(phase);
@@ -23,6 +24,7 @@ internal sealed class BuildSettings
         Parameters = parameters;
         Limits = limits;
         Resolver = resolver;
+        GlobalPatternLets = globalPatternLets;
     }
 
     internal string Phase { get; }
@@ -32,4 +34,7 @@ internal sealed class BuildSettings
     internal ValidationLimits Limits { get; }
 
     internal IResourceResolver Resolver { get; }
+
+    /// <summary>Gets a value indicating whether the pattern-level <see langword="let"/> declarations are hoisted into the schema level (#615).</summary>
+    internal bool GlobalPatternLets { get; }
 }

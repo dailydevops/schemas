@@ -15,10 +15,13 @@ using NetEvolve.Schemas.Schematron.Seams;
 /// <see cref="SlotBinder"/>.
 /// </summary>
 /// <remarks>
-/// Limitations: a pattern <see langword="let"/> is lexical, visible only inside its pattern and not to later patterns or to function
+/// Limitations: by default a pattern <see langword="let"/> is lexical, visible only inside its pattern and not to later patterns or to function
 /// bodies. This deviates from ISO/IEC 19757-3:2016 clause 5.4.5 items 1 and 3 as the conformance suite reads them, and it is
 /// binding because of decision Q2 of #106 and #150 EP-4; the suite cases <c>let-pattern-global-01</c>,
-/// <c>let-name-collision-error-05</c>, and <c>let-name-collision-error-06</c> are excluded deviations. Only the patterns active in
+/// <c>let-name-collision-error-05</c>, and <c>let-name-collision-error-06</c> are deviations of the default. The opt-in mode (#615, option B of
+/// #150 EP-4, <c>hoistPatternLets</c>) hoists the pattern lets of the active patterns into the schema-level block after the schema lets, so they
+/// are visible everywhere the schema level is, and a collision with a schema-level name or another pattern let is <c>SCH-LET-DUPLICATE</c>; a
+/// phase or rule <see langword="let"/> still shadows. Only the patterns active in
 /// the phase are planned, so a problem in another pattern surfaces when that phase is built. The global <c>xsl:variable</c> and
 /// <c>xsl:param</c> declarations (SCH-66) are part of the schema-level block: the slots are numbered parameters first, then the
 /// globals, then the lets, and the names of all of them are entered before a global value is compiled, so a global may read any
@@ -39,14 +42,16 @@ internal static class ScopePlanner
     /// <param name="binding">The binding that compiles the variable values.</param>
     /// <param name="problems">Receives every problem; planning continues after one.</param>
     /// <param name="plan">The plan; complete only when the method returns <see langword="true"/>.</param>
+    /// <param name="hoistPatternLets"><see langword="true"/> to plan the pattern-level lets as schema-level lets (#615).</param>
     /// <returns><see langword="true"/> when no problem was reported.</returns>
     internal static bool TryPlan(
         SchematronSchema schema,
         PhaseSelection selection,
         IQueryBinding binding,
         IProblemSink problems,
-        out ScopePlan plan
-    ) => TryPlan(schema, selection, [], binding, problems, out plan);
+        out ScopePlan plan,
+        bool hoistPatternLets = false
+    ) => TryPlan(schema, selection, [], binding, problems, out plan, hoistPatternLets);
 
     /// <summary>Plans the scopes with the global <c>xsl:variable</c> and <c>xsl:param</c> declarations of the stylesheet.</summary>
     /// <param name="schema">The effective schema.</param>
@@ -55,6 +60,7 @@ internal static class ScopePlanner
     /// <param name="binding">The binding that compiles the variable values.</param>
     /// <param name="problems">Receives every problem; planning continues after one.</param>
     /// <param name="plan">The plan; complete only when the method returns <see langword="true"/>.</param>
+    /// <param name="hoistPatternLets"><see langword="true"/> to plan the pattern-level lets as schema-level lets (#615).</param>
     /// <returns><see langword="true"/> when no problem was reported.</returns>
     internal static bool TryPlan(
         SchematronSchema schema,
@@ -62,7 +68,8 @@ internal static class ScopePlanner
         IReadOnlyList<GlobalDeclaration> globals,
         IQueryBinding binding,
         IProblemSink problems,
-        out ScopePlan plan
+        out ScopePlan plan,
+        bool hoistPatternLets = false
     )
     {
         ArgumentNullException.ThrowIfNull(schema);
@@ -71,6 +78,6 @@ internal static class ScopePlanner
         ArgumentNullException.ThrowIfNull(binding);
         ArgumentNullException.ThrowIfNull(problems);
 
-        return new PlanRun(schema, binding, problems, globals).Execute(selection, out plan);
+        return new PlanRun(schema, binding, problems, globals, hoistPatternLets).Execute(selection, out plan);
     }
 }
