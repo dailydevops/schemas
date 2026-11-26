@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using NetEvolve.Arguments;
+using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Resources;
 using NetEvolve.Schemas.Resources.Default;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
@@ -204,52 +205,29 @@ internal sealed class SchemaLocationHints
             return model;
         }
 
-        _cancellationToken.ThrowIfCancellationRequested();
-        _requests++;
-        var request = new ResourceRequest(
+        // The loader counts what it loads; a fresh one per hint, because the documents that a hinted schema loads count in _requests too.
+        var loader = new ResourceLoader(
+            _resolver,
+            _limits.WithMaxExternalResources(_limits.MaxExternalResources - _requests)
+        )
+        {
+            PassMissingBaseToResolver = true,
+        };
+        var result = loader.Load(
             ResourceKind.SchemaLocationHint,
             reference,
             _documentUri,
-            resolution.Uri,
+            _cancellationToken,
             namespaceUri: namespaceName.Length == 0 ? null : namespaceName
         );
-        using var result = _resolver.Resolve(in request, _cancellationToken);
-        return TryRead(in result, reference, where, out var content)
-            ? Load(model, namespaceName, content.Span, result.SystemId ?? resolution.Uri ?? reference, where)
-            : model;
-    }
-
-    // Maps what the resolver answered to the core codes, and reads the document within the size limit.
-    private bool TryRead(
-        in ResourceResult result,
-        string reference,
-        DocumentLocation where,
-        out ReadOnlyMemory<byte> content
-    )
-    {
-        content = default;
-        if (result.Status != ResourceStatus.Found)
+        _requests += loader.RequestCount;
+        if (result.Status != ResourceLoadStatus.Loaded)
         {
-            var missing = result.Status == ResourceStatus.NotFound;
-            Core(
-                missing ? CoreDiagnosticCodes.ResourceNotFound : CoreDiagnosticCodes.ResourceDenied,
-                where,
-                result.Message ?? "The schema document '" + reference + (missing ? "' was not found." : "' was denied.")
-            );
-            return false;
+            Core(result.Code, where, result.Message);
+            return model;
         }
 
-        if (ResourceContent.TryRead(in result, _limits.MaxResourceSize, out content))
-        {
-            return true;
-        }
-
-        Core(
-            CoreDiagnosticCodes.ResourceSizeLimitExceeded,
-            where,
-            "The schema document '" + reference + "' is larger than " + _limits.MaxResourceSize + " bytes."
-        );
-        return false;
+        return Load(model, namespaceName, result.Content.Span, result.SystemId ?? reference, where);
     }
 
     // Compiles the document on its own and, when it is the one that the hint promised and shares no component with the

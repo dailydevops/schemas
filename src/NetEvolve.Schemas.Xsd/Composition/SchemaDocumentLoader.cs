@@ -1,9 +1,7 @@
 namespace NetEvolve.Schemas.Xsd.Composition;
 
 using System;
-using System.Buffers;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Formats;
@@ -67,7 +65,7 @@ internal sealed class SchemaDocumentLoader
     private readonly List<Redefinition> _redefinitions = [];
     private readonly Dictionary<SchemaSyntaxNode, int> _nodeIdentities = [];
     private CancellationToken _cancellationToken;
-    private int _requests;
+    private ResourceLoader _loader;
     private bool _limitReported;
 
     internal SchemaDocumentLoader(
@@ -81,6 +79,7 @@ internal sealed class SchemaDocumentLoader
         ArgumentNullException.ThrowIfNull(collector);
 
         _resolver = resolver;
+        _loader = new ResourceLoader(resolver, limits) { PassMissingBaseToResolver = true };
         _limits = limits;
         _collector = collector;
         _reporter = new XsdIssueReporter(collector);
@@ -101,7 +100,7 @@ internal sealed class SchemaDocumentLoader
         _pending.Clear();
         _redefinitions.Clear();
         _nodeIdentities.Clear();
-        _requests = 0;
+        _loader = new ResourceLoader(_resolver, _limits) { PassMissingBaseToResolver = true };
         _limitReported = false;
 
         if (root.Root is not null)
@@ -348,22 +347,15 @@ internal sealed class SchemaDocumentLoader
             return plain;
         }
 
-        if (_requests >= _limits.MaxExternalResources)
-        {
-            ReportLimit(node, rule);
-            return null;
-        }
-
-        _cancellationToken.ThrowIfCancellationRequested();
-        _requests++;
-        var request = new ResourceRequest(
+        // The cache lookups above stay here, before the load (D5 of #529); the loader counts every request it gets.
+        var result = _loader.Load(
             ResourceKind.SchemaDocument,
             reference,
             unit.Document.BaseUri,
-            resolution.Uri,
+            _cancellationToken,
             namespaceUri: importNamespace
         );
-        var document = Retrieve(in request, uri, scope, node, rule, out var systemId, out known);
+        var document = Retrieve(in result, scope, node, rule, out var systemId, out known);
         if (known is not null)
         {
             return known;
@@ -438,10 +430,9 @@ internal sealed class SchemaDocumentLoader
         return null;
     }
 
-    /// <summary>Asks the resolver, maps its status to the core codes, and parses what it found.</summary>
+    /// <summary>Maps the outcome of the loader to the core codes and parses what it found.</summary>
     private SchemaDocument? Retrieve(
-        in ResourceRequest request,
-        string? uri,
+        in ResourceLoadResult result,
         string scope,
         SchemaSyntaxNode node,
         XsdRule rule,
@@ -449,34 +440,32 @@ internal sealed class SchemaDocumentLoader
         out SchemaUnit? known
     )
     {
-        systemId = uri;
+        systemId = null;
         known = null;
-        using var result = _resolver.Resolve(in request, _cancellationToken);
-        if (result.Status != ResourceStatus.Found)
+        switch (result.Status)
         {
-            // The location of an import is only a hint (Structures 4.2.3): an unresolvable one is not an error.
-            if (ReferenceEquals(rule, SrcImport))
-            {
+            case ResourceLoadStatus.Loaded:
+                break;
+            case ResourceLoadStatus.LimitExceeded when result.Code == CoreDiagnosticCodes.ExternalResourceLimitExceeded:
+                ReportLimit(node, rule);
                 return null;
-            }
+            case ResourceLoadStatus.LimitExceeded:
+                ReportTooLarge(node, rule, _limits.MaxResourceSize);
+                return null;
+            default:
+                // The location of an import is only a hint (Structures 4.2.3): an unresolvable one is not an error.
+                if (!ReferenceEquals(rule, SrcImport))
+                {
+                    Core(result.Code, node, rule, result.Message);
+                }
 
-            var found = result.Status == ResourceStatus.NotFound;
-            Core(
-                found ? CoreDiagnosticCodes.ResourceNotFound : CoreDiagnosticCodes.ResourceDenied,
-                node,
-                rule,
-                result.Message
-                    ?? "The schema document '"
-                        + (uri ?? request.Reference)
-                        + (found ? "' was not found." : "' was denied.")
-            );
-            return null;
+                return null;
         }
 
-        systemId = result.SystemId is null ? uri : WithoutFragment(result.SystemId);
+        systemId = result.SystemId is null ? null : WithoutFragment(result.SystemId);
         return systemId is not null && _byKey.TryGetValue(Key(systemId, scope), out known)
             ? null
-            : Read(in result, systemId, node, rule);
+            : Parse(result.Content.Span, systemId, node);
     }
 
     /// <summary>An import needs the exact namespace; an include or redefine accepts the namespace or none (chameleon).</summary>
@@ -491,61 +480,6 @@ internal sealed class SchemaDocumentLoader
 
     private void Core(DiagnosticCode code, SchemaSyntaxNode node, XsdRule rule, string message) =>
         _collector.Add(new ValidationIssue(code, IssueSeverity.Error, message, node.Location, rule.Id));
-
-    private SchemaDocument? Read(in ResourceResult result, string? baseUri, SchemaSyntaxNode node, XsdRule rule)
-    {
-        var limit = _limits.MaxResourceSize;
-        if (result.Stream is null)
-        {
-            if (result.Content.Length > limit)
-            {
-                ReportTooLarge(node, rule, limit);
-                return null;
-            }
-
-            return Parse(result.Content.Span, baseUri, node);
-        }
-
-        using var buffer = new MemoryStream();
-        if (!Copy(result.Stream, buffer, limit))
-        {
-            ReportTooLarge(node, rule, limit);
-            return null;
-        }
-
-        return Parse(new ReadOnlySpan<byte>(buffer.GetBuffer(), 0, (int)buffer.Length), baseUri, node);
-    }
-
-    private static bool Copy(Stream source, MemoryStream destination, long limit)
-    {
-        if (source.CanSeek && source.Length > limit)
-        {
-            return false;
-        }
-
-        var rented = ArrayPool<byte>.Shared.Rent(8192);
-        try
-        {
-            long total = 0;
-            int read;
-            while ((read = source.Read(rented, 0, rented.Length)) > 0)
-            {
-                total += read;
-                if (total > limit)
-                {
-                    return false;
-                }
-
-                destination.Write(rented, 0, read);
-            }
-
-            return true;
-        }
-        finally
-        {
-            ArrayPool<byte>.Shared.Return(rented);
-        }
-    }
 
     private void ReportTooLarge(SchemaSyntaxNode node, XsdRule rule, long limit) =>
         Core(
