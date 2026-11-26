@@ -1,0 +1,9 @@
+test-schematron-020/0001 match id attribute in schema on assertion :: x:expect-assert assert1
+test-schematron-020/0002 match id attribute in schema on rule :: x:expect-assert rule2
+test-schematron-020/0003 match id attribute in schema on pattern :: x:expect-assert pattern3
+test-schematron-020/0004 match id attribute in imported pattern on assertion :: x:expect-assert include1-assert1
+test-schematron-020/0005 match id attribute in imported pattern on rule :: x:expect-assert include1-rule2
+test-schematron-020/0006 match id attribute in imported pattern on pattern :: x:expect-assert include1-pattern3
+test-schematron-020/0007 match id attribute in imported rule on assertion :: x:expect-assert include1-assert4
+test-schematron-020/0008 match id attribute in imported rule on rule :: x:expect-assert include1-rule5
+test-schematron-020/0009 match id attribute in imported assertion on assertion :: x:expect-assert include1-assert6

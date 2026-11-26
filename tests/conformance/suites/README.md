@@ -137,6 +137,32 @@ the schema set to the binding (`xslt1`, `xslt2`); a test set is named `<binding>
 - **Limitation:** the case reader keeps the text of an assertion and not its namespace declarations, so the engine declares the prefix
   `svrl` for the assertions; every assertion of the pinned release uses this prefix only.
 
+## XSpec Schematron scenarios (`xspec.json`)
+
+The XSpec project is pinned by its release tag archive (`v4.1.2`, MIT license) with the `subPath` `xspec-4.1.2`. The reader and the
+runner live in `tests/NetEvolve.Schemas.Schematron.Tests.Integration/Conformance/Xspec`; the class `XspecConformanceTests` is explicit and
+selected by the conformance category.
+
+- **Selection:** every `.xspec` file below `test` and `tutorial` whose path names Schematron. A test set is one such file, named by its path
+  with `/` replaced by `-` and without the extension. A case is one declarative expectation: `x:expect-assert`, `x:expect-not-assert`,
+  `x:expect-report`, `x:expect-not-report`, or `x:expect-valid`, with `id`, `role`, `location`, `count`, and text content. `x:import` adds the
+  scenarios of the imported file, and the parameter `phase` (also `schxslt:phase`) selects the phase.
+- **Exclusions:** every skipped file, scenario, or expectation keeps its reason in the selection result. Left out are everything that needs
+  an XSLT or XQuery processor (`x:variable`, `x:call`, `x:helper`, `x:expect`, `x:like`, `x:expect-rule`, other parameters, `x:context/@select`,
+  placeholders and value templates in a context), `pending` and `shared` scenarios, a file without a `schematron` attribute, a file that is not
+  well formed XML 1.0, and the files listed in `XspecReader.ExcludedPaths`, which test XSpec itself (error handling, pending, focus, and
+  failing expectations on purpose).
+- **Outcome rules:** the SVRL output decides, as in XSpec. An id or role is the one of the assertion, else the one of the nearest preceding
+  rule, else the one of the nearest preceding pattern. A location is an XPath expression whose selected node must equal the node of the
+  location in the SVRL. The negative expectations and `x:expect-valid` also require that a rule fired. `x:expect-valid` fails on a failed
+  assertion or a successful report without a role or with the role `error` or `fatal`, and tolerates every other role.
+- **Baseline:** `tests/conformance/baselines/xspec/<test set>.txt` lists the known failures of one `.xspec` file as `<test set>/<case>`, one per
+  line, and only files with failures have one. Each entry has a line in
+  `tests/NetEvolve.Schemas.Schematron.Tests.Integration/Conformance/Xspec/known-failure-links.txt` with its issue and its reason, separated by
+  tabs. Regenerate the files with the explicit test `XspecConformanceTests.Baseline_Regenerate` after a deliberate change.
+- **Limitation:** XSpec compiles the schema to XSLT and runs the scenario on it; here the schema runs on the library validator. A scenario that
+  XSpec reports as failed on purpose, or that checks XSpec itself, is excluded, not counted as a failure of the library.
+
 ## OASIS XLIFF 2.1 (`xliff.json`)
 
 The OASIS XLIFF TC repository is pinned by commit archive (`.../archive/<commit>.zip`) with the `subPath`

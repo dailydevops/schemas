@@ -1,0 +1,1 @@
+test-xslt4-schematron/0001 XPath 4.0 feature in a Schematron schema :: x:expect-report identity-works

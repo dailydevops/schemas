@@ -1,0 +1,38 @@
+test-xqs-schematron-for-xqs-expect/0001 expect-valid :: x:expect-valid
+test-xqs-schematron-for-xqs-expect/0002 assertions without attributes or text not thrown :: x:expect-not-assert
+test-xqs-schematron-for-xqs-expect/0003 assertions without attributes or text not thrown :: x:expect-not-report
+test-xqs-schematron-for-xqs-expect/0004 assertions without attributes or text thrown :: x:expect-assert
+test-xqs-schematron-for-xqs-expect/0005 assertions without attributes or text thrown :: x:expect-report
+test-xqs-schematron-for-xqs-expect/0006 assertions with text :: x:expect-assert
+test-xqs-schematron-for-xqs-expect/0007 assertions with text :: x:expect-report
+test-xqs-schematron-for-xqs-expect/0008 assertions with id :: x:expect-assert a1
+test-xqs-schematron-for-xqs-expect/0009 assertions with id :: x:expect-not-assert a2
+test-xqs-schematron-for-xqs-expect/0010 assertions with id :: x:expect-report r1
+test-xqs-schematron-for-xqs-expect/0011 assertions with id :: x:expect-not-report r2
+test-xqs-schematron-for-xqs-expect/0012 assertions with role :: x:expect-assert
+test-xqs-schematron-for-xqs-expect/0013 assertions with role :: x:expect-not-assert
+test-xqs-schematron-for-xqs-expect/0014 assertions with role :: x:expect-report
+test-xqs-schematron-for-xqs-expect/0015 assertions with role :: x:expect-not-report
+test-xqs-schematron-for-xqs-expect/0016 assertions with location :: x:expect-assert
+test-xqs-schematron-for-xqs-expect/0017 assertions with location :: x:expect-not-assert
+test-xqs-schematron-for-xqs-expect/0018 assertions with location :: x:expect-report
+test-xqs-schematron-for-xqs-expect/0019 assertions with location :: x:expect-not-report
+test-xqs-schematron-for-xqs-expect/0020 assertions with text, id :: x:expect-assert a1
+test-xqs-schematron-for-xqs-expect/0021 assertions with text, id :: x:expect-report r1
+test-xqs-schematron-for-xqs-expect/0022 assertions with text, location :: x:expect-assert
+test-xqs-schematron-for-xqs-expect/0023 assertions with text, location :: x:expect-report
+test-xqs-schematron-for-xqs-expect/0024 assertions with id, location :: x:expect-assert a1
+test-xqs-schematron-for-xqs-expect/0025 assertions with id, location :: x:expect-not-assert a2
+test-xqs-schematron-for-xqs-expect/0026 assertions with id, location :: x:expect-report r1
+test-xqs-schematron-for-xqs-expect/0027 assertions with id, location :: x:expect-not-report r2
+test-xqs-schematron-for-xqs-expect/0028 assertions with id, role, location :: x:expect-assert a1
+test-xqs-schematron-for-xqs-expect/0029 assertions with id, role, location :: x:expect-not-assert a2
+test-xqs-schematron-for-xqs-expect/0030 assertions with id, role, location :: x:expect-report r1
+test-xqs-schematron-for-xqs-expect/0031 assertions with id, role, location :: x:expect-not-report r2
+test-xqs-schematron-for-xqs-expect/0032 inherit from rule id and role from rule :: x:expect-assert ru1
+test-xqs-schematron-for-xqs-expect/0033 inherit from rule id from rule and role from assertion :: x:expect-assert ru1
+test-xqs-schematron-for-xqs-expect/0034 inherit from rule role from rule and id from assertion :: x:expect-assert ru2
+test-xqs-schematron-for-xqs-expect/0035 inherit from rule match only current rule :: x:expect-not-assert ru3
+test-xqs-schematron-for-xqs-expect/0036 inherit from rule match only current rule :: x:expect-not-assert ru3
+test-xqs-schematron-for-xqs-expect/0037 inherit from rule match only current rule :: x:expect-report ru3
+test-xqs-schematron-for-xqs-expect/0038 inherit from pattern id from pattern :: x:expect-assert pattern3

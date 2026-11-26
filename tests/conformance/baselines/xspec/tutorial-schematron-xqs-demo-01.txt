@@ -1,0 +1,3 @@
+tutorial-schematron-xqs-demo-01/0001 demo-01 article should have a title :: x:expect-not-assert a001
+tutorial-schematron-xqs-demo-01/0002 demo-01 section should have a title :: x:expect-not-assert a002
+tutorial-schematron-xqs-demo-01/0003 demo-01 section should have a title :: x:expect-assert a002

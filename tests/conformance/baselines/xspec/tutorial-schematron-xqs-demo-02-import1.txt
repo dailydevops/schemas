@@ -1,0 +1,2 @@
+tutorial-schematron-xqs-demo-02-import1/0001 Pattern 3 - Shared :: x:expect-assert t3-1
+tutorial-schematron-xqs-demo-02-import1/0002 Pattern 4 - example of a second level of imported scenarios :: x:expect-report t4-1
