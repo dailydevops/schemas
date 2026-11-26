@@ -58,8 +58,11 @@ internal sealed partial class StreamingValidator
             case FrameContent.SimpleContent:
                 EndSimpleContent(frame);
                 break;
-            case FrameContent.ElementOnly:
             case FrameContent.Mixed:
+                EndMixedValue(frame);
+                EndElementContent(frame);
+                break;
+            case FrameContent.ElementOnly:
                 EndElementContent(frame);
                 break;
             default:
@@ -117,6 +120,14 @@ internal sealed partial class StreamingValidator
             case FrameContent.Nilled:
                 ReportNilledText(frame);
                 break;
+            case FrameContent.Mixed:
+                // Only the fixed value of an element without children is compared with its text.
+                if (!frame.HasChild && frame.Declaration?.ValueConstraint.Kind == ElementValueConstraintKind.Fixed)
+                {
+                    AppendText(text);
+                }
+
+                break;
             case FrameContent.ElementOnly:
                 if (!frame.TextReported && !IsWhitespace(text))
                 {
@@ -151,6 +162,7 @@ internal sealed partial class StreamingValidator
 
     private void StartChild(ElementFrame parent, XmlName name, int id, XPathQName qname, DocumentLocation location)
     {
+        parent.HasChild = true;
         if (parent.ContentFailed)
         {
             _skip = 1;
@@ -373,6 +385,7 @@ internal sealed partial class StreamingValidator
             default:
                 frame.Content =
                     complex.ContentKind == ComplexContentKind.Mixed ? FrameContent.Mixed : FrameContent.ElementOnly;
+                _textLength = 0;
                 if (!frame.IsNilled)
                 {
                     AcquireRun(frame, complex);

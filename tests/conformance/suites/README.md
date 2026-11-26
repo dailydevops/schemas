@@ -137,6 +137,34 @@ the schema set to the binding (`xslt1`, `xslt2`); a test set is named `<binding>
 - **Limitation:** the case reader keeps the text of an assertion and not its namespace declarations, so the engine declares the prefix
   `svrl` for the assertions; every assertion of the pinned release uses this prefix only.
 
+## eForms SDK (`eforms-sdk.json`)
+
+The eForms SDK is pinned by its release tag `1.16.0` (CC-BY-4.0); the runner lives in
+`tests/NetEvolve.Schemas.Schematron.Tests.Integration/Goldens/EformsSdk`. The `subPath` is the SDK root, so the static rule set is
+`schematrons/static/complete-validation.sch` and the notices and expected reports are in `examples/notices` and `examples/reports`.
+
+- **Byte stability:** GitHub generates the tag archive on request and does not promise byte-identical output over time. If the
+  checksum stops matching while the tag is unchanged, download the archive for the same tag again, verify its content, and update
+  `sha256`. The archive is about 330 MB uncompressed, so a change of this manifest invalidates the cached archive of every suite
+  that shares the cache.
+- **Selection:** the 92 example notices, including the `INVALID_*` notices, each with the expected report of the same name. The
+  static rule set is used; the dynamic rule set fetches the changed notice over HTTP in its stage 6 and is not run.
+- **Phase:** the phase of the expected report (`eforms-<subtype>`) selects the rules of the notice, as the SDK does. The rule set
+  includes about 260 files, so the run raises `MaxExternalResources` to 1000; the default of 16 is meant for untrusted input.
+- **Comparison, rule ids:** one case per notice and validation stage in the test sets `stage-1` to `stage-5`, taken from the stage
+  in the id of the active pattern. The failed assertions and successful reports are compared as a multiset of assertion id, role, and
+  location. A notice that fires nothing on both sides is a case of the test set `valid`. Only findings of patterns that the expected
+  report names as active are compared, because the reports of 1.16.0 predate some per-subtype patterns of the rule set.
+- **Comparison, locations:** the engine writes the path of a node with `local-name()` and `namespace-uri()` steps and a position on
+  every step; the reference writes prefixed names, the root without prefix, and a position only where siblings of the same name
+  exist. Both are brought to the form of the reference with `[1]` removed. The reference leaves the location empty for an attribute
+  context, so the location of a path that ends in an attribute is dropped.
+- **Comparison, text:** a separate verdict in the test set `text`: the findings that both sides share must carry the same text with
+  collapsed white space.
+- **Baseline:** `tests/conformance/baselines/eforms-sdk/<test set>.txt` lists the known failures; each entry has a line in
+  `known-failure-links.txt` of the same folder with its issue and its reason, separated by tabs. Regenerate the files with the
+  explicit test `EformsSdkBaselineTests.Baseline_Regenerate` after a deliberate change.
+
 ## XSpec Schematron scenarios (`xspec.json`)
 
 The XSpec project is pinned by its release tag archive (`v4.1.2`, MIT license) with the `subPath` `xspec-4.1.2`. The reader and the

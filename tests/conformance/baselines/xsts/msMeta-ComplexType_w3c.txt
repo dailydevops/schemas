@@ -1,7 +1,4 @@
 1.0/ctZ011_a/ctZ011_a.v
-1.0/ctZ013c/ctZ013c.i
-1.0/ctZ013d/ctZ013d.i
-1.0/ctZ013e/ctZ013e.i
 1.1/ctA001/ctA001
 1.1/ctA001/ctA001.v
 1.1/ctA002/ctA002

@@ -62,6 +62,63 @@ internal sealed partial class StreamingValidator
         }
     }
 
+    // An element with mixed content and a value constraint: without children and text it takes the value (cvc-elt.5.1), a fixed
+    // value is compared lexically with the character data of an element without children (cvc-elt.5.2.2).
+    private void EndMixedValue(ElementFrame frame)
+    {
+        var constraint = frame.Declaration?.ValueConstraint ?? default;
+        if (constraint.Kind == ElementValueConstraintKind.None || frame.ContentFailed)
+        {
+            return;
+        }
+
+        if (frame.HasChild)
+        {
+            if (constraint.Kind == ElementValueConstraintKind.Fixed)
+            {
+                Invalid(
+                    frame,
+                    ValidationRules.Elt,
+                    "The element " + Display(frame.QName) + " has a fixed value, so it must not have child elements.",
+                    "cvc-elt.5.2.2.1"
+                );
+            }
+
+            return;
+        }
+
+        if (frame.HasText)
+        {
+            var text = _text.AsSpan(0, _textLength);
+            if (constraint.Kind == ElementValueConstraintKind.Fixed && !IsEqual(text, constraint.Value))
+            {
+                Invalid(
+                    frame,
+                    ValidationRules.Elt,
+                    "The value '"
+                        + Shorten(text)
+                        + "' of element "
+                        + Display(frame.QName)
+                        + " is not its fixed value '"
+                        + constraint.Value
+                        + "'.",
+                    "cvc-elt.5.2.2.2.1"
+                );
+            }
+
+            return;
+        }
+
+        if (_onValue.Length > 0)
+        {
+            var info = new SimpleValueInfo(frame.Ordinal, constraint.Value.AsSpan(), null, -1, true, true);
+            for (var i = 0; i < _onValue.Length; i++)
+            {
+                _onValue[i].SimpleValue(info);
+            }
+        }
+    }
+
     // The datatype contract decides; a failure is reported by the rule of the failed facet and carries the datatype error.
     private bool AssessValue(
         IXsdComponent? type,
