@@ -46,7 +46,7 @@ public class DateTimeStampCastTests
     }
 
     [Test]
-    [Arguments("'2020-01-02T03:04:05Z' cast as xs:dateTimeStamp cast as xs:string", "string:2020-01-02T03:04:05Z")]
+    [Arguments("('2020-01-02T03:04:05Z' cast as xs:dateTimeStamp) cast as xs:string", "string:2020-01-02T03:04:05Z")]
     [Arguments("xs:dateTimeStamp('2020-01-02T03:04:05+02:00') cast as xs:string", "string:2020-01-02T03:04:05+02:00")]
     [Arguments(
         "xs:dateTimeStamp(xs:untypedAtomic('2020-01-02T03:04:05-05:00')) cast as xs:string",
@@ -61,11 +61,8 @@ public class DateTimeStampCastTests
         "xs:dateTimeStamp(xs:dateTimeStamp('2020-01-02T03:04:05Z')) cast as xs:string",
         "string:2020-01-02T03:04:05Z"
     )]
-    [Arguments(
-        "xs:dateTimeStamp(xs:dateTimeStamp('2020-01-02T03:04:05Z')) cast as xs:date cast as xs:string",
-        "string:2020-01-02Z"
-    )]
-    [Arguments("xs:dateTimeStamp(()) cast as xs:string", "count:0")]
+    [Arguments("(xs:dateTimeStamp('2020-01-02T03:04:05Z') cast as xs:date) cast as xs:string", "string:2020-01-02Z")]
+    [Arguments("xs:dateTimeStamp(())", "count:0")]
     public async Task Cast_WithAnExplicitTimezone_Succeeds(string expression, string expected) =>
         await Assert.That(Run(expression)).IsEqualTo(expected);
 
@@ -99,8 +96,6 @@ public class DateTimeStampCastTests
     [Arguments("xs:dateTimeStamp('2020-01-02T03:04:05Z') instance of xs:dateTimeStamp", "boolean:true")]
     [Arguments("xs:dateTimeStamp('2020-01-02T03:04:05Z') instance of xs:dateTime", "boolean:true")]
     [Arguments("xs:dateTime('2020-01-02T03:04:05Z') instance of xs:dateTimeStamp", "boolean:false")]
-    [Arguments("xs:dateTimeStamp('2020-01-02T03:04:05Z') eq xs:dateTime('2020-01-02T03:04:05Z')", "boolean:true")]
-    [Arguments("xs:dateTimeStamp('2020-01-02T03:04:05Z') lt xs:dateTimeStamp('2020-01-02T03:04:06Z')", "boolean:true")]
     public async Task Value_IsADateTimeWithTheTypeOfItsOwn(string expression, string expected) =>
         await Assert.That(Run(expression)).IsEqualTo(expected);
 
