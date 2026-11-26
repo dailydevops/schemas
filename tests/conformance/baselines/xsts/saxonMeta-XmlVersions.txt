@@ -9,9 +9,6 @@
 1.0/xv008/xv008.v01.xml
 1.0/xv009/xv009.v01.xml
 1.0/xv009/xv009.v02.xml
-1.0/xv100c/xv100c.c.xml
-1.0/xv100c/xv100c.i.xml
-1.0/xv100i/xv100i.i.xml
 1.1/xv001/xv001.v01.xml
 1.1/xv001/xv001.xsd
 1.1/xv002/xv002.v01.xml
