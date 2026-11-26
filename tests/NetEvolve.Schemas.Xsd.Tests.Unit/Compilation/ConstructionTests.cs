@@ -221,6 +221,16 @@ public class ConstructionTests
     }
 
     [Test]
+    public async Task Union_WithNoResolvedMembersBecauseAMemberTypeFailed_DoesNotReportTheEmptyUnion()
+    {
+        var compilation = Compile(
+            Schema("<xs:simpleType name=\"s\"><xs:union memberTypes=\"t:nope\"/></xs:simpleType>")
+        );
+
+        await Assert.That(Codes(compilation)).DoesNotContain(XsdRuleCodes.SrcUnionMemberTypesOrSimpleTypes);
+    }
+
+    [Test]
     [Arguments("<xs:simpleType name=\"s\"/>", "src-simple-type")]
     [Arguments(
         "<xs:simpleType name=\"s\"><xs:restriction base=\"xs:int\"><xs:simpleType><xs:restriction base=\"xs:int\"/></xs:simpleType></xs:restriction></xs:simpleType>",
