@@ -19,6 +19,9 @@ registration file (`Registration.cs`) stages the group into the default catalog;
   `xs:numeric`, and the QT3 cases that build such arguments are selected in `Qt3NumericSelection` (#746).
 - A floating-point zero keeps the sign of the argument: `fn:round(-0.3e0)`, `fn:ceiling(-0.3e0)`, and `fn:floor(-0e0)` give negative
   zero, and `fn:abs(-0e0)` gives positive zero. NaN and the infinities are their own result.
+- `fn:round` with a precision (XPath 3.0 and 3.1 only; XPath 2.0 reports XPST0017) is a function of its own over the same name. A tie goes toward
+  positive infinity at the chosen precision, so 1.125 with a precision of 2 gives 1.13 and -1.125 gives -1.12, and a float or a double goes
+  through its exact decimal value as `fn:round-half-to-even` does (#727).
 - `fn:round` rounds a double by its exact fraction (the floor of the value, then the tie test), not by `Math.Floor(value + 0.5)`,
   which is wrong for 0.49999999999999994. A float is rounded as a double and narrowed again, which is exact.
 - `fn:round-half-to-even` with a float or a double casts to `xs:decimal` through the exact binary value, rounds, and casts back, as
@@ -28,8 +31,6 @@ registration file (`Registration.cs`) stages the group into the default catalog;
 
 ## Limitations
 
-- `fn:round` with a precision is a function of Functions and Operators 3.0 and is not registered in any language version; XPath 2.0
-  has `fn:round-half-to-even` only. The function is tracked in #727, labeled `state:onhold` and `state:help wanted`.
 - `fn:number` reports a lexical form beyond the digit cap of the datatype layer (4,096 digits) as FOCA0001, as the function
   conversion does (#621, #660), because it is an implementation limit and not an invalid form; the specification gives a number
   or an infinity.

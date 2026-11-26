@@ -91,16 +91,6 @@ public class RegistrationTests
     }
 
     [Test]
-    [Arguments(XPathVersion.V30)]
-    [Arguments(XPathVersion.V31)]
-    public async Task RoundWithAPrecision_InXPath30And31_Compiles(XPathVersion version)
-    {
-        var statics = XPathStaticContext.Default.ToBuilder().WithVersion(version).Build();
-
-        await Assert.That(XPathExpression.TryCompile("round(1.25, 1)", statics).Diagnostic.Code).IsNull();
-    }
-
-    [Test]
     public async Task DefaultCatalog_SameLocalNameInAnotherNamespace_IsNotFound()
     {
         var found = FunctionCatalog.Default.Registry.TryResolve(

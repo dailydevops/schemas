@@ -225,7 +225,7 @@ public class RoundTests
     [Arguments("float:0.125", "integer:2", "float:0.13")]
     [Arguments("float:-0.125", "integer:2", "float:-0.12")]
     [Arguments("float:1250", "integer:-2", "float:1300")]
-    [Arguments("float:-0.05", "integer:1", "float:-0")]
+    [Arguments("float:-0.05", "integer:1", "float:-0.1")]
     [Arguments("float:-0", "integer:1", "float:-0")]
     [Arguments("float:-0.3", "integer:0", "float:-0")]
     [Arguments("float:INF", "integer:1", "float:INF")]
