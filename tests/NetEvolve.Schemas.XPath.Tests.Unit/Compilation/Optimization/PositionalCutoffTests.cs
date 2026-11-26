@@ -97,10 +97,93 @@ public class PositionalCutoffTests
     [Arguments("(//x)[position() le 2.5]")]
     [Arguments("(//x)[last()][1]")]
     [Arguments("/r/x[position() ge 4][1]")]
+    [Arguments("(//x)[position() > 1 and position() < 4]")]
+    [Arguments("(//x)[position() ge 2 and position() le 3]")]
+    [Arguments("(//x)[position() lt 4 and position() gt 1]")]
+    [Arguments("(//x)[position() gt 1 and position() lt 4]")]
+    [Arguments("(//x)[position() > 3 and position() < 2]")]
+    [Arguments("(//x)[position() = 2 and position() = 3]")]
+    [Arguments("(//x)[position() = 2 and position() <= 3]")]
+    [Arguments("(//x)[position() > 1 and position() < 5 and position() <= 3]")]
+    [Arguments("(//x)[position() > 1 and position() < 5 and position() >= 3 and position() != 4]")]
+    [Arguments("(//x)[position() > -3 and position() < 100]")]
+    [Arguments("(//x)[position() < 0 and position() > 2]")]
+    [Arguments("(//x)[position() > 1 and position() < 2.5]")]
+    [Arguments("(//x)[position() > 1.5 and position() < 4]")]
+    [Arguments("(//x)[position() > 1 and position() < 4][2]")]
+    [Arguments("(//x)[position() > 1 and . ne 0]")]
+    [Arguments("(//x)[. ne 0 and position() < 3]")]
+    [Arguments("(//x)[2 and position() < 3]")]
+    [Arguments("(//x)[position() < 3 and 2]")]
+    [Arguments("(//x)[position() > 1 and last()]")]
+    [Arguments("(//x)[position() > 1 and position() < last()]")]
+    [Arguments("(//x)[position() > 1 or position() < 3]")]
+    [Arguments("(//x)[position() < 0 and error()]")]
+    [Arguments("(//x)[position() > 0 and error()]")]
+    [Arguments("(//x)[position() > 1 and position() < 4 and (. ne 0)]")]
+    [Arguments("/r/x[position() > 1 and position() < 4]")]
+    [Arguments("/r/x[position() >= 2 and position() <= 2]")]
+    [Arguments("/r/x[position() > 3 and position() < 2]")]
+    [Arguments("/r/x[position() > 1 and position() < 4][1]")]
+    [Arguments("/r/x[position() > 1 and position() < 4]/following-sibling::x")]
+    [Arguments("/r/x[last()]/preceding-sibling::x[position() > 1 and position() < 4]")]
+    [Arguments("/r/x[last()]/preceding-sibling::x[position() > 1 and position() < 4][1]")]
+    [Arguments("(1 to 9)[position() > 2 and position() < 6]")]
+    [Arguments("(1 to 9)[position() > 20 and position() < 30]")]
+    [Arguments("()[position() > 1 and position() < 3]")]
     public async Task Rewrite_WithTheRewriteOnAndOff_GivesTheSameResult(string expression) =>
         await Assert
             .That(Run(expression, XPathOptimizations.All, new ChildrenTree(5)))
             .IsEqualTo(Run(expression, Off, new ChildrenTree(5)));
+
+    [Test]
+    public async Task Rewrite_PositionalRangeJoinedByAnd_BecomesOneCutoffOfTheStep()
+    {
+        var step = (AxisPathStep)
+            ((PathNode)Compile("/r/x[position() > 1 and position() < 4]", XPathOptimizations.All).Root).Steps[1];
+
+        await Assert.That(step.Cutoff).IsEqualTo(PositionalCutoff.Range(2, 3));
+        await Assert.That(step.Predicates.Count).IsEqualTo(0);
+    }
+
+    [Test]
+    [Arguments("/r/x[position() > 1 and position() < 4 and position() <= 3]", 2, 3)]
+    [Arguments("/r/x[position() < 5 and position() >= 3 and position() > 0]", 3, 4)]
+    [Arguments("/r/x[position() ge 2 and position() le 2]", 2, 2)]
+    [Arguments("/r/x[position() > 3 and position() < 2]", 4, 1)]
+    [Arguments("/r/x[position() < 0 and position() > 2]", 3, -1)]
+    [Arguments("/r/x[position() > 2 and position() > 5]", 6, int.MaxValue)]
+    public async Task Rewrite_ChainOfAnd_IntersectsTheRanges(string expression, int first, int last)
+    {
+        var step = (AxisPathStep)((PathNode)Compile(expression, XPathOptimizations.All).Root).Steps[1];
+
+        await Assert.That(step.Cutoff).IsEqualTo(PositionalCutoff.Range(first, last));
+        await Assert.That(step.Predicates.Count).IsEqualTo(0);
+    }
+
+    [Test]
+    public async Task Rewrite_PositionalRangeJoinedByAnd_OfAFilterLimitsThePath()
+    {
+        var filter = (FilterNode)Compile("(//x)[position() > 1 and position() < 4]", XPathOptimizations.All).Root;
+
+        await Assert.That(filter.Cutoff).IsEqualTo(PositionalCutoff.Range(2, 3));
+        await Assert.That(((PathNode)filter.Primary).Limit).IsEqualTo(3);
+    }
+
+    [Test]
+    [Arguments("/r/x[position() > 1 or position() < 4]")]
+    [Arguments("/r/x[position() > 1 and . ne 0]")]
+    [Arguments("/r/x[2 and position() < 4]")]
+    [Arguments("/r/x[position() < 4 and last()]")]
+    [Arguments("/r/x[position() > 1 and position() < last()]")]
+    [Arguments("/r/x[position() > 1 and position() < 2.5]")]
+    public async Task Rewrite_AndThatIsNotAPositionalRange_StaysAPredicate(string expression)
+    {
+        var step = (AxisPathStep)((PathNode)Compile(expression, XPathOptimizations.All).Root).Steps[1];
+
+        await Assert.That(step.Cutoff).IsNull();
+        await Assert.That(step.Predicates.Count).IsEqualTo(1);
+    }
 
     [Test]
     public async Task Rewrite_FirstNodeOfADescendantPath_ReadsNoNodeAfterTheFirstMatch()
