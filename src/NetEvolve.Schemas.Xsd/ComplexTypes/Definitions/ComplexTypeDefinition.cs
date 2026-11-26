@@ -39,8 +39,9 @@ using NetEvolve.Schemas.Xsd.Wildcards.Core;
 /// schema, see <see cref="OpenContentRules"/> for the limitation of the extension case; at most one attribute of type ID
 /// (<c>ct-props-correct.5</c>) is not checked because the simple type definition cannot tell derivation from <c>ID</c> yet;
 /// circular derivation cannot arise because the base is resolved before the type exists, so the pipeline that orders the
-/// construction reports it (<c>ct-props-correct.3</c>); <see cref="AnyType"/> is the ur-type the registry registers; the emptiness of a restricted mixed base for a <c>simpleContent</c> restriction is not
-/// checked (<c>derivation-ok-restriction.5</c>).
+/// construction reports it (<c>ct-props-correct.3</c>); <see cref="AnyType"/> is the ur-type the registry registers;
+/// the emptiness of a restricted mixed base for a <c>simpleContent</c> restriction is not checked
+/// (<c>derivation-ok-restriction.5</c>).
 /// </para>
 /// </remarks>
 internal sealed class ComplexTypeDefinition : IReferencingComponent, IBlockedType

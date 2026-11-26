@@ -14,8 +14,8 @@ using NetEvolve.Schemas.Xsd.SimpleTypes.Definitions;
 /// <summary>What the derivation checks need to know about a type component, whichever form it takes.</summary>
 /// <remarks>
 /// A type is represented by a <see cref="ComplexTypeDefinition"/>, a <see cref="SimpleTypeDefinition"/>, or the registered
-/// <see cref="XsdBuiltInType"/> (simple types only), and a built-in type reaches a schema as a wrapper of its datatype that is a new object on every
-/// use. Two named type components therefore are the same type definition when their expanded names are equal (a symbol space
+/// <see cref="XsdBuiltInType"/> (simple types only), and a built-in type reaches a schema as a wrapper of its datatype that is
+/// a new object on every use. Two named type components therefore are the same type definition when their expanded names are equal (a symbol space
 /// holds one type per name); anonymous ones only by reference.
 /// </remarks>
 internal static class TypeComponents
@@ -34,7 +34,7 @@ internal static class TypeComponents
         return ReferenceEquals(left, right) || (left.Name != default && left.Name == right.Name);
     }
 
-    /// <summary>Determines whether a type component is the ur-type <c>xs:anyType</c>, .</summary>
+    /// <summary>Determines whether a type component is the ur-type <c>xs:anyType</c>.</summary>
     /// <param name="type">The type.</param>
     /// <returns><see langword="true"/> for the ur-type.</returns>
     internal static bool IsUrType(IXsdComponent type)
