@@ -203,7 +203,8 @@ public sealed partial class RegexProgram : IRegexMatcher
         var size = _program.Length;
         if (size <= StackProgramSize)
         {
-            Span<int> stack = stackalloc int[4 * StackProgramSize];
+            // Sized to the program: the runtime zeroes the whole stack allocation on every call.
+            Span<int> stack = stackalloc int[4 * size];
             return Run(input, limits, stack, out steps);
         }
 
