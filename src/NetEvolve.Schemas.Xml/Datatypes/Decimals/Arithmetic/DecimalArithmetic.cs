@@ -4,6 +4,7 @@ using System;
 using System.Globalization;
 using System.Numerics;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
+using NetEvolve.Schemas.Xml.Datatypes.Floating;
 
 /// <summary>
 /// Division, rounding, and numeric conversions for <see cref="XsdDecimal"/> (XQuery 1.0 and XPath 2.0 Functions and Operators,
@@ -169,9 +170,20 @@ public static class DecimalArithmetic
                 : new ArithmeticResult<BigInteger>(value.Mantissa * BigInteger.Pow(10, -scale));
         }
 
-        return scale >= MantissaDigits(value)
-            ? new ArithmeticResult<BigInteger>(BigInteger.Zero)
-            : new ArithmeticResult<BigInteger>(BigInteger.Divide(value.Mantissa, BigInteger.Pow(10, scale)));
+        var digits = value.MantissaDigits();
+        if (scale >= digits)
+        {
+            return new ArithmeticResult<BigInteger>(BigInteger.Zero);
+        }
+
+        if (value.TryGetInlineMagnitude(out var magnitude))
+        {
+            // scale < digits <= 20, so the power of ten is in the table and the quotient is at least one.
+            var truncated = magnitude / XsdDecimal.Pow10[scale];
+            return new ArithmeticResult<BigInteger>(value.Sign < 0 ? -(BigInteger)truncated : truncated);
+        }
+
+        return new ArithmeticResult<BigInteger>(BigInteger.Divide(value.Mantissa, BigInteger.Pow(10, scale)));
     }
 
     /// <summary>Converts a <see cref="double"/> exactly, from its IEEE 754 bits.</summary>
@@ -215,7 +227,7 @@ public static class DecimalArithmetic
         }
 
         // value lies in [10^(exponent-1), 10^exponent); far outside the double range, skip formatting a huge string.
-        var exponent = MantissaDigits(value) - (long)value.Scale;
+        var exponent = value.MantissaDigits() - (long)value.Scale;
         if (exponent > MaxDoubleExponent)
         {
             return value.Sign < 0 ? double.NegativeInfinity : double.PositiveInfinity;
@@ -224,6 +236,14 @@ public static class DecimalArithmetic
         if (exponent < -MaxDoubleExponent)
         {
             return value.Sign < 0 ? -0d : 0d;
+        }
+
+        if (
+            value.TryGetInlineMagnitude(out var magnitude)
+            && BinaryFloat.TryRound(magnitude, -value.Scale, false, out var rounded)
+        )
+        {
+            return value.Sign < 0 ? -rounded : rounded;
         }
 
         return double.Parse(value.ToString(), NumberStyles.Float, CultureInfo.InvariantCulture);
@@ -312,9 +332,6 @@ public static class DecimalArithmetic
         return true;
     }
 
-    private static int MantissaDigits(XsdDecimal value) =>
-        BigInteger.Abs(value.Mantissa).ToString(CultureInfo.InvariantCulture).Length;
-
     private static XsdDecimal Quantize(XsdDecimal value, int precision, RoundingMode mode)
     {
         if (value.Sign == 0 || value.Scale <= precision)
@@ -323,10 +340,18 @@ public static class DecimalArithmetic
         }
 
         var drop = (long)value.Scale - precision;
+        if (
+            value.TryGetInlineMagnitude(out var inline)
+            && TryQuantizeInline(value.Sign < 0, inline, value.MantissaDigits(), drop, precision, mode, out var rounded)
+        )
+        {
+            return rounded;
+        }
+
         var magnitude = BigInteger.Abs(value.Mantissa);
         BigInteger quotient;
         int half;
-        if (drop > MantissaDigits(value))
+        if (drop > value.MantissaDigits())
         {
             // The magnitude is below one unit and below one half of it.
             quotient = BigInteger.Zero;
@@ -354,5 +379,61 @@ public static class DecimalArithmetic
         }
 
         return new XsdDecimal(value.Sign < 0 ? -quotient : quotient, precision);
+    }
+
+    // The magnitude fits 64 bits. Fails only for a drop of 20 digits (a 20-digit magnitude), where the unit is outside the table.
+    private static bool TryQuantizeInline(
+        bool negative,
+        ulong magnitude,
+        int digits,
+        long drop,
+        int precision,
+        RoundingMode mode,
+        out XsdDecimal result
+    )
+    {
+        result = default;
+        ulong quotient;
+        int half;
+        if (drop > digits)
+        {
+            // The magnitude is below one unit and below one half of it.
+            quotient = 0;
+            half = -1;
+        }
+        else if (drop < XsdDecimal.Pow10.Length)
+        {
+            var unit = XsdDecimal.Pow10[(int)drop];
+            quotient = magnitude / unit;
+            var remainder = magnitude % unit;
+
+            // A normalized mantissa has no trailing zero, so the remainder is never zero. Comparing it with its complement avoids overflowing 2 x remainder.
+            half = remainder.CompareTo(unit - remainder);
+        }
+        else
+        {
+            return false;
+        }
+
+        // half: -1 below a half, 0 a tie, 1 above a half
+        var increment = mode switch
+        {
+            RoundingMode.HalfUp => half > 0 || (half == 0 && !negative),
+            RoundingMode.HalfEven => half > 0 || (half == 0 && (quotient & 1) != 0),
+            RoundingMode.Floor => negative,
+            _ => !negative,
+        };
+
+        if (increment)
+        {
+            quotient++;
+        }
+
+        // FromInline does not check the scale: a non-negative precision cannot underflow it, a negative one takes the checked constructor.
+        result =
+            precision >= 0
+                ? XsdDecimal.FromInline(negative, quotient, precision)
+                : new XsdDecimal(negative ? -(BigInteger)quotient : quotient, precision);
+        return true;
     }
 }
