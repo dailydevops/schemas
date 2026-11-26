@@ -30,7 +30,7 @@ internal sealed class IndexOfFunction : SequenceFunction
         {
             for (var i = 0; i < count; i++)
             {
-                if (AtomicEquality.AreEqual(items[i], search, nanEqual: false))
+                if (AtomicEquality.AreEqual(items[i], search, nanEqual: false, invocation.Context))
                 {
                     positions.Add(XdmItem.FromInteger(i + 1L));
                 }

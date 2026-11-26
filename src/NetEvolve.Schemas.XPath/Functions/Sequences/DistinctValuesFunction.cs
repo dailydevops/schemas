@@ -32,7 +32,7 @@ internal sealed class DistinctValuesFunction : SequenceFunction
             return XPathEvaluationStatus.Ok;
         }
 
-        var seen = new HashSet<XdmItem>(AtomicEquality.DistinctComparer);
+        var seen = new HashSet<XdmItem>(AtomicEquality.CreateDistinctComparer(invocation.Context));
         var kept = default(XdmItemList);
         try
         {

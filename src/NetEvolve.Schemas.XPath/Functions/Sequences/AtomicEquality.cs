@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.XPath.Functions.Sequences;
 
 using System;
 using System.Collections.Generic;
+using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Evaluation.Arithmetic;
 using NetEvolve.Schemas.XPath.Evaluation.Comparison;
 using NetEvolve.Schemas.XPath.Xdm.Values;
@@ -29,15 +30,25 @@ internal static class AtomicEquality
     private const int NaNHash = 0x7FF8;
 
     /// <summary>Gets the comparer of <see cref="AreEqual"/> with NaN equal to NaN, the one <c>fn:distinct-values</c> uses.</summary>
-    public static IEqualityComparer<XdmItem> DistinctComparer { get; } = new Comparer();
+    /// <param name="context">The dynamic context, which gives the implicit timezone.</param>
+    /// <returns>The comparer.</returns>
+    public static IEqualityComparer<XdmItem> CreateDistinctComparer(XPathEvaluationContext context) =>
+        new Comparer(context);
 
     /// <summary>Determines whether two atomic values are equal.</summary>
     /// <param name="left">The first value.</param>
     /// <param name="right">The second value.</param>
     /// <param name="nanEqual">Whether NaN is equal to NaN.</param>
+    /// <param name="context">The dynamic context, which gives the implicit timezone.</param>
     /// <returns><see langword="true"/> when the values are equal; <see langword="false"/> for values that are different or that cannot be compared, and for nodes.</returns>
-    public static bool AreEqual(in XdmItem left, in XdmItem right, bool nanEqual)
+    public static bool AreEqual(
+        in XdmItem left,
+        in XdmItem right,
+        bool nanEqual,
+        XPathEvaluationContext? context = null
+    )
     {
+        _ = context;
         var family = FamilyOf(left);
         if (family != FamilyOf(right))
         {
@@ -67,9 +78,11 @@ internal static class AtomicEquality
 
     /// <summary>Gets a hash code that is the same for every value that <see cref="AreEqual"/> finds equal, NaN included.</summary>
     /// <param name="item">The value.</param>
+    /// <param name="implicitTimezoneMinutes">The implicit timezone in minutes from UTC.</param>
     /// <returns>The hash code.</returns>
-    public static int HashCode(in XdmItem item)
+    public static int HashCode(in XdmItem item, int implicitTimezoneMinutes = 0)
     {
+        _ = implicitTimezoneMinutes;
         switch (FamilyOf(item))
         {
             case Family.Numeric:
@@ -126,10 +139,10 @@ internal static class AtomicEquality
         Other,
     }
 
-    private sealed class Comparer : IEqualityComparer<XdmItem>
+    private sealed class Comparer(XPathEvaluationContext context) : IEqualityComparer<XdmItem>
     {
-        public bool Equals(XdmItem x, XdmItem y) => AreEqual(in x, in y, nanEqual: true);
+        public bool Equals(XdmItem x, XdmItem y) => AreEqual(in x, in y, nanEqual: true, context);
 
-        public int GetHashCode(XdmItem obj) => HashCode(in obj);
+        public int GetHashCode(XdmItem obj) => HashCode(in obj, context.ImplicitTimezoneMinutes);
     }
 }
