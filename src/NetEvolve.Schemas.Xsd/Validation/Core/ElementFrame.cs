@@ -31,6 +31,7 @@ internal sealed class ElementFrame
     internal bool ContentFailed;
     internal bool TextReported;
     internal bool HasText;
+    internal bool HasChild;
     internal bool IsNilled;
     internal bool UndeclaredRoot;
     internal bool UndeclaredStrict;
@@ -56,6 +57,7 @@ internal sealed class ElementFrame
         ContentFailed = false;
         TextReported = false;
         HasText = false;
+        HasChild = false;
         IsNilled = false;
         UndeclaredRoot = false;
         UndeclaredStrict = false;
