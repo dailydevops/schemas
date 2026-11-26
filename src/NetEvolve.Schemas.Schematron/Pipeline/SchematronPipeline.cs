@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.Schematron.Pipeline;
 
 using System.Threading;
 using NetEvolve.Arguments;
+using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Schematron.Loading.Inclusion;
 using NetEvolve.Schemas.Schematron.Seams;
 
@@ -28,7 +29,7 @@ internal sealed class SchematronPipeline : ISchematronPipeline
     internal static SchematronPipeline Instance { get; } = new();
 
     /// <inheritdoc />
-    public CompiledSchema Load(SchemaSource source, BuildSettings settings, CancellationToken cancellationToken)
+    public CompiledSchema Load(SchemaSourceHolder source, BuildSettings settings, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
         ArgumentNullException.ThrowIfNull(source);

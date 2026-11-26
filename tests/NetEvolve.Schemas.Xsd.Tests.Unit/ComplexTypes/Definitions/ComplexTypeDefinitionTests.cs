@@ -379,6 +379,75 @@ public class ComplexTypeDefinitionTests
         await Assert.That(group.Particles[1]).IsSameReferenceAs(content);
     }
 
+    private ComplexTypeDefinition? ExtendWith(
+        XsdVersion version,
+        ComplexTypeDefinition baseType,
+        Particle content,
+        long minOccurs = 1
+    ) =>
+        ComplexTypeDefinition.FromComplexContent(
+            Header("e"),
+            XsdDerivationMethod.Extension,
+            baseType,
+            false,
+            Particle.Create(Where, minOccurs, content.MaxOccurs, content.Term),
+            NoUses,
+            null,
+            Reporter,
+            version: version
+        );
+
+    private static ComplexTypeDefinition AllBase(params Particle[] particles) =>
+        ComplexTypeDefinition.Implicit(
+            new(new XPathQName(Tns, "b"), Where, false, XsdDerivationMethod.None, XsdDerivationMethod.None),
+            false,
+            Group(ModelGroupCompositor.All, 1, 1, particles),
+            NoUses,
+            null,
+            new XsdIssueReporter(new ValidationIssueCollector(ValidationLimits.Default))
+        );
+
+    [Test]
+    public async Task Extension_OfAnAllBase_WithAllContent_InXsd11_IsOneAllGroup()
+    {
+        var baseType = AllBase(Element("a"));
+        var content = Group(ModelGroupCompositor.All, 0, 1, Element("b"));
+
+        var type = ExtendWith(XsdVersion.V11, baseType, content, 0)!;
+
+        var particle = type.ContentParticle!;
+        await Assert.That(particle.MinOccurs).IsEqualTo(0L);
+        await Assert.That(particle.MaxOccurs).IsEqualTo(1L);
+        var group = (ModelGroup)particle.Term!;
+        await Assert.That(group.Compositor).IsEqualTo(ModelGroupCompositor.All);
+        await Assert.That(group.Particles).Count().IsEqualTo(2);
+    }
+
+    [Test]
+    public async Task Extension_OfAnAllBase_WithAllContent_InXsd10_StaysASequence()
+    {
+        var baseType = AllBase(Element("a"));
+        var content = Group(ModelGroupCompositor.All, 1, 1, Element("b"));
+
+        var type = ExtendWith(XsdVersion.V10, baseType, content)!;
+
+        await Assert
+            .That(((ModelGroup)type.ContentParticle!.Term!).Compositor)
+            .IsEqualTo(ModelGroupCompositor.Sequence);
+    }
+
+    [Test]
+    public async Task Extension_OfAnAllBase_WithSequenceContent_InXsd11_StaysASequence()
+    {
+        var baseType = AllBase(Element("a"));
+
+        var type = ExtendWith(XsdVersion.V11, baseType, Sequence(Element("b")))!;
+
+        await Assert
+            .That(((ModelGroup)type.ContentParticle!.Term!).Compositor)
+            .IsEqualTo(ModelGroupCompositor.Sequence);
+    }
+
     [Test]
     public async Task Extension_OfAContentBase_WithMixed_IsMixed()
     {

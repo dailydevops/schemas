@@ -9,6 +9,7 @@ using NetEvolve.Schemas.Xml.Datatypes.Core;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;
 using NetEvolve.Schemas.Xsd.Components;
+using NetEvolve.Schemas.Xsd.ContentModels.AllGroups11;
 using NetEvolve.Schemas.Xsd.ContentModels.Automaton;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Elements;
@@ -292,7 +293,7 @@ internal sealed partial class StreamingValidator
             return counting.TryStep(id, qname, out matched);
         }
 
-        return frame.AllRun!.TryStep(id, out matched);
+        return frame.AllRun is { } all ? all.TryStep(id, out matched) : frame.AllRun11!.TryStep(id, qname, out matched);
     }
 
     private void OpenWildcard(IWildcard wildcard, XmlName name, XPathQName qname, DocumentLocation location)
@@ -397,13 +398,21 @@ internal sealed partial class StreamingValidator
             frame.Counting = run;
             frame.Open = complex.OpenContent is { } countingOpen ? new OpenContentRun(countingOpen, run) : default;
         }
-        else
+        else if (program.AllGroup is { } allGroup)
         {
             var pool = _allPool[index];
-            var run = pool is { Count: > 0 } ? pool.Pop() : program.AllGroup!.CreateRun();
+            var run = pool is { Count: > 0 } ? pool.Pop() : allGroup.CreateRun();
             run.Reset();
             frame.AllRun = run;
             frame.Open = complex.OpenContent is { } allOpen ? new OpenContentRun(allOpen, run) : default;
+        }
+        else
+        {
+            var pool = _all11Pool?[index];
+            var run = pool is { Count: > 0 } ? pool.Pop() : program.AllGroup11!.CreateRun();
+            run.Reset();
+            frame.AllRun11 = run;
+            frame.Open = complex.OpenContent is { } all11Open ? new OpenContentRun(all11Open, run) : default;
         }
     }
 
@@ -431,6 +440,11 @@ internal sealed partial class StreamingValidator
         {
             (_allPool[allProgram.PoolIndex] ??= new()).Push(all);
         }
+        else if (frame.AllRun11 is { } all11 && frame.Program is { } all11Program)
+        {
+            var pools = _all11Pool ??= new Stack<AllGroup11Run>?[_model.ProgramCount];
+            (pools[all11Program.PoolIndex] ??= new()).Push(all11);
+        }
 
         _depth--;
         if (_depth > 0 && !frame.IsValid)
@@ -446,7 +460,10 @@ internal sealed partial class StreamingValidator
             return;
         }
 
-        var complete = frame.Counting is { } counting ? counting.CanEnd() : frame.AllRun!.CanEnd();
+        var complete =
+            frame.Counting is { } counting ? counting.CanEnd()
+            : frame.AllRun is { } all ? all.CanEnd()
+            : frame.AllRun11!.CanEnd();
         if (!complete)
         {
             Invalid(
@@ -480,6 +497,10 @@ internal sealed partial class StreamingValidator
         else if (!inSuffix && frame.AllRun is { } all)
         {
             written = incomplete ? all.CollectMissing(ids) : all.CollectExpected(ids, out wildcard);
+        }
+        else if (!inSuffix && frame.AllRun11 is { } all11)
+        {
+            written = incomplete ? all11.CollectMissing(ids, out wildcard) : all11.CollectExpected(ids, out wildcard);
         }
 
         if (!incomplete)

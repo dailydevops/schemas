@@ -6,6 +6,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
+using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Schematron.Model;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Schematron.Tests.Unit.Fakes;
@@ -23,31 +25,33 @@ public class EntryPointContractTests
 
         SchemaValidator.ForSchematron(stream).UsePipeline(pipeline).BuildNow();
         await Assert.That(pipeline.LoadCount).IsEqualTo(1);
-        await Assert.That(pipeline.LastSource!.Kind).IsEqualTo(SchemaSourceKind.Stream);
+        await Assert.That(pipeline.LastSource!.Kind).IsEqualTo(DocumentSourceKind.Bytes);
 
         SchemaValidator.ForSchematron(bytes.AsSpan()).UsePipeline(pipeline).BuildNow();
         await Assert.That(pipeline.LoadCount).IsEqualTo(2);
-        await Assert.That(pipeline.LastSource!.Kind).IsEqualTo(SchemaSourceKind.Bytes);
+        await Assert.That(pipeline.LastSource!.Kind).IsEqualTo(DocumentSourceKind.Bytes);
 
         SchemaValidator.ForSchematron(SchemaText.AsSpan()).UsePipeline(pipeline).BuildNow();
         await Assert.That(pipeline.LoadCount).IsEqualTo(3);
-        await Assert.That(pipeline.LastSource!.Kind).IsEqualTo(SchemaSourceKind.Chars);
+        await Assert.That(pipeline.LastSource!.Kind).IsEqualTo(DocumentSourceKind.Chars);
 
         SchemaValidator.ForSchematron(new ReadOnlySequence<byte>(bytes)).UsePipeline(pipeline).BuildNow();
         await Assert.That(pipeline.LoadCount).IsEqualTo(4);
-        await Assert.That(pipeline.LastSource!.Kind).IsEqualTo(SchemaSourceKind.Bytes);
+        await Assert.That(pipeline.LastSource!.Kind).IsEqualTo(DocumentSourceKind.Bytes);
 
         SchemaValidator
             .ForSchematron(new ReadOnlySequence<char>(SchemaText.ToCharArray()))
             .UsePipeline(pipeline)
             .BuildNow();
         await Assert.That(pipeline.LoadCount).IsEqualTo(5);
-        await Assert.That(pipeline.LastSource!.Kind).IsEqualTo(SchemaSourceKind.Chars);
+        await Assert.That(pipeline.LastSource!.Kind).IsEqualTo(DocumentSourceKind.Chars);
     }
 
     [Test]
-    public async Task ForSchematron_SequenceSource_IsCopiedAcrossSegments()
+    public async Task ForSchematron_SequenceSource_IsCopiedAcrossSegments(CancellationToken cancellationToken)
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var first = new Segment(Encoding.UTF8.GetBytes("<sch"));
         var last = first.Append(Encoding.UTF8.GetBytes("ema/>"));
         var sequence = new ReadOnlySequence<byte>(first, 0, last, last.Memory.Length);
@@ -55,7 +59,13 @@ public class EntryPointContractTests
 
         SchemaValidator.ForSchematron(sequence).UsePipeline(pipeline).BuildNow();
 
-        await Assert.That(Encoding.UTF8.GetString(pipeline.LastSource!.Bytes.ToArray())).IsEqualTo("<schema/>");
+        await Assert
+            .That(
+                Encoding.UTF8.GetString(
+                    pipeline.LastSource!.GetBytes(ValidationLimits.Default, cancellationToken).ToArray()
+                )
+            )
+            .IsEqualTo("<schema/>");
     }
 
     [Test]
@@ -63,21 +73,31 @@ public class EntryPointContractTests
         await Assert.That(() => SchemaValidator.ForSchematron((Stream)null!)).Throws<ArgumentNullException>();
 
     [Test]
-    public async Task ForSchematron_NullArray_BindsToTheSpanOverload_AsAnEmptySource()
+    public async Task ForSchematron_NullArray_BindsToTheSpanOverload_AsAnEmptySource(
+        CancellationToken cancellationToken
+    )
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         // Finding: a bare null literal is ambiguous between Stream and the span overloads (CS0121), contrary to the
         // statement of design #137 AP-5; a typed null array binds to the span overload and yields an empty source.
         var pipeline = new FakePipeline();
 
         SchemaValidator.ForSchematron((byte[])null!).UsePipeline(pipeline).BuildNow();
 
-        await Assert.That(pipeline.LastSource!.Kind).IsEqualTo(SchemaSourceKind.Bytes);
-        await Assert.That(pipeline.LastSource!.Bytes.Length).IsEqualTo(0);
+        await Assert.That(pipeline.LastSource!.Kind).IsEqualTo(DocumentSourceKind.Bytes);
+        await Assert
+            .That(pipeline.LastSource!.GetBytes(ValidationLimits.Default, cancellationToken).Length)
+            .IsEqualTo(0);
     }
 
     [Test]
-    public async Task ForSchematron_SpanSource_IsCopied_MutationAfterCallDoesNotChangeBuild()
+    public async Task ForSchematron_SpanSource_IsCopied_MutationAfterCallDoesNotChangeBuild(
+        CancellationToken cancellationToken
+    )
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         var bytes = Encoding.UTF8.GetBytes(SchemaText);
         var chars = SchemaText.ToCharArray();
         var bytesPipeline = new FakePipeline();
@@ -90,8 +110,16 @@ public class EntryPointContractTests
         bytesBuilder.BuildNow();
         charsBuilder.BuildNow();
 
-        await Assert.That(Encoding.UTF8.GetString(bytesPipeline.LastSource!.Bytes.ToArray())).IsEqualTo(SchemaText);
-        await Assert.That(charsPipeline.LastSource!.Chars.ToString()).IsEqualTo(SchemaText);
+        await Assert
+            .That(
+                Encoding.UTF8.GetString(
+                    bytesPipeline.LastSource!.GetBytes(ValidationLimits.Default, cancellationToken).ToArray()
+                )
+            )
+            .IsEqualTo(SchemaText);
+        await Assert
+            .That(charsPipeline.LastSource!.GetChars(ValidationLimits.Default).ToString())
+            .IsEqualTo(SchemaText);
     }
 
     [Test]
@@ -145,17 +173,27 @@ public class EntryPointContractTests
     }
 
     [Test]
-    public async Task Build_Stream_IsNotDisposed_AndHandedOverFromItsCurrentPosition()
+    public async Task Build_Stream_IsNotDisposed_AndHandedOverFromItsCurrentPosition(
+        CancellationToken cancellationToken
+    )
     {
+        cancellationToken.ThrowIfCancellationRequested();
+
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(SchemaText));
         stream.Position = 3;
         var pipeline = new FakePipeline();
 
         SchemaValidator.ForSchematron(stream, "main.sch").UsePipeline(pipeline).BuildNow();
 
-        await Assert.That(pipeline.LastSource!.Stream).IsSameReferenceAs(stream);
         await Assert.That(stream.Position).IsEqualTo(3L);
         await Assert.That(stream.CanRead).IsTrue();
+        await Assert
+            .That(
+                Encoding.UTF8.GetString(
+                    pipeline.LastSource!.GetBytes(ValidationLimits.Default, cancellationToken).ToArray()
+                )
+            )
+            .IsEqualTo(SchemaText.Substring(3));
         await Assert.That(pipeline.LastSource!.SystemId).IsEqualTo("main.sch");
     }
 
