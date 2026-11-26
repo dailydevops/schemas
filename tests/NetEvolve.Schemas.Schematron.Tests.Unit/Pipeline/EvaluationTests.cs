@@ -162,6 +162,42 @@ public class EvaluationTests
     }
 
     [Test]
+    public async Task UndeclaredXsPrefix_InRuleContextAndAssert_ResolvesToTheXmlSchemaNamespace()
+    {
+        var schema = Wrap(
+            Rule("<assert test=\"xs:decimal(@n) gt 1\">Small.</assert>", "a[xs:decimal(@n) gt 0]"),
+            " queryBinding=\"xslt2\""
+        );
+
+        var result = Validate(Build(schema), "<a n=\"1\"/>");
+
+        await Assert.That(Messages(result)).IsEqualTo("Small.");
+    }
+
+    [Test]
+    public async Task SchemaDeclaredXsPrefix_ForAnotherNamespace_KeepsItsOwnBinding()
+    {
+        var schema = Wrap(
+            "<ns prefix=\"xs\" uri=\"urn:other\"/>" + Rule("<assert test=\"xs:decimal(@n) gt 1\">Small.</assert>"),
+            " queryBinding=\"xslt2\""
+        );
+
+        var failure = BuildFailure(schema);
+
+        await Assert.That(failure).IsNotNull();
+    }
+
+    [Test]
+    public async Task SchemaWithoutXsPrefix_IsUnchanged()
+    {
+        var schema = Wrap(Rule("<assert test=\"number(@n) gt 1\">Small.</assert>"), " queryBinding=\"xslt2\"");
+
+        var result = Validate(Build(schema), "<a n=\"1\"/>");
+
+        await Assert.That(Messages(result)).IsEqualTo("Small.");
+    }
+
+    [Test]
     public async Task DefaultBinding_RunsInXPath1CompatibilityMode()
     {
         const string Test = "<report test=\"'abc' = 1\">Equal.</report>";

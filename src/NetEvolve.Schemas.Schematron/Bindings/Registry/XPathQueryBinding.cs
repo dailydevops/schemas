@@ -31,10 +31,10 @@ using NetEvolve.Schemas.XPath.Errors;
 /// </remarks>
 internal sealed class XPathQueryBinding : IFunctionHostBinding
 {
+    private const string XmlSchemaNamespace = "http://www.w3.org/2001/XMLSchema";
+
     // The public code type, not the internal table of the XPath package, which the seam rule keeps out of reach.
     private static readonly XPathErrorCode UndeclaredVariable = new("XPST0008");
-
-    private const string XmlSchemaNamespace = "http://www.w3.org/2001/XMLSchema";
 
     private readonly bool _xpath10Compatibility;
     private readonly StaticContextExtension? _extension;
