@@ -40,7 +40,7 @@ using NetEvolve.Schemas.Xsd.Validation.Core;
 /// (leading and trailing white space is dropped) before it is looked up. A default or fixed value is checked like a specified
 /// one, because whether it names an unparsed entity depends on the document type of each instance. Parameter entities are never
 /// matched. An element or attribute that the validator does not hand to the listeners (a skipped or rejected subtree) takes no
-/// part, and a violation found here does not mark the element invalid (#605). Tree-based validation needs the declarations of the
+/// part. Tree-based validation needs the declarations of the
 /// source document and is not covered. ID, IDREF, and NOTATION values are checked by the id listener (XSD-14, #303).
 /// </para>
 /// <para>Not thread-safe; one instance serves one run at a time and may be reused for the next.</para>
