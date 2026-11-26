@@ -10,7 +10,9 @@ using NetEvolve.Schemas.Xsd.Versioning.Constructs;
 /// <summary>
 /// The one table of the XSD 1.1 constructs that the assembled validator does not support yet (design #146 DP-16). Under the default
 /// version every occurrence is a located schema error, so no schema is silently read with 1.0 semantics; XSD-78 (#360) removes a row
-/// together with its tests when it implements the construct.
+/// together with its tests when it implements the construct. The <c>assert</c> element of a complex type is wired (it has no row);
+/// the <c>xpathDefaultNamespace</c> attribute stays a row for every owner but <c>assert</c>, because the selector and field of an identity constraint,
+/// the assertion facet, the type alternative, and the default on the <c>schema</c> element do not read it yet.
 /// </summary>
 /// <remarks>
 /// The rows of the strict 1.0 table (<see cref="Strict10ConstructTable"/>) are the first rows; their not-yet-supported code is the
@@ -28,6 +30,15 @@ internal static class Xsd11ConstructTable
 
     private static readonly string[] TypeAttributes = ["type", "base", "itemType", "memberTypes"];
 
+    private static readonly string[] XPathDefaultNamespaceOwners =
+    [
+        "schema",
+        "selector",
+        "field",
+        "assertion",
+        "alternative",
+    ];
+
     internal static IReadOnlyList<Xsd11Construct> Entries { get; } = Create();
 
     private static List<Xsd11Construct> Create()
@@ -35,12 +46,19 @@ internal static class Xsd11ConstructTable
         var entries = new List<Xsd11Construct>(Strict10ConstructTable.Entries.Count + 4);
         foreach (var strict in Strict10ConstructTable.Entries)
         {
+            if (!strict.IsAttribute && strict.Name == "assert")
+            {
+                continue;
+            }
+
             entries.Add(
                 new Xsd11Construct(
                     strict.IsAttribute,
                     [strict.Name],
                     XsdRuleLookup.Find(new DiagnosticCode(strict.Rule.Code.Number + NotYetSupportedOffset)),
-                    strict.Owners,
+                    strict.IsAttribute && strict.Name == "xpathDefaultNamespace"
+                        ? XPathDefaultNamespaceOwners
+                        : strict.Owners,
                     strict.LocalOnly
                 )
             );

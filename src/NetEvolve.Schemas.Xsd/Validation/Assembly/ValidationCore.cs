@@ -12,6 +12,7 @@ using NetEvolve.Schemas.Xml.Input.Sequence;
 using NetEvolve.Schemas.Xml.Model;
 using NetEvolve.Schemas.Xml.Model.Traversal;
 using NetEvolve.Schemas.Xml.Reader.Pipeline;
+using NetEvolve.Schemas.Xsd.Assertions.ComplexTypes;
 using NetEvolve.Schemas.Xsd.Compilation;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Diagnostics;
@@ -56,6 +57,7 @@ internal sealed class ValidationCore : IValidationCore
     private readonly DescriptorValueAssessor _assessor;
     private readonly IReadOnlyDictionary<ElementDeclaration, IReadOnlyList<IdentityConstraintDefinition>> _constraints;
     private readonly XsdVersion _version;
+    private readonly ComplexTypeAssertions? _assertions;
     private readonly bool _needsIds;
     private readonly bool _needsEntities;
     private readonly ValidationLimits _limits;
@@ -81,6 +83,7 @@ internal sealed class ValidationCore : IValidationCore
         _constraints = compilation.IdentityConstraints;
         _assessor = new DescriptorValueAssessor(version);
         _version = version;
+        _assertions = compilation.Assertions;
         _needsIds = compilation.NeedsIdListener;
         _needsEntities = compilation.NeedsEntityListener;
         _limits = limits;
@@ -251,7 +254,7 @@ internal sealed class ValidationCore : IValidationCore
             return new SessionSink(validator, entities, _cancellationToken);
         }
 
-        // The fixed order of the listeners: ID, entity, identity constraint; each exists only when the schema needs it (design #146 DP-12).
+        // The fixed order of the listeners: ID, entity, identity constraint, assertion; each exists only when the schema needs it (design #146 DP-12).
         // The annotation listener comes last and exists only when the run has a sink, because it reads the validity that the others settle.
         private List<ValidationListener> Listeners(EntityListener? entities)
         {
@@ -276,6 +279,11 @@ internal sealed class ValidationCore : IValidationCore
                             : null
                     )
                 );
+            }
+
+            if (_core._assertions is not null)
+            {
+                listeners.Add(new AssertionListener(_core._assertions, _core._assessor));
             }
 
             if (_annotations is not null)

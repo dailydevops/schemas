@@ -104,21 +104,20 @@ The version is a property of the validator, set with `WithVersion` before the bu
 
 | Selection | Meaning |
 | --- | --- |
-| `XsdVersion.V11` (the default) | XSD 1.1, which is incomplete. A 1.1 construct that is not wired in yet is a schema error with a code from `NES4060` to `NES4077` ("not supported yet"), so a schema never silently loses a construct. |
+| `XsdVersion.V11` (the default) | XSD 1.1, which is incomplete. A 1.1 construct that is not wired in yet is a schema error with a code from `NES4061` to `NES4077` ("not supported yet"), so a schema never silently loses a construct. |
 | `XsdVersion.V10` | Strict XSD 1.0. Every XSD 1.1 construct is a schema error with a code from `NES4020` to `NES4035` ("not allowed in strict 1.0 mode"). |
 
-The sample builds a schema with an `xs:assert`, an XSD 1.1 construct, under both versions:
+The sample builds a schema with an `xs:assertion` facet, an XSD 1.1 construct that is not wired in yet, under both versions:
 
 ```csharp
 const string schema = """
     <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
-      <xs:element name="order">
-        <xs:complexType>
-          <xs:sequence>
-            <xs:element name="total" type="xs:int"/>
-          </xs:sequence>
-          <xs:assert test="total gt 0"/>
-        </xs:complexType>
+      <xs:element name="total">
+        <xs:simpleType>
+          <xs:restriction base="xs:int">
+            <xs:assertion test="$value gt 0"/>
+          </xs:restriction>
+        </xs:simpleType>
       </xs:element>
     </xs:schema>
     """;
@@ -141,7 +140,7 @@ foreach (var version in new[] { XsdVersion.V11, XsdVersion.V10 })
 }
 ```
 
-Here `codes` holds `V11: NES4060` and `V10: NES4020`. A validator for XSD 1.0 is built like this:
+Here `codes` holds `V11: NES4061` and `V10: NES4021`. A validator for XSD 1.0 is built like this:
 
 ```csharp
 var validator = await SchemaValidator
@@ -151,7 +150,7 @@ var validator = await SchemaValidator
     .BuildAsync(cancellationToken);
 ```
 
-The default is XSD 1.1, and it stays incomplete until the XSD 1.1 wiring is done (#360, with the assertions of #318); see [XSD 1.1 status](#xsd-11-status). A schema that uses only XSD 1.0 constructs builds and validates under both versions.
+The default is XSD 1.1, and it stays incomplete until the XSD 1.1 wiring is done (#360); see [XSD 1.1 status](#xsd-11-status). A schema that uses only XSD 1.0 constructs builds and validates under both versions.
 
 ### Streaming and tree validation
 
@@ -162,7 +161,7 @@ Every `Validate` and `ValidateAsync` call runs one pass over the events of the r
 | Content models, attributes, datatypes, `xsi:type`, `xsi:nil`, wildcards | streaming | No tree is built. |
 | `ID`, `IDREF`, and `ENTITY` values | streaming | The check exists only when the schema names a type that needs it. |
 | Identity constraints (`key`, `keyref`, `unique`) | streaming | The selector and field paths are evaluated on the events. |
-| Assertions (`xs:assert`) | needs a subtree | Part of XSD 1.1: the subtree of an element with assertions is buffered. Not reachable through the builder yet (#360, #318). |
+| Assertions (`xs:assert`) | needs a subtree | Part of XSD 1.1: the subtree of an element with assertions is buffered and the assertions are evaluated at its end tag. A violation is reported as `cvc-assertion`. |
 | `ValidateTree` with the annotated result | tree | Validates a loaded `XmlTree` or one element of it, and returns a copy of the content with the annotations. |
 
 A `Stream` input is read completely into pooled memory (up to `MaxInputSize`) before the run starts: the pass over the events is single, but the input is not parsed incrementally.
@@ -298,7 +297,7 @@ For complete documentation, please visit the [official documentation](https://gi
 
 ### XSD 1.1 status
 
-XSD 1.1 is the default version, and it is incomplete until the 1.1 wiring (#360) is done. The package holds the building blocks of several 1.1 features (assertions on complex types and facets, type alternatives, open content, `xs:override`, conditional inclusion, and more than one substitution group head), but the builder does not enable them yet. A schema that uses one of these constructs under the default version fails the build with a coded, located schema error that states the construct is "not supported yet": `NES4060` for `xs:assert`, `NES4061` for `xs:assertion`, `NES4062` for `xs:alternative`, `NES4063` for `xs:openContent`, and the codes up to `NES4077` for the other constructs, among them the datatypes `xs:precisionDecimal` and `xs:error`. Strict `V10` reports the same constructs with the codes `NES4020` to `NES4035`. The attributes of the version control namespace (`vc:`) are not applied yet, so a construct inside an excluded block is reported as well. No XSD 1.1 conformance rate is claimed: the cases of XSD 1.1 of the test suite are all baselined as known failures until the wiring is done, and the XSD 1.1 conformance statement is a work package of its own.
+XSD 1.1 is the default version, and it is incomplete until the 1.1 wiring (#360) is done. The package holds the building blocks of several 1.1 features (assertions on simple type facets, type alternatives, open content, `xs:override`, conditional inclusion, and more than one substitution group head), but the builder does not enable them yet. Assertions on complex types (`xs:assert`) are wired: the builder compiles them and the validator evaluates them at the end tag of the element, with the limitations of the assertion listener (an assertion violation does not mark the element invalid for the annotations of `ValidateTree` yet, #605; the `xpathDefaultNamespace` attribute is honored on `xs:assert` only). A schema that uses one of these constructs under the default version fails the build with a coded, located schema error that states the construct is "not supported yet": `NES4061` for `xs:assertion`, `NES4062` for `xs:alternative`, `NES4063` for `xs:openContent`, and the codes up to `NES4077` for the other constructs, among them the datatypes `xs:precisionDecimal` and `xs:error`. Strict `V10` reports the same constructs with the codes `NES4020` to `NES4035`. The attributes of the version control namespace (`vc:`) are not applied yet, so a construct inside an excluded block is reported as well. No XSD 1.1 conformance rate is claimed: the cases of XSD 1.1 of the test suite are all baselined as known failures until the wiring is done, and the XSD 1.1 conformance statement is a work package of its own.
 
 ### Conformance
 
@@ -321,7 +320,7 @@ The summary file then also holds the row `NetEvolve.Schemas.Xsd`, which counts t
 
 ### Known limitations
 
-- XSD 1.1 is the default but incomplete: see [XSD 1.1 status](#xsd-11-status). The wiring of the 1.1 features is #360, and the assertions of complex types are #318.
+- XSD 1.1 is the default but incomplete: see [XSD 1.1 status](#xsd-11-status). The wiring of the 1.1 features is #360, and the assertions of complex types are wired (#318).
 - Incomplete schemas are rejected: a schema with a reference to a component that is not there fails the build, instead of failing only where the component is used (#956).
 - The enumeration facet of a restriction is not evaluated when instance values are validated for list types (#1077), union types (#1078), and hexBinary and base64Binary (#1079); the other facets of a user-defined simple type are evaluated.
 - Substitution groups are not supported yet (#868), notation declarations are not components yet (#870), and a redefinition is not checked against the redefined component (#869). `xs:include`, `xs:import`, and `xs:redefine` otherwise work through the resolver.

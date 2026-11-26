@@ -7,6 +7,7 @@ using NetEvolve.Arguments;
 using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Resources;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
+using NetEvolve.Schemas.Xsd.Assertions.ComplexTypes;
 using NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;
 using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Composition;
@@ -40,7 +41,7 @@ using NetEvolve.Schemas.Xsd.Versioning.Constructs;
 /// Limitations: the strict XSD 1.0 gate and the not-yet-supported gate of XSD 1.1 stop the run before any component is built
 /// (design #146 DP-16); conditional inclusion
 /// (<c>vc:</c> attributes) is not applied in this run, because it is part of the XSD 1.1 pipeline (XSD-78, #360); substitution group
-/// affiliation of several heads (XSD-71), notation declarations, <c>openContent</c>, assertions, type alternatives, and the
+/// affiliation of several heads (XSD-71), notation declarations, <c>openContent</c>, type alternatives, the assertion facet, and the
 /// subsumption check of XSD 1.1 are not built or checked; the limit of external resources applies to each root document alone.
 /// </para>
 /// </remarks>
@@ -444,7 +445,17 @@ internal sealed class CompilationRun
 
         var result = _collector.ToResult();
         return result.IsValid
-            ? new SchemaCompilation(set, model, result, ConstraintsOfElements(), _listeners, _registry.Components)
+            ? new SchemaCompilation(
+                set,
+                model,
+                result,
+                ConstraintsOfElements(),
+                _listeners,
+                _registry.Components,
+                _context.ComplexTypeAssertions.Count == 0
+                    ? null
+                    : new ComplexTypeAssertions(_context.ComplexTypeAssertions)
+            )
             : new SchemaCompilation(null, null, result);
     }
 
