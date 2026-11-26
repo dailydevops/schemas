@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.Xml.Model;
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Dtd.Model;
@@ -29,6 +30,9 @@ public sealed class XmlDocumentTree : XmlTree
     private const string XmlNamespaceUri = "http://www.w3.org/XML/1998/namespace";
     private const int NotSpecified = 0x80;
 
+    // The walks that ask for the elements of one name before the index is built; the build costs about one walk of the whole tree.
+    private const int IndexAfterRequests = 2;
+
     private readonly byte[] _kinds;
     private readonly int[] _parents;
     private readonly int[] _ends;
@@ -50,6 +54,12 @@ public sealed class XmlDocumentTree : XmlTree
     private readonly bool _hasXmlBase;
     private readonly XmlSymbol _xmlBaseLocal;
     private readonly XmlSymbol _xmlNamespace;
+
+    // Published once with Interlocked; the arrays they read never change.
+    private XmlNameIndex? _elements;
+    private XmlNameIndex? _attributes;
+    private int _elementRequests;
+    private int _attributeRequests;
 
     internal XmlDocumentTree(
         XmlNameTable names,
@@ -195,6 +205,37 @@ public sealed class XmlDocumentTree : XmlTree
 
         var next = _ends[index];
         return next < _kinds.Length && _parents[next] == _parents[index] ? next : NoNode;
+    }
+
+    /// <summary>Gets the first row after the subtree of a node.</summary>
+    /// <param name="index">The node index.</param>
+    /// <returns>The row after the last descendant, attribute, and namespace row of the node.</returns>
+    internal int GetEnd(int index) => _ends[index];
+
+    /// <summary>Gets the index of the elements by local name, once enough walks asked for it to pay for building it.</summary>
+    /// <returns>The index, or <see langword="null"/> while the walks still read the rows themselves.</returns>
+    internal XmlNameIndex? GetElementIndex() => GetIndex(ref _elements, ref _elementRequests, XmlNodeKind.Element);
+
+    /// <summary>Gets the index of the attributes by local name, once enough walks asked for it to pay for building it.</summary>
+    /// <returns>The index, or <see langword="null"/> while the walks still read the rows themselves.</returns>
+    internal XmlNameIndex? GetAttributeIndex() =>
+        GetIndex(ref _attributes, ref _attributeRequests, XmlNodeKind.Attribute);
+
+    private XmlNameIndex? GetIndex(ref XmlNameIndex? field, ref int requests, XmlNodeKind kind)
+    {
+        var index = Volatile.Read(ref field);
+        if (index is not null)
+        {
+            return index;
+        }
+
+        if (Interlocked.Increment(ref requests) <= IndexAfterRequests)
+        {
+            return null;
+        }
+
+        index = XmlNameIndex.Build(_kinds, _names, kind);
+        return Interlocked.CompareExchange(ref field, index, null) ?? index;
     }
 
     /// <inheritdoc />
