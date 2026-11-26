@@ -67,7 +67,7 @@ public static class SchematronDiagnosticCodes
     /// <summary>A parameter the target does not declare. <c>SCH-PARAM-UNKNOWN</c>, stages expand and compile.</summary>
     public static readonly DiagnosticCode ParamUnknown = new(3112);
 
-    /// <summary>Two <see langword="let"/>, or a <c>param</c> and a <see langword="let"/>, of one name at one level. <c>SCH-LET-DUPLICATE</c>, stage compile.</summary>
+    /// <summary>Two <see langword="let"/>, or a <c>param</c> and a <see langword="let"/>, of one name at one level, which includes a hoisted pattern <see langword="let"/> (#615). <c>SCH-LET-DUPLICATE</c>, stage compile.</summary>
     public static readonly DiagnosticCode LetDuplicate = new(3200);
 
     /// <summary>A <see langword="let"/> value does not match its <see langword="as"/> type. <c>SCH-LET-TYPE</c>, stages build and evaluate.</summary>

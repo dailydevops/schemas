@@ -73,7 +73,11 @@ public class GlobalPatternLetTests
     public async Task Hoisted_PatternLet_ReadingALaterOne_IsVariableUndefined()
     {
         var schema = Schema(
-            patterns: [Pattern("p1", [Let("x", "$y")], Rule("r1", "/")), Pattern("p2", [Let("y", "1")], Rule("r2", "/"))]
+            patterns:
+            [
+                Pattern("p1", [Let("x", "$y")], Rule("r1", "/")),
+                Pattern("p2", [Let("y", "1")], Rule("r2", "/")),
+            ]
         );
 
         var f = Create(schema, hoistPatternLets: true);

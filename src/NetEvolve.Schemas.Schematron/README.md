@@ -113,6 +113,17 @@ var result = await validator.ValidateAsync(
 
 Here the phase `strict` is active and the parameter `limit` is `200`, so the first pattern passes, and the only issue is the failed assertion of the second pattern.
 
+### Global pattern-level variables
+
+By default a `let` of a pattern or group is lexical: it is visible only inside its pattern, a `let` with the name of a schema-level `let` shadows it, and a reference from a later pattern or from the body of a stylesheet function fails at `Build` with `NES3300`. This follows the decided rule that an inner declaration shadows an outer one (design [#150](https://github.com/dailydevops/schemas/issues/150), EP-4). `WithGlobalPatternLets(true)` is an opt-in switch for rule sets that declare a variable in one pattern and read it elsewhere, such as the KoSIT XRechnung rules ([#615](https://github.com/dailydevops/schemas/issues/615)). When it is on, the `let` declarations of the patterns that the selected phase activates become schema-level variables, placed after the schema `let` declarations in document order:
+
+- They are visible from every pattern, every rule, the values of global `xsl:variable` declarations, and the bodies of stylesheet functions and keys.
+- A value can read the declarations that come before it; a forward reference stays `NES3300`.
+- A `let` whose name is already declared as a schema `param`, a schema `let`, a global `xsl:variable` or `xsl:param`, or by another pattern fails at `Build` with `NES3200`.
+- A phase `let` and a rule `let` still shadow a hoisted one, and the `let` of a pattern that the phase does not activate is not visible.
+
+The switch is off by default and nothing changes for a schema that does not use it. In the conformance suite, the cases that read a pattern `let` from a later pattern or expect an error for a collision with a schema `let` follow the global reading only with the switch on; the default stays lexical, so they remain recorded deviations.
+
 ### SVRL
 
 `SvrlReportSink` is an `ISchematronReportSink` that writes the events of a run as SVRL: 2016-compatible output plus the attributes and elements of the public 2025 grammar. It writes to an `IBufferWriter<byte>` (complete when the run finishes) or to a `Stream` (complete after `CompleteAsync`). `WithReportSink` returns a lightweight view of the validator that delivers the events of each validation to the sink; the view serves one validation at a time, and the validator it came from stays thread-safe. `SvrlWriterOptions` sets the encoding, the indentation, the namespace declarations, and the cap of the buffer of one active pattern (16 MiB by default; on overflow an `error` with `NES3500` replaces the fired rules and findings of that pattern, and the validation result is not affected).
@@ -284,6 +295,7 @@ The builder that `ForSchematron` returns takes the options of a build:
 | --- | --- |
 | `WithPhase` | Selects the phase: an `id`, `#ALL`, or `#DEFAULT` (the default). |
 | `WithParameter` | Sets the value of a `param` of the schema. |
+| `WithGlobalPatternLets` | Makes the `let` declarations of the active patterns schema-level variables (off by default), see [Global pattern-level variables](#global-pattern-level-variables). |
 | `WithLimits` | Sets the `ValidationLimits` of the core package that bound the documents and the schema. |
 | `WithResolver` | Sets the `IResourceResolver` for external resources; the default is `DenyAllResourceResolver`. |
 
@@ -390,6 +402,7 @@ dotnet test --project tests/NetEvolve.Schemas.Schematron.Tests.Integration --con
   ```
 
 - **No `ReadOnlyMemory<T>` overload.** With one, a `byte[]` or `char[]` argument is ambiguous for compilers older than C# 14; pass `memory.Span` instead.
+- **Pattern-level `let`.** A `let` of a pattern is lexical unless `WithGlobalPatternLets(true)` is set, see [Global pattern-level variables](#global-pattern-level-variables) ([#615](https://github.com/dailydevops/schemas/issues/615)). With the switch on, a pattern `let` with the name of a schema-level name is an error, so a schema that relies on shadowing needs the default.
 - **XSLT in a schema.** Declarations of XSLT build, and stylesheet functions and keys are callable from XPath, but a `let` with element content binds a document node, which one suite case does not expect ([#877](https://github.com/dailydevops/schemas/issues/877)); see [XSLT constructs](#xslt-constructs).
 - **Attributes that are accepted and ignored.** The `documents` attribute of a pattern ([#913](https://github.com/dailydevops/schemas/issues/913), feature [#388](https://github.com/dailydevops/schemas/issues/388)) and the `visit-each` attribute of a rule ([#934](https://github.com/dailydevops/schemas/issues/934), feature [#387](https://github.com/dailydevops/schemas/issues/387)) neither fail the build nor take effect.
 - **Phase attributes.** A selected phase with `from` ([#385](https://github.com/dailydevops/schemas/issues/385)) or `when` ([#386](https://github.com/dailydevops/schemas/issues/386)) fails the build with `NES3007`.

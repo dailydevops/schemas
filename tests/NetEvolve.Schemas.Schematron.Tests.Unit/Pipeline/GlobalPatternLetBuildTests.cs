@@ -3,6 +3,7 @@ namespace NetEvolve.Schemas.Schematron.Tests.Unit.Pipeline;
 using System.Linq;
 using System.Threading.Tasks;
 using NetEvolve.Schemas;
+using NetEvolve.Schemas.Schematron.Tests.Unit.Fakes;
 using static NetEvolve.Schemas.Schematron.Tests.Unit.Pipeline.PipelineFixture;
 
 /// <summary>
@@ -28,13 +29,13 @@ public class GlobalPatternLetBuildTests
         $"<pattern id=\"use\"><rule context=\"a\"><assert test=\"{test}\">Failed.</assert></rule></pattern>";
 
     private static SchemaCompilationException Failure(string schema, bool enabled) =>
-        Capture(() => _ = Builder(schema).WithGlobalPatternLets(enabled).Build());
+        Capture(() => _ = Builder(schema).WithGlobalPatternLets(enabled).BuildNow());
 
     [Test]
     public async Task On_PatternLet_IsReadFromALaterPattern()
     {
         var schema = Source(Declares("limit", "5") + Uses("number(.) &lt;= $limit"));
-        var validator = Builder(schema).WithGlobalPatternLets(true).Build();
+        var validator = Builder(schema).WithGlobalPatternLets(true).BuildNow();
 
         await Assert.That(Validate(validator, "<a>4</a>").IsValid).IsTrue();
         await Assert.That(Validate(validator, "<a>6</a>").IsValid).IsFalse();
@@ -44,7 +45,7 @@ public class GlobalPatternLetBuildTests
     public async Task On_PatternLet_IsReadFromAFunctionBody()
     {
         var schema = Source(Function + Declares("limit", "5") + Uses("not(f:over(number(.)))"));
-        var validator = Builder(schema).WithGlobalPatternLets(true).Build();
+        var validator = Builder(schema).WithGlobalPatternLets(true).BuildNow();
 
         await Assert.That(Validate(validator, "<a>4</a>").IsValid).IsTrue();
         await Assert.That(Validate(validator, "<a>6</a>").IsValid).IsFalse();
@@ -66,7 +67,7 @@ public class GlobalPatternLetBuildTests
     {
         var schema = Source(Declares("limit", "5") + Uses("number(.) &lt;= $limit"));
 
-        var failure = Capture(() => _ = Builder(schema).Build());
+        var failure = Capture(() => _ = Builder(schema).BuildNow());
 
         await Assert.That(failure.Issues.Select(i => i.Code.ToString()).Distinct()).IsEquivalentTo(["NES3300"]);
     }
@@ -98,7 +99,7 @@ public class GlobalPatternLetBuildTests
             "<let name=\"limit\" value=\"1\"/><pattern id=\"p\"><let name=\"limit\" value=\"5\"/>"
                 + "<rule context=\"a\"><assert test=\"number(.) &lt;= $limit\">Failed.</assert></rule></pattern>"
         );
-        var validator = Builder(schema).WithGlobalPatternLets(false).Build();
+        var validator = Builder(schema).WithGlobalPatternLets(false).BuildNow();
 
         await Assert.That(Validate(validator, "<a>4</a>").IsValid).IsTrue();
     }
@@ -111,7 +112,7 @@ public class GlobalPatternLetBuildTests
                 + Declares("limit", "5")
                 + Uses("number(.) &lt;= $limit")
         );
-        var validator = Builder(schema).WithPhase("ph").WithGlobalPatternLets(true).Build();
+        var validator = Builder(schema).WithPhase("ph").WithGlobalPatternLets(true).BuildNow();
 
         await Assert.That(Validate(validator, "<a>2</a>").IsValid).IsTrue();
         await Assert.That(Validate(validator, "<a>4</a>").IsValid).IsFalse();
@@ -121,10 +122,12 @@ public class GlobalPatternLetBuildTests
     public async Task On_PatternLet_OfAnInactivePattern_IsNotVisible()
     {
         var schema = Source(
-            "<phase id=\"ph\"><active pattern=\"use\"/></phase>" + Declares("limit", "5") + Uses("number(.) &lt;= $limit")
+            "<phase id=\"ph\"><active pattern=\"use\"/></phase>"
+                + Declares("limit", "5")
+                + Uses("number(.) &lt;= $limit")
         );
 
-        var failure = Capture(() => _ = Builder(schema).WithPhase("ph").WithGlobalPatternLets(true).Build());
+        var failure = Capture(() => _ = Builder(schema).WithPhase("ph").WithGlobalPatternLets(true).BuildNow());
 
         await Assert.That(failure.Issues.Select(i => i.Code.ToString()).Distinct()).IsEquivalentTo(["NES3300"]);
     }
