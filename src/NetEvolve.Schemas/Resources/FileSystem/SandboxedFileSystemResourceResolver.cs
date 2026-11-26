@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Resources.FileSystem;
+﻿namespace NetEvolve.Schemas.Resources.FileSystem;
 
 using System;
 using System.IO;
@@ -188,6 +188,7 @@ public sealed class SandboxedFileSystemResourceResolver : IResourceResolver
             var segment = segments[i];
             if (segment.AsSpan().IndexOfAny('*', '?') < 0)
             {
+                string? match = null;
 #if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
                 foreach (var entry in Directory.EnumerateFileSystemEntries(current, segment, CaseInsensitive))
 #else
@@ -197,15 +198,20 @@ public sealed class SandboxedFileSystemResourceResolver : IResourceResolver
                     var actual = Path.GetFileName(entry);
                     if (string.Equals(actual, segment, StringComparison.Ordinal))
                     {
+                        match = null;
                         break;
                     }
 
-                    if (string.Equals(actual, segment, StringComparison.OrdinalIgnoreCase))
+                    if (match is null && string.Equals(actual, segment, StringComparison.OrdinalIgnoreCase))
                     {
-                        segments[i] = actual;
-                        changed = true;
-                        break;
+                        match = actual;
                     }
+                }
+
+                if (match is not null)
+                {
+                    segments[i] = match;
+                    changed = true;
                 }
             }
 
