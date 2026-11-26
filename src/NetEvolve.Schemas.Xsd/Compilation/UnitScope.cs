@@ -4,6 +4,7 @@ using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Composition;
 using NetEvolve.Schemas.Xsd.Elements;
+using NetEvolve.Schemas.Xsd.Notations;
 using NetEvolve.Schemas.Xsd.SchemaDocuments;
 
 /// <summary>One schema unit with what the builders need to read it: its namespace scope, its defaults, and the element builders of that scope.</summary>
@@ -21,6 +22,7 @@ internal sealed class UnitScope
         Particles = new ParticleBuilder(Scope);
         Elements = new ElementDeclarationBuilder(Scope);
         Groups = new ModelGroupDefinitionBuilder(Scope);
+        Notations = new NotationDeclarationBuilder(Scope);
     }
 
     /// <summary>Gets the unit.</summary>
@@ -43,4 +45,7 @@ internal sealed class UnitScope
 
     /// <summary>Gets the builder of model group definitions.</summary>
     public ModelGroupDefinitionBuilder Groups { get; }
+
+    /// <summary>Gets the builder of notation declarations.</summary>
+    public NotationDeclarationBuilder Notations { get; }
 }

@@ -16,6 +16,7 @@ internal static class XsdRuleLookup
     internal static readonly XsdRule CosEquivDerivedOkRec = Find("cos-equiv-derived-ok-rec");
     internal static readonly XsdRule SrcElement = Find("src-element");
     internal static readonly XsdRule SrcModelGroupDefn = Find("src-model_group_defn");
+    internal static readonly XsdRule SrcNotation = Find("src-notation");
     internal static readonly XsdRule SrcWildcard = Find("src-wildcard");
     internal static readonly XsdRule PPropsCorrect = Find("p-props-correct");
     internal static readonly XsdRule CosElementConsistent = Find("cos-element-consistent");

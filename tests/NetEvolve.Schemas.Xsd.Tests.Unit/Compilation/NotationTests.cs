@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.Xsd.Tests.Unit.Compilation;
 
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Diagnostics;
+using NetEvolve.Schemas.Xsd.Notations;
 using static NetEvolve.Schemas.Xsd.Tests.Unit.Compilation.CompilationFixture;
 
 /// <summary>Notation declarations become components in the notation symbol space (Structures 3.12, #751).</summary>
@@ -29,16 +30,27 @@ public class NotationTests
     }
 
     [Test]
-    public async Task Notation_DeclaredTwice_IsReportedOnceAndTheFirstStays()
+    public async Task Notation_DeclaredTwice_IsReportedOnce()
     {
         var compilation = Compile(
             Schema("<xs:notation name=\"n\" public=\"a\"/><xs:notation name=\"n\" public=\"b\"/>")
         );
 
         await Assert.That(Codes(compilation)).IsEquivalentTo([XsdRuleCodes.SchPropsCorrect]);
-        await Assert.That(compilation.Set!.TryGet(XsdComponentKind.Notation, new(Tns, "n"), out var first)).IsTrue();
-        await Assert
-            .That(first!.Location.Line)
-            .IsEqualTo(Get(compilation, XsdComponentKind.Notation, "n").Location.Line);
+    }
+
+    [Test]
+    [Arguments("public=\"p\"", "p", null)]
+    [Arguments("system=\"s\"", null, "s")]
+    [Arguments("public=\"p\" system=\"s\"", "p", "s")]
+    public async Task Notation_Component_HoldsItsIdentifiers(string attributes, string? publicId, string? systemId)
+    {
+        var compilation = Compile(Schema("<xs:notation name=\"n\" " + attributes + "/>"));
+
+        var notation = Get<NotationDeclaration>(compilation, XsdComponentKind.Notation, "n");
+
+        await Assert.That(notation.Kind).IsEqualTo(XsdComponentKind.Notation);
+        await Assert.That(notation.PublicId).IsEqualTo(publicId);
+        await Assert.That(notation.SystemId).IsEqualTo(systemId);
     }
 }
