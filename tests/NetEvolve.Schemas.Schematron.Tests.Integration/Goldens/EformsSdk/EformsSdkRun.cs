@@ -102,12 +102,12 @@ internal static class EformsSdkRun
         foreach (var notice in NoticeNames(root))
         {
             cancellationToken.ThrowIfCancellationRequested();
-            var expected = EformsReport.Parse(
-                File.ReadAllText(Path.Combine(root, "examples", "reports", Path.ChangeExtension(notice, ".svrl")))
-            );
-            var phase = expected.Phase!;
             try
             {
+                var expected = EformsReport.Parse(
+                    File.ReadAllText(Path.Combine(root, "examples", "reports", Path.ChangeExtension(notice, ".svrl")))
+                );
+                var phase = expected.Phase!;
                 if (!validators.TryGetValue(phase, out var validator))
                 {
                     validators[phase] = validator = SchemaValidator
