@@ -2,6 +2,8 @@ namespace NetEvolve.Schemas.XPath.Evaluation.Axes;
 
 using System.Runtime.InteropServices;
 using NetEvolve.Arguments;
+using NetEvolve.Schemas.Xml.Contracts;
+using NetEvolve.Schemas.Xml.Model;
 using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Syntax.Tree;
 using NetEvolve.Schemas.XPath.Xdm.Nodes;
@@ -28,6 +30,11 @@ internal struct XPathAxisIterator
     private bool _started;
     private bool _inSubtree;
 
+    // The tree and the rows of a walk over a document tree that reads the arrays of the tree instead of making a node per hop; null for
+    // every other tree and axis.
+    private readonly XmlDocumentTree? _rows;
+    private int _row;
+
     /// <summary>Initializes a new instance of the <see cref="XPathAxisIterator"/> struct.</summary>
     /// <param name="context">The context node.</param>
     /// <param name="axis">The axis.</param>
@@ -46,6 +53,12 @@ internal struct XPathAxisIterator
         _subtreeRoot = default;
         _started = false;
         _inSubtree = false;
+        _rows =
+            axis is Axis.Child or Axis.Attribute or Axis.Descendant or Axis.DescendantOrSelf
+            && context.Node.Tree is XmlDocumentTree tree
+                ? tree
+                : null;
+        _row = context.Node.Index;
     }
 
     /// <summary>Gets the current node.</summary>
@@ -59,6 +72,11 @@ internal struct XPathAxisIterator
     /// <returns><see langword="true"/> when there is one.</returns>
     public bool MoveNext()
     {
+        if (_rows is not null)
+        {
+            return MoveNextRow(_rows);
+        }
+
         while (Advance())
         {
             if (_matcher.Matches(_current))
@@ -68,6 +86,87 @@ internal struct XPathAxisIterator
         }
 
         return false;
+    }
+
+    // The walks that read the rows of a document tree in document order. A row is a node of the tree: the descendants of the context
+    // node are the rows after it whose parent is not before it, because a subtree is a run of rows and the row that follows the run has a
+    // parent before the context; attributes are rows too and belong to the axis of the attributes only. A context node that cannot
+    // have such nodes ends the walk at once.
+    private bool MoveNextRow(XmlDocumentTree tree)
+    {
+        var context = _context.Node.Index;
+        var contextKind = tree.GetKind(context);
+        var first = !_started;
+        _started = true;
+        var row = _row;
+        if (!first && row >= tree.Count)
+        {
+            return false;
+        }
+
+        if (_axis == Axis.Attribute)
+        {
+            row = first
+                ? (contextKind == XmlNodeKind.Element ? tree.GetFirstAttribute(context) : XmlTree.NoNode)
+                : tree.GetNextAttribute(row);
+            while (row != XmlTree.NoNode && !_matcher.Matches(tree, row))
+            {
+                row = tree.GetNextAttribute(row);
+            }
+        }
+        else if (_axis == Axis.Child)
+        {
+            row = first
+                ? (
+                    contextKind is XmlNodeKind.Document or XmlNodeKind.Element
+                        ? tree.GetFirstChild(context)
+                        : XmlTree.NoNode
+                )
+                : tree.GetNextSibling(row);
+            while (row != XmlTree.NoNode && !_matcher.Matches(tree, row))
+            {
+                row = tree.GetNextSibling(row);
+            }
+        }
+        else if (first && _axis == Axis.DescendantOrSelf && _matcher.Matches(tree, context))
+        {
+            row = context;
+        }
+        else
+        {
+            var count = tree.Count;
+            row = first ? context + 1 : row + 1;
+            if (contextKind is not (XmlNodeKind.Document or XmlNodeKind.Element))
+            {
+                row = count;
+            }
+
+            for (; row < count; row++)
+            {
+                if (tree.GetParent(row) < context)
+                {
+                    row = count;
+                    break;
+                }
+
+                if (
+                    tree.GetKind(row) is not (XmlNodeKind.Attribute or XmlNodeKind.Namespace)
+                    && _matcher.Matches(tree, row)
+                )
+                {
+                    break;
+                }
+            }
+
+            if (row >= count)
+            {
+                row = XmlTree.NoNode;
+            }
+        }
+
+        _row = row == XmlTree.NoNode ? tree.Count : row;
+        _current = row == XmlTree.NoNode ? default : new XPathNode(new XmlNode(tree, row));
+        return row != XmlTree.NoNode;
     }
 
     private bool Advance()
