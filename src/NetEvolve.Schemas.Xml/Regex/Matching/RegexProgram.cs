@@ -27,8 +27,10 @@ using NetEvolve.Schemas.Xml.Regex.XPathDialect;
 /// machine stops a loop at the first iteration that matches the empty string, as backtracking engines do, while the automaton
 /// drops such an iteration; for a loop whose body can match the empty string, such as <c>(?:b?|c)*</c>, the two can therefore
 /// pick different matches, each of them a valid one. The backtracking machine keeps its stack in a pooled array that grows with
-/// the work done, at most 3 integers per step. The instance is
-/// immutable and may be shared between threads; a call keeps its state on the stack or in a pooled array. Capture
+/// the work done, at most 3 integers per step. The compiled program is
+/// immutable, but an XSD program also holds a lazily built cache of automaton states (at most 256 states, each with a table
+/// of 128 transition slots, so up to about 256 KB per program). The cache is built under a lock and read without one, so the
+/// instance may be shared between threads; a call keeps its state on the stack or in a pooled array. Capture
 /// enumeration, replace, and tokenize are not part of this type (DT-57).
 /// </remarks>
 public sealed partial class RegexProgram : IRegexMatcher

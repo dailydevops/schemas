@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.Xml.Regex.Matching;
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using NetEvolve.Schemas.Xml.Regex.Contracts;
 
 // The deterministic fast path of the XSD dialect: the automaton states are built from the program on demand, and the
@@ -73,7 +74,7 @@ public sealed partial class RegexProgram
     private RegexMatchResult? MatchDeterministic(ReadOnlySpan<char> input)
     {
         var dfa = _dfa;
-        if (dfa is null || dfa.IsFull)
+        if (dfa is null)
         {
             return null;
         }
@@ -118,6 +119,12 @@ public sealed partial class RegexProgram
 
     private DfaState? BuildTransition(Dfa dfa, DfaState from, char c)
     {
+        // A full cache still serves the cached transitions; only a missing one is left to the simulation.
+        if (dfa.IsFull)
+        {
+            return null;
+        }
+
         lock (dfa.Gate)
         {
             var seeds = new List<int>();
@@ -132,7 +139,9 @@ public sealed partial class RegexProgram
             var target = Intern(dfa, Closure(seeds));
             if (target is not null)
             {
-                from.Next[c] = target;
+                // The release write publishes the target state (its counters) before readers can see the slot; readers
+                // load the slot without a lock and only dereference what they read, which the memory model orders.
+                Volatile.Write(ref from.Next[c], target);
             }
 
             return target;
