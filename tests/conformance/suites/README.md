@@ -173,3 +173,18 @@ loader, because the resolver is not public API.
   without an entry, fails the test.
 - **Run:** `XIncludeConformanceTests` is explicit and in the `Conformance` category; the baseline guard
   `XIncludeKnownFailureTests` needs no download.
+
+## parse-number-fxx test data (`parse-number-fxx.json`)
+
+The parse-number-fxx test data (Apache-2.0, no tags, last push 2022) is pinned by its commit archive, `.../archive/<commit>.zip`,
+with the `subPath` of its `data` folder; the archive is about 96 MB. The runner lives in
+`tests/NetEvolve.Schemas.Xml.Tests.Unit/Datatypes/Floating` and checks `XsdFloatingPoint.ParseDouble` and `ParseSingle`.
+
+- **Format:** one case per line: the hexadecimal bit patterns of the expected float16, float32 and float64 at the columns 0, 5 and 14,
+  then the input string from column 31. The float16 column is not used.
+- **Comparison:** an input in the lexical space of finite `xs:double` and `xs:float` values (an `xs:decimal` mantissa with an optional
+  integer exponent) must parse with the exact expected bits of float32 and float64. An input outside it (hex floats, `inf`, `nan`) must be
+  rejected by both parsers. The XSD 1.0 lexical rules apply.
+- **Baseline:** empty. `ParseNumberFxxConformanceTests` runs every data file as one test and fails on any differing line.
+- **Run:** the full corpus is read, which takes about one minute. The tests are explicit and in the `Conformance` category; the
+  line check `ParseNumberFxxTests` needs no download.
