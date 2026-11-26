@@ -21,6 +21,7 @@ internal sealed class SchemaSyntaxSink : IXmlSink
     private readonly List<XsdSyntaxAttribute> _attributes = [];
     private SchemaSyntaxNode? _current;
     private int _skipDepth;
+    private IXmlPositionSource? _positions;
 
     // The appinfo or documentation element being read: no node is built for it, only its attributes are checked.
     private SchemaElementRule? _opaqueRule;
@@ -40,6 +41,13 @@ internal sealed class SchemaSyntaxSink : IXmlSink
 
     /// <summary>Gets the <c>schema</c> element, <see langword="null"/> when the root was rejected or the document did not start.</summary>
     internal SchemaSyntaxNode? Root { get; private set; }
+
+    /// <summary>
+    /// Locates attributes at their names by asking the reader that pumps this sink; without a source they stay at the start tag
+    /// of their element.
+    /// </summary>
+    /// <param name="source">The reader that pumps this sink.</param>
+    internal void UsePositions(IXmlPositionSource? source) => _positions = source;
 
     /// <inheritdoc />
     public void StartDocument(in XmlDeclaration declaration) { }
@@ -135,7 +143,7 @@ internal sealed class SchemaSyntaxSink : IXmlSink
         if (ns.Length == 0 || string.Equals(ns, SchemaGrammar.Namespace, StringComparison.Ordinal))
         {
             var rule = _opaqueRule ?? _rules[_rules.Count - 1];
-            var location = _opaqueRule is null ? _current.Location : _opaqueLocation;
+            var location = AttributeLocation(_opaqueRule is null ? _current.Location : _opaqueLocation);
             var attribute = ns.Length == 0 ? rule.FindAttribute(local) : null;
             if (attribute is null)
             {
@@ -158,7 +166,7 @@ internal sealed class SchemaSyntaxSink : IXmlSink
             return;
         }
 
-        _attributes.Add(new XsdSyntaxAttribute(new XPathQName(ns, local), text, _current.Location));
+        _attributes.Add(new XsdSyntaxAttribute(new XPathQName(ns, local), text, AttributeLocation(_current.Location)));
     }
 
     /// <inheritdoc />
@@ -231,6 +239,17 @@ internal sealed class SchemaSyntaxSink : IXmlSink
 
     private static bool IsSchemaElement(string ns, string local) =>
         string.Equals(ns, SchemaGrammar.Namespace, StringComparison.Ordinal) && SchemaGrammar.IsKnown(local);
+
+    private DocumentLocation AttributeLocation(DocumentLocation fallback)
+    {
+        if (_positions is null)
+        {
+            return fallback;
+        }
+
+        var position = _positions.Current;
+        return new DocumentLocation(_baseUri, position.Line, position.Column);
+    }
 
     private SchemaSyntaxNode Push(SchemaSyntaxNode node, SchemaElementRule rule)
     {

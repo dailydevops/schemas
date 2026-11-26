@@ -13,7 +13,7 @@ using NetEvolve.Schemas.Xsd.Versioning.Constructs;
 /// reports nothing, because the strict 1.0 check of the same constructs applies there.
 /// </summary>
 /// <remarks>
-/// Limitation: an attribute is located at the start tag of its element (design #108 AP9). The attributes of the version control
+/// The attributes of the version control
 /// namespace have no rule and are not reported; conditional inclusion is XSD-78.
 /// </remarks>
 internal static class Xsd11ConstructGate

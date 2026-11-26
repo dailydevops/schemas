@@ -11,8 +11,8 @@ using NetEvolve.Schemas.Xsd.Diagnostics;
 /// Parses a schema document into located syntax nodes in one pass over the reader contract, without a document tree.
 /// </summary>
 /// <remarks>
-/// Limitations: an attribute carries the location of the start tag of its element (design #108 AP9, exact attribute
-/// positions are a separate issue); text, comments, and processing instructions are not part of the model, and the content of
+/// An attribute is located at its name when the reader implements <see cref="IXmlPositionSource"/> (the readers of this package
+/// do), and at the start tag of its element otherwise. Limitations: text, comments, and processing instructions are not part of the model, and the content of
 /// <c>appinfo</c> and <c>documentation</c> is skipped; see <see cref="SchemaGrammar"/> for the structural checks that are
 /// left to the component builders. A <see cref="Stream"/> is read to its end before parsing (thin adapter over the span
 /// core). An error of the reader ends the parse; the nodes read so far are discarded and the error is on the result.
@@ -79,6 +79,7 @@ internal static class SchemaDocumentParser
         ArgumentNullException.ThrowIfNull(reporter);
 
         var sink = new SchemaSyntaxSink(baseUri, reporter);
+        sink.UsePositions(reader as IXmlPositionSource);
         var status = reader.Pump(ref sink);
         return status == XmlReadStatus.Completed
             ? new SchemaDocument(baseUri, sink.Root, null, true)
