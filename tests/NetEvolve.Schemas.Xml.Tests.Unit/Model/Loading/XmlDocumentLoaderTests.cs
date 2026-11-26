@@ -180,6 +180,29 @@ public class XmlDocumentLoaderTests
 
     [Test]
     [MethodDataSource(nameof(Kinds))]
+    public async Task Load_DtdProcessingOnOrOff_GivesTheSameTreeForEveryInputKind(
+        InputKind kind,
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var off = Dump(await LoadAsync(kind, Hazards, cancellationToken: cancellationToken));
+
+        var on = Dump(
+            await LoadAsync(
+                kind,
+                Hazards,
+                XmlReaderOptions.Default.WithDtdProcessing(true),
+                cancellationToken: cancellationToken
+            )
+        );
+
+        await Assert.That(on).IsEqualTo(off);
+    }
+
+    [Test]
+    [MethodDataSource(nameof(Kinds))]
     public async Task Load_ElementsCarryTheirStartPosition(InputKind kind, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
