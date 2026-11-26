@@ -80,7 +80,7 @@ Every input kind gives the same tree, the same positions, and, for a malformed d
 
 Every method takes optional `XmlReaderOptions` and an optional `baseUri`, which becomes the base URI of the document node. A document that is not well formed, that uses an unsupported encoding, or that exceeds a limit throws `XmlParseException`. Its `Diagnostic` carries the error code and the position.
 
-The readers are public as well. They push events into an `IXmlSink` and build no tree, so a caller that only scans a document pays for no tree.
+The readers are public as well. They push events into an `IXmlSink` and build no tree, so a caller that only scans a document pays for no tree. Only the start of an element carries a position; a sink that needs the position of an attribute, of text, or of an end tag reads `IXmlPositionSource.Current` from the reader that pumps it, inside the callback.
 
 #### Memory
 

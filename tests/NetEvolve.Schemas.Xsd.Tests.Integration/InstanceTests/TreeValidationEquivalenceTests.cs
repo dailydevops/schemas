@@ -10,9 +10,10 @@ using NetEvolve.Schemas.Xsd.Tests.Integration.Xsts;
 
 /// <summary>
 /// Tree validation (<see cref="IXsdValidator.ValidateTree(XmlTree, CancellationToken)"/>) gives the same issues, by rule code and
-/// location, as the streaming path for every instance test of XSD 1.0 of the suite (XSD-79, #361). A malformed instance cannot be loaded
+/// source, as the streaming path for every instance test of XSD 1.0 of the suite (XSD-79, #361). A malformed instance cannot be loaded
 /// into a tree, and a document type declaration is not part of the tree (#731); both are listed one by one in
-/// <c>tree-exclusions.txt</c>, and any other difference is a defect and fails the test.
+/// <c>tree-exclusions.txt</c>, and any other difference is a defect and fails the test. The location is not compared: a tree keeps the
+/// start position of elements only, so the streaming path alone locates attributes, character data, and end tags exactly (#606).
 /// </summary>
 [Explicit]
 [Category(ConformanceCategory.Name)]
@@ -63,14 +64,7 @@ public class TreeValidationEquivalenceTests
         var text = new StringBuilder();
         foreach (var issue in result.Issues)
         {
-            _ = text.Append(issue.Code)
-                .Append('@')
-                .Append(issue.Location.Source)
-                .Append('|')
-                .Append(issue.Location.Line)
-                .Append(':')
-                .Append(issue.Location.Column)
-                .Append('\n');
+            _ = text.Append(issue.Code).Append('@').Append(issue.Location.Source).Append('\n');
         }
 
         return text.Append(result.IsValid).Append(result.IsTruncated).ToString();
