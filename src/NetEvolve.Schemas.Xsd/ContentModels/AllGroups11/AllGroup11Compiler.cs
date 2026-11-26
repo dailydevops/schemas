@@ -20,11 +20,10 @@ using NetEvolve.Schemas.Xsd.Elements;
 /// the enclosing group; interleaving interleavings is interleaving.
 /// </para>
 /// <para>
-/// Limitations: this compiler is not wired into the validation model; that is XSD-78, which also has to call
-/// <see cref="Extend"/> where a complex type is derived by extension, because the construction of the complex type still
-/// combines the contents as a sequence. A nested <c>all</c> group with another occurrence (a schema error, XSD-60), and a member
+/// Limitations: the validation model uses this compiler in XSD 1.1 mode only, and the construction of a complex type calls
+/// <see cref="Extend"/> in that mode only; XSD 1.0 keeps <c>AllGroup</c> and the sequence. A nested <c>all</c> group with another occurrence (a schema error, XSD-60), and a member
 /// that is neither an element declaration nor a wildcard, is left out. A substitution group closure of a member is not
-/// expanded; a member accepts the name of its declaration only. Nesting deeper than <see cref="MaxNesting"/> levels is an
+/// expanded unless the caller passes <c>idsOf</c>; a member accepts the name of its declaration only otherwise. Nesting deeper than <see cref="MaxNesting"/> levels is an
 /// internal, non-configurable ceiling; such a group is not compiled.
 /// </para>
 /// </remarks>
@@ -37,8 +36,14 @@ internal static class AllGroup11Compiler
     /// <param name="content">The particle, with a model group or a group definition as term.</param>
     /// <param name="idOf">Gives the schema name id of the name of an element declaration.</param>
     /// <param name="terms">Receives the term of each member, so the index of a matched particle finds its component.</param>
+    /// <param name="idsOf">Gives all schema name ids a member accepts (a substitution group closure); <see langword="null"/> for the name of the declaration only.</param>
     /// <returns>The program, <see langword="null"/> when the particle cannot occur, is no <c>all</c> group, or nests too deep.</returns>
-    internal static AllGroup11? Compile(Particle content, Func<XPathQName, int> idOf, List<IXsdComponent> terms)
+    internal static AllGroup11? Compile(
+        Particle content,
+        Func<XPathQName, int> idOf,
+        List<IXsdComponent> terms,
+        Func<ElementDeclaration, int[]>? idsOf = null
+    )
     {
         ArgumentNullException.ThrowIfNull(content);
         ArgumentNullException.ThrowIfNull(idOf);
@@ -54,7 +59,7 @@ internal static class AllGroup11Compiler
 
         var members = new List<AutomatonParticle>();
         var memberTerms = new List<IXsdComponent>();
-        if (!Collect(group, 1, idOf, members, memberTerms))
+        if (!Collect(group, 1, idOf, idsOf, members, memberTerms))
         {
             return null;
         }
@@ -101,6 +106,7 @@ internal static class AllGroup11Compiler
         ModelGroup group,
         int depth,
         Func<XPathQName, int> idOf,
+        Func<ElementDeclaration, int[]>? idsOf,
         List<AutomatonParticle> members,
         List<IXsdComponent> terms
     )
@@ -120,7 +126,11 @@ internal static class AllGroup11Compiler
             switch (Unwrap(particle.Term))
             {
                 case ElementDeclaration element:
-                    members.Add(AutomatonParticle.Element(particle.MinOccurs, particle.MaxOccurs, idOf(element.Name)));
+                    members.Add(
+                        idsOf is null
+                            ? AutomatonParticle.Element(particle.MinOccurs, particle.MaxOccurs, idOf(element.Name))
+                            : AutomatonParticle.Element(particle.MinOccurs, particle.MaxOccurs, idsOf(element))
+                    );
                     terms.Add(element);
                     break;
                 case IWildcard wildcard:
@@ -129,7 +139,7 @@ internal static class AllGroup11Compiler
                     break;
                 case ModelGroup { Compositor: ModelGroupCompositor.All } nested
                     when particle.MinOccurs == 1 && particle.MaxOccurs == 1:
-                    if (!Collect(nested, depth + 1, idOf, members, terms))
+                    if (!Collect(nested, depth + 1, idOf, idsOf, members, terms))
                     {
                         return false;
                     }

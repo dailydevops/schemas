@@ -3,6 +3,7 @@ namespace NetEvolve.Schemas.Xsd.Tests.Unit.OpenContent;
 using System;
 using System.Collections.Generic;
 using NetEvolve.Schemas.Xml.Contracts;
+using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Elements;
@@ -270,6 +271,7 @@ public class OpenContentValidationTests
             SchemaFixture.Part("b", SchemaFixture.Simple("string"))
         );
         var schema = Schema(content, OwnOpen(OpenContentMode.Interleave));
+        schema.Version = XsdVersion.V10;
 
         var ok = Run(schema, "<r" + Foreign + "><f:x/><b/><f:x/><a/><f:x/></r>");
         var missing = Run(schema, "<r" + Foreign + "><f:x/><b/></r>");

@@ -2,10 +2,12 @@
 
 using System.Collections.Generic;
 using NetEvolve.Arguments;
+using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;
 using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.ContentModels.AllGroups;
+using NetEvolve.Schemas.Xsd.ContentModels.AllGroups11;
 using NetEvolve.Schemas.Xsd.ContentModels.Automaton;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Diagnostics;
@@ -19,8 +21,8 @@ using NetEvolve.Schemas.Xsd.Substitution;
 /// </summary>
 /// <remarks>
 /// Limitations: substitution groups are not applied, because <see cref="ElementDeclaration"/> carries no affiliation yet; a
-/// nested <c>all</c> group, which only an extension of an <c>all</c> base produces, is compiled as a sequence; <c>all</c>
-/// members with <c>maxOccurs</c> above 1 and wildcards in an <c>all</c> group are XSD 1.1 (#275). A circular model group
+/// <c>all</c> group is compiled with the XSD 1.0 matcher in 1.0 mode (members with <c>maxOccurs</c> above 1 and wildcards are
+/// left out) and with the XSD 1.1 matcher in 1.1 mode. A circular model group
 /// definition is a schema error that the resolver reports; here the repeated group is left out so that building terminates.
 /// </remarks>
 internal sealed class ValidationModel
@@ -65,7 +67,11 @@ internal sealed class ValidationModel
         ArgumentNullException.ThrowIfNull(components);
         ArgumentNullException.ThrowIfNull(reporter);
 
-        var builder = new Builder(reporter) { Substitutions = substitutions };
+        var builder = new Builder(reporter)
+        {
+            Substitutions = substitutions,
+            AllGroups11 = schema.Version == XsdVersion.V11,
+        };
         for (var i = 0; i < components.Count; i++)
         {
             ArgumentNullException.ThrowIfNull(components[i]);
@@ -96,7 +102,10 @@ internal sealed class ValidationModel
         ArgumentNullException.ThrowIfNull(components);
         ArgumentNullException.ThrowIfNull(reporter);
 
-        var builder = new Builder(reporter, _ids, _names, _programs);
+        var builder = new Builder(reporter, _ids, _names, _programs)
+        {
+            AllGroups11 = overlay.Version == XsdVersion.V11,
+        };
         for (var i = 0; i < components.Count; i++)
         {
             ArgumentNullException.ThrowIfNull(components[i]);
@@ -173,6 +182,8 @@ internal sealed class ValidationModel
 
         internal SubstitutionGroups? Substitutions { get; set; }
 
+        internal bool AllGroups11 { get; set; }
+
         internal Dictionary<XPathQName, int> Ids { get; }
 
         internal List<XPathQName> Names { get; }
@@ -228,13 +239,39 @@ internal sealed class ValidationModel
                 && Unwrap(content.Term) is ModelGroup { Compositor: ModelGroupCompositor.All } all
             )
             {
-                Programs.Add(type, CompileAll(content, all, terms, poolIndex));
+                Programs.Add(
+                    type,
+                    AllGroups11 ? CompileAll11(content, terms, poolIndex) : CompileAll(content, all, terms, poolIndex)
+                );
                 return;
             }
 
             var root = Convert(content, terms) ?? AutomatonParticle.Sequence(1, 1);
             var automaton = CountingAutomatonCompiler.Compile(root, _reporter, content.Location);
             Programs.Add(type, new ContentProgram(automaton, null, terms, poolIndex));
+        }
+
+        private ContentProgram CompileAll11(Particle content, List<IXsdComponent> terms, int poolIndex)
+        {
+            var group = AllGroup11Compiler.Compile(content, IdOf, terms, IdsOf);
+            if (group is null)
+            {
+                _reporter.Report(
+                    XsdRuleCodes.EngineRules[0],
+                    content.Location,
+                    "The all group nests deeper than " + AllGroup11Compiler.MaxNesting + " levels."
+                );
+            }
+
+            for (var i = 0; i < terms.Count; i++)
+            {
+                if (terms[i] is ElementDeclaration element)
+                {
+                    Push(element);
+                }
+            }
+
+            return new ContentProgram(null, null, terms, poolIndex, group);
         }
 
         private ContentProgram CompileAll(Particle content, ModelGroup group, List<IXsdComponent> terms, int poolIndex)

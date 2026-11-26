@@ -17,7 +17,7 @@ internal static class ParticleRules
     /// <summary>Determines whether a particle is a valid extension of another (<c>cos-particle-extend</c>).</summary>
     /// <param name="extension">The extension.</param>
     /// <param name="baseParticle">The base.</param>
-    /// <returns><see langword="true"/> when they are the same particle, or the extension is a sequence that occurs once and starts with the base.</returns>
+    /// <returns><see langword="true"/> when they are the same particle, or the extension is a sequence that occurs once and starts with the base, or both are <c>all</c> groups and the extension holds the members of the base first (XSD 1.1).</returns>
     internal static bool IsValidExtension(Particle extension, Particle baseParticle)
     {
         ArgumentNullException.ThrowIfNull(extension);
@@ -30,7 +30,33 @@ internal static class ParticleRules
                 && extension.Term
                     is ModelGroup { Compositor: ModelGroupCompositor.Sequence, Particles.Count: > 0 } group
                 && IsIdentical(group.Particles[0], baseParticle)
-            );
+            )
+            || IsMergedAllGroup(extension, baseParticle);
+    }
+
+    // Structures 1.1, 3.4.2 clause 4.2.3.2: two all groups merge into one all group that starts with the particles of the base.
+    private static bool IsMergedAllGroup(Particle extension, Particle baseParticle)
+    {
+        if (
+            extension.MaxOccurs != 1
+            || extension.Term is not ModelGroup { Compositor: ModelGroupCompositor.All } merged
+            || (baseParticle.Term is ModelGroupDefinition definition ? definition.ModelGroup : baseParticle.Term)
+                is not ModelGroup { Compositor: ModelGroupCompositor.All } own
+            || merged.Particles.Count < own.Particles.Count
+        )
+        {
+            return false;
+        }
+
+        for (var i = 0; i < own.Particles.Count; i++)
+        {
+            if (!IsIdentical(merged.Particles[i], own.Particles[i]))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /// <summary>Determines whether a particle can match nothing (Particle Emptiable, <c>cos-group-emptiable</c>).</summary>
