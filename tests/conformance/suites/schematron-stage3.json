@@ -1,0 +1,64 @@
+{
+  "stage": 3,
+  "suite": "stage3-french-ctc",
+  "ruleSets": [
+    {
+      "name": "factur-x-basic-wl",
+      "schema": "Factur-X/BASICWL/schematron/FACTUR-X_BASIC-WL.sch",
+      "documents": [
+        { "document": "Z.example/TEST/FX/BASICWL/Facture_F20260023-LE_FOURNISSEUR-POUR-LE_CLIENT_BASICWL_FX_CII_Commentee.xml", "valid": true, "rules": [] },
+        { "document": "Z.example/TEST/FX/BASICWL/Facture_F20260024-LE_FOURNISSEUR-POUR-LE_CLIENT_BASICWL_FX_CII_Commentee.xml", "valid": true, "rules": [] }
+      ]
+    },
+    {
+      "name": "factur-x-en16931",
+      "schema": "Factur-X/EN16931/schematron/FACTUR-X_EN16931.sch",
+      "documents": [
+        { "document": "Z.example/TEST/FX/EN16931/UC13_AUTOF202600028_EN16931_FX_CII_Commentee.xml", "valid": true, "rules": [] },
+        { "document": "Z.example/TEST/FX/EN16931/UC13_F202600037_EN16931_FX_CII_Commentee.xml", "valid": true, "rules": [] },
+        { "document": "Z.example/TEST/FX/EN16931/UC1_F202500003_00-INV_20250701_EN16931_FX_CII_Commentee.xml", "valid": true, "rules": [] },
+        { "document": "Z.example/TEST/FX/EN16931/UC2_F202500004_00-INV_20250701_EN16931_FX_CII_Commentee.xml", "valid": true, "rules": [] },
+        { "document": "Z.example/TEST/FX/EN16931/UC3_F202500005_00-INV_20250701_EN16931_FX_CII_Commentee.xml", "valid": true, "rules": [] },
+        { "document": "Z.example/TEST/FX/EN16931/UC4_F202500006_00-INV_20250701_EN16931_FX_CII_Commentee.xml", "valid": true, "rules": [] },
+        { "document": "Z.example/TEST/FX/EN16931/UC4b_F202500010_00-INVCORR_20250702_EN16931_FX_CII_Commentee.xml", "valid": true, "rules": [] },
+        { "document": "Z.example/TEST/FX/EN16931/UC5_F202500007_00-INV_20250702_EN16931_FX_CII_Commentee.xml", "valid": true, "rules": [] }
+      ]
+    },
+    {
+      "name": "factur-x-extended",
+      "schema": "Factur-X/EXTENDED/schematron/FACTUR-X_EXTENDED.sch",
+      "documents": [
+        { "document": "Z.example/TEST/FX/EXTENDED/UC10_F202600004_MULTI-VENDEUR_EXTENDED_FX_CII_Commentee.xml", "valid": true, "rules": [] },
+        { "document": "Z.example/TEST/FX/EXTENDED/UC11_F202600022_MULTI-VENDEUR_EXTENDED_FX_CII_Commentee.xml", "valid": true, "rules": [] },
+        { "document": "Z.example/TEST/FX/EXTENDED/UC12_F202600025_SOUS-LIGNE_EXTENDED_FX_CII_Commentee.xml", "valid": true, "rules": [] },
+        { "document": "Z.example/TEST/FX/EXTENDED/UC13_AUTOF202600035_BIDIRECTIONNELLE_EXTENDED_FX_CII_Commentee.xml", "valid": true, "rules": [] },
+        { "document": "Z.example/TEST/FX/EXTENDED/UC13_F202600037_EXTENDED_FX_CII_Commentee.xml", "valid": true, "rules": [] }
+      ]
+    }
+  ],
+  "excluded": [
+    { "subject": "French CTC rule sets", "reason": "None of the French CTC rule sets of the pinned archive calls document(); only the three Factur-X rule sets look up a code database." },
+    { "subject": "Z.example/TEST/CII, Z.example/TEST/UBL, Z.example/TEST/CDAR", "reason": "The invoices are samples of the French CTC rule sets, which do not use document(); the CII/EN16931 copies are the same documents as the Factur-X EN16931 invoices under FX." },
+    { "subject": "Z.example/TEST/FX PDF files", "reason": "The PDF files embed the CII invoice that is already a case; the rule sets validate XML." }
+  ],
+  "knownFailures": [
+    { "id": "factur-x-basic-wl/Facture_F20260023-LE_FOURNISSEUR-POUR-LE_CLIENT_BASICWL_FX_CII_Commentee.xml", "issue": 1182, "reason": "The rule set uses the prefix xs without declaring it, so the schema build reports NES3202 (#1182); the document() lookups of the code database (#312) follow." },
+    { "id": "factur-x-basic-wl/Facture_F20260024-LE_FOURNISSEUR-POUR-LE_CLIENT_BASICWL_FX_CII_Commentee.xml", "issue": 1182, "reason": "The rule set uses the prefix xs without declaring it, so the schema build reports NES3202 (#1182); the document() lookups of the code database (#312) follow." },
+    { "id": "factur-x-en16931/UC13_AUTOF202600028_EN16931_FX_CII_Commentee.xml", "issue": 1182, "reason": "The rule set uses the prefix xs without declaring it, so the schema build reports NES3202 (#1182); the document() lookups of the code database (#312) follow." },
+    { "id": "factur-x-en16931/UC13_F202600037_EN16931_FX_CII_Commentee.xml", "issue": 1182, "reason": "The rule set uses the prefix xs without declaring it, so the schema build reports NES3202 (#1182); the document() lookups of the code database (#312) follow." },
+    { "id": "factur-x-en16931/UC1_F202500003_00-INV_20250701_EN16931_FX_CII_Commentee.xml", "issue": 1182, "reason": "The rule set uses the prefix xs without declaring it, so the schema build reports NES3202 (#1182); the document() lookups of the code database (#312) follow." },
+    { "id": "factur-x-en16931/UC2_F202500004_00-INV_20250701_EN16931_FX_CII_Commentee.xml", "issue": 1182, "reason": "The rule set uses the prefix xs without declaring it, so the schema build reports NES3202 (#1182); the document() lookups of the code database (#312) follow." },
+    { "id": "factur-x-en16931/UC3_F202500005_00-INV_20250701_EN16931_FX_CII_Commentee.xml", "issue": 1182, "reason": "The rule set uses the prefix xs without declaring it, so the schema build reports NES3202 (#1182); the document() lookups of the code database (#312) follow." },
+    { "id": "factur-x-en16931/UC4_F202500006_00-INV_20250701_EN16931_FX_CII_Commentee.xml", "issue": 1182, "reason": "The rule set uses the prefix xs without declaring it, so the schema build reports NES3202 (#1182); the document() lookups of the code database (#312) follow." },
+    { "id": "factur-x-en16931/UC4b_F202500010_00-INVCORR_20250702_EN16931_FX_CII_Commentee.xml", "issue": 1182, "reason": "The rule set uses the prefix xs without declaring it, so the schema build reports NES3202 (#1182); the document() lookups of the code database (#312) follow." },
+    { "id": "factur-x-en16931/UC5_F202500007_00-INV_20250702_EN16931_FX_CII_Commentee.xml", "issue": 1182, "reason": "The rule set uses the prefix xs without declaring it, so the schema build reports NES3202 (#1182); the document() lookups of the code database (#312) follow." },
+    { "id": "factur-x-extended/UC10_F202600004_MULTI-VENDEUR_EXTENDED_FX_CII_Commentee.xml", "issue": 1182, "reason": "The rule set uses the prefix xs without declaring it, so the schema build reports NES3202 (#1182); the document() lookups of the code database (#312) follow." },
+    { "id": "factur-x-extended/UC11_F202600022_MULTI-VENDEUR_EXTENDED_FX_CII_Commentee.xml", "issue": 1182, "reason": "The rule set uses the prefix xs without declaring it, so the schema build reports NES3202 (#1182); the document() lookups of the code database (#312) follow." },
+    { "id": "factur-x-extended/UC12_F202600025_SOUS-LIGNE_EXTENDED_FX_CII_Commentee.xml", "issue": 1182, "reason": "The rule set uses the prefix xs without declaring it, so the schema build reports NES3202 (#1182); the document() lookups of the code database (#312) follow." },
+    { "id": "factur-x-extended/UC13_AUTOF202600035_BIDIRECTIONNELLE_EXTENDED_FX_CII_Commentee.xml", "issue": 1182, "reason": "The rule set uses the prefix xs without declaring it, so the schema build reports NES3202 (#1182); the document() lookups of the code database (#312) follow." },
+    { "id": "factur-x-extended/UC13_F202600037_EXTENDED_FX_CII_Commentee.xml", "issue": 1182, "reason": "The rule set uses the prefix xs without declaring it, so the schema build reports NES3202 (#1182); the document() lookups of the code database (#312) follow." },
+    { "id": "stage3-default-resolver/factur-x-basic-wl", "issue": 1182, "reason": "The schema build stops at the undeclared prefix xs (#1182) before any document() lookup can be denied; the denial of the lookup needs #312." },
+    { "id": "stage3-default-resolver/factur-x-en16931", "issue": 1182, "reason": "The schema build stops at the undeclared prefix xs (#1182) before any document() lookup can be denied; the denial of the lookup needs #312." },
+    { "id": "stage3-default-resolver/factur-x-extended", "issue": 1182, "reason": "The schema build stops at the undeclared prefix xs (#1182) before any document() lookup can be denied; the denial of the lookup needs #312." }
+  ]
+}
