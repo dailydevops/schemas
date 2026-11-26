@@ -21,9 +21,7 @@ using NetEvolve.Schemas.Xsd.Validation.Annotations;
 /// </summary>
 /// <remarks>
 /// Limitations: the typed value of an item of <c>xs:QName</c> or <c>xs:NOTATION</c> is <c>xs:untypedAtomic</c>, because the lexical form needs the
-/// namespaces in scope of the node (#604); the item of a node of type <c>xs:dateTimeStamp</c> is an <c>xs:dateTime</c>, because the casting table
-/// of the XPath package has no row for it, while <see cref="TypeName"/> and the data model type are those of the type. The white space facet
-/// of a user-defined type is not applied.
+/// namespaces in scope of the node (#604). The white space facet of a user-defined type is not applied.
 /// </remarks>
 public readonly struct XsdAnnotation : IEquatable<XsdAnnotation>
 {

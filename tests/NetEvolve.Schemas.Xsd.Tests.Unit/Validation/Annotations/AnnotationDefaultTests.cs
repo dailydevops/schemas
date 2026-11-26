@@ -88,17 +88,18 @@ public class AnnotationDefaultTests
     }
 
     [Test]
-    public async Task Annotation_BuiltInTypeWithoutACastingRow_KeepsTheItemOfItsNearestAncestorWithOne()
+    public async Task Annotation_DateTimeStampElement_HasAnItemOfDateTimeStamp()
     {
         var run = Run("dateTimeStamp", default, "<r>2020-01-02T03:04:05Z</r>");
 
         var annotation = run.Annotation("r");
         var items = run.TypedValue(annotation);
 
-        // The casting table has no row for xs:dateTimeStamp, so the item is an xs:dateTime, while the node reports its own type.
+        // The casting table has a row for xs:dateTimeStamp (#745), so the item keeps the type of the node instead of the xs:dateTime ancestor.
         await Assert.That(annotation.TypeName.LocalName).IsEqualTo("dateTimeStamp");
         await Assert.That(items.Length).IsEqualTo(1);
-        await Assert.That(items[0].TypeId).IsEqualTo(DateTimeType);
+        await Assert.That(items[0].TypeId).IsEqualTo(annotation.DataModelType);
+        await Assert.That(items[0].TypeId).IsNotEqualTo(DateTimeType);
         await Assert.That(annotation.DataModelType).IsNotEqualTo(DateTimeType);
     }
 
