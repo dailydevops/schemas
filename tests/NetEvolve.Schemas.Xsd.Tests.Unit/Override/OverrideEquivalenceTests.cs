@@ -177,4 +177,32 @@ public class OverrideEquivalenceTests
         await Assert.That(set.Units.Count).IsEqualTo(2);
         await Assert.That(issues.Count).IsGreaterThanOrEqualTo(1);
     }
+
+    [Test]
+    public async Task Override_ThatMatchesNothing_WhenAnIncludeLocationIsNotAUri_KeepsTheOverriddenUnit()
+    {
+        var resolver = new MapResolver().Add("file:///a.xsd", Schema("<xs:include schemaLocation=\"http://[\"/>"));
+
+        var (set, issues) = Load(Schema(Override("a.xsd", Other)), resolver);
+
+        await Assert.That(set.Units.Count).IsEqualTo(2);
+        await Assert.That(set.Units[1].Overrides).IsNotNull();
+        await Assert.That(issues.Count).IsGreaterThanOrEqualTo(1);
+    }
+
+    [Test]
+    public async Task Override_OfTwoDocumentsIncludingTheSameDocument_ReadsTheIncludedDocumentOnce()
+    {
+        var resolver = new MapResolver()
+            .Add(
+                "file:///a.xsd",
+                Schema("<xs:include schemaLocation=\"b.xsd\"/><xs:include schemaLocation=\"m.xsd\"/>")
+            )
+            .Add("file:///c.xsd", Schema("<xs:include schemaLocation=\"b.xsd\"/>"))
+            .Add("file:///b.xsd", Schema(Simple));
+
+        _ = Load(Schema(Override("a.xsd", Other) + Override("c.xsd", Other)), resolver);
+
+        await Assert.That(resolver.Requests.Count(r => r.EndsWith("b.xsd", StringComparison.Ordinal))).IsEqualTo(1);
+    }
 }
