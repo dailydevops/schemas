@@ -34,10 +34,10 @@ using NetEvolve.Schemas.Xsd.Validation.Core;
 /// a default or fixed value is not registered: a default on an ID type is a schema error (#692), and one mistake must not repeat
 /// as a duplicate on every element. A NOTATION value is resolved without a namespace context (#604): an unprefixed name is looked
 /// up in no namespace, which is where the compatibility rule of the datatypes specification places notations, and a value with a
-/// bound prefix is not assessed (an unbound one is reported as cvc-resolve-instance). No builder creates notation declaration components yet (#751), so a compiled schema holds no
-/// notation and every NOTATION value reports as naming no declared notation until it exists. An element or attribute that the
-/// validator does not hand to the listeners (a skipped or rejected subtree) takes no part. Under XSD 1.0, every ID attribute after the first on one element is reported (#904). ENTITY values (XSD-83) and ID
-/// typing of <c>xml:id</c> (#79) are not handled.
+/// bound prefix is not assessed (an unbound one is reported as cvc-resolve-instance). The notation declarations of the schema are
+/// components (#751), so a name that no declaration has in no namespace is reported. An element or attribute that the validator
+/// does not hand to the listeners (a skipped or rejected subtree) takes no part. Under XSD 1.0, every ID attribute after the
+/// first on one element is reported (#904). ENTITY values (XSD-83) and ID typing of <c>xml:id</c> (#79) are not handled.
 /// </para>
 /// <para>Not thread-safe; one instance serves one run at a time and may be reused for the next.</para>
 /// </remarks>

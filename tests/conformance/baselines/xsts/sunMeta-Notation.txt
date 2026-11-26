@@ -1,5 +1,4 @@
 1.0/name00101m2/name00101m2
-1.0/publicid00201m1/publicId00201m1
 1.1/annotation00101m1/Positive
 1.1/annotation00101m1/annotation00101m1
 1.1/annotation00101m2/annotation00101m2
