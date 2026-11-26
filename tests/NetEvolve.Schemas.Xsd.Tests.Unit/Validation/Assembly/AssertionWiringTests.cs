@@ -38,7 +38,8 @@ public class AssertionWiringTests
         """
     );
 
-    private static ValidationResult Run(string instance) => AssemblyFixture.Run(AssemblyFixture.Build(Schema), instance);
+    private static ValidationResult Run(string instance) =>
+        AssemblyFixture.Run(AssemblyFixture.Build(Schema), instance);
 
     [Test]
     public async Task Validate_SatisfiedAssertion_IsValid()
@@ -123,6 +124,8 @@ public class AssertionWiringTests
             )
         );
 
-        await Assert.That(exception.Issues.Any(i => i.Code == XsdRuleCodes.NotYetSupportedXPathDefaultNamespace)).IsTrue();
+        await Assert
+            .That(exception.Issues.Any(i => i.Code == XsdRuleCodes.NotYetSupportedXPathDefaultNamespace))
+            .IsTrue();
     }
 }
