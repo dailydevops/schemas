@@ -450,6 +450,13 @@ internal sealed class SchemaDocumentLoader
                 ReportLimit(node, rule);
                 return null;
             case ResourceLoadStatus.LimitExceeded:
+                // A redirect to a unit that is already known is not read again: the known unit wins, as before the loader.
+                var redirect = result.SystemId is null ? null : WithoutFragment(result.SystemId);
+                if (redirect is not null && _byKey.TryGetValue(Key(redirect, scope), out known))
+                {
+                    return null;
+                }
+
                 ReportTooLarge(node, rule, _limits.MaxResourceSize);
                 return null;
             default:
