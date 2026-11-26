@@ -8,6 +8,7 @@ using NetEvolve.Arguments;
 using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Resources;
 using NetEvolve.Schemas.Schematron.Seams;
+using NetEvolve.Schemas.Schematron.Xslt.Instructions.Grouping;
 using NetEvolve.Schemas.XPath.Abstractions;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Context;
@@ -31,7 +32,7 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// as the position (<c>last()</c> then equals <c>position()</c>). The token is looked at before every evaluation.
 /// </para>
 /// </remarks>
-internal sealed class XPathQueryRun : IXsltFunctionRun, IXPathResourceResolver
+internal sealed class XPathQueryRun : IXsltFunctionRun, IXsltGroupRun, IXPathResourceResolver
 {
     // The public code type, not the internal table of the XPath package, which the seam rule keeps out of reach.
     private static readonly XPathErrorCode UnsetContext = new("XPDY0002");
@@ -55,6 +56,12 @@ internal sealed class XPathQueryRun : IXsltFunctionRun, IXPathResourceResolver
         _cancellationToken = cancellationToken;
         _resources = resources;
     }
+
+    /// <inheritdoc />
+    public XdmSequence? CurrentGroup { get; set; }
+
+    /// <inheritdoc />
+    public XdmSequence? CurrentGroupingKey { get; set; }
 
     /// <inheritdoc />
     public object? FunctionCalls
