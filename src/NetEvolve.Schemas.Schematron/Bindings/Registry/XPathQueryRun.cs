@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using NetEvolve.Arguments;
+using NetEvolve.Schemas.Formats;
+using NetEvolve.Schemas.Resources;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.XPath.Abstractions;
 using NetEvolve.Schemas.XPath.Api;
@@ -29,13 +31,13 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// as the position (<c>last()</c> then equals <c>position()</c>). The token is looked at before every evaluation.
 /// </para>
 /// </remarks>
-internal sealed class XPathQueryRun : IXsltFunctionRun
+internal sealed class XPathQueryRun : IXsltFunctionRun, IXPathResourceResolver
 {
     // The public code type, not the internal table of the XPath package, which the seam rule keeps out of reach.
     private static readonly XPathErrorCode UnsetContext = new("XPDY0002");
 
     private readonly List<XPathEvaluationContext> _contexts = [];
-    private readonly IXPathResourceResolver _resolver;
+    private readonly QueryResources _resources;
     private readonly CancellationToken _cancellationToken;
     private int _level;
     private bool _nested;
@@ -44,13 +46,14 @@ internal sealed class XPathQueryRun : IXsltFunctionRun
     private XdmSequence[] _values = new XdmSequence[16];
     private bool[] _bound = new bool[16];
     private SchematronProblem _problem;
+    private RunLoading? _loading;
 
     internal XPathQueryRun(QueryResources resources, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(resources);
 
         _cancellationToken = cancellationToken;
-        _resolver = resources.XPathResolver;
+        _resources = resources;
     }
 
     /// <inheritdoc />
@@ -192,6 +195,35 @@ internal sealed class XPathQueryRun : IXsltFunctionRun
 
     public SchematronProblem GetProblem() => _problem;
 
+    // The resolver of the contexts of this run: the document functions load through the core loader, so the limits of the validator
+    // count for the whole run (MaxExternalResources) and for every resource (MaxResourceSize), and a denied or missing resource is
+    // the failure of the call. A breached limit is remembered, so the failed call reports the limit and not the generic load error.
+    ResourceResult IResourceResolver.Resolve(in ResourceRequest request, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var loading = _loading ??= new RunLoading(new ResourceLoader(_resources.Resolver, _resources.Limits));
+        var loaded = loading.Loader.Load(
+            request.Kind,
+            request.Reference,
+            request.BaseUri,
+            _cancellationToken,
+            request.PublicId,
+            request.NamespaceUri
+        );
+        switch (loaded.Status)
+        {
+            case ResourceLoadStatus.Loaded:
+                return ResourceResult.Found(loaded.Content, loaded.SystemId);
+            case ResourceLoadStatus.LimitExceeded:
+                loading.Breach = loaded;
+                return ResourceResult.Denied(loaded.Message);
+            default:
+                return loaded.Code == CoreDiagnosticCodes.ResourceNotFound
+                    ? ResourceResult.NotFound(loaded.Message)
+                    : ResourceResult.Denied(loaded.Message);
+        }
+    }
+
     public void Dispose()
     {
         // The values hold items of the instance; nothing of a run stays reachable from the pooled contexts.
@@ -240,6 +272,13 @@ internal sealed class XPathQueryRun : IXsltFunctionRun
         _cancellationToken.ThrowIfCancellationRequested();
 
         _nested = false;
+        if (_level == 0 && _loading is { } loading)
+        {
+            // A breach belongs to the call that met it: a limit hit by an earlier call, which did not fail (doc-available), is no
+            // reason of a later failure.
+            loading.Breach = null;
+        }
+
         var context = Acquire();
         SetFocus(context, in focus);
         var slots = query.ReferencedSlots;
@@ -295,7 +334,7 @@ internal sealed class XPathQueryRun : IXsltFunctionRun
             return existing;
         }
 
-        var context = new XPathEvaluationContext { ResourceResolver = _resolver };
+        var context = new XPathEvaluationContext { ResourceResolver = this };
         Prepare(context);
         _contexts.Add(context);
         return context;
@@ -349,6 +388,13 @@ internal sealed class XPathQueryRun : IXsltFunctionRun
             return QueryStatus.Problem;
         }
 
+        if (_loading?.Breach is { } breach && IsResourceError(diagnostic.QName.LocalName))
+        {
+            _loading.Breach = null;
+            _problem = new SchematronProblem(breach.Code, breach.Message, query.Location, diagnostic.QName.LocalName);
+            return QueryStatus.Problem;
+        }
+
         _problem = new SchematronProblem(
             diagnostic.QName == UnsetContext
                 ? SchematronDiagnosticCodes.VariableUndefined
@@ -358,6 +404,17 @@ internal sealed class XPathQueryRun : IXsltFunctionRun
             diagnostic.QName.LocalName
         );
         return QueryStatus.Problem;
+    }
+
+    // The codes that a failed load of the document functions ends in: fn:doc, the text functions, and document().
+    private static bool IsResourceError(string code) => code is "FODC0002" or "FODC0005" or "FOUT1170" or "XTRE1160";
+
+    // The loader of a run and the first breached limit, created together on the first load so that a run without a load carries one reference.
+    private sealed class RunLoading(ResourceLoader loader)
+    {
+        internal ResourceLoader Loader { get; } = loader;
+
+        internal ResourceLoadResult? Breach { get; set; }
     }
 
     // The slot of the decimal formats of a run: there is no format yet, so the default format applies and a named one is unknown.

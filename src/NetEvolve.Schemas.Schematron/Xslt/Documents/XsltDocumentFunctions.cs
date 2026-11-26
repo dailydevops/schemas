@@ -9,10 +9,6 @@ using NetEvolve.Schemas.XPath.Functions.Binding;
 /// resolves against the schema and not against the instance. Every function loads through the resolver of the evaluation context,
 /// which denies by default, and shares the one document pool of that context, so <c>document</c> and <c>fn:doc</c> agree on a node.
 /// </summary>
-/// <remarks>
-/// Limitation: the functions are not yet part of <c>XsltFunctionScope</c>, which lies outside this folder; a host adds the result of
-/// <see cref="Create"/> as a library layer over the static context.
-/// </remarks>
 internal static class XsltDocumentFunctions
 {
     /// <summary>Creates the functions.</summary>

@@ -146,7 +146,7 @@ internal sealed class SchematronSchemaCompiler : ISchemaCompiler
             RuleSetCompiler.TitleText(effective.Title),
             binding,
             matcher,
-            new QueryResources(settings.Resolver),
+            new QueryResources(settings.Resolver, settings.Limits),
             plan,
             sets,
             tables
