@@ -288,7 +288,8 @@ internal sealed class ComplexTypeBuilder : IComponentBuilder
         var inline = SyntaxValues.FindChild(restriction, "simpleType");
         var anonymous = inline is null ? null : _context.SimpleTypes.BuildAnonymous(inline, unit);
         var step = _context.SimpleTypes.ReadFacets(restriction);
-        if (anonymous is null && step.Count == 0)
+        var asserted = HasAssertionFacet(restriction);
+        if (anonymous is null && step.Count == 0 && !asserted)
         {
             return null;
         }
@@ -299,7 +300,7 @@ internal sealed class ComplexTypeBuilder : IComponentBuilder
             return null;
         }
 
-        if (step.Count == 0)
+        if (step.Count == 0 && !asserted)
         {
             return anonymous;
         }
@@ -327,9 +328,23 @@ internal sealed class ComplexTypeBuilder : IComponentBuilder
         {
             _context.SetFixed(type, check.Fixed);
             _context.NoteEnumeration(type, restricted, step);
+            _context.SimpleTypes.NoteAssertions(type, restriction, unit);
         }
 
         return type;
+    }
+
+    private static bool HasAssertionFacet(SchemaSyntaxNode restriction)
+    {
+        for (var i = 0; i < restriction.ChildCount; i++)
+        {
+            if (SyntaxValues.IsSchemaElement(restriction.GetChildNode(i), "assertion"))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private SchemaSyntaxNode? ReadDerivation(

@@ -6,6 +6,7 @@ using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xml.Datatypes.Facets.Core;
 using NetEvolve.Schemas.XPath.Api;
+using NetEvolve.Schemas.Xsd.Assertions.Facet;
 using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Diagnostics;
@@ -201,9 +202,28 @@ internal sealed class SimpleTypeBuilder : IComponentBuilder
         {
             _context.SetFixed(type, check.Fixed);
             _context.NoteEnumeration(type, baseType, step);
+            NoteAssertions(type, restriction, unit);
         }
 
         return type;
+    }
+
+    /// <summary>Keeps the <c>assertion</c> facets of a restriction beside the type it created (XSD 1.1).</summary>
+    /// <param name="type">The type.</param>
+    /// <param name="restriction">The <c>restriction</c> element.</param>
+    /// <param name="unit">The unit that holds it.</param>
+    internal void NoteAssertions(SimpleTypeDefinition type, SchemaSyntaxNode restriction, UnitScope unit)
+    {
+        ArgumentNullException.ThrowIfNull(type);
+        ArgumentNullException.ThrowIfNull(restriction);
+        ArgumentNullException.ThrowIfNull(unit);
+
+        // Strict 1.0 never gets here: the construct gate rejects the assertion element first.
+        var assertions = FacetAssertion.Collect(restriction, unit.Scope, _context.Version, _context.Reporter);
+        if (assertions.Count > 0)
+        {
+            _context.SimpleTypeAssertions[type] = assertions;
+        }
     }
 
     private SimpleTypeDefinition? List(
