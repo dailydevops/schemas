@@ -6,6 +6,11 @@ using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 /// <summary>The lexical scan and the decoding of <c>hexBinary</c> and <c>base64Binary</c>, on spans.</summary>
 internal static class BinaryLexical
 {
+#if !NETSTANDARD2_0
+    // Below this length the call into the runtime decoder costs more than the loop.
+    private const int RuntimeDecoderLength = 32;
+#endif
+
     /// <summary>Checks a lexical form and counts its octets.</summary>
     /// <param name="lexical">The lexical form; whitespace is not handled here, only the single spaces that base64Binary allows.</param>
     /// <param name="kind">The lexical space.</param>
@@ -30,6 +35,19 @@ internal static class BinaryLexical
 
             return result;
         }
+
+#if !NETSTANDARD2_0
+        // A form without spaces is plain base64 that Scan has already validated; the runtime decodes it vectorized.
+        if (
+            lexical.Length >= RuntimeDecoderLength
+            && lexical.IndexOf(' ') < 0
+            && Convert.TryFromBase64Chars(lexical, result, out var decoded)
+            && decoded == octets
+        )
+        {
+            return result;
+        }
+#endif
 
         var written = 0;
         var accumulator = 0;
@@ -96,11 +114,19 @@ internal static class BinaryLexical
     {
         octets = 0;
         offset = 0;
-        var data = 0;
+
+        // The leading run of alphabet characters needs none of the space and padding rules.
+        var run = 0;
+        while (run < lexical.Length && Base64Index(lexical[run]) >= 0)
+        {
+            run++;
+        }
+
+        var data = run;
         var padding = 0;
-        var lastDataOffset = 0;
+        var lastDataOffset = run > 0 ? run - 1 : 0;
         var lastWasSpace = false;
-        for (var i = 0; i < lexical.Length; i++)
+        for (var i = run; i < lexical.Length; i++)
         {
             var c = lexical[i];
             if (c == ' ')
@@ -184,13 +210,26 @@ internal static class BinaryLexical
     }
 
     // The Base64 alphabet: A-Z, a-z, 0-9, '+', '/'; -1 for every other character.
-    private static int Base64Index(char c) =>
-        c >= 'A' && c <= 'Z' ? c - 'A'
-        : c >= 'a' && c <= 'z' ? c - 'a' + 26
-        : c >= '0' && c <= '9' ? c - '0' + 52
-        : c == '+' ? 62
-        : c == '/' ? 63
-        : -1;
+    private static int Base64Index(char c) => c < Base64Indexes.Length ? Base64Indexes[c] : -1;
+
+    private static readonly sbyte[] Base64Indexes = CreateBase64Indexes();
+
+    private static sbyte[] CreateBase64Indexes()
+    {
+        var table = new sbyte[128];
+        for (var i = 0; i < table.Length; i++)
+        {
+            table[i] = -1;
+        }
+
+        const string alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+        for (var i = 0; i < alphabet.Length; i++)
+        {
+            table[alphabet[i]] = (sbyte)i;
+        }
+
+        return table;
+    }
 
     private static int Hex(char c) =>
         c >= '0' && c <= '9' ? c - '0'

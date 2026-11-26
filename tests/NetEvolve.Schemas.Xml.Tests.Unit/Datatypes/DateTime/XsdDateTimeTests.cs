@@ -4,6 +4,7 @@ using System;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xml.Datatypes.Core;
 using NetEvolve.Schemas.Xml.Datatypes.DateTime;
+using NetEvolve.Schemas.Xml.Datatypes.Decimals;
 
 public class XsdDateTimeTests
 {
@@ -13,6 +14,22 @@ public class XsdDateTimeTests
     {
         var result = XsdDateTime.Parse(lexical.AsSpan(), kind, version);
         return result.Success ? result.Value : throw new InvalidOperationException($"{lexical}: {result.Error}");
+    }
+
+    [Test]
+    [Arguments("00", "0")]
+    [Arguments("00.000", "0")]
+    [Arguments("10", "10")]
+    [Arguments("09.50", "9.5")]
+    [Arguments("59.999999999999999", "59.999999999999999")]
+    [Arguments("01.1234567890123456", "1.1234567890123456")]
+    [Arguments("01.12345678901234567", "1.12345678901234567")]
+    [Arguments("01.123456789012345670", "1.12345678901234567")]
+    public async Task Parse_Seconds_AreNormalizedLikeTheDecimalParser(string seconds, string expected)
+    {
+        var value = P("07:08:" + seconds, XsdDateTimeKind.Time);
+
+        await Assert.That(value.Second).IsEqualTo(XsdDecimal.Parse(expected).Value);
     }
 
     [Test]

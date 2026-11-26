@@ -108,6 +108,29 @@ public class XsdBinaryTests
     }
 
     [Test]
+    [Arguments("QQ==")]
+    [Arguments("QUI=")]
+    [Arguments("QUJD")]
+    [Arguments("+/+/")]
+    [Arguments("+/+/+w==")]
+    [Arguments("QUJD REVGRw==")]
+    [Arguments("Q U J D")]
+    [Arguments("QQ= =")]
+    [Arguments(
+        "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8gISIjJCUmJygpKissLS4vMDEyMzQ1Njc4OTo7PD0+P0BBQkNERUZHSElKS0xNTk9QUVJTVFVWV1hZWltcXV5fYGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn8="
+    )]
+    public async Task Base64_DecodesTheOctetsOfTheForm(string lexical)
+    {
+        ArgumentNullException.ThrowIfNull(lexical);
+        var expected = Convert.FromBase64String(lexical.Replace(" ", string.Empty, StringComparison.Ordinal));
+
+        var result = Get("base64Binary").Parse(lexical);
+
+        await Assert.That(result.Success).IsTrue();
+        await Assert.That(result.Value.ToArray().AsSpan().SequenceEqual(expected)).IsTrue();
+    }
+
+    [Test]
     [Arguments("0FB8", 2)]
     [Arguments("0fb8", 2)]
     [Arguments("DEADBEEF", 4)]
