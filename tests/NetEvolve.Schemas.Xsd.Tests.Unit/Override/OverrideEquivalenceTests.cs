@@ -1,5 +1,6 @@
 namespace NetEvolve.Schemas.Xsd.Tests.Unit.Override;
 
+using System;
 using NetEvolve.Schemas.Xsd.Tests.Unit.Composition;
 using static NetEvolve.Schemas.Xsd.Tests.Unit.Composition.CompositionFixture;
 
@@ -143,5 +144,37 @@ public class OverrideEquivalenceTests
         await Assert.That(set.Units.Count).IsEqualTo(2);
         await Assert.That(issues.Count).IsEqualTo(1);
         await Assert.That(issues[0].Code).IsEqualTo(CoreDiagnosticCodes.ResourceNotFound);
+    }
+
+    [Test]
+    public async Task Override_ThatMatchesNothing_WhenAnIncludedDocumentHasAnotherNamespace_KeepsTheOverriddenUnit()
+    {
+        var resolver = new MapResolver()
+            .Add("file:///a.xsd", Schema("<xs:include schemaLocation=\"b.xsd\"/><xs:include/>"))
+            .Add(
+                "file:///b.xsd",
+                Schema("<xs:element name=\"F\"/>")
+                    .Replace("<xs:schema", "<xs:schema targetNamespace=\"urn:other\"", StringComparison.Ordinal)
+            );
+
+        var (set, issues) = Load(Schema(Override("a.xsd", Other)), resolver);
+
+        await Assert.That(set.Units.Count).IsEqualTo(2);
+        await Assert.That(set.Units[1].Overrides).IsNotNull();
+        await Assert.That(issues.Count).IsGreaterThanOrEqualTo(1);
+        await Assert.That(resolver.Requests.Count).IsEqualTo(2);
+    }
+
+    [Test]
+    public async Task Override_ThatMatchesNothing_WhenAnIncludedDocumentIsNotWellFormed_ReportsItOnce()
+    {
+        var resolver = new MapResolver()
+            .Add("file:///a.xsd", Schema("<xs:include schemaLocation=\"b.xsd\"/>"))
+            .Add("file:///b.xsd", "<xs:schema");
+
+        var (set, issues) = Load(Schema(Override("a.xsd", Other)), resolver);
+
+        await Assert.That(set.Units.Count).IsEqualTo(2);
+        await Assert.That(issues.Count).IsGreaterThanOrEqualTo(1);
     }
 }
