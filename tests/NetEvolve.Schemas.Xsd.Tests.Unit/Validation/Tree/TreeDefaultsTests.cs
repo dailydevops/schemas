@@ -196,7 +196,9 @@ public class TreeDefaultsTests
 
         var tree = TreeFixture.Validator(Schema).Validate(TreeFixture.Load(instance).Document, cancellationToken);
 
-        await Assert.That(TreeFixture.Describe(tree.Result)).IsEqualTo(TreeFixture.Describe(streamed));
+        await Assert
+            .That(TreeFixture.Describe(tree.Result, lineOnly: true))
+            .IsEqualTo(TreeFixture.Describe(streamed, lineOnly: true));
     }
 
     [Test]

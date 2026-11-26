@@ -187,11 +187,12 @@ internal sealed class ValidationCore : IValidationCore
         }
 
         internal void Pump<TReader>(TReader reader)
-            where TReader : IXmlReader
+            where TReader : IXmlReader, IXmlPositionSource
         {
             ArgumentNullException.ThrowIfNull(reader);
 
             var sink = CreateSink();
+            sink.UsePositions(reader);
             if (reader.Pump(ref sink) != XmlReadStatus.Completed)
             {
                 Report(reader.Diagnostic);

@@ -21,6 +21,7 @@ internal sealed partial class StreamingValidator
     /// <inheritdoc />
     public void StartElement(XmlName name, XmlPosition position)
     {
+        _inText = false;
         _ordinal++;
         if (_skip > 0)
         {
@@ -45,6 +46,7 @@ internal sealed partial class StreamingValidator
     /// <inheritdoc />
     public void EndElement(XmlName name)
     {
+        _inText = false;
         if (_skip > 0)
         {
             _skip--;
@@ -87,6 +89,16 @@ internal sealed partial class StreamingValidator
         }
 
         var frame = _frames[_depth - 1];
+        if (!_inText)
+        {
+            _inText = true;
+            _textStart = Here(frame.Location);
+            if (!frame.HasText)
+            {
+                frame.TextLocation = _textStart;
+            }
+        }
+
         frame.HasText = true;
         switch (frame.Content)
         {
@@ -105,6 +117,7 @@ internal sealed partial class StreamingValidator
                     frame.ContentFailed = true;
                     Invalid(
                         frame,
+                        _textStart,
                         ValidationRules.ComplexType,
                         "The content type of element "
                             + Display(frame.QName)
@@ -123,6 +136,7 @@ internal sealed partial class StreamingValidator
                     frame.TextReported = true;
                     Invalid(
                         frame,
+                        _textStart,
                         ValidationRules.ComplexType,
                         "The content type of element "
                             + Display(frame.QName)
@@ -470,6 +484,7 @@ internal sealed partial class StreamingValidator
         {
             Invalid(
                 frame,
+                Here(frame.Location),
                 ValidationRules.ComplexType,
                 "The content of element " + Display(frame.QName) + " is not complete. " + Expected(frame, true),
                 "cvc-complex-type.2.4"
@@ -545,9 +560,12 @@ internal sealed partial class StreamingValidator
         return false;
     }
 
-    private void Invalid(ElementFrame frame, XsdRule rule, string message, string clause)
+    private void Invalid(ElementFrame frame, XsdRule rule, string message, string clause) =>
+        Invalid(frame, frame.Location, rule, message, clause);
+
+    private void Invalid(ElementFrame frame, DocumentLocation location, XsdRule rule, string message, string clause)
     {
-        Report(rule, frame.Location, message, clause);
+        Report(rule, location, message, clause);
         frame.IsValid = false;
     }
 

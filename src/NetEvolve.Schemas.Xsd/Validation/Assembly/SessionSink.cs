@@ -29,6 +29,8 @@ internal sealed class SessionSink : IXmlSink
     /// <inheritdoc />
     public XmlNameTable Names => _validator.Names;
 
+    internal void UsePositions(IXmlPositionSource source) => _validator.UsePositions(source);
+
     /// <inheritdoc />
     public void StartDocument(in XmlDeclaration declaration) => _validator.StartDocument(in declaration);
 

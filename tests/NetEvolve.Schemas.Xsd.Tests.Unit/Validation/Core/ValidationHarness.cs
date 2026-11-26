@@ -41,6 +41,7 @@ internal static class ValidationHarness
             listeners
         );
         using var reader = XmlPipelineReader.Create(xml.AsSpan(), options);
+        validator.UsePositions(reader);
         var status = reader.Pump(ref validator);
         if (status != XmlReadStatus.Completed)
         {

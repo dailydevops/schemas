@@ -24,9 +24,11 @@ using NetEvolve.Schemas.Xsd.Validation.Xsi;
 /// Behavior decided for this package (see the decisions of #273): the assessment is strict and declaration driven, so an
 /// undeclared root is <c>cvc-assess-elt</c> and its subtree is assessed lax; after a child that its content model does not
 /// accept, the rest of that content is not matched, so an element reports its content once; a skipped or rejected subtree
-/// gets no listener hook; an attribute is located at the start tag of its element, and incomplete content, character data in
-/// element-only content, and a fixed value mismatch are located at the start tag of the element, because the reader events
-/// for end tags and text carry no position.
+/// gets no listener hook. Given an <see cref="IXmlPositionSource"/> (<see cref="UsePositions"/>), an attribute issue is located
+/// at the name of the attribute, incomplete content at the <c>&lt;/</c> of the end tag, and character data and a fixed value
+/// mismatch at the first character of the text; an element written as an empty-element tag, a missing required attribute, and
+/// the other issues stay at the start tag of the element. Without a source (a tree run, whose model holds the start positions of
+/// elements only) all of them are located at the start tag.
 /// </para>
 /// <para>
 /// Limitations: substitution groups (<see cref="ValidationModel"/>), ID, IDREF, and NOTATION (XSD-14, #303), identity
@@ -76,6 +78,9 @@ internal sealed partial class StreamingValidator : IXmlSink
     private int _depth;
     private int _skip;
     private int _ordinal;
+    private IXmlPositionSource? _positions;
+    private bool _inText;
+    private DocumentLocation _textStart;
     private char[] _text = [];
     private int _textLength;
     private AttributeEntry[] _attributes = new AttributeEntry[8];
@@ -145,6 +150,29 @@ internal sealed partial class StreamingValidator : IXmlSink
     /// <inheritdoc />
     public XmlNameTable Names { get; }
 
+    /// <summary>
+    /// Locates the issues about end tags, character data, and attributes exactly, by asking the reader that pumps this sink; without a
+    /// source (a tree run) they stay at the start tag of the element.
+    /// </summary>
+    /// <param name="source">The reader that pumps this validator.</param>
+    internal void UsePositions(IXmlPositionSource source)
+    {
+        ArgumentNullException.ThrowIfNull(source);
+
+        _positions = source;
+    }
+
+    private DocumentLocation Here(DocumentLocation fallback)
+    {
+        if (_positions is null)
+        {
+            return fallback;
+        }
+
+        var position = _positions.Current;
+        return new DocumentLocation(_documentUri, position.Line, position.Column);
+    }
+
     /// <inheritdoc />
     public void StartDocument(in XmlDeclaration declaration)
     {
@@ -175,10 +203,10 @@ internal sealed partial class StreamingValidator : IXmlSink
     }
 
     /// <inheritdoc />
-    public void Comment(ReadOnlySpan<char> text) { }
+    public void Comment(ReadOnlySpan<char> text) => _inText = false;
 
     /// <inheritdoc />
-    public void ProcessingInstruction(XmlSymbol target, ReadOnlySpan<char> data) { }
+    public void ProcessingInstruction(XmlSymbol target, ReadOnlySpan<char> data) => _inText = false;
 
     /// <inheritdoc />
     public void Doctype(in XmlDoctypeInfo doctype) { }
@@ -200,14 +228,17 @@ internal sealed partial class StreamingValidator : IXmlSink
     [StructLayout(LayoutKind.Auto)]
     private readonly struct AttributeEntry
     {
-        internal AttributeEntry(XmlName name, int start, int length)
+        internal AttributeEntry(XmlName name, int start, int length, DocumentLocation location)
         {
             Name = name;
+            Location = location;
             Start = start;
             Length = length;
         }
 
         internal XmlName Name { get; }
+
+        internal DocumentLocation Location { get; }
 
         internal int Start { get; }
 

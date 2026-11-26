@@ -161,6 +161,7 @@ internal sealed partial class StreamingValidator
             frame.ContentFailed = true;
             Invalid(
                 frame,
+                _textStart,
                 ValidationRules.Elt,
                 "The element " + Display(frame.QName) + " has xsi:nil true, so it must not have character data.",
                 "cvc-elt.3.2.1"
