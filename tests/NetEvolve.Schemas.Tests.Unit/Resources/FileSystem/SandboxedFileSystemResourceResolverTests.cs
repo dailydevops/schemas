@@ -75,6 +75,48 @@ internal sealed class SandboxedFileSystemResourceResolverTests : IDisposable
     }
 
     [Test]
+    public async Task Resolve_ReferenceInOtherLetterCase_ReturnsOnDiskCasingAsSystemId(
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        _ = Directory.CreateDirectory(Path.Combine(_root, "MixedDir"));
+        await File.WriteAllTextAsync(Path.Combine(_root, "MixedDir", "MixedFile.xml"), "<m/>", cancellationToken);
+        var caseInsensitive = File.Exists(Path.Combine(_root, "mixeddir", "MIXEDFILE.XML"));
+
+        using var result = Resolve("mixeddir/MIXEDFILE.XML");
+
+        if (!caseInsensitive)
+        {
+            await Assert.That(result.Status).IsEqualTo(ResourceStatus.NotFound);
+            return;
+        }
+
+        await Assert.That(result.Status).IsEqualTo(ResourceStatus.Found);
+        await Assert.That(result.SystemId!).EndsWith("/MixedDir/MixedFile.xml");
+    }
+
+    [Test]
+    public async Task Resolve_ExactNameBesideSiblingInOtherLetterCase_ReturnsRequestedFile(
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        await File.WriteAllTextAsync(Path.Combine(_root, "Pair.xml"), "<upper/>", cancellationToken);
+        if (File.Exists(Path.Combine(_root, "pAIR.xml")))
+        {
+            return;
+        }
+
+        await File.WriteAllTextAsync(Path.Combine(_root, "pair.xml"), "<lower/>", cancellationToken);
+
+        using var result = Resolve("Pair.xml");
+
+        await Assert.That(result.Status).IsEqualTo(ResourceStatus.Found);
+        await Assert.That(result.SystemId!).EndsWith("/Pair.xml");
+    }
+
+    [Test]
     public async Task Resolve_ResolvedUriInsideRoot_ReturnsFileContent(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();

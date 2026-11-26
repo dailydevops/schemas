@@ -68,8 +68,6 @@ msMeta-Schema_w3c	1.0/schR5/schR5	#869	A redefinition is not checked against the
 msMeta-Schema_w3c	1.0/schZ004/schZ004	#872	A component of a document that is not imported or included is visible.
 msMeta-Schema_w3c	1.0/schZ005/schZ005	#872	A component of a document that is not imported or included is visible.
 msMeta-Schema_w3c	1.0/schZ006/schZ006	#869	A redefinition is not checked against the redefined component.
-msMeta-Schema_w3c	1.0/schZ012_b/schZ012_b	#1129	The import of a document of the namespace that the schema already declares reports the declared elements as duplicates (NES4347).
-msMeta-Schema_w3c	1.0/schZ012_c/schZ012_c	#1129	The import of a document of the namespace that the schema already declares reports the declared elements as duplicates (NES4347).
 msMeta-SimpleType_w3c	1.0/stZ005/stZ005	#874	A schema constraint that the pipeline does not check; not analyzed yet.
 msMeta-SimpleType_w3c	1.0/stZ006/stZ006	#874	A schema constraint that the pipeline does not check; not analyzed yet.
 msMeta-SimpleType_w3c	1.0/stZ010/stZ010	#874	A schema constraint that the pipeline does not check; not analyzed yet.

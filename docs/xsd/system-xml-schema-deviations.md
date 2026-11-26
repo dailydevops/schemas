@@ -30,11 +30,11 @@ No builder option, switch, or code path in the library reproduces System.Xml.Sch
 | Verdict differences: this library follows the specification | 1696 | 1664 |
 | Verdict differences: documented limitations of this library | 21 | 17 |
 | Position differences: equivalent | 12873 | 12873 |
-| Differences on cases that a bug issue tracks (no entry) | 908 | |
+| Differences on cases that a bug issue tracks (no entry) | 906 | |
 
 ## Differences on cases that a bug issue tracks
 
-The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTests/known-failures.txt` and `tests/NetEvolve.Schemas.Xsd.Tests.Integration/InstanceTests/known-failures.txt` record every case of XSD 1.0 that this library does not pass yet, each with its bug issue. At the time of this triage the run found 909 differences on these cases:
+The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTests/known-failures.txt` and `tests/NetEvolve.Schemas.Xsd.Tests.Integration/InstanceTests/known-failures.txt` record every case of XSD 1.0 that this library does not pass yet, each with its bug issue. At the time of this triage the run found 906 differences on these cases:
 
 | Issue | Differences | Title |
 |---|---:|---|
@@ -52,7 +52,6 @@ The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTe
 | #1079 | 3 | feat(xsd): evaluate the enumeration facet of hexBinary and base64Binary restrictions |
 | #604 | 2 | feat(xsd): resolve QName and NOTATION instance values with the namespace context |
 | #863 | 2 | bug(xsd): particle restriction reports errors for restrictions that the XSTS accepts |
-| #1129 | 2 | bug(xsd): an import of a document with the namespace of the importing schema reports duplicate declarations |
 | #410 | 1 | feat(xml): support caller-selectable xml 1.1 name productions |
 
 ## Verdict differences: this library follows the specification
