@@ -1,0 +1,5 @@
+iso-schema-composition/extends-href-fragment-xml-id-preserve-ns.xml
+iso-schema-composition/extends-href-fragment-xml-id.xml
+iso-schema-composition/extends-recursive.xml
+iso-schema-composition/include-href-fragment-xml-id-preserve-ns.xml
+iso-schema-composition/include-href-fragment-xml-id.xml

@@ -47,7 +47,9 @@ public class SchematronConformanceRunnerTests
 
         var failed = results.Single(r => r.CaseId == "set-a/one.xml" && r.TestSet == "xslt-2.set-a");
         await Assert.That(failed.Outcome).IsEqualTo(CaseOutcome.Fail);
-        await Assert.That(results.Count(r => r.CaseId == "set-a/one.xml" && r.Outcome == CaseOutcome.Fail)).IsEqualTo(2);
+        await Assert
+            .That(results.Count(r => r.CaseId == "set-a/one.xml" && r.Outcome == CaseOutcome.Fail))
+            .IsEqualTo(2);
         await Assert.That(failed.Reason).IsEqualTo("Expected Invalid but observed Valid.");
     }
 
@@ -142,7 +144,7 @@ public class SchematronConformanceRunnerTests
             results,
             new Dictionary<string, KnownFailureBaseline>(StringComparer.Ordinal)
             {
-                ["set-a"] = KnownFailureBaseline.Parse("set-a/one.xml\n"),
+                ["xslt-1.set-a"] = KnownFailureBaseline.Parse("set-a/one.xml\n"),
             }
         );
 

@@ -65,7 +65,8 @@ public class SchematronEngineTests
     )
     {
         cancellationToken.ThrowIfCancellationRequested();
-        var schema = Schema("true()").Replace("<sch:schema ", "<sch:schema queryBinding=\"unknown\" ", StringComparison.Ordinal);
+        var schema = Schema("true()")
+            .Replace("<sch:schema ", "<sch:schema queryBinding=\"unknown\" ", StringComparison.Ordinal);
 
         var observation = await Run(Case(SchematronOutcome.Valid, [schema]), cancellationToken);
 

@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.Schematron.Tests.Integration.Conformance.Engine;
 
 using System.Buffers;
 using System.Text;
+using System.Xml.Linq;
 using NetEvolve.Schemas.Schematron.Svrl;
 using NetEvolve.Schemas.Schematron.Tests.Integration.Conformance.Runner;
 using NetEvolve.Schemas.Testing.Fakes;
@@ -38,14 +39,23 @@ internal sealed class SchematronEngine : ISchematronValidator
 
     public static SchematronEngine Instance { get; } = new();
 
-    public Task<SchematronObservation> ValidateAsync(SchematronCase schematronCase, CancellationToken cancellationToken)
+    public Task<SchematronObservation> ValidateAsync(
+        SchematronCase schematronCase,
+        string binding,
+        CancellationToken cancellationToken
+    )
     {
         cancellationToken.ThrowIfCancellationRequested();
         ArgumentNullException.ThrowIfNull(schematronCase);
-        return Task.FromResult(Run(schematronCase, cancellationToken));
+        ArgumentException.ThrowIfNullOrWhiteSpace(binding);
+        return Task.FromResult(Run(schematronCase, binding, cancellationToken));
     }
 
-    private static SchematronObservation Run(SchematronCase schematronCase, CancellationToken cancellationToken)
+    private static SchematronObservation Run(
+        SchematronCase schematronCase,
+        string binding,
+        CancellationToken cancellationToken
+    )
     {
         cancellationToken.ThrowIfCancellationRequested();
         var resolver = new InMemoryResourceResolver();
@@ -57,7 +67,7 @@ internal sealed class SchematronEngine : ISchematronValidator
         var instance = Utf8.GetBytes(schematronCase.Instance);
         for (var i = 0; i < schematronCase.Schemas.Count; i++)
         {
-            var observation = RunSchema(schematronCase, i, resolver, instance, cancellationToken);
+            var observation = RunSchema(schematronCase, i, binding, resolver, instance, cancellationToken);
             if (observation.Outcome != schematronCase.Expect || observation.Reason is not null)
             {
                 return schematronCase.Schemas.Count == 1
@@ -77,6 +87,7 @@ internal sealed class SchematronEngine : ISchematronValidator
     private static SchematronObservation RunSchema(
         SchematronCase schematronCase,
         int index,
+        string binding,
         InMemoryResourceResolver resolver,
         byte[] instance,
         CancellationToken cancellationToken
@@ -87,7 +98,10 @@ internal sealed class SchematronEngine : ISchematronValidator
         try
         {
             var builder = SchemaValidator
-                .ForSchematron(Utf8.GetBytes(schematronCase.Schemas[index]), BaseUri + "schema-" + index + ".sch")
+                .ForSchematron(
+                    Utf8.GetBytes(WithQueryBinding(schematronCase.Schemas[index], binding)),
+                    BaseUri + "schema-" + index + ".sch"
+                )
                 .WithResolver(resolver);
             validator = (schematronCase.Phase is { } phase ? builder.WithPhase(phase) : builder).Build();
         }
@@ -116,6 +130,14 @@ internal sealed class SchematronEngine : ISchematronValidator
         }
 
         return Judge(schematronCase, output.WrittenMemory);
+    }
+
+    /// <summary>Sets the <c>queryBinding</c> of the schema element to the binding of the run, as the upstream driver does; the suite id <c>xslt-2</c> is the name <c>xslt2</c>.</summary>
+    private static string WithQueryBinding(string schema, string binding)
+    {
+        var document = XDocument.Parse(schema, LoadOptions.PreserveWhitespace);
+        document.Root!.SetAttributeValue("queryBinding", binding.Replace("-", "", StringComparison.Ordinal));
+        return document.ToString(SaveOptions.DisableFormatting);
     }
 
     internal static SchematronObservation Judge(SchematronCase schematronCase, ReadOnlyMemory<byte> svrl)
