@@ -19,7 +19,8 @@ internal sealed class DtdDeclarations : IDtdDeclarations
         IReadOnlyDictionary<string, DtdEntityDeclaration> parameterEntities,
         IReadOnlyDictionary<string, XmlNotation> notations,
         IReadOnlyList<string>? duplicateNotations = null,
-        IReadOnlyList<DtdEntityDeclaration>? duplicateEntities = null
+        IReadOnlyList<DtdEntityDeclaration>? duplicateEntities = null,
+        IReadOnlyList<(string Element, DtdAttributeDefinition Definition)>? duplicateAttributes = null
     )
     {
         Name = name;
@@ -33,6 +34,7 @@ internal sealed class DtdDeclarations : IDtdDeclarations
         Notations = notations;
         DuplicateNotations = duplicateNotations ?? Array.Empty<string>();
         DuplicateEntities = duplicateEntities ?? Array.Empty<DtdEntityDeclaration>();
+        DuplicateAttributes = duplicateAttributes ?? Array.Empty<(string, DtdAttributeDefinition)>();
     }
 
     /// <summary>Gets the root element name of the declaration.</summary>
@@ -78,4 +80,11 @@ internal sealed class DtdDeclarations : IDtdDeclarations
     /// <see cref="DuplicateNotations"/> this is internal until the parse-time anomalies of #608 are part of the public view.
     /// </summary>
     internal IReadOnlyList<DtdEntityDeclaration> DuplicateEntities { get; }
+
+    /// <summary>
+    /// Gets every attribute definition that was dropped because an earlier definition of the same attribute for the same element
+    /// type binds, one entry per dropped definition in document order. Like <see cref="DuplicateNotations"/> this is internal
+    /// until the parse-time anomalies of #608 are part of the public view.
+    /// </summary>
+    internal IReadOnlyList<(string Element, DtdAttributeDefinition Definition)> DuplicateAttributes { get; }
 }
