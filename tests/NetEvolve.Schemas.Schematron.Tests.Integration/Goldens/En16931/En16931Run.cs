@@ -44,6 +44,19 @@ internal static class En16931Run
     public static string SchemaPath(string root, string syntax) =>
         Path.Combine(root, syntax, "schematron", $"EN16931-{syntax.ToUpperInvariant()}-validation.sch");
 
+    /// <summary>Gets the full path of the flattened single-file validation schema of a syntax.</summary>
+    /// <param name="root">The suite root.</param>
+    /// <param name="syntax">The syntax.</param>
+    /// <returns>The path of the preprocessed schema, which has no includes and no abstract patterns.</returns>
+    public static string PreprocessedSchemaPath(string root, string syntax) =>
+        Path.Combine(
+            root,
+            syntax,
+            "schematron",
+            "preprocessed",
+            $"EN16931-{syntax.ToUpperInvariant()}-validation-preprocessed.sch"
+        );
+
     /// <summary>Fetches the archive by its pinned checksum, or reuses the cache.</summary>
     /// <param name="cancellationToken">A token to cancel the fetch.</param>
     /// <returns>The suite root.</returns>
