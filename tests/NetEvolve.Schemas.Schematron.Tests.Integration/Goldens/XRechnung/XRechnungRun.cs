@@ -213,7 +213,12 @@ internal static class XRechnungRun
         return results;
     }
 
-    private static string? Validate(ISchematronValidator validator, string file, CancellationToken cancellationToken)
+    internal static string? Validate(
+        ISchematronValidator validator,
+        string file,
+        CancellationToken cancellationToken,
+        IReadOnlyDictionary<string, string>? customLevels = null
+    )
     {
         cancellationToken.ThrowIfCancellationRequested();
         var output = new ArrayBufferWriter<byte>();
@@ -244,6 +249,7 @@ internal static class XRechnungRun
             .Where(e =>
                 (e.Name == Svrl + "failed-assert" || e.Name == Svrl + "successful-report")
                 && (string?)e.Attribute("flag") is not ("warning" or "information")
+                && !IsDowngraded(customLevels, (string?)e.Attribute("id"))
             )
             .Select(e => (string?)e.Attribute("id") ?? "(no id)")
             .Distinct(StringComparer.Ordinal)
@@ -251,4 +257,11 @@ internal static class XRechnungRun
             .ToList();
         return fatal.Count == 0 ? null : "Expected valid but observed invalid: " + string.Join(", ", fatal) + ".";
     }
+
+    // A scenario can lower the severity of a rule to a warning or information, which the validator then does not count as invalid.
+    private static bool IsDowngraded(IReadOnlyDictionary<string, string>? customLevels, string? id) =>
+        id is not null
+        && customLevels is not null
+        && customLevels.TryGetValue(id, out var level)
+        && level is "warning" or "information";
 }
