@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.Resources.FileSystem;
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -101,18 +102,10 @@ public sealed class SandboxedFileSystemResourceResolver : IResourceResolver
         var systemId = hash < 0 ? uri : uri.Substring(0, hash);
         if (exists && Canonicalize(segments, ref path))
         {
-            full = Path.GetFullPath(path);
-            var rebuilt = new StringBuilder(_rootUri);
-            for (var i = _rootSegments.Length; i < segments.Length; i++)
-            {
-                _ = rebuilt
-                    .Append(i > _rootSegments.Length ? "/" : string.Empty)
-                    .Append(FileUriPath.Encode(segments[i]));
-            }
-
-            systemId = rebuilt.ToString();
+            systemId = BuildSystemId(_rootUri, _rootSegments.Length, segments);
         }
 
+        full = Path.GetFullPath(path);
         if (!exists || !File.Exists(full))
         {
             return ResourceResult.NotFound(
@@ -188,42 +181,55 @@ public sealed class SandboxedFileSystemResourceResolver : IResourceResolver
             var segment = segments[i];
             if (segment.AsSpan().IndexOfAny('*', '?') < 0)
             {
-                string? match = null;
 #if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-                foreach (var entry in Directory.EnumerateFileSystemEntries(current, segment, CaseInsensitive))
+                var entries = Directory.EnumerateFileSystemEntries(current, segment, CaseInsensitive);
 #else
-                foreach (var entry in Directory.EnumerateFileSystemEntries(current, segment))
+                var entries = Directory.EnumerateFileSystemEntries(current, segment);
 #endif
-                {
-                    var actual = Path.GetFileName(entry);
-                    if (string.Equals(actual, segment, StringComparison.Ordinal))
-                    {
-                        match = null;
-                        break;
-                    }
+                var match = StoredName(entries, segment);
 
-                    if (match is null && string.Equals(actual, segment, StringComparison.OrdinalIgnoreCase))
-                    {
-                        match = actual;
-                    }
-                }
-
-                if (match is not null)
-                {
-                    segments[i] = match;
-                    changed = true;
-                }
+                segments[i] = match ?? segment;
+                changed |= match is not null;
             }
 
             current = Path.Combine(current, segments[i]);
         }
 
-        if (changed)
+        path = current;
+        return changed;
+    }
+
+    /// <summary>Returns the stored file name (last path segment of an entry) that differs from <paramref name="segment"/> only in letter case, or <see langword="null"/> when the exact name is stored or no name matches.</summary>
+    internal static string? StoredName(IEnumerable<string> entries, string segment)
+    {
+        string? match = null;
+        foreach (var entry in entries)
         {
-            path = current;
+            var actual = Path.GetFileName(entry);
+            if (string.Equals(actual, segment, StringComparison.Ordinal))
+            {
+                return null;
+            }
+
+            if (match is null && string.Equals(actual, segment, StringComparison.OrdinalIgnoreCase))
+            {
+                match = actual;
+            }
         }
 
-        return changed;
+        return match;
+    }
+
+    /// <summary>Builds the system id of the segments below the first <paramref name="skip"/> root segments.</summary>
+    internal static string BuildSystemId(string rootUri, int skip, string[] segments)
+    {
+        var id = new StringBuilder(rootUri);
+        for (var i = skip; i < segments.Length; i++)
+        {
+            _ = id.Append(i > skip ? "/" : string.Empty).Append(FileUriPath.Encode(segments[i]));
+        }
+
+        return id.ToString();
     }
 
     private static ResourceResult Deny(in ResourceRequest request, string reason) =>
