@@ -45,6 +45,7 @@ internal static class ValidationRun
     /// <param name="parameters">The external parameters of the builder.</param>
     /// <param name="source">The instance.</param>
     /// <param name="limits">The limits of the validator.</param>
+    /// <param name="severityFilter">The allow-list of severities, or <see langword="null"/> for none.</param>
     /// <param name="cancellationToken">The token of the call.</param>
     /// <returns>The result.</returns>
     /// <exception cref="OperationCanceledException">The token was canceled.</exception>
@@ -54,6 +55,7 @@ internal static class ValidationRun
         IReadOnlyDictionary<string, string> parameters,
         in DocumentSource source,
         ValidationLimits limits,
+        SeverityFilter? severityFilter,
         CancellationToken cancellationToken
     )
     {
@@ -69,7 +71,17 @@ internal static class ValidationRun
         var context = program.Contexts.Rent();
         try
         {
-            return Run(program, context, collector, events, parameters, in source, limits, cancellationToken);
+            return Run(
+                program,
+                context,
+                collector,
+                events,
+                parameters,
+                in source,
+                limits,
+                severityFilter,
+                cancellationToken
+            );
         }
         finally
         {
@@ -85,6 +97,7 @@ internal static class ValidationRun
         IReadOnlyDictionary<string, string> parameters,
         in DocumentSource source,
         ValidationLimits limits,
+        SeverityFilter? severityFilter,
         CancellationToken cancellationToken
     )
     {
@@ -138,7 +151,8 @@ internal static class ValidationRun
             problems,
             systemId,
             MaxMessageLength,
-            embedded
+            embedded,
+            severityFilter
         );
         var evaluator = new PatternEvaluator(
             program.Matcher,

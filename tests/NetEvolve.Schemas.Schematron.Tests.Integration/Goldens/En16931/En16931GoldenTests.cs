@@ -13,8 +13,7 @@ using NetEvolve.Schemas.Schematron.Tests.Integration.Conformance.Runner;
 /// </summary>
 /// <remarks>
 /// Applicable cases: every <c>test</c> of every test-set file of the unit-test corpus and every official example of the syntax, so the
-/// pass rate is 100 % of all cases and no case is excluded. The Swedish BIS example folder <c>test/testfiles</c> of the archive is no part
-/// of the unit-test corpus and is not selected. A document of the corpus is a fragment, so a case compares only the rules in its scope:
+/// pass rate is 100 % of all cases and no case is excluded. The complete invoices of <c>test/testfiles</c> and the EDIFACT examples are separate test sets of <see cref="En16931ExtendedGoldenTests"/>. A document of the corpus is a fragment, so a case compares only the rules in its scope:
 /// the scope elements of its test-set file and the ids its asserts name.
 /// </remarks>
 public class En16931GoldenTests
