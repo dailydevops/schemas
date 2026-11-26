@@ -69,7 +69,7 @@ internal static class Stage3Runner
     /// <param name="suiteRoot">The root of the fetched suite.</param>
     /// <param name="cancellationToken">A token to cancel the run.</param>
     /// <returns>One result per rule set; the case id is <c>default-resolver/&lt;rule set name&gt;</c>.</returns>
-    /// <remarks>A case passes when the validation fails and the failure carries the code of a denied resource.</remarks>
+    /// <remarks>A case passes when the SVRL holds an <c>svrl:error</c> with the evaluation-failed code that reports the code database as not retrievable; the denied <c>document()</c> call does not throw.</remarks>
     public static IReadOnlyList<CaseResult> RunDefaultResolver(
         Stage3Manifest manifest,
         string suiteRoot,
@@ -79,34 +79,45 @@ internal static class Stage3Runner
         cancellationToken.ThrowIfCancellationRequested();
         ArgumentNullException.ThrowIfNull(manifest);
         ArgumentNullException.ThrowIfNullOrWhiteSpace(suiteRoot);
-        var code = CoreDiagnosticCodes.ResourceDenied.ToString();
+        var code = SchematronDiagnosticCodes.EvaluationFailed.ToString();
         var results = new List<CaseResult>();
         foreach (var ruleSet in manifest.RuleSets)
         {
-            var (_, failure) = ValidateRaw(
+            var (svrl, failure) = ValidateRaw(
                 Path.Combine(suiteRoot, ruleSet.Schema),
                 Path.Combine(suiteRoot, ruleSet.Documents[0].Document),
                 resolver: null,
                 cancellationToken
             );
-            var message = failure is null
-                ? "The validation succeeded."
-                : $"{failure.GetType().Name}: {failure.Message}";
             var id = DefaultResolverTestSet + "/" + ruleSet.Name;
+            var message =
+                failure is not null ? $"{failure.GetType().Name}: {failure.Message}"
+                : HasDenial(svrl!, code) ? null
+                : "The validation succeeded.";
             results.Add(
-                failure is not null && message.Contains(code, StringComparison.Ordinal)
+                message is null
                     ? new CaseResult(id, DefaultResolverTestSet, CaseOutcome.Pass)
                     : new CaseResult(
                         id,
                         DefaultResolverTestSet,
                         CaseOutcome.Fail,
-                        $"No denial with code {code}: {message}"
+                        $"No svrl:error with code {code}: {message}"
                     )
             );
         }
 
         return results;
     }
+
+    private static bool HasDenial(string svrlText, string code) =>
+        XDocument
+            .Parse(svrlText)
+            .Descendants(Svrl + "error")
+            .Any(e =>
+                string.Equals((string?)e.Attribute("code"), code, StringComparison.Ordinal)
+                && e.Value.Contains("cannot be retrieved", StringComparison.Ordinal)
+                && e.Value.Contains("codedb", StringComparison.Ordinal)
+            );
 
     /// <summary>Validates one invoice and returns the raw SVRL text, or the exception that the validation threw.</summary>
     /// <param name="schemaPath">The full path of the schema.</param>
