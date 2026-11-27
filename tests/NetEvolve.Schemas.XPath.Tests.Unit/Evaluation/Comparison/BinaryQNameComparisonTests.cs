@@ -3,6 +3,7 @@ namespace NetEvolve.Schemas.XPath.Tests.Unit.Evaluation.Comparison;
 using System;
 using NetEvolve.Schemas.Xml.Datatypes.Binary;
 using NetEvolve.Schemas.Xml.Datatypes.QNames;
+using NetEvolve.Schemas.XPath.Evaluation.Comparison;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 using static ComparisonFixture;
 
@@ -82,5 +83,19 @@ public class BinaryQNameComparisonTests
         await Assert.That(Run("eq", Hex("FF"), Base64("aaaa"))).IsEqualTo("XPTY0004");
         await Assert.That(Run("eq", Hex("FF"), One("s:FF"))).IsEqualTo("XPTY0004");
         await Assert.That(Run("eq", QName("urn:a", "n", null), One("s:n"))).IsEqualTo("XPTY0004");
+    }
+
+    [Test]
+    public async Task Implementations_RejectAnOperandOfAnotherType()
+    {
+        var text = XdmItem.FromString("FF");
+        var hex = XdmItem.FromBinary(XsdBinary.Parse("FF", BinaryKind.HexBinary).Value, BinaryKind.HexBinary);
+
+        await Assert
+            .That(() => EqualityComparison.CompareBinary(ComparisonRelation.Equal, text, hex))
+            .Throws<NetEvolve.Schemas.XPath.Errors.XPathException>();
+        await Assert
+            .That(() => EqualityComparison.CompareQName(ComparisonRelation.Equal, hex, text))
+            .Throws<NetEvolve.Schemas.XPath.Errors.XPathException>();
     }
 }

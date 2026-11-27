@@ -34,15 +34,7 @@ internal static class EqualityComparison
             ? Result(relation, a!.Equals(b))
             : throw XPathErrors.Exception(XPathErrorCodes.XPTY0004);
 
-    private static bool Result(ComparisonRelation relation, bool equal)
-    {
-        ComparisonRelations.Check(relation);
-
-        return relation switch
-        {
-            ComparisonRelation.Equal => equal,
-            ComparisonRelation.NotEqual => !equal,
-            _ => throw XPathErrors.Exception(XPathErrorCodes.XPTY0004),
-        };
-    }
+    // Two equal values have the order 0 and two different ones a nonzero order, which is all that eq and ne read.
+    private static bool Result(ComparisonRelation relation, bool equal) =>
+        ComparisonRelations.Holds(relation, equal ? 0 : 1);
 }
