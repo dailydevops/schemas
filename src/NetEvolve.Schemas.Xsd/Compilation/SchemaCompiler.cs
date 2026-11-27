@@ -96,7 +96,9 @@ internal sealed class SchemaCompiler
         var documents = new List<SchemaDocument>(inputs.Count);
         for (var i = 0; i < inputs.Count; i++)
         {
-            documents.Add(run.Read(inputs[i]));
+            documents.Add(
+                inputs[i].Location is null ? run.Read(inputs[i]) : run.ReadLocation(inputs[i], cancellationToken)
+            );
         }
 
         return run.Execute(documents, cancellationToken);

@@ -18,12 +18,13 @@ using NetEvolve.Schemas.Xsd.Validation.Assembly;
 /// <remarks>
 /// <c>Build</c> compiles every schema document that was added and throws a <see cref="SchemaCompilationException"/> with all issues
 /// when the schema has an error; without any schema document it succeeds, and every element of an instance is then undeclared.
-/// <c>BuildAsync</c> reads the stream sources with <c>ReadAsync</c> and runs the same compilation. Limitation: <c>AddSchemaLocation</c>
-/// is not available yet (#897).
+/// <c>BuildAsync</c> reads the stream sources with <c>ReadAsync</c> and runs the same compilation. <c>AddSchemaLocation</c> names a schema
+/// document that the build loads through the resolver of the builder.
 /// </remarks>
 public sealed class XsdValidatorBuilder : SchemaValidatorBuilder<XsdValidatorBuilder, IXsdValidator>
 {
     private readonly List<SchemaSourceHolder> _sources = [];
+    private readonly List<(string Reference, string? NamespaceName)> _locations = [];
     private XsdVersion _version = XsdVersion.V11;
     private bool _dtdProcessing;
     private bool _schemaLocationHints;
@@ -74,6 +75,26 @@ public sealed class XsdValidatorBuilder : SchemaValidatorBuilder<XsdValidatorBui
         ArgumentNullException.ThrowIfNull(stream);
 
         _sources.Add(SchemaSourceHolder.FromStream(stream, systemId));
+        return this;
+    }
+
+    /// <summary>
+    /// Adds a schema document that the build loads through the resolver of the builder instead of receiving its content: the request
+    /// has the kind <see cref="ResourceKind.SchemaDocument"/> and the namespace in <see cref="ResourceRequest.NamespaceUri"/>.
+    /// </summary>
+    /// <remarks>
+    /// The resolver is the one of the builder at <c>Build</c>, which refuses everything unless another one is set. A document that is
+    /// refused, missing, or larger than <see cref="ValidationLimits.MaxResourceSize"/> is a schema error of the build, and the request
+    /// counts against <see cref="ValidationLimits.MaxExternalResources"/>. The location is not resolved against a base URI.
+    /// </remarks>
+    /// <param name="reference">The location of the document, as the resolver receives it.</param>
+    /// <param name="namespaceName">The target namespace that the document must have, or <see langword="null"/> for no expectation.</param>
+    /// <returns>This builder.</returns>
+    public XsdValidatorBuilder AddSchemaLocation(string reference, string? namespaceName = null)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(reference);
+
+        _locations.Add((reference, namespaceName));
         return this;
     }
 
@@ -148,7 +169,7 @@ public sealed class XsdValidatorBuilder : SchemaValidatorBuilder<XsdValidatorBui
     private List<SchemaInput> ReadInputs(ValidationLimits limits, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        var inputs = new List<SchemaInput>(_sources.Count);
+        var inputs = new List<SchemaInput>(_sources.Count + _locations.Count);
         foreach (var source in _sources)
         {
             inputs.Add(
@@ -156,6 +177,11 @@ public sealed class XsdValidatorBuilder : SchemaValidatorBuilder<XsdValidatorBui
                     ? SchemaInput.FromChars(source.GetChars(limits), source.SystemId)
                     : SchemaInput.FromBytes(source.GetBytes(limits, cancellationToken), source.SystemId)
             );
+        }
+
+        foreach (var (reference, namespaceName) in _locations)
+        {
+            inputs.Add(SchemaInput.FromLocation(reference, namespaceName));
         }
 
         return inputs;

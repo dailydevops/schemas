@@ -8,13 +8,28 @@ internal readonly struct SchemaInput
     private readonly ReadOnlyMemory<char> _chars;
     private readonly ReadOnlyMemory<byte> _bytes;
 
-    private SchemaInput(ReadOnlyMemory<char> chars, ReadOnlyMemory<byte> bytes, bool isBytes, string? baseUri)
+    private SchemaInput(
+        ReadOnlyMemory<char> chars,
+        ReadOnlyMemory<byte> bytes,
+        bool isBytes,
+        string? baseUri,
+        string? location = null,
+        string? namespaceName = null
+    )
     {
         _chars = chars;
         _bytes = bytes;
         IsBytes = isBytes;
         BaseUri = baseUri;
+        Location = location;
+        NamespaceName = namespaceName;
     }
+
+    /// <summary>Gets the reference of a document that the compiler loads through the resolver, <see langword="null"/> for memory.</summary>
+    public string? Location { get; }
+
+    /// <summary>Gets the namespace that the caller named for a <see cref="Location"/>, <see langword="null"/> when none.</summary>
+    public string? NamespaceName { get; }
 
     /// <summary>Gets a value indicating whether the content is bytes, otherwise characters.</summary>
     public bool IsBytes { get; }
@@ -34,6 +49,13 @@ internal readonly struct SchemaInput
     /// <returns>The input.</returns>
     internal static SchemaInput FromChars(ReadOnlyMemory<char> text, string? baseUri) =>
         new(text, default, false, baseUri);
+
+    /// <summary>Creates an input of a document that the compiler loads through the resolver.</summary>
+    /// <param name="location">The reference as written.</param>
+    /// <param name="namespaceName">The target namespace that the document must have, or <see langword="null"/>.</param>
+    /// <returns>The input.</returns>
+    internal static SchemaInput FromLocation(string location, string? namespaceName) =>
+        new(default, default, false, null, location, namespaceName is { Length: 0 } ? null : namespaceName);
 
     /// <summary>Creates an input of bytes; the encoding follows XML 1.0 Appendix F.</summary>
     /// <param name="bytes">The document.</param>
