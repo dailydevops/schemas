@@ -35,16 +35,6 @@ public class NotYetSupportedTests
         ["override"] = ("<xs:override schemaLocation=\"o.xsd\"/>", "", 4065),
         ["defaultAttributes"] = ("<xs:attributeGroup name=\"g\"/>", "defaultAttributes=\"t:g\"", 4066),
         ["defaultAttributesApply"] = ("<xs:complexType name=\"c\" defaultAttributesApply=\"false\"/>", "", 4067),
-        ["notNamespace"] = (
-            "<xs:complexType name=\"c\"><xs:sequence><xs:any notNamespace=\"urn:x\"/></xs:sequence></xs:complexType>",
-            "",
-            4068
-        ),
-        ["notQName"] = (
-            "<xs:complexType name=\"c\"><xs:sequence><xs:any notQName=\"##defined\"/></xs:sequence></xs:complexType>",
-            "",
-            4069
-        ),
         ["xpathDefaultNamespace"] = (Types, "xpathDefaultNamespace=\"##local\"", 4070),
         ["inheritable"] = ("<xs:attribute name=\"a\" type=\"xs:string\" inheritable=\"true\"/>", "", 4071),
         ["targetNamespace"] = (
@@ -116,10 +106,11 @@ public class NotYetSupportedTests
     {
         var counterparts = Xsd11ConstructTable.Entries.Select(e => e.NotYetSupported.Code.Number).ToArray();
 
-        // The assert element of a complex type and the assertion facet are wired (XSD-78, #360, #1191), so they have no row any more.
+        // The assert element of a complex type, the assertion facet, and the wildcard attributes notNamespace and notQName are wired
+        // (XSD-78, #360), so they have no row any more.
         foreach (
             var entry in Strict10ConstructTable.Entries.Where(e =>
-                e.IsAttribute || (e.Name != "assert" && e.Name != "assertion")
+                e.IsAttribute ? e.Name is not ("notNamespace" or "notQName") : e.Name is not ("assert" or "assertion")
             )
         )
         {
@@ -135,9 +126,10 @@ public class NotYetSupportedTests
     [Test]
     public async Task Build_Version10_ReportsTheStrictCodeAndNotTheNotYetSupportedCode()
     {
-        var (body, attributes, _) = Constructs["notQName"];
+        const string body =
+            "<xs:complexType name=\"c\"><xs:sequence><xs:any notQName=\"##defined\"/></xs:sequence></xs:complexType>";
 
-        var exception = BuildFailure(body, attributes, XsdVersion.V10);
+        var exception = BuildFailure(body, "", XsdVersion.V10);
 
         await Assert.That(exception.Issues.Any(i => i.Code == XsdRuleCodes.Strict10NotQName)).IsTrue();
         await Assert.That(exception.Issues.Any(i => i.Code == XsdRuleCodes.NotYetSupportedNotQName)).IsFalse();
@@ -154,9 +146,7 @@ public class NotYetSupportedTests
     [Test]
     public async Task Build_Version11_AnIncludedDocumentWithAConstructIsReported()
     {
-        var included = AssemblyFixture.WrapSchema(
-            "<xs:complexType name=\"c\"><xs:sequence><xs:any notQName=\"##defined\"/></xs:sequence></xs:complexType>"
-        );
+        var included = AssemblyFixture.WrapSchema("<xs:attribute name=\"a\" type=\"xs:string\" inheritable=\"true\"/>");
         var root = AssemblyFixture.WrapSchema("<xs:include schemaLocation=\"inc.xsd\"/>");
         var resolver = new MapResolver().Add("file:///inc.xsd", included);
 
@@ -164,7 +154,7 @@ public class NotYetSupportedTests
             SchemaValidator.ForXsd().WithResolver(resolver).AddSchema(root.AsMemory(), AssemblyFixture.SchemaId).Build()
         );
 
-        await Assert.That(exception.Issues.Any(i => i.Code == XsdRuleCodes.NotYetSupportedNotQName)).IsTrue();
+        await Assert.That(exception.Issues.Any(i => i.Code == XsdRuleCodes.NotYetSupportedInheritable)).IsTrue();
     }
 
     [Test]
