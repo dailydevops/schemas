@@ -61,7 +61,8 @@ internal sealed class SchemaFixture
         bool isGlobal = false,
         ElementValueConstraint constraint = default,
         bool isAbstract = false,
-        string namespaceName = ""
+        string namespaceName = "",
+        bool nillable = false
     )
     {
         var declaration = ElementDeclaration.Create(
@@ -70,7 +71,7 @@ internal sealed class SchemaFixture
             isGlobal,
             default,
             new FakeSyntaxElement("complexType", 1),
-            false,
+            nillable,
             constraint,
             isAbstract,
             XsdDerivationMethod.None,
