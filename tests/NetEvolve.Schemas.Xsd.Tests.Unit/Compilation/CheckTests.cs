@@ -168,7 +168,8 @@ public class CheckTests
         "<xs:simpleType name=\"b\"><xs:restriction base=\"xs:NOTATION\"><xs:length value=\"3\"/></xs:restriction></xs:simpleType>"
     )]
     [Arguments(
-        "<xs:simpleType name=\"b\"><xs:restriction base=\"xs:NOTATION\"><xs:enumeration value=\"t:n\"/></xs:restriction></xs:simpleType>"
+        "<xs:notation name=\"n\" public=\"p\"/>"
+            + "<xs:simpleType name=\"b\"><xs:restriction base=\"xs:NOTATION\"><xs:enumeration value=\"t:n\"/></xs:restriction></xs:simpleType>"
             + "<xs:simpleType name=\"d\"><xs:restriction base=\"t:b\"><xs:maxLength value=\"5\"/></xs:restriction></xs:simpleType>"
             + "<xs:element name=\"e\" type=\"t:d\"/>"
     )]
@@ -189,6 +190,77 @@ public class CheckTests
         var compilation = Compile(Schema(body));
 
         await Assert.That(Codes(compilation)).IsEquivalentTo([XsdRuleCodes.EnumerationRequiredNotation]);
+    }
+
+    [Test]
+    [Arguments(
+        "<xs:notation name=\"png\" public=\"p\"/><xs:simpleType name=\"b\"><xs:restriction base=\"xs:NOTATION\"><xs:enumeration value=\"t:jpeg\"/></xs:restriction></xs:simpleType>"
+    )]
+    [Arguments(
+        "<xs:simpleType name=\"b\"><xs:restriction base=\"xs:NOTATION\"><xs:enumeration value=\"t:png\"/></xs:restriction></xs:simpleType>"
+    )]
+    [Arguments(
+        "<xs:notation name=\"png\" public=\"p\"/><xs:simpleType name=\"b\"><xs:restriction base=\"xs:NOTATION\"><xs:enumeration value=\"t:png\"/><xs:enumeration value=\"t:jpeg\"/></xs:restriction></xs:simpleType>"
+    )]
+    [Arguments(
+        "<xs:simpleType name=\"b\"><xs:restriction base=\"xs:NOTATION\"><xs:enumeration value=\"png\"/></xs:restriction></xs:simpleType>"
+    )]
+    [Arguments(
+        "<xs:complexType name=\"c\"><xs:simpleContent><xs:restriction base=\"t:base\"><xs:enumeration value=\"t:jpeg\"/></xs:restriction></xs:simpleContent></xs:complexType>"
+            + "<xs:complexType name=\"base\"><xs:simpleContent><xs:extension base=\"t:nt\"/></xs:simpleContent></xs:complexType>"
+            + "<xs:notation name=\"png\" public=\"p\"/>"
+            + "<xs:simpleType name=\"nt\"><xs:restriction base=\"xs:NOTATION\"><xs:enumeration value=\"t:png\"/></xs:restriction></xs:simpleType>"
+    )]
+    public async Task Notation_EnumerationValueWithoutDeclaration_IsReported(string body)
+    {
+        var compilation = Compile(Schema(body));
+
+        await Assert.That(Codes(compilation)).Contains(XsdRuleCodes.SrcResolve);
+    }
+
+    [Test]
+    public async Task Notation_EnumerationValueWithUndeclaredPrefix_IsReportedAsUnresolved()
+    {
+        var compilation = Compile(
+            Schema(
+                "<xs:simpleType name=\"b\"><xs:restriction base=\"xs:NOTATION\"><xs:enumeration value=\"x:png\"/></xs:restriction></xs:simpleType>"
+            )
+        );
+
+        await Assert.That(Codes(compilation)).IsEquivalentTo([XsdRuleCodes.SrcResolve]);
+    }
+
+    [Test]
+    [Arguments("")]
+    [Arguments(":png")]
+    [Arguments("x:")]
+    public async Task Notation_EnumerationValueThatIsMalformed_IsReportedOnce(string value)
+    {
+        var compilation = Compile(
+            Schema(
+                "<xs:notation name=\"png\" public=\"p\"/><xs:simpleType name=\"b\"><xs:restriction base=\"xs:NOTATION\"><xs:enumeration value=\""
+                    + value
+                    + "\"/></xs:restriction></xs:simpleType>"
+            )
+        );
+
+        await Assert.That(Codes(compilation)).IsEquivalentTo([XsdRuleCodes.EnumerationValidRestriction]);
+    }
+
+    [Test]
+    [Arguments(
+        "<xs:simpleType name=\"b\"><xs:restriction base=\"xs:NOTATION\"><xs:enumeration value=\"t:png\"/></xs:restriction></xs:simpleType><xs:notation name=\"png\" public=\"p\"/>"
+    )]
+    [Arguments(
+        "<xs:notation name=\"png\" public=\"p\"/><xs:simpleType name=\"b\"><xs:restriction base=\"xs:NOTATION\"><xs:enumeration value=\"t:png\"/></xs:restriction></xs:simpleType>"
+            + "<xs:complexType name=\"c\"><xs:simpleContent><xs:restriction base=\"t:base\"><xs:enumeration value=\"t:png\"/></xs:restriction></xs:simpleContent></xs:complexType>"
+            + "<xs:complexType name=\"base\"><xs:simpleContent><xs:extension base=\"t:b\"/></xs:simpleContent></xs:complexType>"
+    )]
+    public async Task Notation_EnumerationValueWithDeclaration_IsNotReported(string body)
+    {
+        var compilation = Compile(Schema(body));
+
+        await Assert.That(Codes(compilation).Count).IsEqualTo(0);
     }
 
     [Test]
