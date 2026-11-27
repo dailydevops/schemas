@@ -1,3 +1,5 @@
+#pragma warning disable CA1849, VSTHRD103 // The synchronous Build is the member under test.
+
 namespace NetEvolve.Schemas.Xsd.Tests.Unit.Validation.Assembly;
 
 using System;
@@ -111,8 +113,8 @@ public class AddSchemaLocationTests
     [Test]
     public async Task Build_MissingDocument_ThrowsWithNotFound()
     {
-        var exception = AssemblyFixture.Failure(
-            () => SchemaValidator.ForXsd().WithResolver(new MapResolver()).AddSchemaLocation(Location).Build()
+        var exception = AssemblyFixture.Failure(() =>
+            SchemaValidator.ForXsd().WithResolver(new MapResolver()).AddSchemaLocation(Location).Build()
         );
 
         await Assert.That(exception.Issues.Any(i => i.Code == CoreDiagnosticCodes.ResourceNotFound)).IsTrue();
@@ -123,14 +125,13 @@ public class AddSchemaLocationTests
     {
         var resolver = new MapResolver().Add(Location, AssemblyFixture.Schema);
 
-        var exception = AssemblyFixture.Failure(
-            () =>
-                SchemaValidator
-                    .ForXsd()
-                    .WithLimits(ValidationLimits.Default.WithMaxResourceSize(10))
-                    .WithResolver(resolver)
-                    .AddSchemaLocation(Location)
-                    .Build()
+        var exception = AssemblyFixture.Failure(() =>
+            SchemaValidator
+                .ForXsd()
+                .WithLimits(ValidationLimits.Default.WithMaxResourceSize(10))
+                .WithResolver(resolver)
+                .AddSchemaLocation(Location)
+                .Build()
         );
 
         await Assert.That(exception.Issues.Any(i => i.Code == CoreDiagnosticCodes.ResourceSizeLimitExceeded)).IsTrue();
@@ -141,11 +142,13 @@ public class AddSchemaLocationTests
     {
         var resolver = new MapResolver().Add(Location, AssemblyFixture.Schema);
 
-        var exception = AssemblyFixture.Failure(
-            () => SchemaValidator.ForXsd().WithResolver(resolver).AddSchemaLocation(Location, "urn:other").Build()
+        var exception = AssemblyFixture.Failure(() =>
+            SchemaValidator.ForXsd().WithResolver(resolver).AddSchemaLocation(Location, "urn:other").Build()
         );
 
-        await Assert.That(exception.Issues.Any(i => i.Message.Contains("urn:other", StringComparison.Ordinal))).IsTrue();
+        await Assert
+            .That(exception.Issues.Any(i => i.Message.Contains("urn:other", StringComparison.Ordinal)))
+            .IsTrue();
     }
 
     [Test]
@@ -153,8 +156,8 @@ public class AddSchemaLocationTests
     {
         var resolver = new MapResolver().Add(Location, "<xs:schema");
 
-        var exception = AssemblyFixture.Failure(
-            () => SchemaValidator.ForXsd().WithResolver(resolver).AddSchemaLocation(Location).Build()
+        var exception = AssemblyFixture.Failure(() =>
+            SchemaValidator.ForXsd().WithResolver(resolver).AddSchemaLocation(Location).Build()
         );
 
         await Assert.That(exception.Issues.Count).IsGreaterThanOrEqualTo(1);

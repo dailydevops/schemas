@@ -82,7 +82,7 @@ Here `result.IsValid` is `false`, and the single issue has the code `NES4625` (a
 
 ### Input kinds
 
-The schema is added with `AddSchema`, as `ReadOnlyMemory<char>`, `ReadOnlyMemory<byte>`, or a `Stream`; the `systemId` is the base URI of the document, which `include` and `import` resolve against. `ReadOnlyMemory` input is copied, so the caller may reuse its buffer after `AddSchema` returns. A stream is read from its current position at `Build` or `BuildAsync` and is never disposed. The bytes of a stream are kept, so a second `Build` does not read it again, even if it cannot seek. An instance is validated with `Validate` (synchronous) or `ValidateAsync` from a `Stream`, `ReadOnlyMemory<char>`, `ReadOnlyMemory<byte>`, `ReadOnlySequence<char>`, or `ReadOnlySequence<byte>`; the synchronous overloads also take spans, and a `string` binds to the `ReadOnlySpan<char>` overload.
+The schema is added with `AddSchema`, as `ReadOnlyMemory<char>`, `ReadOnlyMemory<byte>`, or a `Stream`; the `systemId` is the base URI of the document, which `include` and `import` resolve against. `ReadOnlyMemory` input is copied, so the caller may reuse its buffer after `AddSchema` returns. A stream is read from its current position at `Build` or `BuildAsync` and is never disposed. The bytes of a stream are kept, so a second `Build` does not read it again, even if it cannot seek. `AddSchemaLocation(reference, namespaceName)` names a document that `Build` loads through the resolver as `ResourceKind.SchemaDocument`, with the namespace in `ResourceRequest.NamespaceUri`; a document with another target namespace is a schema error. An instance is validated with `Validate` (synchronous) or `ValidateAsync` from a `Stream`, `ReadOnlyMemory<char>`, `ReadOnlyMemory<byte>`, `ReadOnlySequence<char>`, or `ReadOnlySequence<byte>`; the synchronous overloads also take spans, and a `string` binds to the `ReadOnlySpan<char>` overload.
 
 In the sample, `schemaStream` and `instanceStream` are streams over the schema document and over `<order>7</order>`.
 
@@ -319,7 +319,6 @@ The summary file then also holds the row `NetEvolve.Schemas.Xsd`, which counts t
 - The enumeration facet of a restriction is not evaluated when instance values are validated for list types (#1077), union types (#1078), and hexBinary and base64Binary (#1079); the other facets of a user-defined simple type are evaluated.
 - Substitution groups are not supported yet (#868) and circular redefinitions are not resolved (#1418). A group (XSD 1.0) or attribute group that is redefined without a reference to itself is checked against the original. `xs:include`, `xs:import`, and `xs:redefine` otherwise work through the resolver.
 - The datatype `xs:precisionDecimal` is not supported (#64).
-- `AddSchemaLocation` is not available on the builder (#897).
 - The model of the document tree holds no document type declaration, so a tree validation can differ from the streaming path for an instance that depends on one (#731); the XPath evaluator reads typed values only through the annotations (#791).
 - A `Stream` input is buffered completely before the run, see [Streaming and tree validation](#streaming-and-tree-validation).
 

@@ -32,6 +32,7 @@ namespace NetEvolve.Schemas
         public NetEvolve.Schemas.XsdValidatorBuilder AddSchema(System.IO.Stream stream, string? systemId = null) { }
         public NetEvolve.Schemas.XsdValidatorBuilder AddSchema(System.ReadOnlyMemory<byte> content, string? systemId = null) { }
         public NetEvolve.Schemas.XsdValidatorBuilder AddSchema(System.ReadOnlyMemory<char> content, string? systemId = null) { }
+        public NetEvolve.Schemas.XsdValidatorBuilder AddSchemaLocation(string reference, string? namespaceName = null) { }
         protected override NetEvolve.Schemas.IXsdValidator CreateValidator(NetEvolve.Schemas.ValidationLimits limits, NetEvolve.Schemas.Resources.IResourceResolver resolver) { }
         protected override System.Threading.Tasks.ValueTask<NetEvolve.Schemas.IXsdValidator> CreateValidatorAsync(NetEvolve.Schemas.ValidationLimits limits, NetEvolve.Schemas.Resources.IResourceResolver resolver, System.Threading.CancellationToken cancellationToken) { }
         public NetEvolve.Schemas.XsdValidatorBuilder WithDtdProcessing(bool enabled) { }

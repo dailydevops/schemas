@@ -145,6 +145,56 @@ internal sealed class CompilationRun
     internal SchemaDocument Read(in SchemaInput input) =>
         input.IsBytes ? Read(input.Bytes, input.BaseUri) : Read(input.Chars, input.BaseUri);
 
+    /// <summary>Loads a schema document through the resolver as <see cref="ResourceKind.SchemaDocument"/> and reads it.</summary>
+    /// <param name="input">The input with a location.</param>
+    /// <param name="cancellationToken">The token passed to the resolver.</param>
+    /// <returns>The parsed document; without a root when the load failed or the target namespace is not the named one.</returns>
+    internal SchemaDocument ReadLocation(in SchemaInput input, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var reference = input.Location!;
+        var where = new DocumentLocation(reference, 0, 0);
+        var loader = new ResourceLoader(_resolver, _limits) { PassMissingBaseToResolver = true };
+        var result = loader.Load(
+            ResourceKind.SchemaDocument,
+            reference,
+            null,
+            cancellationToken,
+            namespaceUri: input.NamespaceName
+        );
+        if (result.Status != ResourceLoadStatus.Loaded)
+        {
+            _reporter.Add(
+                new ValidationIssue(
+                    result.Code,
+                    IssueSeverity.Error,
+                    result.Message,
+                    where,
+                    XsdRuleLookup.Find(XsdRuleCodes.SchemaReference).Id
+                )
+            );
+            return new SchemaDocument(null, null, null, false);
+        }
+
+        var document = Read(result.Content.Span, result.SystemId ?? reference);
+        if (
+            input.NamespaceName is { } expected
+            && document.Root is { } root
+            && !string.Equals(root.FindAttribute("targetNamespace") ?? string.Empty, expected, StringComparison.Ordinal)
+        )
+        {
+            _reporter.Report(
+                XsdRuleCodes.SchemaReference,
+                where,
+                "The target namespace of the schema document '" + reference + "' is not '" + expected + "'."
+            );
+            return new SchemaDocument(document.BaseUri, null, null, false);
+        }
+
+        return document;
+    }
+
     /// <summary>Runs every phase after reading.</summary>
     /// <param name="documents">The parsed root documents.</param>
     /// <param name="cancellationToken">The token to cancel the run.</param>
