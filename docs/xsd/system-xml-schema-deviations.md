@@ -29,7 +29,7 @@ No builder option, switch, or code path in the library reproduces System.Xml.Sch
 |---|---:|---:|
 | Verdict differences: this library follows the specification | 1706 | 1674 |
 | Verdict differences: documented limitations of this library | 21 | 17 |
-| Position differences: equivalent | 12107 | 12107 |
+| Position differences: equivalent | 12108 | 12108 |
 | Differences on cases that a bug issue tracks (no entry) | 875 | |
 
 ## Differences on cases that a bug issue tracks
@@ -2212,7 +2212,7 @@ msMeta-AttributeGroup_w3c/1.0/attgD003/attgD003.v
 
 Both engines reject the document with the same number of issues on the same lines, and the verdicts agree. They anchor an issue at different columns of the same construct. Issue positions are not part of the specification, so the difference is equivalent.
 
-- Difference: IssuePositions `issue positions` (3190)
+- Difference: IssuePositions `issue positions` (3191)
 - Specification: XSD 1.0 Part 1, 5.2 and C.1 (the assessment outcome is the validity property; positions and number of reports are not specified)
 - Cases: 3190
 
@@ -4085,6 +4085,7 @@ msMeta-Notations_w3c/1.0/notatF068/notatF068
 msMeta-Notations_w3c/1.0/notatF070/notatF070
 msMeta-Notations_w3c/1.0/notatF072/notatF072
 msMeta-Notations_w3c/1.0/notatG002/notatG002
+msMeta-Notations_w3c/1.0/notatG003/notatG003
 msMeta-Notations_w3c/1.0/notatH002v/notatH002v.i
 msMeta-Notations_w3c/1.0/notatH003/notatH003.i
 msMeta-Particles_w3c/1.0/particlesA001/particlesA001.i

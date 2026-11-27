@@ -107,10 +107,10 @@ public class SchemaErrorTests
         "src-identity-constraint"
     )]
     [Arguments(Open + "  ^<xs:notation/>", "src-notation")]
-    // Character data in an element-only schema element, once per element however it is split.
-    [Arguments(Open + "  ^<xs:notation name=\"n\" public=\"p\">Some Text</xs:notation>", "src-notation")]
-    [Arguments(Open + "  ^<xs:notation name=\"n\" public=\"p\"><![CDATA[x]]> y &amp; z</xs:notation>", "src-notation")]
-    [Arguments(Open + "  ^<xs:element name=\"e\">x<xs:annotation/>y</xs:element>", "src-element")]
+    // Character data in an element-only schema element, once per element at the first character data.
+    [Arguments(Open + "  <xs:notation name=\"n\" public=\"p\">^Some Text</xs:notation>", "src-notation")]
+    [Arguments(Open + "  <xs:notation name=\"n\" public=\"p\"><![CDATA[^x]]> y &amp; z</xs:notation>", "src-notation")]
+    [Arguments(Open + "  <xs:element name=\"e\">^x<xs:annotation/>y</xs:element>", "src-element")]
     [Arguments(
         Open + "  <xs:complexType name=\"c\"><xs:complexContent>^<xs:extension/></xs:complexContent></xs:complexType>",
         "src-ct"
