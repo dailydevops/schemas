@@ -23,7 +23,7 @@ using NetEvolve.Schemas.Xsd.SimpleTypes.Checks;
 /// <remarks>
 /// Limitations: the <c>enumeration</c> facet is carried for string-like bases (including anyURI) and for the ordered families (decimal, integer, float,
 /// double, duration, date and time, boolean), not for the others (binary, <c>QName</c>, and <c>NOTATION</c>); the
-/// <c>explicitTimezone</c> and <c>assertion</c> facets (XSD 1.1, XSD-78) are not carried; a length of a binary type is carried
+/// <c>assertion</c> facets (XSD 1.1, XSD-78) are not carried here, they are collected separately; a length of a binary type is carried
 /// by the binary length facet only when the base is a built-in type of that family. A facet that does not parse is left out, which
 /// can only follow an issue that the check has reported.
 /// </remarks>
@@ -125,6 +125,7 @@ internal static class FacetFactory
             FacetKind.TotalDigits or FacetKind.FractionDigits => Digits(declaration, facts),
             FacetKind.MaxInclusive or FacetKind.MaxExclusive or FacetKind.MinExclusive or FacetKind.MinInclusive =>
                 Bound(declaration, facts),
+            FacetKind.ExplicitTimezone => ExplicitTimezone(declaration.Value),
             _ => (IFacet?)null,
         };
         if (facet is not null)
@@ -161,6 +162,15 @@ internal static class FacetFactory
 
         return parsed.Count == 0 ? null : new EnumerationFacet<TValue>(type, parsed);
     }
+
+    private static ExplicitTimezoneFacet? ExplicitTimezone(string value) =>
+        value switch
+        {
+            "required" => new ExplicitTimezoneFacet(ExplicitTimezoneMode.Required),
+            "prohibited" => new ExplicitTimezoneFacet(ExplicitTimezoneMode.Prohibited),
+            "optional" => new ExplicitTimezoneFacet(ExplicitTimezoneMode.Optional),
+            _ => null,
+        };
 
     private static WhiteSpaceFacet? WhiteSpace(string value) =>
         value switch
