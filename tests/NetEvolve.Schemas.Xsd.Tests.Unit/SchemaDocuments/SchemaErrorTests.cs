@@ -107,6 +107,10 @@ public class SchemaErrorTests
         "src-identity-constraint"
     )]
     [Arguments(Open + "  ^<xs:notation/>", "src-notation")]
+    // Character data in an element-only schema element, once per element however it is split.
+    [Arguments(Open + "  ^<xs:notation name=\"n\" public=\"p\">Some Text</xs:notation>", "src-notation")]
+    [Arguments(Open + "  ^<xs:notation name=\"n\" public=\"p\"><![CDATA[x]]> y &amp; z</xs:notation>", "src-notation")]
+    [Arguments(Open + "  ^<xs:element name=\"e\">x<xs:annotation/>y</xs:element>", "src-element")]
     [Arguments(
         Open + "  <xs:complexType name=\"c\"><xs:complexContent>^<xs:extension/></xs:complexContent></xs:complexType>",
         "src-ct"
@@ -163,6 +167,14 @@ public class SchemaErrorTests
         await Assert.That(issues[0].Location.Source).IsEqualTo(SystemId);
         await Assert.That(issues[0].Location.Line).IsEqualTo(line);
         await Assert.That(issues[0].Location.Column).IsEqualTo(column);
+    }
+
+    [Test]
+    public async Task Error_WhitespaceAndCommentsInAnElementOnlyElement_AreAccepted()
+    {
+        var (_, issues) = Parse(Open + "  <xs:notation name=\"n\" public=\"p\">\n  <!-- c -->\t</xs:notation>" + Close);
+
+        await Assert.That(issues.Count).IsEqualTo(0);
     }
 
     [Test]
