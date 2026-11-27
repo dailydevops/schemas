@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.Tests.Unit.Composition;
+using NetEvolve.Schemas.Xsd.Tests.Unit.Validation.Tree;
 using XsdVersion = NetEvolve.Schemas.Xml.Datatypes.Contracts.XsdVersion;
 
 /// <summary>The default attribute group of a schema and <c>defaultAttributesApply</c> of a complex type are compiled and evaluated (XSD-78, #360, #1426).</summary>
@@ -81,6 +82,30 @@ public class DefaultAttributeWiringTests
 
         await Assert.That(AssemblyFixture.Run(validator, "<e xmlns=\"urn:t\" fx=\"f\"/>").IsValid).IsTrue();
         await Assert.That(AssemblyFixture.Run(validator, "<e xmlns=\"urn:t\" fx=\"other\"/>").IsValid).IsFalse();
+    }
+
+    [Test]
+    public async Task Validate_AnAttributeOfTheGroupWithADefault_IsDefaultedInTheAnnotatedTree(
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var schema = AssemblyFixture.WrapSchema(
+            """
+            <xs:attributeGroup name="dg"><xs:attribute name="dflt" type="xs:string" default="d"/></xs:attributeGroup>
+            <xs:element name="e"><xs:complexType/></xs:element>
+            """,
+            "defaultAttributes=\"t:dg\""
+        );
+
+        var result = TreeFixture
+            .Validator(schema)
+            .Validate(TreeFixture.Load("<e xmlns=\"urn:t\"/>").Document, cancellationToken);
+
+        var attribute = TreeFixture.Element(result.Document, "e").FirstAttribute;
+        await Assert.That(result.Document.Names.GetString(attribute.Name.Local)).IsEqualTo("dflt");
+        await Assert.That(attribute.StringValue).IsEqualTo("d");
+        await Assert.That(attribute.IsSpecified).IsFalse();
     }
 
     [Test]
