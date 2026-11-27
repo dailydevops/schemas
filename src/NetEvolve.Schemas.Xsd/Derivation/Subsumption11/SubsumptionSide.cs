@@ -196,8 +196,8 @@ internal sealed class SubsumptionSide
         ReadCounters(Automaton);
     }
 
-    // Terms that are not resolved and all groups below the content model are not compared; a group that is expanded too often is refused early,
-    // because the same group definition can be used many times.
+    // Terms that are not resolved and all groups below the content model are not compared; a group that is expanded too often
+    // is refused early, because the same group definition can be used many times.
     private AutomatonParticle? Convert(Particle particle)
     {
         if (particle.MaxOccurs == 0 || particle.MinOccurs > particle.MaxOccurs || Status != SideStatus.Ready)

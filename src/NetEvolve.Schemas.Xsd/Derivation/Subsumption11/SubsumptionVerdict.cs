@@ -9,7 +9,7 @@ internal enum SubsumptionVerdict
     /// <summary>The restriction accepts a sequence the base does not, or an element does not correspond.</summary>
     NotSubsumed = 1,
 
-    /// <summary>The content models are not compared: a term is not resolved, a group is circular, or one of them is an all group.</summary>
+    /// <summary>The content models are not compared: a term is not resolved, a group is circular, or an all group is below the content model or may occur more than once.</summary>
     NotCompared = 2,
 
     /// <summary>The check ran into its work limit or a ceiling of the content model before it could decide.</summary>
