@@ -49,6 +49,33 @@ public class CheckTests
     }
 
     [Test]
+    public async Task ParticleRestriction_ThatAddsAnIdentityConstraint_IsReportedAtTheRestrictingElement()
+    {
+        var compilation = Compile(
+            Schema(
+                "<xs:complexType name=\"b\"><xs:sequence><xs:element name=\"a\"/></xs:sequence></xs:complexType>"
+                    + "<xs:complexType name=\"d\"><xs:complexContent><xs:restriction base=\"t:b\"><xs:sequence><xs:element name=\"a\"><xs:unique name=\"u\"><xs:selector xpath=\"x\"/><xs:field xpath=\"@y\"/></xs:unique></xs:element></xs:sequence></xs:restriction></xs:complexContent></xs:complexType>"
+            )
+        );
+
+        await Assert.That(compilation.Result.Issues.Count).IsEqualTo(1);
+        await Assert.That(compilation.Result.Issues[0].Constraint).IsEqualTo("rcase-NameAndTypeOK.3.2.3");
+    }
+
+    [Test]
+    public async Task ParticleRestriction_ThatKeepsAnIdentityConstraint_IsValid()
+    {
+        var compilation = Compile(
+            Schema(
+                "<xs:complexType name=\"b\"><xs:sequence><xs:element name=\"a\"><xs:unique name=\"u1\"><xs:selector xpath=\"x\"/><xs:field xpath=\"@y\"/></xs:unique></xs:element></xs:sequence></xs:complexType>"
+                    + "<xs:complexType name=\"d\"><xs:complexContent><xs:restriction base=\"t:b\"><xs:sequence><xs:element name=\"a\"><xs:unique name=\"u2\"><xs:selector xpath=\"x\"/><xs:field xpath=\"@y\"/></xs:unique></xs:element></xs:sequence></xs:restriction></xs:complexContent></xs:complexType>"
+            )
+        );
+
+        await Assert.That(Describe(compilation)).IsEmpty();
+    }
+
+    [Test]
     public async Task ParticleRestriction_ThatNarrowsTheOccurrence_IsValid()
     {
         var compilation = Compile(
