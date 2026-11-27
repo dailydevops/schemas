@@ -2212,7 +2212,7 @@ msMeta-AttributeGroup_w3c/1.0/attgD003/attgD003.v
 
 Both engines reject the document with the same number of issues on the same lines, and the verdicts agree. They anchor an issue at different columns of the same construct. Issue positions are not part of the specification, so the difference is equivalent.
 
-- Difference: IssuePositions `issue positions` (3191)
+- Difference: IssuePositions `issue positions` (3190)
 - Specification: XSD 1.0 Part 1, 5.2 and C.1 (the assessment outcome is the validity property; positions and number of reports are not specified)
 - Cases: 3190
 
@@ -4085,7 +4085,6 @@ msMeta-Notations_w3c/1.0/notatF068/notatF068
 msMeta-Notations_w3c/1.0/notatF070/notatF070
 msMeta-Notations_w3c/1.0/notatF072/notatF072
 msMeta-Notations_w3c/1.0/notatG002/notatG002
-msMeta-Notations_w3c/1.0/notatG003/notatG003
 msMeta-Notations_w3c/1.0/notatH002v/notatH002v.i
 msMeta-Notations_w3c/1.0/notatH003/notatH003.i
 msMeta-Particles_w3c/1.0/particlesA001/particlesA001.i
@@ -5414,9 +5413,9 @@ sunMeta-suntest/1.0/xsd023.e/xsd023.e
 
 Both engines reject the document with the same number of issues, and the verdicts agree. They attribute the issues to different constructs of the document. Issue positions are not part of the specification, so the difference is equivalent.
 
-- Difference: IssuePositions `issue positions` (8438)
+- Difference: IssuePositions `issue positions` (8439)
 - Specification: XSD 1.0 Part 1, 5.2 and C.1 (the assessment outcome is the validity property; positions and number of reports are not specified)
-- Cases: 8438
+- Cases: 8439
 
 ```text
 ibmMeta-identityConstraint/1.0/s2_2_4si06/s2_2_4si06s
@@ -5741,6 +5740,7 @@ msMeta-ModelGroups_w3c/1.0/mgS002/mgS002
 msMeta-ModelGroups_w3c/1.0/mgS003/mgS003
 msMeta-ModelGroups_w3c/1.0/mgS004/mgS004
 msMeta-ModelGroups_w3c/1.0/mgS005/mgS005
+msMeta-Notations_w3c/1.0/notatG003/notatG003
 msMeta-Particles_w3c/1.0/particlesEb040/particlesEb040
 msMeta-Particles_w3c/1.0/particlesFb005/particlesFb005
 msMeta-Particles_w3c/1.0/particlesFb006/particlesFb006
