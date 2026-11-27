@@ -15,8 +15,6 @@ using XsdVersion = NetEvolve.Schemas.Xml.Datatypes.Contracts.XsdVersion;
 /// </summary>
 public class NotYetSupportedTests
 {
-    private const string Types = "<xs:simpleType name=\"s\"><xs:restriction base=\"xs:string\"/></xs:simpleType>";
-
     private static readonly Dictionary<string, (string Body, string Attributes, int Code)> Constructs = new(
         StringComparer.Ordinal
     )
@@ -44,7 +42,11 @@ public class NotYetSupportedTests
             "",
             4069
         ),
-        ["xpathDefaultNamespace"] = (Types, "xpathDefaultNamespace=\"##local\"", 4070),
+        ["xpathDefaultNamespace"] = (
+            "<xs:element name=\"e\" type=\"xs:string\"><xs:alternative test=\"true()\" type=\"xs:string\" xpathDefaultNamespace=\"##local\"/></xs:element>",
+            "",
+            4070
+        ),
         ["inheritable"] = ("<xs:attribute name=\"a\" type=\"xs:string\" inheritable=\"true\"/>", "", 4071),
         ["targetNamespace"] = (
             "<xs:complexType name=\"c\"><xs:sequence><xs:element name=\"e\" type=\"xs:string\" targetNamespace=\"urn:o\"/></xs:sequence></xs:complexType>",
