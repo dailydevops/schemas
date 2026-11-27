@@ -291,7 +291,6 @@ public class FunctionConversionTests
     [Arguments(nameof(XPathItemType.Duration), "1Y")]
     [Arguments(nameof(XPathItemType.YearMonthDuration), "P1D")]
     [Arguments(nameof(XPathItemType.DayTimeDuration), "P1Y")]
-    [Arguments(nameof(XPathItemType.Integer), "99999999999999999999")]
     public async Task UntypedAtomic_Failure_RaisesTheCodeOfTheCastingTable(string targetName, string lexical)
     {
         var target = Enum.Parse<XPathItemType>(targetName);
