@@ -42,6 +42,7 @@ internal sealed class BuildContext
     private readonly Dictionary<XPathQName, Definition> _types = [];
     private readonly Dictionary<XPathQName, Definition> _attributes = [];
     private readonly Dictionary<XPathQName, Definition> _attributeGroups = [];
+    private readonly Dictionary<SchemaSyntaxNode, AttributeGroupDefinition?> _defaultGroups = [];
     private readonly Dictionary<XsdBuiltInType, SimpleTypeDefinition> _wrappers = [];
     private readonly Dictionary<IXsdComponent, FacetKindSet> _fixed = [];
     private readonly HashSet<IXsdComponent> _enumeratedTypes = [];
@@ -398,6 +399,43 @@ internal sealed class BuildContext
 
         Report(XsdRuleCodes.SrcResolve, context.Location, "No attribute group named '" + name + "' is declared.");
         return null;
+    }
+
+    /// <summary>Resolves the attribute group that the <c>defaultAttributes</c> attribute of a unit names, once per unit.</summary>
+    /// <param name="unit">The unit whose <c>schema</c> element is read.</param>
+    /// <returns>The group, <see langword="null"/> when the schema names none or names one that is not declared (reported once).</returns>
+    internal AttributeGroupDefinition? ResolveDefaultAttributeGroup(UnitScope unit)
+    {
+        ArgumentNullException.ThrowIfNull(unit);
+
+        var root = unit.Root;
+        if (_defaultGroups.TryGetValue(root, out var cached))
+        {
+            return cached;
+        }
+
+        AttributeGroupDefinition? group = null;
+        if (root.FindAttribute("defaultAttributes") is { } lexical)
+        {
+            if (
+                unit.Scope.TryResolve(root, lexical, out var name)
+                && _attributeGroups.TryGetValue(name, out var definition)
+            )
+            {
+                group = AttributeGroups.Ensure(definition);
+            }
+            else
+            {
+                Report(
+                    XsdRuleCodes.SrcResolve,
+                    root.Location,
+                    "The default attribute group '" + lexical + "' is not declared."
+                );
+            }
+        }
+
+        _defaultGroups[root] = group;
+        return group;
     }
 
     /// <summary>Gets the name a reference to a top-level attribute group has, without building anything.</summary>

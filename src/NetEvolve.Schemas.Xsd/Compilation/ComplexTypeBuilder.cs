@@ -6,6 +6,7 @@ using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xsd.Assertions.ComplexTypes;
 using NetEvolve.Schemas.Xsd.Attributes.Declarations;
+using NetEvolve.Schemas.Xsd.Attributes.DefaultAttributes;
 using NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Diagnostics;
@@ -23,7 +24,7 @@ using NetEvolve.Schemas.Xsd.TypeAlternatives;
 /// <remarks>
 /// A type that violates a representation constraint still is built, as an empty restriction of <c>anyType</c>, so later phases see
 /// no missing component and report no second error. Limitations: <c>openContent</c> and <c>defaultOpenContent</c> (XSD 1.1) are not
-/// read (XSD-78, #360), and neither is <c>defaultAttributesApply</c>; the <c>assert</c> children are collected under XSD 1.1.
+/// read (XSD-78, #360), and the <c>defaultAttributes</c> of a schema is read from the document that holds the type (Structures 1.1, 3.4.2.3.1); the <c>assert</c> children are collected under XSD 1.1.
 /// </remarks>
 internal sealed class ComplexTypeBuilder : IComponentBuilder
 {
@@ -221,21 +222,23 @@ internal sealed class ComplexTypeBuilder : IComponentBuilder
         var simple = SyntaxValues.FindChild(node, "simpleContent");
         if (simple is not null)
         {
-            return FromSimpleContent(simple, unit, header);
+            return FromSimpleContent(node, simple, unit, header);
         }
 
         var complex = SyntaxValues.FindChild(node, "complexContent");
         if (complex is not null)
         {
-            return FromComplexContent(complex, unit, header, typeMixed, out content);
+            return FromComplexContent(node, complex, unit, header, typeMixed, out content);
         }
 
         content = ReadContent(node, unit);
         var uses = ReadUses(node, unit, null, out var wildcard);
+        uses = WithDefaults(node, unit, uses, ref wildcard);
         return ComplexTypeDefinition.Implicit(header, typeMixed, content, uses, wildcard, _context.Reporter);
     }
 
     private ComplexTypeDefinition? FromComplexContent(
+        SchemaSyntaxNode typeNode,
         SchemaSyntaxNode complexContent,
         UnitScope unit,
         ComplexTypeHeader header,
@@ -261,6 +264,7 @@ internal sealed class ComplexTypeBuilder : IComponentBuilder
             : (bool?)null;
         content = ReadContent(derivation, unit);
         var uses = ReadUses(derivation, unit, baseType, out var wildcard);
+        uses = WithDefaults(typeNode, unit, uses, ref wildcard);
         return ComplexTypeDefinition.FromComplexContent(
             header,
             method,
@@ -275,6 +279,7 @@ internal sealed class ComplexTypeBuilder : IComponentBuilder
     }
 
     private ComplexTypeDefinition? FromSimpleContent(
+        SchemaSyntaxNode typeNode,
         SchemaSyntaxNode simpleContent,
         UnitScope unit,
         ComplexTypeHeader header
@@ -294,6 +299,7 @@ internal sealed class ComplexTypeBuilder : IComponentBuilder
 
         var simpleType = method == XsdDerivationMethod.Restriction ? RestrictContent(derivation, unit, baseType) : null;
         var uses = ReadUses(derivation, unit, baseType, out var wildcard);
+        uses = WithDefaults(typeNode, unit, uses, ref wildcard);
         return ComplexTypeDefinition.FromSimpleContent(
             header,
             method,
@@ -477,6 +483,34 @@ internal sealed class ComplexTypeBuilder : IComponentBuilder
         }
 
         return uses;
+    }
+
+    // Structures 1.1, 3.4.2.3.1: the default attribute group of the schema acts as one more attribute group reference at the end of
+    // the attribute children of a type, unless defaultAttributesApply is false.
+    private List<AttributeUse> WithDefaults(
+        SchemaSyntaxNode typeNode,
+        UnitScope unit,
+        List<AttributeUse> uses,
+        ref IWildcard? wildcard
+    )
+    {
+        var group = _context.ResolveDefaultAttributeGroup(unit);
+        if (group is null)
+        {
+            return uses;
+        }
+
+        _ = DefaultAttributeRules.TryApply(
+            group,
+            DefaultAttributeRules.Applies(typeNode.FindAttribute("defaultAttributesApply")),
+            uses,
+            wildcard,
+            typeNode.Location,
+            _context.Reporter,
+            out var all,
+            out wildcard
+        );
+        return [.. all];
     }
 
     // Structures 1.0: a prohibited use with a value constraint that removes no use of the base does not forbid the attribute.

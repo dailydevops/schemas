@@ -25,8 +25,6 @@ public class NotYetSupportedTests
             4063
         ),
         ["defaultOpenContent"] = ("<xs:defaultOpenContent><xs:any/></xs:defaultOpenContent>", "", 4064),
-        ["defaultAttributes"] = ("<xs:attributeGroup name=\"g\"/>", "defaultAttributes=\"t:g\"", 4066),
-        ["defaultAttributesApply"] = ("<xs:complexType name=\"c\" defaultAttributesApply=\"false\"/>", "", 4067),
         ["precisionDecimal"] = (
             "<xs:simpleType name=\"s\"><xs:restriction base=\"xs:precisionDecimal\"/></xs:simpleType>",
             "",
@@ -75,8 +73,8 @@ public class NotYetSupportedTests
         var counterparts = Xsd11ConstructTable.Entries.Select(e => e.NotYetSupported.Code.Number).ToArray();
 
         // The assert element of a complex type, the assertion facet, the explicitTimezone facet, the override element, the type
-        // alternative, the wildcard attributes notNamespace and notQName, the inheritable and xpathDefaultNamespace attributes, and
-        // the local targetNamespace are wired (XSD-78, #360, #1191, #1430, #1423, #1425, #1427, #1428, #1429), so they have no row any more.
+        // alternative, the wildcard attributes notNamespace and notQName, the inheritable, xpathDefaultNamespace, defaultAttributes, and
+        // defaultAttributesApply attributes, and the local targetNamespace are wired (XSD-78, #360, #1191, #1430, #1423, #1425, #1426, #1427, #1428, #1429), so they have no row any more.
         foreach (
             var entry in Strict10ConstructTable.Entries.Where(e =>
                 e.IsAttribute
@@ -87,6 +85,8 @@ public class NotYetSupportedTests
                             or "targetNamespace"
                             or "inheritable"
                             or "xpathDefaultNamespace"
+                            or "defaultAttributes"
+                            or "defaultAttributesApply"
                         )
                     : e.Name is not ("assert" or "assertion" or "explicitTimezone" or "override" or "alternative")
             )
@@ -124,7 +124,9 @@ public class NotYetSupportedTests
     [Test]
     public async Task Build_Version11_AnIncludedDocumentWithAConstructIsReported()
     {
-        var included = AssemblyFixture.WrapSchema("<xs:complexType name=\"c\" defaultAttributesApply=\"false\"/>");
+        var included = AssemblyFixture.WrapSchema(
+            "<xs:simpleType name=\"s\"><xs:restriction base=\"xs:precisionDecimal\"/></xs:simpleType>"
+        );
         var root = AssemblyFixture.WrapSchema("<xs:include schemaLocation=\"inc.xsd\"/>");
         var resolver = new MapResolver().Add("file:///inc.xsd", included);
 
@@ -132,9 +134,7 @@ public class NotYetSupportedTests
             SchemaValidator.ForXsd().WithResolver(resolver).AddSchema(root.AsMemory(), AssemblyFixture.SchemaId).Build()
         );
 
-        await Assert
-            .That(exception.Issues.Any(i => i.Code == XsdRuleCodes.NotYetSupportedDefaultAttributesApply))
-            .IsTrue();
+        await Assert.That(exception.Issues.Any(i => i.Code == XsdRuleCodes.NotYetSupportedPrecisionDecimal)).IsTrue();
     }
 
     [Test]
