@@ -92,10 +92,7 @@ public class XsdReadmeTests
         // <sample>
         const string schema = """
             <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
-              <xs:complexType name="open">
-                <xs:openContent><xs:any/></xs:openContent>
-                <xs:sequence/>
-              </xs:complexType>
+              <xs:complexType name="plain" defaultAttributesApply="false"/>
             </xs:schema>
             """;
 
@@ -117,8 +114,8 @@ public class XsdReadmeTests
         }
         // </sample>
 
-        await Assert.That(codes).IsEquivalentTo(["V11: NES4063", "V10: NES4023"]);
-        await Assert.That(codes[0]).IsEqualTo("V11: NES4063");
+        await Assert.That(codes).IsEquivalentTo(["V11: NES4067", "V10: NES4027"]);
+        await Assert.That(codes[0]).IsEqualTo("V11: NES4067");
     }
 
     [Test]
@@ -323,7 +320,7 @@ public class XsdReadmeTests
         await Assert.That(readme).Contains("XsdSchemaValidatorExtensions");
         await Assert.That(readme).Contains("C# 14");
         await Assert.That(readme).Contains("WithVersion(XsdVersion.V10)");
-        await Assert.That(readme).Contains("NES4063");
+        await Assert.That(readme).Contains("NES4067");
         await Assert.That(readme).Contains("NES4020");
         await Assert.That(readme).Contains("#360");
         await Assert.That(readme).Contains("#318");
