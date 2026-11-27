@@ -45,7 +45,6 @@ public class XIncludeConformanceTests
 
     [Test]
     [Explicit]
-    [Category(ConformanceCategory.Name)]
     public async Task Baseline_Regenerate(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
