@@ -58,6 +58,17 @@ public class AssertionEvaluationTests
     }
 
     [Test]
+    public async Task Assertion_IntegerAttributeAndChild_CompareNumerically()
+    {
+        // The specified and the defaulted attribute are typed as well: 9 comes before 10 only as a number.
+        var specified = AssertionFixture.Run("\n<r d=\"9\"><a>10</a></r>", "@d lt a", "@d lt 10");
+        var defaulted = AssertionFixture.Run("\n<r><a>10</a></r>", "@d lt a");
+
+        await Assert.That(specified).IsEmpty();
+        await Assert.That(defaulted).IsEmpty();
+    }
+
+    [Test]
     public async Task Assertion_DynamicError_ReportsTheAssertionRuleAtTheElement()
     {
         var issues = AssertionFixture.Run("\n<r><a>1</a></r>", "1 idiv 0 = 1");
