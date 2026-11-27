@@ -14,9 +14,6 @@ msMeta-Annotations_w3c	1.0/annotA014/annotA014	-	A schema location that the reso
 msMeta-Annotations_w3c	1.0/annotB025/annotB025	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
 msMeta-Annotations_w3c	1.0/annotF001/annotF001	#1179	The xml:lang value of an annotation element is not checked as a language.
 msMeta-Annotations_w3c	1.0/annotF003/annotF003	#1179	The xml:lang value of an annotation element is not checked as a language.
-msMeta-AttributeGroup_w3c	1.0/attgC028/attgC028	#869	A redefinition is not checked against the redefined component.
-msMeta-AttributeGroup_w3c	1.0/attgZ002/attgZ002	#869	A redefinition is not checked against the redefined component.
-msMeta-AttributeGroup_w3c	1.0/attgZ003/attgZ003	#869	A redefinition is not checked against the redefined component.
 msMeta-DataTypes_w3c	1.0/anyURI_a002_1337/anyURI_a002_1337	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
 msMeta-DataTypes_w3c	1.0/anyURI_a003_1338/anyURI_a003_1338	#1181	An anyURI value that is no URI reference is accepted in XSD 1.0.
 msMeta-DataTypes_w3c	1.0/anyURI_a004_1339/anyURI_a004_1339	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
@@ -28,29 +25,14 @@ msMeta-Element_w3c	1.0/elemZ006/elemZ006	#872	A component of a document that is 
 msMeta-Element_w3c	1.0/elemZ007/elemZ007	#872	A component of a document that is not imported or included is visible.
 msMeta-Element_w3c	1.0/elemZ028c/elemZ028c	-	The unique particle attribution check does not cover an all group, so a member of a substitution group that is also listed is accepted.
 msMeta-IdentityConstraint_w3c	1.0/idC019/idC019	#872	A component of a document that is not imported or included is visible.
-msMeta-ModelGroups_w3c	1.0/mgO013/mgO013	#869	A redefinition is not checked against the redefined component.
 msMeta-Particles_w3c	1.0/particlesZ001/particlesZ001	#863	The restriction is invalid under the table of Particle Valid (Restriction) of XSD 1.0 (RecurseAsIfGroup compares the unbounded element with a base element that occurs once) and valid in XSD 1.1; the suite marks the rule as ambiguous.
 msMeta-Schema_w3c	1.0/schB8/schB8	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
 msMeta-Schema_w3c	1.0/schD7/schD7	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
 msMeta-Schema_w3c	1.0/schD8/schD8	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
 msMeta-Schema_w3c	1.0/schG9/schG9	#872	A component of a document that is not imported or included is visible.
 msMeta-Schema_w3c	1.0/schH9/schH9	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
-msMeta-Schema_w3c	1.0/schL1/schL1	#869	A redefinition is not checked against the redefined component.
-msMeta-Schema_w3c	1.0/schL10/schL10	#869	A redefinition is not checked against the redefined component.
-msMeta-Schema_w3c	1.0/schL5/schL5	#869	A redefinition is not checked against the redefined component.
-msMeta-Schema_w3c	1.0/schL6/schL6	#869	A redefinition is not checked against the redefined component.
-msMeta-Schema_w3c	1.0/schL8/schL8	#869	A redefinition is not checked against the redefined component.
-msMeta-Schema_w3c	1.0/schM10/schM10	#869	A redefinition is not checked against the redefined component.
-msMeta-Schema_w3c	1.0/schM3/schM3	#869	A redefinition is not checked against the redefined component.
-msMeta-Schema_w3c	1.0/schM4/schM4	#869	A redefinition is not checked against the redefined component.
-msMeta-Schema_w3c	1.0/schM5/schM5	#869	A redefinition is not checked against the redefined component.
-msMeta-Schema_w3c	1.0/schN12/schN12	#869	A redefinition is not checked against the redefined component.
-msMeta-Schema_w3c	1.0/schN6/schN6	#869	A redefinition is not checked against the redefined component.
-msMeta-Schema_w3c	1.0/schO2/schO2	#869	A redefinition is not checked against the redefined component.
-msMeta-Schema_w3c	1.0/schR5/schR5	#869	A redefinition is not checked against the redefined component.
 msMeta-Schema_w3c	1.0/schZ004/schZ004	#872	A component of a document that is not imported or included is visible.
 msMeta-Schema_w3c	1.0/schZ005/schZ005	#872	A component of a document that is not imported or included is visible.
-msMeta-Schema_w3c	1.0/schZ006/schZ006	#869	A redefinition is not checked against the redefined component.
 msMeta-SimpleType_w3c	1.0/stZ010/stZ010	#1180	A facet that does not apply to the simple content of a simpleContent restriction is accepted.
 saxonMeta-Missing	1.0/missing001/missing001.xsd	-	A reference to a type that no document declares is src-resolve here; the suite accepts incomplete schemas.
 saxonMeta-Missing	1.0/missing002/missing001.xsd	-	A reference to an element declaration that no document declares is src-resolve here; the suite accepts incomplete schemas.

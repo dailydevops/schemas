@@ -63,6 +63,7 @@ internal sealed class CompilationRun
     private readonly DeterminismChecker _determinism;
     private readonly ParticleRestriction? _particleRestriction;
     private readonly List<ModelGroupDefinition> _definitions = [];
+    private readonly List<RedefinitionRestriction> _restrictions = [];
     private ListenerKinds _listeners;
     private SubstitutionGroups? _substitutions;
     private readonly List<IdentityConstraintDefinition> _constraints = [];
@@ -163,6 +164,7 @@ internal sealed class CompilationRun
                 _derivation,
                 _particleRestriction,
                 _definitions,
+                _restrictions,
                 _version,
                 _reporter
             );
@@ -210,6 +212,7 @@ internal sealed class CompilationRun
             }
 
             var set = new SchemaDocumentLoader(_resolver, _limits, _collector).Load(document, cancellationToken);
+            _restrictions.AddRange(set.Restrictions);
             foreach (var unit in set.Units)
             {
                 var uri = unit.Document.BaseUri;
