@@ -11,10 +11,10 @@ using NetEvolve.Schemas.Xsd.Versioning.Constructs;
 /// The one table of the XSD 1.1 constructs that the assembled validator does not support yet (design #146 DP-16). Under the
 /// default version every occurrence is a located schema error, so no schema is silently read with 1.0 semantics; XSD-78 (#360)
 /// removes a row together with its tests when it implements the construct. The <c>assert</c> element of a complex type, the
-/// <c>assertion</c> facet of a simple type, the <c>explicitTimezone</c> facet, and the <see langword="override"/> element are wired (they have no row). The
-/// <c>xpathDefaultNamespace</c> attribute stays a row for every owner but <c>assert</c> and <c>assertion</c>, because the
-/// selector and field of an identity constraint, the type alternative, and the default on the <c>schema</c> element do not
-/// read it yet.
+/// <c>assertion</c> facet of a simple type, the <c>explicitTimezone</c> facet, and the <see langword="override"/> element are wired
+/// (they have no row). The <c>xpathDefaultNamespace</c> attribute stays a row for the type <c>alternative</c> only, because the
+/// selector and field of an identity constraint and the default on the <c>schema</c> element are read by the compilation (#1427),
+/// while the type alternative is not compiled by the pipeline yet (#1428).
 /// </summary>
 /// <remarks>
 /// The rows of the strict 1.0 table (<see cref="Strict10ConstructTable"/>) are the first rows; their not-yet-supported code is the
@@ -32,7 +32,7 @@ internal static class Xsd11ConstructTable
 
     private static readonly string[] TypeAttributes = ["type", "base", "itemType", "memberTypes"];
 
-    private static readonly string[] XPathDefaultNamespaceOwners = ["schema", "selector", "field", "alternative"];
+    private static readonly string[] XPathDefaultNamespaceOwners = ["alternative"];
 
     internal static IReadOnlyList<Xsd11Construct> Entries { get; } = Create();
 

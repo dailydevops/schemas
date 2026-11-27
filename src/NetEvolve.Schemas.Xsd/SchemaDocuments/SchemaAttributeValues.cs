@@ -18,6 +18,12 @@ internal static class SchemaAttributeValues
                     || text.SequenceEqual("0".AsSpan());
             case SchemaAttributeKind.NonEmpty:
                 return !text.IsEmpty;
+            case SchemaAttributeKind.XPathDefaultNamespace:
+                // Limitation: xs:anyURI is checked laxly (#411), so the reserved ## space is the one value shape that is rejected.
+                return !text.StartsWith("##".AsSpan(), StringComparison.Ordinal)
+                    || text.SequenceEqual("##defaultNamespace".AsSpan())
+                    || text.SequenceEqual("##targetNamespace".AsSpan())
+                    || text.SequenceEqual("##local".AsSpan());
             case SchemaAttributeKind.NCName:
                 return IsNCName(text);
             case SchemaAttributeKind.QName:

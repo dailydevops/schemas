@@ -13,7 +13,7 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// <remarks>
 /// Limitations: the target types an <see cref="XPathItemType"/> names are covered, and any other atomic type through its handle when the
 /// casting table has a row for it (<see cref="Cast(string, XdmTypeId)"/>); the XSD 1.0 lexical rules apply, as XPath 2.0 refers
-/// to XML Schema 1.0; an integer beyond 64 bits raises FOCA0003, because <see cref="XdmItem"/> carries 64 bits, and a lexical form beyond the
+/// to XML Schema 1.0; a lexical integer beyond 64 bits is exact, and a lexical form beyond the
 /// digit cap of the datatype layer (4,096 digits) is an implementation limit, not an invalid form: FOCA0003 for an integer, FOCA0001 for a
 /// decimal, a float, or a double. The first cast reads the casting table, which freezes it (<see cref="CastingCatalog"/>).
 /// </remarks>
@@ -24,7 +24,7 @@ internal static class UntypedAtomicCast
     /// <param name="target">The target type, an atomic type other than <see cref="XPathItemType.AnyAtomic"/> and <see cref="XPathItemType.UntypedAtomic"/>.</param>
     /// <returns>The item.</returns>
     /// <exception cref="System.ArgumentNullException"><paramref name="lexical"/> is <see langword="null"/>.</exception>
-    /// <exception cref="XPathException">The lexical form is invalid for the type (FORG0001), an integer is beyond 64 bits (FOCA0003), a decimal, float, or double is beyond the digit cap (FOCA0001), or the target is not a cast target (XPTY0004).</exception>
+    /// <exception cref="XPathException">The lexical form is invalid for the type (FORG0001), an integer is beyond the digit cap (FOCA0003), a decimal, float, or double is beyond the digit cap (FOCA0001), or the target is not a cast target (XPTY0004).</exception>
     public static XdmItem Cast(string lexical, XPathItemType target)
     {
         ArgumentNullException.ThrowIfNull(lexical);
