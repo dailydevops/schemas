@@ -68,4 +68,24 @@ public class ImportVisibilityTests
 
         await Assert.That(Codes(compilation)).IsEquivalentTo([XsdRuleCodes.SrcResolve]);
     }
+
+    [Test]
+    public async Task Compile_KeyrefReferToConstraintOfNamespaceThatIsNotImported_IsUnresolved()
+    {
+        var resolver = new MapResolver().Add(
+            "file:///k.xsd",
+            CompositionFixture.Schema(
+                "<xs:element name=\"k\"><xs:complexType/><xs:keyref name=\"r\" refer=\"c\"><xs:selector xpath=\".\"/><xs:field xpath=\"@f\"/></xs:keyref></xs:element>",
+                "urn:k"
+            )
+        );
+        var root = CompositionFixture.Schema(
+            "<xs:import namespace=\"urn:k\" schemaLocation=\"k.xsd\"/>"
+                + "<xs:element name=\"e\"><xs:complexType/><xs:key name=\"c\"><xs:selector xpath=\".\"/><xs:field xpath=\"@f\"/></xs:key></xs:element>"
+        );
+
+        var compilation = Compile(root, XsdVersion.V10, resolver);
+
+        await Assert.That(Codes(compilation)).IsEquivalentTo([XsdRuleCodes.SrcResolve]);
+    }
 }
