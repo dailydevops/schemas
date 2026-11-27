@@ -246,6 +246,47 @@ public class SequenceTypeMatcherTests
     }
 
     [Test]
+    [Arguments("a", "element(a, xs:integer)", false)]
+    [Arguments("a", "element(*, xs:integer)", false)]
+    [Arguments("a", "element(a, xs:integer?)", true)]
+    [Arguments("a", "element(*, xs:integer?)", true)]
+    [Arguments("a", "element(a)", true)]
+    [Arguments("a", "element(*)", true)]
+    [Arguments("a", "element()", true)]
+    [Arguments("doc", "document-node(element(a, xs:integer))", false)]
+    [Arguments("doc", "document-node(element(a, xs:integer?))", true)]
+    public async Task NilledElement_MatchesOnlyWithoutTypeOrWithTheNillableMarker(
+        string node,
+        string type,
+        bool expected
+    )
+    {
+        var source = new FakeAnnotations(AxisFixture.Node("a"), XdmTypes.Get("integer"), nilled: true);
+
+        var result = Matcher(type).Matches(Seq(Node(node)), source);
+
+        await Assert.That(result).IsEqualTo(expected);
+    }
+
+    [Test]
+    [Arguments("element(a, xs:integer)")]
+    [Arguments("element(a, xs:integer?)")]
+    public async Task ElementThatIsNotNilled_MatchesWithAndWithoutTheNillableMarker(string type)
+    {
+        var source = new FakeAnnotations(AxisFixture.Node("a"), XdmTypes.Get("integer"));
+
+        await Assert.That(Matcher(type).Matches(Seq(Node("a")), source)).IsTrue();
+    }
+
+    [Test]
+    public async Task NilledElement_OfAnotherType_DoesNotMatchEvenWithTheNillableMarker()
+    {
+        var source = new FakeAnnotations(AxisFixture.Node("a"), XdmTypes.Get("integer"), nilled: true);
+
+        await Assert.That(Matcher("element(a, xs:string?)").Matches(Seq(Node("a")), source)).IsFalse();
+    }
+
+    [Test]
     public async Task ElementTypeTest_ReadsTheAnnotationSlotOfTheNode()
     {
         var source = new FakeAnnotations(AxisFixture.Node("a"), XdmTypes.Get("integer"));

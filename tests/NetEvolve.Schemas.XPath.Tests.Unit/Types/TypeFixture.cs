@@ -119,7 +119,8 @@ internal static class TypeFixture
     }
 
     /// <summary>An annotation source that reports one node as annotated with a given type.</summary>
-    public sealed class FakeAnnotations(XPathNode annotated, XdmTypeId type) : IXdmTypeAnnotationSource
+    public sealed class FakeAnnotations(XPathNode annotated, XdmTypeId type, bool nilled = false)
+        : IXdmTypeAnnotationSource
     {
         public int Reads { get; private set; }
 
@@ -143,6 +144,6 @@ internal static class TypeFixture
 
         public bool HasTypedValue(in XPathNode node) => true;
 
-        public bool IsNilled(in XPathNode node) => false;
+        public bool IsNilled(in XPathNode node) => nilled && node.IsSameNode(annotated);
     }
 }
