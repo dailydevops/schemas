@@ -29,8 +29,7 @@ using NetEvolve.Schemas.Xsd.Contracts;
 /// error. A test that did not compile never matches. The schema instance attributes are visible, defaulted attributes are not.
 /// </para>
 /// <para>
-/// Limitations: <c>xsi:type</c>, which replaces the selection, is XSD-55 (#308), and the wiring into the validator, where the
-/// selected type and the validity are read, is XSD-78. An instance is not thread-safe: use one per validation run, and dispose it.
+/// Limitations: <c>xsi:type</c>, which replaces the selection, is applied by the validator after the selection. An instance is not thread-safe: use one per validation run, and dispose it.
 /// </para>
 /// </remarks>
 internal sealed class TypeAlternativeEvaluator : IDisposable

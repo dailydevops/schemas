@@ -324,18 +324,30 @@ internal sealed class CompilationRun
             BuildDeclarations(unit);
         }
 
-        while (_context.PendingElements.Count > 0)
+        while (_context.PendingElements.Count > 0 || _context.PendingAlternatives.Count > 0)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            var pending = _context.PendingElements.Dequeue();
-            var syntax = (SchemaSyntaxNode)pending.Key.InlineTypeSyntax!;
-            pending.Key.BindInlineType(
-                SyntaxValues.IsSchemaElement(syntax, "complexType")
-                    ? _context.ComplexTypes.BuildAnonymous(syntax, pending.Value)
-                    : _context.SimpleTypes.BuildAnonymous(syntax, pending.Value)
-            );
+            if (_context.PendingElements.Count > 0)
+            {
+                var pending = _context.PendingElements.Dequeue();
+                pending.Key.BindInlineType(
+                    BuildAnonymous((SchemaSyntaxNode)pending.Key.InlineTypeSyntax!, pending.Value)
+                );
+            }
+            else
+            {
+                var pending = _context.PendingAlternatives.Dequeue();
+                pending.Key.BindInlineType(
+                    BuildAnonymous((SchemaSyntaxNode)pending.Key.InlineTypeSyntax!, pending.Value)
+                );
+            }
         }
     }
+
+    private IXsdComponent BuildAnonymous(SchemaSyntaxNode syntax, UnitScope unit) =>
+        SyntaxValues.IsSchemaElement(syntax, "complexType")
+            ? _context.ComplexTypes.BuildAnonymous(syntax, unit)
+            : _context.SimpleTypes.BuildAnonymous(syntax, unit);
 
     private void BuildDefinitions(string localName, CancellationToken cancellationToken)
     {
@@ -494,7 +506,8 @@ internal sealed class CompilationRun
                 _context.ComplexTypeAssertions.Count == 0
                     ? null
                     : new ComplexTypeAssertions(_context.ComplexTypeAssertions),
-                _context.SimpleTypeAssertions.Count == 0 ? null : new FacetAssertions(_context.SimpleTypeAssertions)
+                _context.SimpleTypeAssertions.Count == 0 ? null : new FacetAssertions(_context.SimpleTypeAssertions),
+                _context.FoundElements.Exists(static e => e.TypeTable is not null)
             )
             : new SchemaCompilation(null, null, result);
     }

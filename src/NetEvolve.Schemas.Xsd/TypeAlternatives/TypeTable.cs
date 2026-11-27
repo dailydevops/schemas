@@ -17,7 +17,8 @@ using NetEvolve.Schemas.Xsd.SchemaDocuments;
 /// alternative must be <c>xs:error</c> or derived from the declared type (<see cref="Check"/>).
 /// </para>
 /// <para>
-/// Limitation: the table is not yet a property of the element declaration (XSD-78).
+/// The compilation pipeline reads the table from the <c>alternative</c> children of an element declaration, and the validator selects
+/// the type from it.
 /// </para>
 /// </remarks>
 internal sealed class TypeTable

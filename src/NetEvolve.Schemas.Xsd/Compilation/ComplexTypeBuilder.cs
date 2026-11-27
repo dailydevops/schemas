@@ -13,6 +13,7 @@ using NetEvolve.Schemas.Xsd.Elements;
 using NetEvolve.Schemas.Xsd.SchemaDocuments;
 using NetEvolve.Schemas.Xsd.SimpleTypes.Checks;
 using NetEvolve.Schemas.Xsd.SimpleTypes.Definitions;
+using NetEvolve.Schemas.Xsd.TypeAlternatives;
 
 /// <summary>
 /// Builds complex type definitions (Structures 3.4.2) from the syntax of a <c>complexType</c>: the implicit form, <c>complexContent</c>,
@@ -162,6 +163,29 @@ internal sealed class ComplexTypeBuilder : IComponentBuilder
         if (element.InlineTypeSyntax is not null)
         {
             _context.PendingElements.Enqueue(new KeyValuePair<ElementDeclaration, UnitScope>(element, unit));
+        }
+
+        if (element.TypeTable is { } table)
+        {
+            for (var i = 0; i < table.Count; i++)
+            {
+                Register(table[i], unit);
+            }
+
+            if (table.Default is { } fallback)
+            {
+                Register(fallback, unit);
+            }
+        }
+    }
+
+    // An alternative has references to bind, and an anonymous type to build when it states one.
+    private void Register(TypeAlternative alternative, UnitScope unit)
+    {
+        _context.Anonymous.Add(alternative);
+        if (alternative.InlineTypeSyntax is not null)
+        {
+            _context.PendingAlternatives.Enqueue(new KeyValuePair<TypeAlternative, UnitScope>(alternative, unit));
         }
     }
 

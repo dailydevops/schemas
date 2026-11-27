@@ -14,6 +14,7 @@ using NetEvolve.Schemas.Xsd.ContentModels.Automaton;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.IdentityConstraints.Evaluation;
+using NetEvolve.Schemas.Xsd.TypeAlternatives;
 using NetEvolve.Schemas.Xsd.Validation.SchemaLocation;
 using NetEvolve.Schemas.Xsd.Validation.Xsi;
 
@@ -93,6 +94,9 @@ internal sealed partial class StreamingValidator : IXmlSink
     private int _attributeCount;
     private int _attributeLength;
     private bool[] _seen = [];
+    private readonly InheritedAttributes? _inherited; // exists only for a schema with type alternatives
+    private TypeAlternativeEvaluator? _alternativeEvaluator;
+    private TypeAlternativeAttribute[] _taAttributes = [];
 
     /// <summary>Initializes a new instance of the <see cref="StreamingValidator"/> class.</summary>
     /// <param name="model">The immutable model of the schema.</param>
@@ -105,6 +109,7 @@ internal sealed partial class StreamingValidator : IXmlSink
     /// <param name="readerLimits">The limits of the reader that feeds the validator, <see langword="null"/> for the defaults.</param>
     /// <param name="hints">The schema location hints of the run, <see langword="null"/> to ignore them.</param>
     /// <param name="facetAssertions">The assertion facets of the simple types, <see langword="null"/> for none.</param>
+    /// <param name="typeAlternatives">Whether an element declaration of the schema has type alternatives, so the inheritable attributes are kept.</param>
     internal StreamingValidator(
         ValidationModel model,
         ISimpleValueAssessor assessor,
@@ -115,7 +120,8 @@ internal sealed partial class StreamingValidator : IXmlSink
         IDerivationCheck? derivation = null,
         XmlReaderLimits? readerLimits = null,
         SchemaLocationHints? hints = null,
-        FacetAssertions? facetAssertions = null
+        FacetAssertions? facetAssertions = null,
+        bool typeAlternatives = false
     )
     {
         ArgumentNullException.ThrowIfNull(model);
@@ -127,6 +133,7 @@ internal sealed partial class StreamingValidator : IXmlSink
         _model = model;
         _hints = hints;
         _facetAssertions = facetAssertions;
+        _inherited = typeAlternatives ? new InheritedAttributes() : null;
         _derivation = derivation;
         _assessor = assessor;
         _reporter = reporter;
@@ -201,6 +208,8 @@ internal sealed partial class StreamingValidator : IXmlSink
 
         _facetContext?.Dispose();
         _facetContext = null;
+        _alternativeEvaluator?.Dispose();
+        _alternativeEvaluator = null;
     }
 
     /// <inheritdoc />

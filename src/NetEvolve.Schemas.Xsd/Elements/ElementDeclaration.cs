@@ -10,6 +10,7 @@ using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Declarations11;
 using NetEvolve.Schemas.Xsd.IdentityConstraints.Definitions;
 using NetEvolve.Schemas.Xsd.Substitution;
+using NetEvolve.Schemas.Xsd.TypeAlternatives;
 
 /// <summary>
 /// An element declaration (Structures section 3.3). Its type is a by-name reference that the resolver binds; an anonymous type
@@ -17,8 +18,8 @@ using NetEvolve.Schemas.Xsd.Substitution;
 /// </summary>
 /// <remarks>
 /// Limitations: the declaration lists several heads of the <c>substitutionGroup</c> of a global declaration only when the builder is given them
-/// (XSD 1.1); the type of a declaration without a type is the one of its first head. Type alternatives are
-/// XSD 1.1 (#319); checking the value constraint against the type (cos-valid-default) is XSD-54 (#307).
+/// (XSD 1.1); the type of a declaration without a type is the one of its first head. Checking the value constraint against the
+/// type (cos-valid-default) is XSD-54 (#307).
 /// </remarks>
 internal sealed class ElementDeclaration : IReferencingComponent, IMultiHeadElement
 {
@@ -79,6 +80,18 @@ internal sealed class ElementDeclaration : IReferencingComponent, IMultiHeadElem
     /// declaration that states no type and names a head has the type of the head (Structures 3.3.2, clause 1.2 of the type definition).
     /// </summary>
     public IXsdComponent? TypeDefinition => _type ?? InheritedType();
+
+    /// <summary>Gets the type table (XSD 1.1 type alternatives), <see langword="null"/> when the declaration has no <c>alternative</c> child.</summary>
+    internal TypeTable? TypeTable { get; private set; }
+
+    /// <summary>Receives the type table that the builder read from the <c>alternative</c> children.</summary>
+    /// <param name="table">The table.</param>
+    internal void BindTypeTable(TypeTable table)
+    {
+        ArgumentNullException.ThrowIfNull(table);
+
+        TypeTable = table;
+    }
 
     /// <summary>Gets the head of the substitution group, <see langword="null"/> for none or while it is unresolved.</summary>
     internal ElementDeclaration? Head => _heads.Length > 0 ? _heads[0] : null;

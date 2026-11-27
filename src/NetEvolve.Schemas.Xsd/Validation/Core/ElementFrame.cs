@@ -34,6 +34,7 @@ internal sealed class ElementFrame
     internal bool HasText;
     internal bool HasChild;
     internal bool IsNilled;
+    internal bool Inherits;
     internal bool UndeclaredRoot;
     internal bool UndeclaredStrict;
     internal int NamespaceMark;
@@ -69,6 +70,7 @@ internal sealed class ElementFrame
         HasText = false;
         HasChild = false;
         IsNilled = false;
+        Inherits = false;
         UndeclaredRoot = false;
         UndeclaredStrict = false;
         NamespaceMark = namespaceMark;

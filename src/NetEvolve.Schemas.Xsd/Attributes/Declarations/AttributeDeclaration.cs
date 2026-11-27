@@ -24,7 +24,8 @@ internal sealed class AttributeDeclaration : IXsdComponent
         DocumentLocation location,
         bool isGlobal,
         SimpleTypeDefinition typeDefinition,
-        AttributeValueConstraint valueConstraint
+        AttributeValueConstraint valueConstraint,
+        bool isInheritable
     )
     {
         Name = name;
@@ -32,6 +33,7 @@ internal sealed class AttributeDeclaration : IXsdComponent
         IsGlobal = isGlobal;
         TypeDefinition = typeDefinition;
         ValueConstraint = valueConstraint;
+        IsInheritable = isInheritable;
     }
 
     /// <inheritdoc />
@@ -52,6 +54,9 @@ internal sealed class AttributeDeclaration : IXsdComponent
     /// <summary>Gets the value constraint, <see langword="default"/> for none.</summary>
     public AttributeValueConstraint ValueConstraint { get; }
 
+    /// <summary>Gets a value indicating whether the attribute is visible to the type alternative tests of the descendants (XSD 1.1, <c>inheritable</c>).</summary>
+    public bool IsInheritable { get; }
+
     /// <summary>Declares a global attribute, whose name is always in the target namespace.</summary>
     /// <param name="localName">The local name.</param>
     /// <param name="targetNamespace">The target namespace, empty for none.</param>
@@ -59,6 +64,7 @@ internal sealed class AttributeDeclaration : IXsdComponent
     /// <param name="typeDefinition">The resolved type.</param>
     /// <param name="valueConstraint">The value constraint.</param>
     /// <param name="reporter">The reporter.</param>
+    /// <param name="isInheritable">Whether the attribute is inheritable (XSD 1.1).</param>
     /// <returns>The declaration, <see langword="null"/> after an issue was reported.</returns>
     internal static AttributeDeclaration? Global(
         string localName,
@@ -66,8 +72,9 @@ internal sealed class AttributeDeclaration : IXsdComponent
         DocumentLocation location,
         SimpleTypeDefinition typeDefinition,
         AttributeValueConstraint valueConstraint,
-        XsdIssueReporter reporter
-    ) => Create(localName, targetNamespace, true, location, typeDefinition, valueConstraint, reporter);
+        XsdIssueReporter reporter,
+        bool isInheritable = false
+    ) => Create(localName, targetNamespace, true, location, typeDefinition, valueConstraint, reporter, isInheritable);
 
     /// <summary>Declares a local attribute; its form decides the namespace of the name.</summary>
     /// <param name="localName">The local name.</param>
@@ -77,6 +84,7 @@ internal sealed class AttributeDeclaration : IXsdComponent
     /// <param name="typeDefinition">The resolved type.</param>
     /// <param name="valueConstraint">The value constraint.</param>
     /// <param name="reporter">The reporter.</param>
+    /// <param name="isInheritable">Whether the attribute is inheritable (XSD 1.1).</param>
     /// <returns>The declaration, <see langword="null"/> after an issue was reported.</returns>
     internal static AttributeDeclaration? Local(
         string localName,
@@ -85,7 +93,8 @@ internal sealed class AttributeDeclaration : IXsdComponent
         DocumentLocation location,
         SimpleTypeDefinition typeDefinition,
         AttributeValueConstraint valueConstraint,
-        XsdIssueReporter reporter
+        XsdIssueReporter reporter,
+        bool isInheritable = false
     )
     {
         ArgumentNullException.ThrowIfNull(targetNamespace);
@@ -97,7 +106,8 @@ internal sealed class AttributeDeclaration : IXsdComponent
             location,
             typeDefinition,
             valueConstraint,
-            reporter
+            reporter,
+            isInheritable
         );
     }
 
@@ -108,7 +118,8 @@ internal sealed class AttributeDeclaration : IXsdComponent
         DocumentLocation location,
         SimpleTypeDefinition typeDefinition,
         AttributeValueConstraint valueConstraint,
-        XsdIssueReporter reporter
+        XsdIssueReporter reporter,
+        bool isInheritable
     )
     {
         ArgumentNullException.ThrowIfNullOrEmpty(localName);
@@ -132,6 +143,13 @@ internal sealed class AttributeDeclaration : IXsdComponent
             return null;
         }
 
-        return new(new XPathQName(namespaceName, localName), location, isGlobal, typeDefinition, valueConstraint);
+        return new(
+            new XPathQName(namespaceName, localName),
+            location,
+            isGlobal,
+            typeDefinition,
+            valueConstraint,
+            isInheritable
+        );
     }
 }
