@@ -36,7 +36,7 @@ public class LibraryCoreArchitectureTests
     }
 
     [Test]
-    public async Task LibraryCore_RegistersExactlyCurrentSystemPropertyAndFunctionAvailable()
+    public async Task LibraryCore_RegistersExactlyTheCoreAndGroupingFunctions()
     {
         var names = new List<string>();
         foreach (var function in Scope().CoreFunctions)
@@ -46,7 +46,11 @@ public class LibraryCoreArchitectureTests
 
         names.Sort(StringComparer.Ordinal);
 
-        await Assert.That(string.Join(",", names)).IsEqualTo("current/0-0,function-available/1-2,system-property/1-1");
+        await Assert
+            .That(string.Join(",", names))
+            .IsEqualTo(
+                "current-group/0-0,current-grouping-key/0-0,current/0-0,function-available/1-2,system-property/1-1"
+            );
     }
 
     [Test]

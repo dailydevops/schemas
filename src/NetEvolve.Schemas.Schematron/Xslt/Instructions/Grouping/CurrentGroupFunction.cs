@@ -13,9 +13,8 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// </summary>
 /// <remarks>
 /// The function declares no host requirement: the slot policy is its own, so an unset slot must not raise XPDY0002 and the function
-/// must be found by a host that sets no slot flag. Limitation: the function is not in <see cref="XsltFunctionScope"/> yet, which is
-/// pinned to the functions of its own folder, and the XPath binding does not pass the host flags to the registry (#297, #628); the
-/// registration of <see cref="XsltGroupingFunctions.Create"/> belongs to the run that composes the scope.
+/// must be found by a host that sets no slot flag. <see cref="XsltFunctionScope"/> registers the function through
+/// <see cref="XsltGroupingFunctions.Create"/>, and the run of the XPath binding copies the group into the slot.
 /// </remarks>
 internal sealed class CurrentGroupFunction : XPathHostFunction
 {

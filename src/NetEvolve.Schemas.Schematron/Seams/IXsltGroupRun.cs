@@ -1,6 +1,5 @@
-namespace NetEvolve.Schemas.Schematron.Xslt.Instructions.Grouping;
+namespace NetEvolve.Schemas.Schematron.Seams;
 
-using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>
@@ -12,9 +11,9 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// </summary>
 /// <remarks>
 /// Limitation: an <see cref="IQueryRun"/> has no member for the slots, so the run of a binding implements this interface too; the run
-/// of the XPath binding does not exist yet (XP-19, #297, #628), so only the test run does. This is the same deviation from the EP-13
+/// of the XPath binding and the test run implement it. This is the same deviation from the EP-13
 /// table as the focus of <c>xsl:for-each</c> (decision 14 of #255): the instruction does not write the XPath host slots itself, and
-/// the run copies the two values into them when it starts an evaluation. A function body clears both (<see cref="Seams.IXsltFunctionRun.EnterFunction"/>).
+/// the run copies the two values into them when it starts an evaluation. A function body clears both (<see cref="IXsltFunctionRun.EnterFunction"/>).
 /// </remarks>
 internal interface IXsltGroupRun : IQueryRun
 {

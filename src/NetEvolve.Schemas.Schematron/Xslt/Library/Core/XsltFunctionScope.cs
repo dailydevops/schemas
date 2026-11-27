@@ -4,13 +4,14 @@ using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Schematron.Xslt.Documents;
 using NetEvolve.Schemas.Schematron.Xslt.Functions;
+using NetEvolve.Schemas.Schematron.Xslt.Instructions.Grouping;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Functions.Binding;
 
 /// <summary>
 /// The functions in scope for the expressions of one binding: the XPath catalog under the host flags of the binding, the core library
-/// of this folder (<c>current</c>, <c>system-property</c>, <c>function-available</c>), the document functions of
+/// of this folder (<c>current</c>, <c>system-property</c>, <c>function-available</c>, and the two grouping functions <c>current-group</c> and <c>current-grouping-key</c>), the document functions of
 /// <see cref="XsltDocumentFunctions"/> (<c>document</c>, <c>doc</c>, <c>doc-available</c>, <c>unparsed-text</c>,
 /// <c>unparsed-text-available</c>, bound to the base URI of the expressions), and the stylesheet functions. An XSLT binding sets the
 /// XSLT 2.0 host flag of the XPath package, which makes <c>generate-id</c> visible there; this folder holds no second implementation
@@ -19,9 +20,7 @@ using NetEvolve.Schemas.XPath.Functions.Binding;
 /// </summary>
 /// <remarks>
 /// Limitations: the one-argument form of <c>function-available</c> probes the arities 0 to <see cref="MaxProbedArity"/>, because the
-/// static context does not enumerate its functions (#587); a function whose smallest arity is higher is not found. The compiler of the
-/// XPath package does not pass the host flags to the registry yet (#297), so the scope answers the lookups and the compiled call path does
-/// not use it. The stylesheet functions are host functions of a binding that is derived per schema (#628), not of this scope.
+/// static context does not enumerate its functions (#587); a function whose smallest arity is higher is not found. The stylesheet functions are host functions of a binding that is derived per schema (#628), not of this scope.
 /// </remarks>
 internal sealed class XsltFunctionScope
 {
@@ -60,6 +59,7 @@ internal sealed class XsltFunctionScope
             new CurrentFunction(),
             new SystemPropertyFunction(statics),
             new FunctionAvailableFunction(this),
+            .. XsltGroupingFunctions.Create(binding),
         ];
         // The document functions are a layer of their own: a relative reference resolves against the base URI of the expressions (#312).
         StaticContext = statics
