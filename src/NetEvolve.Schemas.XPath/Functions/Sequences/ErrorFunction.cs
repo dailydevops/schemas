@@ -14,11 +14,17 @@ internal sealed class ErrorFunction : SequenceFunction
         : base("error", 0, 3, [OptionalAtomic, Collation, Items]) { }
 
     /// <inheritdoc />
-    /// <exception cref="XPathException">Always: the given code, or FOER0000; XPTY0004 when the code is no <c>xs:QName</c>.</exception>
+    /// <exception cref="XPathException">Always: the given code, or FOER0000; XPTY0004 when the code is no <c>xs:QName</c> or is the empty sequence in the one-argument form.</exception>
     public override XPathEvaluationStatus Invoke(ref XPathFunctionCall invocation)
     {
         var arguments = invocation.Arguments;
         var code = XPathErrorCodes.FOER0000;
+        if (arguments.Length == 1 && arguments[0].IsEmpty)
+        {
+            // The one-argument form takes xs:QName exactly once; the empty sequence is allowed only with a description.
+            throw XPathErrors.Exception(XPathErrorCodes.XPTY0004);
+        }
+
         if (arguments.Length > 0 && !arguments[0].IsEmpty)
         {
             if (!arguments[0][0].TryGetQName(out var name))

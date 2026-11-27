@@ -202,7 +202,6 @@ fn-element-with-id/fn-element-with-id-2	#91	fn:element-with-id is not implemente
 fn-element-with-id/fn-element-with-id-3	#91	fn:element-with-id is not implemented (XPST0017).
 fn-element-with-id/fn-element-with-id-4	#91	fn:element-with-id is not implemented (XPST0017).
 fn-element-with-id/fn-element-with-id-5	#91	fn:element-with-id is not implemented (XPST0017).
-fn-error/K-ErrorFunc-4	#1144	fn:error with an empty sequence raises FOER0000 where XPTY0004 is expected.
 fn-error/K2-ErrorFunc-1	#901	The runner skips the compound assertions any-of, all-of and not.
 fn-error/cbcl-error-002	#901	The runner skips the compound assertions any-of, all-of and not.
 fn-error/cbcl-error-003	#901	The runner skips the compound assertions any-of, all-of and not.
