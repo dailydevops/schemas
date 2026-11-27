@@ -40,7 +40,11 @@ internal static class Xsd11ConstructTable
         var entries = new List<Xsd11Construct>(Strict10ConstructTable.Entries.Count + 4);
         foreach (var strict in Strict10ConstructTable.Entries)
         {
-            if (!strict.IsAttribute && strict.Name is "assert" or "assertion")
+            if (
+                strict.IsAttribute
+                    ? strict.Name is "notNamespace" or "notQName"
+                    : strict.Name is "assert" or "assertion"
+            )
             {
                 continue;
             }

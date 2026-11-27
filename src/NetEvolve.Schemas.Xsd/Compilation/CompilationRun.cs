@@ -13,6 +13,7 @@ using NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;
 using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Composition;
 using NetEvolve.Schemas.Xsd.ContentModels.Determinism;
+using NetEvolve.Schemas.Xsd.ContentModels.Determinism11;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Derivation.Particles10;
 using NetEvolve.Schemas.Xsd.Derivation.Types;
@@ -59,7 +60,7 @@ internal sealed class CompilationRun
     private readonly BuildContext _context;
     private readonly ComponentResolver _componentResolver;
     private readonly TypeDerivationCheck _derivation;
-    private readonly DeterminismChecker _determinism;
+    private readonly IDeterminismCheck _determinism;
     private readonly ParticleRestriction? _particleRestriction;
     private readonly List<ModelGroupDefinition> _definitions = [];
     private ListenerKinds _listeners;
@@ -85,7 +86,7 @@ internal sealed class CompilationRun
         _componentResolver = new ComponentResolver(version);
         var values = new ValueSpace(new DescriptorValueAssessor(version), version);
         _derivation = new TypeDerivationCheck(version, values);
-        _determinism = new DeterminismChecker();
+        _determinism = version == XsdVersion.V10 ? new DeterminismChecker() : new DeterminismChecker11();
         _particleRestriction =
             version == XsdVersion.V10 ? new ParticleRestriction(new TypeDerivationOk(version), values) : null;
     }

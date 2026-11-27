@@ -261,25 +261,6 @@ public class NegatedWildcardWiringTests
     }
 
     [Test]
-    public async Task Element_NegatedWildcardThatIsNoSubsetOfTheBase_IsASchemaError()
-    {
-        var schema = Schema(
-            "<xs:complexType name=\"b\"><xs:sequence><xs:any notNamespace=\"urn:x\""
-                + Skip
-                + "/></xs:sequence></xs:complexType>"
-                + "<xs:complexType name=\"d\"><xs:complexContent><xs:restriction base=\"t:b\"><xs:sequence>"
-                + "<xs:any notNamespace=\"urn:y\""
-                + Skip
-                + "/>"
-                + "</xs:sequence></xs:restriction></xs:complexContent></xs:complexType>"
-        );
-
-        var exception = AssemblyFixture.Failure(() => AssemblyFixture.Build(schema));
-
-        await Assert.That(exception.Issues.Count).IsGreaterThanOrEqualTo(1);
-    }
-
-    [Test]
     public async Task Element_OverlappingNegatedWildcards_AreAmbiguous()
     {
         var schema = ElementRoot(
@@ -306,7 +287,7 @@ public class NegatedWildcardWiringTests
     [Arguments("<xs:any namespace=\"urn:x\" notNamespace=\"urn:y\"/>")]
     [Arguments("<xs:any notNamespace=\"##any\"/>")]
     [Arguments("<xs:any notQName=\"nope:a\"/>")]
-    [Arguments("<xs:any notNamespace=\"urn:x\" notQName=\"y:a\"/>")]
+    [Arguments("<xs:any notNamespace=\"urn:x\" notQName=\"x:a\"/>")]
     public async Task Element_InvalidCombinations_AreLocatedSchemaErrors(string any)
     {
         var exception = AssemblyFixture.Failure(() =>

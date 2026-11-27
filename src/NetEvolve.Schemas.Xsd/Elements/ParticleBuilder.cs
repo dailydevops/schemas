@@ -9,13 +9,15 @@ using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.SchemaDocuments;
 using NetEvolve.Schemas.Xsd.Wildcards.Core;
+using NetEvolve.Schemas.Xsd.Wildcards.Negation;
 
 /// <summary>
 /// Builds the model groups and particles of the XML representation (Structures sections 3.8.2 and 3.9.2): <c>sequence</c>,
 /// <c>choice</c>, <c>all</c>, local and referenced <c>element</c>, <see langword="group"/> references, and <c>any</c>.
 /// </summary>
 /// <remarks>
-/// Limitations: XSD 1.1 <c>notNamespace</c> and <c>notQName</c> on <c>any</c> are not read until the 1.1 pipeline (XSD-78) uses <c>NegatedWildcard</c> (#306), and the restrictions of the
+/// An <c>any</c> with <c>notNamespace</c> or <c>notQName</c> (XSD 1.1) is a <c>NegatedWildcard</c>; the validator binds <c>##defined</c> and <c>##definedSibling</c>.
+/// Limitations: the restrictions of the
 /// <c>all</c> group (XSD-60 #279) are not checked.
 /// </remarks>
 internal sealed class ParticleBuilder
@@ -83,6 +85,13 @@ internal sealed class ParticleBuilder
             case "group":
                 return BuildGroupReference(node, reporter, min, max);
             case "any":
+                if (node.FindAttribute("notNamespace") is not null || node.FindAttribute("notQName") is not null)
+                {
+                    return NegatedWildcard.TryCreate(node, _scope, false, reporter, out var negated)
+                        ? Particle.Create(node.Location, min, max, negated!)
+                        : null;
+                }
+
                 if (
                     !Wildcard.TryCreate(
                         node.FindAttribute("namespace"),
