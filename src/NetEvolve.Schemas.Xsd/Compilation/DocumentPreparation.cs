@@ -6,6 +6,7 @@ using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xml.Datatypes.Core;
 using NetEvolve.Schemas.Xsd.Components;
+using NetEvolve.Schemas.Xsd.Declarations11;
 using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.SchemaDocuments;
 
@@ -50,13 +51,15 @@ internal static class DocumentPreparation
 
         var ids = new HashSet<string>(StringComparer.Ordinal);
         var idType = BuiltInDatatypes.For(version).Get("ID");
-        Visit(root, idType, ids, reporter);
+        Visit(root, idType, ids, version, reporter);
+        LocalTargetNamespace.Check(root, version, reporter);
     }
 
     private static void Visit(
         SchemaSyntaxNode node,
         IDatatypeDescriptor idType,
         HashSet<string> ids,
+        XsdVersion version,
         XsdIssueReporter reporter
     )
     {
@@ -65,12 +68,13 @@ internal static class DocumentPreparation
         {
             Normalize(node);
             CheckId(node, idType, ids, reporter);
-            CheckStructure(node, reporter);
+            CheckStructure(node, version, reporter);
+            CheckRefer(node, version, reporter);
         }
 
         for (var i = 0; i < node.ChildCount; i++)
         {
-            Visit(node.GetChildNode(i), idType, ids, reporter);
+            Visit(node.GetChildNode(i), idType, ids, version, reporter);
         }
     }
 
@@ -139,9 +143,27 @@ internal static class DocumentPreparation
         }
     }
 
-    private static void CheckStructure(SchemaSyntaxNode node, XsdIssueReporter reporter)
+    // The refer attribute of a keyref is required, except under XSD 1.1 where a keyref with ref reuses a constraint and has no refer of its own;
+    // strict 1.0 rejects the ref itself, so there the refer stays required.
+    private static void CheckRefer(SchemaSyntaxNode node, XsdVersion version, XsdIssueReporter reporter)
     {
-        if (!SchemaStructure.IsValid(node))
+        if (
+            string.Equals(node.Name.LocalName, "keyref", StringComparison.Ordinal)
+            && node.FindAttribute("refer") is null
+            && (version == XsdVersion.V10 || node.FindAttribute("ref") is null)
+        )
+        {
+            reporter.Report(
+                XsdRuleLookup.Find(RuleOf(node)),
+                node.Location,
+                "The attribute 'refer' is required on 'keyref'."
+            );
+        }
+    }
+
+    private static void CheckStructure(SchemaSyntaxNode node, XsdVersion version, XsdIssueReporter reporter)
+    {
+        if (!SchemaStructure.IsValid(node, version))
         {
             reporter.Report(
                 XsdRuleLookup.Find(RuleOf(node)),

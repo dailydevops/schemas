@@ -26,7 +26,7 @@ internal sealed class SubstitutionGroups
 
     private readonly Dictionary<ISubstitutionElement, List<ISubstitutionElement>> _members;
 
-    private SubstitutionGroups(Dictionary<ISubstitutionElement, List<ISubstitutionElement>> members) =>
+    internal SubstitutionGroups(Dictionary<ISubstitutionElement, List<ISubstitutionElement>> members) =>
         _members = members;
 
     /// <summary>Computes the substitution groups.</summary>
