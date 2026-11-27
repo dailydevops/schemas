@@ -9,9 +9,9 @@ using NetEvolve.Schemas.Xsd.IdentityConstraints.Evaluation;
 
 /// <summary>Derivation Valid (Restriction, Complex) (<c>derivation-ok-restriction</c>, Structures 3.4.6).</summary>
 /// <remarks>
-/// Limitations: the clause 5.4.2 (the particle of the type is a valid restriction of the particle of the base type, Particle
-/// Valid (Restriction)) is XSD-62 for XSD 1.0 and the subsumption check of XSD 1.1 is XSD-61, so the content of element-only and
-/// mixed types is compared by kind only; the XSD 1.0 constraint applies in both versions (open content and assertions are not considered); the first
+/// Limitations: the clause 5.4.2 (the particle of the type is a valid restriction of the particle of the base type) is not part
+/// of this check; the compilation run composes it after this check, with Particle Valid (Restriction) for XSD 1.0 and the
+/// subsumption check of XSD 1.1, so this check compares the content of element-only and mixed types by kind only; the XSD 1.0 constraint applies in both versions (open content and assertions are not considered); the first
 /// violated clause is the one reported.
 /// </remarks>
 internal static class RestrictionValidity
@@ -210,7 +210,7 @@ internal static class RestrictionValidity
                     : Violation("5.3.2", "The base type must be empty or have content that may be empty.");
             default:
                 // Mixed content restricts mixed content only, element-only content may restrict either. Whether the particle
-                // is a valid restriction (5.4.2) is not decided here.
+                // is a valid restriction (5.4.2) is decided by the particle check the compilation run composes.
                 return kind == ComplexContentKind.ElementOnly || baseKind == ComplexContentKind.Mixed
                     ? TypeViolation.None
                     : Violation(
