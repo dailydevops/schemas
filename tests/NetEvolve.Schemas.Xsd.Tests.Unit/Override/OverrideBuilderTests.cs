@@ -102,4 +102,32 @@ public class OverrideBuilderTests
         await Assert.That(exception.Issues.Any(i => i.Code.Number == 4065)).IsFalse();
         await Assert.That(exception.Issues.Any(i => i.Location.Line > 0)).IsTrue();
     }
+
+    [Test]
+    public async Task Build_WithAnOverrideOfAMissingComponent_LeavesTheTargetUnchanged()
+    {
+        var validator = Build(
+            "<xs:simpleType name=\"T\"><xs:restriction base=\"xs:int\"/></xs:simpleType><xs:element name=\"root\" type=\"t:T\"/>",
+            "<xs:simpleType name=\"Other\"><xs:restriction base=\"xs:string\"/></xs:simpleType>",
+            ""
+        );
+
+        await Assert.That(AssemblyFixture.Run(validator, "<root xmlns=\"urn:t\">12</root>").IsValid).IsTrue();
+        await Assert.That(AssemblyFixture.Run(validator, "<root xmlns=\"urn:t\">abc</root>").IsValid).IsFalse();
+    }
+
+    [Test]
+    public async Task Build_WithAnOverrideThatBreaksTheTransformedSchema_IsALocatedSchemaError()
+    {
+        var exception = AssemblyFixture.Failure(() =>
+            Build(
+                "<xs:simpleType name=\"T\"><xs:restriction base=\"xs:int\"/></xs:simpleType><xs:element name=\"root\" type=\"t:T\"/>",
+                "<xs:simpleType name=\"T\"><xs:restriction base=\"t:Missing\"/></xs:simpleType>",
+                ""
+            )
+        );
+
+        await Assert.That(exception.Issues.Any(i => i.Code.Number == 4065)).IsFalse();
+        await Assert.That(exception.Issues.Any(i => i.Location.Line > 0)).IsTrue();
+    }
 }
