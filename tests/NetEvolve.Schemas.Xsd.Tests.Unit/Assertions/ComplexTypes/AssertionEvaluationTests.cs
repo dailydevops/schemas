@@ -49,13 +49,13 @@ public class AssertionEvaluationTests
     }
 
     [Test]
-    public async Task Assertion_ChildValues_AreUntypedUntilTheEvaluatorTakesAnnotations()
+    public async Task Assertion_TwoIntegerChildren_CompareNumerically()
     {
-        // Limitation pinned for #791: the XPath evaluator atomizes every node as xs:untypedAtomic, so two integer children compare as
-        // strings and 9 does not come before 10. With typed values both assertions pass, and this test then states the typed result.
-        var issues = AssertionFixture.Run("\n<r><a>9</a><b>10</b></r>", "a lt b");
+        // As strings 9 does not come before 10; the annotation source of the subtree makes the children xs:integer.
+        var issues = AssertionFixture.Run("
+<r><a>9</a><b>10</b></r>", "a lt b", "a < b", "b > a");
 
-        await Assert.That(Codes(issues)).IsEquivalentTo([XsdRuleCodes.CvcAssertion]);
+        await Assert.That(issues).IsEmpty();
     }
 
     [Test]
