@@ -1,7 +1,9 @@
 namespace NetEvolve.Schemas.Xsd.Tests.Unit.Compilation;
 
 using System;
+using System.Threading;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
+using NetEvolve.Schemas.Xsd.Compilation;
 using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.Tests.Unit.Composition;
 using static NetEvolve.Schemas.Xsd.Tests.Unit.Compilation.CompilationFixture;
@@ -87,5 +89,25 @@ public class ImportVisibilityTests
         var compilation = Compile(root, XsdVersion.V10, resolver);
 
         await Assert.That(Codes(compilation)).IsEquivalentTo([XsdRuleCodes.SrcResolve]);
+    }
+
+    [Test]
+    public async Task Compile_RootDocumentsOfOneSchemaSet_SeeEachOther(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var first = Root("<xs:element name=\"x\" type=\"a:a\"/>", string.Empty);
+        var second = CompositionFixture.Schema("<xs:complexType name=\"a\"/>", "urn:a");
+
+        var compilation = Compiler()
+            .Compile(
+                [
+                    SchemaInput.FromChars(first.AsMemory(), "file:///r1.xsd"),
+                    SchemaInput.FromChars(second.AsMemory(), "file:///r2.xsd"),
+                ],
+                cancellationToken
+            );
+
+        await Assert.That(compilation.IsValid).IsTrue();
     }
 }
