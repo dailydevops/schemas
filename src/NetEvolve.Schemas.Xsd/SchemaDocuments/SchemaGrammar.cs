@@ -287,7 +287,7 @@ internal static class SchemaGrammar
             "keyref",
             XsdRuleCodes.SrcIdentityConstraint,
             "annotation selector field",
-            Id + " name:ncname ref:qname refer:qname!"
+            Id + " name:ncname ref:qname refer:qname"
         );
         Add(rules, "selector", XsdRuleCodes.SrcIdentityConstraint, "annotation", Id + " xpath! xpathDefaultNamespace");
         Add(rules, "field", XsdRuleCodes.SrcIdentityConstraint, "annotation", Id + " xpath! xpathDefaultNamespace");
