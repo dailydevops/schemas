@@ -7,9 +7,7 @@ app-FunctxFn/functx-fn-escape-html-uri-all	#96	fn:escape-html-uri is not impleme
 app-FunctxFn/functx-fn-resolve-uri-4	#901	The runner skips the compound assertions any-of, all-of and not.
 app-FunctxFn/functx-fn-resolve-uri-5	#901	The runner skips the compound assertions any-of, all-of and not.
 app-FunctxFn/functx-fn-resolve-uri-all	#901	The runner skips the compound assertions any-of, all-of and not.
-fn-QName/K-ExpandedQNameConstructFunc-10	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
 fn-QName/K-ExpandedQNameConstructFunc-4	#644	The xs:QName constructor function resolves a prefix against no namespaces (FONS0004).
-fn-QName/K-ExpandedQNameConstructFunc-9	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
 fn-abs/K2-ABSFunc-35	#901	The runner skips the compound assertions any-of, all-of and not.
 fn-abs/K2-ABSFunc-36	#901	The runner skips the compound assertions any-of, all-of and not.
 fn-abs/K2-ABSFunc-37	#901	The runner skips the compound assertions any-of, all-of and not.
@@ -538,65 +536,10 @@ fn-true/fn-true-1	#901	The runner skips the compound assertions any-of, all-of a
 fn-unordered/K-SeqUnorderedFunc-6	#901	The runner skips the compound assertions any-of, all-of and not.
 fn-upper-case/fn-upper-case-19	#1145	fn:lower-case and fn:upper-case differ from the expected code points for the Greek and Coptic block.
 fn-year-from-date/fn-year-from-date-7	#901	The runner skips the compound assertions any-of, all-of and not.
-op-QName-equal/K-QNameEQ-1	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-QName-equal/K-QNameEQ-2	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-QName-equal/K-QNameEQ-3	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-QName-equal/K-QNameEQ-4	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-QName-equal/op-qname-equal-1	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-QName-equal/op-qname-equal-10	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-QName-equal/op-qname-equal-11	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-QName-equal/op-qname-equal-12	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-QName-equal/op-qname-equal-13	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-QName-equal/op-qname-equal-14	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-QName-equal/op-qname-equal-15	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-QName-equal/op-qname-equal-16	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-QName-equal/op-qname-equal-17	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-QName-equal/op-qname-equal-18	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-QName-equal/op-qname-equal-19	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-QName-equal/op-qname-equal-2	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-QName-equal/op-qname-equal-20	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-QName-equal/op-qname-equal-21	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-QName-equal/op-qname-equal-22	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-QName-equal/op-qname-equal-23	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-QName-equal/op-qname-equal-24	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-QName-equal/op-qname-equal-3	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-QName-equal/op-qname-equal-4	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-QName-equal/op-qname-equal-5	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-QName-equal/op-qname-equal-6	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-QName-equal/op-qname-equal-7	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-QName-equal/op-qname-equal-8	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-QName-equal/op-qname-equal-9	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
 op-add-dayTimeDuration-to-date/op-add-dayTimeDuration-to-date-8	#901	The runner skips the compound assertions any-of, all-of and not.
 op-add-dayTimeDuration-to-dateTime/op-add-dayTimeDuration-to-dateTime-8	#901	The runner skips the compound assertions any-of, all-of and not.
 op-add-yearMonthDuration-to-date/op-add-yearMonthDuration-to-date-8	#901	The runner skips the compound assertions any-of, all-of and not.
 op-add-yearMonthDuration-to-dateTime/op-add-yearMonthDuration-to-dateTime-8	#901	The runner skips the compound assertions any-of, all-of and not.
-op-base64Binary-equal/K-Base64BinaryEQ-1	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-base64Binary-equal/K-Base64BinaryEQ-2	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-base64Binary-equal/K-Base64BinaryEQ-3	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-base64Binary-equal/base64BinaryEqual-1	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-base64Binary-equal/base64BinaryEqual-10	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-base64Binary-equal/base64BinaryEqual-11	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-base64Binary-equal/base64BinaryEqual-12	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-base64Binary-equal/base64BinaryEqual-13	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-base64Binary-equal/base64BinaryEqual-14	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-base64Binary-equal/base64BinaryEqual-2	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-base64Binary-equal/base64BinaryEqual-3	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-base64Binary-equal/base64BinaryEqual-4	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-base64Binary-equal/base64BinaryEqual-6	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-base64Binary-equal/base64BinaryEqual-7	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-base64Binary-equal/base64BinaryEqual-8	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-base64Binary-equal/base64BinaryEqual-9	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-base64Binary-equal/base64binaryequal-5	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-base64Binary-equal/op-base64Binary-equal2args-1	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-base64Binary-equal/op-base64Binary-equal2args-10	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-base64Binary-equal/op-base64Binary-equal2args-2	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-base64Binary-equal/op-base64Binary-equal2args-3	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-base64Binary-equal/op-base64Binary-equal2args-4	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-base64Binary-equal/op-base64Binary-equal2args-5	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-base64Binary-equal/op-base64Binary-equal2args-6	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-base64Binary-equal/op-base64Binary-equal2args-7	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-base64Binary-equal/op-base64Binary-equal2args-8	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-base64Binary-equal/op-base64Binary-equal2args-9	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
 op-concatenate/op-concatenate-mix-args-019	#901	The runner skips the compound assertions any-of, all-of and not.
 op-date-equal/cbcl-date-eq-001	#901	The runner skips the compound assertions any-of, all-of and not.
 op-date-equal/cbcl-date-ne-001	#901	The runner skips the compound assertions any-of, all-of and not.
@@ -613,38 +556,6 @@ op-except/fn-except-node-args-011	#901	The runner skips the compound assertions 
 op-except/fn-except-node-args-014	#901	The runner skips the compound assertions any-of, all-of and not.
 op-except/fn-except-node-args-015	#901	The runner skips the compound assertions any-of, all-of and not.
 op-except/fn-except-node-args-016	#901	The runner skips the compound assertions any-of, all-of and not.
-op-hexBinary-equal/K-HexBinaryEQ-1	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-hexBinary-equal/K-HexBinaryEQ-2	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-hexBinary-equal/K-HexBinaryEQ-3	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-hexBinary-equal/K-HexBinaryEQ-4	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-hexBinary-equal/K-HexBinaryEQ-5	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-hexBinary-equal/K-HexBinaryEQ-6	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-hexBinary-equal/K-HexBinaryEQ-7	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-hexBinary-equal/K-HexBinaryEQ-8	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-hexBinary-equal/hexBinary-1	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-hexBinary-equal/hexBinary-10	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-hexBinary-equal/hexBinary-11	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-hexBinary-equal/hexBinary-12	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-hexBinary-equal/hexBinary-13	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-hexBinary-equal/hexBinary-14	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-hexBinary-equal/hexBinary-2	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-hexBinary-equal/hexBinary-3	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-hexBinary-equal/hexBinary-4	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-hexBinary-equal/hexBinary-5	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-hexBinary-equal/hexBinary-6	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-hexBinary-equal/hexBinary-7	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-hexBinary-equal/hexBinary-8	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-hexBinary-equal/hexBinary-9	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-hexBinary-equal/op-hexBinary-equal2args-1	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-hexBinary-equal/op-hexBinary-equal2args-10	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-hexBinary-equal/op-hexBinary-equal2args-2	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-hexBinary-equal/op-hexBinary-equal2args-3	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-hexBinary-equal/op-hexBinary-equal2args-4	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-hexBinary-equal/op-hexBinary-equal2args-5	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-hexBinary-equal/op-hexBinary-equal2args-6	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-hexBinary-equal/op-hexBinary-equal2args-7	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-hexBinary-equal/op-hexBinary-equal2args-8	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-op-hexBinary-equal/op-hexBinary-equal2args-9	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
 op-intersect/combiningnodeseqintersecthc2	#901	The runner skips the compound assertions any-of, all-of and not.
 op-intersect/fn-intersect-node-args-014	#901	The runner skips the compound assertions any-of, all-of and not.
 op-is-same-node/K-NodeSame-1	#901	The runner skips the compound assertions any-of, all-of and not.
@@ -791,17 +702,6 @@ prod-CastExpr/CastAs647	#901	The runner skips the compound assertions any-of, al
 prod-CastExpr/CastAs676	#901	The runner skips the compound assertions any-of, all-of and not.
 prod-CastExpr/CastFOCA0001-1	#901	The runner skips the compound assertions any-of, all-of and not.
 prod-CastExpr/CastFOCA0003-1	#901	The runner skips the compound assertions any-of, all-of and not.
-prod-CastExpr/K-SeqExprCast-1264	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-prod-CastExpr/K-SeqExprCast-1265	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-prod-CastExpr/K-SeqExprCast-1266	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-prod-CastExpr/K-SeqExprCast-1304	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-prod-CastExpr/K-SeqExprCast-1306	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-prod-CastExpr/K-SeqExprCast-1316	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-prod-CastExpr/K-SeqExprCast-1317	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-prod-CastExpr/K-SeqExprCast-1318	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-prod-CastExpr/K-SeqExprCast-1356	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-prod-CastExpr/K-SeqExprCast-1358	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-prod-CastExpr/K-SeqExprCast-1420	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
 prod-CastExpr/K-SeqExprCast-144	#901	The runner skips the compound assertions any-of, all-of and not.
 prod-CastExpr/K-SeqExprCast-1491	#901	The runner skips the compound assertions any-of, all-of and not.
 prod-CastExpr/K-SeqExprCast-42	#644	The xs:QName constructor function resolves a prefix against no namespaces (FONS0004).
@@ -810,8 +710,6 @@ prod-CastExpr/K-SeqExprCast-63	#901	The runner skips the compound assertions any
 prod-CastExpr/K-SeqExprCast-64	#901	The runner skips the compound assertions any-of, all-of and not.
 prod-CastExpr/K-SeqExprCast-67	#901	The runner skips the compound assertions any-of, all-of and not.
 prod-CastExpr/K-SeqExprCast-69	#901	The runner skips the compound assertions any-of, all-of and not.
-prod-CastExpr/K-SeqExprCast-70	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
-prod-CastExpr/K2-SeqExprCast-1	#1143	Value comparison of xs:QName, xs:hexBinary and xs:base64Binary raises XPTY0004.
 prod-CastExpr/K2-SeqExprCast-17	#901	The runner skips the compound assertions any-of, all-of and not.
 prod-CastExpr/K2-SeqExprCast-2	#901	The runner skips the compound assertions any-of, all-of and not.
 prod-CastExpr/K2-SeqExprCast-201	#644	The xs:QName constructor function resolves a prefix against no namespaces (FONS0004).
