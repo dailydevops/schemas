@@ -19,11 +19,6 @@ public class NotYetSupportedTests
         StringComparer.Ordinal
     )
     {
-        ["alternative"] = (
-            "<xs:element name=\"e\" type=\"xs:string\"><xs:alternative test=\"true()\" type=\"xs:string\"/></xs:element>",
-            "",
-            4062
-        ),
         ["openContent"] = (
             "<xs:complexType name=\"c\"><xs:openContent><xs:any/></xs:openContent><xs:sequence/></xs:complexType>",
             "",
@@ -42,12 +37,6 @@ public class NotYetSupportedTests
             "",
             4069
         ),
-        ["xpathDefaultNamespace"] = (
-            "<xs:element name=\"e\" type=\"xs:string\"><xs:alternative test=\"true()\" type=\"xs:string\" xpathDefaultNamespace=\"##local\"/></xs:element>",
-            "",
-            4070
-        ),
-        ["inheritable"] = ("<xs:attribute name=\"a\" type=\"xs:string\" inheritable=\"true\"/>", "", 4071),
         ["targetNamespace"] = (
             "<xs:complexType name=\"c\"><xs:sequence><xs:element name=\"e\" type=\"xs:string\" targetNamespace=\"urn:o\"/></xs:sequence></xs:complexType>",
             "",
@@ -112,12 +101,18 @@ public class NotYetSupportedTests
     {
         var counterparts = Xsd11ConstructTable.Entries.Select(e => e.NotYetSupported.Code.Number).ToArray();
 
-        // The assert element of a complex type, the assertion facet, the explicitTimezone facet, and the override element are wired
-        // (XSD-78, #360, #1191, #1430, #1423), so they have no row any more.
+        // The assert element of a complex type, the assertion facet, the explicitTimezone facet, the override element, the type
+        // alternative, and the inheritable and xpathDefaultNamespace attributes are wired (XSD-78, #360, #1191, #1430, #1423, #1427,
+        // #1428), so they have no row any more.
         foreach (
             var entry in Strict10ConstructTable.Entries.Where(e =>
                 e.IsAttribute
-                || (e.Name != "assert" && e.Name != "assertion" && e.Name != "explicitTimezone" && e.Name != "override")
+                    ? e.Name != "inheritable" && e.Name != "xpathDefaultNamespace"
+                    : e.Name != "assert"
+                        && e.Name != "assertion"
+                        && e.Name != "explicitTimezone"
+                        && e.Name != "override"
+                        && e.Name != "alternative"
             )
         )
         {

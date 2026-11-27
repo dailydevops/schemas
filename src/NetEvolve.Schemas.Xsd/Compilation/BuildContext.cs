@@ -16,6 +16,7 @@ using NetEvolve.Schemas.Xsd.Elements;
 using NetEvolve.Schemas.Xsd.SchemaDocuments;
 using NetEvolve.Schemas.Xsd.SimpleTypes.Checks;
 using NetEvolve.Schemas.Xsd.SimpleTypes.Definitions;
+using NetEvolve.Schemas.Xsd.TypeAlternatives;
 using NetEvolve.Schemas.Xsd.Validation.Core;
 
 /// <summary>
@@ -120,6 +121,9 @@ internal sealed class BuildContext
 
     /// <summary>Gets the element declarations whose anonymous type is still to be built, with the unit that holds them.</summary>
     public Queue<KeyValuePair<ElementDeclaration, UnitScope>> PendingElements { get; } = new();
+
+    /// <summary>Gets the type alternatives whose anonymous type is still to be built, with the unit that holds them.</summary>
+    public Queue<KeyValuePair<TypeAlternative, UnitScope>> PendingAlternatives { get; } = new();
 
     /// <summary>Gets every element declaration that was found: global, local, and nested in an anonymous type.</summary>
     public List<ElementDeclaration> FoundElements { get; } = [];

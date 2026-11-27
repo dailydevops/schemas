@@ -11,10 +11,8 @@ using NetEvolve.Schemas.Xsd.Versioning.Constructs;
 /// The one table of the XSD 1.1 constructs that the assembled validator does not support yet (design #146 DP-16). Under the
 /// default version every occurrence is a located schema error, so no schema is silently read with 1.0 semantics; XSD-78 (#360)
 /// removes a row together with its tests when it implements the construct. The <c>assert</c> element of a complex type, the
-/// <c>assertion</c> facet of a simple type, the <c>explicitTimezone</c> facet, and the <see langword="override"/> element are wired
-/// (they have no row). The <c>xpathDefaultNamespace</c> attribute stays a row for the type <c>alternative</c> only, because the
-/// selector and field of an identity constraint and the default on the <c>schema</c> element are read by the compilation (#1427),
-/// while the type alternative is not compiled by the pipeline yet (#1428).
+/// <c>assertion</c> facet of a simple type, the <c>explicitTimezone</c> facet, the <see langword="override"/> element, the type
+/// <c>alternative</c>, and the <c>inheritable</c> and <c>xpathDefaultNamespace</c> attributes are wired (they have no row).
 /// </summary>
 /// <remarks>
 /// The rows of the strict 1.0 table (<see cref="Strict10ConstructTable"/>) are the first rows; their not-yet-supported code is the
@@ -32,8 +30,6 @@ internal static class Xsd11ConstructTable
 
     private static readonly string[] TypeAttributes = ["type", "base", "itemType", "memberTypes"];
 
-    private static readonly string[] XPathDefaultNamespaceOwners = ["alternative"];
-
     internal static IReadOnlyList<Xsd11Construct> Entries { get; } = Create();
 
     private static List<Xsd11Construct> Create()
@@ -41,7 +37,11 @@ internal static class Xsd11ConstructTable
         var entries = new List<Xsd11Construct>(Strict10ConstructTable.Entries.Count + 4);
         foreach (var strict in Strict10ConstructTable.Entries)
         {
-            if (!strict.IsAttribute && strict.Name is "assert" or "assertion" or "explicitTimezone" or "override")
+            if (
+                strict.IsAttribute
+                    ? strict.Name is "inheritable" or "xpathDefaultNamespace"
+                    : strict.Name is "assert" or "assertion" or "explicitTimezone" or "override" or "alternative"
+            )
             {
                 continue;
             }
@@ -51,9 +51,7 @@ internal static class Xsd11ConstructTable
                     strict.IsAttribute,
                     [strict.Name],
                     XsdRuleLookup.Find(new DiagnosticCode(strict.Rule.Code.Number + NotYetSupportedOffset)),
-                    strict.IsAttribute && strict.Name == "xpathDefaultNamespace"
-                        ? XPathDefaultNamespaceOwners
-                        : strict.Owners,
+                    strict.Owners,
                     strict.LocalOnly
                 )
             );

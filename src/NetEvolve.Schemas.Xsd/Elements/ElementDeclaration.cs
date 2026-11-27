@@ -8,14 +8,15 @@ using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.IdentityConstraints.Definitions;
 using NetEvolve.Schemas.Xsd.Substitution;
+using NetEvolve.Schemas.Xsd.TypeAlternatives;
 
 /// <summary>
 /// An element declaration (Structures section 3.3). Its type is a by-name reference that the resolver binds; an anonymous type
 /// stays as syntax until the type builders construct it.
 /// </summary>
 /// <remarks>
-/// Limitations: only the first head of the <c>substitutionGroup</c> of a global declaration is read (several heads are XSD-71 #322), type alternatives are
-/// XSD 1.1 (#319), and a local <c>targetNamespace</c> is XSD-71 (#322); checking the value constraint against the type
+/// Limitations: only the first head of the <c>substitutionGroup</c> of a global declaration is read (several heads are XSD-71 #322), and a local
+/// <c>targetNamespace</c> is XSD-71 (#322); checking the value constraint against the type
 /// (cos-valid-default) is XSD-54 (#307).
 /// </remarks>
 internal sealed class ElementDeclaration : IReferencingComponent, ISubstitutionElement
@@ -75,6 +76,18 @@ internal sealed class ElementDeclaration : IReferencingComponent, ISubstitutionE
     /// declaration that states no type and names a head has the type of the head (Structures 3.3.2, clause 1.2 of the type definition).
     /// </summary>
     public IXsdComponent? TypeDefinition => _type ?? InheritedType();
+
+    /// <summary>Gets the type table (XSD 1.1 type alternatives), <see langword="null"/> when the declaration has no <c>alternative</c> child.</summary>
+    internal TypeTable? TypeTable { get; private set; }
+
+    /// <summary>Receives the type table that the builder read from the <c>alternative</c> children.</summary>
+    /// <param name="table">The table.</param>
+    internal void BindTypeTable(TypeTable table)
+    {
+        ArgumentNullException.ThrowIfNull(table);
+
+        TypeTable = table;
+    }
 
     /// <summary>Gets the head of the substitution group, <see langword="null"/> for none or while it is unresolved.</summary>
     internal ElementDeclaration? Head { get; private set; }

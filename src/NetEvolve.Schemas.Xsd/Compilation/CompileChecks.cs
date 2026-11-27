@@ -18,6 +18,7 @@ using NetEvolve.Schemas.Xsd.Elements;
 using NetEvolve.Schemas.Xsd.SimpleTypes.Checks;
 using NetEvolve.Schemas.Xsd.SimpleTypes.Definitions;
 using NetEvolve.Schemas.Xsd.Substitution;
+using NetEvolve.Schemas.Xsd.TypeAlternatives;
 using NetEvolve.Schemas.Xsd.Versioning.Rules10;
 
 /// <summary>
@@ -59,6 +60,7 @@ internal static class CompileChecks
 
         derivation.ReportAll(context.BuiltComplexTypes, reporter);
         CheckValueConstraints(context, version, reporter);
+        CheckTypeTables(context, derivation, reporter);
         var groups = CheckSubstitutionGroups(context, derivation, reporter);
         particles?.Substitutions = groups;
         CheckContents(context, version, reporter);
@@ -75,6 +77,19 @@ internal static class CompileChecks
         }
 
         return groups;
+    }
+
+    // Structures 1.1, 3.12.6 (ta-props-correct): the type of an alternative is xs:error or derived from the declared type.
+    private static void CheckTypeTables(BuildContext context, TypeDerivationCheck derivation, XsdIssueReporter reporter)
+    {
+        for (var i = 0; i < context.FoundElements.Count; i++)
+        {
+            var element = context.FoundElements[i];
+            if (element.TypeTable is { } table && element.TypeDefinition is { } declared)
+            {
+                table.Check(declared, derivation, reporter);
+            }
+        }
     }
 
     private static void CheckValueConstraints(BuildContext context, XsdVersion version, XsdIssueReporter reporter)

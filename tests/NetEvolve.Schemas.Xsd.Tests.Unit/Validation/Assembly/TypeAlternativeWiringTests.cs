@@ -8,38 +8,53 @@ using XsdVersion = NetEvolve.Schemas.Xml.Datatypes.Contracts.XsdVersion;
 public class TypeAlternativeWiringTests
 {
     private const string XsiDeclarations =
-        "xmlns=\"urn:t\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"";
+        "xmlns=\"urn:t\" xmlns:t=\"urn:t\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"";
 
     private static readonly string Schema = AssemblyFixture.WrapSchema(
         """
-        <xs:simpleType name="small"><xs:restriction base="xs:int"><xs:maxInclusive value="9"/></xs:restriction></xs:simpleType>
-        <xs:simpleType name="tiny"><xs:restriction base="t:small"><xs:maxInclusive value="3"/></xs:restriction></xs:simpleType>
-        <xs:element name="num" type="xs:integer">
+        <xs:complexType name="numBase">
+          <xs:simpleContent><xs:extension base="xs:integer"><xs:attribute name="kind" type="xs:string"/></xs:extension></xs:simpleContent>
+        </xs:complexType>
+        <xs:complexType name="small">
+          <xs:simpleContent><xs:restriction base="t:numBase"><xs:maxInclusive value="9"/></xs:restriction></xs:simpleContent>
+        </xs:complexType>
+        <xs:complexType name="tiny">
+          <xs:simpleContent><xs:restriction base="t:small"><xs:maxInclusive value="3"/></xs:restriction></xs:simpleContent>
+        </xs:complexType>
+        <xs:complexType name="byteNum">
+          <xs:simpleContent><xs:restriction base="t:numBase"><xs:maxInclusive value="127"/></xs:restriction></xs:simpleContent>
+        </xs:complexType>
+        <xs:complexType name="flagged">
+          <xs:simpleContent><xs:extension base="xs:int"><xs:attribute name="flag" type="xs:string"/></xs:extension></xs:simpleContent>
+        </xs:complexType>
+        <xs:element name="num" type="t:numBase">
           <xs:alternative test="@kind = 'small'" type="t:small"/>
-          <xs:alternative test="@kind = 'byte'" type="xs:byte"/>
+          <xs:alternative test="@kind = 'byte'" type="t:byteNum"/>
         </xs:element>
-        <xs:element name="withDefault" type="xs:integer">
-          <xs:alternative test="@kind = 'byte'" type="xs:byte"/>
+        <xs:element name="withDefault" type="t:numBase">
+          <xs:alternative test="@kind = 'byte'" type="t:byteNum"/>
           <xs:alternative type="t:small"/>
         </xs:element>
-        <xs:element name="inline" type="xs:integer">
+        <xs:element name="inline" type="t:numBase">
           <xs:alternative test="@kind = 'a'">
-            <xs:simpleType><xs:restriction base="xs:integer"><xs:maxInclusive value="3"/></xs:restriction></xs:simpleType>
+            <xs:complexType>
+              <xs:simpleContent><xs:restriction base="t:numBase"><xs:maxInclusive value="3"/></xs:restriction></xs:simpleContent>
+            </xs:complexType>
           </xs:alternative>
         </xs:element>
         <xs:element name="poly">
           <xs:alternative test="@kind = 'c'">
-            <xs:complexType><xs:sequence><xs:element name="x" type="xs:int"/></xs:sequence></xs:complexType>
+            <xs:complexType><xs:sequence><xs:element name="x" type="xs:int"/></xs:sequence><xs:attribute name="kind"/></xs:complexType>
           </xs:alternative>
         </xs:element>
         <xs:element name="holder">
           <xs:alternative test="child = 'x'" type="xs:int" xpathDefaultNamespace="##targetNamespace"/>
         </xs:element>
         <xs:element name="attrs">
-          <xs:alternative test="@flag = 'y'" type="xs:int"/>
+          <xs:alternative test="@flag = 'y'" type="t:flagged"/>
         </xs:element>
-        <xs:element name="dynamic" type="xs:string">
-          <xs:alternative test="xs:integer(@kind) = 1" type="xs:token"/>
+        <xs:element name="dynamic" type="t:numBase">
+          <xs:alternative test="xs:integer(@kind) = 1" type="t:tiny"/>
         </xs:element>
         <xs:element name="outer">
           <xs:complexType>
@@ -47,8 +62,33 @@ public class TypeAlternativeWiringTests
             <xs:attribute name="kind" type="xs:string" inheritable="true"/>
           </xs:complexType>
         </xs:element>
-        <xs:element name="innerInherited" type="xs:integer">
+        <xs:element name="innerInherited" type="t:numBase">
           <xs:alternative test="@kind = 'small'" type="t:small"/>
+        </xs:element>
+        <xs:attribute name="mode" type="xs:string" inheritable="true"/>
+        <xs:element name="innerMode" type="t:numBase">
+          <xs:alternative test="@t:mode = 'small'" type="t:small"/>
+        </xs:element>
+        <xs:element name="byRef">
+          <xs:complexType>
+            <xs:sequence><xs:element ref="t:innerMode"/></xs:sequence>
+            <xs:attribute ref="t:mode"/>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="byWildcard">
+          <xs:complexType>
+            <xs:sequence><xs:element ref="t:innerMode"/></xs:sequence>
+            <xs:anyAttribute namespace="##targetNamespace" processContents="lax"/>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="bySkip">
+          <xs:complexType>
+            <xs:sequence><xs:element ref="t:innerMode"/></xs:sequence>
+            <xs:anyAttribute namespace="##targetNamespace" processContents="skip"/>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="plainInt" type="xs:int">
+          <xs:alternative test="true()" type="xs:short"/>
         </xs:element>
         <xs:element name="outerPlain">
           <xs:complexType>
@@ -110,10 +150,12 @@ public class TypeAlternativeWiringTests
         var children = Run("<holder xmlns=\"urn:t\"><child>x</child></holder>");
         var withAttribute = Run("<attrs xmlns=\"urn:t\" flag=\"y\">5</attrs>");
         var withBadValue = Run("<attrs xmlns=\"urn:t\" flag=\"y\">abc</attrs>");
+        var other = Run("<attrs xmlns=\"urn:t\" flag=\"n\">abc</attrs>");
 
         await Assert.That(children.IsValid).IsTrue();
         await Assert.That(withAttribute.IsValid).IsTrue();
         await Assert.That(withBadValue.IsValid).IsFalse();
+        await Assert.That(other.IsValid).IsTrue();
     }
 
     [Test]
@@ -129,10 +171,34 @@ public class TypeAlternativeWiringTests
     }
 
     [Test]
+    [Arguments("byRef", false)]
+    [Arguments("byWildcard", false)]
+    [Arguments("bySkip", true)]
+    public async Task Validate_TheInheritableAttributeOfAGlobalDeclaration_IsVisibleThroughAReferenceOrALaxWildcard(
+        string root,
+        bool expected
+    )
+    {
+        var result = Run(
+            "<" + root + " xmlns=\"urn:t\" xmlns:t=\"urn:t\" t:mode=\"small\"><innerMode>50</innerMode></" + root + ">"
+        );
+
+        await Assert.That(result.IsValid).IsEqualTo(expected);
+    }
+
+    [Test]
+    public async Task Validate_AnAttributeOfASimpleTypeElement_IsNotInherited()
+    {
+        var result = Run("<plainInt xmlns=\"urn:t\" foo=\"1\">5</plainInt>");
+
+        await Assert.That(result.IsValid).IsFalse();
+    }
+
+    [Test]
     [Arguments(" kind=\"small\" xsi:type=\"t:tiny\">3</num>", true)]
     [Arguments(" kind=\"small\" xsi:type=\"t:tiny\">5</num>", false)]
-    [Arguments(" kind=\"small\" xsi:type=\"xs:byte\">5</num>", false)]
-    [Arguments(" xsi:type=\"xs:long\">5</num>", true)]
+    [Arguments(" kind=\"small\" xsi:type=\"t:byteNum\">5</num>", false)]
+    [Arguments(" xsi:type=\"t:byteNum\">5</num>", true)]
     public async Task Validate_XsiTypeMustBeDerivedFromTheTypeThatTheTableSelected(string rest, bool expected)
     {
         var result = Run("<num " + XsiDeclarations + rest);
@@ -143,9 +209,11 @@ public class TypeAlternativeWiringTests
     [Test]
     public async Task Validate_ADynamicErrorInTheTest_MakesItFalse()
     {
-        var result = Run("<dynamic xmlns=\"urn:t\" kind=\"abc\">  a  </dynamic>");
+        var dynamicError = Run("<dynamic xmlns=\"urn:t\" kind=\"abc\">5</dynamic>");
+        var selected = Run("<dynamic xmlns=\"urn:t\" kind=\"1\">5</dynamic>");
 
-        await Assert.That(result.IsValid).IsTrue();
+        await Assert.That(dynamicError.IsValid).IsTrue();
+        await Assert.That(selected.IsValid).IsFalse();
     }
 
     [Test]

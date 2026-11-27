@@ -104,17 +104,18 @@ The version is a property of the validator, set with `WithVersion` before the bu
 
 | Selection | Meaning |
 | --- | --- |
-| `XsdVersion.V11` (the default) | XSD 1.1, which is incomplete. A 1.1 construct that is not wired in yet is a schema error with a code from `NES4062` to `NES4077` ("not supported yet"), so a schema never silently loses a construct. |
+| `XsdVersion.V11` (the default) | XSD 1.1, which is incomplete. A 1.1 construct that is not wired in yet is a schema error with a code from `NES4063` to `NES4077` ("not supported yet"), so a schema never silently loses a construct. |
 | `XsdVersion.V10` | Strict XSD 1.0. Every XSD 1.1 construct is a schema error with a code from `NES4020` to `NES4035` ("not allowed in strict 1.0 mode"). |
 
-The sample builds a schema with an `xs:alternative` type alternative, an XSD 1.1 construct that is not wired in yet, under both versions:
+The sample builds a schema with an `xs:openContent` element, an XSD 1.1 construct that is not wired in yet, under both versions:
 
 ```csharp
 const string schema = """
     <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
-      <xs:element name="total" type="xs:int">
-        <xs:alternative test="@kind = 'x'" type="xs:string"/>
-      </xs:element>
+      <xs:complexType name="open">
+        <xs:openContent><xs:any/></xs:openContent>
+        <xs:sequence/>
+      </xs:complexType>
     </xs:schema>
     """;
 
@@ -136,7 +137,7 @@ foreach (var version in new[] { XsdVersion.V11, XsdVersion.V10 })
 }
 ```
 
-Here `codes` holds `V11: NES4062` and `V10: NES4022`. A validator for XSD 1.0 is built like this:
+Here `codes` holds `V11: NES4063` and `V10: NES4023`. A validator for XSD 1.0 is built like this:
 
 ```csharp
 var validator = await SchemaValidator
@@ -293,7 +294,7 @@ For complete documentation, please visit the [official documentation](https://gi
 
 ### XSD 1.1 status
 
-XSD 1.1 is the default version, and it is incomplete until the 1.1 wiring (#360) is done. The package holds the building blocks of several 1.1 features (type alternatives, open content, conditional inclusion, and more than one substitution group head), but the builder does not enable them yet. Assertions on complex types (`xs:assert`), the assertion facet of simple types (`xs:assertion`), the `xs:explicitTimezone` facet of the date and time types, and the override of schema components (`xs:override`) are wired. The builder compiles `xs:assert`, `xs:assertion` and `xs:explicitTimezone` and the validator evaluates them (at the end tag of the element for `xs:assert`, with the value of the element or attribute bound to `$value` for `xs:assertion`), with the limitations of the assertion listener and the facet evaluator (the `xpathDefaultNamespace` attribute is honored on `xs:assert`, `xs:assertion`, and the `xs:selector` and `xs:field` of identity constraints, with `xs:schema` as the default; on `xs:alternative` it is still reported as `NES4070` until type alternatives are wired, #1428; the assertions of list items and union members are not checked, #949). `xs:override` is a compile-time transformation of the schema documents, so nothing evaluates it, and an override that fails to compile is a located schema error (`NES4065` is no longer reported for it). A schema that uses one of these constructs under the default version fails the build with a coded, located schema error that states the construct is "not supported yet": `NES4062` for `xs:alternative`, `NES4063` for `xs:openContent`, and the codes up to `NES4077` for the other constructs, among them the datatypes `xs:precisionDecimal` and `xs:error`. Strict `V10` reports the same constructs with the codes `NES4020` to `NES4035`. The attributes of the version control namespace (`vc:`) are not applied yet, so a construct inside an excluded block is reported as well. No XSD 1.1 conformance rate is claimed: the cases of XSD 1.1 of the test suite are all baselined as known failures until the wiring is done, and the XSD 1.1 conformance statement is a work package of its own.
+XSD 1.1 is the default version, and it is incomplete until the 1.1 wiring (#360) is done. The package holds the building blocks of several 1.1 features (open content, conditional inclusion, and more than one substitution group head), but the builder does not enable them yet. Assertions on complex types (`xs:assert`), the assertion facet of simple types (`xs:assertion`), the `xs:explicitTimezone` facet of the date and time types, the override of schema components (`xs:override`), and the type alternatives (`xs:alternative` with the `inheritable` attribute of attribute declarations) are wired. The builder compiles `xs:assert`, `xs:assertion` and `xs:explicitTimezone` and the validator evaluates them (at the end tag of the element for `xs:assert`, with the value of the element or attribute bound to `$value` for `xs:assertion`), with the limitations of the assertion listener and the facet evaluator (the `xpathDefaultNamespace` attribute is honored on `xs:assert`, `xs:assertion`, and the `xs:selector` and `xs:field` of identity constraints, with `xs:schema` as the default; on `xs:alternative` too; the assertions of list items and union members are not checked, #949). The builder compiles the `xs:alternative` children of an element declaration into its type table, and the validator selects the type when the attributes of the element are complete, before `xsi:type` is applied: the first alternative whose `test` is true wins, then the alternative without a `test`, then the declared type. A `test` sees the attributes of the element, including the attributes that an ancestor declared `inheritable`, and nothing else (no child, no parent). A `test` that raises a dynamic error is false (Structures 1.1, section 3.12.4), a `test` that is not valid XPath and a type that is not derived from the declared type are located schema errors (`xpath-valid`, `ta-props-correct`), and `xsi:type` must be derived from the selected type. Limitations: the `test` is compiled with the full XPath 2.0 of the XPath package, not the subset that Structures 1.1 requires at least; the attributes that a default adds are not visible to a `test`; the type `xs:error` cannot be named yet (`NES4077`). `xs:override` is a compile-time transformation of the schema documents, so nothing evaluates it, and an override that fails to compile is a located schema error (`NES4065` is no longer reported for it). A schema that uses one of these constructs under the default version fails the build with a coded, located schema error that states the construct is "not supported yet": `NES4063` for `xs:openContent`, and the codes up to `NES4077` for the other constructs, among them the datatypes `xs:precisionDecimal` and `xs:error`. Strict `V10` reports the same constructs with the codes `NES4020` to `NES4035`. The attributes of the version control namespace (`vc:`) are not applied yet, so a construct inside an excluded block is reported as well. No XSD 1.1 conformance rate is claimed: the cases of XSD 1.1 of the test suite are all baselined as known failures until the wiring is done, and the XSD 1.1 conformance statement is a work package of its own.
 
 ### Conformance
 
