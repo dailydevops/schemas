@@ -305,9 +305,9 @@ The conformance run executes the W3C XML Schema Test Suite (XSTS), pinned by che
 
 | Part | Applicable | Passed | Known failures | Rate |
 | --- | --- | --- | --- | --- |
-| Schema tests | 14364 | 14302 | 62 | 99.5% |
+| Schema tests | 14364 | 14320 | 44 | 99.6% |
 | Instance tests | 25017 | 24073 | 944 | 96.2% |
-| Both | 39381 | 38375 | 1006 | 97.4% |
+| Both | 39381 | 38393 | 988 | 97.4% |
 
 The last row adds the two published rows; the job summary shows no row for the sum. The selection also leaves 104 excluded cases of XSD 1.0 out of these counts: cases whose status is not accepted, whose expected outcome is not definite, or that depend on a processor feature that the runner does not model. Every known failure is a case of the committed baseline in `tests/conformance/baselines/xsts/`, and it is listed with its reason and, where a bug issue exists, its issue in `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTests/known-failures.txt` and `tests/NetEvolve.Schemas.Xsd.Tests.Integration/InstanceTests/known-failures.txt`. A regression and an unexpected pass fail the run. To reproduce the numbers, run the conformance tests of the integration project on one leg, with a file in `GITHUB_STEP_SUMMARY` to receive the rows:
 
@@ -323,7 +323,7 @@ The summary file then also holds the row `NetEvolve.Schemas.Xsd`, which counts t
 - XSD 1.1 is the default but incomplete: see [XSD 1.1 status](#xsd-11-status). The wiring of the 1.1 features is #360, and the assertions of complex types and the assertion facet of simple types are wired (#318, #1191).
 - Incomplete schemas are rejected: a schema with a reference to a component that is not there fails the build, instead of failing only where the component is used (#956).
 - The enumeration facet of a restriction is not evaluated when instance values are validated for list types (#1077), union types (#1078), and hexBinary and base64Binary (#1079); the other facets of a user-defined simple type are evaluated.
-- Substitution groups are not supported yet (#868) and a redefinition is not checked against the redefined component (#869). `xs:include`, `xs:import`, and `xs:redefine` otherwise work through the resolver.
+- Substitution groups are not supported yet (#868) and circular redefinitions are not resolved (#1418). A group (XSD 1.0) or attribute group that is redefined without a reference to itself is checked against the original. `xs:include`, `xs:import`, and `xs:redefine` otherwise work through the resolver.
 - The datatype `xs:precisionDecimal` is not supported (#64).
 - `AddSchemaLocation` is not available on the builder (#897).
 - The model of the document tree holds no document type declaration, so a tree validation can differ from the streaming path for an instance that depends on one (#731); the XPath evaluator reads typed values only through the annotations (#791).

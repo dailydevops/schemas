@@ -29,19 +29,19 @@ No builder option, switch, or code path in the library reproduces System.Xml.Sch
 |---|---:|---:|
 | Verdict differences: this library follows the specification | 1706 | 1674 |
 | Verdict differences: documented limitations of this library | 21 | 17 |
-| Position differences: equivalent | 12107 | 12107 |
-| Differences on cases that a bug issue tracks (no entry) | 875 | |
+| Position differences: equivalent | 12123 | 12123 |
+| Differences on cases that a bug issue tracks (no entry) | 854 | |
 
 ## Differences on cases that a bug issue tracks
 
-The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTests/known-failures.txt` and `tests/NetEvolve.Schemas.Xsd.Tests.Integration/InstanceTests/known-failures.txt` record every case of XSD 1.0 that this library does not pass yet, each with its bug issue. At the time of this triage the run found 896 differences on these cases:
+The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTests/known-failures.txt` and `tests/NetEvolve.Schemas.Xsd.Tests.Integration/InstanceTests/known-failures.txt` record every case of XSD 1.0 that this library does not pass yet, each with its bug issue. At the time of this triage the run found 875 differences on these cases:
 
 | Issue | Differences | Title |
 |---|---:|---|
 | #1077 | 654 | feat(xsd): evaluate the enumeration facet of list simple types in the value space |
 | #1078 | 101 | feat(xsd): evaluate the enumeration facet of union simple types in the value space |
 | #963 | 35 | test(conformance): run the xsts instance tests of groups without a schema document through schema location hints |
-| #869 | 24 | feat(xsd): check redefinitions against the redefined component |
+| #1418 | 3 | bug(xsd): circular redefine chains fail with a missing redefined component |
 | #870 | 22 | feat(xsd): add notation declarations as components |
 | #62 | 19 | feat(xml): support xml 1.1 |
 | #896 | 7 | feat(xsd): compare fixed values in the value space when validating instances |
@@ -2212,9 +2212,9 @@ msMeta-AttributeGroup_w3c/1.0/attgD003/attgD003.v
 
 Both engines reject the document with the same number of issues on the same lines, and the verdicts agree. They anchor an issue at different columns of the same construct. Issue positions are not part of the specification, so the difference is equivalent.
 
-- Difference: IssuePositions `issue positions` (3190)
+- Difference: IssuePositions `issue positions` (3189)
 - Specification: XSD 1.0 Part 1, 5.2 and C.1 (the assessment outcome is the validity property; positions and number of reports are not specified)
-- Cases: 3190
+- Cases: 3189
 
 ```text
 ibmMeta-unitsLength/1.0/d2_4_1_3si01/d2_4_1_3si01s
@@ -2226,7 +2226,6 @@ ibmMeta-xml11Support/1.0/d3_4_6ii01/d3_4_6ii01i
 ibmMeta-xml11Support/1.0/d3_4_6ii02/d3_4_6ii02i
 ibmMeta-xml11Support/1.0/d3_4_6ii03/d3_4_6ii03i
 ibmMeta-xml11Support/1.0/d3_4_6ii04/d3_4_6ii04i
-msMeta-Additional_w3c/1.0/addB004/addB004
 msMeta-Additional_w3c/1.0/addB005/addB005
 msMeta-Additional_w3c/1.0/addB008/addB008
 msMeta-Additional_w3c/1.0/addB009/addB009
@@ -2330,6 +2329,7 @@ msMeta-AttributeGroup_w3c/1.0/attgD037/attgD037
 msMeta-AttributeGroup_w3c/1.0/attgD038/attgD038
 msMeta-AttributeGroup_w3c/1.0/attgD039/attgD039
 msMeta-AttributeGroup_w3c/1.0/attgD041/attgD041
+msMeta-AttributeGroup_w3c/1.0/attgZ002/attgZ002
 msMeta-Attribute_w3c/1.0/attA001/attA001
 msMeta-Attribute_w3c/1.0/attA002/attA002
 msMeta-Attribute_w3c/1.0/attB006/attB006
@@ -2610,8 +2610,6 @@ msMeta-DataTypes_w3c/1.0/NOTATION_length001_300/NOTATION_length001_300
 msMeta-DataTypes_w3c/1.0/NOTATION_length002_301/NOTATION_length002_301
 msMeta-DataTypes_w3c/1.0/NOTATION_length004_303/NOTATION_length004_303
 msMeta-DataTypes_w3c/1.0/NOTATION_length005_304/NOTATION_length005_304
-msMeta-DataTypes_w3c/1.0/NOTATION_length006_305/NOTATION_length006_305
-msMeta-DataTypes_w3c/1.0/NOTATION_length007_306/NOTATION_length007_306
 msMeta-DataTypes_w3c/1.0/NOTATION_maxLength001_314/NOTATION_maxLength001_314
 msMeta-DataTypes_w3c/1.0/NOTATION_maxLength002_315/NOTATION_maxLength002_315
 msMeta-DataTypes_w3c/1.0/NOTATION_maxLength004_317/NOTATION_maxLength004_317
@@ -3988,6 +3986,7 @@ msMeta-ModelGroups_w3c/1.0/mgN015/mgN015.i
 msMeta-ModelGroups_w3c/1.0/mgN016/mgN016.i
 msMeta-ModelGroups_w3c/1.0/mgO001/mgO001
 msMeta-ModelGroups_w3c/1.0/mgO003/mgO003
+msMeta-ModelGroups_w3c/1.0/mgO013/mgO013
 msMeta-ModelGroups_w3c/1.0/mgO018/mgO018
 msMeta-ModelGroups_w3c/1.0/mgO020/mgO020
 msMeta-ModelGroups_w3c/1.0/mgP039/mgP039
@@ -4018,7 +4017,6 @@ msMeta-ModelGroups_w3c/1.0/mgR016/mgR016
 msMeta-ModelGroups_w3c/1.0/mgR017/mgR017
 msMeta-ModelGroups_w3c/1.0/mgR018/mgR018
 msMeta-ModelGroups_w3c/1.0/mgZ001/mgZ001.i
-msMeta-Notations_w3c/1.0/notatA002/notatA002
 msMeta-Notations_w3c/1.0/notatA005/notatA005
 msMeta-Notations_w3c/1.0/notatA007/notatA007
 msMeta-Notations_w3c/1.0/notatB001/notatB001
@@ -4681,6 +4679,7 @@ msMeta-Schema_w3c/1.0/schT2/schT2
 msMeta-Schema_w3c/1.0/schT6/schT6.i
 msMeta-Schema_w3c/1.0/schZ001_78029-a/schZ001_78029-a
 msMeta-Schema_w3c/1.0/schZ002_78029-b/schZ002_78029-b
+msMeta-Schema_w3c/1.0/schZ006/schZ006
 msMeta-Schema_w3c/1.0/schZ010/schZ010
 msMeta-Schema_w3c/1.0/schZ011_a/schZ011_a
 msMeta-Schema_w3c/1.0/schZ011_c/schZ011_c
@@ -5413,9 +5412,9 @@ sunMeta-suntest/1.0/xsd023.e/xsd023.e
 
 Both engines reject the document with the same number of issues, and the verdicts agree. They attribute the issues to different constructs of the document. Issue positions are not part of the specification, so the difference is equivalent.
 
-- Difference: IssuePositions `issue positions` (8438)
+- Difference: IssuePositions `issue positions` (8447)
 - Specification: XSD 1.0 Part 1, 5.2 and C.1 (the assessment outcome is the validity property; positions and number of reports are not specified)
-- Cases: 8438
+- Cases: 8447
 
 ```text
 ibmMeta-identityConstraint/1.0/s2_2_4si06/s2_2_4si06s
@@ -5433,6 +5432,7 @@ msMeta-Additional_w3c/1.0/addB153/addB153
 msMeta-Additional_w3c/1.0/addB177/addB177
 msMeta-Additional_w3c/1.0/addB178/addB178
 msMeta-AttributeGroup_w3c/1.0/attgC010/attgC010
+msMeta-AttributeGroup_w3c/1.0/attgZ003/attgZ003
 msMeta-Attribute_w3c/1.0/attI006/attI006
 msMeta-Attribute_w3c/1.0/attKa010/attKa010
 msMeta-Attribute_w3c/1.0/attQ001/attQ001
@@ -6010,12 +6010,20 @@ msMeta-Particles_w3c/1.0/particlesZ030_d/particlesZ030_d
 msMeta-Particles_w3c/1.0/particlesZ033_c/particlesZ033_c
 msMeta-Particles_w3c/1.0/particlesZ033_g/particlesZ033_g
 msMeta-Particles_w3c/1.0/particlesZ037/particlesZ037
-msMeta-Schema_w3c/1.0/schM8/schM8
-msMeta-Schema_w3c/1.0/schN4/schN4
-msMeta-Schema_w3c/1.0/schN5/schN5
-msMeta-Schema_w3c/1.0/schN7/schN7
+msMeta-Schema_w3c/1.0/schL1/schL1
+msMeta-Schema_w3c/1.0/schL10/schL10
+msMeta-Schema_w3c/1.0/schL5/schL5
+msMeta-Schema_w3c/1.0/schL6/schL6
+msMeta-Schema_w3c/1.0/schL8/schL8
+msMeta-Schema_w3c/1.0/schM10/schM10
+msMeta-Schema_w3c/1.0/schM4/schM4
+msMeta-Schema_w3c/1.0/schN12/schN12
+msMeta-Schema_w3c/1.0/schN13i/schN13i
+msMeta-Schema_w3c/1.0/schN6/schN6
+msMeta-Schema_w3c/1.0/schO2/schO2
 msMeta-Schema_w3c/1.0/schR3/schR3
 msMeta-Schema_w3c/1.0/schR4/schR4
+msMeta-Schema_w3c/1.0/schR5/schR5
 msMeta-SimpleType_w3c/1.0/stB004/stB004
 msMeta-SimpleType_w3c/1.0/stB009/stB009
 msMeta-SimpleType_w3c/1.0/stB013/stB013
@@ -13862,9 +13870,9 @@ sunMeta-suntest/1.0/xsd022/xsd022.n00
 
 Both engines reject the document and the verdicts agree. This library reports more issues than System.Xml.Schema for the same document; the engines group and follow up violations differently. The number and the positions of reported issues are not part of the specification, so the difference is equivalent.
 
-- Difference: IssuePositions `issue positions` (339)
+- Difference: IssuePositions `issue positions` (343)
 - Specification: XSD 1.0 Part 1, 5.2 and C.1 (the assessment outcome is the validity property; positions and number of reports are not specified)
-- Cases: 339
+- Cases: 343
 
 ```text
 ibmMeta-cyclicRedefineIncludeImportOverride/1.0/s4_2_4si02/s4_2_4si02s
@@ -13891,6 +13899,7 @@ msMeta-AttributeGroup_w3c/1.0/attgB002/attgB002
 msMeta-AttributeGroup_w3c/1.0/attgB003/attgB003
 msMeta-AttributeGroup_w3c/1.0/attgB004/attgB004
 msMeta-AttributeGroup_w3c/1.0/attgB007/attgB007
+msMeta-AttributeGroup_w3c/1.0/attgB011/attgB011
 msMeta-AttributeGroup_w3c/1.0/attgB015/attgB015
 msMeta-AttributeGroup_w3c/1.0/attgC001/attgC001
 msMeta-AttributeGroup_w3c/1.0/attgC009/attgC009
@@ -14144,7 +14153,6 @@ msMeta-Notations_w3c/1.0/notatF065/notatF065
 msMeta-Notations_w3c/1.0/notatF067/notatF067
 msMeta-Notations_w3c/1.0/notatF069/notatF069
 msMeta-Notations_w3c/1.0/notatF071/notatF071
-msMeta-Notations_w3c/1.0/notatG006/notatG006
 msMeta-Particles_w3c/1.0/particlesDa006/particlesDa006
 msMeta-Particles_w3c/1.0/particlesEa024/particlesEa024
 msMeta-Particles_w3c/1.0/particlesEd001/particlesEd001
@@ -14164,7 +14172,11 @@ msMeta-Schema_w3c/1.0/schH5/schH5
 msMeta-Schema_w3c/1.0/schH6/schH6
 msMeta-Schema_w3c/1.0/schI2/schI2
 msMeta-Schema_w3c/1.0/schI5/schI5
+msMeta-Schema_w3c/1.0/schM8/schM8
 msMeta-Schema_w3c/1.0/schN10/schN10
+msMeta-Schema_w3c/1.0/schN4/schN4
+msMeta-Schema_w3c/1.0/schN5/schN5
+msMeta-Schema_w3c/1.0/schN7/schN7
 msMeta-Schema_w3c/1.0/schP1/schP1
 msMeta-SimpleType_w3c/1.0/stB002/stB002
 msMeta-SimpleType_w3c/1.0/stC012/stC012
@@ -14212,15 +14224,16 @@ sunMeta-suntest/1.0/xsd007.e/xsd007.e
 
 Both engines reject the document and the verdicts agree. System.Xml.Schema reports more issues than this library for the same document; the engines group and follow up violations differently. The number and the positions of reported issues are not part of the specification, so the difference is equivalent.
 
-- Difference: IssuePositions `issue positions` (121)
+- Difference: IssuePositions `issue positions` (125)
 - Specification: XSD 1.0 Part 1, 5.2 and C.1 (the assessment outcome is the validity property; positions and number of reports are not specified)
-- Cases: 121
+- Cases: 125
 
 ```text
 ibmMeta-identityConstraint/1.0/s2_2_4si04/s2_2_4si04s
+msMeta-Additional_w3c/1.0/addB004/addB004
 msMeta-Additional_w3c/1.0/addB070/addB070
-msMeta-AttributeGroup_w3c/1.0/attgB011/attgB011
 msMeta-AttributeGroup_w3c/1.0/attgC020/attgC020
+msMeta-AttributeGroup_w3c/1.0/attgC028/attgC028
 msMeta-AttributeGroup_w3c/1.0/attgC031/attgC031
 msMeta-AttributeGroup_w3c/1.0/attgD013/attgD013
 msMeta-AttributeGroup_w3c/1.0/attgD014/attgD014
@@ -14292,6 +14305,8 @@ msMeta-ModelGroups_w3c/1.0/mgM002/mgM002.i
 msMeta-ModelGroups_w3c/1.0/mgM014/mgM014.i
 msMeta-ModelGroups_w3c/1.0/mgN004/mgN004.i
 msMeta-ModelGroups_w3c/1.0/mgO019/mgO019
+msMeta-Notations_w3c/1.0/notatA002/notatA002
+msMeta-Notations_w3c/1.0/notatG006/notatG006
 msMeta-Particles_w3c/1.0/particlesA003/particlesA003.i
 msMeta-Particles_w3c/1.0/particlesB003/particlesB003.i
 msMeta-Particles_w3c/1.0/particlesDc004/particlesDc004.i
@@ -14303,7 +14318,8 @@ msMeta-Particles_w3c/1.0/particlesEa006/particlesEa006.i
 msMeta-Particles_w3c/1.0/particlesEa013/particlesEa013.i
 msMeta-Particles_w3c/1.0/particlesEa020/particlesEa020.i
 msMeta-Particles_w3c/1.0/particlesEc009/particlesEc009
-msMeta-Schema_w3c/1.0/schN13i/schN13i
+msMeta-Schema_w3c/1.0/schM3/schM3
+msMeta-Schema_w3c/1.0/schM5/schM5
 msMeta-SimpleType_w3c/1.0/stE071/stE071.i
 msMeta-SimpleType_w3c/1.0/stZ038/stZ038
 msMeta-SimpleType_w3c/1.0/stZ051/stZ051.i

@@ -81,14 +81,14 @@ public class RedefineRestrictionTests
     }
 
     [Test]
-    [Arguments("<xs:attribute name=\"x\" type=\"xs:int\"/>")]
+    [Arguments("<xs:attribute name=\"x\" type=\"xs:int\" use=\"required\"/>")]
     [Arguments(
         "<xs:attribute name=\"x\" type=\"xs:int\" use=\"required\"/><xs:attribute name=\"y\" type=\"xs:short\"/>"
     )]
     [Arguments(
-        "<xs:attribute name=\"x\" type=\"xs:int\"/><xs:attribute name=\"y\" type=\"xs:int\" use=\"prohibited\"/>"
+        "<xs:attribute name=\"x\" type=\"xs:int\" use=\"required\"/><xs:attribute name=\"y\" type=\"xs:int\" use=\"prohibited\"/>"
     )]
-    [Arguments("<xs:attribute name=\"x\" type=\"xs:int\"/><xs:anyAttribute namespace=\"##local\"/>")]
+    [Arguments("<xs:attribute name=\"x\" type=\"xs:int\" use=\"required\"/><xs:anyAttribute namespace=\"##local\"/>")]
     public async Task RedefinedAttributeGroup_ThatRestrictsTheOriginal_IsValid(string redefinition)
     {
         ArgumentNullException.ThrowIfNull(redefinition);
@@ -111,7 +111,7 @@ public class RedefineRestrictionTests
         "2.2"
     )]
     [Arguments(
-        "<xs:attribute name=\"x\" type=\"xs:int\" use=\"required\" fixed=\"5\"/><xs:anyAttribute namespace=\"##other\"/>",
+        "<xs:attribute name=\"x\" type=\"xs:int\" use=\"required\" fixed=\"5\"/><xs:anyAttribute namespace=\"##local\"/>",
         "4.2"
     )]
     public async Task RedefinedAttributeGroup_ThatDoesNotRestrictTheOriginal_IsReported(
@@ -123,7 +123,7 @@ public class RedefineRestrictionTests
         ArgumentNullException.ThrowIfNull(clause);
 
         var original = AttributeGroup(
-            "<xs:attribute name=\"x\" type=\"xs:int\" use=\"required\" fixed=\"5\"/><xs:attribute name=\"y\" type=\"xs:int\"/><xs:anyAttribute namespace=\"##local\"/>"
+            "<xs:attribute name=\"x\" type=\"xs:int\" use=\"required\" fixed=\"5\"/><xs:attribute name=\"y\" type=\"xs:int\"/><xs:anyAttribute namespace=\"##other\"/>"
         );
         var compilation = Redefine(original, AttributeGroup(redefinition));
 
