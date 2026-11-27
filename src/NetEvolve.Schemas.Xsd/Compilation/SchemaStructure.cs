@@ -3,6 +3,7 @@ namespace NetEvolve.Schemas.Xsd.Compilation;
 using System;
 using System.Collections.Generic;
 using NetEvolve.Arguments;
+using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xsd.SchemaDocuments;
 
 /// <summary>
@@ -62,12 +63,22 @@ internal static class SchemaStructure
 
     /// <summary>Tells whether the children of an element are in an order and number that its content model allows.</summary>
     /// <param name="node">The element, an element of the schema namespace.</param>
+    /// <param name="version">
+    /// The XSD version: under 1.1 a <c>unique</c>, <c>key</c>, or <c>keyref</c> with a <see langword="ref"/> attribute has no required selector and field;
+    /// that it has none is the rule <c>src-identity-constraint.4</c> of the reference, not of the structure.
+    /// </param>
     /// <returns><see langword="true"/> when the content is valid or the element has no content model.</returns>
-    internal static bool IsValid(SchemaSyntaxNode node)
+    internal static bool IsValid(SchemaSyntaxNode node, XsdVersion version = XsdVersion.V10)
     {
         ArgumentNullException.ThrowIfNull(node);
 
-        if (!Models.TryGetValue(KeyOf(node), out var model))
+        var key = KeyOf(node);
+        if (version == XsdVersion.V11 && key is "unique" or "key" or "keyref" && node.FindAttribute("ref") is not null)
+        {
+            key = "identityConstraint@ref";
+        }
+
+        if (!Models.TryGetValue(key, out var model))
         {
             return true;
         }
@@ -177,6 +188,7 @@ internal static class SchemaStructure
         models["unique"] = Parse("annotation? selector field+");
         models["key"] = Parse("annotation? selector field+");
         models["keyref"] = Parse("annotation? selector field+");
+        models["identityConstraint@ref"] = Parse("annotation? selector? field*");
     }
 
     private static Node Parse(string text) => new Parser(text).ParseAll();

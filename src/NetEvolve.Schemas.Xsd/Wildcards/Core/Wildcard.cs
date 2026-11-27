@@ -4,15 +4,18 @@ using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Diagnostics;
+using NetEvolve.Schemas.Xsd.Wildcards.Negation;
 
 /// <summary>
 /// A wildcard component (Structures 3.10): a namespace constraint and how matched items are assessed. Immutable.
 /// </summary>
 /// <remarks>
-/// Limitations: the operations accept only <see cref="Wildcard"/> operands, the one implementation of the seam; the
+/// Limitations: the operations accept this type and the <c>NegatedWildcard</c> of XSD 1.1 as operand, the two
+/// implementations of the seam (an operation with the latter is carried out by it, so its result is of that type); the
 /// result of a union or an intersection takes the <see cref="ProcessContents"/> and the location of the first operand,
 /// because Structures 1.0 defines the set operations on the namespace constraints only and leaves the rest to the
-/// caller; XSD 1.1 <c>notNamespace</c> and <c>notQName</c> are the <c>NegatedWildcard</c> of <c>Wildcards/Negation</c> (#306).
+/// caller; XSD 1.1 <c>notNamespace</c> and <c>notQName</c> are the <c>NegatedWildcard</c> of <c>Wildcards/Negation</c>
+/// (#306).
 /// </remarks>
 internal sealed class Wildcard : IWildcard
 {
@@ -89,11 +92,17 @@ internal sealed class Wildcard : IWildcard
     public bool Allows(XPathQName name) => Constraint.Allows(name.NamespaceName);
 
     /// <inheritdoc />
-    public bool IsSubsetOf(IWildcard other) => Constraint.IsSubsetOf(Cast(other).Constraint);
+    public bool IsSubsetOf(IWildcard other) =>
+        other is NegatedWildcard ? AsNegated().IsSubsetOf(other) : Constraint.IsSubsetOf(Cast(other).Constraint);
 
     /// <inheritdoc />
     public IWildcard? Union(IWildcard other)
     {
+        if (other is NegatedWildcard)
+        {
+            return AsNegated().Union(other);
+        }
+
         var union = Constraint.Union(Cast(other).Constraint);
         return union is null ? null : new Wildcard(union, ProcessContents, Location);
     }
@@ -101,6 +110,11 @@ internal sealed class Wildcard : IWildcard
     /// <inheritdoc />
     public IWildcard? Intersect(IWildcard other)
     {
+        if (other is NegatedWildcard)
+        {
+            return AsNegated().Intersect(other);
+        }
+
         var intersection = Constraint.Intersect(Cast(other).Constraint);
         return intersection is null ? null : new Wildcard(intersection, ProcessContents, Location);
     }
@@ -138,6 +152,10 @@ internal sealed class Wildcard : IWildcard
 
         return intersection;
     }
+
+    // The operation with a wildcard of XSD 1.1 is the one of that type, which takes either operand; its result is never absent.
+    private NegatedWildcard AsNegated() =>
+        NegatedWildcard.Create(NameConstraint.FromCore(Constraint), ProcessContents, Location);
 
     private static Wildcard Cast(IWildcard other)
     {

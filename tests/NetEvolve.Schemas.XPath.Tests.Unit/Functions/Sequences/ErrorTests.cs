@@ -33,8 +33,14 @@ public class ErrorTests
     }
 
     [Test]
-    public async Task Error_WithEmptyCode_RaisesFoer0000() =>
-        await Assert.That(Raise(XdmSequence.Empty).Diagnostic.Code).IsEqualTo("FOER0000");
+    public async Task Error_WithEmptyCodeAsTheOnlyArgument_RaisesXpty0004() =>
+        await Assert.That(Raise(XdmSequence.Empty).Diagnostic.Code).IsEqualTo("XPTY0004");
+
+    [Test]
+    public async Task Error_WithEmptyCodeAndDescription_RaisesFoer0000() =>
+        await Assert
+            .That(Raise(XdmSequence.Empty, XdmSequence.Create(XdmItem.FromString("it broke"))).Diagnostic.Code)
+            .IsEqualTo("FOER0000");
 
     [Test]
     public async Task Error_WithCode_RaisesThatCodeInItsNamespace()

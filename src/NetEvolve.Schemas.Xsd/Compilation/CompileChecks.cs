@@ -61,7 +61,7 @@ internal static class CompileChecks
         derivation.ReportAll(context.BuiltComplexTypes, reporter);
         CheckValueConstraints(context, version, reporter);
         CheckTypeTables(context, derivation, reporter);
-        var groups = CheckSubstitutionGroups(context, derivation, reporter);
+        var groups = CheckSubstitutionGroups(context, derivation, version, reporter);
         particles?.Substitutions = groups;
         CheckContents(context, version, reporter);
         CheckRestrictions(context, particles, reporter);
@@ -156,10 +156,11 @@ internal static class CompileChecks
     private static SubstitutionGroups CheckSubstitutionGroups(
         BuildContext context,
         TypeDerivationCheck derivation,
+        XsdVersion version,
         XsdIssueReporter reporter
     )
     {
-        var global = new List<ISubstitutionElement>();
+        var global = new List<ElementDeclaration>();
         for (var i = 0; i < context.FoundElements.Count; i++)
         {
             var element = context.FoundElements[i];
@@ -169,7 +170,13 @@ internal static class CompileChecks
             }
         }
 
-        return SubstitutionGroups.Build(global, derivation, reporter);
+        if (version == XsdVersion.V10)
+        {
+            return SubstitutionGroups.Build(global, derivation, reporter);
+        }
+
+        // XSD 1.1: a declaration may be affiliated with several heads.
+        return SubstitutionGroups11.Build(global, derivation, reporter).ToSubstitutionGroups();
     }
 
     private static void CheckContents(BuildContext context, XsdVersion version, XsdIssueReporter reporter)

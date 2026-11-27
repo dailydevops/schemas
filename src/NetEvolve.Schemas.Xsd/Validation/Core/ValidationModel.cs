@@ -14,6 +14,7 @@ using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.Elements;
 using NetEvolve.Schemas.Xsd.Substitution;
 using NetEvolve.Schemas.Xsd.TypeAlternatives;
+using NetEvolve.Schemas.Xsd.Wildcards.Negation;
 
 /// <summary>
 /// The immutable data the streaming validator runs on: the schema set for the global declarations, one dense schema name id per
@@ -71,6 +72,7 @@ internal sealed class ValidationModel
         var builder = new Builder(reporter)
         {
             Substitutions = substitutions,
+            Schema = schema,
             AllGroups11 = schema.Version == XsdVersion.V11,
         };
         for (var i = 0; i < components.Count; i++)
@@ -105,6 +107,7 @@ internal sealed class ValidationModel
 
         var builder = new Builder(reporter, _ids, _names, _programs)
         {
+            Schema = overlay,
             AllGroups11 = overlay.Version == XsdVersion.V11,
         };
         for (var i = 0; i < components.Count; i++)
@@ -151,6 +154,8 @@ internal sealed class ValidationModel
         private readonly Stack<IXsdComponent> _work = new();
         private readonly HashSet<IXsdComponent> _seen = [];
         private readonly HashSet<ModelGroup> _active = [];
+        private IDeclaredNames? _siblings;
+        private Particle? _content;
 
         internal Builder(XsdIssueReporter reporter)
         {
@@ -182,6 +187,8 @@ internal sealed class ValidationModel
         }
 
         internal SubstitutionGroups? Substitutions { get; set; }
+
+        internal XsdSchemaSet? Schema { get; set; }
 
         internal bool AllGroups11 { get; set; }
 
@@ -249,6 +256,8 @@ internal sealed class ValidationModel
 
             var terms = new List<IXsdComponent>();
             var poolIndex = Programs.Count;
+            _content = content;
+            _siblings = null;
             if (
                 content.MaxOccurs > 0
                 && Unwrap(content.Term) is ModelGroup { Compositor: ModelGroupCompositor.All } all
@@ -268,7 +277,7 @@ internal sealed class ValidationModel
 
         private ContentProgram CompileAll11(Particle content, List<IXsdComponent> terms, int poolIndex)
         {
-            var group = AllGroup11Compiler.Compile(content, IdOf, terms, IdsOf);
+            var group = AllGroup11Compiler.Compile(content, IdOf, terms, IdsOf, Bind);
             if (group is null)
             {
                 _reporter.Report(
@@ -329,7 +338,8 @@ internal sealed class ValidationModel
                     Push(element);
                     terms.Add(element);
                     return AutomatonParticle.Element(particle.MinOccurs, particle.MaxOccurs, IdsOf(element));
-                case IWildcard wildcard:
+                case IWildcard unbound:
+                    var wildcard = Bind(unbound);
                     terms.Add(wildcard);
                     return AutomatonParticle.Wildcard(particle.MinOccurs, particle.MaxOccurs, wildcard);
                 case ModelGroup group when _active.Add(group):
@@ -350,6 +360,22 @@ internal sealed class ValidationModel
                 default:
                     return null;
             }
+        }
+
+        // ##defined and ##definedSibling need the declarations of the schema and the elements of the content model (Structures 3.10.4.1),
+        // which the wildcard does not know when it is read; a wildcard of XSD 1.1 that uses them is bound here, per complex type.
+        private IWildcard Bind(IWildcard wildcard)
+        {
+            if (
+                wildcard
+                is not NegatedWildcard { Constraint: { DisallowsDefined: true } or { DisallowsSibling: true } } negated
+            )
+            {
+                return wildcard;
+            }
+
+            _siblings ??= DeclaredNames.SiblingsOf(_content, Substitutions);
+            return negated.WithContext(new SchemaElementNames(Schema!), _siblings);
         }
 
         private static IXsdComponent? Unwrap(IXsdComponent? term) =>
@@ -387,5 +413,10 @@ internal sealed class ValidationModel
 
             return id;
         }
+    }
+
+    private sealed class SchemaElementNames(XsdSchemaSet schema) : IDeclaredNames
+    {
+        public bool Contains(XPathQName name) => schema.TryGet(XsdComponentKind.ElementDeclaration, name, out _);
     }
 }

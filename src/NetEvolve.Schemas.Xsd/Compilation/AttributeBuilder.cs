@@ -157,8 +157,9 @@ internal sealed class AttributeBuilder : IComponentBuilder
             )
             : AttributeDeclaration.Local(
                 name,
-                unit.TargetNamespace,
-                FormOf(node, unit.Root),
+                // The targetNamespace attribute (XSD 1.1) names the namespace and makes the attribute qualified in it; strict 1.0 never reaches here with it.
+                node.FindAttribute("targetNamespace") ?? unit.TargetNamespace,
+                node.FindAttribute("targetNamespace") is not null ? AttributeForm.Qualified : FormOf(node, unit.Root),
                 node.Location,
                 type,
                 constraint,

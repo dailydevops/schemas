@@ -30,8 +30,8 @@ using NetEvolve.Schemas.Xsd.Substitution;
 /// </para>
 /// <para>
 /// Limitations: the type derivation check is the <see cref="IDerivationCheck"/> seam, asked with
-/// <see cref="XsdDerivationMethod.Substitution"/> and a block set of extension and restriction only; the content models of
-/// the validator do not read the groups yet (#360).
+/// <see cref="XsdDerivationMethod.Substitution"/> and a block set of extension and restriction only. The compiled
+/// validator reads the groups through <see cref="ToSubstitutionGroups"/>.
 /// </para>
 /// </remarks>
 internal sealed class SubstitutionGroups11
@@ -79,6 +79,19 @@ internal sealed class SubstitutionGroups11
         }
 
         return new SubstitutionGroups11(members);
+    }
+
+    /// <summary>Gets the groups as the single-head view that the validator and the particle checks read.</summary>
+    /// <returns>The same members for every head, in the same order.</returns>
+    internal SubstitutionGroups ToSubstitutionGroups()
+    {
+        var members = new Dictionary<ISubstitutionElement, List<ISubstitutionElement>>(_members.Count);
+        foreach (var group in _members)
+        {
+            members[group.Key] = [.. group.Value];
+        }
+
+        return new SubstitutionGroups(members);
     }
 
     /// <summary>Gets the elements that are substitutable for a head: the head itself first, then its transitive members in declaration order.</summary>

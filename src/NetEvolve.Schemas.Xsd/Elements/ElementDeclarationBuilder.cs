@@ -1,11 +1,14 @@
 namespace NetEvolve.Schemas.Xsd.Elements;
 
 using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using NetEvolve.Arguments;
+using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Contracts;
+using NetEvolve.Schemas.Xsd.Declarations11;
 using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.SchemaDocuments;
 using NetEvolve.Schemas.Xsd.TypeAlternatives;
@@ -31,10 +34,16 @@ internal sealed class ElementDeclarationBuilder : IComponentBuilder
 
     private readonly SchemaNamespaceScope _scope;
     private TypeAlternativeBuilder? _alternatives;
+    private readonly XsdVersion _version;
 
     /// <summary>Initializes a new instance of the <see cref="ElementDeclarationBuilder"/> class.</summary>
     /// <param name="scope">The namespace the schema document contributes to.</param>
-    internal ElementDeclarationBuilder(SchemaNamespaceScope scope) => _scope = scope;
+    /// <param name="version">The XSD version: under 1.1 a global declaration is affiliated with every head of its <c>substitutionGroup</c>, in 1.0 with the first.</param>
+    internal ElementDeclarationBuilder(SchemaNamespaceScope scope, XsdVersion version = XsdVersion.V10)
+    {
+        _scope = scope;
+        _version = version;
+    }
 
     /// <inheritdoc />
     public XsdComponentKind Kind => XsdComponentKind.ElementDeclaration;
@@ -111,16 +120,31 @@ internal sealed class ElementDeclarationBuilder : IComponentBuilder
         var form = node.FindAttribute("form") ?? root.FindAttribute("elementFormDefault");
         var qualifiedName =
             name is null || name.Length == 0 ? default
+            : !isGlobal && LocalTargetNamespace.TryGetName(node, XsdVersion.V11, out var declared) ? declared
             : isGlobal || string.Equals(form, "qualified", StringComparison.Ordinal) ? _scope.Declare(name)
             : new XPathQName(string.Empty, name);
 
         var head = default(XPathQName);
+        List<XPathQName>? otherHeads = null;
         if (isGlobal && node.FindAttribute("substitutionGroup") is { } heads)
         {
-            var first = heads.Split([' ', '\t', '\r', '\n'], StringSplitOptions.RemoveEmptyEntries);
-            if (first.Length > 0 && _scope.TryResolve(node, first[0], out var resolved))
+            if (_version == XsdVersion.V11)
             {
-                head = resolved;
+                // The names that do not resolve and the repeated ones are left out (SubstitutionGroupList); the first one is the head that gives the type.
+                var names = SubstitutionGroupList.Read(node, _scope, _version, reporter);
+                head = names.Length > 0 ? names[0] : default;
+                for (var i = 1; i < names.Length; i++)
+                {
+                    (otherHeads ??= []).Add(names[i]);
+                }
+            }
+            else
+            {
+                var first = heads.Split([' ', '\t', '\r', '\n'], StringSplitOptions.RemoveEmptyEntries);
+                if (first.Length > 0 && _scope.TryResolve(node, first[0], out var resolved))
+                {
+                    head = resolved;
+                }
             }
         }
 
@@ -144,7 +168,8 @@ internal sealed class ElementDeclarationBuilder : IComponentBuilder
             IsTrue(node.FindAttribute("abstract")),
             ParseMethods(node.FindAttribute("block") ?? root.FindAttribute("blockDefault"), BlockMethods),
             ParseMethods(node.FindAttribute("final") ?? root.FindAttribute("finalDefault"), FinalMethods),
-            head
+            head,
+            otherHeads
         );
         _ = Built.Remove(node);
         Built.Add(node, declaration);

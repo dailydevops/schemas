@@ -13,6 +13,7 @@ using NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;
 using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Composition;
 using NetEvolve.Schemas.Xsd.ContentModels.Determinism;
+using NetEvolve.Schemas.Xsd.ContentModels.Determinism11;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Derivation.Particles10;
 using NetEvolve.Schemas.Xsd.Derivation.Types;
@@ -21,6 +22,7 @@ using NetEvolve.Schemas.Xsd.Elements;
 using NetEvolve.Schemas.Xsd.IdentityConstraints.DefaultNamespace;
 using NetEvolve.Schemas.Xsd.IdentityConstraints.Definitions;
 using NetEvolve.Schemas.Xsd.IdentityConstraints.Evaluation;
+using NetEvolve.Schemas.Xsd.IdentityConstraints.References;
 using NetEvolve.Schemas.Xsd.SchemaDocuments;
 using NetEvolve.Schemas.Xsd.Substitution;
 using NetEvolve.Schemas.Xsd.Validation.Assembly;
@@ -60,7 +62,7 @@ internal sealed class CompilationRun
     private readonly BuildContext _context;
     private readonly ComponentResolver _componentResolver;
     private readonly TypeDerivationCheck _derivation;
-    private readonly DeterminismChecker _determinism;
+    private readonly IDeterminismCheck _determinism;
     private readonly ParticleRestriction? _particleRestriction;
     private readonly List<ModelGroupDefinition> _definitions = [];
     private readonly List<RedefinitionRestriction> _restrictions = [];
@@ -68,6 +70,7 @@ internal sealed class CompilationRun
     private SubstitutionGroups? _substitutions;
     private readonly List<IdentityConstraintDefinition> _constraints = [];
     private readonly List<ConstraintOwner> _owners = [];
+    private readonly List<PendingReference> _references = [];
 
     internal CompilationRun(XsdVersion version, IResourceResolver resolver, ValidationLimits limits)
     {
@@ -87,7 +90,7 @@ internal sealed class CompilationRun
         _componentResolver = new ComponentResolver(version);
         var values = new ValueSpace(new DescriptorValueAssessor(version), version);
         _derivation = new TypeDerivationCheck(version, values);
-        _determinism = new DeterminismChecker();
+        _determinism = version == XsdVersion.V10 ? new DeterminismChecker() : new DeterminismChecker11();
         _particleRestriction =
             version == XsdVersion.V10 ? new ParticleRestriction(new TypeDerivationOk(version), values) : null;
     }
@@ -239,7 +242,7 @@ internal sealed class CompilationRun
                     )
                 )
                 {
-                    units.Add(new UnitScope(unit));
+                    units.Add(new UnitScope(unit, _version));
                 }
             }
         }
@@ -417,6 +420,17 @@ internal sealed class CompilationRun
                 )
             )
             {
+                if (_version == XsdVersion.V11 && child.FindAttribute("ref") is not null)
+                {
+                    // The reuse of a constraint (XSD 1.1): resolved after the registry holds every named constraint.
+                    if (IdentityConstraintReference.Create(child, unit.Scope, _version, _reporter) is { } reference)
+                    {
+                        _references.Add(new PendingReference(reference, node.Location, unit, node));
+                    }
+
+                    continue;
+                }
+
                 XPathDefaultNamespace.Apply(child, unit.Scope, _version);
                 // The document parser reported an empty name (a name is an NCName); the factory of the definition expects a non-empty one.
                 var constraint = child.FindAttribute("name") is { Length: 0 }
@@ -454,6 +468,16 @@ internal sealed class CompilationRun
         foreach (var constraint in _constraints)
         {
             constraint.ResolveRefer(_registry, _reporter, _componentResolver.Imports);
+        }
+
+        // A reference shares the constraint it names, whose own refer was resolved above, so the element that reuses it owns it too.
+        foreach (var pending in _references)
+        {
+            if (pending.Reference.Resolve(_registry, _reporter) && pending.Reference.Target is { } target)
+            {
+                ElementDeclarationBuilder.DeclarationOf(pending.Element)?.AddIdentityConstraint(target);
+                _owners.Add(new ConstraintOwner(pending.Location, pending.Unit, target));
+            }
         }
     }
 
@@ -516,6 +540,30 @@ internal sealed class CompilationRun
         }
 
         return owned;
+    }
+
+    private readonly struct PendingReference
+    {
+        internal PendingReference(
+            IdentityConstraintReference reference,
+            DocumentLocation location,
+            UnitScope unit,
+            SchemaSyntaxNode element
+        )
+        {
+            Reference = reference;
+            Location = location;
+            Unit = unit;
+            Element = element;
+        }
+
+        internal IdentityConstraintReference Reference { get; }
+
+        internal DocumentLocation Location { get; }
+
+        internal UnitScope Unit { get; }
+
+        internal SchemaSyntaxNode Element { get; }
     }
 
     private readonly struct ConstraintOwner

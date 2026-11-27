@@ -1,4 +1,3 @@
-fn-error/K-ErrorFunc-4
 fn-error/K2-ErrorFunc-1
 fn-error/cbcl-error-002
 fn-error/cbcl-error-003
