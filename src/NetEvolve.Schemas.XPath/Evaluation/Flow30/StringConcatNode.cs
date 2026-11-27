@@ -50,7 +50,7 @@ internal sealed class StringConcatNode : ExecutableNode
             var total = 0L;
             for (var i = 0; i < _operands.Length; i++)
             {
-                var value = XPathAtomization.Atomize(_operands[i].Evaluate(context));
+                var value = XPathAtomization.Atomize(_operands[i].Evaluate(context), context.Annotations);
                 if (value.Count > 1)
                 {
                     throw XPathErrors.Exception(XPathErrorCodes.XPTY0004, _location.Offset, _location.Length);

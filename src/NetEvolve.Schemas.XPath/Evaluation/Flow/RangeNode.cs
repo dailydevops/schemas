@@ -106,7 +106,7 @@ internal sealed class RangeNode : ExecutableNode
 
     private static bool TryGetOperand(ExecutableNode node, XPathEvaluationContext context, out XdmItem item)
     {
-        var atomic = XPathAtomization.Atomize(node.Evaluate(context));
+        var atomic = XPathAtomization.Atomize(node.Evaluate(context), context.Annotations);
 
         // An integer beyond 64 bits is an item of the decimal family that the function conversion does not take for an integer.
         if (atomic.Count == 1 && atomic[0].TryGetBigInteger(out _))
@@ -115,7 +115,7 @@ internal sealed class RangeNode : ExecutableNode
             return true;
         }
 
-        var converted = FunctionConversion.Convert(atomic, OptionalInteger);
+        var converted = FunctionConversion.Convert(atomic, OptionalInteger, context.Annotations);
         item = converted.IsEmpty ? default : converted[0];
         return !converted.IsEmpty;
     }

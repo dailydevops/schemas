@@ -8,6 +8,7 @@ using NetEvolve.Schemas.XPath.Functions.Binding;
 using NetEvolve.Schemas.XPath.Syntax.Parser;
 using NetEvolve.Schemas.XPath.Syntax.Tree;
 using NetEvolve.Schemas.XPath.Types;
+using NetEvolve.Schemas.XPath.Xdm.Nodes;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>
@@ -99,7 +100,7 @@ internal sealed class XsltSequenceType
         {
             try
             {
-                converted = FunctionConversion.Convert(in value, conversion);
+                converted = FunctionConversion.Convert(in value, conversion, UntypedAnnotationSource.Instance);
             }
             catch (XPathException exception)
             {

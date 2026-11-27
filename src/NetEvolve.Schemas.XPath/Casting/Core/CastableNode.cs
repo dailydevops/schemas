@@ -52,7 +52,7 @@ internal sealed class CastableNode : ExecutableNode
     {
         ArgumentNullException.ThrowIfNull(context);
 
-        var value = XPathAtomization.Atomize(_operand.Evaluate(context));
+        var value = XPathAtomization.Atomize(_operand.Evaluate(context), context.Annotations);
         var castable = value.Count switch
         {
             0 => _allowsEmpty,

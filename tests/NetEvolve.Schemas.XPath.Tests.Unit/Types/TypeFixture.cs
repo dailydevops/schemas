@@ -134,5 +134,15 @@ internal static class TypeFixture
             typedValue = default;
             return false;
         }
+
+        public bool TryGetTypedValues(in XPathNode node, out XdmSequence values)
+        {
+            values = XdmSequence.Empty;
+            return false;
+        }
+
+        public bool HasTypedValue(in XPathNode node) => true;
+
+        public bool IsNilled(in XPathNode node) => false;
     }
 }

@@ -80,8 +80,8 @@ internal sealed class CompatibilityGeneralComparisonNode : ExecutableNode
             leftValue = XdmSequence.Create(XdmItem.FromBoolean(XPathAtomization.EffectiveBooleanValue(leftValue)));
         }
 
-        var left = XPathAtomization.Atomize(leftValue);
-        var right = XPathAtomization.Atomize(rightValue);
+        var left = XPathAtomization.Atomize(leftValue, context.Annotations);
+        var right = XPathAtomization.Atomize(rightValue, context.Annotations);
         var leftCount = left.Count;
         var rightCount = right.Count;
         for (var i = 0; i < leftCount; i++)

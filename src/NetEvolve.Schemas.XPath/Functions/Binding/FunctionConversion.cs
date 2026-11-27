@@ -7,6 +7,7 @@ using NetEvolve.Schemas.XPath.Evaluation.Arithmetic;
 using NetEvolve.Schemas.XPath.Evaluation.Atomization;
 using NetEvolve.Schemas.XPath.Syntax.Tree;
 using NetEvolve.Schemas.XPath.Types;
+using NetEvolve.Schemas.XPath.Xdm.Nodes;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>
@@ -25,12 +26,13 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// </remarks>
 internal static class FunctionConversion
 {
-    /// <summary>Converts one argument to the expected type.</summary>
+    /// <summary>Converts one argument to the expected type, atomizing nodes with an annotation source.</summary>
     /// <param name="argument">The argument as evaluated.</param>
     /// <param name="type">The expected type.</param>
+    /// <param name="source">The annotation source that supplies typed values.</param>
     /// <returns>The converted argument; the argument itself when nothing changes.</returns>
     /// <exception cref="XPathException">The argument does not match the type (XPTY0004), or an <c>xs:untypedAtomic</c> value cannot be cast (FORG0001, FOCA0001, FOCA0003).</exception>
-    public static XdmSequence Convert(in XdmSequence argument, XPathParameterType type)
+    public static XdmSequence Convert(in XdmSequence argument, XPathParameterType type, IXdmTypeAnnotationSource source)
     {
         // item()* takes every sequence as it is, so a lazy argument is not read here: fn:count, fn:exists, and fn:empty read it themselves.
         if (type is { ItemType: XPathItemType.Item, Occurrence: Occurrence.ZeroOrMore })
@@ -50,7 +52,7 @@ internal static class FunctionConversion
         // An atomic type is checked after the atomization, which flattens an array into the values of its members (XPath 3.1, 3.1.5.2).
         if (type.ItemType is not (XPathItemType.Item or XPathItemType.Node))
         {
-            var atomic = XPathAtomization.Atomize(argument);
+            var atomic = XPathAtomization.Atomize(argument, source);
             return !MatchesOccurrence(atomic.Count, type.Occurrence)
                     ? throw XPathErrors.Exception(XPathErrorCodes.XPTY0004)
                 : atomic.IsEmpty ? atomic

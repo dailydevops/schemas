@@ -36,10 +36,14 @@ internal sealed class CoercedFunction : XdmFunction
         var converted = new XdmSequence[arguments.Length];
         for (var i = 0; i < converted.Length; i++)
         {
-            converted[i] = FunctionConversion.Convert(arguments[i], Signature.Parameter(i).Conversion);
+            converted[i] = FunctionConversion.Convert(
+                arguments[i],
+                Signature.Parameter(i).Conversion,
+                context.Annotations
+            );
         }
 
         var result = FunctionInvoker.Call(_inner, context, converted, default(SourceSpan));
-        return FunctionConversion.Convert(result, Signature.Result.Conversion);
+        return FunctionConversion.Convert(result, Signature.Result.Conversion, context.Annotations);
     }
 }

@@ -9,8 +9,7 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>Atomization (XPath 2.0, 2.4.2) and effective boolean value (2.4.3): the two operations every operator and function shares.</summary>
 /// <remarks>
-/// An array atomizes to the atomized values of its members; any other function item has no typed value (FOTY0013) and no effective boolean value (FORG0006). Singletons and the empty sequence take allocation-free fast paths. Limitations: a node yields exactly one typed value, so list
-/// types that atomize to several items await schema-aware processing (XSD-16); the effective boolean value covers the
+/// An array atomizes to the atomized values of its members; any other function item has no typed value (FOTY0013) and no effective boolean value (FORG0006). Singletons and the empty sequence take allocation-free fast paths. A node yields the typed value of its annotation source: zero, one, or several items. The effective boolean value covers the
 /// families the data model carries today, so a type without a rule (for example a date) raises FORG0006.
 /// </remarks>
 internal static class XPathAtomization
@@ -43,7 +42,7 @@ internal static class XPathAtomization
                 return AtomizeItems(sequence, source);
             }
 
-            return only.IsNode ? XdmSequence.Create(AtomizeNode(only, source)) : sequence;
+            return only.IsNode ? AtomizeNode(only, source) : sequence;
         }
 
         // Every item is checked, because a function item has no typed value wherever it stands in the sequence; an array is expanded.
@@ -64,11 +63,17 @@ internal static class XPathAtomization
             return sequence;
         }
 
+        // A typed source can yield zero or several items for one node (list types, nilled elements), so the result length is not known.
+        if (!ReferenceEquals(source, UntypedAnnotationSource.Instance))
+        {
+            return AtomizeItems(sequence, source);
+        }
+
         var items = new XdmItem[count];
         for (var i = 0; i < count; i++)
         {
             var item = sequence[i];
-            items[i] = item.IsNode ? AtomizeNode(item, source) : item;
+            items[i] = item.IsNode ? AtomizeNode(item, source)[0] : item;
         }
 
         return XdmSequence.Create(items);
@@ -157,7 +162,18 @@ internal static class XPathAtomization
             var item = sequence[i];
             if (item.Kind != XdmItemKind.Function)
             {
-                items.Add(item.IsNode ? AtomizeNode(item, source) : item);
+                if (item.IsNode)
+                {
+                    var typed = AtomizeNode(item, source);
+                    for (var t = 0; t < typed.Count; t++)
+                    {
+                        items.Add(typed[t]);
+                    }
+                }
+                else
+                {
+                    items.Add(item);
+                }
             }
             else if (XdmArray.TryGet(item, out var array))
             {
@@ -173,9 +189,22 @@ internal static class XPathAtomization
         }
     }
 
-    private static XdmItem AtomizeNode(in XdmItem item, IXdmTypeAnnotationSource source)
+    private static XdmSequence AtomizeNode(in XdmItem item, IXdmTypeAnnotationSource source)
     {
         _ = item.TryGetNode(out var node);
-        return node.TypedValue(source);
+        if (ReferenceEquals(source, UntypedAnnotationSource.Instance))
+        {
+            return XdmSequence.Create(node.TypedValue(source));
+        }
+
+        if (source.TryGetTypedValues(node, out var values))
+        {
+            return values;
+        }
+
+        // An element with element-only content has no typed value (XDM, FOTY0012); the untyped default applies to every other node.
+        return source.HasTypedValue(node)
+            ? XdmSequence.Create(node.TypedValue(source))
+            : throw XPathErrors.Exception(XPathErrorCodes.FOTY0012);
     }
 }

@@ -60,7 +60,11 @@ internal sealed class InlineFunction : XdmFunction
         var converted = new XdmSequence[_parameters.Length];
         for (var i = 0; i < converted.Length; i++)
         {
-            converted[i] = FunctionConversion.Convert(arguments[i], Signature.Parameter(i).Conversion);
+            converted[i] = FunctionConversion.Convert(
+                arguments[i],
+                Signature.Parameter(i).Conversion,
+                context.Annotations
+            );
         }
 
         var variables = context.Variables;
@@ -88,7 +92,11 @@ internal sealed class InlineFunction : XdmFunction
             }
 
             context.RestoreFocus(default);
-            return FunctionConversion.Convert(_body.Evaluate(context), Signature.Result.Conversion);
+            return FunctionConversion.Convert(
+                _body.Evaluate(context),
+                Signature.Result.Conversion,
+                context.Annotations
+            );
         }
         finally
         {

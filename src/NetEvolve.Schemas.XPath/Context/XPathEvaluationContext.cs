@@ -5,6 +5,7 @@ using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Abstractions;
 using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Limits;
+using NetEvolve.Schemas.XPath.Xdm.Nodes;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>The dynamic context of an evaluation (XPath 2.0, 2.1.2). Not thread-safe and reusable; use one per thread.</summary>
@@ -16,6 +17,7 @@ public sealed class XPathEvaluationContext : IDisposable
     private int _implicitTimezoneMinutes;
     private DateTimeOffset? _currentDateTime;
     private XPathLimits _limits = XPathLimits.Default;
+    private IXdmTypeAnnotationSource _annotations = UntypedAnnotationSource.Instance;
 
     /// <summary>Initializes a new instance of the <see cref="XPathEvaluationContext"/> class.</summary>
     public XPathEvaluationContext()
@@ -47,6 +49,19 @@ public sealed class XPathEvaluationContext : IDisposable
             ArgumentNullException.ThrowIfNull(value);
 
             _limits = value;
+        }
+    }
+
+    /// <summary>Gets or sets the annotation source that supplies the typed values of nodes at every atomization; it starts untyped and stays through <see cref="Reset"/>.</summary>
+    /// <exception cref="ArgumentNullException">The value is <see langword="null"/>.</exception>
+    internal IXdmTypeAnnotationSource Annotations
+    {
+        get => _annotations;
+        set
+        {
+            ArgumentNullException.ThrowIfNull(value);
+
+            _annotations = value;
         }
     }
 

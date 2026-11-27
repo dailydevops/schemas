@@ -87,8 +87,8 @@ internal sealed class GeneralComparisonNode : ExecutableNode
     {
         ArgumentNullException.ThrowIfNull(context);
 
-        var left = XPathAtomization.Atomize(_left.Evaluate(context));
-        var right = XPathAtomization.Atomize(_right.Evaluate(context));
+        var left = XPathAtomization.Atomize(_left.Evaluate(context), context.Annotations);
+        var right = XPathAtomization.Atomize(_right.Evaluate(context), context.Annotations);
         var leftCount = left.Count;
         var rightCount = right.Count;
 

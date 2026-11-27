@@ -112,7 +112,7 @@ internal sealed class XdmMap : XdmFunction
     {
         ArgumentNullException.ThrowIfNull(context);
 
-        var key = FunctionConversion.Convert(arguments[0], Signature.Parameter(0).Conversion);
+        var key = FunctionConversion.Convert(arguments[0], Signature.Parameter(0).Conversion, context.Annotations);
         return _entries.TryGet(key[0], out var value) ? value : default;
     }
 }

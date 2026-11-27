@@ -160,6 +160,24 @@ public readonly struct XsdAnnotation : IEquatable<XsdAnnotation>
         return written;
     }
 
+    /// <summary>Gets the complete typed value as a sequence: empty for a nilled element and for empty content, several items for a list type.</summary>
+    /// <param name="values">The typed value, empty for element-only content, which has none.</param>
+    internal void GetTypedValues(out XdmSequence values)
+    {
+        switch (TypedValueKind)
+        {
+            case XsdTypedValueKind.Untyped:
+                values = XdmSequence.Create(XdmItem.FromUntypedAtomic(_node.StringValue));
+                break;
+            case XsdTypedValueKind.Atomic:
+                values = XdmSequence.Create(AtomicValues().ToArray());
+                break;
+            default:
+                values = XdmSequence.Empty;
+                break;
+        }
+    }
+
     /// <summary>Gets the typed value as one item, when it is exactly one atomic item.</summary>
     /// <param name="item">The item.</param>
     /// <returns><see langword="true"/> when the typed value is one atomic item.</returns>

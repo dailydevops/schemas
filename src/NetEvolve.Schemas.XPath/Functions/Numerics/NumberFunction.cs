@@ -32,7 +32,8 @@ internal sealed class NumberFunction : NumericFunction
                 ? XPathAtomization.Atomize(
                     XdmSequence.Create(
                         invocation.Context.ContextItem ?? throw XPathErrors.Exception(XPathErrorCodes.XPDY0002)
-                    )
+                    ),
+                    invocation.Context.Annotations
                 )
                 : invocation.Arguments[0];
         if (argument.Count > 1)
