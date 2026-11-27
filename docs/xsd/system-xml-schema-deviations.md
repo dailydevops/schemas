@@ -7,7 +7,7 @@ This document lists every difference that the differential run over the W3C XML 
 | Baseline | `System.Xml.Schema` of the .NET runtime 10.0, compared on the `net10.0` test leg only (`baseline-runtime: 10.0`) |
 | Corpus | XSTS cases of XSD 1.0 (schema tests and instance tests), pinned in `tests/conformance/suites/xsts.json` |
 | Data file | `tests/NetEvolve.Schemas.Xsd.Tests.Integration/DifferentialData/xsts-1.0-deviations.txt`, one entry per difference: case id, difference kind, observed difference, specification reference, reason |
-| Entries | 13841 entries for 13805 cases |
+| Entries | 13842 entries for 13806 cases |
 
 The list is valid for the recorded baseline runtime version only. A run on another runtime version fails until the list is compared again. System.Xml.Schema implements XSD 1.0 only, so cases of XSD 1.1 are not compared.
 
@@ -29,7 +29,7 @@ No builder option, switch, or code path in the library reproduces System.Xml.Sch
 |---|---:|---:|
 | Verdict differences: this library follows the specification | 1712 | 1680 |
 | Verdict differences: documented limitations of this library | 21 | 17 |
-| Position differences: equivalent | 12126 | 12126 |
+| Position differences: equivalent | 12127 | 12127 |
 | Differences on cases that a bug issue tracks (no entry) | 875 | |
 
 ## Differences on cases that a bug issue tracks
@@ -5418,9 +5418,9 @@ sunMeta-suntest/1.0/xsd023.e/xsd023.e
 
 Both engines reject the document with the same number of issues, and the verdicts agree. They attribute the issues to different constructs of the document. Issue positions are not part of the specification, so the difference is equivalent.
 
-- Difference: IssuePositions `issue positions` (8448)
+- Difference: IssuePositions `issue positions` (8449)
 - Specification: XSD 1.0 Part 1, 5.2 and C.1 (the assessment outcome is the validity property; positions and number of reports are not specified)
-- Cases: 8448
+- Cases: 8449
 
 ```text
 ibmMeta-identityConstraint/1.0/s2_2_4si06/s2_2_4si06s
@@ -13807,6 +13807,7 @@ sunMeta-ElemDecl/1.0/typedef00204m/typeDef00204m1_n
 sunMeta-ElemDecl/1.0/typedef00901m1/Negative
 sunMeta-ElemDecl/1.0/typedef01401m1/Negative
 sunMeta-IdConstrDefs/1.0/targetns00101m2/targetNS00101m2
+sunMeta-Notation/1.0/name00101m2/name00101m2
 sunMeta-SType/1.0/st_basetd00101m/ST_baseTD00101m1_n
 sunMeta-SType/1.0/st_basetd00201m/ST_baseTD00201m1_n
 sunMeta-SType/1.0/st_basetd00301m/ST_baseTD00301m1_n

@@ -90,6 +90,19 @@ public class CastDecisionTests
         await Assert.That(diagnostic.Message).Contains("not supported yet");
     }
 
+    // A lexical xs:integer of more than 64 bits is a valid value of the type (#1359; an item beyond 64 bits renders as a decimal); only the digit cap of the datatype layer limits it.
+    [Test]
+    [Arguments("xs:integer('9223372036854775808')", "decimal:9223372036854775808")]
+    [Arguments("'-9223372036854775809' cast as xs:integer", "decimal:-9223372036854775809")]
+    [Arguments(
+        "xs:untypedAtomic('3214282912345698765432161182') cast as xs:integer",
+        "decimal:3214282912345698765432161182"
+    )]
+    [Arguments("xs:integer('3214282912345698765432161182') mod 97", "integer:1")]
+    [Arguments("xs:integer('00000000000000000000000000000000042')", "integer:42")]
+    public async Task LexicalIntegerBeyondSixtyFourBits_IsAValue(string expression, string rendered) =>
+        await Assert.That(EvaluateRendered(expression)).IsEqualTo(rendered);
+
     // Decision D5: a lexical number beyond the digit cap of the datatype layer is an implementation limit, not an invalid form.
     [Test]
     public async Task DigitCap_IsAnImplementationLimit_NotAnInvalidLexicalForm()

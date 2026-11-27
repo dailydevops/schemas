@@ -13,11 +13,13 @@ using NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;
 using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Composition;
 using NetEvolve.Schemas.Xsd.ContentModels.Determinism;
+using NetEvolve.Schemas.Xsd.ContentModels.Determinism11;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Derivation.Particles10;
 using NetEvolve.Schemas.Xsd.Derivation.Types;
 using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.Elements;
+using NetEvolve.Schemas.Xsd.IdentityConstraints.DefaultNamespace;
 using NetEvolve.Schemas.Xsd.IdentityConstraints.Definitions;
 using NetEvolve.Schemas.Xsd.IdentityConstraints.Evaluation;
 using NetEvolve.Schemas.Xsd.SchemaDocuments;
@@ -59,7 +61,7 @@ internal sealed class CompilationRun
     private readonly BuildContext _context;
     private readonly ComponentResolver _componentResolver;
     private readonly TypeDerivationCheck _derivation;
-    private readonly DeterminismChecker _determinism;
+    private readonly IDeterminismCheck _determinism;
     private readonly ParticleRestriction? _particleRestriction;
     private readonly List<ModelGroupDefinition> _definitions = [];
     private readonly List<RedefinitionRestriction> _restrictions = [];
@@ -86,7 +88,7 @@ internal sealed class CompilationRun
         _componentResolver = new ComponentResolver(version);
         var values = new ValueSpace(new DescriptorValueAssessor(version), version);
         _derivation = new TypeDerivationCheck(version, values);
-        _determinism = new DeterminismChecker();
+        _determinism = version == XsdVersion.V10 ? new DeterminismChecker() : new DeterminismChecker11();
         _particleRestriction =
             version == XsdVersion.V10 ? new ParticleRestriction(new TypeDerivationOk(version), values) : null;
     }
@@ -404,6 +406,7 @@ internal sealed class CompilationRun
                 )
             )
             {
+                XPathDefaultNamespace.Apply(child, unit.Scope, _version);
                 // The document parser reported an empty name (a name is an NCName); the factory of the definition expects a non-empty one.
                 var constraint = child.FindAttribute("name") is { Length: 0 }
                     ? null

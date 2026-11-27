@@ -328,6 +328,7 @@ internal sealed class ComplexTypeBuilder : IComponentBuilder
         {
             _context.SetFixed(type, check.Fixed);
             _context.NoteEnumeration(type, restricted, step);
+            _context.SimpleTypes.NoteNotationValues(restriction, unit, facts);
             _context.SimpleTypes.NoteAssertions(type, restriction, unit);
         }
 

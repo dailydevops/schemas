@@ -114,12 +114,12 @@ public class AssertionWiringTests
     }
 
     [Test]
-    public async Task Build_XPathDefaultNamespaceOfAnIdentityConstraint_IsStillNotSupported()
+    public async Task Build_XPathDefaultNamespaceOfATypeAlternative_IsStillNotSupported()
     {
         var exception = AssemblyFixture.Failure(() =>
             AssemblyFixture.Build(
                 AssemblyFixture.WrapSchema(
-                    "<xs:element name=\"e\" type=\"xs:string\"><xs:key name=\"k\"><xs:selector xpath=\".\" xpathDefaultNamespace=\"##local\"/><xs:field xpath=\".\"/></xs:key></xs:element>"
+                    "<xs:element name=\"e\" type=\"xs:string\"><xs:alternative test=\"true()\" type=\"xs:string\" xpathDefaultNamespace=\"##local\"/></xs:element>"
                 )
             )
         );
