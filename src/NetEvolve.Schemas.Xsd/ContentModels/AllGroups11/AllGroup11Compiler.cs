@@ -37,12 +37,14 @@ internal static class AllGroup11Compiler
     /// <param name="idOf">Gives the schema name id of the name of an element declaration.</param>
     /// <param name="terms">Receives the term of each member, so the index of a matched particle finds its component.</param>
     /// <param name="idsOf">Gives all schema name ids a member accepts (a substitution group closure); <see langword="null"/> for the name of the declaration only.</param>
+    /// <param name="bind">Binds a wildcard to the names it consults (<c>##defined</c>, <c>##definedSibling</c>); <see langword="null"/> for the wildcard as it is.</param>
     /// <returns>The program, <see langword="null"/> when the particle cannot occur, is no <c>all</c> group, or nests too deep.</returns>
     internal static AllGroup11? Compile(
         Particle content,
         Func<XPathQName, int> idOf,
         List<IXsdComponent> terms,
-        Func<ElementDeclaration, int[]>? idsOf = null
+        Func<ElementDeclaration, int[]>? idsOf = null,
+        Func<IWildcard, IWildcard>? bind = null
     )
     {
         ArgumentNullException.ThrowIfNull(content);
@@ -59,7 +61,7 @@ internal static class AllGroup11Compiler
 
         var members = new List<AutomatonParticle>();
         var memberTerms = new List<IXsdComponent>();
-        if (!Collect(group, 1, idOf, idsOf, members, memberTerms))
+        if (!Collect(group, 1, idOf, idsOf, bind, members, memberTerms))
         {
             return null;
         }
@@ -107,6 +109,7 @@ internal static class AllGroup11Compiler
         int depth,
         Func<XPathQName, int> idOf,
         Func<ElementDeclaration, int[]>? idsOf,
+        Func<IWildcard, IWildcard>? bind,
         List<AutomatonParticle> members,
         List<IXsdComponent> terms
     )
@@ -133,13 +136,14 @@ internal static class AllGroup11Compiler
                     );
                     terms.Add(element);
                     break;
-                case IWildcard wildcard:
+                case IWildcard unbound:
+                    var wildcard = bind is null ? unbound : bind(unbound);
                     members.Add(AutomatonParticle.Wildcard(particle.MinOccurs, particle.MaxOccurs, wildcard));
                     terms.Add(wildcard);
                     break;
                 case ModelGroup { Compositor: ModelGroupCompositor.All } nested
                     when particle.MinOccurs == 1 && particle.MaxOccurs == 1:
-                    if (!Collect(nested, depth + 1, idOf, idsOf, members, terms))
+                    if (!Collect(nested, depth + 1, idOf, idsOf, bind, members, terms))
                     {
                         return false;
                     }

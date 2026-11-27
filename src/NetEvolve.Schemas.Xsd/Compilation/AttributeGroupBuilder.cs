@@ -9,6 +9,7 @@ using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.SchemaDocuments;
 using NetEvolve.Schemas.Xsd.Wildcards.Core;
+using NetEvolve.Schemas.Xsd.Wildcards.Negation;
 
 /// <summary>
 /// Builds attribute group definitions (Structures 3.6.2) from the syntax of a top-level <c>attributeGroup</c>: the uses of its
@@ -109,6 +110,13 @@ internal sealed class AttributeGroupBuilder : IComponentBuilder
     {
         ArgumentNullException.ThrowIfNull(node);
         ArgumentNullException.ThrowIfNull(unit);
+
+        if (node.FindAttribute("notNamespace") is not null || node.FindAttribute("notQName") is not null)
+        {
+            return NegatedWildcard.TryCreate(node, unit.Scope, true, _context.Reporter, out var negated)
+                ? negated!.WithContext(DeclaredNames.Of(_context.Registry, XsdComponentKind.AttributeDeclaration), null)
+                : null;
+        }
 
         if (
             Wildcard.TryCreate(
