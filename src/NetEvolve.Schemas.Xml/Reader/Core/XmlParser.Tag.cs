@@ -154,7 +154,8 @@ internal sealed partial class XmlParser
                 var error = scope.Declare(
                     tag.Slice(attribute.NameStart, attribute.NameLength),
                     tag.Slice(attribute.ValueStart, attribute.ValueLength),
-                    out attribute.Binding
+                    out attribute.Binding,
+                    isName: true
                 );
                 if (error is not null)
                 {
@@ -163,7 +164,7 @@ internal sealed partial class XmlParser
             }
         }
 
-        var elementError = scope.ResolveElement(tag.Slice(0, _elementNameLength), out name);
+        var elementError = scope.ResolveElement(tag.Slice(0, _elementNameLength), out name, isName: true);
         if (elementError is not null)
         {
             return Fail(elementError, _startPosition);
@@ -174,7 +175,11 @@ internal sealed partial class XmlParser
             ref var attribute = ref _attributes[i];
             var error = attribute.IsDeclaration
                 ? null
-                : scope.ResolveAttribute(tag.Slice(attribute.NameStart, attribute.NameLength), out attribute.Name);
+                : scope.ResolveAttribute(
+                    tag.Slice(attribute.NameStart, attribute.NameLength),
+                    out attribute.Name,
+                    isName: true
+                );
             if (error is not null)
             {
                 return Fail(error, attribute.Position);
