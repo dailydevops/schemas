@@ -42,6 +42,7 @@ internal static class Registration
         builder.Add(new LastFunction());
         builder.Add(new StringFunction());
         builder.Add(new DataFunction());
+        builder.Add(new DataContextItemFunction());
         builder.Add(new GenerateIdFunction());
         builder.Add(new Xslt20GenerateIdFunction());
         builder.Add(new KeyFunction());
