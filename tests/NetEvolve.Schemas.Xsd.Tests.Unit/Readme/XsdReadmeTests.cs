@@ -83,7 +83,7 @@ public class XsdReadmeTests
     }
 
     [Test]
-    public async Task VersionSelectionSample_RejectsTheExplicitTimezoneFacetInBothVersionsWithTheirCodes(
+    public async Task VersionSelectionSample_RejectsTheTypeAlternativeInBothVersionsWithTheirCodes(
         CancellationToken cancellationToken
     )
     {
@@ -92,12 +92,8 @@ public class XsdReadmeTests
         // <sample>
         const string schema = """
             <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
-              <xs:element name="total">
-                <xs:simpleType>
-                  <xs:restriction base="xs:dateTime">
-                    <xs:explicitTimezone value="required"/>
-                  </xs:restriction>
-                </xs:simpleType>
+              <xs:element name="total" type="xs:int">
+                <xs:alternative test="@kind = 'x'" type="xs:string"/>
               </xs:element>
             </xs:schema>
             """;
@@ -120,8 +116,8 @@ public class XsdReadmeTests
         }
         // </sample>
 
-        await Assert.That(codes).IsEquivalentTo(["V11: NES4073", "V10: NES4033"]);
-        await Assert.That(codes[0]).IsEqualTo("V11: NES4073");
+        await Assert.That(codes).IsEquivalentTo(["V11: NES4062", "V10: NES4022"]);
+        await Assert.That(codes[0]).IsEqualTo("V11: NES4062");
     }
 
     [Test]
