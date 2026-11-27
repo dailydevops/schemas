@@ -8,7 +8,6 @@ using NetEvolve.Arguments;
 using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Resources;
 using NetEvolve.Schemas.Schematron.Seams;
-using NetEvolve.Schemas.Schematron.Xslt.Instructions.Grouping;
 using NetEvolve.Schemas.XPath.Abstractions;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Context;
@@ -46,6 +45,7 @@ internal sealed class XPathQueryRun : IXsltFunctionRun, IXsltGroupRun, IXPathRes
     private IXPathKeyProvider? _keys;
     private XdmSequence[] _values = new XdmSequence[16];
     private bool[] _bound = new bool[16];
+    private readonly Stack<(XdmSequence? Group, XdmSequence? Key)> _saved = new();
     private SchematronProblem _problem;
     private RunLoading? _loading;
 
@@ -189,11 +189,16 @@ internal sealed class XPathQueryRun : IXsltFunctionRun, IXsltGroupRun, IXPathRes
     }
 
     // A function body starts with no focus, no current item, no group, no grouping key, and no regex groups: an evaluation that
-    // is nested in another one runs on a context of its own (see Acquire), which is cleared when it is taken, so there is nothing
-    // to save here and the evaluation that called the function gets its own context back unchanged.
-    public void EnterFunction() { }
+    // is nested in another one runs on a context of its own (see Acquire), which is cleared when it is taken, so the focus needs no
+    // save here. The group and the key live in the run, not in a context, so they are saved and cleared.
+    public void EnterFunction()
+    {
+        _saved.Push((CurrentGroup, CurrentGroupingKey));
+        CurrentGroup = null;
+        CurrentGroupingKey = null;
+    }
 
-    public void ExitFunction() { }
+    public void ExitFunction() => (CurrentGroup, CurrentGroupingKey) = _saved.Pop();
 
     public void FailWith(in SchematronProblem problem)
     {
@@ -317,6 +322,8 @@ internal sealed class XPathQueryRun : IXsltFunctionRun, IXsltGroupRun, IXPathRes
 
         var context = Acquire();
         SetFocus(context, in focus);
+        context.Host.CurrentGroup = CurrentGroup;
+        context.Host.CurrentGroupingKey = CurrentGroupingKey;
         var slots = query.ReferencedSlots;
         for (var i = 0; i < query.Names.Length; i++)
         {
