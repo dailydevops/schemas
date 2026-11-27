@@ -34,8 +34,8 @@ using NetEvolve.Schemas.Xsd.Wildcards.Negation;
 /// <para>
 /// A restriction and a base that are not compared give the verdict <see cref="SubsumptionVerdict.NotCompared"/>, as for the
 /// restriction of XSD 1.0: a term that is not resolved (the resolver reports it), a circular group definition
-/// (<c>mg-props-correct.2</c>), and an <c>all</c> group on either side, which the standard allows an implementation to accept
-/// provisionally. A check that exceeds its work limit or a ceiling of the content model (more positions or transitions than the
+/// (<c>mg-props-correct.2</c>), and an <c>all</c> group below the content model or one that may occur more than once, which the standard allows an implementation to accept
+/// provisionally. An <c>all</c> group that is the content model is compared as one counter per member (see <see cref="SubsumptionSide"/>). A check that exceeds its work limit or a ceiling of the content model (more positions or transitions than the
 /// automaton compiler accepts, more than <see cref="SubsumptionSearch.MaxVariables"/> counters, or an occurrence bound of 2^60 or
 /// more), or finds a violation only in a zone that is not exact (see <see cref="SubsumptionSearch"/>), gives
 /// <see cref="SubsumptionVerdict.Undecided"/>, and a report of it is an error with the clause

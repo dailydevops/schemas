@@ -87,7 +87,11 @@ public class ContentSubsumptionAllGroupTests
     public async Task AllGroup_WithAWildcardMember_IsCompared()
     {
         await AssertSubsumed(All([El("a"), El("b")]), All([El("a"), Any()]));
-        await AssertNotSubsumed(All([El("a"), Any()]), All([El("a"), El("b")]));
+        await AssertNotSubsumed(
+            All([El("a"), Any()]),
+            All([El("a"), El("b")]),
+            "cos-content-act-restrict.2.subsumes.4"
+        );
         await AssertSubsumed(All([El("a", 0, 1), Any(min: 0, max: Unbounded)]), All([Any(min: 0, max: Unbounded)]));
     }
 
@@ -138,6 +142,14 @@ public class ContentSubsumptionAllGroupTests
     public async Task AllGroup_ThatMayOccurMoreThanOnce_IsNotCompared()
     {
         var outcome = Check(All([El("a")], 1, 2), Seq([El("a")]));
+
+        await Assert.That(outcome.Verdict).IsEqualTo(SubsumptionVerdict.NotCompared);
+    }
+
+    [Test]
+    public async Task AllGroup_WithAGroupAsMember_IsNotCompared()
+    {
+        var outcome = Check(All([El("a"), Seq([El("b")])]), Seq([El("a")]));
 
         await Assert.That(outcome.Verdict).IsEqualTo(SubsumptionVerdict.NotCompared);
     }

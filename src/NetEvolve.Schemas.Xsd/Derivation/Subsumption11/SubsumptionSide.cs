@@ -77,6 +77,17 @@ internal sealed class SubsumptionSide
 
     private void Construct()
     {
+        if (
+            Root.MaxOccurs != 0
+            && Root.MinOccurs <= Root.MaxOccurs
+            && (Root.Term is ModelGroupDefinition definition ? definition.ModelGroup : Root.Term)
+                is ModelGroup { Compositor: ModelGroupCompositor.All } all
+        )
+        {
+            ConstructAll(all);
+            return;
+        }
+
         var converted = Convert(Root) ?? AutomatonParticle.Sequence(1, 1);
         if (Status != SideStatus.Ready)
         {
@@ -94,7 +105,98 @@ internal sealed class SubsumptionSide
         ReadCounters(Automaton);
     }
 
-    // Terms that are not resolved and all groups are not compared; a group that is expanded too often is refused early,
+    // The automaton of an all group that is the content model: one counter per member and no order, so every position has the
+    // moves to all members. A counter starts at zero and counts the occurrences of its member up to the maximum; the group may
+    // end when every counter has reached its minimum. An all group occurs once at most (cos-all-limited).
+    private void ConstructAll(ModelGroup group)
+    {
+        var members = new List<Particle>();
+        foreach (var member in group.Particles)
+        {
+            if (member.MaxOccurs == 0 || member.MinOccurs > member.MaxOccurs)
+            {
+                continue;
+            }
+
+            if (member.Term is not (ElementDeclaration or IWildcard))
+            {
+                Status = SideStatus.NotComparable;
+                return;
+            }
+
+            members.Add(member);
+        }
+
+        if (Root.MaxOccurs != 1)
+        {
+            Status = SideStatus.NotComparable;
+            return;
+        }
+
+        // Every member is a counter of the check, which holds a few; the moves of every position to every member are quadratic.
+        if (members.Count > SubsumptionSearch.MaxVariables)
+        {
+            Status = SideStatus.TooLarge;
+            return;
+        }
+
+        var count = members.Count;
+        var names = new int[count][];
+        var wildcards = new IWildcard?[count];
+        var actions = new AutomatonAction[2 * count];
+        var minimums = new long[count];
+        for (var j = 0; j < count; j++)
+        {
+            var member = members[j];
+            var term = member.Term!;
+            _ = Leaf(member, term);
+            names[j] = term is ElementDeclaration element ? [IdOf(element.Name)] : [];
+            wildcards[j] = term as IWildcard;
+            minimums[j] = member.MinOccurs;
+            var max = member.MaxOccurs;
+            actions[j] = new(
+                AutomatonActionKind.Iterate,
+                j,
+                max,
+                max == AutomatonParticle.Unbounded ? member.MinOccurs : max
+            );
+            actions[count + j] = new(AutomatonActionKind.Exit, j, member.MinOccurs, 0);
+        }
+
+        var sourceStart = new int[count + 2];
+        var transitions = new AutomatonTransition[(count + 1) * count];
+        var finalStart = new int[count + 1];
+        var finalCount = new int[count + 1];
+        for (var source = 0; source <= count; source++)
+        {
+            sourceStart[source] = source * count;
+            finalStart[source] = count;
+            finalCount[source] = count;
+            for (var j = 0; j < count; j++)
+            {
+                transitions[(source * count) + j] = new(j, j, 1);
+            }
+        }
+
+        sourceStart[count + 1] = (count + 1) * count;
+
+        // The empty content of an optional group ends at the start state, whatever the minimums of the members.
+        finalCount[0] = Root.MinOccurs == 0 ? 0 : count;
+        Automaton = new CountingAutomaton(
+            names,
+            wildcards,
+            sourceStart,
+            transitions,
+            actions,
+            finalStart,
+            finalCount,
+            count,
+            minimums
+        );
+        ReadCounters(Automaton);
+    }
+
+    // Terms that are not resolved and all groups below the content model are not compared; a group that is expanded too often is refused early,
     // because the same group definition can be used many times.
     private AutomatonParticle? Convert(Particle particle)
     {
