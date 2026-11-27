@@ -41,11 +41,10 @@ public class ContentSubsumptionLimitTests
     }
 
     [Test]
-    public async Task AllGroup_OnEitherSide_IsNotCompared()
+    public async Task AllGroup_BelowTheContentModel_IsNotCompared()
     {
-        await AssertVerdict(All([El("a"), El("b")]), Seq([El("a"), El("b")]), SubsumptionVerdict.NotCompared);
-        await AssertVerdict(Seq([El("a")]), All([El("a"), El("b")]), SubsumptionVerdict.NotCompared);
         await AssertVerdict(Seq([El("a"), All([El("b")])]), Seq([El("a")]), SubsumptionVerdict.NotCompared);
+        await AssertVerdict(Seq([El("a")]), Seq([El("a"), All([El("b")])]), SubsumptionVerdict.NotCompared);
     }
 
     [Test]
@@ -249,7 +248,7 @@ public class ContentSubsumptionLimitTests
     [Test]
     public async Task Report_OfAContentThatIsNotCompared_AddsNothing()
     {
-        Subsumption().Report(All([El("a")]), Seq([El("b")]), new XsdIssueReporter(_collector));
+        Subsumption().Report(Seq([All([El("a")])]), Seq([El("b")]), new XsdIssueReporter(_collector));
 
         await Assert.That(Issues).Count().IsEqualTo(0);
     }
