@@ -31,7 +31,8 @@ internal static class IdcFixture
         SimpleTypeDefinition? leaf = null,
         string ns = "",
         AttributeValueConstraint attributeC = default,
-        IWildcard? attributeWildcard = null
+        IWildcard? attributeWildcard = null,
+        bool nillable = false
     )
     {
         leaf ??= SchemaFixture.Simple("string");
@@ -46,15 +47,18 @@ internal static class IdcFixture
                     ModelGroupCompositor.Choice,
                     0,
                     long.MaxValue,
-                    SchemaFixture.Part(SchemaFixture.Element("k", leaf, namespaceName: ns)),
-                    SchemaFixture.Part(SchemaFixture.Element("m", BuiltIn("string"), namespaceName: ns)),
+                    SchemaFixture.Part(SchemaFixture.Element("k", leaf, namespaceName: ns, nillable: nillable)),
+                    SchemaFixture.Part(
+                        SchemaFixture.Element("m", BuiltIn("string"), namespaceName: ns, nillable: nillable)
+                    ),
                     SchemaFixture.Part(SchemaFixture.Element("q", schema.SimpleContent("string"), namespaceName: ns))
                 ),
                 [Use(schema, "a", leaf), Use(schema, "b", leaf), Use(schema, "c", leaf, attributeC)],
                 attributeWildcard,
                 schema.Reporter
             ),
-            namespaceName: ns
+            namespaceName: ns,
+            nillable: nillable
         );
         var s = SchemaFixture.Element("s", null, namespaceName: ns);
         s.BindInlineType(
