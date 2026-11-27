@@ -20,8 +20,7 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// </summary>
 /// <remarks>
 /// Limitations: <c>schema-element()</c> and <c>schema-attribute()</c> and types that are not built in need schema import (DEF-40, #52);
-/// the nillable marker of <c>element(N, T?)</c> is accepted but has no effect because nodes are never nilled until the nilled
-/// property exists. A map test matches a map item by the types of its keys and values, an array test matches an array item by the types of its members (XPath 3.1, 2.5.5.6), and an array or a map also matches the function tests by its signature. A function test matches a function item by the signature of the item (see <see cref="FunctionSignature"/>).
+/// a nilled element matches <c>element(N, T?)</c> and does not match <c>element(N, T)</c>, as far as the annotation source reports it. A map test matches a map item by the types of its keys and values, an array test matches an array item by the types of its members (XPath 3.1, 2.5.5.6), and an array or a map also matches the function tests by its signature. A function test matches a function item by the signature of the item (see <see cref="FunctionSignature"/>).
 /// </remarks>
 [StructLayout(LayoutKind.Auto)]
 internal readonly struct ItemTypeMatcher
@@ -33,8 +32,18 @@ internal readonly struct ItemTypeMatcher
     // The signature of a typed function test, or the matcher of the members of a typed array test: one slot, so that the struct does not grow for every compiled type.
     private readonly object? _detail;
 
-    private ItemTypeMatcher(ItemTypeKind kind, XPathNodeTest test, XdmTypeId type, object? detail = null)
+    // An element test with a type name and without the nillable marker rejects a nilled element (XPath 2.0, 2.5.4.4).
+    private readonly bool _rejectNilled;
+
+    private ItemTypeMatcher(
+        ItemTypeKind kind,
+        XPathNodeTest test,
+        XdmTypeId type,
+        object? detail = null,
+        bool rejectNilled = false
+    )
     {
+        _rejectNilled = rejectNilled;
         _kind = kind;
         _test = test;
         _type = type;
@@ -190,11 +199,11 @@ internal readonly struct ItemTypeMatcher
             case SchemaElementTest or SchemaAttributeTest:
                 throw UndeclaredSchemaTest(test, context);
             case DocumentTest { Element: { } element }:
-                var (documentElement, type) = BindNamedTest(element, context);
-                return new(ItemTypeKind.DocumentElement, documentElement, type);
+                var (documentElement, type, documentNilled) = BindNamedTest(element, context);
+                return new(ItemTypeKind.DocumentElement, documentElement, type, null, documentNilled);
             case ElementTest or AttributeTest:
-                var (named, annotation) = BindNamedTest(test, context);
-                return new(ItemTypeKind.Node, named, annotation);
+                var (named, annotation, rejectNilled) = BindNamedTest(test, context);
+                return new(ItemTypeKind.Node, named, annotation, null, rejectNilled);
             case AnyKindTest:
                 return new(ItemTypeKind.AnyNode, default, default);
             default:
@@ -204,7 +213,10 @@ internal readonly struct ItemTypeMatcher
     }
 
     // An element or attribute test: the name part is the existing node test, the type name is bound here.
-    private static (XPathNodeTest Test, XdmTypeId Type) BindNamedTest(KindTest test, XPathStaticContext context)
+    private static (XPathNodeTest Test, XdmTypeId Type, bool RejectNilled) BindNamedTest(
+        KindTest test,
+        XPathStaticContext context
+    )
     {
         switch (test)
         {
@@ -213,13 +225,17 @@ internal readonly struct ItemTypeMatcher
             case ElementTest element:
                 var elementType = element.TypeName is null ? default : ResolveAny(element.TypeName, context);
                 var withoutType = new ElementTest(element.Location, element.Name, null, false);
-                return (ToNodeTest(withoutType, context), elementType);
+                return (
+                    ToNodeTest(withoutType, context),
+                    elementType,
+                    element.TypeName is not null && !element.IsNillable
+                );
             case AttributeTest attribute:
                 var attributeType = attribute.TypeName is null ? default : ResolveAny(attribute.TypeName, context);
                 var plain = new AttributeTest(attribute.Location, attribute.Name, null);
-                return (ToNodeTest(plain, context), attributeType);
+                return (ToNodeTest(plain, context), attributeType, false);
             default:
-                return (ToNodeTest(test, context), default);
+                return (ToNodeTest(test, context), default, false);
         }
     }
 
@@ -290,7 +306,11 @@ internal readonly struct ItemTypeMatcher
 
     // The type check reads the annotation slot of the node: an untyped node carries xs:untyped (elements, documents) or xs:untypedAtomic.
     private bool MatchesType(in XPathNode node, IXdmTypeAnnotationSource annotations) =>
-        _type.Value == 0 || XdmTypes.IsDerivedFrom(annotations.GetTypeAnnotation(node), _type);
+        _type.Value == 0
+        || (
+            XdmTypes.IsDerivedFrom(annotations.GetTypeAnnotation(node), _type)
+            && !(_rejectNilled && annotations.IsNilled(node))
+        );
 
     // document-node(element(N, T)): exactly one element child that matches, comments and processing instructions may accompany it.
     private bool MatchesDocumentElement(
