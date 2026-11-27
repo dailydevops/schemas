@@ -117,6 +117,34 @@ public class SubstitutionGroupPipelineTests
     }
 
     [Test]
+    public async Task Restriction_ThatNamesASingleMemberOfTheHeadOfTheBase_IsValid()
+    {
+        var compilation = Compile(
+            Schema(
+                "<xs:element name=\"h\"/><xs:element name=\"m1\" substitutionGroup=\"t:h\"/><xs:element name=\"m2\" substitutionGroup=\"t:h\"/>"
+                    + "<xs:complexType name=\"b\"><xs:sequence><xs:element ref=\"t:h\"/></xs:sequence></xs:complexType>"
+                    + "<xs:complexType name=\"d\"><xs:complexContent><xs:restriction base=\"t:b\"><xs:sequence><xs:element ref=\"t:m1\"/></xs:sequence></xs:restriction></xs:complexContent></xs:complexType>"
+            )
+        );
+
+        await Assert.That(compilation.IsValid).IsTrue();
+    }
+
+    [Test]
+    public async Task Restriction_ThatNamesTheHeadWhereTheBaseNamesAMember_IsReported()
+    {
+        var compilation = Compile(
+            Schema(
+                "<xs:element name=\"h\"/><xs:element name=\"m1\" substitutionGroup=\"t:h\"/>"
+                    + "<xs:complexType name=\"b\"><xs:sequence><xs:element ref=\"t:m1\"/></xs:sequence></xs:complexType>"
+                    + "<xs:complexType name=\"d\"><xs:complexContent><xs:restriction base=\"t:b\"><xs:sequence><xs:element ref=\"t:h\"/></xs:sequence></xs:restriction></xs:complexContent></xs:complexType>"
+            )
+        );
+
+        await Assert.That(Codes(compilation)).IsEquivalentTo([XsdRuleCodes.CosParticleRestrict]);
+    }
+
+    [Test]
     public async Task Restriction_ThatNamesAnElementOutsideTheGroupOfTheHead_IsReported()
     {
         var compilation = Compile(
