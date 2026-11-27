@@ -125,7 +125,6 @@ public class AccessorTests
     [Arguments("integer:5", "integer:5")]
     public async Task Data_WithoutArgument_AtomizesTheContextItem(string contextItem, string expected)
     {
-        ArgumentNullException.ThrowIfNull(contextItem);
         _ = NodesHarness.TryResolve("data", 0, out var function, XPathVersion.V30);
         using var context = new XPathEvaluationContext();
         context.SetContextItem(NodesHarness.ParseItem(contextItem));
