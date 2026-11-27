@@ -11,7 +11,7 @@ using NetEvolve.Schemas.Xsd.Versioning.Constructs;
 /// The one table of the XSD 1.1 constructs that the assembled validator does not support yet (design #146 DP-16). Under the default
 /// version every occurrence is a located schema error, so no schema is silently read with 1.0 semantics; XSD-78 (#360) removes a row
 /// together with its tests when it implements the construct. The <c>assert</c> element of a complex type and the <c>assertion</c>
-/// facet of a simple type are wired (they have no row); the <c>xpathDefaultNamespace</c> attribute stays a row for every owner but <c>assert</c>
+/// facet of a simple type and the <c>explicitTimezone</c> facet are wired (they have no row); the <c>xpathDefaultNamespace</c> attribute stays a row for every owner but <c>assert</c>
 /// and <c>assertion</c>, because the selector and field of an identity constraint, the type alternative, and the default on the <c>schema</c>
 /// element do not read it yet.
 /// </summary>
@@ -40,7 +40,7 @@ internal static class Xsd11ConstructTable
         var entries = new List<Xsd11Construct>(Strict10ConstructTable.Entries.Count + 4);
         foreach (var strict in Strict10ConstructTable.Entries)
         {
-            if (!strict.IsAttribute && strict.Name is "assert" or "assertion")
+            if (!strict.IsAttribute && strict.Name is "assert" or "assertion" or "explicitTimezone")
             {
                 continue;
             }

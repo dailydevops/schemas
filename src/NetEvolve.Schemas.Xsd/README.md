@@ -107,17 +107,13 @@ The version is a property of the validator, set with `WithVersion` before the bu
 | `XsdVersion.V11` (the default) | XSD 1.1, which is incomplete. A 1.1 construct that is not wired in yet is a schema error with a code from `NES4062` to `NES4077` ("not supported yet"), so a schema never silently loses a construct. |
 | `XsdVersion.V10` | Strict XSD 1.0. Every XSD 1.1 construct is a schema error with a code from `NES4020` to `NES4035` ("not allowed in strict 1.0 mode"). |
 
-The sample builds a schema with an `xs:explicitTimezone` facet, an XSD 1.1 construct that is not wired in yet, under both versions:
+The sample builds a schema with an `xs:alternative` type alternative, an XSD 1.1 construct that is not wired in yet, under both versions:
 
 ```csharp
 const string schema = """
     <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
-      <xs:element name="total">
-        <xs:simpleType>
-          <xs:restriction base="xs:dateTime">
-            <xs:explicitTimezone value="required"/>
-          </xs:restriction>
-        </xs:simpleType>
+      <xs:element name="total" type="xs:int">
+        <xs:alternative test="@kind = 'x'" type="xs:string"/>
       </xs:element>
     </xs:schema>
     """;
@@ -140,7 +136,7 @@ foreach (var version in new[] { XsdVersion.V11, XsdVersion.V10 })
 }
 ```
 
-Here `codes` holds `V11: NES4073` and `V10: NES4033`. A validator for XSD 1.0 is built like this:
+Here `codes` holds `V11: NES4062` and `V10: NES4022`. A validator for XSD 1.0 is built like this:
 
 ```csharp
 var validator = await SchemaValidator
@@ -297,7 +293,7 @@ For complete documentation, please visit the [official documentation](https://gi
 
 ### XSD 1.1 status
 
-XSD 1.1 is the default version, and it is incomplete until the 1.1 wiring (#360) is done. The package holds the building blocks of several 1.1 features (type alternatives, open content, `xs:override`, conditional inclusion, and more than one substitution group head), but the builder does not enable them yet. Assertions on complex types (`xs:assert`) and the assertion facet of simple types (`xs:assertion`) are wired: the builder compiles them and the validator evaluates them (at the end tag of the element for `xs:assert`, with the value of the element or attribute bound to `$value` for `xs:assertion`), with the limitations of the assertion listener and the facet evaluator (the `xpathDefaultNamespace` attribute is honored on `xs:assert` and `xs:assertion` only; the assertions of list items and union members are not checked, #949). A schema that uses one of these constructs under the default version fails the build with a coded, located schema error that states the construct is "not supported yet": `NES4062` for `xs:alternative`, `NES4063` for `xs:openContent`, and the codes up to `NES4077` for the other constructs, among them the datatypes `xs:precisionDecimal` and `xs:error`. Strict `V10` reports the same constructs with the codes `NES4020` to `NES4035`. The attributes of the version control namespace (`vc:`) are not applied yet, so a construct inside an excluded block is reported as well. No XSD 1.1 conformance rate is claimed: the cases of XSD 1.1 of the test suite are all baselined as known failures until the wiring is done, and the XSD 1.1 conformance statement is a work package of its own.
+XSD 1.1 is the default version, and it is incomplete until the 1.1 wiring (#360) is done. The package holds the building blocks of several 1.1 features (type alternatives, open content, `xs:override`, conditional inclusion, and more than one substitution group head), but the builder does not enable them yet. Assertions on complex types (`xs:assert`), the assertion facet of simple types (`xs:assertion`), and the `xs:explicitTimezone` facet of the date and time types are wired: the builder compiles them and the validator evaluates them (at the end tag of the element for `xs:assert`, with the value of the element or attribute bound to `$value` for `xs:assertion`), with the limitations of the assertion listener and the facet evaluator (the `xpathDefaultNamespace` attribute is honored on `xs:assert` and `xs:assertion` only; the assertions of list items and union members are not checked, #949). A schema that uses one of these constructs under the default version fails the build with a coded, located schema error that states the construct is "not supported yet": `NES4062` for `xs:alternative`, `NES4063` for `xs:openContent`, and the codes up to `NES4077` for the other constructs, among them the datatypes `xs:precisionDecimal` and `xs:error`. Strict `V10` reports the same constructs with the codes `NES4020` to `NES4035`. The attributes of the version control namespace (`vc:`) are not applied yet, so a construct inside an excluded block is reported as well. No XSD 1.1 conformance rate is claimed: the cases of XSD 1.1 of the test suite are all baselined as known failures until the wiring is done, and the XSD 1.1 conformance statement is a work package of its own.
 
 ### Conformance
 
@@ -320,7 +316,7 @@ The summary file then also holds the row `NetEvolve.Schemas.Xsd`, which counts t
 
 ### Known limitations
 
-- XSD 1.1 is the default but incomplete: see [XSD 1.1 status](#xsd-11-status). The wiring of the 1.1 features is #360, and the assertions of complex types and the assertion facet of simple types are wired (#318, #1191).
+- XSD 1.1 is the default but incomplete: see [XSD 1.1 status](#xsd-11-status). The wiring of the 1.1 features is #360, and the assertions of complex types and the assertion facet and the explicitTimezone facet of simple types are wired (#318, #1191, #1430).
 - Incomplete schemas are rejected: a schema with a reference to a component that is not there fails the build, instead of failing only where the component is used (#956).
 - The enumeration facet of a restriction is not evaluated when instance values are validated for list types (#1077), union types (#1078), and hexBinary and base64Binary (#1079); the other facets of a user-defined simple type are evaluated.
 - Substitution groups are not supported yet (#868) and a redefinition is not checked against the redefined component (#869). `xs:include`, `xs:import`, and `xs:redefine` otherwise work through the resolver.

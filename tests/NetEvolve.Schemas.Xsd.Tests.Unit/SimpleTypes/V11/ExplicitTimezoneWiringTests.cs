@@ -58,14 +58,14 @@ public class ExplicitTimezoneWiringTests
     }
 
     [Test]
-    public async Task AViolatedFacet_ReportsCvcFacetValid()
+    public async Task AViolatedFacet_ReportsCvcExplicitTimezoneValid()
     {
         var result = AssemblyFixture.Run(
             AssemblyFixture.Build(Schema("dateTime", "required")),
             "<e xmlns=\"urn:t\">2020-01-01T10:00:00</e>"
         );
 
-        await Assert.That(result.Issues.Any(i => i.Code == XsdRuleCodes.CvcFacetValid)).IsTrue();
+        await Assert.That(result.Issues.Any(i => i.Code == XsdRuleCodes.CvcExplicitTimezoneValid)).IsTrue();
     }
 
     [Test]
