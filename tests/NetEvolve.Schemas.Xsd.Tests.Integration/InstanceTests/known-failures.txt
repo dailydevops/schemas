@@ -153,9 +153,9 @@ msMeta-Particles_w3c	1.0/particlesZ025/particlesZ025.v	#963	The group has no sch
 msMeta-Schema_w3c	1.0/schA4/schA4.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-Schema_w3c	1.0/schA8/schA8.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-Schema_w3c	1.0/schD7/schD7.v	-	The schema is incomplete (a missing component or document); the suite accepts it, the validator reports src-resolve.
-msMeta-Schema_w3c	1.0/schU3/schU3.i	#869	The schema does not build: a redefinition is not checked against the redefined component.
-msMeta-Schema_w3c	1.0/schU4/schU4.i	#869	The schema does not build: a redefinition is not checked against the redefined component.
-msMeta-Schema_w3c	1.0/schU5/schU5.i	#869	The schema does not build: a redefinition is not checked against the redefined component.
+msMeta-Schema_w3c	1.0/schU3/schU3.i	#1418	The schema does not build: a circular redefinition does not find the component it redefines.
+msMeta-Schema_w3c	1.0/schU4/schU4.i	#1418	The schema does not build: a circular redefinition does not find the component it redefines.
+msMeta-Schema_w3c	1.0/schU5/schU5.i	#1418	The schema does not build: a circular redefinition does not find the component it redefines.
 msMeta-SimpleType_w3c	1.0/stG011/stG011.i	#1077	The enumeration of a list type is not evaluated and the case expects it to reject the value.
 msMeta-SimpleType_w3c	1.0/stH008/stH008.i	#1078	The enumeration of a union type is not evaluated and the case expects it to reject the value.
 msMeta-SimpleType_w3c	1.0/stZ058/stZ058.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
