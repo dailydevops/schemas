@@ -1,11 +1,13 @@
 namespace NetEvolve.Schemas.Xsd.Elements;
 
+using System;
 using System.Collections.Generic;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;
 using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Contracts;
+using NetEvolve.Schemas.Xsd.Declarations11;
 using NetEvolve.Schemas.Xsd.IdentityConstraints.Definitions;
 using NetEvolve.Schemas.Xsd.Substitution;
 
@@ -14,15 +16,16 @@ using NetEvolve.Schemas.Xsd.Substitution;
 /// stays as syntax until the type builders construct it.
 /// </summary>
 /// <remarks>
-/// Limitations: only the first head of the <c>substitutionGroup</c> of a global declaration is read (several heads are XSD-71 #322), type alternatives are
-/// XSD 1.1 (#319), and a local <c>targetNamespace</c> is XSD-71 (#322); checking the value constraint against the type
-/// (cos-valid-default) is XSD-54 (#307).
+/// Limitations: the declaration lists several heads of the <c>substitutionGroup</c> of a global declaration only when the builder is given them
+/// (XSD 1.1); the type of a declaration without a type is the one of its first head. Type alternatives are
+/// XSD 1.1 (#319); checking the value constraint against the type (cos-valid-default) is XSD-54 (#307).
 /// </remarks>
-internal sealed class ElementDeclaration : IReferencingComponent, ISubstitutionElement
+internal sealed class ElementDeclaration : IReferencingComponent, IMultiHeadElement
 {
     private readonly List<IdentityConstraintDefinition> _constraints = [];
     private readonly XsdReference[] _references;
-    private readonly int _headIndex;
+    private readonly int[] _headIndexes;
+    private readonly ElementDeclaration?[] _heads;
     private readonly bool _inheritsType;
     private IXsdComponent? _type;
 
@@ -31,7 +34,7 @@ internal sealed class ElementDeclaration : IReferencingComponent, ISubstitutionE
         DocumentLocation location,
         bool isGlobal,
         XsdReference[] references,
-        int headIndex,
+        int[] headIndexes,
         bool inheritsType,
         ISchemaSyntaxElement? inlineTypeSyntax,
         bool isNillable,
@@ -45,7 +48,8 @@ internal sealed class ElementDeclaration : IReferencingComponent, ISubstitutionE
         Location = location;
         IsGlobal = isGlobal;
         _references = references;
-        _headIndex = headIndex;
+        _headIndexes = headIndexes;
+        _heads = new ElementDeclaration?[headIndexes.Length];
         _inheritsType = inheritsType;
         InlineTypeSyntax = inlineTypeSyntax;
         IsNillable = isNillable;
@@ -77,7 +81,31 @@ internal sealed class ElementDeclaration : IReferencingComponent, ISubstitutionE
     public IXsdComponent? TypeDefinition => _type ?? InheritedType();
 
     /// <summary>Gets the head of the substitution group, <see langword="null"/> for none or while it is unresolved.</summary>
-    internal ElementDeclaration? Head { get; private set; }
+    internal ElementDeclaration? Head => _heads.Length > 0 ? _heads[0] : null;
+
+    /// <inheritdoc />
+    IReadOnlyList<IMultiHeadElement> IMultiHeadElement.Heads
+    {
+        get
+        {
+            if (_heads.Length == 0)
+            {
+                return [];
+            }
+
+            // A head without a type is an error that the resolver reported; it takes no part in the groups, as in XSD 1.0.
+            var heads = new List<IMultiHeadElement>(_heads.Length);
+            for (var i = 0; i < _heads.Length; i++)
+            {
+                if (_heads[i] is { } head && head is not { TypeDefinition: null, InheritsType: false })
+                {
+                    heads.Add(head);
+                }
+            }
+
+            return heads;
+        }
+    }
 
     /// <inheritdoc />
     ISubstitutionElement? ISubstitutionElement.SubstitutionGroup =>
@@ -130,9 +158,10 @@ internal sealed class ElementDeclaration : IReferencingComponent, ISubstitutionE
     {
         ArgumentNullException.ThrowIfNull(target);
 
-        if (index == _headIndex)
+        var head = Array.IndexOf(_headIndexes, index);
+        if (head >= 0)
         {
-            Head = target as ElementDeclaration;
+            _heads[head] = target as ElementDeclaration;
         }
         else
         {
@@ -172,7 +201,8 @@ internal sealed class ElementDeclaration : IReferencingComponent, ISubstitutionE
     /// <param name="isAbstract">Whether the declaration is abstract.</param>
     /// <param name="block">The disallowed substitutions.</param>
     /// <param name="final">The substitution group exclusions.</param>
-    /// <param name="substitutionGroup">The expanded name of the substitution group head, <see langword="default"/> for none.</param>
+    /// <param name="substitutionGroup">The expanded name of the first substitution group head, <see langword="default"/> for none.</param>
+    /// <param name="otherHeads">The expanded names of the further heads of XSD 1.1, <see langword="null"/> for none.</param>
     /// <returns>The declaration.</returns>
     internal static ElementDeclaration Create(
         XPathQName name,
@@ -185,7 +215,8 @@ internal sealed class ElementDeclaration : IReferencingComponent, ISubstitutionE
         bool isAbstract,
         XsdDerivationMethod block,
         XsdDerivationMethod final,
-        XPathQName substitutionGroup = default
+        XPathQName substitutionGroup = default,
+        IReadOnlyList<XPathQName>? otherHeads = null
     )
     {
         var references = new List<XsdReference>(2);
@@ -194,12 +225,17 @@ internal sealed class ElementDeclaration : IReferencingComponent, ISubstitutionE
             references.Add(new XsdReference(XsdSymbolSpace.Types, typeName, location, false));
         }
 
-        var headIndex = -1;
+        var headIndexes = new List<int>(1 + (otherHeads?.Count ?? 0));
         var inheritsType = typeName == default && inlineTypeSyntax is null && substitutionGroup != default;
         if (substitutionGroup != default)
         {
-            headIndex = references.Count;
+            headIndexes.Add(references.Count);
             references.Add(new XsdReference(XsdSymbolSpace.Elements, substitutionGroup, location, false));
+            for (var i = 0; otherHeads is not null && i < otherHeads.Count; i++)
+            {
+                headIndexes.Add(references.Count);
+                references.Add(new XsdReference(XsdSymbolSpace.Elements, otherHeads[i], location, false));
+            }
         }
 
         return new(
@@ -207,7 +243,7 @@ internal sealed class ElementDeclaration : IReferencingComponent, ISubstitutionE
             location,
             isGlobal,
             [.. references],
-            headIndex,
+            [.. headIndexes],
             inheritsType,
             inlineTypeSyntax,
             isNillable,

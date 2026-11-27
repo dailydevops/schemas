@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.Xsd.Compilation;
 
 using NetEvolve.Arguments;
+using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Composition;
 using NetEvolve.Schemas.Xsd.Elements;
@@ -10,7 +11,7 @@ using NetEvolve.Schemas.Xsd.SchemaDocuments;
 /// <summary>One schema unit with what the builders need to read it: its namespace scope, its defaults, and the element builders of that scope.</summary>
 internal sealed class UnitScope
 {
-    internal UnitScope(SchemaUnit unit)
+    internal UnitScope(SchemaUnit unit, XsdVersion version = XsdVersion.V10)
     {
         ArgumentNullException.ThrowIfNull(unit);
 
@@ -21,7 +22,7 @@ internal sealed class UnitScope
             unit.Root
         );
         Particles = new ParticleBuilder(Scope);
-        Elements = new ElementDeclarationBuilder(Scope);
+        Elements = new ElementDeclarationBuilder(Scope, version);
         Groups = new ModelGroupDefinitionBuilder(Scope);
         Notations = new NotationDeclarationBuilder(Scope);
     }

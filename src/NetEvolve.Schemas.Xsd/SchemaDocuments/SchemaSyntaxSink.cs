@@ -191,7 +191,12 @@ internal sealed class SchemaSyntaxSink : IXmlSink
         var rule = _rules[_rules.Count - 1];
         foreach (var attribute in rule.Attributes)
         {
-            if (attribute.Required && _current.FindAttribute(attribute.Name) is null)
+            // A keyref that reuses a constraint through ref has no refer of its own (XSD 1.1); strict 1.0 rejects the ref itself.
+            if (
+                attribute.Required
+                && _current.FindAttribute(attribute.Name) is null
+                && !(attribute.Name == "refer" && _current.FindAttribute("ref") is not null)
+            )
             {
                 Report(
                     rule.Code,

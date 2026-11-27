@@ -84,14 +84,25 @@ public class LocalTargetNamespaceWiringTests
     }
 
     [Test]
-    public async Task Build_ARestrictionThatRestatesTheDeclarationInAnotherNamespaceThanTheBase_IsASchemaError()
+    public async Task Build_AnotherNamespaceInARestrictionOfAnyType_IsALocatedSchemaError()
     {
-        var exception = AssemblyFixture.Failure(() =>
-            BuildDerived("<xs:element name=\"a\" type=\"xs:string\" targetNamespace=\"urn:t\"/>")
-        );
+        const string schema = """
+            <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:t="urn:t" targetNamespace="urn:t">
+              <xs:complexType name="derived">
+                <xs:complexContent>
+                  <xs:restriction base="xs:anyType">
+                    <xs:sequence><xs:element name="a" type="xs:string" targetNamespace="urn:o"/></xs:sequence>
+                  </xs:restriction>
+                </xs:complexContent>
+              </xs:complexType>
+            </xs:schema>
+            """;
 
-        await Assert.That(exception.Issues.Count).IsGreaterThan(0);
-        await Assert.That(exception.Issues.All(i => i.Location.Line > 0)).IsTrue();
+        var exception = AssemblyFixture.Failure(() => AssemblyFixture.Build(schema));
+
+        var issue = exception.Issues.Single(i => i.Code == XsdRuleCodes.SrcElement);
+        await Assert.That(issue.Constraint).IsEqualTo("src-element.4.3.2");
+        await Assert.That(issue.Location.Line).IsGreaterThan(0);
     }
 
     [Test]
