@@ -90,6 +90,23 @@ public class SubstitutionGroupListWiringTests
     }
 
     [Test]
+    public async Task Build_AHeadWithAnUnresolvedType_IsReportedOnceAndLeftOutOfTheGroups()
+    {
+        var schema = AssemblyFixture.WrapSchema(
+            """
+            <xs:element name="a" type="t:missing"/>
+            <xs:element name="b" type="xs:string"/>
+            <xs:element name="c" type="xs:string" substitutionGroup="t:a t:b"/>
+            """
+        );
+
+        var exception = AssemblyFixture.Failure(() => AssemblyFixture.Build(schema));
+
+        await Assert.That(exception.Issues.Count(i => i.Code == XsdRuleCodes.SrcResolve)).IsEqualTo(1);
+        await Assert.That(exception.Issues.Any(i => i.Code == XsdRuleCodes.CosEquivDerivedOkRec)).IsFalse();
+    }
+
+    [Test]
     public async Task Validate_Version10_KeepsReadingOnlyTheFirstHead()
     {
         var validator = AssemblyFixture.Build(Schema(), XsdVersion.V10);
