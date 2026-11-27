@@ -72,6 +72,16 @@ internal static class CompileChecks
 
     private static void CheckValueConstraints(BuildContext context, XsdVersion version, XsdIssueReporter reporter)
     {
+        // Datatypes 1.0, 3.2.19: an enumeration value of a type derived from NOTATION names a notation declaration.
+        for (var i = 0; i < context.NotationValues.Count; i++)
+        {
+            var (name, location) = context.NotationValues[i];
+            if (!context.Registry.TryGet(XsdSymbolSpace.Notations, name, out _))
+            {
+                reporter.Report(XsdRuleCodes.SrcResolve, location, "No notation named '" + name + "' is declared.");
+            }
+        }
+
         for (var i = 0; i < context.FoundElements.Count; i++)
         {
             var element = context.FoundElements[i];

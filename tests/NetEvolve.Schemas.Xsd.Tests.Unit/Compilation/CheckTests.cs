@@ -179,9 +179,6 @@ public class CheckTests
         "<xs:simpleType name=\"b\"><xs:restriction base=\"xs:NOTATION\"><xs:enumeration value=\"png\"/></xs:restriction></xs:simpleType>"
     )]
     [Arguments(
-        "<xs:simpleType name=\"b\"><xs:restriction base=\"xs:NOTATION\"><xs:enumeration value=\"x:png\"/></xs:restriction></xs:simpleType>"
-    )]
-    [Arguments(
         "<xs:complexType name=\"c\"><xs:simpleContent><xs:restriction base=\"t:base\"><xs:enumeration value=\"t:jpeg\"/></xs:restriction></xs:simpleContent></xs:complexType>"
             + "<xs:complexType name=\"base\"><xs:simpleContent><xs:extension base=\"t:nt\"/></xs:simpleContent></xs:complexType>"
             + "<xs:notation name=\"png\" public=\"p\"/>"
@@ -192,6 +189,35 @@ public class CheckTests
         var compilation = Compile(Schema(body));
 
         await Assert.That(Codes(compilation)).Contains(XsdRuleCodes.SrcResolve);
+    }
+
+    [Test]
+    public async Task Notation_EnumerationValueWithUndeclaredPrefix_IsReportedAsUnresolved()
+    {
+        var compilation = Compile(
+            Schema(
+                "<xs:simpleType name=\"b\"><xs:restriction base=\"xs:NOTATION\"><xs:enumeration value=\"x:png\"/></xs:restriction></xs:simpleType>"
+            )
+        );
+
+        await Assert.That(Codes(compilation)).IsEquivalentTo([XsdRuleCodes.SrcResolve]);
+    }
+
+    [Test]
+    [Arguments("")]
+    [Arguments(":png")]
+    [Arguments("x:")]
+    public async Task Notation_EnumerationValueThatIsMalformed_IsReportedOnce(string value)
+    {
+        var compilation = Compile(
+            Schema(
+                "<xs:notation name=\"png\" public=\"p\"/><xs:simpleType name=\"b\"><xs:restriction base=\"xs:NOTATION\"><xs:enumeration value=\""
+                    + value
+                    + "\"/></xs:restriction></xs:simpleType>"
+            )
+        );
+
+        await Assert.That(Codes(compilation)).IsEquivalentTo([XsdRuleCodes.EnumerationValidRestriction]);
     }
 
     [Test]

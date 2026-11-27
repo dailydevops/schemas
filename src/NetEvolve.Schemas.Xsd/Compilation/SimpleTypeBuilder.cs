@@ -202,10 +202,49 @@ internal sealed class SimpleTypeBuilder : IComponentBuilder
         {
             _context.SetFixed(type, check.Fixed);
             _context.NoteEnumeration(type, baseType, step);
+            NoteNotationValues(restriction, unit, facts);
             NoteAssertions(type, restriction, unit);
         }
 
         return type;
+    }
+
+    /// <summary>Resolves the <c>enumeration</c> values of a restriction of NOTATION, which must name notation declarations (Datatypes 1.0, 3.2.19).</summary>
+    /// <param name="restriction">The <c>restriction</c> element.</param>
+    /// <param name="unit">The unit that holds it.</param>
+    /// <param name="facts">The facets of the base type.</param>
+    internal void NoteNotationValues(SchemaSyntaxNode restriction, UnitScope unit, FacetBase? facts)
+    {
+        ArgumentNullException.ThrowIfNull(restriction);
+        ArgumentNullException.ThrowIfNull(unit);
+
+        if (facts is not { Primitive: PrimitiveKind.Notation })
+        {
+            return;
+        }
+
+        for (var i = 0; i < restriction.ChildCount; i++)
+        {
+            var child = restriction.GetChildNode(i);
+            if (KindOf(child) != FacetKind.Enumeration || child.FindAttribute("value") is not { } value)
+            {
+                continue;
+            }
+
+            if (unit.Scope.TryResolve(child, value, out var name))
+            {
+                _context.NoteNotationValue(name, child.Location);
+            }
+            else if (value.AsSpan().IndexOf(':') > 0 && value[value.Length - 1] != ':')
+            {
+                // A malformed value is already an invalid enumeration value of the base type; an undeclared prefix is not.
+                _context.Report(
+                    XsdRuleCodes.SrcResolve,
+                    child.Location,
+                    "The notation '" + value + "' is not a QName with a declared prefix."
+                );
+            }
+        }
     }
 
     /// <summary>Keeps the <c>assertion</c> facets of a restriction beside the type it created (XSD 1.1).</summary>
