@@ -1,6 +1,9 @@
 namespace NetEvolve.Schemas.XPath.Tests.Unit.Functions.Nodes;
 
+using System;
 using System.Threading.Tasks;
+using NetEvolve.Schemas.XPath.Api;
+using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Functions.Nodes;
 using NetEvolve.Schemas.XPath.Xdm.Values;
@@ -107,6 +110,39 @@ public class AccessorTests
     [Test]
     public async Task Data_WithoutArgument_IsNotRegisteredInXPath20() =>
         await Assert.That(NodesHarness.Run("data")).IsEqualTo("error:not-registered");
+
+    [Test]
+    [Arguments(XPathVersion.V20, false)]
+    [Arguments(XPathVersion.V30, true)]
+    [Arguments(XPathVersion.V31, true)]
+    public async Task Data_WithoutArgument_IsRegisteredFromXPath30(XPathVersion version, bool expected) =>
+        await Assert.That(NodesHarness.TryResolve("data", 0, out _, version)).IsEqualTo(expected);
+
+    [Test]
+    [Arguments("node:a@x", "untypedAtomic:1")]
+    [Arguments("node:a/t", "untypedAtomic:t1")]
+    [Arguments("node:cm", "string:cm")]
+    [Arguments("integer:5", "integer:5")]
+    public async Task Data_WithoutArgument_AtomizesTheContextItem(string contextItem, string expected)
+    {
+        ArgumentNullException.ThrowIfNull(contextItem);
+        _ = NodesHarness.TryResolve("data", 0, out var function, XPathVersion.V30);
+        using var context = new XPathEvaluationContext();
+        context.SetContextItem(NodesHarness.ParseItem(contextItem));
+
+        await Assert.That(NodesHarness.Show(function!.Call(context, []))).IsEqualTo(expected);
+    }
+
+    [Test]
+    public async Task Data_WithoutArgumentAndWithoutContextItem_RaisesXPDY0002()
+    {
+        _ = NodesHarness.TryResolve("data", 0, out var function, XPathVersion.V30);
+        using var context = new XPathEvaluationContext();
+
+        var failure = Assert.Throws<XPathException>(() => function!.Call(context, []));
+
+        await Assert.That(failure!.Diagnostic.Code).IsEqualTo("XPDY0002");
+    }
 
     [Test]
     public async Task OfAtomic_OfAnItemWithoutAStringForm_ThrowsTheErrorOfTheCast()
