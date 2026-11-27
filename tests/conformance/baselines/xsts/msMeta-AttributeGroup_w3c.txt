@@ -1,7 +1,4 @@
-1.0/attgC028/attgC028
 1.0/attgD003/attgD003.v
-1.0/attgZ002/attgZ002
-1.0/attgZ003/attgZ003
 1.1/attgA001/attgA001
 1.1/attgA002/attgA002
 1.1/attgA003/attgA003

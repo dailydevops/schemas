@@ -44,6 +44,7 @@ internal sealed class BuildContext
     private readonly Dictionary<XsdBuiltInType, SimpleTypeDefinition> _wrappers = [];
     private readonly Dictionary<IXsdComponent, FacetKindSet> _fixed = [];
     private readonly HashSet<IXsdComponent> _enumeratedTypes = [];
+    private readonly List<(XPathQName Name, DocumentLocation Location)> _notationValues = [];
     private readonly XsdBuiltInType _anySimpleType;
 
     internal BuildContext(XsdVersion version, ComponentRegistry registry, XsdIssueReporter reporter)
@@ -264,6 +265,15 @@ internal sealed class BuildContext
             _ = _enumeratedTypes.Add(type);
         }
     }
+
+    /// <summary>Gets the enumeration values of the types derived from NOTATION, resolved to names, in document order.</summary>
+    internal IReadOnlyList<(XPathQName Name, DocumentLocation Location)> NotationValues => _notationValues;
+
+    /// <summary>Records the resolved name of an enumeration value of a type derived from NOTATION, to check it against the declarations once they are built.</summary>
+    /// <param name="name">The expanded name of the value.</param>
+    /// <param name="location">The location of the <c>enumeration</c> element.</param>
+    internal void NoteNotationValue(XPathQName name, DocumentLocation location) =>
+        _notationValues.Add((name, location));
 
     /// <summary>Gets a value indicating whether a type that was built by restriction carries an enumeration.</summary>
     /// <param name="type">The type.</param>

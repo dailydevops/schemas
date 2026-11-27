@@ -245,6 +245,26 @@ public class NegatedWildcardTests
     }
 
     [Test]
+    public async Task Operations_OfAWildcardOfXsd10WithANegatedOperand_AreCarriedOutByTheNegatedType()
+    {
+        _ = Wildcard.TryCreate("urn:a urn:b", "lax", Tns, Where, out var plain);
+        var negated = Wild("not a");
+
+        var union = plain!.Union(negated);
+        var intersection = plain.Intersect(negated);
+
+        await Assert.That(union).IsTypeOf<NegatedWildcard>();
+        await Assert.That(ConstraintOf(union!)).IsEqualTo(NameConstraint.Any);
+        await Assert.That(union!.ProcessContents).IsEqualTo(XsdProcessContents.Lax);
+        await Assert.That(intersection).IsTypeOf<NegatedWildcard>();
+        await Assert.That(ConstraintOf(intersection!)).IsEqualTo(NameConstraintTests.Spec("set b"));
+        await Assert.That(plain.IsSubsetOf(negated)).IsFalse();
+        await Assert.That(plain.IsSubsetOf(Wild("any"))).IsTrue();
+        await Assert.That(plain.Union(negated, Reporter)).IsNotNull();
+        await Assert.That(plain.Intersect(negated, Reporter)).IsNotNull();
+    }
+
+    [Test]
     public async Task Operations_OnNegatedWildcards_FollowTheConstraints()
     {
         var first = Wild("not a", XsdProcessContents.Lax);

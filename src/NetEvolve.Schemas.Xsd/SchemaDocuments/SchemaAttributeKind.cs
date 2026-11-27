@@ -27,6 +27,9 @@ internal enum SchemaAttributeKind
     /// <summary><c>unbounded</c> or <c>xs:nonNegativeInteger</c>.</summary>
     MaxOccurs,
 
+    /// <summary>The <c>xpathDefaultNamespace</c> value: <c>##defaultNamespace</c>, <c>##targetNamespace</c>, <c>##local</c>, or a namespace name that does not start with <c>##</c>.</summary>
+    XPathDefaultNamespace,
+
     /// <summary>One token of a fixed set.</summary>
     Token,
 

@@ -4,8 +4,11 @@ using System.Collections.Generic;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xml.Datatypes.Facets.Core;
+using NetEvolve.Schemas.XPath.Api;
+using NetEvolve.Schemas.Xsd.Attributes.Declarations;
 using NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;
 using NetEvolve.Schemas.Xsd.Components;
+using NetEvolve.Schemas.Xsd.Composition;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Declarations11;
 using NetEvolve.Schemas.Xsd.Derivation.Particles10;
@@ -34,6 +37,7 @@ internal static class CompileChecks
     /// <param name="derivation">The derivation check.</param>
     /// <param name="particles">The particle restriction step of XSD 1.0, <see langword="null"/> when the pipeline does not compose it.</param>
     /// <param name="definitions">The model group definitions that were built.</param>
+    /// <param name="restrictions">The groups and attribute groups that were redefined without a self-reference.</param>
     /// <param name="version">The XSD version.</param>
     /// <param name="reporter">The reporter.</param>
     /// <returns>The substitution groups of the global element declarations.</returns>
@@ -42,6 +46,7 @@ internal static class CompileChecks
         TypeDerivationCheck derivation,
         ParticleRestriction? particles,
         IReadOnlyList<ModelGroupDefinition> definitions,
+        IReadOnlyList<RedefinitionRestriction> restrictions,
         XsdVersion version,
         XsdIssueReporter reporter
     )
@@ -49,6 +54,7 @@ internal static class CompileChecks
         ArgumentNullException.ThrowIfNull(context);
         ArgumentNullException.ThrowIfNull(derivation);
         ArgumentNullException.ThrowIfNull(definitions);
+        ArgumentNullException.ThrowIfNull(restrictions);
         ArgumentNullException.ThrowIfNull(reporter);
 
         derivation.ReportAll(context.BuiltComplexTypes, reporter);
@@ -57,6 +63,7 @@ internal static class CompileChecks
         particles?.Substitutions = groups;
         CheckContents(context, version, reporter);
         CheckRestrictions(context, particles, reporter);
+        CheckRedefinitions(context, derivation, particles, definitions, restrictions, reporter);
         for (var i = 0; i < definitions.Count; i++)
         {
             AllGroupLimits10.CheckDefinition(definitions[i], version, reporter);
@@ -72,6 +79,16 @@ internal static class CompileChecks
 
     private static void CheckValueConstraints(BuildContext context, XsdVersion version, XsdIssueReporter reporter)
     {
+        // Datatypes 1.0, 3.2.19: an enumeration value of a type derived from NOTATION names a notation declaration.
+        for (var i = 0; i < context.NotationValues.Count; i++)
+        {
+            var (name, location) = context.NotationValues[i];
+            if (!context.Registry.TryGet(XsdSymbolSpace.Notations, name, out _))
+            {
+                reporter.Report(XsdRuleCodes.SrcResolve, location, "No notation named '" + name + "' is declared.");
+            }
+        }
+
         for (var i = 0; i < context.FoundElements.Count; i++)
         {
             var element = context.FoundElements[i];
@@ -173,6 +190,62 @@ internal static class CompileChecks
             if (group is not null)
             {
                 ElementDeclarationsConsistent.Check(group, reporter);
+            }
+        }
+    }
+
+    // A group or attribute group that a redefine replaces without a self-reference must restrict the original (src-redefine 6.2, 7.2).
+    // The group is compared by Particle Valid (Restriction), so only XSD 1.0 compares it, like the types.
+    private static void CheckRedefinitions(
+        BuildContext context,
+        TypeDerivationCheck derivation,
+        ParticleRestriction? particles,
+        IReadOnlyList<ModelGroupDefinition> definitions,
+        IReadOnlyList<RedefinitionRestriction> restrictions,
+        XsdIssueReporter reporter
+    )
+    {
+        if (restrictions.Count == 0)
+        {
+            return;
+        }
+
+        var groups = new Dictionary<XPathQName, ModelGroupDefinition>();
+        for (var i = 0; i < definitions.Count; i++)
+        {
+            groups[definitions[i].Name] = definitions[i];
+        }
+
+        var attributeGroups = new Dictionary<XPathQName, AttributeGroupDefinition>();
+        for (var i = 0; i < context.BuiltAttributeGroups.Count; i++)
+        {
+            attributeGroups[context.BuiltAttributeGroups[i].Name] = context.BuiltAttributeGroups[i];
+        }
+
+        for (var i = 0; i < restrictions.Count; i++)
+        {
+            var restriction = restrictions[i];
+            if (restriction.IsGroup)
+            {
+                if (
+                    particles is not null
+                    && groups.TryGetValue(restriction.Redefined, out var group)
+                    && groups.TryGetValue(restriction.Original, out var original)
+                )
+                {
+                    particles.Report(
+                        Particle.Create(group.Location, 1, 1, group.ModelGroup),
+                        Particle.Create(original.Location, 1, 1, original.ModelGroup),
+                        reporter
+                    );
+                }
+            }
+            else if (
+                attributeGroups.TryGetValue(restriction.Redefined, out var attributeGroup)
+                && attributeGroups.TryGetValue(restriction.Original, out var originalGroup)
+            )
+            {
+                derivation.ReportRedefinition(attributeGroup, originalGroup, reporter);
             }
         }
     }

@@ -19,7 +19,7 @@ internal sealed class SchemaAttributeRule
 
     internal string[] Tokens { get; }
 
-    /// <summary>Parses <c>name[:kind][!]</c>, where kind is <see langword="bool"/>, <c>ncname</c>, <c>qname</c>, <c>qnames</c>, <c>nonempty</c>, <see langword="uint"/>, <c>max</c>, <c>set=a|b</c>, or <c>list=a|b</c>.</summary>
+    /// <summary>Parses <c>name[:kind][!]</c>, where kind is <see langword="bool"/>, <c>ncname</c>, <c>qname</c>, <c>qnames</c>, <c>nonempty</c>, <see langword="uint"/>, <c>xpathns</c>, <c>max</c>, <c>set=a|b</c>, or <c>list=a|b</c>.</summary>
     /// <param name="spec">The specification.</param>
     /// <returns>The rule.</returns>
     internal static SchemaAttributeRule Parse(string spec)
@@ -59,6 +59,7 @@ internal sealed class SchemaAttributeRule
             "qnames" => SchemaAttributeKind.QNameList,
             "nonempty" => SchemaAttributeKind.NonEmpty,
             "uint" => SchemaAttributeKind.UnsignedInteger,
+            "xpathns" => SchemaAttributeKind.XPathDefaultNamespace,
             _ => SchemaAttributeKind.MaxOccurs,
         };
         return new SchemaAttributeRule(name, simple, required, []);
