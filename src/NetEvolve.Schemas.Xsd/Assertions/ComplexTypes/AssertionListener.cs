@@ -43,9 +43,9 @@ using NetEvolve.Schemas.Xsd.Validation.Core;
 /// <para>
 /// Limitations: the hooks carry no namespace declarations, no text of mixed content or between elements, no <c>xsi</c> attributes, and nothing
 /// of a lax or skipped descendant, so the subtree misses those nodes until the validator forwards its events to the builder (#948); the in-scope
-/// namespaces of a tree node are not materialized. The evaluation of the assertion carries no annotation source yet (#318), so the evaluator atomizes every node as <c>xs:untypedAtomic</c> and a comparison
-/// of two integer children is a comparison of strings, while a comparison with a number converts as XPath 2.0 specifies; <c>$value</c> is typed.
-/// The root of the tree has the untyped annotation, not <c>xs:anyType</c>. A violation marks the element and its ancestors invalid through the
+/// namespaces of a tree node are not materialized. The evaluation carries an annotation source over the subtree (XSD-23, #318): the
+/// descendants and the attributes the validator assessed are typed, so a comparison of two integer children is numeric, and a node of a lax or
+/// skipped descendant reads as untyped. The root of the tree has the untyped annotation, not <c>xs:anyType</c>, so atomizing it yields its string value. A violation marks the element and its ancestors invalid through the
 /// verdict channel of the validator (#605). The subtree is bounded by the input size limit only because the core limits have no node count.
 /// </para>
 /// <para>Not thread-safe; one instance serves one run at a time and may be reused for the next.</para>
@@ -131,6 +131,7 @@ internal sealed class AssertionListener : ValidationListener
             if (subtree.Builder is not null && Charge(subtree, info.Value.Length))
             {
                 subtree.Builder.Attribute(info.Name, info.Value);
+                subtree.Annotator!.Attribute(info);
             }
         }
     }
@@ -147,6 +148,7 @@ internal sealed class AssertionListener : ValidationListener
             }
 
             subtree.Builder.Text(info.Value, XmlTextKind.Text);
+            subtree.Annotator!.SimpleValue(info);
             if (subtree.Ordinal == info.Ordinal && subtree.HasSimpleContent)
             {
                 subtree.ValueText = info.Value.ToString();
@@ -162,13 +164,23 @@ internal sealed class AssertionListener : ValidationListener
             return;
         }
 
+        // Only the innermost subtree can start at the element that ends; its own root is left untyped (see the remarks).
+        var last = _open[_count - 1];
         for (var i = 0; i < _count; i++)
         {
-            _open[i].Builder?.EndElement(default);
+            var subtree = _open[i];
+            if (subtree.Builder is null)
+            {
+                continue;
+            }
+
+            subtree.Builder.EndElement(default);
+            if (subtree.Ordinal != info.Ordinal)
+            {
+                subtree.Annotator!.EndElement(info);
+            }
         }
 
-        // Only the innermost subtree can start at the element that ends.
-        var last = _open[_count - 1];
         if (last.Ordinal != info.Ordinal)
         {
             return;
@@ -226,12 +238,14 @@ internal sealed class AssertionListener : ValidationListener
         var node = XdmItem.FromNode(new XPathNode(tree.Document));
         var value = ValueOf(subtree, info);
         var context = _context ??= new XPathEvaluationContext();
+        var source = new AnnotationSource(subtree.Annotator!.Table, tree, _assessor);
         var assertions = subtree.Assertions!;
         for (var i = 0; i < assertions.Count; i++)
         {
             context.Reset();
             context.Variables.Set(AssertionStaticContext.ValueVariable, value);
             context.SetContextItem(node);
+            context.Annotations = source;
             Check(assertions[i], subtree.Location, context);
         }
     }
@@ -326,6 +340,8 @@ internal sealed class AssertionListener : ValidationListener
 
         internal long Characters { get; set; }
 
+        internal SubtreeAnnotator? Annotator { get; private set; }
+
         internal bool HasSimpleContent { get; private set; }
 
         internal string? ValueText { get; set; }
@@ -345,6 +361,7 @@ internal sealed class AssertionListener : ValidationListener
             Type = info.Type;
             Assertions = assertions;
             Characters = 0;
+            Annotator = new SubtreeAnnotator(info.Ordinal);
             HasSimpleContent = info.Type is ComplexTypeDefinition { ContentKind: ComplexContentKind.Simple };
             ValueText = null;
         }
@@ -354,7 +371,45 @@ internal sealed class AssertionListener : ValidationListener
             Builder = null;
             Type = null;
             Assertions = null;
+            Annotator = null;
             ValueText = null;
         }
+    }
+
+    // The annotations of one subtree: the listener of the run, fed through a sink that renumbers the element ordinals so that the root of the
+    // subtree is the first element, as the numbering of the annotation source counts them.
+    private sealed class SubtreeAnnotator : IAnnotationSink
+    {
+        private readonly int _offset;
+        private readonly AnnotationListener _listener;
+
+        internal SubtreeAnnotator(int rootOrdinal)
+        {
+            _offset = rootOrdinal - 1;
+            _listener = new AnnotationListener(this);
+        }
+
+        internal AnnotationTable Table { get; } = new();
+
+        internal void Attribute(in AttributeInfo info) => _listener.Attribute(info);
+
+        internal void SimpleValue(in SimpleValueInfo info) => _listener.SimpleValue(info);
+
+        internal void EndElement(in ElementEndInfo info) => _listener.EndElement(info);
+
+        void IAnnotationSink.Element(in AnnotationRecord record) => Table.Element(Shift(record));
+
+        void IAnnotationSink.Attribute(in AnnotationRecord record) => Table.Attribute(Shift(record));
+
+        private AnnotationRecord Shift(in AnnotationRecord record) =>
+            new(
+                record.Ordinal - _offset,
+                record.AttributeIndex,
+                record.Type,
+                record.Validity,
+                record.IsNilled,
+                record.DefaultedValue,
+                record.DefaultedName
+            );
     }
 }

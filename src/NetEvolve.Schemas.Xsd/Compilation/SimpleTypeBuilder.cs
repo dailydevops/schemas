@@ -13,6 +13,7 @@ using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.SchemaDocuments;
 using NetEvolve.Schemas.Xsd.SimpleTypes.Checks;
 using NetEvolve.Schemas.Xsd.SimpleTypes.Definitions;
+using NetEvolve.Schemas.Xsd.SimpleTypes.V11;
 
 /// <summary>
 /// Builds simple type definitions from the syntax of a <c>simpleType</c> (Structures 3.14.2): a restriction with its facets, a
@@ -189,6 +190,14 @@ internal sealed class SimpleTypeBuilder : IComponentBuilder
             _context.Version,
             _context.Reporter
         );
+        var timezone = ExplicitTimezoneCheck.Check(
+            baseType,
+            _context.FixedOf(baseType),
+            step,
+            _context.Version,
+            _context.Reporter,
+            out _
+        );
         var parent = _context.AsSimple(baseType) ?? baseType;
         var type = SimpleTypeDefinition.Restrict(
             name,
@@ -200,7 +209,7 @@ internal sealed class SimpleTypeBuilder : IComponentBuilder
         );
         if (type is not null)
         {
-            _context.SetFixed(type, check.Fixed);
+            _context.SetFixed(type, check.Fixed.Union(timezone.Fixed));
             _context.NoteEnumeration(type, baseType, step);
             NoteAssertions(type, restriction, unit);
         }

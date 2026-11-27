@@ -5,6 +5,7 @@ using NetEvolve.Schemas.Xsd.Derivation.Subsumption11;
 using NetEvolve.Schemas.Xsd.Derivation.Types;
 using NetEvolve.Schemas.Xsd.Elements;
 using NetEvolve.Schemas.Xsd.Tests.Unit.Derivation.Particles10;
+using NetEvolve.Schemas.Xsd.Tests.Unit.Fakes;
 
 /// <summary>Builds the checks and the assertions of the subsumption tests; the particles come from the kit of the 1.0 table.</summary>
 internal static class SubsumptionKit
@@ -13,6 +14,25 @@ internal static class SubsumptionKit
 
     public static ContentSubsumption Subsumption(int maxWork = ContentSubsumption.DefaultMaxWork) =>
         new(new TypeDerivationOk(XsdVersion.V11), ParticleKit.Values(XsdVersion.V11), maxWork);
+
+    public static SubsumptionOutcome Check(
+        Particle restriction,
+        Particle baseParticle,
+        params ElementDeclaration[] globals
+    )
+    {
+        var registry = new FakeComponentRegistry([]);
+        foreach (var global in globals)
+        {
+            registry.Add(global);
+        }
+
+        return new ContentSubsumption(
+            new TypeDerivationOk(XsdVersion.V11),
+            ParticleKit.Values(XsdVersion.V11),
+            registry: registry
+        ).Check(restriction, baseParticle);
+    }
 
     public static SubsumptionOutcome Check(Particle restriction, Particle baseParticle) =>
         Subsumption().Check(restriction, baseParticle);

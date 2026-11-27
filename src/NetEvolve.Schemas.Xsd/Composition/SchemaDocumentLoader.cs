@@ -7,6 +7,7 @@ using NetEvolve.Arguments;
 using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Resources;
 using NetEvolve.Schemas.Resources.Default;
+using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.Override;
 using NetEvolve.Schemas.Xsd.SchemaDocuments;
@@ -29,8 +30,8 @@ using NetEvolve.Schemas.Xsd.SchemaDocuments;
 /// Redefine is a rewrite equivalent to the transformation of Structures 1.1, 4.2.2 for both versions: the original
 /// component of the redefined document keeps living under a fresh name that only the self-reference of the redefinition
 /// uses, and the redefinition takes the place of the original in the redefining unit. Limitations: the loader works on the
-/// syntax only, so the restriction check for a group or attribute group redefined without a self-reference, and the checks
-/// of a redefined type against its original, belong to the component checks; the 1.1
+/// syntax only; it reports a group or attribute group redefined without a self-reference as a <see cref="RedefinitionRestriction"/>,
+/// which the component checks compare with the original, and the checks of a redefined type against its original belong to the component checks as well; the 1.1
 /// specifics of <c>redefine</c> are not distinguished from the 1.0 rules.
 /// </para>
 /// <para>
@@ -63,6 +64,7 @@ internal sealed class SchemaDocumentLoader
     private readonly List<SchemaUnit> _units = [];
     private readonly Queue<SchemaUnit> _pending = new();
     private readonly List<Redefinition> _redefinitions = [];
+    private readonly List<RedefinitionRestriction> _restrictions = [];
     private readonly Dictionary<object, int> _nodeIdentities = [];
     private readonly Dictionary<string, SchemaUnit> _roots = new(StringComparer.Ordinal);
     private readonly Dictionary<string, ResourceLoadResult> _kept = new(StringComparer.Ordinal);
@@ -104,6 +106,7 @@ internal sealed class SchemaDocumentLoader
         _units.Clear();
         _pending.Clear();
         _redefinitions.Clear();
+        _restrictions.Clear();
         _nodeIdentities.Clear();
         _roots.Clear();
         _kept.Clear();
@@ -123,7 +126,7 @@ internal sealed class SchemaDocumentLoader
             ApplyRedefinitions();
         }
 
-        return new SchemaDocumentSet(new List<SchemaUnit>(_units));
+        return new SchemaDocumentSet(new List<SchemaUnit>(_units), new List<RedefinitionRestriction>(_restrictions));
     }
 
     private static XsdRule Rule(string id)
@@ -788,6 +791,18 @@ internal sealed class SchemaDocumentLoader
             } while (!used.Add(Key(fresh, redefinition.Unit.EffectiveNamespace)));
 
             original.SetAttribute("name", fresh);
+            if (redefinition.References.Count == 0 && redefinition.Node.Name.LocalName is "group" or "attributeGroup")
+            {
+                var space = redefinition.Unit.EffectiveNamespace;
+                _restrictions.Add(
+                    new RedefinitionRestriction(
+                        redefinition.Node.Name.LocalName == "group",
+                        new XPathQName(space, redefinition.Name),
+                        new XPathQName(space, fresh)
+                    )
+                );
+            }
+
             foreach (var reference in redefinition.References)
             {
                 var value = reference.Node.FindAttribute(reference.Attribute)!;

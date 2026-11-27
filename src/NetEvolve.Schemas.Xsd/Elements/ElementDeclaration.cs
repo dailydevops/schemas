@@ -6,6 +6,7 @@ using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;
 using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Contracts;
+using NetEvolve.Schemas.Xsd.IdentityConstraints.Definitions;
 using NetEvolve.Schemas.Xsd.Substitution;
 
 /// <summary>
@@ -13,12 +14,13 @@ using NetEvolve.Schemas.Xsd.Substitution;
 /// stays as syntax until the type builders construct it.
 /// </summary>
 /// <remarks>
-/// Limitations: only the first head of the <c>substitutionGroup</c> of a global declaration is read (several heads are XSD-71 #322), identity constraints are XSD-17 (#241), type alternatives are
+/// Limitations: only the first head of the <c>substitutionGroup</c> of a global declaration is read (several heads are XSD-71 #322), type alternatives are
 /// XSD 1.1 (#319), and a local <c>targetNamespace</c> is XSD-71 (#322); checking the value constraint against the type
 /// (cos-valid-default) is XSD-54 (#307).
 /// </remarks>
 internal sealed class ElementDeclaration : IReferencingComponent, ISubstitutionElement
 {
+    private readonly List<IdentityConstraintDefinition> _constraints = [];
     private readonly XsdReference[] _references;
     private readonly int _headIndex;
     private readonly bool _inheritsType;
@@ -104,6 +106,18 @@ internal sealed class ElementDeclaration : IReferencingComponent, ISubstitutionE
 
     /// <summary>Gets the derivation methods that may not derive substitution group members (extension and restriction).</summary>
     public XsdDerivationMethod Final { get; }
+
+    /// <summary>Gets the identity constraints the declaration owns in document order (Structures 3.3, {identity-constraint definitions}).</summary>
+    internal IReadOnlyList<IdentityConstraintDefinition> IdentityConstraints => _constraints;
+
+    /// <summary>Adds an identity constraint that the declaration owns.</summary>
+    /// <param name="constraint">The constraint.</param>
+    internal void AddIdentityConstraint(IdentityConstraintDefinition constraint)
+    {
+        ArgumentNullException.ThrowIfNull(constraint);
+
+        _constraints.Add(constraint);
+    }
 
     /// <summary>Gets the identity of the type used to compare two declarations, <see langword="null"/> while it is unknown.</summary>
     internal object? TypeIdentity => (object?)TypeDefinition ?? InlineTypeSyntax;

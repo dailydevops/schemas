@@ -1,5 +1,3 @@
-1.0/notatG001/notatG001
-1.0/notatG003/notatG003
 1.1/notatA001/notatA001
 1.1/notatA002/notatA002
 1.1/notatA003/notatA003

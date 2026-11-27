@@ -3,6 +3,7 @@ namespace NetEvolve.Schemas.Xsd.Derivation.Types;
 using System.Collections.Generic;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
+using NetEvolve.Schemas.Xsd.Attributes.Declarations;
 using NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;
 using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Contracts;
@@ -120,6 +121,46 @@ internal sealed class TypeDerivationCheck : IDerivationCheck
         if (violation.IsViolation)
         {
             reporter.Report(XsdRuleLookup.Find(violation.Code), type.Location, violation.Message!, violation.Clause);
+        }
+    }
+
+    /// <summary>
+    /// Reports an attribute group that is redefined without a self-reference and is no restriction of the original (<c>src-redefine</c>
+    /// 7.2.2): the uses and the wildcard are compared like those of a complex type that restricts its base type.
+    /// </summary>
+    /// <param name="redefinition">The redefinition.</param>
+    /// <param name="original">The original, which the loader renamed.</param>
+    /// <param name="reporter">The reporter.</param>
+    internal void ReportRedefinition(
+        AttributeGroupDefinition redefinition,
+        AttributeGroupDefinition original,
+        XsdIssueReporter reporter
+    )
+    {
+        ArgumentNullException.ThrowIfNull(redefinition);
+        ArgumentNullException.ThrowIfNull(original);
+        ArgumentNullException.ThrowIfNull(reporter);
+
+        var violation = RestrictionValidity.CheckAttributes(
+            new AttributeSide(redefinition.Uses, redefinition.AttributeWildcard),
+            new AttributeSide(original.Uses, original.AttributeWildcard),
+            false,
+            _derivation,
+            _values
+        );
+        if (violation.IsViolation)
+        {
+            reporter.Report(
+                XsdRuleLookup.Find(XsdRuleCodes.SrcRedefine),
+                redefinition.Location,
+                "The attribute group '"
+                    + redefinition.Name.LocalName
+                    + "' is redefined without a reference to itself and must restrict the original ("
+                    + violation.Clause
+                    + "): "
+                    + violation.Message,
+                "src-redefine.7.2.2"
+            );
         }
     }
 

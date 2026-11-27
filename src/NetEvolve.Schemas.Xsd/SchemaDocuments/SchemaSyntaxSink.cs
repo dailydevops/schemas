@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Contracts;
+using NetEvolve.Schemas.Xml.Datatypes.Core;
 using NetEvolve.Schemas.Xml.Text.NameTable;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.Xsd.Contracts;
@@ -26,6 +27,7 @@ internal sealed class SchemaSyntaxSink : IXmlSink
     // The appinfo or documentation element being read: no node is built for it, only its attributes are checked.
     private SchemaElementRule? _opaqueRule;
     private DocumentLocation _opaqueLocation;
+    private SchemaSyntaxNode? _textReported;
 
     internal SchemaSyntaxSink(string? baseUri, XsdIssueReporter reporter)
     {
@@ -226,7 +228,30 @@ internal sealed class SchemaSyntaxSink : IXmlSink
     }
 
     /// <inheritdoc />
-    public void Text(ReadOnlySpan<char> text, XmlTextKind kind) { }
+    public void Text(ReadOnlySpan<char> text, XmlTextKind kind)
+    {
+        // Every schema element except appinfo and documentation has element-only content: white space is fine, anything else
+        // is reported once per element.
+        if (_skipDepth > 0 || _opaqueRule is not null || _current is null || ReferenceEquals(_current, _textReported))
+        {
+            return;
+        }
+
+        foreach (var c in text)
+        {
+            if (!WhitespaceNormalizer.IsXmlSpace(c))
+            {
+                _textReported = _current;
+                var rule = _rules[_rules.Count - 1];
+                Report(
+                    rule.Code,
+                    AttributeLocation(_current.Location),
+                    "The element '" + rule.Name + "' must not have character data."
+                );
+                return;
+            }
+        }
+    }
 
     /// <inheritdoc />
     public void Comment(ReadOnlySpan<char> text) { }

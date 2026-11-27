@@ -142,6 +142,34 @@ public class FacetFactoryTests
     }
 
     [Test]
+    [Arguments("required", ExplicitTimezoneMode.Required)]
+    [Arguments("prohibited", ExplicitTimezoneMode.Prohibited)]
+    [Arguments("optional", ExplicitTimezoneMode.Optional)]
+    public async Task ExplicitTimezone_OfEveryValue_IsCarried(string value, ExplicitTimezoneMode mode)
+    {
+        var step = new List<FacetDeclaration>
+        {
+            new(FacetKind.ExplicitTimezone, value, new DocumentLocation("file:///f.xsd", 1, 1), false),
+        };
+
+        var facets = FacetFactory.Create(step, null, XsdVersion.V11, null);
+
+        await Assert.That(facets.Single()).IsTypeOf<ExplicitTimezoneFacet>();
+        await Assert.That(((ExplicitTimezoneFacet)facets.Single()).Mode).IsEqualTo(mode);
+    }
+
+    [Test]
+    public async Task ExplicitTimezone_OfAnUnknownValue_IsLeftOut()
+    {
+        var step = new List<FacetDeclaration>
+        {
+            new(FacetKind.ExplicitTimezone, "maybe", new DocumentLocation("file:///f.xsd", 1, 1), false),
+        };
+
+        await Assert.That(FacetFactory.Create(step, null, XsdVersion.V11, null)).IsEmpty();
+    }
+
+    [Test]
     public async Task Facets_OfAFamilyThatDoesNotCarryThem_AreLeftOut()
     {
         var enumerated = Facets("xs:hexBinary", "<xs:enumeration value=\"0A\"/>");
