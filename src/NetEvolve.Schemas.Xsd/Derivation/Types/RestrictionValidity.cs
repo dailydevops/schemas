@@ -43,48 +43,70 @@ internal static class RestrictionValidity
             );
         }
 
-        var violation = CheckAttributeUses(type, complexBase, derivation, values);
-        if (violation.IsViolation)
-        {
-            return violation;
-        }
-
-        violation = CheckAttributeWildcard(type, complexBase);
+        var violation = CheckAttributes(
+            new AttributeSide(type.AttributeUses, type.AttributeWildcard),
+            new AttributeSide(complexBase.AttributeUses, complexBase.AttributeWildcard),
+            TypeComponents.IsUrType(complexBase),
+            derivation,
+            values
+        );
         return violation.IsViolation ? violation : CheckContent(type, complexBase, derivation);
     }
 
-    private static TypeViolation CheckAttributeUses(
-        ComplexTypeDefinition type,
-        ComplexTypeDefinition baseType,
+    /// <summary>
+    /// Checks the attribute uses and the attribute wildcard of a restriction against those of its base: the clauses 2 to 4 of
+    /// <c>derivation-ok-restriction</c>, which the redefinition of an attribute group (<c>src-redefine</c> 7.2.2) applies as well.
+    /// </summary>
+    /// <param name="restriction">The attributes of the restriction.</param>
+    /// <param name="baseSide">The attributes of the base.</param>
+    /// <param name="baseIsUrType">Whether the base is the ur-type, which has no process contents to keep.</param>
+    /// <param name="derivation">Type Derivation OK, for the types of attributes.</param>
+    /// <param name="values">The value space, which compares the fixed values of attribute uses.</param>
+    /// <returns>The first violated clause, none when the restriction is valid.</returns>
+    internal static TypeViolation CheckAttributes(
+        AttributeSide restriction,
+        AttributeSide baseSide,
+        bool baseIsUrType,
         TypeDerivationOk derivation,
         ValueSpace values
     )
     {
-        var baseUses = TypeComponents.IndexUses(baseType.AttributeUses);
-        for (var i = 0; i < type.AttributeUses.Count; i++)
+        var violation = CheckAttributeUses(restriction, baseSide, derivation, values);
+        return violation.IsViolation ? violation : CheckAttributeWildcard(restriction, baseSide, baseIsUrType);
+    }
+
+    private static TypeViolation CheckAttributeUses(
+        AttributeSide restriction,
+        AttributeSide baseSide,
+        TypeDerivationOk derivation,
+        ValueSpace values
+    )
+    {
+        var baseUses = TypeComponents.IndexUses(baseSide.Uses);
+        for (var i = 0; i < restriction.Uses.Count; i++)
         {
-            var use = type.AttributeUses[i];
+            var use = restriction.Uses[i];
             var violation = baseUses.TryGetValue(use.Name, out var baseUse)
                 ? CheckRestatedUse(use, baseUse, derivation, values)
-                : CheckNewUse(use, baseType);
+                : CheckNewUse(use, baseSide.Wildcard);
             if (violation.IsViolation)
             {
                 return violation;
             }
         }
 
-        return CheckRequiredUses(type, baseType);
+        return CheckRequiredUses(restriction, baseSide);
     }
 
-    // The clause 2.2: a use that the base type does not have must be allowed by its attribute wildcard.
-    private static TypeViolation CheckNewUse(AttributeUse use, ComplexTypeDefinition baseType) =>
-        baseType.AttributeWildcard is { } wildcard && wildcard.Allows(use.Name)
+    // The clause 2.2: a use that the base does not have must be allowed by its attribute wildcard.
+    private static TypeViolation CheckNewUse(AttributeUse use, IWildcard? baseWildcard) =>
+        baseWildcard is { } wildcard && wildcard.Allows(use.Name)
             ? TypeViolation.None
             : Violation(
                 "2.2",
                 "The attribute '"
                     + use.Name.LocalName
-                    + "' is neither an attribute of the base type nor allowed by its attribute wildcard."
+                    + "' is neither an attribute of the base nor allowed by its attribute wildcard."
             );
 
     // The clause 2.1: a use that restates one of the base type.
@@ -134,12 +156,12 @@ internal static class RestrictionValidity
             : TypeViolation.None;
     }
 
-    private static TypeViolation CheckRequiredUses(ComplexTypeDefinition type, ComplexTypeDefinition baseType)
+    private static TypeViolation CheckRequiredUses(AttributeSide restriction, AttributeSide baseSide)
     {
-        var uses = TypeComponents.IndexUses(type.AttributeUses);
-        for (var i = 0; i < baseType.AttributeUses.Count; i++)
+        var uses = TypeComponents.IndexUses(restriction.Uses);
+        for (var i = 0; i < baseSide.Uses.Count; i++)
         {
-            var baseUse = baseType.AttributeUses[i];
+            var baseUse = baseSide.Uses[i];
             if (baseUse.Required && (!uses.TryGetValue(baseUse.Name, out var use) || !use.Required))
             {
                 return Violation(
@@ -152,31 +174,35 @@ internal static class RestrictionValidity
         return TypeViolation.None;
     }
 
-    private static TypeViolation CheckAttributeWildcard(ComplexTypeDefinition type, ComplexTypeDefinition baseType)
+    private static TypeViolation CheckAttributeWildcard(
+        AttributeSide restriction,
+        AttributeSide baseSide,
+        bool baseIsUrType
+    )
     {
-        if (type.AttributeWildcard is not { } wildcard)
+        if (restriction.Wildcard is not { } wildcard)
         {
             return TypeViolation.None;
         }
 
-        if (baseType.AttributeWildcard is not { } baseWildcard)
+        if (baseSide.Wildcard is not { } baseWildcard)
         {
-            return Violation("4.1", "The base type must have an attribute wildcard when the type has one.");
+            return Violation("4.1", "The base must have an attribute wildcard when the restriction has one.");
         }
 
         if (!wildcard.IsSubsetOf(baseWildcard))
         {
             return Violation(
                 "4.2",
-                "The attribute wildcard of the type must not allow a namespace that the one of the base type does not."
+                "The attribute wildcard must not allow a namespace that the one of the base does not."
             );
         }
 
         // Strict, lax, skip are ordered from the strongest to the weakest. The ur-type has no process contents to keep.
-        return !TypeComponents.IsUrType(baseType) && wildcard.ProcessContents > baseWildcard.ProcessContents
+        return !baseIsUrType && wildcard.ProcessContents > baseWildcard.ProcessContents
             ? Violation(
                 "4.3",
-                "The process contents of the attribute wildcard must be identical to or stronger than that of the base type."
+                "The process contents of the attribute wildcard must be identical to or stronger than that of the base."
             )
             : TypeViolation.None;
     }

@@ -61,9 +61,6 @@ public class CastErrorTests
     // FOCA0003: the integer does not fit 64 bits; FOCA0001: the lexical form of a decimal exceeds the digit cap of the datatype layer.
     private static (string, string)[] ImplementationLimits() =>
         [
-            ("'9223372036854775808' cast as xs:integer", "FOCA0003"),
-            ("'-9223372036854775809' cast as xs:integer", "FOCA0003"),
-            ("xs:untypedAtomic('9223372036854775808') cast as xs:integer", "FOCA0003"),
             ("xs:decimal('9223372036854775808') cast as xs:integer", "FOCA0003"),
             ("xs:decimal('-9223372036854775809') cast as xs:integer", "FOCA0003"),
             ("xs:decimal('1000000000000000000000') cast as xs:integer", "FOCA0003"),

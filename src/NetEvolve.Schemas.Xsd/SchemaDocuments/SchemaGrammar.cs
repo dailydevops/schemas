@@ -95,7 +95,7 @@ internal static class SchemaGrammar
             Id
                 + " targetNamespace:nonempty version attributeFormDefault:set=qualified|unqualified elementFormDefault:set=qualified|unqualified"
                 + " blockDefault:list=extension|restriction|substitution finalDefault:list=extension|restriction|list|union"
-                + " defaultAttributes:qname xpathDefaultNamespace",
+                + " defaultAttributes:qname xpathDefaultNamespace:xpathns",
             repeatable: true
         );
         Add(rules, "include", XsdRuleCodes.SrcInclude, "annotation", Id + " schemaLocation!");
@@ -181,12 +181,12 @@ internal static class SchemaGrammar
             "annotation",
             Id + " value:set=optional|required|prohibited! fixed:bool"
         );
-        Add(rules, "assertion", XsdRuleCodes.SrcSimpleType, "annotation", Id + " test! xpathDefaultNamespace");
+        Add(rules, "assertion", XsdRuleCodes.SrcSimpleType, "annotation", Id + " test! xpathDefaultNamespace:xpathns");
     }
 
     private static void AddComplexTypeElements(Dictionary<string, SchemaElementRule> rules)
     {
-        Add(rules, "assert", XsdRuleCodes.SrcCt, "annotation", Id + " test! xpathDefaultNamespace");
+        Add(rules, "assert", XsdRuleCodes.SrcCt, "annotation", Id + " test! xpathDefaultNamespace:xpathns");
         Add(
             rules,
             "complexType",
@@ -262,7 +262,7 @@ internal static class SchemaGrammar
             "alternative",
             XsdRuleCodes.SrcTa,
             "annotation simpleType complexType",
-            Id + " test type:qname xpathDefaultNamespace"
+            Id + " test type:qname xpathDefaultNamespace:xpathns"
         );
     }
 
@@ -289,8 +289,20 @@ internal static class SchemaGrammar
             "annotation selector field",
             Id + " name:ncname ref:qname refer:qname!"
         );
-        Add(rules, "selector", XsdRuleCodes.SrcIdentityConstraint, "annotation", Id + " xpath! xpathDefaultNamespace");
-        Add(rules, "field", XsdRuleCodes.SrcIdentityConstraint, "annotation", Id + " xpath! xpathDefaultNamespace");
+        Add(
+            rules,
+            "selector",
+            XsdRuleCodes.SrcIdentityConstraint,
+            "annotation",
+            Id + " xpath! xpathDefaultNamespace:xpathns"
+        );
+        Add(
+            rules,
+            "field",
+            XsdRuleCodes.SrcIdentityConstraint,
+            "annotation",
+            Id + " xpath! xpathDefaultNamespace:xpathns"
+        );
         Add(rules, "notation", XsdRuleCodes.SrcNotation, "annotation", Id + " name:ncname! public system");
     }
 }

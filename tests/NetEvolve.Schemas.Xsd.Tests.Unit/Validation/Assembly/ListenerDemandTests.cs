@@ -53,7 +53,7 @@ public class ListenerDemandTests
             false
         ),
         ["notation"] = (
-            "<xs:element name=\"e\"><xs:simpleType><xs:restriction base=\"xs:NOTATION\"><xs:enumeration value=\"t:n\"/></xs:restriction></xs:simpleType></xs:element>",
+            "<xs:notation name=\"n\" public=\"p\"/><xs:element name=\"e\"><xs:simpleType><xs:restriction base=\"xs:NOTATION\"><xs:enumeration value=\"t:n\"/></xs:restriction></xs:simpleType></xs:element>",
             true,
             false
         ),

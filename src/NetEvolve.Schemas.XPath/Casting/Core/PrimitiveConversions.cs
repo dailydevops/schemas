@@ -24,8 +24,8 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// </para>
 /// <para>
 /// A double or a float becomes a decimal by its exact binary value, and an integer by truncation toward zero. A decimal becomes a float
-/// or a double by one rounding of its exact value. An integer beyond 64 bits is FOCA0003 for every source, because the integer item
-/// carries 64 bits. Limitation: a decimal cast to a float or a double allocates its string.
+/// or a double by one rounding of its exact value. A lexical integer is exact at any width up to the digit cap; an integer from a decimal, a double, or a
+/// float beyond 64 bits is FOCA0003, because the integer item carries 64 bits. Limitation: a decimal cast to a float or a double allocates its string.
 /// </para>
 /// </remarks>
 internal static class PrimitiveConversions
@@ -228,9 +228,14 @@ internal static class PrimitiveConversions
         if (TryGetLexical(source, out var lexical))
         {
             var parsed = IntegerType.Parse(lexical.AsSpan());
-            return parsed.Success
-                ? FromBigInteger(parsed.Value.Value, out result)
-                : Failure(parsed.Error, CastStatus.IntegerOverflow);
+            if (!parsed.Success)
+            {
+                return Failure(parsed.Error, CastStatus.IntegerOverflow);
+            }
+
+            // A lexical integer is exact at any width up to the digit cap; one beyond 64 bits is an integer-annotated decimal item.
+            result = XdmItem.FromBigInteger(parsed.Value.Value);
+            return CastStatus.Ok;
         }
 
         if (source.TryGetInteger(out _))
