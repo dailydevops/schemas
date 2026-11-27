@@ -10,10 +10,12 @@ using NetEvolve.Schemas.Xsd.Wildcards.Negation;
 /// A wildcard component (Structures 3.10): a namespace constraint and how matched items are assessed. Immutable.
 /// </summary>
 /// <remarks>
-/// Limitations: the operations accept this type and the <c>NegatedWildcard</c> of XSD 1.1 as operand, the two implementations of the seam
-/// (an operation with the latter is carried out by it, so its result is of that type); the result of a union or an intersection takes the <see cref="ProcessContents"/> and the location of the first operand,
+/// Limitations: the operations accept this type and the <c>NegatedWildcard</c> of XSD 1.1 as operand, the two
+/// implementations of the seam (an operation with the latter is carried out by it, so its result is of that type); the
+/// result of a union or an intersection takes the <see cref="ProcessContents"/> and the location of the first operand,
 /// because Structures 1.0 defines the set operations on the namespace constraints only and leaves the rest to the
-/// caller; XSD 1.1 <c>notNamespace</c> and <c>notQName</c> are the <c>NegatedWildcard</c> of <c>Wildcards/Negation</c> (#306).
+/// caller; XSD 1.1 <c>notNamespace</c> and <c>notQName</c> are the <c>NegatedWildcard</c> of <c>Wildcards/Negation</c>
+/// (#306).
 /// </remarks>
 internal sealed class Wildcard : IWildcard
 {

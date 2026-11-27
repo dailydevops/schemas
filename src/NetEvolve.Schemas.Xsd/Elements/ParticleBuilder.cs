@@ -16,9 +16,9 @@ using NetEvolve.Schemas.Xsd.Wildcards.Negation;
 /// <c>choice</c>, <c>all</c>, local and referenced <c>element</c>, <see langword="group"/> references, and <c>any</c>.
 /// </summary>
 /// <remarks>
-/// An <c>any</c> with <c>notNamespace</c> or <c>notQName</c> (XSD 1.1) is a <c>NegatedWildcard</c>; the validator binds <c>##defined</c> and <c>##definedSibling</c>.
-/// Limitations: the restrictions of the
-/// <c>all</c> group (XSD-60 #279) are not checked.
+/// An <c>any</c> with <c>notNamespace</c> or <c>notQName</c> (XSD 1.1) is a <c>NegatedWildcard</c>; the validator binds
+/// <c>##defined</c> and <c>##definedSibling</c>.
+/// Limitations: the restrictions of the <c>all</c> group (XSD-60 #279) are not checked.
 /// </remarks>
 internal sealed class ParticleBuilder
 {

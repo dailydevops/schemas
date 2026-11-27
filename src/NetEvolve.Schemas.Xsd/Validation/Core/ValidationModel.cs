@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Xsd.Validation.Core;
+﻿namespace NetEvolve.Schemas.Xsd.Validation.Core;
 
 using System.Collections.Generic;
 using NetEvolve.Arguments;
