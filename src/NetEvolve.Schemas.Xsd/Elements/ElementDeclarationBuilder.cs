@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.Xsd.Elements;
 
 using System;
+using System.Runtime.CompilerServices;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.Xsd.Components;
@@ -23,6 +24,9 @@ internal sealed class ElementDeclarationBuilder : IComponentBuilder
     private const XsdDerivationMethod BlockMethods =
         XsdDerivationMethod.Extension | XsdDerivationMethod.Restriction | XsdDerivationMethod.Substitution;
     private const XsdDerivationMethod FinalMethods = XsdDerivationMethod.Extension | XsdDerivationMethod.Restriction;
+
+    // The declaration built from a syntax node, so the identity constraints below the node reach it; weak, a node lives as long as its document.
+    private static readonly ConditionalWeakTable<SchemaSyntaxNode, ElementDeclaration> Built = new();
 
     private readonly SchemaNamespaceScope _scope;
 
@@ -124,7 +128,7 @@ internal sealed class ElementDeclarationBuilder : IComponentBuilder
             typeName = default;
         }
 
-        return ElementDeclaration.Create(
+        var declaration = ElementDeclaration.Create(
             qualifiedName,
             node.Location,
             isGlobal,
@@ -140,7 +144,16 @@ internal sealed class ElementDeclarationBuilder : IComponentBuilder
             ParseMethods(node.FindAttribute("final") ?? root.FindAttribute("finalDefault"), FinalMethods),
             head
         );
+        _ = Built.Remove(node);
+        Built.Add(node, declaration);
+        return declaration;
     }
+
+    /// <summary>Finds the declaration that <see cref="BuildDeclaration"/> built from a syntax node.</summary>
+    /// <param name="node">The <c>element</c> syntax.</param>
+    /// <returns>The declaration, <see langword="null"/> when none was built from the node.</returns>
+    internal static ElementDeclaration? DeclarationOf(SchemaSyntaxNode node) =>
+        Built.TryGetValue(node, out var declaration) ? declaration : null;
 
     /// <summary>Reports a violation of Element Declaration Representation OK.</summary>
     /// <param name="reporter">The reporter.</param>
