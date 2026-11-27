@@ -12,6 +12,7 @@ using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Derivation.Types;
 using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.Elements;
+using NetEvolve.Schemas.Xsd.IdentityConstraints.Definitions;
 using NetEvolve.Schemas.Xsd.IdentityConstraints.Evaluation;
 using NetEvolve.Schemas.Xsd.Substitution;
 
@@ -39,9 +40,8 @@ using NetEvolve.Schemas.Xsd.Substitution;
 /// Limitations: a particle whose term is not resolved is not compared (the resolver reports it); a circular group definition is not
 /// compared (<c>mg-props-correct.2</c>); an element declaration that heads a substitution group stands for a choice of its
 /// instance members when it is compared with an element of another name, but only when <see cref="Substitutions"/> is set, otherwise it is
-/// compared as itself; clause 3.2.3 of <c>rcase-NameAndTypeOK</c> (the identity
-/// constraints of the restriction are a subset of those of the base) is not checked, because an element declaration keeps no
-/// identity constraints yet; the fixed values of <c>rcase-NameAndTypeOK.3.2.2</c> are compared in the value space of the
+/// compared as itself; the identity constraints of <c>rcase-NameAndTypeOK.3.2.3</c> are the same when they are one definition or
+/// have equal kind, selector, fields in order, and referred constraint (the namespace bindings of the prefixes are not compared); the fixed values of <c>rcase-NameAndTypeOK.3.2.2</c> are compared in the value space of the
 /// element types (a declaration without a type compares the lexical forms); a type that an element declaration does not know yet (an unresolved reference, or an anonymous type
 /// that is not constructed) is not compared, and an element declaration without a type has the ur-type; a restriction that cannot
 /// map the members of an <c>all</c> group of the base by name (a base that is not unique, which <c>cos-nonambig</c> reports)
@@ -332,7 +332,7 @@ internal sealed class ParticleRestriction
         return scope.IsViolation ? scope : CheckType(r, element, baseElement);
     }
 
-    // Clauses 3.2.1 to 3.2.4; clause 3.2.3 (identity constraints) is not checked.
+    // Clauses 3.2.1 to 3.2.4.
     private ParticleViolation CheckLocalScope(Particle r, ElementDeclaration element, ElementDeclaration baseElement)
     {
         if (element.IsNillable && !baseElement.IsNillable)
@@ -363,6 +363,18 @@ internal sealed class ParticleRestriction
             );
         }
 
+        if (!IdentityConstraintsSubset(element, baseElement))
+        {
+            return Fail(
+                XsdRuleCodes.RcaseNameAndTypeOK,
+                "rcase-NameAndTypeOK.3.2.3",
+                r,
+                "The element '"
+                    + element.Name.LocalName
+                    + "' declares an identity constraint that the element of the base particle does not declare."
+            );
+        }
+
         return (baseElement.Block & ~element.Block) != XsdDerivationMethod.None
             ? Fail(
                 XsdRuleCodes.RcaseNameAndTypeOK,
@@ -373,6 +385,59 @@ internal sealed class ParticleRestriction
                     + "' must include those of the element of the base particle."
             )
             : ParticleViolation.None;
+    }
+
+    // Clause 3.2.3: every constraint of the restriction is the same as one of the base.
+    private static bool IdentityConstraintsSubset(ElementDeclaration element, ElementDeclaration baseElement)
+    {
+        foreach (var constraint in element.IdentityConstraints)
+        {
+            var found = false;
+            foreach (var candidate in baseElement.IdentityConstraints)
+            {
+                if (SameConstraint(constraint, candidate))
+                {
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    // The same definition, or equal kind, selector, fields in order, and referred constraint; the name differs for each local declaration.
+    private static bool SameConstraint(IdentityConstraintDefinition x, IdentityConstraintDefinition y)
+    {
+        if (ReferenceEquals(x, y))
+        {
+            return true;
+        }
+
+        if (
+            x.ConstraintKind != y.ConstraintKind
+            || x.Refer != y.Refer
+            || !string.Equals(x.Selector, y.Selector, StringComparison.Ordinal)
+            || x.Fields.Count != y.Fields.Count
+        )
+        {
+            return false;
+        }
+
+        for (var i = 0; i < x.Fields.Count; i++)
+        {
+            if (!string.Equals(x.Fields[i], y.Fields[i], StringComparison.Ordinal))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     // Clause 3.2.5: derived by restriction, so a step by extension is blocked (list and union never count for a type).
