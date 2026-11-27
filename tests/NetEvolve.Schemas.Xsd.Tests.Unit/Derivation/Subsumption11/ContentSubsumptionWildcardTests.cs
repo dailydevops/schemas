@@ -203,6 +203,10 @@ public class ContentSubsumptionWildcardTests
         var subsumed = Check(Of(Declaration("a")), strict, global);
         await Assert.That(subsumed.Verdict).IsEqualTo(SubsumptionVerdict.Subsumed);
 
+        // The global declaration is its own governing declaration.
+        var itself = Check(Of(global), strict, global);
+        await Assert.That(itself.Verdict).IsEqualTo(SubsumptionVerdict.Subsumed);
+
         // The global declaration a is not nillable, so it does not subsume a nillable local element a.
         var outcome = Check(Of(Declaration("a", nillable: true), line: 4), strict, global);
         await Assert.That(outcome.Verdict).IsEqualTo(SubsumptionVerdict.NotSubsumed);
