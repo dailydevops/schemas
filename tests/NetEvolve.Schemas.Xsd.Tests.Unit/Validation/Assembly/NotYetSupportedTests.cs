@@ -24,12 +24,6 @@ public class NotYetSupportedTests
             "",
             4062
         ),
-        ["openContent"] = (
-            "<xs:complexType name=\"c\"><xs:openContent><xs:any/></xs:openContent><xs:sequence/></xs:complexType>",
-            "",
-            4063
-        ),
-        ["defaultOpenContent"] = ("<xs:defaultOpenContent><xs:any/></xs:defaultOpenContent>", "", 4064),
         ["defaultAttributes"] = ("<xs:attributeGroup name=\"g\"/>", "defaultAttributes=\"t:g\"", 4066),
         ["defaultAttributesApply"] = ("<xs:complexType name=\"c\" defaultAttributesApply=\"false\"/>", "", 4067),
         ["xpathDefaultNamespace"] = (
@@ -86,12 +80,20 @@ public class NotYetSupportedTests
         var counterparts = Xsd11ConstructTable.Entries.Select(e => e.NotYetSupported.Code.Number).ToArray();
 
         // The assert element of a complex type, the assertion facet, the explicitTimezone facet, the override element, the wildcard
-        // attributes notNamespace and notQName, and the local targetNamespace are wired (XSD-78, #360, #1191, #1430, #1423, #1425, #1429), so they have no row any more.
+        // attributes notNamespace and notQName, and the local targetNamespace, and the openContent and defaultOpenContent elements are wired (XSD-78, #360, #1191, #1430, #1423, #1425, #1429, #1424), so they have no row any more.
         foreach (
             var entry in Strict10ConstructTable.Entries.Where(e =>
                 e.IsAttribute
                     ? e.Name is not ("notNamespace" or "notQName" or "targetNamespace")
-                    : e.Name is not ("assert" or "assertion" or "explicitTimezone" or "override")
+                    : e.Name
+                        is not (
+                            "assert"
+                            or "assertion"
+                            or "explicitTimezone"
+                            or "override"
+                            or "openContent"
+                            or "defaultOpenContent"
+                        )
             )
         )
         {
