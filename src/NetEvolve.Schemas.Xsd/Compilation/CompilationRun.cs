@@ -18,6 +18,7 @@ using NetEvolve.Schemas.Xsd.Derivation.Particles10;
 using NetEvolve.Schemas.Xsd.Derivation.Types;
 using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.Elements;
+using NetEvolve.Schemas.Xsd.IdentityConstraints.DefaultNamespace;
 using NetEvolve.Schemas.Xsd.IdentityConstraints.Definitions;
 using NetEvolve.Schemas.Xsd.IdentityConstraints.Evaluation;
 using NetEvolve.Schemas.Xsd.SchemaDocuments;
@@ -388,6 +389,7 @@ internal sealed class CompilationRun
                 )
             )
             {
+                XPathDefaultNamespace.Apply(child, unit.Scope, _version);
                 // The document parser reported an empty name (a name is an NCName); the factory of the definition expects a non-empty one.
                 var constraint = child.FindAttribute("name") is { Length: 0 }
                     ? null
