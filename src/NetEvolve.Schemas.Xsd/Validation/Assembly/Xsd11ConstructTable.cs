@@ -8,12 +8,13 @@ using NetEvolve.Schemas.Xsd.SchemaDocuments;
 using NetEvolve.Schemas.Xsd.Versioning.Constructs;
 
 /// <summary>
-/// The one table of the XSD 1.1 constructs that the assembled validator does not support yet (design #146 DP-16). Under the default
-/// version every occurrence is a located schema error, so no schema is silently read with 1.0 semantics; XSD-78 (#360) removes a row
-/// together with its tests when it implements the construct. The <c>assert</c> element of a complex type, the <c>assertion</c>
-/// facet of a simple type, and the <see langword="override"/> element are wired (they have no row); the <c>xpathDefaultNamespace</c> attribute
-/// stays a row for every owner but <c>assert</c> and <c>assertion</c>, because the selector and field of an identity constraint, the type alternative, and the default on the <c>schema</c>
-/// element do not read it yet.
+/// The one table of the XSD 1.1 constructs that the assembled validator does not support yet (design #146 DP-16). Under the
+/// default version every occurrence is a located schema error, so no schema is silently read with 1.0 semantics; XSD-78 (#360)
+/// removes a row together with its tests when it implements the construct. The <c>assert</c> element of a complex type, the
+/// <c>assertion</c> facet of a simple type, and the <see langword="override"/> element are wired (they have no row). The
+/// <c>xpathDefaultNamespace</c> attribute stays a row for every owner but <c>assert</c> and <c>assertion</c>, because the
+/// selector and field of an identity constraint, the type alternative, and the default on the <c>schema</c> element do not
+/// read it yet.
 /// </summary>
 /// <remarks>
 /// The rows of the strict 1.0 table (<see cref="Strict10ConstructTable"/>) are the first rows; their not-yet-supported code is the

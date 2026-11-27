@@ -115,7 +115,8 @@ public class NotYetSupportedTests
     {
         var counterparts = Xsd11ConstructTable.Entries.Select(e => e.NotYetSupported.Code.Number).ToArray();
 
-        // The assert element of a complex type, the assertion facet, and the override element are wired (XSD-78, #360, #1191, #1423), so they have no row any more.
+        // The assert element of a complex type, the assertion facet, and the override element are wired
+        // (XSD-78, #360, #1191, #1423), so they have no row any more.
         foreach (
             var entry in Strict10ConstructTable.Entries.Where(e =>
                 e.IsAttribute || (e.Name != "assert" && e.Name != "assertion" && e.Name != "override")
