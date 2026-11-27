@@ -18,7 +18,7 @@ internal enum CastStatus
     /// <summary>The value is beyond an implementation limit of the decimal (FOCA0001).</summary>
     DecimalOverflow = 4,
 
-    /// <summary>The value does not fit the 64 bits of the integer item (FOCA0003).</summary>
+    /// <summary>The value does not fit the 64 bits of the integer item, or a lexical integer exceeds the digit cap (FOCA0003).</summary>
     IntegerOverflow = 5,
 
     /// <summary>The lexical form is valid, but a year or a fraction is beyond an implementation limit of the date and time types (FODT0001).</summary>
