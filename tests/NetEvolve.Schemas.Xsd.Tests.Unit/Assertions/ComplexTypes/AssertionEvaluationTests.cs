@@ -52,8 +52,7 @@ public class AssertionEvaluationTests
     public async Task Assertion_TwoIntegerChildren_CompareNumerically()
     {
         // As strings 9 does not come before 10; the annotation source of the subtree makes the children xs:integer.
-        var issues = AssertionFixture.Run("
-<r><a>9</a><b>10</b></r>", "a lt b", "a < b", "b > a");
+        var issues = AssertionFixture.Run("\n<r><a>9</a><b>10</b></r>", "a lt b", "a < b", "b > a");
 
         await Assert.That(issues).IsEmpty();
     }
