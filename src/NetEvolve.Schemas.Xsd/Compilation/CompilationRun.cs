@@ -202,6 +202,8 @@ internal sealed class CompilationRun
 
         var units = new List<UnitScope>();
         var seen = new HashSet<string>(StringComparer.Ordinal);
+        var imports = new ImportScope();
+        _componentResolver.Imports = imports;
         foreach (var document in documents)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -211,10 +213,21 @@ internal sealed class CompilationRun
             }
 
             var set = new SchemaDocumentLoader(_resolver, _limits, _collector).Load(document, cancellationToken);
+            if (documents.Count > 1)
+            {
+                imports.AllowEverywhere(set.Units[0].EffectiveNamespace);
+            }
+
             _restrictions.AddRange(set.Restrictions);
             foreach (var unit in set.Units)
             {
                 var uri = unit.Document.BaseUri;
+                imports.Allow(uri, unit.EffectiveNamespace);
+                foreach (var imported in unit.Imports)
+                {
+                    imports.Allow(uri, imported);
+                }
+
                 if (
                     uri is null
                     || seen.Add(
@@ -417,24 +430,16 @@ internal sealed class CompilationRun
             for (var i = 0; i < component.ReferenceCount; i++)
             {
                 var reference = component.GetReference(i);
-                if (_registry.TryGet(reference.Space, reference.Name, out var target))
+                if (_componentResolver.TryResolve(_registry, in reference, _reporter, out var target))
                 {
                     component.Bind(i, target!);
-                }
-                else
-                {
-                    _reporter.Report(
-                        XsdRuleLookup.SrcResolve,
-                        reference.Location,
-                        "No " + reference.Space + " component named '" + reference.Name + "' is declared."
-                    );
                 }
             }
         }
 
         foreach (var constraint in _constraints)
         {
-            constraint.ResolveRefer(_registry, _reporter);
+            constraint.ResolveRefer(_registry, _reporter, _componentResolver.Imports);
         }
     }
 

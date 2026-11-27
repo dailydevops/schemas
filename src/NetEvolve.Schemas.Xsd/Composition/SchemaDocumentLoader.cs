@@ -268,6 +268,7 @@ internal sealed class SchemaDocumentLoader
             return;
         }
 
+        unit.Imports.Add(imported ?? string.Empty);
         var location = node.FindAttribute("schemaLocation");
         if (location is not null)
         {
