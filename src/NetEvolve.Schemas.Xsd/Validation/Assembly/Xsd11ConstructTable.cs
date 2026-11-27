@@ -40,10 +40,9 @@ internal static class Xsd11ConstructTable
         {
             if (
                 strict.IsAttribute
-/// <c>assertion</c> facet of a simple type, the <c>explicitTimezone</c> facet, the <see langword="override"/> element, and the type
-/// <c>alternative</c> are wired (they have no row), and so are the <c>inheritable</c> and <c>xpathDefaultNamespace</c> attributes, the
-/// <c>targetNamespace</c> attribute of a local declaration, the <see langword="ref"/> attribute of an identity constraint, the
-/// <c>notNamespace</c> and <c>notQName</c> attributes of a wildcard, and a list of substitution group heads (XSD-78, #360).
+                    ? (strict.Name is "notNamespace" or "notQName" or "inheritable" or "xpathDefaultNamespace")
+                        || (strict.Name == "targetNamespace" && strict.LocalOnly)
+                    : strict.Name is "assert" or "assertion" or "explicitTimezone" or "override" or "alternative"
             )
             {
                 continue;

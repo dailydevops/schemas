@@ -80,7 +80,14 @@ public class NotYetSupportedTests
         foreach (
             var entry in Strict10ConstructTable.Entries.Where(e =>
                 e.IsAttribute
-                    ? e.Name is not ("notNamespace" or "notQName" or "targetNamespace" or "inheritable" or "xpathDefaultNamespace")
+                    ? e.Name
+                        is not (
+                            "notNamespace"
+                            or "notQName"
+                            or "targetNamespace"
+                            or "inheritable"
+                            or "xpathDefaultNamespace"
+                        )
                     : e.Name is not ("assert" or "assertion" or "explicitTimezone" or "override" or "alternative")
             )
         )
@@ -117,7 +124,7 @@ public class NotYetSupportedTests
     [Test]
     public async Task Build_Version11_AnIncludedDocumentWithAConstructIsReported()
     {
-        var included = AssemblyFixture.WrapSchema("<xs:attribute name=\"a\" type=\"xs:string\" inheritable=\"true\"/>");
+        var included = AssemblyFixture.WrapSchema("<xs:complexType name=\"c\" defaultAttributesApply=\"false\"/>");
         var root = AssemblyFixture.WrapSchema("<xs:include schemaLocation=\"inc.xsd\"/>");
         var resolver = new MapResolver().Add("file:///inc.xsd", included);
 
@@ -125,7 +132,9 @@ public class NotYetSupportedTests
             SchemaValidator.ForXsd().WithResolver(resolver).AddSchema(root.AsMemory(), AssemblyFixture.SchemaId).Build()
         );
 
-        await Assert.That(exception.Issues.Any(i => i.Code == XsdRuleCodes.NotYetSupportedInheritable)).IsTrue();
+        await Assert
+            .That(exception.Issues.Any(i => i.Code == XsdRuleCodes.NotYetSupportedDefaultAttributesApply))
+            .IsTrue();
     }
 
     [Test]
