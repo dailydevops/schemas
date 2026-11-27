@@ -32,7 +32,7 @@ using NetEvolve.Schemas.Xsd.Wildcards.Core;
 /// </para>
 /// <para>
 /// Limitations: whether a derivation is valid (final base types, the content of an extension or restriction against the base:
-/// <c>cos-ct-extends</c>, <c>derivation-ok-restriction</c>, <c>cos-ct-derived-ok</c>) is XSD-10 and XSD-62; compiling the content
+/// <c>cos-ct-extends</c>, <c>derivation-ok-restriction</c>, <c>cos-ct-derived-ok</c>) is checked by the derivation checks of the compilation run, not by this definition; compiling the content
 /// model is XSD-09; assertions are XSD-23, so that mapping rule is not applied (an extension combines base and own content as a
 /// sequence, except two <c>all</c> groups in XSD 1.1, which <see cref="AllGroup11Compiler.Extend"/> merges); open content (XSD-20) follows the
 /// mapping rules of XSD 1.1 and is given to the factories as the <c>openContent</c> child and the <c>defaultOpenContent</c> of the

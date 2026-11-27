@@ -22,9 +22,9 @@ using NetEvolve.Schemas.Xsd.Substitution;
 /// </summary>
 /// <remarks>
 /// <para>
-/// The check is a pure function of immutable components and keeps no state, so one instance serves any number of calls. It is not
-/// yet part of the content check of a derived type (clause 5.4.2 of <c>derivation-ok-restriction</c>), which the pipeline of
-/// XSD-75 composes for XSD 1.0 beside the subsumption check of XSD 1.1; a caller passes the content particles of both types.
+/// The check is a pure function of immutable components and keeps no state, so one instance serves any number of calls. The
+/// compilation run applies it as clause 5.4.2 of <c>derivation-ok-restriction</c> for XSD 1.0, beside the subsumption check of
+/// XSD 1.1; a caller passes the content particles of both types.
 /// </para>
 /// <para>
 /// Reported violations: each one names the rule of the constraint that failed and the numbered clause, and is located at the

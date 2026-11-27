@@ -448,7 +448,7 @@ public class DerivationValidRestrictionTests
     [Test]
     public async Task Restriction_OfElementContent_IsNotJudgedAsAParticleRestrictionHere()
     {
-        // Particle Valid (Restriction) is XSD-62; this check leaves the particle of the content alone, also against
+        // Particle Valid (Restriction) is a separate check of the compilation run; this check leaves the particle of the content alone, also against
         // a base that has none.
         var parent = _f.Root("a", Seq(El("x")));
         var simple = _f.SimpleContent("s", Ext, TypeFixture.Xs("string"));
