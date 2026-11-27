@@ -133,7 +133,6 @@ public class ConstructorFunctionTests
     [Arguments("xs:string(('a', 'b'))", "XPTY0004")]
     [Arguments("xs:integer('x')", "FORG0001")]
     [Arguments("xs:decimal(xs:double('NaN'))", "FOCA0002")]
-    [Arguments("xs:integer('9223372036854775808')", "FOCA0003")]
     [Arguments("xs:integer()", "XPST0017")]
     [Arguments("xs:integer(1, 2)", "XPST0017")]
     [Arguments("xs:dateTimeStamp('1')", "XPST0017")]

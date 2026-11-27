@@ -222,11 +222,11 @@ public class FunctionConversionTests
         await BindingHarness.AssertFails(Type(XPathItemType.Double), One(XdmItem.FromUntypedAtomic("abc")), "FORG0001");
 
     [Test]
-    public async Task UntypedAtomic_IntegerBeyondSixtyFourBits_RaisesFOCA0003() =>
-        await BindingHarness.AssertFails(
+    public async Task UntypedAtomic_IntegerBeyondSixtyFourBits_IsConverted() =>
+        await BindingHarness.AssertConverts(
             Type(XPathItemType.Integer),
             One(XdmItem.FromUntypedAtomic("99999999999999999999")),
-            "FOCA0003"
+            One(XdmItem.FromBigInteger(System.Numerics.BigInteger.Pow(10, 20) - 1))
         );
 
     // The date, time, and duration types have limits of their own (a year or a component beyond 18 digits): FODT0001 and FODT0002, as the
