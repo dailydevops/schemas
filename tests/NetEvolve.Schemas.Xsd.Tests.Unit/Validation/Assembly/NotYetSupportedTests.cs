@@ -47,27 +47,10 @@ public class NotYetSupportedTests
         ),
         ["xpathDefaultNamespace"] = (Types, "xpathDefaultNamespace=\"##local\"", 4070),
         ["inheritable"] = ("<xs:attribute name=\"a\" type=\"xs:string\" inheritable=\"true\"/>", "", 4071),
-        ["targetNamespace"] = (
-            "<xs:complexType name=\"c\"><xs:sequence><xs:element name=\"e\" type=\"xs:string\" targetNamespace=\"urn:o\"/></xs:sequence></xs:complexType>",
-            "",
-            4072
-        ),
         ["explicitTimezone"] = (
             "<xs:simpleType name=\"s\"><xs:restriction base=\"xs:dateTime\"><xs:explicitTimezone value=\"required\"/></xs:restriction></xs:simpleType>",
             "",
             4073
-        ),
-        ["identityConstraintRef"] = (
-            "<xs:element name=\"e\" type=\"xs:string\"><xs:key name=\"k\"><xs:selector xpath=\".\"/><xs:field xpath=\".\"/></xs:key></xs:element>"
-                + "<xs:element name=\"f\" type=\"xs:string\"><xs:key ref=\"t:k\"/></xs:element>",
-            "",
-            4074
-        ),
-        ["substitutionGroupList"] = (
-            "<xs:element name=\"a\" type=\"xs:string\"/><xs:element name=\"b\" type=\"xs:string\"/>"
-                + "<xs:element name=\"c\" type=\"xs:string\" substitutionGroup=\"t:a t:b\"/>",
-            "",
-            4075
         ),
         ["precisionDecimal"] = (
             "<xs:simpleType name=\"s\"><xs:restriction base=\"xs:precisionDecimal\"/></xs:simpleType>",
@@ -116,10 +99,11 @@ public class NotYetSupportedTests
     {
         var counterparts = Xsd11ConstructTable.Entries.Select(e => e.NotYetSupported.Code.Number).ToArray();
 
-        // The assert element of a complex type and the assertion facet are wired (XSD-78, #360, #1191), so they have no row any more.
+        // The assert element of a complex type and the assertion facet are wired (XSD-78, #360, #1191), so they have no row any more; the local targetNamespace is wired too (#1429).
         foreach (
             var entry in Strict10ConstructTable.Entries.Where(e =>
-                e.IsAttribute || (e.Name != "assert" && e.Name != "assertion")
+                (e.IsAttribute && e.Name != "targetNamespace")
+                || (!e.IsAttribute && e.Name != "assert" && e.Name != "assertion")
             )
         )
         {
