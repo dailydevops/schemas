@@ -103,6 +103,26 @@ public class SubstitutionGroupPipelineTests
     }
 
     [Test]
+    public async Task Member_WithATypeAttributeOrAnAnonymousType_KeepsItsOwnType()
+    {
+        var compilation = Compile(
+            Schema(
+                Types
+                    + "<xs:element name=\"h\" type=\"t:b\"/><xs:element name=\"m\" type=\"t:d\" substitutionGroup=\"t:h\"/>"
+                    + "<xs:element name=\"n\" substitutionGroup=\"t:h\"><xs:complexType><xs:complexContent><xs:extension base=\"t:b\"/></xs:complexContent></xs:complexType></xs:element>"
+            )
+        );
+
+        await Assert.That(compilation.IsValid).IsTrue();
+        await Assert
+            .That(Get<ElementDeclaration>(compilation, XsdComponentKind.ElementDeclaration, "m").TypeDefinition)
+            .IsSameReferenceAs(Get(compilation, XsdComponentKind.ComplexType, "d"));
+        await Assert
+            .That(Get<ElementDeclaration>(compilation, XsdComponentKind.ElementDeclaration, "n").TypeDefinition)
+            .IsNotSameReferenceAs(Get(compilation, XsdComponentKind.ComplexType, "b"));
+    }
+
+    [Test]
     public async Task Restriction_ThatNamesAMemberOfTheHeadOfTheBase_IsValid()
     {
         var compilation = Compile(

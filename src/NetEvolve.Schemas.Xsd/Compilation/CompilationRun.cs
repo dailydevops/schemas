@@ -398,6 +398,7 @@ internal sealed class CompilationRun
                 if (constraint is not null)
                 {
                     _constraints.Add(constraint);
+                    ElementDeclarationBuilder.DeclarationOf(node)?.AddIdentityConstraint(constraint);
                     _owners.Add(new ConstraintOwner(node.Location, unit, constraint));
                 }
             }
