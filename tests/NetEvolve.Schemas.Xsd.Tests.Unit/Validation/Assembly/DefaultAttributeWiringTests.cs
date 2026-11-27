@@ -68,13 +68,19 @@ public class DefaultAttributeWiringTests
     }
 
     [Test]
-    public async Task Validate_TheDefaultOfAnAttributeOfTheGroupIsApplied()
+    public async Task Validate_AnAttributeOfTheGroupIsDeclaredWithItsFixedValue()
     {
-        var withValue = Run("<implicit xmlns=\"urn:t\" req=\"a\" dflt=\"x\"/>");
-        var withoutValue = Run("<implicit xmlns=\"urn:t\" req=\"a\"/>");
+        var schema = AssemblyFixture.WrapSchema(
+            """
+            <xs:attributeGroup name="dg"><xs:attribute name="fx" type="xs:string" fixed="f"/></xs:attributeGroup>
+            <xs:element name="e"><xs:complexType/></xs:element>
+            """,
+            "defaultAttributes=\"t:dg\""
+        );
+        var validator = AssemblyFixture.Build(schema, XsdVersion.V11);
 
-        await Assert.That(withValue.IsValid).IsTrue();
-        await Assert.That(withoutValue.IsValid).IsTrue();
+        await Assert.That(AssemblyFixture.Run(validator, "<e xmlns=\"urn:t\" fx=\"f\"/>").IsValid).IsTrue();
+        await Assert.That(AssemblyFixture.Run(validator, "<e xmlns=\"urn:t\" fx=\"other\"/>").IsValid).IsFalse();
     }
 
     [Test]
@@ -121,7 +127,8 @@ public class DefaultAttributeWiringTests
 
         var exception = AssemblyFixture.Failure(() => AssemblyFixture.Build(schema, XsdVersion.V11));
 
-        await Assert.That(exception.Issues.Count).IsGreaterThanOrEqualTo(1);
+        var issue = exception.Issues.Single(i => i.Code == XsdRuleCodes.CtPropsCorrect);
+        await Assert.That(issue.Location.Line).IsGreaterThan(0);
     }
 
     [Test]
