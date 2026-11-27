@@ -26,7 +26,8 @@ internal sealed class SchemaCompilation
         ListenerKinds listeners = ListenerKinds.None,
         IReadOnlyList<IXsdComponent>? components = null,
         ComplexTypeAssertions? assertions = null,
-        FacetAssertions? facetAssertions = null
+        FacetAssertions? facetAssertions = null,
+        bool hasTypeAlternatives = false
     )
     {
         ArgumentNullException.ThrowIfNull(result);
@@ -39,6 +40,7 @@ internal sealed class SchemaCompilation
         Components = components ?? [];
         Assertions = assertions;
         FacetAssertions = facetAssertions;
+        HasTypeAlternatives = hasTypeAlternatives;
     }
 
     private static IReadOnlyDictionary<
@@ -69,6 +71,9 @@ internal sealed class SchemaCompilation
 
     /// <summary>Gets the assertion facets of the simple types (XSD 1.1), <see langword="null"/> when no type has one.</summary>
     public FacetAssertions? FacetAssertions { get; }
+
+    /// <summary>Gets a value indicating whether an element declaration has type alternatives (XSD 1.1), so the validator keeps the inherited attributes.</summary>
+    public bool HasTypeAlternatives { get; }
 
     /// <summary>Gets a value indicating whether the schema names an ID, IDREF, IDREFS, or NOTATION type, so the ID listener has work.</summary>
     public bool NeedsIdListener => _listeners.HasFlag(ListenerKinds.Ids);

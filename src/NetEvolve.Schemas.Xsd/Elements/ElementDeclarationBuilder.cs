@@ -11,6 +11,7 @@ using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Declarations11;
 using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.SchemaDocuments;
+using NetEvolve.Schemas.Xsd.TypeAlternatives;
 
 /// <summary>
 /// Builds global element declarations (Structures section 3.3.2) from the syntax of an <c>element</c> child of <c>schema</c>
@@ -32,6 +33,7 @@ internal sealed class ElementDeclarationBuilder : IComponentBuilder
     private static readonly ConditionalWeakTable<SchemaSyntaxNode, ElementDeclaration> Built = new();
 
     private readonly SchemaNamespaceScope _scope;
+    private TypeAlternativeBuilder? _alternatives;
     private readonly XsdVersion _version;
 
     /// <summary>Initializes a new instance of the <see cref="ElementDeclarationBuilder"/> class.</summary>
@@ -171,6 +173,13 @@ internal sealed class ElementDeclarationBuilder : IComponentBuilder
         );
         _ = Built.Remove(node);
         Built.Add(node, declaration);
+
+        // The alternatives are an XSD 1.1 construct; the strict 1.0 gate rejects them before any builder runs.
+        if (TypeTable.FromSyntax(node, _alternatives ??= new TypeAlternativeBuilder(_scope), reporter) is { } table)
+        {
+            declaration.BindTypeTable(table);
+        }
+
         return declaration;
     }
 

@@ -7,6 +7,7 @@ using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.SchemaDocuments;
 using NetEvolve.Schemas.Xsd.SimpleTypes.Definitions;
+using NetEvolve.Schemas.Xsd.TypeAlternatives;
 
 /// <summary>
 /// Builds attribute declarations (Structures 3.2.2) and attribute uses (3.5.2) from the syntax of an <c>attribute</c> element:
@@ -143,6 +144,7 @@ internal sealed class AttributeBuilder : IComponentBuilder
         }
 
         var constraint = ReadConstraint(node);
+        var inheritable = AttributeInheritance.IsInheritable(node);
         var declaration = isGlobal
             ? AttributeDeclaration.Global(
                 name,
@@ -150,7 +152,8 @@ internal sealed class AttributeBuilder : IComponentBuilder
                 node.Location,
                 type,
                 constraint,
-                _context.Reporter
+                _context.Reporter,
+                inheritable
             )
             : AttributeDeclaration.Local(
                 name,
@@ -160,7 +163,8 @@ internal sealed class AttributeBuilder : IComponentBuilder
                 node.Location,
                 type,
                 constraint,
-                _context.Reporter
+                _context.Reporter,
+                inheritable
             );
         if (declaration is not null)
         {

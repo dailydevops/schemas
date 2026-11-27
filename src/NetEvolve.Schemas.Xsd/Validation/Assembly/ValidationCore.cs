@@ -60,6 +60,7 @@ internal sealed class ValidationCore : IValidationCore
     private readonly XsdVersion _version;
     private readonly ComplexTypeAssertions? _assertions;
     private readonly FacetAssertions? _facetAssertions;
+    private readonly bool _hasTypeAlternatives;
     private readonly bool _needsIds;
     private readonly bool _needsEntities;
     private readonly ValidationLimits _limits;
@@ -87,6 +88,7 @@ internal sealed class ValidationCore : IValidationCore
         _version = version;
         _assertions = compilation.Assertions;
         _facetAssertions = compilation.FacetAssertions;
+        _hasTypeAlternatives = compilation.HasTypeAlternatives;
         _needsIds = compilation.NeedsIdListener;
         _needsEntities = compilation.NeedsEntityListener;
         _limits = limits;
@@ -244,6 +246,7 @@ internal sealed class ValidationCore : IValidationCore
                 Listeners(entities),
                 readerLimits: _core._options.Limits,
                 facetAssertions: _core._facetAssertions,
+                typeAlternatives: _core._hasTypeAlternatives,
                 hints: _core._hintResolver is null
                     ? null
                     : new SchemaLocationHints(

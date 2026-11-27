@@ -13,6 +13,7 @@ using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.Elements;
 using NetEvolve.Schemas.Xsd.Substitution;
+using NetEvolve.Schemas.Xsd.TypeAlternatives;
 using NetEvolve.Schemas.Xsd.Wildcards.Negation;
 
 /// <summary>
@@ -205,6 +206,22 @@ internal sealed class ValidationModel
             }
         }
 
+        // The type of a type alternative can be the one that assesses the element, so its content model is compiled too.
+        private void PushAlternatives(TypeTable? table)
+        {
+            if (table is null)
+            {
+                return;
+            }
+
+            for (var i = 0; i < table.Count; i++)
+            {
+                Push(table[i].TypeDefinition);
+            }
+
+            Push(table.Default?.TypeDefinition);
+        }
+
         internal void Run()
         {
             while (_work.Count > 0)
@@ -213,6 +230,7 @@ internal sealed class ValidationModel
                 {
                     case ElementDeclaration element:
                         Push(element.TypeDefinition ?? ComplexTypeDefinition.AnyType);
+                        PushAlternatives(element.TypeTable);
                         break;
                     case ComplexTypeDefinition type:
                         Compile(type);

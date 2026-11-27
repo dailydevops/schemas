@@ -11,8 +11,7 @@ using NetEvolve.Schemas.Xsd.Contracts;
 /// syntax until the type builders construct it, as for an element declaration.
 /// </summary>
 /// <remarks>
-/// Limitations: the compilation pipeline neither builds nor resolves alternatives until it is wired (XSD-78), so a caller binds the
-/// reference with <see cref="Bind"/> or <see cref="BindInlineType"/>. The test is compiled with the full XPath 2.0 of the XPath
+/// Limitations: the test is compiled with the full XPath 2.0 of the XPath
 /// package, not the subset that Structures 1.1 requires at least; the base URI of the expression is not set.
 /// </remarks>
 internal sealed class TypeAlternative : IReferencingComponent

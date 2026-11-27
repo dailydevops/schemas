@@ -14,7 +14,8 @@ using NetEvolve.Schemas.XPath.Api;
 /// A frame keeps what the element's children see: the attributes that the element inherited and does not shadow, then the
 /// inheritable attributes of the element. An attribute of the element shadows an inherited one of the same expanded name whether
 /// or not it is inheritable, so the nearest ancestor wins, and a non-inheritable attribute hides the farther one from the whole
-/// subtree.
+/// subtree. The validator opens the frame with <see cref="Enter"/> before the type of the element is known and adds the inheritable
+/// attributes with <see cref="AddInheritable"/> once the attribute declarations are known.
 /// </para>
 /// <para>
 /// Decisions: only attributes that the document specifies take part, because an attribute that a default adds is no member of the
@@ -23,8 +24,7 @@ using NetEvolve.Schemas.XPath.Api;
 /// value string of an inheritable attribute, which every descendant shares.
 /// </para>
 /// <para>
-/// Limitation: the caller derives <see cref="TypeAlternativeAttribute.IsInheritable"/> from the attribute declaration, which has
-/// no <c>inheritable</c> property until the validator is wired (XSD-78); <see cref="AttributeInheritance"/> reads it from the syntax.
+/// The caller derives <see cref="TypeAlternativeAttribute.IsInheritable"/> from the <c>inheritable</c> property of the attribute declaration.
 /// </para>
 /// </remarks>
 internal sealed class InheritedAttributes
@@ -63,6 +63,32 @@ internal sealed class InheritedAttributes
         }
 
         var inherited = _count - start;
+        if (_depth == _frameStarts.Length)
+        {
+            Array.Resize(ref _frameStarts, _depth * 2);
+            Array.Resize(ref _frameInherited, _depth * 2);
+        }
+
+        _frameStarts[_depth] = start;
+        _frameInherited[_depth] = inherited;
+        _depth++;
+        AddInheritable(attributes, values);
+    }
+
+    /// <summary>
+    /// Adds the inheritable attributes of the innermost open element to what its children see. The validator knows which attribute
+    /// declarations are inheritable only after the type of the element is chosen, which is after the type table read what the element inherited.
+    /// </summary>
+    /// <param name="attributes">The specified attributes of the element, flagged by <see cref="TypeAlternativeAttribute.IsInheritable"/>.</param>
+    /// <param name="values">The buffer that holds the values of <paramref name="attributes"/>.</param>
+    /// <exception cref="InvalidOperationException">No frame is open.</exception>
+    internal void AddInheritable(ReadOnlySpan<TypeAlternativeAttribute> attributes, ReadOnlySpan<char> values)
+    {
+        if (_depth == 0)
+        {
+            throw new InvalidOperationException("AddInheritable requires an open frame.");
+        }
+
         for (var i = 0; i < attributes.Length; i++)
         {
             var attribute = attributes[i];
@@ -77,16 +103,6 @@ internal sealed class InheritedAttributes
 
             Append(new InheritedAttribute(attribute.Name, values.Slice(attribute.Start, attribute.Length).ToString()));
         }
-
-        if (_depth == _frameStarts.Length)
-        {
-            Array.Resize(ref _frameStarts, _depth * 2);
-            Array.Resize(ref _frameInherited, _depth * 2);
-        }
-
-        _frameStarts[_depth] = start;
-        _frameInherited[_depth] = inherited;
-        _depth++;
     }
 
     /// <summary>Closes the frame of the innermost open element.</summary>

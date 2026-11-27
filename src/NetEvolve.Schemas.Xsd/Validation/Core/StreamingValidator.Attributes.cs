@@ -52,6 +52,11 @@ internal sealed partial class StreamingValidator
             ApplyHints(frame, _hints);
         }
 
+        if (_inherited is not null)
+        {
+            EnterInherited(frame);
+        }
+
         BeginContent(frame);
         if (_onStart.Length > 0)
         {
@@ -83,6 +88,10 @@ internal sealed partial class StreamingValidator
         }
 
         FireXsiAttributes(frame);
+        if (_inherited is not null)
+        {
+            PublishInheritable(frame);
+        }
 
         // The attributes of a nilled element are assessed against its type; from here on only its absent content counts.
         if (frame.IsNilled)

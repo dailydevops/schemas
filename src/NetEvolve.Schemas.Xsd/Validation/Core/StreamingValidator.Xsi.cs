@@ -18,6 +18,12 @@ internal sealed partial class StreamingValidator
     {
         var declaration = frame.Declaration;
         var declared = declaration is null ? null : declaration.TypeDefinition ?? ComplexTypeDefinition.AnyType;
+        if (declaration?.TypeTable is { } table)
+        {
+            // The type table selects the type that xsi:type must be derived from (Structures 1.1, 3.3.4).
+            declared = SelectAlternative(frame, table, declared!);
+        }
+
         var type = declared;
         var typeIndex = FindXsiAttribute(TypeAttribute);
         if (typeIndex >= 0)

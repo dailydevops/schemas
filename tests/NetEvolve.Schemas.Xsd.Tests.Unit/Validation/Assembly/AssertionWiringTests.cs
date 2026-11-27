@@ -112,20 +112,4 @@ public class AssertionWiringTests
 
         await Assert.That(exception.Issues.Any(i => i.Code == XsdRuleCodes.Strict10Assert)).IsTrue();
     }
-
-    [Test]
-    public async Task Build_XPathDefaultNamespaceOfATypeAlternative_IsStillNotSupported()
-    {
-        var exception = AssemblyFixture.Failure(() =>
-            AssemblyFixture.Build(
-                AssemblyFixture.WrapSchema(
-                    "<xs:element name=\"e\" type=\"xs:string\"><xs:alternative test=\"true()\" type=\"xs:string\" xpathDefaultNamespace=\"##local\"/></xs:element>"
-                )
-            )
-        );
-
-        await Assert
-            .That(exception.Issues.Any(i => i.Code == XsdRuleCodes.NotYetSupportedXPathDefaultNamespace))
-            .IsTrue();
-    }
 }

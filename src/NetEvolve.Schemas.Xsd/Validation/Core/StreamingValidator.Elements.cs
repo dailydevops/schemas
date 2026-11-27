@@ -471,6 +471,11 @@ internal sealed partial class StreamingValidator
             (pools[all11Program.PoolIndex] ??= new()).Push(all11);
         }
 
+        if (frame.Inherits)
+        {
+            _inherited!.Leave();
+        }
+
         _depth--;
         if (_depth > 0 && !frame.IsValid)
         {
