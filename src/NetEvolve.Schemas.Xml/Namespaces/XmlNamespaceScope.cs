@@ -94,11 +94,13 @@ internal sealed class XmlNamespaceScope
     /// <param name="attributeName">The raw name, <c>xmlns</c> or <c>xmlns:prefix</c>; see <see cref="IsDeclaration"/>.</param>
     /// <param name="value">The attribute value, the namespace name.</param>
     /// <param name="binding">The interned binding, <see langword="default"/> on error.</param>
+    /// <param name="isName"><see langword="true"/> when the caller already checked <paramref name="attributeName"/> against production Name.</param>
     /// <returns><see langword="null"/>, or <c>XML3002</c>, <c>XML3004</c>, <c>XML3005</c>, <c>XML1111</c>, <c>XML1116</c>.</returns>
     internal XmlErrorCode? Declare(
         ReadOnlySpan<char> attributeName,
         ReadOnlySpan<char> value,
-        out XmlNamespaceBinding binding
+        out XmlNamespaceBinding binding,
+        bool isName = false
     )
     {
         binding = default;
@@ -106,7 +108,7 @@ internal sealed class XmlNamespaceScope
         if (attributeName.Length > XmlnsPrefix.Length)
         {
             prefix = attributeName.Slice(XmlnsPrefix.Length + 1);
-            if (!IsNCName(prefix))
+            if (!(isName ? IsTrustedLocalName(prefix) : IsNCName(prefix)))
             {
                 return XmlErrorCodes.XML3004;
             }
@@ -153,17 +155,19 @@ internal sealed class XmlNamespaceScope
     /// <summary>Resolves the raw name of an element; an unprefixed name takes the default namespace.</summary>
     /// <param name="qualifiedName">The raw name.</param>
     /// <param name="name">The expanded name, <see langword="default"/> on error.</param>
+    /// <param name="isName"><see langword="true"/> when the caller already checked <paramref name="qualifiedName"/> against production Name.</param>
     /// <returns><see langword="null"/>, or <c>XML3001</c>, <c>XML3002</c>, <c>XML3004</c>, <c>XML1111</c>, <c>XML1116</c>.</returns>
-    internal XmlErrorCode? ResolveElement(ReadOnlySpan<char> qualifiedName, out XmlName name) =>
-        Resolve(qualifiedName, isAttribute: false, out name);
+    internal XmlErrorCode? ResolveElement(ReadOnlySpan<char> qualifiedName, out XmlName name, bool isName = false) =>
+        Resolve(qualifiedName, isAttribute: false, isName, out name);
 
     /// <summary>Resolves the raw name of an attribute and checks it is unique in the current start tag; an unprefixed name has no namespace.</summary>
     /// <param name="qualifiedName">The raw name, not a namespace declaration.</param>
     /// <param name="name">The expanded name, <see langword="default"/> on error.</param>
+    /// <param name="isName"><see langword="true"/> when the caller already checked <paramref name="qualifiedName"/> against production Name.</param>
     /// <returns><see langword="null"/>, or <c>XML3001</c>, <c>XML3002</c>, <c>XML3003</c>, <c>XML3004</c>, <c>XML1111</c>, <c>XML1116</c>.</returns>
-    internal XmlErrorCode? ResolveAttribute(ReadOnlySpan<char> qualifiedName, out XmlName name)
+    internal XmlErrorCode? ResolveAttribute(ReadOnlySpan<char> qualifiedName, out XmlName name, bool isName = false)
     {
-        var error = Resolve(qualifiedName, isAttribute: true, out name);
+        var error = Resolve(qualifiedName, isAttribute: true, isName, out name);
         if (error is not null)
         {
             return error;
@@ -233,13 +237,17 @@ internal sealed class XmlNamespaceScope
         return false;
     }
 
-    private XmlErrorCode? Resolve(ReadOnlySpan<char> qualifiedName, bool isAttribute, out XmlName name)
+    private XmlErrorCode? Resolve(ReadOnlySpan<char> qualifiedName, bool isAttribute, bool isName, out XmlName name)
     {
         name = default;
         var colon = qualifiedName.IndexOf(':');
         var prefix = colon < 0 ? ReadOnlySpan<char>.Empty : qualifiedName.Slice(0, colon);
         var local = qualifiedName.Slice(colon + 1);
-        if ((colon >= 0 && !IsNCName(prefix)) || !IsNCName(local))
+        if (
+            isName
+                ? colon >= 0 && (colon == 0 || !IsTrustedLocalName(local))
+                : (colon >= 0 && !IsNCName(prefix)) || !IsNCName(local)
+        )
         {
             return XmlErrorCodes.XML3004;
         }
@@ -300,4 +308,12 @@ internal sealed class XmlNamespaceScope
     // NCName: a Name without a colon (Namespaces in XML 1.0, production 4).
     private static bool IsNCName(ReadOnlySpan<char> text) =>
         !text.IsEmpty && text.IndexOf(':') < 0 && XmlCharClass.NameLength(text) == text.Length;
+
+    // The part after the first colon of a text that already matches production Name: only the colon-free rule and the
+    // name start rule of its first character are left. A high surrogate starts a supplementary code point, which the
+    // Name check accepted as a name character and which is also a name start character.
+    private static bool IsTrustedLocalName(ReadOnlySpan<char> local) =>
+        !local.IsEmpty
+        && local.IndexOf(':') < 0
+        && (XmlCharClass.IsNameStartChar(local[0]) || char.IsHighSurrogate(local[0]));
 }

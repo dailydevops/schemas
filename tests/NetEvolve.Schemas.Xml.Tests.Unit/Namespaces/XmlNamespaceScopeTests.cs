@@ -378,7 +378,10 @@ public class XmlNamespaceScopeTests
         var names = new System.Collections.Generic.List<string>();
         void Grow(string prefix, int depth)
         {
-            if (prefix.Length > 0 && Text.CharClasses.XmlCharClass.NameLength(prefix) == prefix.Length)
+            if (
+                prefix.Length > 0
+                && NetEvolve.Schemas.Xml.Text.CharClasses.XmlCharClass.NameLength(prefix) == prefix.Length
+            )
             {
                 names.Add(prefix);
             }
