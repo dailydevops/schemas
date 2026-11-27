@@ -11,7 +11,7 @@ using NetEvolve.Schemas.Xsd.Versioning.Constructs;
 /// The one table of the XSD 1.1 constructs that the assembled validator does not support yet (design #146 DP-16). Under the
 /// default version every occurrence is a located schema error, so no schema is silently read with 1.0 semantics; XSD-78 (#360)
 /// removes a row together with its tests when it implements the construct. The <c>assert</c> element of a complex type, the
-/// <c>assertion</c> facet of a simple type, the <c>explicitTimezone</c> facet, and the <see langword="override"/> element are wired
+/// <c>assertion</c> facet of a simple type, the <c>explicitTimezone</c> facet, the <see langword="override"/> element, and the <c>openContent</c> and <c>defaultOpenContent</c> elements (XSD-78, #1424) are wired
 /// (they have no row), and so are the <c>targetNamespace</c> attribute of a local declaration, the <see langword="ref"/> attribute of an identity
 /// constraint, and a list of substitution group heads (XSD-78, #1429). The <c>xpathDefaultNamespace</c> attribute stays a row for the type <c>alternative</c> only, because the
 /// selector and field of an identity constraint and the default on the <c>schema</c> element are read by the compilation (#1427),
@@ -45,7 +45,13 @@ internal static class Xsd11ConstructTable
                 strict.IsAttribute
                     ? (strict.Name is "notNamespace" or "notQName")
                         || (strict.Name == "targetNamespace" && strict.LocalOnly)
-                    : strict.Name is "assert" or "assertion" or "explicitTimezone" or "override"
+                    : strict.Name
+                        is "assert"
+                            or "assertion"
+                            or "explicitTimezone"
+                            or "override"
+                            or "openContent"
+                            or "defaultOpenContent"
             )
             {
                 continue;
