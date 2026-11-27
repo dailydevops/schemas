@@ -40,7 +40,7 @@ using NetEvolve.Schemas.Xsd.Validation.Core;
 /// <para>
 /// Limitations: one object per selected element and one per scope, one key-sequence per qualified element, so memory grows with
 /// the number of matches and is otherwise independent of the size of the document. An element that the validator does not hand
-/// to the listeners (a skipped or rejected subtree) takes no part. A nilled element is not told apart (<c>xsi:nil</c> is XSD-55, #308), so its value counts.
+/// to the listeners (a skipped or rejected subtree) takes no part. A nilled element (<c>xsi:nil</c> true) has no value: as a field element it leaves its field empty, so the selected element is left out of a <c>unique</c> or <c>keyref</c> and reported by a <c>key</c> (clause 4.2.1); as a selected element it takes part with its attributes (Structures 3.11.4, both versions).
 /// </para>
 /// <para>Not thread-safe; one instance serves one run at a time and may be reused for the next.</para>
 /// </remarks>
@@ -170,11 +170,12 @@ internal sealed class IdentityConstraintListener : ValidationListener
             return;
         }
 
-        // A field element whose value never came had its content rejected; the validator has reported that.
+        // A field element whose value never came had its content rejected (the validator has reported that), unless it is a valid
+        // nilled element: that one has no value, so its field stays empty (Structures 3.11.4).
         while (_captureCount > 0 && _captures[_captureCount - 1].Ordinal == info.Ordinal)
         {
             ref var capture = ref _captures[--_captureCount];
-            if (!capture.Delivered)
+            if (!capture.Delivered && !(info.IsNilled && info.IsValid))
             {
                 capture.Target.Failed = true;
             }
@@ -610,7 +611,8 @@ internal sealed class IdentityConstraintListener : ValidationListener
 
         internal IXsdComponent? Type { get; private set; }
 
-        internal readonly bool IsEmpty => _nodes == 0;
+        // A nilled field element counts as a node but has no value.
+        internal readonly bool IsEmpty => Type is null;
 
         // Counts a node; false when it is the second one.
         internal bool Count() => ++_nodes == 1;
