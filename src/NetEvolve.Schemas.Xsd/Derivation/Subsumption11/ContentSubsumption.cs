@@ -70,12 +70,19 @@ internal sealed class ContentSubsumption
     private readonly TypeDerivationOk _derivation;
     private readonly ValueSpace _values;
     private readonly int _maxWork;
+    private readonly IComponentRegistry? _registry;
 
     /// <summary>Initializes a new instance of the <see cref="ContentSubsumption"/> class.</summary>
     /// <param name="derivation">Type Derivation OK of XSD 1.1, for the types of element declarations.</param>
     /// <param name="values">The value space, which compares the fixed values of element declarations.</param>
     /// <param name="maxWork">The work limit of one check.</param>
-    internal ContentSubsumption(TypeDerivationOk derivation, ValueSpace values, int maxWork = DefaultMaxWork)
+    /// <param name="registry">The component registry, which holds the global element declarations a wildcard binds its elements to.</param>
+    internal ContentSubsumption(
+        TypeDerivationOk derivation,
+        ValueSpace values,
+        int maxWork = DefaultMaxWork,
+        IComponentRegistry? registry = null
+    )
     {
         ArgumentNullException.ThrowIfNull(derivation);
         ArgumentNullException.ThrowIfNull(values);
@@ -84,6 +91,7 @@ internal sealed class ContentSubsumption
         _derivation = derivation;
         _values = values;
         _maxWork = maxWork;
+        _registry = registry;
     }
 
     /// <summary>Checks a content particle against the content particle it restricts.</summary>
