@@ -149,7 +149,8 @@ internal sealed class IdentityConstraintDefinition : IXsdComponent
     /// <summary>Resolves the refer of a keyref and checks it against the target; does nothing for unique and key.</summary>
     /// <param name="registry">The registry holding the identity constraints.</param>
     /// <param name="reporter">The reporter.</param>
-    internal void ResolveRefer(IComponentRegistry registry, XsdIssueReporter reporter)
+    /// <param name="imports">The namespaces each document may refer to, <see langword="null"/> for no restriction.</param>
+    internal void ResolveRefer(IComponentRegistry registry, XsdIssueReporter reporter, ImportScope? imports = null)
     {
         ArgumentNullException.ThrowIfNull(registry);
         ArgumentNullException.ThrowIfNull(reporter);
@@ -160,7 +161,8 @@ internal sealed class IdentityConstraintDefinition : IXsdComponent
         }
 
         if (
-            !registry.TryGet(XsdComponentKind.IdentityConstraint, Refer, out var found)
+            imports?.IsVisible(Location, Refer) == false
+            || !registry.TryGet(XsdComponentKind.IdentityConstraint, Refer, out var found)
             || found is not IdentityConstraintDefinition target
         )
         {
@@ -168,7 +170,7 @@ internal sealed class IdentityConstraintDefinition : IXsdComponent
                 reporter,
                 XsdRuleCodes.SrcResolve,
                 Location,
-                "The identity constraint " + Refer + " is not declared."
+                "The identity constraint " + Refer + " is not declared or its namespace is not imported."
             );
         }
         else if (target.ConstraintKind == IdentityConstraintKind.Keyref)

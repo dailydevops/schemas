@@ -44,6 +44,9 @@ internal sealed class SchemaUnit
     /// <summary>Gets the components of the <see langword="override"/> elements that replace components of this unit, <see langword="null"/> when none does.</summary>
     internal OverrideSet? Overrides { get; }
 
+    /// <summary>Gets the namespaces the document imports directly, empty for an import without a namespace.</summary>
+    internal List<string> Imports { get; } = [];
+
     /// <summary>Gets the units this unit includes, redefines, or overrides.</summary>
     internal List<SchemaUnit> Included { get; } = [];
 }

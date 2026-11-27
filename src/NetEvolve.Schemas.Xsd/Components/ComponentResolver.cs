@@ -22,6 +22,9 @@ internal sealed class ComponentResolver : IComponentResolver
 
     private readonly XsdVersion _version;
 
+    /// <summary>Gets or sets the namespaces each document may refer to, <see langword="null"/> for no restriction.</summary>
+    internal ImportScope? Imports { get; set; }
+
     internal ComponentResolver(XsdVersion version)
     {
         ArgumentOutOfRangeException.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
@@ -59,24 +62,46 @@ internal sealed class ComponentResolver : IComponentResolver
         }
     }
 
-    private static void Bind(ComponentRegistry registry, IReferencingComponent component, XsdIssueReporter reporter)
+    private void Bind(ComponentRegistry registry, IReferencingComponent component, XsdIssueReporter reporter)
     {
         for (var i = 0; i < component.ReferenceCount; i++)
         {
             var reference = component.GetReference(i);
-            if (registry.TryGet(reference.Space, reference.Name, out var target))
+            if (TryResolve(registry, reference, reporter, out var target))
             {
                 component.Bind(i, target!);
             }
-            else
-            {
-                reporter.Report(
-                    XsdRuleLookup.SrcResolve,
-                    reference.Location,
-                    $"No {reference.Space} component named '{reference.Name}' is declared."
-                );
-            }
         }
+    }
+
+    /// <summary>Looks a reference up and reports it when the component is missing or its namespace is not imported by the referencing document.</summary>
+    /// <param name="registry">The registry.</param>
+    /// <param name="reference">The reference.</param>
+    /// <param name="reporter">The reporter.</param>
+    /// <param name="target">The component when resolved.</param>
+    /// <returns><see langword="true"/> when the reference resolved.</returns>
+    internal bool TryResolve(
+        ComponentRegistry registry,
+        in XsdReference reference,
+        XsdIssueReporter reporter,
+        out IXsdComponent? target
+    )
+    {
+        if (
+            Imports?.IsVisible(reference.Location, reference.Name) != false
+            && registry.TryGet(reference.Space, reference.Name, out target)
+        )
+        {
+            return true;
+        }
+
+        target = null;
+        reporter.Report(
+            XsdRuleLookup.SrcResolve,
+            reference.Location,
+            $"No {reference.Space} component named '{reference.Name}' is declared or its namespace is not imported."
+        );
+        return false;
     }
 
     // Iterative depth-first search with an explicit stack: a long derivation chain never overflows the call stack.

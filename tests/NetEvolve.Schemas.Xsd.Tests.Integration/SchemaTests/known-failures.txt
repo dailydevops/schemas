@@ -24,10 +24,7 @@ msMeta-DataTypes_w3c	1.0/anyURI_a006_1341/anyURI_a006_1341	-	A schema location t
 msMeta-DataTypes_w3c	1.0/anyURI_a009_1344/anyURI_a009_1344	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
 msMeta-DataTypes_w3c	1.0/anyURI_b004_1354/anyURI_b004_1354	#1181	An anyURI value that is no URI reference is accepted in XSD 1.0.
 msMeta-DataTypes_w3c	1.0/anyURI_b006_1356/anyURI_b006_1356	#1181	An anyURI value that is no URI reference is accepted in XSD 1.0.
-msMeta-Element_w3c	1.0/elemZ006/elemZ006	#872	A component of a document that is not imported or included is visible.
-msMeta-Element_w3c	1.0/elemZ007/elemZ007	#872	A component of a document that is not imported or included is visible.
 msMeta-Element_w3c	1.0/elemZ028c/elemZ028c	-	The unique particle attribution check does not cover an all group, so a member of a substitution group that is also listed is accepted.
-msMeta-IdentityConstraint_w3c	1.0/idC019/idC019	#872	A component of a document that is not imported or included is visible.
 msMeta-ModelGroups_w3c	1.0/mgO013/mgO013	#869	A redefinition is not checked against the redefined component.
 msMeta-Notations_w3c	1.0/notatG001/notatG001	#1392	The text content of a notation element is not reported.
 msMeta-Notations_w3c	1.0/notatG003/notatG003	#1392	The text content of a notation element is not reported.
@@ -35,7 +32,6 @@ msMeta-Particles_w3c	1.0/particlesZ001/particlesZ001	#863	The restriction is inv
 msMeta-Schema_w3c	1.0/schB8/schB8	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
 msMeta-Schema_w3c	1.0/schD7/schD7	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
 msMeta-Schema_w3c	1.0/schD8/schD8	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
-msMeta-Schema_w3c	1.0/schG9/schG9	#872	A component of a document that is not imported or included is visible.
 msMeta-Schema_w3c	1.0/schH9/schH9	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
 msMeta-Schema_w3c	1.0/schL1/schL1	#869	A redefinition is not checked against the redefined component.
 msMeta-Schema_w3c	1.0/schL10/schL10	#869	A redefinition is not checked against the redefined component.
@@ -50,8 +46,6 @@ msMeta-Schema_w3c	1.0/schN12/schN12	#869	A redefinition is not checked against t
 msMeta-Schema_w3c	1.0/schN6/schN6	#869	A redefinition is not checked against the redefined component.
 msMeta-Schema_w3c	1.0/schO2/schO2	#869	A redefinition is not checked against the redefined component.
 msMeta-Schema_w3c	1.0/schR5/schR5	#869	A redefinition is not checked against the redefined component.
-msMeta-Schema_w3c	1.0/schZ004/schZ004	#872	A component of a document that is not imported or included is visible.
-msMeta-Schema_w3c	1.0/schZ005/schZ005	#872	A component of a document that is not imported or included is visible.
 msMeta-Schema_w3c	1.0/schZ006/schZ006	#869	A redefinition is not checked against the redefined component.
 msMeta-SimpleType_w3c	1.0/stZ010/stZ010	#1180	A facet that does not apply to the simple content of a simpleContent restriction is accepted.
 saxonMeta-Missing	1.0/missing001/missing001.xsd	-	A reference to a type that no document declares is src-resolve here; the suite accepts incomplete schemas.

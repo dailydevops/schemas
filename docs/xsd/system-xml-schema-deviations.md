@@ -7,7 +7,7 @@ This document lists every difference that the differential run over the W3C XML 
 | Baseline | `System.Xml.Schema` of the .NET runtime 10.0, compared on the `net10.0` test leg only (`baseline-runtime: 10.0`) |
 | Corpus | XSTS cases of XSD 1.0 (schema tests and instance tests), pinned in `tests/conformance/suites/xsts.json` |
 | Data file | `tests/NetEvolve.Schemas.Xsd.Tests.Integration/DifferentialData/xsts-1.0-deviations.txt`, one entry per difference: case id, difference kind, observed difference, specification reference, reason |
-| Entries | 13835 entries for 13799 cases |
+| Entries | 13841 entries for 13805 cases |
 
 The list is valid for the recorded baseline runtime version only. A run on another runtime version fails until the list is compared again. System.Xml.Schema implements XSD 1.0 only, so cases of XSD 1.1 are not compared.
 
@@ -27,7 +27,7 @@ No builder option, switch, or code path in the library reproduces System.Xml.Sch
 
 | Class | Entries | Cases |
 |---|---:|---:|
-| Verdict differences: this library follows the specification | 1706 | 1674 |
+| Verdict differences: this library follows the specification | 1712 | 1680 |
 | Verdict differences: documented limitations of this library | 21 | 17 |
 | Position differences: equivalent | 12107 | 12107 |
 | Differences on cases that a bug issue tracks (no entry) | 875 | |
@@ -664,13 +664,19 @@ msMeta-Additional_w3c/1.0/addB32/addB32
 
 ### A QName that refers to a namespace that is not imported
 
-A QName refers to a namespace that the schema document does not import, so the reference does not resolve and the schema is invalid. System.Xml.Schema reports a warning only.
+A QName refers to a namespace that the schema document does not import, so the reference does not resolve and the schema is invalid. System.Xml.Schema reports a warning only, or resolves the reference because another document of the schema set imports the namespace.
 
-- Difference: SchemaVerdict `schema verdict: ours=Invalid, baseline=Valid` (1)
+- Difference: SchemaVerdict `schema verdict: ours=Invalid, baseline=Valid` (7)
 - Specification: XSD 1.0 Part 1, 3.15.3 (src-resolve) and 4.2.3 (src-import)
-- Cases: 1
+- Cases: 7
 
 ```text
+msMeta-Element_w3c/1.0/elemZ006/elemZ006
+msMeta-Element_w3c/1.0/elemZ007/elemZ007
+msMeta-IdentityConstraint_w3c/1.0/idC019/idC019
+msMeta-Schema_w3c/1.0/schG9/schG9
+msMeta-Schema_w3c/1.0/schZ004/schZ004
+msMeta-Schema_w3c/1.0/schZ005/schZ005
 msMeta-Schema_w3c/1.0/schZ011_b/schZ011_b
 ```
 
