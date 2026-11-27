@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.Xsd.Tests.Unit.Derivation.Subsumption11;
 
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.Xsd.Contracts;
+using NetEvolve.Schemas.Xsd.Derivation.Subsumption11;
 using NetEvolve.Schemas.Xsd.Elements;
 using NetEvolve.Schemas.Xsd.Wildcards.Core;
 using NetEvolve.Schemas.Xsd.Wildcards.Negation;
@@ -190,5 +191,56 @@ public class ContentSubsumptionWildcardTests
             Seq([Of(Declaration("a", global: true)), Of(Declaration("b", global: true))]),
             Any(Only(Tns), process: XsdProcessContents.Strict, min: 0, max: Unbounded)
         );
+    }
+
+    [Test]
+    public async Task LocalElement_AgainstAStrictWildcard_IsBoundToTheGlobalDeclarationOfItsName()
+    {
+        var global = Declaration("a", global: true);
+        var strict = Any(Only(Tns), process: XsdProcessContents.Strict, min: 0, max: Unbounded);
+
+        // The global declaration a subsumes the local one: no keyword binding of the wildcard is compared.
+        var subsumed = Check(Of(Declaration("a")), strict, global);
+        await Assert.That(subsumed.Verdict).IsEqualTo(SubsumptionVerdict.Subsumed);
+
+        // The global declaration is its own governing declaration.
+        var itself = Check(Of(global), strict, global);
+        await Assert.That(itself.Verdict).IsEqualTo(SubsumptionVerdict.Subsumed);
+
+        // The global declaration a is not nillable, so it does not subsume a nillable local element a.
+        var outcome = Check(Of(Declaration("a", nillable: true), line: 4), strict, global);
+        await Assert.That(outcome.Verdict).IsEqualTo(SubsumptionVerdict.NotSubsumed);
+        await Assert.That(outcome.Violation.Clause).IsEqualTo(Subsumes + "4.1");
+        await Assert.That(outcome.Violation.Location.Line).IsEqualTo(4);
+
+        // A name without a global declaration keeps the keyword binding, which a strict wildcard does not subsume.
+        var other = Check(Of(Declaration("b")), strict, global);
+        await Assert.That(other.Violation.Clause).IsEqualTo(Subsumes + "3");
+    }
+
+    [Test]
+    public async Task LocalElement_AgainstALaxWildcard_IsComparedWithTheGlobalDeclaration_AndASkipWildcardIgnoresIt()
+    {
+        var global = Declaration("a", global: true);
+        var local = Of(Declaration("a", nillable: true));
+
+        var lax = Check(local, Any(Only(Tns), process: XsdProcessContents.Lax, min: 0, max: Unbounded), global);
+        await Assert.That(lax.Violation.Clause).IsEqualTo(Subsumes + "4.1");
+
+        var skip = Check(local, Any(Only(Tns), process: XsdProcessContents.Skip, min: 0, max: Unbounded), global);
+        await Assert.That(skip.Verdict).IsEqualTo(SubsumptionVerdict.Subsumed);
+    }
+
+    [Test]
+    public async Task Wildcard_OfTheRestriction_IsBoundToTheGlobalDeclarationAgainstAnElementOfTheBase()
+    {
+        var global = Declaration("a", global: true, nillable: true);
+
+        // The global declaration a is nillable but the element a of the base is not (clause 4.1 instead of the keyword clause 4).
+        var outcome = Check(Any(Only(Tns), process: XsdProcessContents.Strict, line: 3), El("a"), global);
+        await Assert.That(outcome.Violation.Clause).IsEqualTo(Subsumes + "4.1");
+
+        var skip = Check(Any(Only(Tns), process: XsdProcessContents.Skip, line: 3), El("a"), global);
+        await Assert.That(skip.Violation.Clause).IsEqualTo(Subsumes + "4");
     }
 }

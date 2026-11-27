@@ -42,9 +42,10 @@ using NetEvolve.Schemas.Xsd.Wildcards.Negation;
 /// <c>cos-content-act-restrict.ceiling</c>, as the other analyses of content models fail when they exceed a ceiling.
 /// </para>
 /// <para>
-/// Limitations: an element that a wildcard of the restriction matches is bound by the keyword of the wildcard, although it has the
-/// global element declaration of its name as governing declaration when one exists, which the content model does not know (a
-/// global element declaration of the restriction is its own governing declaration for a wildcard of the base); the
+/// An element that a strict or lax wildcard matches has the global element declaration of its name as governing declaration when
+/// the component registry given to the constructor holds one, and is compared as that declaration; without a registry, or for a
+/// skip wildcard, it is bound by the keyword of the wildcard (a global element declaration of the restriction is its own
+/// governing declaration for a wildcard of the base). Limitations: the
 /// names that <c>##defined</c> refers to and that neither model declares are not told apart; an element declaration is compared
 /// as itself, not as the substitution group it heads (#817); identity constraints (clause 4.3, #818) and type tables (clause 4.6,
 /// #319) are not compared yet because the element declaration carries neither; the fixed values of clause 4.2 are compared
@@ -70,12 +71,19 @@ internal sealed class ContentSubsumption
     private readonly TypeDerivationOk _derivation;
     private readonly ValueSpace _values;
     private readonly int _maxWork;
+    private readonly IComponentRegistry? _registry;
 
     /// <summary>Initializes a new instance of the <see cref="ContentSubsumption"/> class.</summary>
     /// <param name="derivation">Type Derivation OK of XSD 1.1, for the types of element declarations.</param>
     /// <param name="values">The value space, which compares the fixed values of element declarations.</param>
     /// <param name="maxWork">The work limit of one check.</param>
-    internal ContentSubsumption(TypeDerivationOk derivation, ValueSpace values, int maxWork = DefaultMaxWork)
+    /// <param name="registry">The component registry, which holds the global element declarations a wildcard binds its elements to.</param>
+    internal ContentSubsumption(
+        TypeDerivationOk derivation,
+        ValueSpace values,
+        int maxWork = DefaultMaxWork,
+        IComponentRegistry? registry = null
+    )
     {
         ArgumentNullException.ThrowIfNull(derivation);
         ArgumentNullException.ThrowIfNull(values);
@@ -84,6 +92,7 @@ internal sealed class ContentSubsumption
         _derivation = derivation;
         _values = values;
         _maxWork = maxWork;
+        _registry = registry;
     }
 
     /// <summary>Checks a content particle against the content particle it restricts.</summary>
@@ -244,6 +253,15 @@ internal sealed class ContentSubsumption
         {
             case (ElementDeclaration element, ElementDeclaration baseElement):
                 return CorrespondElements(at, element, baseElement);
+            case (ElementDeclaration element, IWildcard baseWildcard)
+                when GlobalOf(element, baseWildcard) is { } global:
+                // The wildcard binds an element of this name to its global declaration, which must subsume the local one.
+                return ReferenceEquals(element, global)
+                    ? ParticleViolation.None
+                    : CorrespondElements(at, element, global);
+            case (IWildcard wildcard, ElementDeclaration baseElement)
+                when GlobalOf(baseElement, wildcard) is { } global:
+                return CorrespondElements(at, global, baseElement);
             case (ElementDeclaration element, IWildcard baseWildcard):
                 // Clauses 1 and 2: skip and lax subsume an element declaration, strict does not (clause 3 needs both strict);
                 // a global declaration is the governing declaration of its name for the wildcard too, so it subsumes itself.
@@ -268,6 +286,15 @@ internal sealed class ContentSubsumption
                 );
         }
     }
+
+    // The global element declaration that a strict or lax wildcard binds the elements of the name of the declaration to, if any.
+    private ElementDeclaration? GlobalOf(ElementDeclaration element, IWildcard wildcard) =>
+        _registry is not null
+        && wildcard.ProcessContents != XsdProcessContents.Skip
+        && _registry.TryGet(XsdComponentKind.ElementDeclaration, element.Name, out var component)
+        && component is ElementDeclaration { IsGlobal: true } global
+            ? global
+            : null;
 
     private ParticleViolation CorrespondElements(
         Particle at,
