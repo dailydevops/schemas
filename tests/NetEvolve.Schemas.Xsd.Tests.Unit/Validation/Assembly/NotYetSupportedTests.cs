@@ -19,12 +19,6 @@ public class NotYetSupportedTests
         StringComparer.Ordinal
     )
     {
-        ["openContent"] = (
-            "<xs:complexType name=\"c\"><xs:openContent><xs:any/></xs:openContent><xs:sequence/></xs:complexType>",
-            "",
-            4063
-        ),
-        ["defaultOpenContent"] = ("<xs:defaultOpenContent><xs:any/></xs:defaultOpenContent>", "", 4064),
         ["precisionDecimal"] = (
             "<xs:simpleType name=\"s\"><xs:restriction base=\"xs:precisionDecimal\"/></xs:simpleType>",
             "",
@@ -74,7 +68,7 @@ public class NotYetSupportedTests
 
         // The assert element of a complex type, the assertion facet, the explicitTimezone facet, the override element, the type
         // alternative, the wildcard attributes notNamespace and notQName, the inheritable, xpathDefaultNamespace, defaultAttributes, and
-        // defaultAttributesApply attributes, and the local targetNamespace are wired (XSD-78, #360, #1191, #1430, #1423, #1425, #1426, #1427, #1428, #1429), so they have no row any more.
+        // defaultAttributesApply attributes, the local targetNamespace, and the openContent and defaultOpenContent elements are wired (XSD-78, #360, #1191, #1430, #1423, #1425, #1426, #1427, #1428, #1429, #1424), so they have no row any more.
         foreach (
             var entry in Strict10ConstructTable.Entries.Where(e =>
                 e.IsAttribute
@@ -88,7 +82,16 @@ public class NotYetSupportedTests
                             or "defaultAttributes"
                             or "defaultAttributesApply"
                         )
-                    : e.Name is not ("assert" or "assertion" or "explicitTimezone" or "override" or "alternative")
+                    : e.Name
+                        is not (
+                            "assert"
+                            or "assertion"
+                            or "explicitTimezone"
+                            or "override"
+                            or "alternative"
+                            or "openContent"
+                            or "defaultOpenContent"
+                        )
             )
         )
         {

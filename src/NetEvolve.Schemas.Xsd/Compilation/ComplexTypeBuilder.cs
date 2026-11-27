@@ -11,6 +11,7 @@ using NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.Elements;
+using NetEvolve.Schemas.Xsd.OpenContent;
 using NetEvolve.Schemas.Xsd.SchemaDocuments;
 using NetEvolve.Schemas.Xsd.SimpleTypes.Checks;
 using NetEvolve.Schemas.Xsd.SimpleTypes.Definitions;
@@ -23,8 +24,8 @@ using NetEvolve.Schemas.Xsd.TypeAlternatives;
 /// </summary>
 /// <remarks>
 /// A type that violates a representation constraint still is built, as an empty restriction of <c>anyType</c>, so later phases see
-/// no missing component and report no second error. Limitations: <c>openContent</c> and <c>defaultOpenContent</c> (XSD 1.1) are not
-/// read (XSD-78, #360), and the <c>defaultAttributes</c> of a schema is read from the document that holds the type (Structures 1.1, 3.4.2.3.1); the <c>assert</c> children are collected under XSD 1.1.
+/// no missing component and report no second error. The <c>openContent</c> child and the <c>defaultOpenContent</c> child of the schema
+/// document are read under XSD 1.1 (XSD-78, #1424). The <c>defaultAttributes</c> of a schema is read from the document that holds the type (Structures 1.1, 3.4.2.3.1); the <c>assert</c> children are collected under XSD 1.1.
 /// </remarks>
 internal sealed class ComplexTypeBuilder : IComponentBuilder
 {
@@ -234,7 +235,16 @@ internal sealed class ComplexTypeBuilder : IComponentBuilder
         content = ReadContent(node, unit);
         var uses = ReadUses(node, unit, null, out var wildcard);
         uses = WithDefaults(node, unit, uses, ref wildcard);
-        return ComplexTypeDefinition.Implicit(header, typeMixed, content, uses, wildcard, _context.Reporter);
+        return ComplexTypeDefinition.Implicit(
+            header,
+            typeMixed,
+            content,
+            uses,
+            wildcard,
+            _context.Reporter,
+            ReadOpenContent(node, unit),
+            ReadDefaultOpenContent(unit)
+        );
     }
 
     private ComplexTypeDefinition? FromComplexContent(
@@ -274,7 +284,9 @@ internal sealed class ComplexTypeBuilder : IComponentBuilder
             uses,
             wildcard,
             _context.Reporter,
-            version: _context.Version
+            ReadOpenContent(derivation, unit),
+            ReadDefaultOpenContent(unit),
+            _context.Version
         );
     }
 
@@ -425,6 +437,59 @@ internal sealed class ComplexTypeBuilder : IComponentBuilder
 
         return _context.ResolveType(derivation, unit, lexical, derivation.Location);
     }
+
+    // The openContent child of a complexType, an extension, or a restriction; null for none, and always null under XSD 1.0.
+    private OpenContentElement? ReadOpenContent(SchemaSyntaxNode owner, UnitScope unit)
+    {
+        if (_context.Version != XsdVersion.V11 || SyntaxValues.FindChild(owner, "openContent") is not { } node)
+        {
+            return null;
+        }
+
+        var mode = ReadMode(node);
+        return OpenContentElement.Create(
+            mode,
+            mode == OpenContentMode.None ? null : ReadAny(node, unit),
+            node.Location,
+            _context.Reporter
+        );
+    }
+
+    // The defaultOpenContent child of the schema document of the unit; null for none or without a usable any child.
+    private OpenContentElement? ReadDefaultOpenContent(UnitScope unit)
+    {
+        if (
+            _context.Version != XsdVersion.V11
+            || SyntaxValues.FindChild(unit.Root, "defaultOpenContent") is not { } node
+        )
+        {
+            return null;
+        }
+
+        var mode = ReadMode(node);
+        return mode != OpenContentMode.None && ReadAny(node, unit) is { } wildcard
+            ? OpenContentElement.CreateDefault(
+                mode,
+                wildcard,
+                SyntaxValues.IsTrue(node.FindAttribute("appliesToEmpty")),
+                node.Location
+            )
+            : null;
+    }
+
+    // The schema grammar reports an invalid mode, so an unknown value reads as the default.
+    private static OpenContentMode ReadMode(SchemaSyntaxNode node) =>
+        node.FindAttribute("mode") switch
+        {
+            "none" => OpenContentMode.None,
+            "suffix" => OpenContentMode.Suffix,
+            _ => OpenContentMode.Interleave,
+        };
+
+    private IWildcard? ReadAny(SchemaSyntaxNode openContent, UnitScope unit) =>
+        SyntaxValues.FindChild(openContent, "any") is { } any
+            ? unit.Particles.BuildParticle(any, _context.Reporter)?.Term as IWildcard
+            : null;
 
     // The particle of the group, all, choice, or sequence child.
     private Particle? ReadContent(SchemaSyntaxNode owner, UnitScope unit)

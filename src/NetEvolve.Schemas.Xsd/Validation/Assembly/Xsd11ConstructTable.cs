@@ -11,8 +11,8 @@ using NetEvolve.Schemas.Xsd.Versioning.Constructs;
 /// The one table of the XSD 1.1 constructs that the assembled validator does not support yet (design #146 DP-16). Under the
 /// default version every occurrence is a located schema error, so no schema is silently read with 1.0 semantics; XSD-78 (#360)
 /// removes a row together with its tests when it implements the construct. The <c>assert</c> element of a complex type, the
-/// <c>assertion</c> facet of a simple type, the <c>explicitTimezone</c> facet, the <see langword="override"/> element, and the type
-/// <c>alternative</c> are wired (they have no row), and so are the <c>inheritable</c> and <c>xpathDefaultNamespace</c> attributes, the
+/// <c>assertion</c> facet of a simple type, the <c>explicitTimezone</c> facet, the <see langword="override"/> element, the type
+/// <c>alternative</c>, and the <c>openContent</c> and <c>defaultOpenContent</c> elements (#1424) are wired (they have no row), and so are the <c>inheritable</c> and <c>xpathDefaultNamespace</c> attributes, the
 /// <c>targetNamespace</c> attribute of a local declaration, the <see langword="ref"/> attribute of an identity constraint, the
 /// <c>notNamespace</c> and <c>notQName</c> attributes of a wildcard, the <c>defaultAttributes</c> and <c>defaultAttributesApply</c> attributes, and a list of substitution group heads (XSD-78, #360).
 /// </summary>
@@ -49,7 +49,14 @@ internal static class Xsd11ConstructTable
                             or "defaultAttributes"
                             or "defaultAttributesApply"
                     ) || (strict.Name == "targetNamespace" && strict.LocalOnly)
-                    : strict.Name is "assert" or "assertion" or "explicitTimezone" or "override" or "alternative"
+                    : strict.Name
+                        is "assert"
+                            or "assertion"
+                            or "explicitTimezone"
+                            or "override"
+                            or "alternative"
+                            or "openContent"
+                            or "defaultOpenContent"
             )
             {
                 continue;

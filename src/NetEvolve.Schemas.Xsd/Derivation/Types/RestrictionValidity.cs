@@ -6,12 +6,13 @@ using NetEvolve.Schemas.Xsd.Attributes.Declarations;
 using NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.IdentityConstraints.Evaluation;
+using NetEvolve.Schemas.Xsd.OpenContent;
 
 /// <summary>Derivation Valid (Restriction, Complex) (<c>derivation-ok-restriction</c>, Structures 3.4.6).</summary>
 /// <remarks>
 /// Limitations: the clause 5.4.2 (the particle of the type is a valid restriction of the particle of the base type) is not part
 /// of this check; the compilation run composes it after this check, with Particle Valid (Restriction) for XSD 1.0 and the
-/// subsumption check of XSD 1.1, so this check compares the content of element-only and mixed types by kind only; the XSD 1.0 constraint applies in both versions (open content and assertions are not considered); the first
+/// subsumption check of XSD 1.1, so this check compares the content of element-only and mixed types by kind only; the XSD 1.0 constraint applies in both versions (assertions are not considered), plus a check of open content that carries no clause number; the first
 /// violated clause is the one reported.
 /// </remarks>
 internal static class RestrictionValidity
@@ -237,14 +238,28 @@ internal static class RestrictionValidity
             default:
                 // Mixed content restricts mixed content only, element-only content may restrict either. Whether the particle
                 // is a valid restriction (5.4.2) is decided by the particle check the compilation run composes.
-                return kind == ComplexContentKind.ElementOnly || baseKind == ComplexContentKind.Mixed
-                    ? TypeViolation.None
-                    : Violation(
+                return kind != ComplexContentKind.ElementOnly && baseKind != ComplexContentKind.Mixed
+                    ? Violation(
                         "5.4.1",
                         "Mixed content can only restrict mixed content, element-only content is the alternative."
-                    );
+                    )
+                    : CheckOpenContent(type.OpenContent, baseType.OpenContent);
         }
     }
+
+    // XSD 1.1: open content of a restriction must not allow more than that of its base (the clause is not numbered here).
+    private static TypeViolation CheckOpenContent(OpenContentProperty? open, OpenContentProperty? baseOpen) =>
+        open is null
+        || (
+            baseOpen is not null
+            && !(open.Mode == OpenContentMode.Interleave && baseOpen.Mode == OpenContentMode.Suffix)
+            && open.Wildcard.IsSubsetOf(baseOpen.Wildcard)
+        )
+            ? TypeViolation.None
+            : Violation(
+                "open-content",
+                "The open content of a restriction must not allow more than the open content of its base type."
+            );
 
     private static TypeViolation CheckSimpleContent(
         ComplexTypeDefinition type,
