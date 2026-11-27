@@ -34,6 +34,30 @@ internal static class Strict10Constructs
         Visit(root, string.Empty, reporter);
     }
 
+    /// <summary>Rejects an <c>xml:lang</c> of <c>appinfo</c> or <c>documentation</c> that is not an <c>xs:language</c> in strict 1.0 mode (#1179); XSD 1.1 accepts any value.</summary>
+    /// <param name="document">The schema document.</param>
+    /// <param name="version">The configured XSD version.</param>
+    /// <param name="reporter">Receives the errors.</param>
+    internal static void CheckLanguages(SchemaDocument document, XsdVersion version, XsdIssueReporter reporter)
+    {
+        ArgumentNullException.ThrowIfNull(document);
+        ArgumentNullException.ThrowIfNull(reporter);
+
+        if (version != XsdVersion.V10)
+        {
+            return;
+        }
+
+        foreach (var location in document.InvalidLanguages)
+        {
+            reporter.Report(
+                XsdRuleCodes.SrcAnnotation,
+                location,
+                "The value of the attribute 'xml:lang' is not a language."
+            );
+        }
+    }
+
     private static void Visit(ISchemaSyntaxElement element, string parent, XsdIssueReporter reporter)
     {
         var name = element.Name.LocalName;

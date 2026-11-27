@@ -43,6 +43,33 @@ internal static class SchemaAttributeValues
         }
     }
 
+    /// <summary>Tells whether a value is an <c>xs:language</c>: <c>[a-zA-Z]{1,8}(-[a-zA-Z0-9]{1,8})*</c> after white space collapse.</summary>
+    /// <param name="value">The value.</param>
+    /// <returns><see langword="true"/> for a language.</returns>
+    internal static bool IsLanguage(string value)
+    {
+        var text = value.AsSpan().Trim(" \t\r\n".AsSpan());
+        var length = 0;
+        var first = true;
+        foreach (var c in text)
+        {
+            if (c == '-' && length > 0)
+            {
+                length = 0;
+                first = false;
+                continue;
+            }
+
+            var isLetter = (uint)((c | 0x20) - 'a') <= 'z' - 'a';
+            if (!(isLetter || (!first && (uint)(c - '0') <= 9)) || ++length > 8)
+            {
+                return false;
+            }
+        }
+
+        return length > 0;
+    }
+
     private static bool AllTokens(ReadOnlySpan<char> text, SchemaAttributeRule rule, bool qNames)
     {
         while (!text.IsEmpty)

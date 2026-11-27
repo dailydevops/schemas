@@ -82,7 +82,7 @@ internal static class SchemaDocumentParser
         sink.UsePositions(reader as IXmlPositionSource);
         var status = reader.Pump(ref sink);
         return status == XmlReadStatus.Completed
-            ? new SchemaDocument(baseUri, sink.Root, null, true)
+            ? new SchemaDocument(baseUri, sink.Root, null, true, sink.InvalidLanguages)
             : new SchemaDocument(baseUri, null, reader.Diagnostic, false);
     }
 }

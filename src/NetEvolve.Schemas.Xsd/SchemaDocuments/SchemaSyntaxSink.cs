@@ -16,6 +16,8 @@ using NetEvolve.Schemas.Xsd.Diagnostics;
 /// </summary>
 internal sealed class SchemaSyntaxSink : IXmlSink
 {
+    private const string XmlNamespace = "http://www.w3.org/XML/1998/namespace";
+
     private readonly string? _baseUri;
     private readonly XsdIssueReporter _reporter;
     private readonly List<SchemaElementRule> _rules = [];
@@ -43,6 +45,9 @@ internal sealed class SchemaSyntaxSink : IXmlSink
 
     /// <summary>Gets the <c>schema</c> element, <see langword="null"/> when the root was rejected or the document did not start.</summary>
     internal SchemaSyntaxNode? Root { get; private set; }
+
+    /// <summary>Gets the locations of the <c>xml:lang</c> attributes of <c>appinfo</c> and <c>documentation</c> whose value is not an <c>xs:language</c>.</summary>
+    internal List<DocumentLocation> InvalidLanguages { get; } = [];
 
     /// <summary>
     /// Locates attributes at their names by asking the reader that pumps this sink; without a source they stay at the start tag
@@ -165,6 +170,16 @@ internal sealed class SchemaSyntaxSink : IXmlSink
 
         if (_opaqueRule is not null)
         {
+            // XSD 1.0 types xml:lang as xs:language (#1179); the version decides later whether that is an error.
+            if (
+                string.Equals(ns, XmlNamespace, StringComparison.Ordinal)
+                && string.Equals(local, "lang", StringComparison.Ordinal)
+                && !SchemaAttributeValues.IsLanguage(text)
+            )
+            {
+                InvalidLanguages.Add(AttributeLocation(_opaqueLocation));
+            }
+
             return;
         }
 

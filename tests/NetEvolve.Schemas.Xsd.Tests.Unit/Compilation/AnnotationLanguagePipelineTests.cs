@@ -2,6 +2,8 @@ namespace NetEvolve.Schemas.Xsd.Tests.Unit.Compilation;
 
 using System;
 using NetEvolve.Schemas.Xsd.Components;
+using NetEvolve.Schemas.Xsd.Tests.Unit.SchemaDocuments;
+using NetEvolve.Schemas.Xsd.Versioning.Constructs;
 using static NetEvolve.Schemas.Xsd.Tests.Unit.Compilation.CompilationFixture;
 using XsdVersion = NetEvolve.Schemas.Xml.Datatypes.Contracts.XsdVersion;
 
@@ -56,5 +58,19 @@ public class AnnotationLanguagePipelineTests
         var compilation = Compile(Annotated("documentation", lang), XsdVersion.V10);
 
         await Assert.That(compilation.IsValid).IsTrue();
+    }
+
+    [Test]
+    public async Task CheckLanguages_NullArguments_Throw()
+    {
+        var reporter = SchemaFixture.NewReporter(out _);
+        var document = SchemaFixture.Parse(Schema(string.Empty)).Document;
+
+        await Assert
+            .That(() => Strict10Constructs.CheckLanguages(null!, XsdVersion.V10, reporter))
+            .Throws<ArgumentNullException>();
+        await Assert
+            .That(() => Strict10Constructs.CheckLanguages(document, XsdVersion.V10, null!))
+            .Throws<ArgumentNullException>();
     }
 }
