@@ -98,68 +98,23 @@ ibmMeta-anyAttribute	1.0/s3_10_6ii02/s3_10_6v02i	-	The test group has no version
 ibmMeta-anyAttribute	1.0/s3_10_6ii04/s3_10_6v04i	-	The test group has no version attribute but its schema uses an XSD 1.1 construct, which strict 1.0 mode rejects (design 146, DP-16).
 ibmMeta-wildcard	1.0/s3_10_1ii08/s3_10_1ii08i	-	The test group has no version attribute but its schema uses an XSD 1.1 construct, which strict 1.0 mode rejects (design 146, DP-16).
 ibmMeta-wildcard	1.0/s3_10_1ii09/s3_10_1ii09i	-	The test group has no version attribute but its schema uses an XSD 1.1 construct, which strict 1.0 mode rejects (design 146, DP-16).
-msMeta-Additional_w3c	1.0/addA006/addA006.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-Additional_w3c	1.0/addA008/addA008.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-Additional_w3c	1.0/addB063/addB063.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-Additional_w3c	1.0/addB120/addB120.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-Additional_w3c	1.0/addB124/addB124.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-Additional_w3c	1.0/addB134/addB134.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-Additional_w3c	1.0/addB138/addB138.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-Additional_w3c	1.0/addB139/addB139.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-Additional_w3c	1.0/addB142/addB142.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-Additional_w3c	1.0/addB155/addB155.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-Additional_w3c	1.0/addB156/addB156.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-Additional_w3c	1.0/addB157/addB157.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-Additional_w3c	1.0/addB158/addB158.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-Additional_w3c	1.0/addB160/addB160.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-Additional_w3c	1.0/addB163/addB163.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-Additional_w3c	1.0/addB165/addB165.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-Additional_w3c	1.0/addB167/addB167.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-Additional_w3c	1.0/addB168/addB168.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-Additional_w3c	1.0/addB169/addB169.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-Additional_w3c	1.0/addB181/addB181.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-Additional_w3c	1.0/addB191/addB191.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-Additional_w3c	1.0/addB199/addB199.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-Additional_w3c	1.0/addB202a/addB202a.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-Additional_w3c	1.0/addB202b/addB202b.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
+msMeta-Additional_w3c	1.0/addA006/addA006.v	#1477	The hinted schema documents import each other, so the namespace is loaded twice and reported as duplicate declarations.
+msMeta-Additional_w3c	1.0/addA008/addA008.v	#1478	The hinted schema document imports the head of a substitution group, and the substitution member is not accepted in the instance.
+msMeta-Additional_w3c	1.0/addB163/addB163.v	#1479	The schema location hint comes after the first use of its namespace in the instance, which the validator reports as an error.
 msMeta-Additional_w3c	1.0/addC001/addC001.v	-	The schema is incomplete (a missing component or document); the suite accepts it, the validator reports src-resolve.
-msMeta-Additional_w3c	1.0/adda007/adda007.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
+msMeta-Additional_w3c	1.0/adda007/adda007.v	#1478	The hinted schema document imports the head of a substitution group, and the substitution member is not accepted in the instance.
 msMeta-Additional_w3c	1.0/isDefault078/isDefault078.v	-	The schema is incomplete (a missing component or document); the suite accepts it, the validator reports src-resolve.
 msMeta-AttributeGroup_w3c	1.0/attgD003/attgD003.v	-	The instance has more attributes on one element than the default MaxAttributesPerElement allows.
-msMeta-Attribute_w3c	1.0/attMd001/attMd001.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-Attribute_w3c	1.0/attMd002/attMd002.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-Attribute_w3c	1.0/attMd003/attMd003.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-Attribute_w3c	1.0/attMd004/attMd004.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-Attribute_w3c	1.0/attMd005/attMd005.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-Attribute_w3c	1.0/attMd006/attMd006.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-Attribute_w3c	1.0/attMd007/attMd007.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-Attribute_w3c	1.0/attMd008/attMd008.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-Attribute_w3c	1.0/attMd009/attMd009.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-Attribute_w3c	1.0/attMd010/attMd010.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-Attribute_w3c	1.0/attMd011/attMd011.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-ComplexType_w3c	1.0/ctZ011_a/ctZ011_a.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-DataTypes_w3c	1.0/anyURI_a002_1337/anyURI_a002_1337.v	-	The schema is incomplete (a missing component or document); the suite accepts it, the validator reports src-resolve.
 msMeta-DataTypes_w3c	1.0/base64Binary_enumeration001_1319/base64Binary_enumeration001_1319.i	#1079	The enumeration of a binary type is not evaluated and the case expects it to reject the value.
 msMeta-DataTypes_w3c	1.0/hexBinary_enumeration001_1305/hexBinary_enumeration001_1305.i	#1079	The enumeration of a binary type is not evaluated and the case expects it to reject the value.
 msMeta-DataTypes_w3c	1.0/hexBinary_enumeration003_1307/hexBinary_enumeration003_1307.i	#1079	The enumeration of a binary type is not evaluated and the case expects it to reject the value.
-msMeta-Element_w3c	1.0/elemZ017/elemZ017.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-Element_w3c	1.0/elemZ033b/elemZ033b.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-Particles_w3c	1.0/particlesZ001/particlesZ001.i	#863	The schema does not build: see the schema test of the same case.
-msMeta-Particles_w3c	1.0/particlesZ025/particlesZ025.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-Schema_w3c	1.0/schA4/schA4.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-Schema_w3c	1.0/schA8/schA8.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
+msMeta-Particles_w3c	1.0/particlesZ025/particlesZ025.v	#1477	The hinted schema documents import each other, so the namespace is loaded twice and reported as duplicate declarations.
 msMeta-Schema_w3c	1.0/schD7/schD7.v	-	The schema is incomplete (a missing component or document); the suite accepts it, the validator reports src-resolve.
 msMeta-Schema_w3c	1.0/schU3/schU3.i	#1418	The schema does not build: a circular redefinition does not find the component it redefines.
 msMeta-Schema_w3c	1.0/schU4/schU4.i	#1418	The schema does not build: a circular redefinition does not find the component it redefines.
 msMeta-Schema_w3c	1.0/schU5/schU5.i	#1418	The schema does not build: a circular redefinition does not find the component it redefines.
-msMeta-SimpleType_w3c	1.0/stZ058/stZ058.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-SimpleType_w3c	1.0/stZ059/stZ059.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-SimpleType_w3c	1.0/stZ060/stZ060.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-SimpleType_w3c	1.0/stZ061/stZ061.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-SimpleType_w3c	1.0/stZ062/stZ062.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-SimpleType_w3c	1.0/stZ063/stZ063.v	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-SimpleType_w3c	1.0/stZ064/stZ064.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
-msMeta-SimpleType_w3c	1.0/stZ066/stZ066.i	#963	The group has no schema document, so the runner builds no validator for it; the instance names its schema with xsi:schemaLocation.
 msMeta-SimpleType_w3c	1.0/stZ075/stZ075.v	#604	A NOTATION value is looked up without the namespace context of the instance, so an unprefixed name does not find the declaration of the target namespace.
 msMeta-SimpleType_w3c	1.0/ste110/ste110.i	#1183	The schema with unions that name each other as members does not build.
 nistMeta-NISTXMLSchemaDatatypes	1.0/union-anyURI-float-enumeration-5/NISTXML-SV-II-union-anyURI-float-enumeration-1-1	#1078	The enumeration of a union type is not evaluated and the case expects it to reject the value.
