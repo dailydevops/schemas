@@ -254,8 +254,13 @@ internal static class NumericArithmetic
 
     private static XdmItem ApplyDecimal(ArithmeticOperator op, in XsdDecimal a, in XsdDecimal b, XPathLimits limits)
     {
-        limits.ThrowIfScaleTooLarge(a.Scale, NoLocation);
-        limits.ThrowIfScaleTooLarge(b.Scale, NoLocation);
+        // A product aligns nothing, so only its result is charged; the other operations align the scales, so their operands are.
+        if (op != ArithmeticOperator.Multiply)
+        {
+            limits.ThrowIfScaleTooLarge(a.Scale, NoLocation);
+            limits.ThrowIfScaleTooLarge(b.Scale, NoLocation);
+        }
+
         try
         {
             switch (op)
