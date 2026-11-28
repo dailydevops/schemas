@@ -7,7 +7,7 @@ using static NetEvolve.Schemas.Schematron.Tests.Unit.Loading.XInclude.XIncludeFi
 
 public class XIncludeInclusionTests
 {
-    private const string Base = " base=\"file:///a/";
+    private const string Base = " base=\"";
 
     [Test]
     public async Task Xml_ReplacesTheElementWithTheIncludedDocumentElement()
@@ -182,7 +182,21 @@ public class XIncludeInclusionTests
 
         await Assert.That(outcome.Ok).IsTrue();
         await Assert.That(p.BaseUri!.AbsoluteUri).IsEqualTo("file:///a/sub/x/");
-        await Assert.That(Dump(p)).IsEqualTo("<p base=\"file:///a/sub/x/\"></p>");
+        await Assert.That(Dump(p)).IsEqualTo("<p base=\"sub/x/\"></p>");
+    }
+
+    [Test]
+    public async Task Base_OfNestedIncludedContent_IsRelativeToTheIncludingDocument()
+    {
+        var files = new FakeResources()
+            .Add("file:///a/sub/lib.xml", "<lib xmlns:xi=\"" + Xi + "\"><xi:include href=\"../p.xml\"/></lib>")
+            .Add("file:///a/p.xml", "<p/>");
+
+        var outcome = Run(Doc(Inc("sub/lib.xml")), files);
+
+        await Assert
+            .That(Dump(FirstChildElement(outcome.Document)))
+            .IsEqualTo("<lib base=\"sub/lib.xml\"><p base=\"../p.xml\"></p></lib>");
     }
 
     [Test]
