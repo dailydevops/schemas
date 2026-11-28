@@ -25,7 +25,7 @@ internal sealed class SchemaXstsValidator : IXstsValidator
         _suiteRoot = Path.GetFullPath(suiteRoot);
         _bridge = new SchemaCompilerBridge(
             XsdVersion.V10,
-            new SandboxedFileSystemResourceResolver(_suiteRoot),
+            new XstsImportResolver(new SandboxedFileSystemResourceResolver(_suiteRoot)),
             ValidationLimits.Default
         );
     }
