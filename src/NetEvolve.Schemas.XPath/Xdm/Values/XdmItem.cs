@@ -19,7 +19,7 @@ using NetEvolve.Schemas.XPath.Xdm.Nodes;
 /// Limitation: the public factories and accessors cover boolean, integer, double, string, node, decimal, date and time, and
 /// duration values; <c>xs:float</c>, <c>xs:untypedAtomic</c>, <c>xs:anyURI</c>, the Gregorian types, <c>xs:hexBinary</c>,
 /// <c>xs:base64Binary</c>, and <c>xs:QName</c> are internal, and <c>xs:NOTATION</c> has no item because it is never the type of a
-/// value in XPath 2.0 (it is abstract). Decimal, date and time, Gregorian, duration, binary, and QName values are boxed.
+/// value in XPath 2.0 (it is abstract). Decimals of up to 19 digits are inline; date and time, Gregorian, duration, binary, and QName values, and decimals beyond that, are boxed.
 /// </remarks>
 [StructLayout(LayoutKind.Auto)]
 public readonly struct XdmItem : IEquatable<XdmItem>
@@ -61,7 +61,7 @@ public readonly struct XdmItem : IEquatable<XdmItem>
     internal static XdmItem FromBigInteger(BigInteger value) =>
         value >= long.MinValue && value <= long.MaxValue
             ? FromInteger((long)value)
-            : new(XdmItemKind.XsDecimal, XdmTypeId.XsInteger, 0, new XsdDecimal(value, 0));
+            : FromDecimal(new XsdDecimal(value, 0), XdmTypeId.XsInteger);
 
     /// <summary>Gives an <c>xs:integer</c>, <c>xs:string</c>, or <c>xs:dateTime</c> item the type annotation of a type derived from it.</summary>
     /// <param name="type">The type; the caller guarantees that the value belongs to it.</param>
@@ -167,7 +167,18 @@ public readonly struct XdmItem : IEquatable<XdmItem>
     /// <summary>Creates a decimal item.</summary>
     /// <param name="value">The value.</param>
     /// <returns>The item.</returns>
-    public static XdmItem FromDecimal(in XsdDecimal value) => new(XdmItemKind.XsDecimal, XdmTypeId.XsDecimal, 0, value);
+    public static XdmItem FromDecimal(in XsdDecimal value) => FromDecimal(value, XdmTypeId.XsDecimal);
+
+    // A decimal whose magnitude fits 64 bits and whose scale is in range lives in the item: the magnitude in the bits slot, the sign and the scale in a shared tag.
+    private static XdmItem FromDecimal(in XsdDecimal value, XdmTypeId typeId) =>
+        value.TryGetInlineMagnitude(out var magnitude) && DecimalTag.TryGet(value.Sign < 0, value.Scale, out var tag)
+            ? new(XdmItemKind.XsDecimal, typeId, unchecked((long)magnitude), tag)
+            : new(XdmItemKind.XsDecimal, typeId, 0, value);
+
+    private XsdDecimal ReadDecimal() =>
+        _reference is DecimalTag tag
+            ? XsdDecimal.FromInline(tag.Negative, unchecked((ulong)_bits), tag.Scale)
+            : (XsdDecimal)_reference!;
 
     /// <summary>Creates an <c>xs:dateTime</c>, <c>xs:date</c>, or <c>xs:time</c> item, chosen by the kind of the value.</summary>
     /// <param name="value">The value.</param>
@@ -269,7 +280,7 @@ public readonly struct XdmItem : IEquatable<XdmItem>
         if (Kind == XdmItemKind.XsDecimal && XdmTypes.IsDerivedFrom(TypeId, XdmTypeId.XsInteger))
         {
             // The value was built from an integer, so the conversion cannot fail.
-            value = DecimalArithmetic.ToBigInteger((XsdDecimal)_reference!).Value;
+            value = DecimalArithmetic.ToBigInteger(ReadDecimal()).Value;
             return true;
         }
 
@@ -318,7 +329,7 @@ public readonly struct XdmItem : IEquatable<XdmItem>
     public bool TryGetDecimal(out XsdDecimal value)
     {
         var found = Kind == XdmItemKind.XsDecimal;
-        value = found ? (XsdDecimal)_reference! : default;
+        value = found ? ReadDecimal() : default;
         return found;
     }
 
@@ -460,6 +471,49 @@ public readonly struct XdmItem : IEquatable<XdmItem>
         internal static readonly XdmTypeId MonthDay = XdmTypes.Get("gMonthDay");
         internal static readonly XdmTypeId Day = XdmTypes.Get("gDay");
         internal static readonly XdmTypeId Month = XdmTypes.Get("gMonth");
+    }
+
+    // The sign and the scale of an inline decimal, one shared instance per combination so that an item carries them without an allocation.
+    private sealed class DecimalTag
+    {
+        private const int MinScale = -32;
+        private const int MaxScale = 63;
+        private static readonly DecimalTag[] Tags = Create();
+
+        private DecimalTag(bool negative, int scale)
+        {
+            Negative = negative;
+            Scale = scale;
+        }
+
+        internal bool Negative { get; }
+
+        internal int Scale { get; }
+
+        internal static bool TryGet(bool negative, int scale, out DecimalTag tag)
+        {
+            var index = scale - MinScale;
+            if ((uint)index > MaxScale - MinScale)
+            {
+                tag = null!;
+                return false;
+            }
+
+            tag = Tags[(negative ? MaxScale - MinScale + 1 : 0) + index];
+            return true;
+        }
+
+        private static DecimalTag[] Create()
+        {
+            var tags = new DecimalTag[2 * (MaxScale - MinScale + 1)];
+            for (var i = 0; i < tags.Length; i++)
+            {
+                var width = MaxScale - MinScale + 1;
+                tags[i] = new DecimalTag(i >= width, (i % width) + MinScale);
+            }
+
+            return tags;
+        }
     }
 
     private static class BinaryTypes
