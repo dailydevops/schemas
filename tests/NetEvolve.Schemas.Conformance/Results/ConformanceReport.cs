@@ -71,6 +71,7 @@ public sealed class ConformanceReport
     {
         private readonly List<string> _regressions = [];
         private readonly List<string> _unexpectedPasses = [];
+        private readonly List<CaseResult> _cases = [];
         private readonly Dictionary<string, string> _regressionReasons = new(StringComparer.Ordinal);
         private int _passed;
         private int _failed;
@@ -78,6 +79,7 @@ public sealed class ConformanceReport
 
         public void Add(CaseResult result)
         {
+            _cases.Add(result);
             switch (result.Outcome)
             {
                 case CaseOutcome.Pass:
@@ -111,6 +113,7 @@ public sealed class ConformanceReport
         {
             _regressions.Sort(StringComparer.Ordinal);
             _unexpectedPasses.Sort(StringComparer.Ordinal);
+            _cases.Sort(static (left, right) => string.CompareOrdinal(left.CaseId, right.CaseId));
             return new TestSetReport(
                 testSet,
                 new TestSetCounts(_passed, _failed, _skipped),
@@ -119,6 +122,7 @@ public sealed class ConformanceReport
             )
             {
                 RegressionReasons = _regressionReasons,
+                Cases = _cases,
             };
         }
     }

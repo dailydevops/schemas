@@ -250,6 +250,7 @@ public class ConformanceRateReporterTests
     }
 
     [Test]
+    [NotInParallel]
     public async Task Append_WithoutSummaryPath_IsNoOp()
     {
         var report = Report("s", 1, 0, 0);

@@ -41,6 +41,24 @@ public class ConformanceReportTests
     }
 
     [Test]
+    public async Task Compare_KeepsEveryCaseOfATestSetSortedById()
+    {
+        var results = new[]
+        {
+            Case("set", "b", CaseOutcome.Skipped, "x"),
+            Case("other", "c", CaseOutcome.Pass),
+            Case("set", "a", CaseOutcome.Fail, "boom"),
+        };
+
+        var report = ConformanceReport.Compare(results, Baselines("set"));
+
+        await Assert.That(report.TestSets[1].Cases.Count).IsEqualTo(2);
+        await Assert.That(report.TestSets[1].Cases[0]).IsEqualTo(results[2]);
+        await Assert.That(report.TestSets[1].Cases[1]).IsEqualTo(results[0]);
+        await Assert.That(report.TestSets[0].Cases.Count).IsEqualTo(1);
+    }
+
+    [Test]
     public async Task Compare_PassingCaseInBaseline_IsUnexpectedPass()
     {
         var results = new[] { Case("set", "a/1", CaseOutcome.Pass), Case("set", "a/2", CaseOutcome.Fail) };

@@ -20,7 +20,8 @@ using NetEvolve.Schemas.Conformance.Results;
 /// The rate is passed / (passed + failed + pending). Skipped cases are not applicable and excluded from the
 /// denominator. The rate is truncated, never rounded up, to one decimal, so that 99.99 percent displays as
 /// 99.9 percent and only a suite without a single failure displays as 100.0 percent. The items are plain list
-/// items without a header, so the items of several test processes form one list.
+/// items without a header, so the items of several test processes form one list. Every call that publishes to
+/// the summary also writes all cases of the run to the report files; see <see cref="ConformanceReportFile"/>.
 /// </remarks>
 public static class ConformanceRateReporter
 {
@@ -82,6 +83,21 @@ public static class ConformanceRateReporter
         bool listCases = true
     )
     {
+        ArgumentNullException.ThrowIfNull(package);
+        ArgumentNullException.ThrowIfNull(targetFramework);
+        ArgumentNullException.ThrowIfNull(report);
+
+        // A report that repeats the cases of another report does not write them to the report file a second time.
+        if (listCases)
+        {
+            ConformanceReportFile.Append(
+                package,
+                targetFramework,
+                report.TestSets,
+                Environment.GetEnvironmentVariable(ConformanceReportFile.DirectoryVariable)
+            );
+        }
+
         if (string.IsNullOrEmpty(summaryPath))
         {
             return;
@@ -130,6 +146,12 @@ public static class ConformanceRateReporter
             }
 
             group.Sets.AddRange(entry.Report.TestSets);
+        }
+
+        var reportDirectory = Environment.GetEnvironmentVariable(ConformanceReportFile.DirectoryVariable);
+        foreach (var group in groups)
+        {
+            ConformanceReportFile.Append(group.Package, group.TargetFramework, group.Sets, reportDirectory);
         }
 
         if (string.IsNullOrEmpty(summaryPath) || groups.Count == 0)
