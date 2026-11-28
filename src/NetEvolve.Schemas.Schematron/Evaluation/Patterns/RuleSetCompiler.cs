@@ -112,6 +112,7 @@ internal static class RuleSetCompiler
         );
         if (!ok)
         {
+            problem = problem.At(scope.Rule.Location);
             problems.Add(in problem);
         }
 
