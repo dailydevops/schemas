@@ -92,6 +92,15 @@ public class XliffGoldenTests
     }
 
     [Test]
+    [Arguments(1363, 40)]
+    [Arguments(1362, 1)]
+    public async Task KnownFailures_PerIssue_MatchTheDocumentedCount(int issue, int expected)
+    {
+        await Assert.That(XliffRun.KnownFailures.Count(e => e.Value == issue)).IsEqualTo(expected);
+        await Assert.That(XliffRun.KnownFailures.Count).IsEqualTo(41);
+    }
+
+    [Test]
     public async Task Manifest_PinsACommitArchiveByChecksum()
     {
         var manifest = XliffRun.LoadManifest();

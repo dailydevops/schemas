@@ -418,6 +418,23 @@ The same archive adds two test sets of positive cases, each with its own rate ro
 dotnet test --project tests/NetEvolve.Schemas.Schematron.Tests.Integration --configuration Release --framework net10.0 --treenode-filter "/*/*/En16931ExtendedGoldenTests/*"
 ```
 
+### XLIFF 2.1 golden tests
+
+The OASIS XLIFF 2.1 advanced validation rule sets and the test suite of the XLIFF TC are pinned by checksum in [`tests/conformance/suites/xliff.json`](https://github.com/dailydevops/schemas/blob/main/tests/conformance/suites/xliff.json) and are fetched, never committed. The cases are every `.xlf` file of the `valid` and `invalid` folders of `test-suite/core` and `test-suite/modules`. The folder is the expected verdict; the observed verdict is the XSD step and the Schematron step together, with all nine rule sets attached to every instance as the upstream NVDL script does.
+
+**180 of 221 applicable cases pass, a rate of 81.4%** on `net10.0`. The other cases are the 41 known failures below, none of which is an engine defect found so far; the causes were checked against the rule files of the pinned archive. Every known failure is an entry of `XliffRun.KnownFailures`, linked to an issue; a regression and an unexpected pass fail the run. Re-check the cases when the pin moves. The job summary publishes the row `NetEvolve.Schemas.Schematron (XLIFF 2.1 goldens)`.
+
+```bash
+dotnet test --project tests/NetEvolve.Schemas.Schematron.Tests.Integration --configuration Release --framework net10.0 --treenode-filter "/*/*/XliffGoldenTests/*"
+```
+
+**[#1363](https://github.com/dailydevops/schemas/issues/1363)** (40 cases): The pinned rule sets do not decide the instance as stated.
+
+- 34 invalid instances that no rule detects: `xml:space` consistency, `xml:lang` on `file`, `group`, `unit`, `source`, and `target`, the form of `srcLang`, the ids of extension elements, the fragment identifier syntax, the change tracking module (no rule set in the archive), and attribute values that the XSD types as `xs:string` (`Bad-slr_*`, `Bad-mtc_*`).
+- 6 valid instances that a rule rejects: `fs.sch` tests `@isolate` instead of `isolated` (`allExtensions`, `withModulesAttributesInEc`), `matches.sch` and `glossary.sch` do not accept a `ref` of the form `#t=id` (`withMatches`, `withGlossary`), `xliff_core_2.1.sch` resolves a comment `ref` only in the form `#n=id` (`withReferences`), and `resource_data.sch` rejects a `resourceItemRef` without `resourceItem` when the language of `res:target` differs from `trgLang` (`Good-res_source-has-no-content-and-href`).
+
+**[#1362](https://github.com/dailydevops/schemas/issues/1362)** (1 case): `bad_InvalidFSAttribute` needs NVDL attribute sections.
+
 ## Limitations
 
 - **Compilers older than C# 14.** `SchemaValidator.ForSchematron(...)` is a C# 14 extension member. A compiler without extension member syntax calls the public static extension class directly, named `SchematronSchemaValidatorExtensions` and declared in the namespace `NetEvolve.Schemas`. It has the same overloads and returns the same builder:
