@@ -281,9 +281,11 @@ internal sealed class PatternEvaluator
                     continue;
                 }
             }
-            // A variable is an error only where it is read: the context runs even when a slot failed, and the problem of the slot is
-            // reported when the context read it (XPDY0002) or when a later expression reads it. Another failure of the context (not
-            // XPDY0002) is reported in addition to the problem of a failed slot that the context names. A failed match is reported here, with the flooding cap.
+
+            // A variable is an error only where it is read: the context runs even when a slot failed.
+            // The problem of the slot is reported when the context read it (XPDY0002) or when a later expression reads it.
+            // Another failure of the context (not XPDY0002) is reported in addition to the problem of a failed slot that the context names.
+            // A failed match is reported here, with the flooding cap.
             var deferred = _binder.EnsureBoundDeferred(rule.Context.ReferencedSlots) != QueryStatus.Ok;
             var status = _matcher.Matches(rule.Context, _run, in candidate, out var matched);
             if (status != QueryStatus.Ok)

@@ -111,6 +111,7 @@ internal sealed class SlotBinder : ISlotBinder
         ArgumentNullException.ThrowIfNull(pattern);
 
         _patternEpoch++;
+        DropDeferred(_plan.PatternStart, int.MaxValue);
         Install(pattern.Lets);
         ReportStatic(pattern.Lets);
     }
@@ -123,6 +124,7 @@ internal sealed class SlotBinder : ISlotBinder
         ArgumentNullException.ThrowIfNull(rule);
 
         _firingEpoch++;
+        DropDeferred(_plan.RuleStart, int.MaxValue);
         _focus = focus;
         if (!ReferenceEquals(_rule, rule))
         {
@@ -406,6 +408,8 @@ internal sealed class SlotBinder : ISlotBinder
     {
         if (_defer)
         {
+            // One entry per slot: a rule-level slot that fails again for the next candidate replaces its earlier problem.
+            DropDeferred(slot, slot + 1);
             _deferred.Add((slot, problem));
         }
         else
@@ -434,6 +438,18 @@ internal sealed class SlotBinder : ISlotBinder
             if (lets[i].StaticProblem is { } problem)
             {
                 Fail(lets[i].Slot, in problem);
+            }
+        }
+    }
+
+    // Drops the held-back problems of the slots in [from, to): they are stale once the slots are unbound again, and their indices are reused.
+    private void DropDeferred(int from, int to)
+    {
+        for (var i = _deferred.Count - 1; i >= 0; i--)
+        {
+            if (_deferred[i].Slot >= from && _deferred[i].Slot < to)
+            {
+                _deferred.RemoveAt(i);
             }
         }
     }
