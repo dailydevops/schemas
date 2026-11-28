@@ -423,7 +423,7 @@ public class CheckTests
     [Test]
     [Arguments(":a")]
     [Arguments("b:")]
-    [Arguments("a\b")]
+    [Arguments("a\\b")]
     [Arguments("%")]
     public async Task AnyUri_EnumerationValueThatIsNoUriReference_IsReportedInXsd10(string value)
     {
