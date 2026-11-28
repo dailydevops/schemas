@@ -120,18 +120,24 @@ internal sealed class XmlInputDecoder
             return false;
         }
 
-        // Where a byte below 0x80 is one character (UTF-8, ISO-8859-1, US-ASCII) a run of them is widened at once; the rest of the
-        // loop decodes one code point at a time.
-        var widensAscii =
-            !_reportNonChar
-            && _encoding is XmlInputEncoding.Utf8 or XmlInputEncoding.Iso88591 or XmlInputEncoding.UsAscii;
+        // Where a byte below 0x80 is one character (UTF-8, ISO-8859-1, US-ASCII) runs are widened at once; on .NET 8 and later the
+        // runtime transcoders also take multi-byte runs. They stop in front of the first sequence they cannot take, so the code
+        // point loop stays the only code that reports errors and fills the carry. With _reportNonChar the new characters are
+        // checked, and on a hit the step is undone and the rest of the chunk is decoded one code point at a time.
+        var bulk = _encoding is XmlInputEncoding.Utf8 or XmlInputEncoding.Iso88591 or XmlInputEncoding.UsAscii;
         while (pos < bytes.Length)
         {
-            if (widensAscii)
+            if (bulk)
             {
-                var run = WidenAscii(bytes.Slice(pos), free.Slice(written));
-                pos += run;
-                written += run;
+                var (read, wrote) = DecodeRun(_encoding, bytes.Slice(pos), free.Slice(written));
+                if (_reportNonChar && XmlCharClass.IndexOfNonChar(free.Slice(written, wrote)) >= 0)
+                {
+                    bulk = false;
+                    continue;
+                }
+
+                pos += read;
+                written += wrote;
                 if (pos >= bytes.Length)
                 {
                     break;
@@ -169,12 +175,34 @@ internal sealed class XmlInputDecoder
         return true;
     }
 
-    // The number of leading ASCII bytes, widened into the destination, which holds at least as many characters as there are bytes.
-    private static int WidenAscii(ReadOnlySpan<byte> source, Span<char> destination)
+    // Decodes the leading well-formed run of the source into the destination, which holds at least as many characters as there
+    // are bytes. Returns the bytes consumed and the characters written.
+    private static (int Read, int Wrote) DecodeRun(
+        XmlInputEncoding encoding,
+        ReadOnlySpan<byte> source,
+        Span<char> destination
+    )
     {
 #if NET8_0_OR_GREATER
-        _ = System.Text.Ascii.ToUtf16(source, destination, out var written);
-        return written;
+        switch (encoding)
+        {
+            case XmlInputEncoding.Utf8:
+                _ = System.Text.Unicode.Utf8.ToUtf16(
+                    source,
+                    destination,
+                    out var read,
+                    out var wrote,
+                    replaceInvalidSequences: false,
+                    isFinalBlock: false
+                );
+                return (read, wrote);
+            case XmlInputEncoding.Iso88591:
+                var n = System.Text.Encoding.Latin1.GetChars(source, destination);
+                return (n, n);
+        }
+
+        _ = System.Text.Ascii.ToUtf16(source, destination, out var ascii);
+        return (ascii, ascii);
 #else
         var length = Math.Min(source.Length, destination.Length);
         var i = 0;
@@ -184,7 +212,7 @@ internal sealed class XmlInputDecoder
             i++;
         }
 
-        return i;
+        return (i, i);
 #endif
     }
 
