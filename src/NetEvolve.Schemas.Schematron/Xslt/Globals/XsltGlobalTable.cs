@@ -11,8 +11,8 @@ using NetEvolve.Schemas.XPath.Api;
 /// parameter has a value from the caller. Immutable and thread-safe; it is created by <see cref="XsltGlobalTableBuilder"/>.
 /// </summary>
 /// <remarks>
-/// Limitation: a value from the caller is a literal string, as the builder takes it (design #137 AP-9), and it is bound without a
-/// conversion to the <see langword="as"/> type of the parameter, so XTTE0590 for a value that does not convert is not raised (#795).
+/// A value from the caller is a literal string, as the builder takes it (design #137 AP-9); the binder converts it to the
+/// <see langword="as"/> type of the parameter and reports XTTE0590 at the first read of a value that does not convert (#795).
 /// A caller value is matched with the name of the parameter as written.
 /// </remarks>
 internal sealed class XsltGlobalTable

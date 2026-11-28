@@ -320,7 +320,20 @@ internal sealed class SlotBinder : ISlotBinder
 
         if (_external[slot] is { } literal)
         {
-            _run.BindVariable(slot, literal);
+            if (declaration.DeclaredType is { } type && _run is IParameterRun typed)
+            {
+                // The caller value is untyped atomic and takes the as type of the parameter; a value that does not convert is XTTE0590 (#795).
+                if (typed.TryBindParameter(slot, literal, type, declaration.Location) != QueryStatus.Ok)
+                {
+                    Fail(slot, typed.GetProblem());
+                    return;
+                }
+            }
+            else
+            {
+                _run.BindVariable(slot, literal);
+            }
+
             Mark(slot, Bound);
         }
         else if (declaration.Content is not null)
