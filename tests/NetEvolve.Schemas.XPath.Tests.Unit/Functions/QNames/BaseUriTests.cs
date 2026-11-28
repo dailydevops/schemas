@@ -64,4 +64,45 @@ public class BaseUriTests
 
         await Assert.That(QNamesHarness.RunFunction(function, null)).IsEqualTo(string.Empty);
     }
+
+    [Test]
+    public async Task StaticBaseUri_UnderAStaticContextWithABaseUri_GivesTheStaticBaseUri() =>
+        await Assert
+            .That(QNamesHarness.RunWithStaticBaseUri(new Uri("http://www.example.com"), "static-base-uri"))
+            .IsEqualTo("anyURI:http://www.example.com");
+
+    [Test]
+    public async Task StaticBaseUri_UnderAStaticContextWithARelativeBaseUri_GivesTheEmptySequence() =>
+        await Assert
+            .That(QNamesHarness.RunWithStaticBaseUri(new Uri("sub/dir", UriKind.Relative), "static-base-uri"))
+            .IsEqualTo(string.Empty);
+
+    [Test]
+    public async Task StaticBaseUri_UnderAStaticContextWithoutABaseUri_GivesTheEmptySequence() =>
+        await Assert.That(QNamesHarness.RunWithStaticBaseUri(null, "static-base-uri")).IsEqualTo(string.Empty);
+
+    [Test]
+    public async Task ResolveUri_OneArgumentUnderAStaticContextWithABaseUri_ResolvesAgainstIt() =>
+        await Assert
+            .That(QNamesHarness.RunWithStaticBaseUri(new Uri("http://example.com/dir/"), "resolve-uri", "string:a/b"))
+            .IsEqualTo("anyURI:http://example.com/dir/a/b");
+
+    [Test]
+    public async Task ResolveUri_OneArgumentUnderAStaticContextWithoutABaseUri_IsFONS0005() =>
+        await Assert
+            .That(QNamesHarness.RunWithStaticBaseUri(null, "resolve-uri", "string:a/b"))
+            .IsEqualTo("error:FONS0005");
+
+    [Test]
+    public async Task ResolveUri_TwoArgumentsUnderAStaticContextWithABaseUri_KeepTheExplicitBase() =>
+        await Assert
+            .That(
+                QNamesHarness.RunWithStaticBaseUri(
+                    new Uri("http://example.com/dir/"),
+                    "resolve-uri",
+                    "string:a",
+                    "string:http://other.example/x/"
+                )
+            )
+            .IsEqualTo("anyURI:http://other.example/x/a");
 }
