@@ -88,19 +88,29 @@ internal sealed class XsdSchemaSet
     /// <returns><see langword="true"/> when a component is registered under the name.</returns>
     public bool TryGet(XsdComponentKind kind, XPathQName name, out IXsdComponent? component)
     {
-        if (Parent is not null && Parent.TryGet(kind, name, out component))
-        {
-            return true;
-        }
-
         if (XsdSymbolSpaces.TryOf(kind, out var space))
         {
-            var found = _spaces[(int)space].TryGetValue(name, out var value);
-            component = value;
-            return found;
+            return TryGet(space, name, out component);
         }
 
         component = null;
         return false;
+    }
+
+    /// <summary>Looks a component up in a symbol space, the parent first.</summary>
+    /// <param name="space">The space.</param>
+    /// <param name="name">The expanded name.</param>
+    /// <param name="component">The component when found.</param>
+    /// <returns><see langword="true"/> when a component is registered under the name.</returns>
+    internal bool TryGet(XsdSymbolSpace space, XPathQName name, out IXsdComponent? component)
+    {
+        if (Parent is not null && Parent.TryGet(space, name, out component))
+        {
+            return true;
+        }
+
+        var found = _spaces[(int)space].TryGetValue(name, out var value);
+        component = value;
+        return found;
     }
 }

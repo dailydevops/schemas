@@ -71,7 +71,12 @@ internal sealed class CompilationRun
     private readonly List<ConstraintOwner> _owners = [];
     private readonly List<PendingReference> _references = [];
 
-    internal CompilationRun(XsdVersion version, IResourceResolver resolver, ValidationLimits limits)
+    internal CompilationRun(
+        XsdVersion version,
+        IResourceResolver resolver,
+        ValidationLimits limits,
+        XsdSchemaSet? parent = null
+    )
     {
         ArgumentOutOfRangeException.ThrowIfLessThan((int)version, (int)XsdVersion.V10);
         ArgumentOutOfRangeException.ThrowIfGreaterThan((int)version, (int)XsdVersion.V11);
@@ -83,7 +88,7 @@ internal sealed class CompilationRun
         _limits = limits;
         _collector = new ValidationIssueCollector(limits);
         _reporter = new XsdIssueReporter(_collector);
-        _registry = new ComponentRegistry(_reporter);
+        _registry = new ComponentRegistry(_reporter, parent);
         XsdBuiltInTypes.Register(_registry, version);
         _context = new BuildContext(version, _registry, _reporter);
         _componentResolver = new ComponentResolver(version);

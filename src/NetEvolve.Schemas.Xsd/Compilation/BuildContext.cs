@@ -356,6 +356,11 @@ internal sealed class BuildContext
             return Attributes.Ensure(definition);
         }
 
+        if (Registry.TryGet(XsdSymbolSpace.Attributes, name, out var imported))
+        {
+            return (AttributeDeclaration)imported!;
+        }
+
         Report(XsdRuleCodes.SrcResolve, context.Location, "No attribute named '" + name + "' is declared.");
         return null;
     }
@@ -394,6 +399,11 @@ internal sealed class BuildContext
         if (_attributeGroups.TryGetValue(name, out var definition))
         {
             return AttributeGroups.Ensure(definition);
+        }
+
+        if (Registry.TryGet(XsdSymbolSpace.AttributeGroups, name, out var imported))
+        {
+            return (AttributeGroupDefinition)imported!;
         }
 
         Report(XsdRuleCodes.SrcResolve, context.Location, "No attribute group named '" + name + "' is declared.");
