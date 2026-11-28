@@ -135,6 +135,88 @@ public class LazySequenceTests
         await Assert.That(SequencesHarness.Show(SequencesHarness.CallWith(function, sequence))).IsEqualTo(expected);
     }
 
+    [Test]
+    public async Task Subsequence_OverALargeLazyRange_StopsReadingAfterTheWindow()
+    {
+        using var source = new RangeSource(Size);
+
+        var result = SequencesHarness.Run("subsequence", [XdmSequence.FromLazy(source), Double(3), Double(2)]);
+
+        await Assert.That(result).IsEqualTo("integer:2,integer:3");
+        await Assert.That(source.Read).IsLessThanOrEqualTo(5);
+    }
+
+    [Test]
+    [Arguments(1.0, double.PositiveInfinity, "integer:0,integer:1,integer:2")]
+    [Arguments(2.0, double.PositiveInfinity, "integer:1,integer:2")]
+    [Arguments(0.0, 2.0, "integer:0")]
+    [Arguments(-1.0, 3.0, "integer:0")]
+    [Arguments(2.5, 1.0, "integer:2")]
+    [Arguments(4.0, 2.0, "")]
+    [Arguments(double.NaN, 2.0, "")]
+    [Arguments(1.0, 0.0, "")]
+    public async Task Subsequence_OverALazySource_SelectsTheSameWindowAsAnArray(
+        double start,
+        double length,
+        string expected
+    )
+    {
+        using var source = new RangeSource(3);
+
+        var result = SequencesHarness.Run("subsequence", [XdmSequence.FromLazy(source), Double(start), Double(length)]);
+
+        await Assert.That(result).IsEqualTo(expected);
+    }
+
+    [Test]
+    public async Task Subsequence_WithoutLengthOverALazySource_ReturnsTheRest()
+    {
+        using var source = new RangeSource(4);
+
+        var result = SequencesHarness.Run("subsequence", [XdmSequence.FromLazy(source), Double(3)]);
+
+        await Assert.That(result).IsEqualTo("integer:2,integer:3");
+    }
+
+    [Test]
+    [Arguments("zero-or-one", "error:FORG0003")]
+    [Arguments("exactly-one", "error:FORG0005")]
+    public async Task ZeroOrOneAndExactlyOne_OverALargeLazyRange_ReadAtMostTwoItems(string function, string expected)
+    {
+        using var source = new RangeSource(Size);
+
+        var result = SequencesHarness.Run(function, [XdmSequence.FromLazy(source)]);
+
+        await Assert.That(result).IsEqualTo(expected);
+        await Assert.That(source.Read).IsLessThanOrEqualTo(2);
+    }
+
+    [Test]
+    [Arguments("zero-or-one", 0, "")]
+    [Arguments("zero-or-one", 1, "integer:0")]
+    [Arguments("exactly-one", 0, "error:FORG0005")]
+    [Arguments("exactly-one", 1, "integer:0")]
+    [Arguments("one-or-more", 0, "error:FORG0004")]
+    public async Task Cardinality_OverASmallLazySource_AnswersAsForAnArray(string function, int size, string expected)
+    {
+        using var source = new RangeSource(size);
+
+        await Assert.That(SequencesHarness.Run(function, [XdmSequence.FromLazy(source)])).IsEqualTo(expected);
+    }
+
+    [Test]
+    public async Task OneOrMore_OverALargeLazyRange_ReadsAtMostOneItem()
+    {
+        using var source = new RangeSource(Size);
+
+        var result = SequencesHarness.Run("one-or-more", [XdmSequence.FromLazy(source)]);
+
+        await Assert.That(result).StartsWith("integer:0,");
+        await Assert.That(source.Read).IsGreaterThan(0);
+    }
+
+    private static XdmSequence Double(double value) => XdmSequence.Create(XdmItem.FromDouble(value));
+
     /// <summary>The integers 0 up to a count, one per step; one enumerator serves every enumeration, so that handing out items allocates nothing.</summary>
     private sealed class RangeSource(int count) : IEnumerable<XdmItem>, IEnumerator<XdmItem>
     {
