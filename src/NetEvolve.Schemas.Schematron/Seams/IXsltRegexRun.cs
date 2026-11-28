@@ -1,6 +1,5 @@
-namespace NetEvolve.Schemas.Schematron.Xslt.Instructions.Regex;
+namespace NetEvolve.Schemas.Schematron.Seams;
 
-using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.XPath.Abstractions;
 
 /// <summary>

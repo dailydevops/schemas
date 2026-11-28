@@ -7,7 +7,6 @@ using System.Threading;
 using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Resources;
 using NetEvolve.Schemas.Schematron.Seams;
-using NetEvolve.Schemas.Schematron.Xslt.Instructions.Regex;
 using NetEvolve.Schemas.XPath.Abstractions;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Context;
