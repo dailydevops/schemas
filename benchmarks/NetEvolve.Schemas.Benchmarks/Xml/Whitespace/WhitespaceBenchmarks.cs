@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Benchmarks.Xml.Datatypes;
+namespace NetEvolve.Schemas.Benchmarks.Xml.Whitespace;
 
 using System.Text;
 using BenchmarkDotNet.Attributes;
