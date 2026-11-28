@@ -299,9 +299,9 @@ The conformance run executes the W3C XML Schema Test Suite (XSTS), pinned by che
 
 | Part | Applicable | Passed | Known failures | Rate |
 | --- | --- | --- | --- | --- |
-| Schema tests | 14364 | 14331 | 33 | 99.7% |
+| Schema tests | 14364 | 14332 | 32 | 99.7% |
 | Instance tests | 25017 | 24729 | 288 | 98.8% |
-| Both | 39381 | 39060 | 321 | 99.1% |
+| Both | 39381 | 39061 | 320 | 99.1% |
 
 The last row adds the two published rows; the job summary shows no row for the sum. The selection also leaves 104 excluded cases of XSD 1.0 out of these counts: cases whose status is not accepted, whose expected outcome is not definite, or that depend on a processor feature that the runner does not model. Every known failure is a case of the committed baseline in `tests/conformance/baselines/xsts/`, and it is listed with its reason and, where a bug issue exists, its issue in `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTests/known-failures.txt` and `tests/NetEvolve.Schemas.Xsd.Tests.Integration/InstanceTests/known-failures.txt`. A regression and an unexpected pass fail the run. To reproduce the numbers, run the conformance tests of the integration project on one leg, with a file in `GITHUB_STEP_SUMMARY` to receive the rows:
 

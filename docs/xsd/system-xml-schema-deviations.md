@@ -7,7 +7,7 @@ This document lists every difference that the differential run over the W3C XML 
 | Baseline | `System.Xml.Schema` of the .NET runtime 10.0, compared on the `net10.0` test leg only (`baseline-runtime: 10.0`) |
 | Corpus | XSTS cases of XSD 1.0 (schema tests and instance tests), pinned in `tests/conformance/suites/xsts.json` |
 | Data file | `tests/NetEvolve.Schemas.Xsd.Tests.Integration/DifferentialData/xsts-1.0-deviations.txt`, one entry per difference: case id, difference kind, observed difference, specification reference, reason |
-| Entries | 14513 entries for 14477 cases |
+| Entries | 14514 entries for 14478 cases |
 
 The list is valid for the recorded baseline runtime version only. A run on another runtime version fails until the list is compared again. System.Xml.Schema implements XSD 1.0 only, so cases of XSD 1.1 are not compared.
 
@@ -29,12 +29,12 @@ No builder option, switch, or code path in the library reproduces System.Xml.Sch
 |---|---:|---:|
 | Verdict differences: this library follows the specification | 1714 | 1682 |
 | Verdict differences: documented limitations of this library | 21 | 17 |
-| Position differences: equivalent | 12778 | 12778 |
-| Differences on cases that a bug issue tracks (no entry) | 265 | |
+| Position differences: equivalent | 12779 | 12779 |
+| Differences on cases that a bug issue tracks (no entry) | 264 | |
 
 ## Differences on cases that a bug issue tracks
 
-The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTests/known-failures.txt` and `tests/NetEvolve.Schemas.Xsd.Tests.Integration/InstanceTests/known-failures.txt` record every case of XSD 1.0 that this library does not pass yet, each with its bug issue. At the time of this triage the run found 265 differences on these cases:
+The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTests/known-failures.txt` and `tests/NetEvolve.Schemas.Xsd.Tests.Integration/InstanceTests/known-failures.txt` record every case of XSD 1.0 that this library does not pass yet, each with its bug issue. At the time of this triage the run found 264 differences on these cases:
 
 | Issue | Differences | Title |
 |---|---:|---|
@@ -49,7 +49,6 @@ The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTe
 | #410 | 1 | feat(xml): support caller-selectable xml 1.1 name productions |
 | #1183 | 1 | feat(xsd): build a schema with unions that name each other as members, as the XSTS case ste110 expects |
 | #1181 | 1 | feat(xsd): reject anyURI values of a schema that are no URI references in XSD 1.0 |
-| #1180 | 1 | feat(xsd): reject a facet that does not apply to the simple content of a simpleContent restriction |
 
 ## Verdict differences: this library follows the specification
 
@@ -2227,9 +2226,9 @@ msMeta-AttributeGroup_w3c/1.0/attgD003/attgD003.v
 
 Both engines reject the document with the same number of issues on the same lines, and the verdicts agree. They anchor an issue at different columns of the same construct. Issue positions are not part of the specification, so the difference is equivalent.
 
-- Difference: IssuePositions `issue positions` (3189)
+- Difference: IssuePositions `issue positions` (3190)
 - Specification: XSD 1.0 Part 1, 5.2 and C.1 (the assessment outcome is the validity property; positions and number of reports are not specified)
-- Cases: 3189
+- Cases: 3190
 
 ```text
 ibmMeta-unitsLength/1.0/d2_4_1_3si01/d2_4_1_3si01s
