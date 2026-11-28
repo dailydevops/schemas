@@ -43,11 +43,26 @@ public class FailedLetInContextTests
             + "<let name=\"unread\" value=\"xs:integer('x')\"/>"
             + "<let name=\"read\" value=\"normalize-space(/r/d)\"/>"
             + "<pattern><rule context=\"/r/a[$off and $unread = 'x']\"><assert test=\"false()\">Never.</assert></rule>"
-            + "<rule context=\"/r/b[$read = 'x']\"><assert test=\"false()\">Reads it.</assert></rule></pattern></schema>";
+            + "<rule context=\"/r/b\"><assert test=\"$read = 'x'\">Reads it.</assert></rule></pattern></schema>";
 
         var result = Validate(Build(schema), "<r><a/><b/><d>1</d><d>2</d></r>");
 
         await Assert.That(result.Issues.Count).IsEqualTo(1);
         await Assert.That(result.Issues[0].Message).IsEqualTo("The type of a value does not match the required type.");
+    }
+
+    [Test]
+    public async Task UnreadFailingLetOfAnEarlierPattern_IsNotReportedWhenALaterPatternReadsAnotherLet()
+    {
+        const string schema =
+            "<schema xmlns=\"http://purl.oclc.org/dsdl/schematron\" queryBinding=\"xslt2\">"
+            + "<pattern><let name=\"unread\" value=\"xs:integer('x')\"/><let name=\"off\" value=\"false()\"/>"
+            + "<rule context=\"/r/a[$off and $unread = 'x']\"><assert test=\"false()\">Never.</assert></rule></pattern>"
+            + "<pattern><let name=\"read\" value=\"normalize-space(/r/d)\"/>"
+            + "<rule context=\"/r/b\"><assert test=\"$read = 'x'\">Reads it.</assert></rule></pattern></schema>";
+
+        var result = Validate(Build(schema), "<r><a/><b/><d>1</d><d>2</d></r>");
+
+        await Assert.That(result.Issues.Count).IsEqualTo(1);
     }
 }
