@@ -74,4 +74,26 @@ public class FallbackTests
         await Assert.That(harness.Executable).IsNull();
         await Assert.That(harness.CompileCodes).IsEqualTo("NES3202/XPST0003");
     }
+
+    [Test]
+    public async Task KnownInstruction_IgnoresItsFallbackChildren()
+    {
+        var harness = new FlowHarness(
+            If("1 = 1", 10, ValueOf("'a'", null, 11), X("fallback", 12, ValueOf("'fb'", null, 13)))
+        );
+
+        await Assert.That(harness.CompileCodes).IsEqualTo(string.Empty);
+        await Assert.That(Run(harness)).IsEqualTo("a");
+    }
+
+    [Test]
+    public async Task ForEach_IgnoresItsFallbackChildren()
+    {
+        var harness = new FlowHarness(
+            ForEach("(1, 2)", 10, ValueOf("'x'", null, 11), X("fallback", 12, ValueOf("'fb'", null, 13)))
+        );
+
+        await Assert.That(harness.CompileCodes).IsEqualTo(string.Empty);
+        await Assert.That(Run(harness)).IsEqualTo("xx");
+    }
 }
