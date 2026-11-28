@@ -47,11 +47,6 @@
       "id": "iso-rule-based-validation/let-value-element-content.xml",
       "issue": 877,
       "reason": "A let with element content binds a document node (maintainer decision of #856), and the case fails on a document node versus a sequence only."
-    },
-    {
-      "id": "global-param/raised-minimum.xml",
-      "issue": 1159,
-      "reason": "A value for a global xsl:param from the builder parameters is not supported: the schema declares no parameter named like the xsl:param, so the build reports NES3112 (#1159)."
     }
   ]
 }
