@@ -114,6 +114,9 @@ internal sealed class SimpleTypeValidator
         return lexical.Count == 0 ? null : new SimpleTypeValidator(null, [.. lexical], collapse);
     }
 
+    /// <summary>Gets the descriptor that assesses the whole value of an atomic type, <see langword="null"/> otherwise.</summary>
+    internal IDatatypeDescriptor? Atomic => _atomic;
+
     /// <summary>Gets a value indicating whether the validator assesses the whole value, so the base type need not be assessed first.</summary>
     internal bool IsComplete => _atomic is not null;
 

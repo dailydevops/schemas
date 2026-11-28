@@ -39,10 +39,12 @@ internal sealed class FacetBase
         IDatatypeDescriptor? descriptor,
         PrimitiveKind primitive,
         IReadOnlyList<IFacet> facets,
-        FacetBase? item = null
+        FacetBase? item = null,
+        IReadOnlyList<SimpleTypeDefinition>? members = null
     )
     {
         Item = item;
+        Members = members ?? [];
         Variety = variety;
         _descriptor = descriptor;
         Primitive = primitive;
@@ -60,6 +62,9 @@ internal sealed class FacetBase
 
     /// <summary>Gets the description of the item type of a list, <see langword="null"/> for other varieties and for a list whose item type is not atomic.</summary>
     public FacetBase? Item { get; }
+
+    /// <summary>Gets the member types of a union definition in declaration order, empty for other varieties and for a built-in union.</summary>
+    public IReadOnlyList<SimpleTypeDefinition> Members { get; }
 
     /// <summary>Gets a value indicating whether the base type already carries an <c>enumeration</c> facet.</summary>
     public bool HasEnumeration
@@ -226,7 +231,8 @@ internal sealed class FacetBase
                 null,
                 PrimitiveKind.None,
                 definition.Facets,
-                definition.Variety == DatatypeVariety.List ? ItemOf(definition, version) : null
+                definition.Variety == DatatypeVariety.List ? ItemOf(definition, version) : null,
+                definition.MemberTypes
             );
         }
 

@@ -92,6 +92,15 @@ internal sealed class SimpleTypeDefinition : IXsdComponent
     /// <summary>Gets the compiled validator of the facets this type adds to its built-in root, <see langword="null"/> when there are none or they cannot be compiled.</summary>
     internal SimpleTypeValidator? Validator { get; }
 
+    /// <summary>
+    /// Gets the datatype that assesses the whole value of an atomic type, own facets included, <see langword="null"/> for a list, a union, and a
+    /// type whose own facets no descriptor can carry (a restriction of <c>anyURI</c>).
+    /// </summary>
+    internal IDatatypeDescriptor? ValueDescriptor =>
+        Variety != DatatypeVariety.Atomic ? null
+        : Validator is null ? Datatype
+        : Validator.Atomic;
+
     private IDatatypeDescriptor? Datatype { get; }
 
     private int BuiltInFacets { get; }

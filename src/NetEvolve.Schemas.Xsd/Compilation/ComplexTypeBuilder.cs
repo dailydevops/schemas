@@ -368,7 +368,7 @@ internal sealed class ComplexTypeBuilder : IComponentBuilder
             restriction.Location,
             XsdDerivationMethod.None,
             restricted,
-            FacetFactory.Create(step, facts, _context.Version, check.CompiledPattern),
+            FacetFactory.Create(step, facts, _context.Version, check.CompiledPattern, _context.Assessor),
             _context.Reporter
         );
         if (type is not null)

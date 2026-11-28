@@ -71,7 +71,7 @@ public class UnionEnumerationAssessmentTests
         var small = fixture.Base("integer", fixture.Facet("integer", FacetKind.MaxInclusive, "5"));
         var type = Restrict(fixture, Union(fixture, small, fixture.Wrapped("decimal")), "1", "9");
 
-        // 9 is accepted by decimal only, so it does not equal 9 in the value space of the derived integer member (it is the same member here).
+        // 9 exceeds the derived integer member, so decimal accepts it and equality is decimal equality.
         await Assert.That(fixture.Assessor.Assess(type, "01", out _).IsValid).IsTrue();
         await Assert.That(fixture.Assessor.Assess(type, "9", out _).IsValid).IsTrue();
         await Assert.That(fixture.Assessor.Assess(type, "9.0", out _).IsValid).IsTrue();

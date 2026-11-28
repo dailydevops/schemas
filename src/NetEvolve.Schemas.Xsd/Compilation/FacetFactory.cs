@@ -14,6 +14,7 @@ using NetEvolve.Schemas.Xml.Datatypes.Facets.Pattern;
 using NetEvolve.Schemas.Xml.Datatypes.Numeric;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.SimpleTypes.Checks;
+using NetEvolve.Schemas.Xsd.Validation.Core;
 
 /// <summary>
 /// Turns the facets of a restriction step, which the facet check has validated, into the facet objects of the datatype contract
@@ -22,7 +23,8 @@ using NetEvolve.Schemas.Xsd.SimpleTypes.Checks;
 /// <remarks>
 /// Limitations: the <c>enumeration</c> facet is carried for string-like bases (including anyURI) and for the ordered families (decimal, integer, float,
 /// double, duration, date and time, boolean), not for the others (binary, <c>QName</c>, and <c>NOTATION</c>); a list carries it when its item type is one of the carried
-/// families and compares item by item, a list of any other item type is not evaluated; the
+/// families and compares item by item, a list of any other item type is not evaluated; a union carries it and compares in the value space of the
+/// member that accepts the value, with the limits of <see cref="UnionEnumerationFacet"/> for members that are not ordered; the
 /// <c>assertion</c> facets (XSD 1.1, XSD-78) are not carried here, they are collected separately; a length of a binary type is carried
 /// by the binary length facet only when the base is a built-in type of that family. A facet that does not parse is left out, which
 /// can only follow an issue that the check has reported.
@@ -50,12 +52,14 @@ internal static class FacetFactory
     /// <param name="facts">The description of the base type, as <see cref="FacetBase.Resolve"/> returned it.</param>
     /// <param name="version">The XSD version.</param>
     /// <param name="compiledPattern">The facet that the check compiled from the only pattern of the step, or <see langword="null"/>.</param>
+    /// <param name="assessor">The assessor that accepts the members of a union that no datatype describes whole, <see langword="null"/> for a new one.</param>
     /// <returns>The facets in document order, the patterns of the step combined into one facet at the first pattern.</returns>
     internal static IReadOnlyList<IFacet> Create(
         IReadOnlyList<FacetDeclaration> step,
         FacetBase? facts,
         XsdVersion version,
-        PatternFacet? compiledPattern
+        PatternFacet? compiledPattern,
+        ISimpleValueAssessor? assessor = null
     )
     {
         ArgumentNullException.ThrowIfNull(step);
@@ -105,8 +109,39 @@ internal static class FacetFactory
             facets[enumerationSlot] = ListEnumeration(enumeration, item)!;
         }
 
+        if (enumeration.Count > 0 && facts is { Variety: DatatypeVariety.Union })
+        {
+            facets[enumerationSlot] = UnionOf(facts, version, assessor) is { } union
+                ? new UnionEnumerationFacet(union, enumeration)
+                : null!;
+        }
+
         _ = facets.RemoveAll(static facet => facet is null);
         return facets;
+    }
+
+    // A union of the Xml package is used as it is; a union definition is described by the descriptors of its members.
+    private static UnionDescriptor? UnionOf(FacetBase facts, XsdVersion version, ISimpleValueAssessor? assessor)
+    {
+        if (facts.Descriptor is UnionDescriptor union)
+        {
+            return union;
+        }
+
+        if (facts.Members.Count == 0)
+        {
+            return null;
+        }
+
+        var valueAssessor = assessor ?? new DescriptorValueAssessor(version);
+        var members = new IDatatypeDescriptor[facts.Members.Count];
+        for (var i = 0; i < members.Length; i++)
+        {
+            members[i] = facts.Members[i].ValueDescriptor
+                ?? new AssessedDescriptor(facts.Members[i], valueAssessor, version);
+        }
+
+        return new UnionDescriptor("union", members);
     }
 
     // A slot holds the place of a facet that is built from every declaration of its kind once the step is read.
