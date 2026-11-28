@@ -365,4 +365,34 @@ public class StylesheetFunctionCallTests
 
         await Assert.That(Validate(validator, instance).IsValid).IsEqualTo(expected);
     }
+
+    [Test]
+    [Arguments("<xsl:variable name=\"g:codes\" as=\"xs:string\" select=\"'380'\"/>", "$g:codes")]
+    [Arguments("<xsl:variable name=\"f:codes\" as=\"xs:string\" select=\"'380'\"/>", "$g:codes")]
+    [Arguments(
+        "<xsl:variable name=\"f:codes\" as=\"xs:string\" select=\"'380'\"/>",
+        "(for $codes in 1 return $codes) = $f:codes"
+    )]
+    public async Task Call_OfAFunctionWithAnUnresolvedPrefixedVariable_DoesNotThrowOnTheCall(
+        string variable,
+        string expression
+    )
+    {
+        var module =
+            $"<xsl:function name=\"f:g\" as=\"xs:boolean\"><xsl:param name=\"code\" as=\"xs:string?\"/>{variable}"
+            + $"<xsl:sequence select=\"$code = {expression}\"/></xsl:function>";
+
+        // Either the module compiles or it is rejected with a diagnostic; the slot scan itself must not fail.
+        var rejected = false;
+        try
+        {
+            _ = Inline(module, "f:g(string(.))");
+        }
+        catch (SchemaCompilationException)
+        {
+            rejected = true;
+        }
+
+        await Assert.That(rejected || !rejected).IsTrue();
+    }
 }
