@@ -205,6 +205,57 @@ public class OwnFacetAssessmentTests
     }
 
     [Test]
+    [Arguments("NMTOKENS", false)]
+    [Arguments("IDREFS", false)]
+    [Arguments("ENTITIES", false)]
+    [Arguments("NMTOKENS", true)]
+    public async Task List_OfNames_EvaluatesAnEnumerationInTheTextValueSpace(string name, bool wrapped)
+    {
+        var fixture = new FacetFixture();
+        var baseType = wrapped ? fixture.Wrapped(name) : fixture.BuiltIn(name);
+        var facets = FacetFactory.Create(baseType, [FacetFixture.Decl(FacetKind.Enumeration, "a b")], XsdVersion.V11);
+        var type = fixture.Derive(fixture.Wrapped(name), [.. facets]);
+
+        await Assert.That(facets.Any(f => f.Kind == FacetKind.Enumeration)).IsTrue();
+        await Assert.That(fixture.Assessor.Assess(type, "a  b", out _).IsValid).IsTrue();
+        await Assert.That(fixture.Assessor.Assess(type, "a", out _).FailedFacet).IsEqualTo(FacetKind.Enumeration);
+        await Assert.That(fixture.Assessor.Assess(type, "a b c", out _).FailedFacet).IsEqualTo(FacetKind.Enumeration);
+    }
+
+    [Test]
+    public async Task List_OfIntegers_LeavesOutAListedValueWithAnItemThatDoesNotParse()
+    {
+        var fixture = new FacetFixture();
+        var baseType = fixture.Base("list:integer");
+
+        var none = FacetFactory.Create(baseType, [FacetFixture.Decl(FacetKind.Enumeration, "1 x")], XsdVersion.V11);
+        var some = FacetFactory.Create(
+            baseType,
+            [FacetFixture.Decl(FacetKind.Enumeration, "1 x"), FacetFixture.Decl(FacetKind.Enumeration, "2")],
+            XsdVersion.V11
+        );
+        var type = fixture.Derive(baseType, [.. some]);
+
+        await Assert.That(none).IsEmpty();
+        await Assert.That(fixture.Assessor.Assess(type, "2", out _).IsValid).IsTrue();
+        await Assert.That(fixture.Assessor.Assess(type, "1", out _).FailedFacet).IsEqualTo(FacetKind.Enumeration);
+    }
+
+    [Test]
+    public async Task List_OfAnUnsupportedItemType_CarriesNoEnumeration()
+    {
+        var fixture = new FacetFixture();
+
+        var facets = FacetFactory.Create(
+            fixture.Base("list:QName"),
+            [FacetFixture.Decl(FacetKind.Enumeration, "a b")],
+            XsdVersion.V11
+        );
+
+        await Assert.That(facets).IsEmpty();
+    }
+
+    [Test]
     public async Task Restriction_OfAnyUri_EvaluatesLexicalFacets()
     {
         var fixture = new FacetFixture();
