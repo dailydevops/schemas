@@ -16,12 +16,12 @@
   },
   {
     "name": "ContentModelMatchBenchmarks.MatchSequence",
-    "meanNs": 32,
+    "meanNs": 7,
     "allocatedBytes": 0
   },
   {
     "name": "ContentModelMatchBenchmarks.MatchChoice",
-    "meanNs": 52,
+    "meanNs": 8,
     "allocatedBytes": 0
   },
   {
