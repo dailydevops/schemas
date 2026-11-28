@@ -79,6 +79,11 @@ internal sealed class CountingRun
     public bool TryStep(int schemaNameId, XPathQName name, out MatchedParticle matched)
     {
         matched = default;
+        if (_slots == 0 && !ForceGeneralPath)
+        {
+            return TryStepCounterFree(schemaNameId, name, out matched);
+        }
+
         if (CeilingExceeded || !Expand(schemaNameId, name, out var next, out var chosen))
         {
             return false;
@@ -106,6 +111,40 @@ internal sealed class CountingRun
         (_counters, _nextCounters) = (_nextCounters, _counters);
         _count = kept;
         matched = new MatchedParticle(chosen, _automaton.IsWildcard(chosen));
+        return true;
+    }
+
+    /// <summary>
+    /// Steps a counter-free automaton: one configuration, no guards, so the child goes to the first matching element
+    /// target in transition order, else the first matching wildcard, as the general path chooses.
+    /// </summary>
+    /// <remarks>
+    /// The general path flags <see cref="CeilingExceeded"/> when more than <see cref="MaxConfigurations"/> targets match one
+    /// child. Without counters only wildcards can do that, which violates unique particle attribution, so no validator
+    /// exists for such a schema and this path never needs the flag.
+    /// </remarks>
+    private bool TryStepCounterFree(int schemaNameId, XPathQName name, out MatchedParticle matched)
+    {
+        matched = default;
+        if (CeilingExceeded)
+        {
+            return false;
+        }
+
+        var source = _positions[0] + 1;
+        var target = schemaNameId >= 0 ? _automaton.FirstElementTarget(source, schemaNameId) : -1;
+        if (target < 0 && name.LocalName.Length != 0)
+        {
+            target = _automaton.FirstWildcardTarget(source, name);
+        }
+
+        if (target < 0)
+        {
+            return false;
+        }
+
+        _positions[0] = target;
+        matched = new MatchedParticle(target, _automaton.IsWildcard(target));
         return true;
     }
 
