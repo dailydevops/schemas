@@ -203,7 +203,7 @@ internal sealed class SimpleTypeBuilder : IComponentBuilder
             node.Location,
             final,
             parent,
-            FacetFactory.Create(step, facts, _context.Version, check.CompiledPattern, _context.Assessor),
+            FacetFactory.Create(step, facts, _context.Version, check.CompiledPattern),
             _context.Reporter
         );
         if (type is not null)

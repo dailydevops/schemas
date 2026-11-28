@@ -3,6 +3,8 @@ namespace NetEvolve.Schemas.Xsd.Tests.Unit.Validation.Core;
 using System;
 using System.Linq;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
+using NetEvolve.Schemas.Xml.Datatypes.Core;
+using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.Xsd.Compilation;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.SimpleTypes.Definitions;
@@ -123,5 +125,30 @@ public class UnionEnumerationAssessmentTests
         var facets = FacetFactory.Create(union, [FacetFixture.Decl(FacetKind.Enumeration, "x")], XsdVersion.V11);
 
         await Assert.That(facets).Count().IsEqualTo(1);
+    }
+
+    [Test]
+    public async Task Union_WithABuiltInListMember_ComparesTheLexicalForm()
+    {
+        var fixture = new FacetFixture();
+        var type = Restrict(fixture, Union(fixture, fixture.Wrapped("NMTOKENS"), fixture.Wrapped("boolean")), "a b");
+
+        await Assert.That(fixture.Assessor.Assess(type, " a  b ", out _).IsValid).IsTrue();
+        await Assert.That(fixture.Assessor.Assess(type, "b a", out _).FailedFacet).IsEqualTo(FacetKind.Enumeration);
+    }
+
+    [Test]
+    public async Task Union_WhoseMembersAreNotKnown_CarriesNoEnumeration()
+    {
+        var fixture = new FacetFixture();
+        var wrapped = SimpleTypeDefinition.FromDatatype(
+            new XPathQName(FacetFixture.XsNamespace, "u"),
+            FacetFixture.Where,
+            new UnionDescriptor("u", [fixture.Descriptor("integer")])
+        );
+
+        var facets = FacetFactory.Create(wrapped, [FacetFixture.Decl(FacetKind.Enumeration, "1")], XsdVersion.V11);
+
+        await Assert.That(facets).IsEmpty();
     }
 }
