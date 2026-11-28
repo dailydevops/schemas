@@ -1,12 +1,16 @@
 namespace NetEvolve.Schemas.Xsd.Assertions.Facet;
 
 using System.Collections.Generic;
+using NetEvolve.Schemas.Xml.Datatypes.Contracts;
+using NetEvolve.Schemas.Xml.Datatypes.Core;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Evaluation.Atomization;
 using NetEvolve.Schemas.XPath.Xdm.Values;
+using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Diagnostics;
+using NetEvolve.Schemas.Xsd.SchemaDocuments;
 using NetEvolve.Schemas.Xsd.SimpleTypes.Definitions;
 using NetEvolve.Schemas.Xsd.Validation.Annotations;
 using NetEvolve.Schemas.Xsd.Validation.Core;
@@ -25,9 +29,10 @@ using NetEvolve.Schemas.Xsd.Validation.Core;
 /// reuses the evaluation context of its run, which is reset here.
 /// </para>
 /// <para>
-/// Limitations: XSD 1.1 accepts the union member that is valid including its own assertions, while the datatype contract picks the first
-/// member that its facets accept and does not know assertions; the assertions of the item type of a list and of the member types of a union
-/// are checked by the check of those types, which the caller runs for them, not by the check of the list or union itself (#949).
+/// The assertions of the item type of a list are checked for every item, and a union accepts the first member that is valid including
+/// its own assertions (a value that no member accepts is one issue); <c>$value</c> of the union is typed as that member. Limitation: a
+/// union nested in a union member or in a list item is typed by the first member that the datatype contract accepts, which does not know
+/// assertions, when an assertion of the outer type reads <c>$value</c>.
 /// </para>
 /// </remarks>
 internal static class FacetAssertionEvaluator
@@ -40,7 +45,7 @@ internal static class FacetAssertionEvaluator
     /// <param name="context">The evaluation context of the run; it is reset.</param>
     /// <param name="location">The location of the value.</param>
     /// <param name="reporter">The reporter.</param>
-    /// <returns><see langword="true"/> when the type has no assertion facet or every one holds.</returns>
+    /// <returns><see langword="true"/> when no assertion facet of the type, of its list item type, or of the selected union member fails.</returns>
     internal static bool Check(
         FacetAssertions assertions,
         SimpleTypeDefinition type,
@@ -58,20 +63,60 @@ internal static class FacetAssertionEvaluator
         ArgumentNullException.ThrowIfNull(context);
         ArgumentNullException.ThrowIfNull(reporter);
 
+        return !assertions.Reaches(type) || CheckType(assertions, type, text, assessor, context, location, reporter);
+    }
+
+    // A null reporter checks quietly: it only tells whether the value holds, which is how a union member is selected.
+    private static bool CheckType(
+        FacetAssertions assertions,
+        SimpleTypeDefinition type,
+        string text,
+        ISimpleValueAssessor assessor,
+        XPathEvaluationContext context,
+        DocumentLocation location,
+        XsdIssueReporter? reporter
+    )
+    {
+        var holds = true;
+        IXsdComponent bound = type;
+        if (type.Variety == DatatypeVariety.List && type.ItemType is { } item && assertions.Reaches(item))
+        {
+            var cursor = new XsdListCursor(new TextRange(0, text.Length));
+            while (cursor.TryNext(text.AsSpan(), out var token))
+            {
+                var itemText = text.Substring(token.Offset, token.Length);
+                holds &= CheckType(assertions, item, itemText, assessor, context, location, reporter);
+            }
+        }
+        else if (type.Variety == DatatypeVariety.Union)
+        {
+            var member = SelectMember(assertions, type, text, assessor, context, location);
+            if (member is null)
+            {
+                reporter?.Report(
+                    XsdRuleCodes.CvcAssertionsValid,
+                    location,
+                    "The value '" + text + "' does not satisfy the assertions of any member type of the union."
+                );
+                return false;
+            }
+
+            bound = member;
+        }
+
         var tests = assertions.Of(type);
         if (tests.Count == 0)
         {
-            return true;
+            return holds;
         }
 
-        Bind(type, text, assessor, context);
-        var holds = true;
+        Bind(bound, text, assessor, context);
         for (var i = 0; i < tests.Count; i++)
         {
             if (Failure(tests[i], context) is { } failure)
             {
                 holds = false;
-                reporter.Report(
+                reporter?.Report(
                     XsdRuleCodes.CvcAssertionsValid,
                     location,
                     "The value '" + text + "' does not satisfy the assertion '" + tests[i].Test + "': " + failure + "."
@@ -82,9 +127,37 @@ internal static class FacetAssertionEvaluator
         return holds;
     }
 
+    // XSD 1.1 accepts the first member that is valid including its own assertions; null when no member is.
+    private static SimpleTypeDefinition? SelectMember(
+        FacetAssertions assertions,
+        SimpleTypeDefinition union,
+        string text,
+        ISimpleValueAssessor assessor,
+        XPathEvaluationContext context,
+        DocumentLocation location
+    )
+    {
+        for (var i = 0; i < union.MemberTypes.Count; i++)
+        {
+            var member = union.MemberTypes[i];
+            if (
+                assessor.Assess(member, text.AsSpan(), out _).IsValid
+                && (
+                    !assertions.Reaches(member)
+                    || CheckType(assertions, member, text, assessor, context, location, null)
+                )
+            )
+            {
+                return member;
+            }
+        }
+
+        return null;
+    }
+
     // $value is the empty sequence, one item, or the items of a list; only a list copies them into an array.
     private static void Bind(
-        SimpleTypeDefinition type,
+        IXsdComponent type,
         string text,
         ISimpleValueAssessor assessor,
         XPathEvaluationContext context
