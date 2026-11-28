@@ -1,16 +1,18 @@
 namespace NetEvolve.Schemas.Schematron.Xslt.Library.Core;
 
+using System;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Schematron.Xslt.Documents;
 using NetEvolve.Schemas.Schematron.Xslt.Functions;
 using NetEvolve.Schemas.Schematron.Xslt.Instructions.Grouping;
+using NetEvolve.Schemas.Schematron.Xslt.Registry;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Functions.Binding;
 
 /// <summary>
 /// The functions in scope for the expressions of one binding: the XPath catalog under the host flags of the binding, the core library
-/// of this folder (<c>current</c>, <c>system-property</c>, <c>function-available</c>, and the two grouping functions <c>current-group</c> and <c>current-grouping-key</c>), the document functions of
+/// of this folder (<c>current</c>, <c>system-property</c>, <c>function-available</c>, <c>element-available</c>, and the two grouping functions <c>current-group</c> and <c>current-grouping-key</c>), the document functions of
 /// <see cref="XsltDocumentFunctions"/> (<c>document</c>, <c>doc</c>, <c>doc-available</c>, <c>unparsed-text</c>,
 /// <c>unparsed-text-available</c>, bound to the base URI of the expressions), and the stylesheet functions. An XSLT binding sets the
 /// XSLT 2.0 host flag of the XPath package, which makes <c>generate-id</c> visible there; this folder holds no second implementation
@@ -32,11 +34,13 @@ internal sealed class XsltFunctionScope
     /// <param name="binding">The binding; one that allows XSLT instructions gets the core library and the XSLT 2.0 host flag.</param>
     /// <param name="statics">The static context of the expressions: version, namespaces, and the layers below the core library.</param>
     /// <param name="userFunctions">The stylesheet functions, or <see langword="null"/> for none.</param>
+    /// <param name="instructions">The instruction registry that <c>element-available</c> asks, or <see langword="null"/> for the default registry; read at the first call, so the registry is not built early.</param>
     /// <exception cref="System.ArgumentNullException"><paramref name="binding"/> or <paramref name="statics"/> is <see langword="null"/>.</exception>
     internal XsltFunctionScope(
         IQueryBinding binding,
         XPathStaticContext statics,
-        XsltFunctionTable? userFunctions = null
+        XsltFunctionTable? userFunctions = null,
+        Func<IXsltInstructionRegistry>? instructions = null
     )
     {
         ArgumentNullException.ThrowIfNull(binding);
@@ -58,6 +62,7 @@ internal sealed class XsltFunctionScope
             new CurrentFunction(),
             new SystemPropertyFunction(statics),
             new FunctionAvailableFunction(this),
+            new ElementAvailableFunction(statics, instructions ?? (() => XsltRegistryCatalog.Shared.Default)),
             .. XsltGroupingFunctions.Create(binding),
         ];
         // The document functions are a layer of their own: a relative reference resolves against the base URI of the expressions (#312).

@@ -17,6 +17,6 @@ internal interface IXsltInstructionRegistry
     /// <summary>Finds the entry of a construct that has no XSLT name.</summary>
     bool TryGetSynthetic(XsltSyntheticElement kind, out IXsltInstruction instruction);
 
-    /// <summary>Whether an instruction is registered; the future <c>element-available</c> asks this.</summary>
+    /// <summary>Whether an instruction is registered; <c>element-available</c> asks this.</summary>
     bool IsAvailable(in XPathQName name);
 }
