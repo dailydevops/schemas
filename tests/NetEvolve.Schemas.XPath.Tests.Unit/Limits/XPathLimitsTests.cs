@@ -16,6 +16,8 @@ public class XPathLimitsTests
         await Assert.That(limits.MaxSequenceSize).IsEqualTo(10_000_000);
         await Assert.That(limits.MaxRangeSize).IsEqualTo(10_000_000L);
         await Assert.That(limits.MaxStringLength).IsEqualTo(10_000_000L);
+        await Assert.That(limits.MaxIntegerBits).IsEqualTo(10_000_000);
+        await Assert.That(limits.MaxDecimalScale).IsEqualTo(10_000_000);
     }
 
     [Test]
@@ -27,6 +29,8 @@ public class XPathLimitsTests
         await Assert.That(XPathLimits.Default.MaxSequenceSize).IsEqualTo(flowed.MaxSequenceSize);
         await Assert.That(XPathLimits.Default.MaxRangeSize).IsEqualTo(flowed.MaxRangeSize);
         await Assert.That(XPathLimits.Default.MaxStringLength).IsEqualTo(flowed.MaxStringLength);
+        await Assert.That(XPathLimits.Default.MaxIntegerBits).IsEqualTo(flowed.MaxIntegerBits);
+        await Assert.That(XPathLimits.Default.MaxDecimalScale).IsEqualTo(flowed.MaxDecimalScale);
     }
 
     [Test]
@@ -65,6 +69,8 @@ public class XPathLimitsTests
         await Assert.That(limits.MaxSequenceSize).IsEqualTo(XPathLimits.MaxSequenceSizeCeiling);
         await Assert.That(limits.MaxRangeSize).IsEqualTo(5_000_000_000L);
         await Assert.That(limits.MaxStringLength).IsEqualTo(5_000_000_000L);
+        await Assert.That(limits.MaxIntegerBits).IsEqualTo(int.MaxValue);
+        await Assert.That(limits.MaxDecimalScale).IsEqualTo(int.MaxValue);
     }
 
     [Test]
@@ -113,6 +119,8 @@ public class XPathLimitsTests
         var sequence = original.WithMaxSequenceSize(4);
         var range = original.WithMaxRangeSize(5);
         var text = original.WithMaxStringLength(6);
+        var bits = original.WithMaxIntegerBits(70);
+        var scale = original.WithMaxDecimalScale(8);
 
         await Assert.That(depth.MaxRecursionDepth).IsEqualTo(3);
         await Assert.That(depth.MaxSequenceSize).IsEqualTo(original.MaxSequenceSize);
@@ -122,6 +130,10 @@ public class XPathLimitsTests
         await Assert.That(range.MaxStringLength).IsEqualTo(original.MaxStringLength);
         await Assert.That(text.MaxStringLength).IsEqualTo(6L);
         await Assert.That(text.MaxRecursionDepth).IsEqualTo(original.MaxRecursionDepth);
+        await Assert.That(bits.MaxIntegerBits).IsEqualTo(70);
+        await Assert.That(bits.MaxDecimalScale).IsEqualTo(original.MaxDecimalScale);
+        await Assert.That(scale.MaxDecimalScale).IsEqualTo(8);
+        await Assert.That(scale.MaxIntegerBits).IsEqualTo(original.MaxIntegerBits);
         await Assert.That(original.MaxRecursionDepth).IsEqualTo(256);
         await Assert.That(original.MaxSequenceSize).IsEqualTo(10_000_000);
     }
@@ -146,6 +158,8 @@ public class XPathLimitsTests
         await Assert.That(() => limits.WithMaxSequenceSize(0)).Throws<ArgumentOutOfRangeException>();
         await Assert.That(() => limits.WithMaxRangeSize(0)).Throws<ArgumentOutOfRangeException>();
         await Assert.That(() => limits.WithMaxStringLength(-1)).Throws<ArgumentOutOfRangeException>();
+        await Assert.That(() => limits.WithMaxIntegerBits(63)).Throws<ArgumentOutOfRangeException>();
+        await Assert.That(() => limits.WithMaxDecimalScale(0)).Throws<ArgumentOutOfRangeException>();
     }
 
     [Test]
