@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xml.Datatypes.Contracts;
 
 using System.Runtime.InteropServices;
-using NetEvolve.Arguments;
 
 /// <summary>The outcome of parsing a lexical form: a value, or a coded error with the offset where it was found. Invalid input never throws.</summary>
 /// <typeparam name="TValue">The value type, always a non-ref struct.</typeparam>

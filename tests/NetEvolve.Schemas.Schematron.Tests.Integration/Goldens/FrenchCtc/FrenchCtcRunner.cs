@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.Schematron.Tests.Integration.Goldens.FrenchCtc;
 
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Conformance.Results;
 using NetEvolve.Schemas.Schematron.Tests.Integration.Goldens.Stage3Documents;
 

@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.XPath.Functions.Arrays;
 
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Functions.Binding;
 using NetEvolve.Schemas.XPath.Syntax.Tree;

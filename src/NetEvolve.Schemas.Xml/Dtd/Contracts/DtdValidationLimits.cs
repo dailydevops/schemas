@@ -1,7 +1,5 @@
 namespace NetEvolve.Schemas.Xml.Dtd.Contracts;
 
-using NetEvolve.Arguments;
-
 /// <summary>
 /// The limits that DTD validation adds to the reader and core limits (design #122, section 9), each with one default and
 /// one error code. A limit of zero never disables it; exceeding one is a fatal status, never an issue.

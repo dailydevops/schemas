@@ -3,7 +3,6 @@ namespace NetEvolve.Schemas.Xml.Contracts;
 using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Dtd.Model;
 
 /// <summary>A handle for one node of an <see cref="XmlTree"/>: the tree and an index. Every member delegates to the tree.</summary>

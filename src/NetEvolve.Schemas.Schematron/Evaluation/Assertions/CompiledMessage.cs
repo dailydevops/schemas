@@ -1,7 +1,5 @@
 namespace NetEvolve.Schemas.Schematron.Evaluation.Assertions;
 
-using NetEvolve.Arguments;
-
 /// <summary>
 /// The rich text of an assertion, a diagnostic, or a property, compiled once in the scope of its rule. The inline elements
 /// <c>emph</c>, <c>dir</c>, and <c>span</c> stay in the structure; building the text contributes their content without markup.

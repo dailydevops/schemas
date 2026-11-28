@@ -3,7 +3,6 @@
 namespace NetEvolve.Schemas.Xsd;
 
 using System;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Model;
 using NetEvolve.Schemas.XPath.Xdm.Values;
@@ -44,10 +43,10 @@ public sealed class XsdAnnotatedResult
         TreeIssueLog issues
     )
     {
-        Argument.ThrowIfNull(result);
-        Argument.ThrowIfNull(document);
-        Argument.ThrowIfNull(source);
-        Argument.ThrowIfNull(issues);
+        ArgumentNullException.ThrowIfNull(result);
+        ArgumentNullException.ThrowIfNull(document);
+        ArgumentNullException.ThrowIfNull(source);
+        ArgumentNullException.ThrowIfNull(issues);
 
         Result = result;
         Document = document;
@@ -75,7 +74,7 @@ public sealed class XsdAnnotatedResult
     /// <exception cref="System.ArgumentNullException"><paramref name="issue"/> is <see langword="null"/>.</exception>
     public bool TryGetIssueNode(ValidationIssue issue, out XmlNode node)
     {
-        Argument.ThrowIfNull(issue);
+        ArgumentNullException.ThrowIfNull(issue);
 
         var issues = Result.Issues;
         for (var i = 0; i < issues.Count && i < _issues.Count; i++)

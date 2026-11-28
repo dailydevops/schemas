@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Casting.Core;
 
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.QNames;
 using NetEvolve.Schemas.XPath.Types;
 using NetEvolve.Schemas.XPath.Xdm.Values;

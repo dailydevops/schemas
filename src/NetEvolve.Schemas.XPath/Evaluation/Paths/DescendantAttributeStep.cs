@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Evaluation.Paths;
 
 using System;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Model;
 using NetEvolve.Schemas.XPath.Context;

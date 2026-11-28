@@ -5,7 +5,6 @@ using System.Buffers;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using NetEvolve.Arguments;
 
 /// <summary>
 /// The source of one schema document that a builder holds until <c>Build</c>. Spans and sequences are copied once, so the caller may

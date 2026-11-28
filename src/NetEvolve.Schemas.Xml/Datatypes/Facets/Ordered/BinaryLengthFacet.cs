@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xml.Datatypes.Facets.Ordered;
 
 using System;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.Binary;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 

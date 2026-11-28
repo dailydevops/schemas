@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Schematron.Evaluation.Assertions;
 
 using System;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.XPath.Xdm.Values;

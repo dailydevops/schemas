@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
-using NetEvolve.Arguments;
 
 /// <summary>Thrown when a schema cannot be compiled.</summary>
 public sealed class SchemaCompilationException : Exception

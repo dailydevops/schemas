@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xml.Reader.EntityInput;
 
 using System;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Dtd.Declarations;
 using NetEvolve.Schemas.Xml.Dtd.Entities;

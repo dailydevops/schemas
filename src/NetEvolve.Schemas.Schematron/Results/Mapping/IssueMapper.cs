@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.Schematron.Results.Mapping;
 
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Schematron.Diagnostics;
 using NetEvolve.Schemas.Schematron.Seams;

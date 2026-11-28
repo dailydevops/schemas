@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.Schematron.Xslt.Registry;
 
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Xml.Model;
 using NetEvolve.Schemas.XPath.Api;

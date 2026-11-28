@@ -1,6 +1,5 @@
 ﻿namespace NetEvolve.Schemas.Xsd.Diagnostics;
 
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Xsd.Components;
 

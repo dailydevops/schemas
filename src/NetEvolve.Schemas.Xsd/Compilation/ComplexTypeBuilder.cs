@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.Xsd.Compilation;
 
 using System;
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xsd.Assertions.ComplexTypes;
 using NetEvolve.Schemas.Xsd.Attributes.Declarations;

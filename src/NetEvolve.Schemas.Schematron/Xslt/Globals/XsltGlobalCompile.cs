@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Schematron.Xslt.Globals;
 
 using System;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Scopes;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Schematron.Xslt.Functions;

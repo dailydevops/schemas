@@ -3,7 +3,6 @@ namespace NetEvolve.Schemas.XPath.Functions.Regex;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Regex.Contracts;
 using NetEvolve.Schemas.Xml.Regex.Operations;
 using NetEvolve.Schemas.Xml.Regex.Parsing;

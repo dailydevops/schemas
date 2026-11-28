@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.Xml.Contracts;
 
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Dtd.Contracts;
 
 /// <summary>Immutable reader options; they carry no validation settings (DTD validation is XML-60).</summary>

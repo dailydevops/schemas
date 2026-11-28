@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.Xsd.SimpleTypes.Checks;
 
 using System;
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xml.Datatypes.Core;
 using NetEvolve.Schemas.Xml.Datatypes.Facets.Core;

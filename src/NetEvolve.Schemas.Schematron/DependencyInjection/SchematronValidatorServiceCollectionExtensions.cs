@@ -4,7 +4,6 @@ namespace Microsoft.Extensions.DependencyInjection;
 
 using System;
 using System.IO;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas;
 
 /// <summary>Registers Schematron validators as lazily compiled singletons, plain or keyed.</summary>

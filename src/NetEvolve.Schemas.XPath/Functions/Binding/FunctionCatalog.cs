@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.XPath.Functions.Binding;
 
 using System;
 using System.Threading;
-using NetEvolve.Arguments;
 
 /// <summary>
 /// Collects the function groups through their registration files. Each group folder has one registration file whose module

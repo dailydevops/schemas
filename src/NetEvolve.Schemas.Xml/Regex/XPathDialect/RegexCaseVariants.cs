@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.Xml.Regex.XPathDialect;
 
 using System;
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Regex.Matching;
 using NetEvolve.Schemas.Xml.Regex.Parsing;
 using NetEvolve.Schemas.Xml.Text.Unicode;

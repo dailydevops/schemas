@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xsd.Wildcards.Negation;
 
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Elements;

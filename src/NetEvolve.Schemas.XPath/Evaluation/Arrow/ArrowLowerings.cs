@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Evaluation.Arrow;
 
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Compilation;
 using NetEvolve.Schemas.XPath.Syntax.Tree;
 

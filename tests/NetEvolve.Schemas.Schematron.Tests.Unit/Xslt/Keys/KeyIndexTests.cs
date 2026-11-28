@@ -3,7 +3,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Patterns;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Functions;

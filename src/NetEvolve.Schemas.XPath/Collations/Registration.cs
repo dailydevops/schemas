@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Collations;
 
 using System.Runtime.CompilerServices;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Functions.Binding;
 
 /// <summary>

@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas;
 
 using System;
 using System.Globalization;
-using NetEvolve.Arguments;
 
 /// <summary>A one-based line and column in a document, zero meaning unknown.</summary>
 public readonly struct DocumentLocation : IEquatable<DocumentLocation>

@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Schematron.Expansion.AbstractPatterns;
 
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Model;
 
 /// <summary>

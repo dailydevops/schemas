@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.Xml.Datatypes.Core;
 
 using System;
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 
 /// <summary>The built types of one XSD version. Types are created lazily while the constructor runs; once the constructor returns nothing changes, so it is safe to share between threads.</summary>

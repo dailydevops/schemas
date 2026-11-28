@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.XPath.Errors;
 
 using System;
 using System.Runtime.InteropServices;
-using NetEvolve.Arguments;
 
 /// <summary>An error code as a QName: namespace URI and local name.</summary>
 /// <remarks>Equality is ordinal on both parts, so the same local name in different namespaces is a different code.</remarks>

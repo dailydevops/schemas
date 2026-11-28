@@ -3,7 +3,6 @@ namespace NetEvolve.Schemas.Xml.Dtd.Entry;
 using System;
 using System.Buffers;
 using System.Threading;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Xml.Buffers;
 using NetEvolve.Schemas.Xml.Contracts;

@@ -1,7 +1,5 @@
 namespace NetEvolve.Schemas.Schematron.Evaluation.Annotations;
 
-using NetEvolve.Arguments;
-
 /// <summary>The <c>role</c>, <c>flag</c>, and <c>severity</c> of one finding after inheritance and dynamic values; each is empty when none applies.</summary>
 internal readonly struct ResolvedAnnotations
 {

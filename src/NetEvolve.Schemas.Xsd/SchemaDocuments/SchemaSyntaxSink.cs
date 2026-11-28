@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.Xsd.SchemaDocuments;
 
 using System;
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Datatypes.Core;
 using NetEvolve.Schemas.Xml.Text.NameTable;

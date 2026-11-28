@@ -3,7 +3,6 @@ namespace NetEvolve.Schemas.XPath.Evaluation.Arithmetic;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Syntax.Tree;
 using NetEvolve.Schemas.XPath.Types;

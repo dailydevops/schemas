@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.Schematron.Xslt.Instructions.Regex;
 
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Schematron.Xslt.Functions;
 using NetEvolve.Schemas.Schematron.Xslt.Instructions.Flow;

@@ -3,7 +3,6 @@ namespace NetEvolve.Schemas.XPath.Evaluation.Paths;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.XPath.Compilation;
 using NetEvolve.Schemas.XPath.Context;

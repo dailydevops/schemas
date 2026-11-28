@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.Schematron;
 
 using System.Collections.Generic;
 using System.Threading;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Resources;
 using NetEvolve.Schemas.Schematron.Diagnostics;

@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.Xsd.IdentityConstraints.References;
 
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.Xsd.Components;

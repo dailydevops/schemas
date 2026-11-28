@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.Schematron.Tests.Integration.Goldens.Harness;
 
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Conformance.Fetch;
 using NetEvolve.Schemas.Conformance.Manifest;
 

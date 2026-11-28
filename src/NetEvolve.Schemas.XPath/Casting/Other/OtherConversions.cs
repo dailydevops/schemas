@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.XPath.Casting.Other;
 
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.Binary;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xml.Datatypes.Core;

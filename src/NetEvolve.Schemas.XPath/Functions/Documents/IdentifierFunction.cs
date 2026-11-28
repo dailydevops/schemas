@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.XPath.Functions.Documents;
 
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Errors;

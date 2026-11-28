@@ -1,7 +1,6 @@
 ﻿namespace NetEvolve.Schemas.Schematron.Pipeline;
 
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Evaluation.Dispatch;
 using NetEvolve.Schemas.Schematron.Evaluation.Patterns;
 using NetEvolve.Schemas.Schematron.Model;

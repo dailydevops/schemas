@@ -1,7 +1,5 @@
 namespace NetEvolve.Schemas.Schematron.Xslt.Functions;
 
-using NetEvolve.Arguments;
-
 /// <summary>One parameter of a stylesheet function: its name, its variable slot, and its <see langword="as"/> type.</summary>
 internal sealed class XsltFunctionParameter
 {

@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Schematron.Tests.Integration.Goldens.EformsSdk;
 
 using System.Globalization;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Conformance.Results;
 
 /// <summary>Compares the SVRL report of the engine with the expected report of the eForms SDK for one notice.</summary>

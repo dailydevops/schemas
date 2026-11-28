@@ -1,7 +1,5 @@
 namespace NetEvolve.Schemas.Xsd.Derivation.Subsumption11;
 
-using NetEvolve.Arguments;
-
 /// <summary>
 /// A convex set of values of counters, kept as difference bounds: for every two counters (and the constant zero) an upper
 /// bound of their difference. The size of a zone depends on the number of counters, never on their values, so a counter

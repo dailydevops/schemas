@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.Schematron.Pipeline;
 
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Schematron.Seams;
 

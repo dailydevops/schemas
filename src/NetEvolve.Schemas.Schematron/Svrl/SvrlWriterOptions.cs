@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.Schematron.Svrl;
 
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Writer;
 
 /// <summary>Immutable options of the <see cref="SvrlReportSink"/>.</summary>

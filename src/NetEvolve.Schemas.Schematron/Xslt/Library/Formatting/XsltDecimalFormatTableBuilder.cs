@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.Schematron.Xslt.Library.Formatting;
 
 using System;
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.XPath.Abstractions;
 using NetEvolve.Schemas.XPath.Api;

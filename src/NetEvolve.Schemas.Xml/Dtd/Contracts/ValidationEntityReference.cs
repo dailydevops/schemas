@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.Xml.Dtd.Contracts;
 
 using System;
 using System.Runtime.InteropServices;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Contracts;
 
 /// <summary>An entity reference in content as a validation step sees it; it arrives before any replacement event of the reference.</summary>

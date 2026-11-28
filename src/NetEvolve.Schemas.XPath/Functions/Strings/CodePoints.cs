@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Functions.Strings;
 
 using System;
-using NetEvolve.Arguments;
 
 /// <summary>
 /// Reads and counts the code points of UTF-16 text: the functions of the string group count and index in code points, not in code units.

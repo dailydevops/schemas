@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xsd.Validation.Tree;
 
 using System;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Model;
@@ -49,11 +48,11 @@ internal sealed class TreeRunSink : IXmlSink
         TreeDefaults defaults
     )
     {
-        Argument.ThrowIfNull(inner);
-        Argument.ThrowIfNull(copy);
-        Argument.ThrowIfNull(collector);
-        Argument.ThrowIfNull(log);
-        Argument.ThrowIfNull(defaults);
+        ArgumentNullException.ThrowIfNull(inner);
+        ArgumentNullException.ThrowIfNull(copy);
+        ArgumentNullException.ThrowIfNull(collector);
+        ArgumentNullException.ThrowIfNull(log);
+        ArgumentNullException.ThrowIfNull(defaults);
 
         _inner = inner;
         _copy = copy;

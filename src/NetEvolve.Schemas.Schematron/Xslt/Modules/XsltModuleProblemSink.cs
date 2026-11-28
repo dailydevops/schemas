@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.Schematron.Xslt.Modules;
 
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Seams;
 
 /// <summary>

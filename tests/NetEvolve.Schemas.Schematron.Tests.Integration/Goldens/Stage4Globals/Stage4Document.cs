@@ -1,7 +1,5 @@
 namespace NetEvolve.Schemas.Schematron.Tests.Integration.Goldens.Stage4Globals;
 
-using NetEvolve.Arguments;
-
 /// <summary>One own test document with the rules it must fire.</summary>
 internal sealed record Stage4Document
 {

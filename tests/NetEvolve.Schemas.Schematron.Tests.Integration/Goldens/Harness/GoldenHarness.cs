@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.Schematron.Tests.Integration.Goldens.Harness;
 
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Conformance.Results;
 
 /// <summary>Compares the rules a validator fired per document with the expected rules.</summary>

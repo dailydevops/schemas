@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Xdm.Nodes;
 
 using System;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Model;
 using NetEvolve.Schemas.XPath.Xdm.Values;

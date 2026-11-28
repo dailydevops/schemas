@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.Xsd.OpenContent;
 
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xsd.Contracts;
 
 /// <summary>

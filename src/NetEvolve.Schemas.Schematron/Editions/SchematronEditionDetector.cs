@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Schematron.Editions;
 
 using System;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Model;
 
 /// <summary>Maps the value of <c>/sch:schema/@schematronEdition</c> to the edition whose semantics apply.</summary>

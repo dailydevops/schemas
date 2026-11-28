@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xsd.Assertions.Facet;
 
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Errors;

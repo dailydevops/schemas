@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.Schematron.Loading.Inclusion;
 
 using System;
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Model;
 using NetEvolve.Schemas.Schematron.Parsing.Core;
 using NetEvolve.Schemas.Schematron.Seams;

@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xml.Text.NameTable;
 
 using System;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Contracts;
 
 /// <summary>

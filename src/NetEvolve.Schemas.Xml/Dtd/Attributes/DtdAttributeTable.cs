@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xml.Dtd.Attributes;
 
 using System;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Dtd.Declarations;
 using NetEvolve.Schemas.Xml.Dtd.Model;
 using NetEvolve.Schemas.Xml.Text.NameTable;

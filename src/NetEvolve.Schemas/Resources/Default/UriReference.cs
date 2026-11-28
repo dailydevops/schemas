@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.Resources.Default;
 
 using System;
 using System.Buffers;
-using NetEvolve.Arguments;
 
 /// <summary>Resolves a URI reference against a base URI (RFC 3986 section 5) after the XML 1.0 section 4.2.2 escaping.</summary>
 /// <remarks>

@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.Xsd.IdentityConstraints.Evaluation;
 
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xsd.Contracts;
 
 /// <summary>The values of the fields of one selected node (the key-sequence of Structures section 3.11.4), with the hash of all of them.</summary>

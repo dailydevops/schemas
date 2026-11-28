@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.Xml.Datatypes.Binary;
 
 using System;
 using System.Runtime.InteropServices;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 
 /// <summary>The value of <c>hexBinary</c> and <c>base64Binary</c> (XSD 1.1 Part 2, sections 3.3.15 and 3.3.16): a finite sequence of octets.</summary>

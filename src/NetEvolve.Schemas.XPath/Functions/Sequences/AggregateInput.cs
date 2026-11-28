@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.XPath.Functions.Sequences;
 
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Evaluation.Arithmetic;

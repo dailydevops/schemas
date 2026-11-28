@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.XPath.Functions.Regex;
 
 using System;
 using System.Runtime.InteropServices;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Regex.Contracts;
 using NetEvolve.Schemas.Xml.Regex.Operations;
 

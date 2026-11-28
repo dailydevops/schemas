@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas;
 
 using System.Globalization;
-using NetEvolve.Arguments;
 
 /// <summary>One finding of a validation or schema compilation. Immutable.</summary>
 public sealed class ValidationIssue

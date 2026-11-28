@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xsd.Composition;
 
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xsd.Override;
 using NetEvolve.Schemas.Xsd.SchemaDocuments;
 

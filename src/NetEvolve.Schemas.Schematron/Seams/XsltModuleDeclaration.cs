@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.Schematron.Seams;
 
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Xdm.Nodes;
 
 /// <summary>

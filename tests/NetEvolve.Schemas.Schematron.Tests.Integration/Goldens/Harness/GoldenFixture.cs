@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.Schematron.Tests.Integration.Goldens.Harness;
 
 using System.IO.Compression;
 using System.Security.Cryptography;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Conformance.Fetch;
 using NetEvolve.Schemas.Conformance.Manifest;
 

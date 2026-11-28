@@ -1,7 +1,5 @@
 namespace NetEvolve.Schemas.Schematron.Tests.Integration.Goldens.Harness;
 
-using NetEvolve.Arguments;
-
 /// <summary>A rule set with its validator and its expectations; the name is the test set of the results.</summary>
 /// <remarks>
 /// Two expectations for the same document in one rule set produce two <c>CaseResult</c> values with the same case id.

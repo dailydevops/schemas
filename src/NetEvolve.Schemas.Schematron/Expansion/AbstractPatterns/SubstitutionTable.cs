@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Schematron.Expansion.AbstractPatterns;
 
 using System.Text;
-using NetEvolve.Arguments;
 
 /// <summary>
 /// The parameters of one <c>is-a</c> instance and their values, applied to expression text by textual substitution.

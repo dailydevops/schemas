@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xml.Contracts;
 
 using System;
-using NetEvolve.Arguments;
 
 /// <summary>An unparsed entity declaration of the document type: name, identifiers, and notation name.</summary>
 public sealed class XmlUnparsedEntity

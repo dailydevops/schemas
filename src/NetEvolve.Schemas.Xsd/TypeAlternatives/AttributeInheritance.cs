@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xsd.TypeAlternatives;
 
 using System;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xsd.SchemaDocuments;
 
 /// <summary>The <c>inheritable</c> attribute of an attribute declaration (Structures 1.1, 3.2.2).</summary>

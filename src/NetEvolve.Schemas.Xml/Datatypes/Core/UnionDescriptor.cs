@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.Xml.Datatypes.Core;
 
 using System;
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 
 /// <summary>A union datatype: the first member type, in declaration order, that accepts the lexical form wins (XSD 1.1 Part 2, section 2.5.1.3).</summary>

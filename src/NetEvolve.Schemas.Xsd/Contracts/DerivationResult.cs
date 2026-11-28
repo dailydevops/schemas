@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xsd.Contracts;
 
 using System.Runtime.InteropServices;
-using NetEvolve.Arguments;
 
 /// <summary>The outcome of a derivation check.</summary>
 [StructLayout(LayoutKind.Auto)]

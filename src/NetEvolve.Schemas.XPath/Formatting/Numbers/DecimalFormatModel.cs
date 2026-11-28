@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Formatting.Numbers;
 
 using System;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Text.Unicode;
 using NetEvolve.Schemas.XPath.Abstractions;
 

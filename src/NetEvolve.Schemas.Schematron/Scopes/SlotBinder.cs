@@ -3,7 +3,6 @@ namespace NetEvolve.Schemas.Schematron.Scopes;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Seams;
 
 /// <summary>

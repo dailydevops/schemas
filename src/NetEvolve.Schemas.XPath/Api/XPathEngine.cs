@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.XPath.Api;
 
 using System;
 using System.Collections.Concurrent;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Casting.Core;
 using NetEvolve.Schemas.XPath.Compatibility;
 using NetEvolve.Schemas.XPath.Compilation;

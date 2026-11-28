@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xml.Datatypes.Core;
 
 using System;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 
 /// <summary>One built-in type: its name, the first XSD version that has it, and how to create it. A type package exposes these from its own file.</summary>

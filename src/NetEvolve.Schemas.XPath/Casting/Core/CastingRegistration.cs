@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Casting.Core;
 
 using System.Runtime.CompilerServices;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Functions.Binding;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 

@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.XPath.Casting.Core;
 
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>One row of the casting table: a source type, a target type, the cell, and the conversion. Immutable.</summary>

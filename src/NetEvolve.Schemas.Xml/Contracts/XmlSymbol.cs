@@ -3,7 +3,6 @@ namespace NetEvolve.Schemas.Xml.Contracts;
 using System;
 using System.Globalization;
 using System.Runtime.InteropServices;
-using NetEvolve.Arguments;
 
 /// <summary>An integer handle for one string interned in an <see cref="XmlNameTable"/>: a prefix, a local name, or a namespace URI.</summary>
 /// <remarks><see langword="default"/> is the empty string in every table. A handle is meaningless without the table that issued it.</remarks>

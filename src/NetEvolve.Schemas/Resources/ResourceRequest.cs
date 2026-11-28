@@ -3,7 +3,6 @@
 namespace NetEvolve.Schemas.Resources;
 
 using System;
-using NetEvolve.Arguments;
 
 /// <summary>A request for an external resource.</summary>
 public readonly struct ResourceRequest

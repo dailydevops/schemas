@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.XPath.Functions.Regex;
 
 using System;
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Regex.Operations;
 using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Functions.Binding;

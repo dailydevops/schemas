@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Schematron.Seams;
 
 using System;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Xdm.Nodes;
 
 /// <summary>What an XSLT instruction sees while it compiles.</summary>

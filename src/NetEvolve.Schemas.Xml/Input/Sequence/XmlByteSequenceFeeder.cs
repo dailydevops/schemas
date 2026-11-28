@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.Xml.Input.Sequence;
 
 using System;
 using System.Buffers;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Buffers;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Input.Decoding;

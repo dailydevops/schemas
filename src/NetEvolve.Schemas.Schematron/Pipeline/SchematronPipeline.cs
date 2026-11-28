@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Schematron.Pipeline;
 
 using System.Threading;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Schematron.Loading.Inclusion;
 using NetEvolve.Schemas.Schematron.Seams;

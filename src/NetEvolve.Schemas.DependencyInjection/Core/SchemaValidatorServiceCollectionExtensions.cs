@@ -4,7 +4,6 @@ namespace Microsoft.Extensions.DependencyInjection;
 
 using System;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas;
 
 /// <summary>Registers plain and keyed schema validators as lazily built singletons.</summary>

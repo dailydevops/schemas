@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Evaluation.Paths;
 
 using System;
-using NetEvolve.Arguments;
 
 /// <summary>
 /// A positional predicate that the optimization stage recognized (XPath 2.0, 3.2.2): <c>[N]</c>, <c>[position() le N]</c>, or

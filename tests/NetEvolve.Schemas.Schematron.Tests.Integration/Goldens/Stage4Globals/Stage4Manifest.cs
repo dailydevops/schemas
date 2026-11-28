@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Schematron.Tests.Integration.Goldens.Stage4Globals;
 
 using System.Text.Json;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Tests.Integration.Conformance.Engine;
 
 /// <summary>

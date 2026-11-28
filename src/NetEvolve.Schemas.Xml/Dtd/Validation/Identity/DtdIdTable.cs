@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xml.Dtd.Validation.Identity;
 
 using System;
-using NetEvolve.Arguments;
 
 /// <summary>
 /// The set of the ID values of one document. A lookup takes a character span and allocates nothing; the names live in one

@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.Xsd.Assertions.ComplexTypes;
 
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.Xsd.SchemaDocuments;

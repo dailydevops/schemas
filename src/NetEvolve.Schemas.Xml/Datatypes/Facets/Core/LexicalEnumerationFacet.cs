@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.Xml.Datatypes.Facets.Core;
 
 using System;
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 
 /// <summary>The <c>enumeration</c> facet for string types, whose value space is the whitespace-normalized text: an ordinal comparison.</summary>

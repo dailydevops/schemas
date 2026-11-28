@@ -1,7 +1,7 @@
 namespace NetEvolve.Schemas.Xsd.Validation.Tree;
 
+using System;
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 
 /// <summary>
 /// The element ordinal at which each issue of a tree run was reported, in the order of the issues of the result: the bridge from an
@@ -22,8 +22,8 @@ internal sealed class TreeIssueLog
     {
         get
         {
-            Argument.ThrowIfLessThan(index, 0);
-            Argument.ThrowIfGreaterThanOrEqual(index, _ordinals.Count);
+            ArgumentOutOfRangeException.ThrowIfLessThan(index, 0);
+            ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, _ordinals.Count);
 
             return _ordinals[index];
         }
@@ -33,7 +33,7 @@ internal sealed class TreeIssueLog
     /// <param name="ordinal">The ordinal, zero for the document.</param>
     internal void Add(int ordinal)
     {
-        Argument.ThrowIfLessThan(ordinal, 0);
+        ArgumentOutOfRangeException.ThrowIfLessThan(ordinal, 0);
 
         _ordinals.Add(ordinal);
     }

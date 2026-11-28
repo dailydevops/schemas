@@ -3,7 +3,6 @@ namespace NetEvolve.Schemas.Xml.Regex.Operations;
 using System;
 using System.Buffers;
 using System.Runtime.InteropServices;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Regex.Contracts;
 
 /// <summary>Enumerates the non-overlapping matches of a pattern in an input, leftmost first, without allocating per match.</summary>

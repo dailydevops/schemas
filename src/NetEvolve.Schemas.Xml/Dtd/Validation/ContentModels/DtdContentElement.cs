@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xml.Dtd.Validation.ContentModels;
 
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Dtd.Model;
 
 /// <summary>An element type declaration as the content model step matches against it: the kind and what the kind needs.</summary>

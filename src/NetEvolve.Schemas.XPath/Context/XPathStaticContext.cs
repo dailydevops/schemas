@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.XPath.Context;
 
 using System;
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Api;
 
 /// <summary>The static context of an expression (XPath 2.0, 2.1.1): immutable and thread-safe.</summary>

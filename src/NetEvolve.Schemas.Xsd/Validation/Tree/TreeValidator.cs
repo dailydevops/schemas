@@ -1,7 +1,7 @@
 namespace NetEvolve.Schemas.Xsd.Validation.Tree;
 
+using System;
 using System.Threading;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xsd.Validation.Annotations;
 using NetEvolve.Schemas.Xsd.Validation.Assembly;
@@ -13,7 +13,7 @@ internal sealed class TreeValidator
 
     internal TreeValidator(IValidationCore core)
     {
-        Argument.ThrowIfNull(core);
+        ArgumentNullException.ThrowIfNull(core);
 
         _core = core;
     }
@@ -25,8 +25,8 @@ internal sealed class TreeValidator
     internal XsdAnnotatedResult Validate(XmlNode node, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        Argument.ThrowIfNull(node.Tree, nameof(node));
-        Argument.ThrowIfGreaterThan((int)node.Kind, (int)XmlNodeKind.Element, nameof(node));
+        ArgumentNullException.ThrowIfNull(node.Tree, nameof(node));
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)node.Kind, (int)XmlNodeKind.Element, nameof(node));
 
         var table = new AnnotationTable();
         var issues = new TreeIssueLog();

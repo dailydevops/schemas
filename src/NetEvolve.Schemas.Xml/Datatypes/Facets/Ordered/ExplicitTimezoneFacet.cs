@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.Xml.Datatypes.Facets.Ordered;
 
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xml.Datatypes.DateTime;
 

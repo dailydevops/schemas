@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xml.Dtd.Validation.Identity;
 
 using System;
-using NetEvolve.Arguments;
 
 /// <summary>
 /// An append-only character buffer that holds many short names back to back, so storing a name costs no object of its own.

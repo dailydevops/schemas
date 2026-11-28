@@ -1,6 +1,5 @@
 ﻿namespace NetEvolve.Schemas.Xsd.ContentModels.Automaton;
 
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xsd.Contracts;
 
 /// <summary>

@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.Schematron.Xslt.Embedding;
 
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Model;

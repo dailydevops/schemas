@@ -1,7 +1,5 @@
 namespace NetEvolve.Schemas.Schematron.Tests.Integration.Goldens.Harness;
 
-using NetEvolve.Arguments;
-
 /// <summary>Where a golden document lives: a file inside a pinned suite, never a free URL.</summary>
 internal sealed record GoldenDocumentSource
 {

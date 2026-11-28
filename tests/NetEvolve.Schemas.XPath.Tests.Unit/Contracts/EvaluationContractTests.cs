@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Tests.Unit.Contracts;
 
 using System;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Resources;
 using NetEvolve.Schemas.XPath.Abstractions;
 using NetEvolve.Schemas.XPath.Api;

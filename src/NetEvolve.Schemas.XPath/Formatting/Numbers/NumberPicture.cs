@@ -1,7 +1,5 @@
 namespace NetEvolve.Schemas.XPath.Formatting.Numbers;
 
-using NetEvolve.Arguments;
-
 /// <summary>
 /// An analyzed picture string: the sub-picture of positive values and the one of negative values. A picture with one sub-picture uses its
 /// analysis for both, with the minus sign of the decimal format before the prefix for negative values.

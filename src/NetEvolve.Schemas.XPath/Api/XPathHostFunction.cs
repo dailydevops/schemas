@@ -1,7 +1,5 @@
 namespace NetEvolve.Schemas.XPath.Api;
 
-using NetEvolve.Arguments;
-
 /// <summary>A function supplied by the host. Implementations must be stateless or thread-safe.</summary>
 public abstract class XPathHostFunction
 {

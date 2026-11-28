@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xml.Regex.Operations;
 
 using System;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 
 /// <summary>One match of a pattern in an input: its bounds and the bounds of its capture groups.</summary>

@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.XPath.Casting.Core;
 
 using System;
 using System.Threading;
-using NetEvolve.Arguments;
 
 /// <summary>
 /// Collects the rows of the casting table through registration files: each package that owns rows stages a

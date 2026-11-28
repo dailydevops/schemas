@@ -173,7 +173,7 @@ templates/             # Documentation and file templates
 - **Format-agnostic core**: format packages contribute a builder and a validator; the contract, result model, limits, and resolvers live in `NetEvolve.Schemas`.
 - **Immutable validators**: a builder is not thread-safe, the validator it builds is.
 - **Deny by default**: external resources are refused unless a resolver is configured (see [Security Defaults](#security-defaults)).
-- **Argument validation**: guards use `NetEvolve.Arguments`, which ships as a runtime dependency of every package.
+- **Argument validation**: guards use the BCL style (`ArgumentNullException.ThrowIfNull` and the `ArgumentOutOfRangeException.ThrowIf*` family); `NetEvolve.Arguments`, a runtime dependency of every package, supplies these as polyfills on `netstandard2.0`.
 
 ## Conformance
 

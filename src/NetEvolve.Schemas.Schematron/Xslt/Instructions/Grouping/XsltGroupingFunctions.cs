@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Schematron.Xslt.Instructions.Grouping;
 
 using System;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.XPath.Api;
 
