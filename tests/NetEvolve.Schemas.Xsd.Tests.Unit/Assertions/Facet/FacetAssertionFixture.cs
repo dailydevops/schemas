@@ -9,6 +9,7 @@ using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.Xsd.Assertions.Facet;
 using NetEvolve.Schemas.Xsd.Components;
+using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.SimpleTypes.Definitions;
 using NetEvolve.Schemas.Xsd.Tests.Unit.SimpleTypes.Checks;
 
@@ -58,6 +59,27 @@ internal sealed class FacetAssertionFixture : IDisposable
     /// <summary>A restriction of a type that declares the given assertions besides those it inherits.</summary>
     internal SimpleTypeDefinition Derive(SimpleTypeDefinition parent, params string[] tests) =>
         Declare(Types.Derive(parent), tests);
+
+    /// <summary>A list of the item type that declares the given assertions.</summary>
+    internal SimpleTypeDefinition ListOf(SimpleTypeDefinition item, params string[] tests) =>
+        Declare(
+            SimpleTypeDefinition.List(default, FacetFixture.Where, XsdDerivationMethod.None, item, [], Types.Reporter)!,
+            tests
+        );
+
+    /// <summary>A union of the members that declares the given assertions.</summary>
+    internal SimpleTypeDefinition UnionOf(SimpleTypeDefinition[] members, params string[] tests) =>
+        Declare(
+            SimpleTypeDefinition.Union(
+                default,
+                FacetFixture.Where,
+                XsdDerivationMethod.None,
+                members,
+                [],
+                Types.Reporter
+            )!,
+            tests
+        );
 
     internal bool Check(SimpleTypeDefinition type, string text) =>
         FacetAssertionEvaluator.Check(Table(), type, text, Types.Assessor, Context, Value, Types.Reporter);
