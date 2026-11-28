@@ -91,6 +91,17 @@ public class XPathNestingLimitTests
     }
 
     [Test]
+    public async Task Compile_NestingEqualToTheBound_IsRejected()
+    {
+        var context = XPathStaticContext.Default.ToBuilder().WithMaxRecursionDepth(10).Build();
+
+        var result = XPathExpression.TryCompile(Parens(10), context);
+
+        await Assert.That(result.Expression).IsNull();
+        await Assert.That(result.Diagnostic.QName).IsEqualTo(XPathErrorCodes.XPST0003);
+    }
+
+    [Test]
     public async Task Compile_HigherDepth_AcceptsNestingBeyondTheDefault()
     {
         var context = XPathStaticContext.Default.ToBuilder().WithMaxRecursionDepth(200).Build();

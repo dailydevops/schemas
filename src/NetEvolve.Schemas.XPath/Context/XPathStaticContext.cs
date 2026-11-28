@@ -160,7 +160,7 @@ public sealed class XPathStaticContext
         }
 
         /// <summary>Sets the deepest nesting the compiler accepts, for the parser and, with it, the lowering and the evaluation.</summary>
-        /// <param name="depth">The depth, from one to the recursion depth ceiling (<see cref="Limits.XPathLimits.MaxRecursionDepthCeiling"/>); the default is 100.</param>
+        /// <param name="depth">The depth, from one to the recursion depth ceiling of 10,000; the default is 100.</param>
         /// <returns>This builder.</returns>
         /// <exception cref="System.ArgumentOutOfRangeException"><paramref name="depth"/> is below one or above the ceiling.</exception>
         public Builder WithMaxRecursionDepth(int depth)
