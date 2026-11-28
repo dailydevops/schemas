@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.Schematron.Xslt.Functions;
 
 using System.Collections.Generic;
 using NetEvolve.Schemas.Schematron.Seams;
+using NetEvolve.Schemas.Schematron.Xslt.Registry;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.XPath.Xdm.Nodes;
 
@@ -19,6 +20,7 @@ internal static class XsltSequenceConstructor
 {
     private const string ParamLocalName = "param";
     private const string VariableLocalName = "variable";
+    private const string FallbackLocalName = "fallback";
 
     /// <summary>Compiles the children; every problem is reported through the context, and the compile continues after one.</summary>
     /// <param name="context">The compile context of the parent; it compiles the children in the scope given here.</param>
@@ -89,6 +91,12 @@ internal static class XsltSequenceConstructor
     )
     {
         var element = new XPathNode(node);
+        if (XsltElementReader.IsXslt(node, FallbackLocalName) && IsXsltElement(node.Parent))
+        {
+            // A processor that knows the instruction ignores its xsl:fallback children (XSLT 2.0 section 18.2).
+            return true;
+        }
+
         if (XsltElementReader.IsXslt(node, ParamLocalName))
         {
             XsltProblems.Report(
@@ -137,6 +145,15 @@ internal static class XsltSequenceConstructor
 
         return compiled is not null;
     }
+
+    private static bool IsXsltElement(XmlNode node) =>
+        node.Kind == XmlNodeKind.Element
+        && !node.Name.NamespaceUri.IsEmpty
+        && string.Equals(
+            node.Tree!.Names.GetString(node.Name.NamespaceUri),
+            XsltInstructionRegistry.Namespace,
+            StringComparison.Ordinal
+        );
 
     // A prefixed name is kept as {namespace}local, so a reference resolves by expanded QName (XPath 2.0 section 3.1.2).
     private static string VariableKeyOf(XPathNode element)

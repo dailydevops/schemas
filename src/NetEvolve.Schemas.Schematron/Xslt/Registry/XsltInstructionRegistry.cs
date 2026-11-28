@@ -19,7 +19,7 @@ internal sealed class XsltInstructionRegistry : IXsltInstructionRegistry
     internal const string Namespace = "http://www.w3.org/1999/XSL/Transform";
 
     /// <summary>The number of <see cref="XsltSyntheticElement"/> members.</summary>
-    internal const int SyntheticKinds = 2;
+    internal const int SyntheticKinds = 3;
 
     private readonly Dictionary<XPathQName, IXsltInstruction> _named;
     private readonly IXsltInstruction?[] _synthetic;

@@ -233,7 +233,7 @@ Every entry of the instruction registry, with the stage that delivered it. The p
 | literal result element | instruction | 4 | Has no XSLT name; the registry holds one entry for it. |
 | text node | instruction | 4 | Character data of a sequence constructor; the registry holds one entry for it. |
 | `xsl:for-each-group` | instruction | 5 | `group-by`, `group-adjacent`, `group-starting-with`, and `group-ending-with`. `composite` is not supported (DEF-54, [#66](https://github.com/dailydevops/schemas/issues/66)); the collation is limited to the codepoint collation (DEF-43, [#55](https://github.com/dailydevops/schemas/issues/55)). |
-| `xsl:analyze-string` | instruction | 5 | `regex` and `flags` are attribute value templates; `xsl:fallback` inside it is not supported (DEF-27, [#39](https://github.com/dailydevops/schemas/issues/39)). A regex that is invalid, has invalid flags, or matches the zero-length string is a dynamic error when the instruction runs (XTDE1140, XTDE1145, XTDE1150). `regex-group()` reads the groups of the current matching substring, also inside `xsl:function`; a function body starts with no groups. |
+| `xsl:analyze-string` | instruction | 5 | `regex` and `flags` are attribute value templates; `xsl:fallback` inside it is ignored. A regex that is invalid, has invalid flags, or matches the zero-length string is a dynamic error when the instruction runs (XTDE1140, XTDE1145, XTDE1150). `regex-group()` reads the groups of the current matching substring, also inside `xsl:function`; a function body starts with no groups. |
 | `xsl:matching-substring` | child of `xsl:analyze-string` | 5 | |
 | `xsl:non-matching-substring` | child of `xsl:analyze-string` | 5 | |
 
@@ -270,8 +270,9 @@ Every other element of the XSLT namespace is not registered. Compiling one raise
 | `xsl:strip-space`, `xsl:preserve-space` | DEF-24 ([#36](https://github.com/dailydevops/schemas/issues/36)) |
 | `xsl:where-populated`, `xsl:on-empty`, `xsl:on-non-empty` | DEF-25 ([#37](https://github.com/dailydevops/schemas/issues/37)) |
 | `xsl:map`, `xsl:map-entry` | DEF-26 ([#38](https://github.com/dailydevops/schemas/issues/38)) |
-| `xsl:fallback` | DEF-27 ([#39](https://github.com/dailydevops/schemas/issues/39)) |
 | `xsl:context-item`, `xsl:global-context-item` | DEF-29 ([#41](https://github.com/dailydevops/schemas/issues/41)) |
+
+An XSLT element that neither XSLT 2.0 nor 3.0 defines runs its `xsl:fallback` children in its place ([#39](https://github.com/dailydevops/schemas/issues/39)); without a fallback it raises `NES3204`, and a defined but deferred element above raises `NES3204` even with a fallback child.
 
 The module elements of stage 3 (`xsl:include`, `xsl:import`, `xsl:stylesheet`, `xsl:transform`) are not registry entries either, see above; the build handles them in the linker ([#832](https://github.com/dailydevops/schemas/issues/832)). Further, a registered construct raises `NES3204` for an attribute or form that is left out:
 

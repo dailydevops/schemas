@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.Schematron.Xslt.Instructions.Flow;
 
 using System.Runtime.CompilerServices;
+using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Schematron.Xslt.Registry;
 
 /// <summary>
@@ -40,5 +41,6 @@ internal static class Registration
         builder.Add(new XsltForEachInstruction());
         builder.Add(new XsltSortInstruction());
         builder.Add(new XsltMessageInstruction());
+        builder.AddSynthetic(XsltSyntheticElement.UnknownInstruction, new XsltFallbackInstruction());
     }
 }
