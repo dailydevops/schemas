@@ -11,11 +11,17 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// <c>fn:node-name($arg as node()?) as xs:QName?</c> (Functions and Operators 1.0, 2.1): the expanded name of an element, an attribute,
 /// or a processing instruction; the empty sequence for the empty sequence and for the other kinds of node.
 /// </summary>
-internal sealed class NodeQNameFunction : NodeFunction
+internal class NodeQNameFunction : NodeFunction
 {
     /// <summary>Initializes a new instance of the <see cref="NodeQNameFunction"/> class.</summary>
     public NodeQNameFunction()
-        : base("node-name", 1, 1, [new XPathParameterType(XPathItemType.Node, Occurrence.ZeroOrOne)]) { }
+        : this(1, [new XPathParameterType(XPathItemType.Node, Occurrence.ZeroOrOne)]) { }
+
+    /// <summary>Initializes a new instance of the <see cref="NodeQNameFunction"/> class with one fixed arity.</summary>
+    /// <param name="arity">The number of arguments.</param>
+    /// <param name="parameters">The declared parameter types.</param>
+    private protected NodeQNameFunction(int arity, XPathParameterType[] parameters)
+        : base("node-name", arity, arity, parameters) { }
 
     /// <inheritdoc />
     public override XPathEvaluationStatus Invoke(ref XPathFunctionCall invocation)

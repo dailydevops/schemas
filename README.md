@@ -185,7 +185,7 @@ The rates were measured on `main` at commit `a2d4119` with `net10.0`. The `Confo
 | --- | --- | ---: | ---: | ---: | --- |
 | W3C XML Conformance Test Suite (xmlconf), non-validating reader | `NetEvolve.Schemas.Xml` | 2,001 | 1,980 | 98.9% | [Xml package readme](src/NetEvolve.Schemas.Xml/README.md#conformance); 21 baselined cases in `tests/conformance/baselines/xmlconf` |
 | xmlconf, DTD validation | `NetEvolve.Schemas.Xml` | 943 | 931 | 98.7% | `NetEvolve.Schemas.Xml.Tests.Integration`, filter `/*/*/*Xml*Conf*SuiteTests/*`; 12 baselined, 14 skipped |
-| W3C QT3 test suite, XPath 2.0 selection | `NetEvolve.Schemas.XPath` | 14,550 | 14,455 | 99.3% | `NetEvolve.Schemas.XPath.Tests.Integration`, filter `/*/*Conformance*/*/*`; 95 baselined cases in `tests/conformance/baselines/qt3`, 738 skipped |
+| W3C QT3 test suite, XPath 2.0 selection | `NetEvolve.Schemas.XPath` | 14,550 | 14,506 | 99.6% | `NetEvolve.Schemas.XPath.Tests.Integration`, filter `/*/*Conformance*/*/*`; 44 baselined cases in `tests/conformance/baselines/qt3`, 738 skipped |
 | W3C XML Schema Test Suite (XSTS) 1.0, schema tests | `NetEvolve.Schemas.Xsd` | 14,357 | 14,236 | 99.1% | `NetEvolve.Schemas.Xsd.Tests.Integration`, filter `/*/*Conformance*/*/*`; 121 baselined cases |
 | XSTS 1.0, instance tests | `NetEvolve.Schemas.Xsd` | 24,914 | 24,017 | 96.3% | same run; 897 baselined cases |
 | XSTS 1.1, schema and instance tests | `NetEvolve.Schemas.Xsd` | 41,389 | 0 | 0.0% | derived from the same run: the row for all of XSTS (80,660 applicable, 38,253 passed, 47.4%) minus both XSTS 1.0 rows |
@@ -196,7 +196,7 @@ The rates were measured on `main` at commit `a2d4119` with `net10.0`. The `Confo
 
 Not yet reported:
 
-- **QT3 XPath 3.0 and 3.1.** The tiers run in `Qt3Xp3ConformanceTests` against the baselines `tests/conformance/baselines/qt3-xp30` (2,903 known-failure entries) and `qt3-xp31` (1,477 entries), but no rate is published yet, and the QT3 runner has no XPath 3.0 mode. A case that needs XPath 3.x syntax or functions is a known failure until the XPath package supports it ([#328](https://github.com/dailydevops/schemas/issues/328), [#353](https://github.com/dailydevops/schemas/issues/353), [#355](https://github.com/dailydevops/schemas/issues/355), [#356](https://github.com/dailydevops/schemas/issues/356)).
+- **QT3 XPath 3.0 and 3.1.** The tiers run in `Qt3Xp3ConformanceTests` against the baselines `tests/conformance/baselines/qt3-xp30` (2,903 known-failure entries) and `qt3-xp31` (1,475 entries), but no rate is published yet, and the QT3 runner has no XPath 3.0 mode. A case that needs XPath 3.x syntax or functions is a known failure until the XPath package supports it ([#328](https://github.com/dailydevops/schemas/issues/328), [#353](https://github.com/dailydevops/schemas/issues/353), [#355](https://github.com/dailydevops/schemas/issues/355), [#356](https://github.com/dailydevops/schemas/issues/356)).
 - **Further Schematron rule sets.** Manifests for more rule sets are pinned in `tests/conformance/suites/`; no rate is published for them.
 
 The table is updated by hand and can lag behind CI between releases.

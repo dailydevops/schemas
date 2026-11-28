@@ -4,7 +4,6 @@ app-FunctxFn/functx-fn-doc-available-1	#886	fn:node-name, fn:nilled and fn:docum
 app-FunctxFn/functx-fn-resolve-uri-4	#901	The runner skips the compound assertions any-of, all-of and not.
 app-FunctxFn/functx-fn-resolve-uri-5	#901	The runner skips the compound assertions any-of, all-of and not.
 app-FunctxFn/functx-fn-resolve-uri-all	#901	The runner skips the compound assertions any-of, all-of and not.
-fn-QName/K-ExpandedQNameConstructFunc-4	#644	The xs:QName constructor function resolves a prefix against no namespaces (FONS0004).
 fn-abs/K2-ABSFunc-35	#901	The runner skips the compound assertions any-of, all-of and not.
 fn-abs/K2-ABSFunc-36	#901	The runner skips the compound assertions any-of, all-of and not.
 fn-abs/K2-ABSFunc-37	#901	The runner skips the compound assertions any-of, all-of and not.
@@ -329,22 +328,8 @@ fn-number/fn-numberflt1args-3	#901	The runner skips the compound assertions any-
 fn-number/fn-numbernpi1args-2	#901	The runner skips the compound assertions any-of, all-of and not.
 fn-number/fn-numberulng1args-2	#901	The runner skips the compound assertions any-of, all-of and not.
 fn-position/position-19	#901	The runner skips the compound assertions any-of, all-of and not.
-fn-prefix-from-QName/fn-prefix-from-qname-10	#644	The xs:QName constructor function resolves a prefix against no namespaces (FONS0004).
-fn-prefix-from-QName/fn-prefix-from-qname-11	#644	The xs:QName constructor function resolves a prefix against no namespaces (FONS0004).
-fn-prefix-from-QName/fn-prefix-from-qname-12	#644	The xs:QName constructor function resolves a prefix against no namespaces (FONS0004).
-fn-prefix-from-QName/fn-prefix-from-qname-13	#644	The xs:QName constructor function resolves a prefix against no namespaces (FONS0004).
-fn-prefix-from-QName/fn-prefix-from-qname-14	#644	The xs:QName constructor function resolves a prefix against no namespaces (FONS0004).
-fn-prefix-from-QName/fn-prefix-from-qname-15	#644	The xs:QName constructor function resolves a prefix against no namespaces (FONS0004).
-fn-prefix-from-QName/fn-prefix-from-qname-16	#644	The xs:QName constructor function resolves a prefix against no namespaces (FONS0004).
-fn-prefix-from-QName/fn-prefix-from-qname-17	#644	The xs:QName constructor function resolves a prefix against no namespaces (FONS0004).
-fn-prefix-from-QName/fn-prefix-from-qname-18	#644	The xs:QName constructor function resolves a prefix against no namespaces (FONS0004).
-fn-prefix-from-QName/fn-prefix-from-qname-19	#644	The xs:QName constructor function resolves a prefix against no namespaces (FONS0004).
-fn-prefix-from-QName/fn-prefix-from-qname-20	#644	The xs:QName constructor function resolves a prefix against no namespaces (FONS0004).
 fn-prefix-from-QName/fn-prefix-from-qname-21	#901	The runner skips the compound assertions any-of, all-of and not.
 fn-prefix-from-QName/fn-prefix-from-qname-22	#901	The runner skips the compound assertions any-of, all-of and not.
-fn-prefix-from-QName/fn-prefix-from-qname-5	#644	The xs:QName constructor function resolves a prefix against no namespaces (FONS0004).
-fn-prefix-from-QName/fn-prefix-from-qname-6	#644	The xs:QName constructor function resolves a prefix against no namespaces (FONS0004).
-fn-prefix-from-QName/fn-prefix-from-qname-9	#644	The xs:QName constructor function resolves a prefix against no namespaces (FONS0004).
 fn-remove/K-SeqRemoveFunc-13	#901	The runner skips the compound assertions any-of, all-of and not.
 fn-remove/K-SeqRemoveFunc-14	#901	The runner skips the compound assertions any-of, all-of and not.
 fn-remove/K-SeqRemoveFunc-15	#901	The runner skips the compound assertions any-of, all-of and not.
@@ -670,15 +655,12 @@ prod-CastExpr/CastFOCA0001-1	#901	The runner skips the compound assertions any-o
 prod-CastExpr/CastFOCA0003-1	#901	The runner skips the compound assertions any-of, all-of and not.
 prod-CastExpr/K-SeqExprCast-144	#901	The runner skips the compound assertions any-of, all-of and not.
 prod-CastExpr/K-SeqExprCast-1491	#901	The runner skips the compound assertions any-of, all-of and not.
-prod-CastExpr/K-SeqExprCast-42	#644	The xs:QName constructor function resolves a prefix against no namespaces (FONS0004).
-prod-CastExpr/K-SeqExprCast-55	#644	The xs:QName constructor function resolves a prefix against no namespaces (FONS0004).
 prod-CastExpr/K-SeqExprCast-63	#901	The runner skips the compound assertions any-of, all-of and not.
 prod-CastExpr/K-SeqExprCast-64	#901	The runner skips the compound assertions any-of, all-of and not.
 prod-CastExpr/K-SeqExprCast-67	#901	The runner skips the compound assertions any-of, all-of and not.
 prod-CastExpr/K-SeqExprCast-69	#901	The runner skips the compound assertions any-of, all-of and not.
 prod-CastExpr/K2-SeqExprCast-17	#901	The runner skips the compound assertions any-of, all-of and not.
 prod-CastExpr/K2-SeqExprCast-2	#901	The runner skips the compound assertions any-of, all-of and not.
-prod-CastExpr/K2-SeqExprCast-201	#644	The xs:QName constructor function resolves a prefix against no namespaces (FONS0004).
 prod-CastExpr/K2-SeqExprCast-207	#901	The runner skips the compound assertions any-of, all-of and not.
 prod-CastExpr/K2-SeqExprCast-22	#901	The runner skips the compound assertions any-of, all-of and not.
 prod-CastExpr/K2-SeqExprCast-299	#901	The runner skips the compound assertions any-of, all-of and not.

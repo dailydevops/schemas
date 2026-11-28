@@ -199,7 +199,13 @@ internal static class CastFixture
             arguments[i] = context.Lower(node.Arguments[i]);
         }
 
-        return new CallNode(function!, arguments);
+        // As the lowering of the engine does: a constructor function resolves a lexical QName against the static context of the call.
+        return new CallNode(
+            function is ConstructorFunction constructor && arity == 1
+                ? constructor.BindTo(node.Arguments[0], context.StaticContext)
+                : function!,
+            arguments
+        );
     }
 
     /// <summary>A constant operand.</summary>
