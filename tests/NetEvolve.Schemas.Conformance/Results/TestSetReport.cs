@@ -10,4 +10,10 @@ public sealed record TestSetReport(
     TestSetCounts Counts,
     IReadOnlyList<string> Regressions,
     IReadOnlyList<string> UnexpectedPasses
-);
+)
+{
+    private static readonly Dictionary<string, string> NoReasons = new(StringComparer.Ordinal);
+
+    /// <summary>Gets the failure messages of the regressions by case id; a regression without a message has no entry.</summary>
+    public IReadOnlyDictionary<string, string> RegressionReasons { get; init; } = NoReasons;
+}

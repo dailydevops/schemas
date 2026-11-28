@@ -5,7 +5,7 @@ using NetEvolve.Schemas.Conformance.Reporting;
 using NetEvolve.Schemas.Conformance.Results;
 using NetEvolve.Schemas.Xsd.Tests.Integration.Xsts;
 
-/// <summary>Publishes the rate of the schema tests of XSD 1.0 as a row of its own in the job summary.</summary>
+/// <summary>Publishes the rate of the schema tests of XSD 1.0 as a row of its own in the job summary; the row shows the counts only.</summary>
 internal static class SchemaRateReport
 {
     /// <summary>The package label of the row.</summary>
@@ -56,7 +56,9 @@ internal static class SchemaRateReport
             package,
             TargetFrameworkName.Of(typeof(SchemaRateReport).Assembly),
             ConformanceReport.Compare(selected, baselines),
-            summaryPath
+            summaryPath,
+            // The row of the whole suite lists the failed cases; this row repeats a part of them.
+            listCases: false
         );
     }
 }

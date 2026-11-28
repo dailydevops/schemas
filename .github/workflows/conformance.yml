@@ -29,7 +29,7 @@ jobs:
         with:
           path: ${{ env.SCHEMAS_CONFORMANCE_CACHE }}
           key: conformance-suites-${{ hashFiles('tests/conformance/suites/*.json') }}
-      # The runners append one rate row per test set to the job summary (GITHUB_STEP_SUMMARY) through ConformanceRateReporter.
+      # The runners append one line per suite to the job summary (GITHUB_STEP_SUMMARY) through ConformanceRateReporter; only failed cases are listed one by one.
       - name: Test ${{ matrix.tfm }}
         run: >
           dotnet test --solution ./Schemas.slnx --framework ${{ matrix.tfm }} --configuration Release

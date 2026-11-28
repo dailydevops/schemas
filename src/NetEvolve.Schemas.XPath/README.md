@@ -220,7 +220,7 @@ The engine is measured against the W3C QT3 test suite, pinned by commit `201a6e4
 
 **14,506 of 14,550 decided cases pass, a rate of 99.6%** on `net10.0`, the leg that runs the suites by default. The other 44 are known failures, and 738 skipped cases do not count. The 782 baseline entries (44 failures and 738 skipped cases) are the files of `tests/conformance/baselines/qt3`, one file per test set (238 test sets), and the run fails on a regression and on a listed case that passes.
 
-Reproduce the numbers on a clone: set `GITHUB_STEP_SUMMARY` to a file and run the conformance tests; the table of the rate per test set is appended to that file.
+Reproduce the numbers on a clone: set `GITHUB_STEP_SUMMARY` to a file and run the conformance tests; one line per suite with its counts and its rate is appended to that file, and a failed case is listed below its line.
 
 ```bash
 dotnet test --project tests/NetEvolve.Schemas.XPath.Tests.Integration --configuration Release --framework net10.0 --treenode-filter "/*/*Conformance*/*/*"

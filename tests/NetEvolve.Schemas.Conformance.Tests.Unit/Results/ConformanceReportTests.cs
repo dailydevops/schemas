@@ -25,6 +25,22 @@ public class ConformanceReportTests
     }
 
     [Test]
+    public async Task Compare_Regression_KeepsItsReasonAndBaselinedFailureDoesNot()
+    {
+        var results = new[]
+        {
+            Case("set", "a/1", CaseOutcome.Fail, "known"),
+            Case("set", "a/2", CaseOutcome.Fail, "boom"),
+            Case("set", "a/3", CaseOutcome.Fail),
+        };
+
+        var report = ConformanceReport.Compare(results, Baselines("set", "a/1"));
+
+        await Assert.That(report.TestSets[0].RegressionReasons.Count).IsEqualTo(1);
+        await Assert.That(report.TestSets[0].RegressionReasons["a/2"]).IsEqualTo("boom");
+    }
+
+    [Test]
     public async Task Compare_PassingCaseInBaseline_IsUnexpectedPass()
     {
         var results = new[] { Case("set", "a/1", CaseOutcome.Pass), Case("set", "a/2", CaseOutcome.Fail) };

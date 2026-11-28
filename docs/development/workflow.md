@@ -63,7 +63,7 @@ Do not add ADR files, a `docs/adr` directory, or a `decisions` directory. A devi
 
 ## Target framework leg of the conformance suites
 
-A conformance result does not depend on the target framework, so the conformance workflow runs each suite on one leg, `net10.0`, and not on every leg of the test projects. The suites are explicit (see below), so no other leg runs them, and the rate table appears once per package in the job summary.
+A conformance result does not depend on the target framework, so the conformance workflow runs each suite on one leg, `net10.0`, and not on every leg of the test projects. The suites are explicit (see below), so no other leg runs them, and each suite appears once, as one line, in the job summary.
 
 The conformance workflow runs on pull requests that target `main` and on demand (`workflow_dispatch`). It does not run per push to `main`, so the suites run once per change. The conformance of `main` is checked through the pull request runs, or by starting the workflow manually with `workflow_dispatch` on `main`.
 
