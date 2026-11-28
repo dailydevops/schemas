@@ -105,4 +105,16 @@ public class BaseUriTests
                 )
             )
             .IsEqualTo("anyURI:http://other.example/x/a");
+
+    [Test]
+    public async Task OtherFunction_UnderAStaticContextWithABaseUri_IsLeftUnbound() =>
+        await Assert
+            .That(QNamesHarness.RunWithStaticBaseUri(new Uri("http://example.com/dir/"), "string", "integer:7"))
+            .IsEqualTo("string:7");
+
+    [Test]
+    public async Task UnregisteredFunction_UnderAStaticContextWithABaseUri_IsNotResolved() =>
+        await Assert
+            .That(QNamesHarness.RunWithStaticBaseUri(new Uri("http://example.com/dir/"), "no-such-function"))
+            .IsEqualTo("error:not-registered");
 }
