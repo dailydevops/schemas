@@ -356,7 +356,7 @@ dotnet test --project tests/NetEvolve.Schemas.Schematron.Tests.Integration --con
 | `xslt-1.iso-rule-based-validation` | 12 | 11 | 91.6% |
 | `xslt-2.iso-rule-based-validation` | 14 | 13 | 92.8% |
 
-The acceptance of XSLT stage 4 (own test schemas and four cases of the suite, which are also among the 84 and run once per binding, `xslt1` and `xslt2`) publishes its own row in the job summary, `NetEvolve.Schemas.Schematron (stage 4 goldens)`: 18 of 21 cases pass, a rate of 85.7%. The other 3 wait for [#877](https://github.com/dailydevops/schemas/issues/877) (a `let` with element content binds a document node, failing in both bindings) and for builder parameters of a global `xsl:param` ([#1159](https://github.com/dailydevops/schemas/issues/1159)).
+The acceptance of XSLT stage 4 (own test schemas and four cases of the suite, which are also among the 84 and run once per binding, `xslt1` and `xslt2`) publishes its own row in the job summary, `NetEvolve.Schemas.Schematron (stage 4 goldens)`: 19 of 21 cases pass, a rate of 90.4%. The other 2 wait for [#877](https://github.com/dailydevops/schemas/issues/877) (a `let` with element content binds a document node, failing in both bindings).
 
 #### Excluded cases
 
