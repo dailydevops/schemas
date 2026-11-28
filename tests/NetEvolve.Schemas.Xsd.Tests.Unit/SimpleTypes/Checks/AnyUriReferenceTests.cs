@@ -15,6 +15,9 @@ public class AnyUriReferenceTests
     [Arguments("xあy")]
     [Arguments("a b")]
     [Arguments("@$()_-+..~!*")]
+    [Arguments("foo<bar")]
+    [Arguments("foo>bar")]
+    [Arguments("foo\"bar")]
     [Arguments("http://[::1]/")]
     [Arguments(" b:c ")]
     public async Task IsValid_UriReference_ReturnsTrue(string value) =>

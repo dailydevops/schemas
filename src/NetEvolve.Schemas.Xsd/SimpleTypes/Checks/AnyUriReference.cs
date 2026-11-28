@@ -4,7 +4,7 @@ using System;
 
 /// <summary>
 /// The XSD 1.0 lexical space of <c>anyURI</c> (Datatypes 1.0, section 3.2.17): an RFC 2396 URI reference, where the escaping of XLink
-/// makes every non-ASCII character and every white space character acceptable.
+/// makes every non-ASCII character, every white space character, and the characters less-than, greater-than, and quotation mark acceptable.
 /// </summary>
 /// <remarks>
 /// The authority, path, and query are checked by character class only; the scheme and the required scheme-specific part are checked
@@ -12,16 +12,23 @@ using System;
 /// </remarks>
 internal static class AnyUriReference
 {
-    private const string AsciiPunctuation = "-_.!~*'();/?:@&=+$,[]";
-
     /// <summary>Gets a value indicating whether the value is a URI reference in the XSD 1.0 sense.</summary>
     /// <param name="value">The lexical form.</param>
     /// <returns><see langword="true"/> when the value is in the lexical space.</returns>
     internal static bool IsValid(ReadOnlySpan<char> value)
     {
-        value = value.Trim(" \t\r\n".AsSpan());
+        while (!value.IsEmpty && IsSpace(value[0]))
+        {
+            value = value.Slice(1);
+        }
+
+        while (!value.IsEmpty && IsSpace(value[value.Length - 1]))
+        {
+            value = value.Slice(0, value.Length - 1);
+        }
+
         var delimiter = -1;
-        var fragments = 0;
+        var fragment = -1;
         for (var i = 0; i < value.Length; i++)
         {
             var c = value[i];
@@ -36,22 +43,22 @@ internal static class AnyUriReference
             }
             else if (c == '#')
             {
-                fragments++;
-                delimiter = delimiter < 0 ? i : delimiter;
+                // Only one number sign: the fragment cannot hold another one.
+                if (fragment >= 0)
+                {
+                    return false;
+                }
+
+                fragment = i;
             }
             else if (c < 0x80 && !IsAsciiAllowed(c))
             {
                 return false;
             }
-            else if (delimiter < 0 && c is ':' or '/' or '?')
+            else if (delimiter < 0 && fragment < 0 && c is ':' or '/' or '?')
             {
                 delimiter = i;
             }
-        }
-
-        if (fragments > 1)
-        {
-            return false;
         }
 
         // A colon before the first slash, question mark, or number sign ends a scheme, which then needs a scheme-specific part.
@@ -60,8 +67,8 @@ internal static class AnyUriReference
             return true;
         }
 
-        var end = value.IndexOf('#');
-        return IsScheme(value.Slice(0, delimiter)) && delimiter + 1 < (end < 0 ? value.Length : end);
+        var end = fragment < 0 ? value.Length : fragment;
+        return IsScheme(value.Slice(0, delimiter)) && delimiter + 1 < end;
     }
 
     private static bool IsScheme(ReadOnlySpan<char> scheme)
@@ -85,8 +92,34 @@ internal static class AnyUriReference
     private static bool IsAsciiAllowed(char c) =>
         IsAsciiLetter(c)
         || c is >= '0' and <= '9'
-        || AsciiPunctuation.Contains(c, StringComparison.Ordinal)
-        || c is ' ' or '\t' or '\r' or '\n';
+        || c
+            is '-'
+                or '_'
+                or '.'
+                or '!'
+                or '~'
+                or '*'
+                or '\''
+                or '('
+                or ')'
+                or ';'
+                or '/'
+                or '?'
+                or ':'
+                or '@'
+                or '&'
+                or '='
+                or '+'
+                or '$'
+                or ','
+                or '['
+                or ']'
+                or '<'
+                or '>'
+                or '"'
+        || IsSpace(c);
+
+    private static bool IsSpace(char c) => c is ' ' or '\t' or '\r' or '\n';
 
     private static bool IsAsciiLetter(char c) => c is >= 'a' and <= 'z' or >= 'A' and <= 'Z';
 
