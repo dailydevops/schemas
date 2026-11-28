@@ -129,6 +129,16 @@
     "baselineRatio": 2.2
   },
   {
+    "name": "EnumerationFacetBenchmarks.Hit",
+    "meanNs": 20.0,
+    "allocatedBytes": 0
+  },
+  {
+    "name": "EnumerationFacetBenchmarks.Miss",
+    "meanNs": 20.0,
+    "allocatedBytes": 0
+  },
+  {
     "name": "DecimalRoundingBenchmarks.Round(Size=Short)",
     "meanNs": 8.0,
     "allocatedBytes": 0
