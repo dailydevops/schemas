@@ -764,9 +764,14 @@ internal sealed class SchemaDocumentLoader
             }
         }
 
+        // Redefinitions of one component of one document stack in document order: a later one redefines the earlier one (circular redefines).
+        var latest = new Dictionary<(SchemaUnit, string, string), SchemaSyntaxNode>();
         foreach (var redefinition in _redefinitions)
         {
-            var original = FindOriginal(redefinition.Target, redefinition, []);
+            var key = (redefinition.Target, redefinition.Node.Name.LocalName, redefinition.Name);
+            var original = latest.TryGetValue(key, out var earlier)
+                ? earlier
+                : FindOriginal(redefinition.Target, redefinition, []);
             if (original is null)
             {
                 _reporter.Report(
@@ -790,6 +795,7 @@ internal sealed class SchemaDocumentLoader
             } while (!used.Add(Key(fresh, redefinition.Unit.EffectiveNamespace)));
 
             original.SetAttribute("name", fresh);
+            latest[key] = redefinition.Node;
             if (redefinition.References.Count == 0 && redefinition.Node.Name.LocalName is "group" or "attributeGroup")
             {
                 var space = redefinition.Unit.EffectiveNamespace;
