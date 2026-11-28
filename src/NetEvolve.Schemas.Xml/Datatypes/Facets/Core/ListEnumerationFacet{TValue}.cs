@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Xsd.Compilation;
+namespace NetEvolve.Schemas.Xml.Datatypes.Facets.Core;
 
 using System;
 using System.Collections.Generic;
@@ -11,8 +11,11 @@ using NetEvolve.Schemas.Xml.Datatypes.Core;
 /// one of the listed item sequences, item by item in the value space of the item type.
 /// </summary>
 /// <typeparam name="TValue">The value type of the items.</typeparam>
-/// <remarks>Limitation: every item of the lexical form is parsed again for each listed sequence it is compared with.</remarks>
-internal sealed class ListEnumerationFacet<TValue> : ILexicalFacet
+/// <remarks>
+/// Limitation: every item of the lexical form is parsed again for each listed sequence it is compared with. Equality of an item is
+/// <see cref="XsdOrder.Equal"/> from <see cref="IDatatypeDescriptor{TValue}.Compare"/>, or identity when the items are incomparable.
+/// </remarks>
+public sealed class ListEnumerationFacet<TValue> : ILexicalFacet
 {
     private readonly IDatatypeDescriptor<TValue> _type;
     private readonly TValue[][] _sequences;
@@ -20,7 +23,7 @@ internal sealed class ListEnumerationFacet<TValue> : ILexicalFacet
     /// <summary>Initializes a new instance of the <see cref="ListEnumerationFacet{TValue}"/> class.</summary>
     /// <param name="type">The item type whose value space defines equality.</param>
     /// <param name="sequences">The listed item sequences.</param>
-    internal ListEnumerationFacet(IDatatypeDescriptor<TValue> type, IReadOnlyList<TValue[]> sequences)
+    public ListEnumerationFacet(IDatatypeDescriptor<TValue> type, IReadOnlyList<TValue[]> sequences)
     {
         ArgumentNullException.ThrowIfNull(type);
         ArgumentNullException.ThrowIfNull(sequences);

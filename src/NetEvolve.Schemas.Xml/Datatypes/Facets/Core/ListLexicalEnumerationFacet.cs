@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Xsd.Compilation;
+namespace NetEvolve.Schemas.Xml.Datatypes.Facets.Core;
 
 using System;
 using System.Collections.Generic;
@@ -10,13 +10,13 @@ using NetEvolve.Schemas.Xml.Datatypes.Core;
 /// The <c>enumeration</c> facet of a list of string-like items, whose value space is the text: the item sequence of a list value must
 /// equal one of the listed item sequences, compared item by item with an ordinal comparison.
 /// </summary>
-internal sealed class ListLexicalEnumerationFacet : ILexicalFacet
+public sealed class ListLexicalEnumerationFacet : ILexicalFacet
 {
     private readonly string[] _values;
 
     /// <summary>Initializes a new instance of the <see cref="ListLexicalEnumerationFacet"/> class.</summary>
     /// <param name="values">The listed values, each a whitespace-separated item sequence.</param>
-    internal ListLexicalEnumerationFacet(IReadOnlyList<string> values)
+    public ListLexicalEnumerationFacet(IReadOnlyList<string> values)
     {
         ArgumentNullException.ThrowIfNull(values);
         _values = [.. values];
