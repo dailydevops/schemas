@@ -20,6 +20,11 @@
     "allocatedBytes": 17856
   },
   {
+    "name": "AssertionFacetBenchmarks.ValidateStream",
+    "meanNs": 900000,
+    "allocatedBytes": 119176
+  },
+  {
     "name": "AssertionSubtree1000Benchmarks.ValidateStream",
     "meanNs": 528832,
     "allocatedBytes": 190408
@@ -38,6 +43,16 @@
     "name": "CiiModeBenchmarks.ValidateStreamV11",
     "meanNs": 357409,
     "allocatedBytes": 30520
+  },
+  {
+    "name": "OpenContentInterleaveBenchmarks.ValidateStream",
+    "meanNs": 900000,
+    "allocatedBytes": 7008
+  },
+  {
+    "name": "TypeAlternativesBenchmarks.ValidateStream",
+    "meanNs": 2200000,
+    "allocatedBytes": 2036296
   },
   {
     "name": "UblModeBenchmarks.ValidateStreamV10",
