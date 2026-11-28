@@ -39,9 +39,11 @@ internal sealed class FacetBase
         DatatypeVariety variety,
         IDatatypeDescriptor? descriptor,
         PrimitiveKind primitive,
-        IReadOnlyList<IFacet> facets
+        IReadOnlyList<IFacet> facets,
+        FacetBase? item = null
     )
     {
+        Item = item;
         Variety = variety;
         _descriptor = descriptor;
         Primitive = primitive;
@@ -56,6 +58,9 @@ internal sealed class FacetBase
 
     /// <summary>Gets the nearest built-in datatype, <see langword="null"/> for a list or union definition.</summary>
     public IDatatypeDescriptor? Descriptor => _descriptor;
+
+    /// <summary>Gets the description of the item type of a list, <see langword="null"/> for other varieties and for a list whose item type is not atomic.</summary>
+    public FacetBase? Item { get; }
 
     /// <summary>Gets a value indicating whether the base type already carries an <c>enumeration</c> facet.</summary>
     public bool HasEnumeration
@@ -86,7 +91,7 @@ internal sealed class FacetBase
 
         return baseType switch
         {
-            XsdBuiltInType { Descriptor: { } descriptor } => FromDescriptor(descriptor, descriptor.Facets),
+            XsdBuiltInType { Descriptor: { } descriptor } => FromDescriptor(descriptor, descriptor.Facets, version),
             SimpleTypeDefinition definition => FromDefinition(definition, version),
             _ => null,
         };
@@ -188,11 +193,21 @@ internal sealed class FacetBase
         );
     }
 
-    private static FacetBase? FromDescriptor(IDatatypeDescriptor descriptor, IReadOnlyList<IFacet> facets)
+    private static FacetBase? FromDescriptor(
+        IDatatypeDescriptor descriptor,
+        IReadOnlyList<IFacet> facets,
+        XsdVersion version
+    )
     {
         if (descriptor.Variety != DatatypeVariety.Atomic)
         {
-            return new FacetBase(descriptor.Variety, descriptor, PrimitiveKind.None, facets);
+            return new FacetBase(
+                descriptor.Variety,
+                descriptor,
+                PrimitiveKind.None,
+                facets,
+                descriptor.Variety == DatatypeVariety.List ? ItemOf(descriptor, version) : null
+            );
         }
 
         var primitive = PrimitiveOf(descriptor);
@@ -207,7 +222,13 @@ internal sealed class FacetBase
     {
         if (definition.Variety != DatatypeVariety.Atomic)
         {
-            return new FacetBase(definition.Variety, null, PrimitiveKind.None, definition.Facets);
+            return new FacetBase(
+                definition.Variety,
+                null,
+                PrimitiveKind.None,
+                definition.Facets,
+                definition.Variety == DatatypeVariety.List ? ItemOf(definition, version) : null
+            );
         }
 
         var root = definition;
@@ -220,9 +241,42 @@ internal sealed class FacetBase
             string.Equals(root.Name.NamespaceName, SchemaGrammar.Namespace, StringComparison.Ordinal)
             && BuiltInDatatypes.For(version).TryGet(root.Name.LocalName, out var descriptor)
             && descriptor is not null
-            ? FromDescriptor(descriptor, definition.Facets)
+            ? FromDescriptor(descriptor, definition.Facets, version)
             : null;
     }
+
+    // The items of IDREFS, ENTITIES, and NMTOKENS are names, whose value space is the text; the Xml package does not expose their item type.
+    private static FacetBase? ItemOf(SimpleTypeDefinition list, XsdVersion version)
+    {
+        if (list.ItemType is { } item)
+        {
+            return Atomic(FromDefinition(item, version));
+        }
+
+        var root = list;
+        while (root.BaseType is { } parent)
+        {
+            root = parent;
+        }
+
+        return string.Equals(root.Name.NamespaceName, SchemaGrammar.Namespace, StringComparison.Ordinal)
+            ? NameItem(root.Name.LocalName, version)
+            : null;
+    }
+
+    private static FacetBase? ItemOf(IDatatypeDescriptor list, XsdVersion version) =>
+        list is ListDescriptor { ItemType: var item }
+            ? Atomic(FromDescriptor(item, item.Facets, version))
+            : NameItem(list.Name, version);
+
+    private static FacetBase? NameItem(string name, XsdVersion version) =>
+        name is "IDREFS" or "ENTITIES" or "NMTOKENS"
+        && BuiltInDatatypes.For(version).TryGet("string", out var text)
+        && text is not null
+            ? FromDescriptor(text, text.Facets, version)
+            : null;
+
+    private static FacetBase? Atomic(FacetBase? item) => item is { Variety: DatatypeVariety.Atomic } ? item : null;
 
     private static PrimitiveKind PrimitiveOf(IDatatypeDescriptor descriptor)
     {

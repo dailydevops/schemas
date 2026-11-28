@@ -100,6 +100,11 @@ internal static class FacetFactory
                 : Enumeration(enumeration, facts.Descriptor)!;
         }
 
+        if (enumeration.Count > 0 && facts is { Variety: DatatypeVariety.List, Item: { } item })
+        {
+            facets[enumerationSlot] = ListEnumeration(enumeration, item)!;
+        }
+
         _ = facets.RemoveAll(static facet => facet is null);
         return facets;
     }
@@ -132,6 +137,52 @@ internal static class FacetFactory
         {
             facets.Add(facet);
         }
+    }
+
+    // Every listed value is a whitespace-separated item sequence; a sequence with an item that does not parse is left out, the check has reported it.
+    private static IFacet? ListEnumeration(List<string> values, FacetBase item) =>
+        item.Primitive is PrimitiveKind.StringType or PrimitiveKind.AnyUri
+            ? new ListLexicalEnumerationFacet(values)
+            : item.Descriptor switch
+            {
+                IDatatypeDescriptor<XsdDecimal> t => ListEnumeration(values, t),
+                IDatatypeDescriptor<XsdInteger> t => ListEnumeration(values, t),
+                IDatatypeDescriptor<float> t => ListEnumeration(values, t),
+                IDatatypeDescriptor<double> t => ListEnumeration(values, t),
+                IDatatypeDescriptor<XsdDuration> t => ListEnumeration(values, t),
+                IDatatypeDescriptor<XsdDateTime> t => ListEnumeration(values, t),
+                IDatatypeDescriptor<bool> t => ListEnumeration(values, t),
+                _ => null,
+            };
+
+    private static ListEnumerationFacet<TValue>? ListEnumeration<TValue>(
+        List<string> values,
+        IDatatypeDescriptor<TValue> type
+    )
+    {
+        var sequences = new List<TValue[]>(values.Count);
+        foreach (var value in values)
+        {
+            var items = new List<TValue>();
+            var cursor = new XsdListCursor(new TextRange(0, value.Length));
+            var valid = true;
+            while (valid && cursor.TryNext(value.AsSpan(), out var range))
+            {
+                var result = type.Parse(range.Slice(value.AsSpan()));
+                valid = result.Success;
+                if (valid)
+                {
+                    items.Add(result.Value);
+                }
+            }
+
+            if (valid)
+            {
+                sequences.Add([.. items]);
+            }
+        }
+
+        return sequences.Count == 0 ? null : new ListEnumerationFacet<TValue>(type, sequences);
     }
 
     private static IFacet? Enumeration(List<string> values, IDatatypeDescriptor? type) =>
