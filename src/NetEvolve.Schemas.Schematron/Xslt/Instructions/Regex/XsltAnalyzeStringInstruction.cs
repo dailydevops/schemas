@@ -17,9 +17,9 @@ using NetEvolve.Schemas.XPath.Xdm.Nodes;
 /// </summary>
 /// <remarks>
 /// Limitations: <c>xsl:fallback</c> inside the instruction is ignored, as XSLT 2.0 requires of a processor that knows the instruction
-/// (section 18.2); an invalid regex, invalid
-/// flags, and a regex that matches the zero-length string are dynamic errors (XTDE1140, XTDE1145, XTDE1150) reported when the
-/// instruction runs, also when the attributes are constants.
+/// (section 18.2); an invalid regex, invalid flags, and a regex that matches the
+/// zero-length string are dynamic errors (XTDE1140, XTDE1145, XTDE1150) reported when the instruction runs, also when the attributes
+/// are constants.
 /// </remarks>
 internal sealed class XsltAnalyzeStringInstruction : IXsltInstruction
 {
@@ -155,12 +155,16 @@ internal sealed class XsltAnalyzeStringInstruction : IXsltInstruction
         if (!isMatching && !XsltElementReader.IsXslt(child.Node, NonMatchingLocalName))
         {
             // xsl:fallback is ignored: the instruction is known to XSLT 2.0 (section 18.2).
-            return XsltElementReader.IsXslt(child.Node, FallbackLocalName)
-                || Misplaced(
-                    context,
-                    child,
-                    "The xsl:analyze-string element has no content other than xsl:matching-substring and xsl:non-matching-substring."
-                );
+            if (XsltElementReader.IsXslt(child.Node, FallbackLocalName))
+            {
+                return true;
+            }
+
+            return Misplaced(
+                context,
+                child,
+                "The xsl:analyze-string element has no content other than xsl:matching-substring and xsl:non-matching-substring."
+            );
         }
 
         if ((isMatching ? matching : nonMatching) is not null || (isMatching && nonMatching is not null))
