@@ -91,7 +91,7 @@ public sealed class XIncludeFallbackNamespaceTests
             var prefix = names.GetString(ns.Name.Local);
             if (prefix is not ("" or "xml" or "xi"))
             {
-                found.Add(prefix + "=" + names.GetString(ns.Name.NamespaceUri));
+                found.Add(prefix + "=" + ns.StringValue);
             }
         }
 
