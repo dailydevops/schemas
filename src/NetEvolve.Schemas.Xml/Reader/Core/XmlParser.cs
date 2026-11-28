@@ -52,9 +52,9 @@ internal sealed partial class XmlParser : IXmlReader, IDisposable
     private readonly IXmlEntityInputStack? _entityStack;
     private readonly char[] _inline = new char[2];
     private XmlTokenizer _tokenizer;
-    private PooledBuffer<char> _carry = new(256);
-    private PooledBuffer<char> _spare = new(256);
-    private readonly PooledBuffer<char> _scratch = new(256);
+    private PooledBuffer<char>? _carry;
+    private PooledBuffer<char>? _spare;
+    private PooledBuffer<char>? _scratch;
     private ReadOnlyMemory<char> _chunk;
     private bool _isFinal;
     private Phase _phase;
@@ -109,9 +109,9 @@ internal sealed partial class XmlParser : IXmlReader, IDisposable
     /// <param name="isFinal">Whether no more data follows.</param>
     internal void Feed(ReadOnlyMemory<char> chunk, bool isFinal)
     {
-        if (_carry.Length > 0)
+        if (_carry is { Length: > 0 } carry)
         {
-            _carry.Append(chunk.Span);
+            carry.Append(chunk.Span);
             _chunk = default;
         }
         else
@@ -131,14 +131,14 @@ internal sealed partial class XmlParser : IXmlReader, IDisposable
             return early;
         }
 
-        var fromCarry = _carry.Length > 0;
+        var fromCarry = _carry is { Length: > 0 };
         var pos = 0;
         while (true)
         {
             // While a frame is open the tokenizer reads its text, which is final by itself unless it is the text of an
             // external entity that is still being read.
             var inFrame = _frameCount > 0;
-            var span = inFrame ? FrameSpan() : (fromCarry ? _carry.WrittenSpan : _chunk.Span).Slice(pos);
+            var span = inFrame ? FrameSpan() : (fromCarry ? _carry!.WrittenSpan : _chunk.Span).Slice(pos);
             if (!Tokenize(span, inFrame ? FrameIsFinal() : _isFinal, out var status, out var token, out var consumed))
             {
                 return XmlReadStatus.Error;
@@ -256,9 +256,9 @@ internal sealed partial class XmlParser : IXmlReader, IDisposable
     public void Dispose()
     {
         CloseSources();
-        _carry.Dispose();
-        _spare.Dispose();
-        _scratch.Dispose();
+        _carry?.Dispose();
+        _spare?.Dispose();
+        _scratch?.Dispose();
         DisposeTag();
     }
 
@@ -272,15 +272,17 @@ internal sealed partial class XmlParser : IXmlReader, IDisposable
                 return;
             }
 
-            _spare.Clear();
-            _spare.Append(_carry.WrittenSpan.Slice(consumed));
-            (_carry, _spare) = (_spare, _carry);
+            var spare = _spare ??= new PooledBuffer<char>(256);
+            spare.Clear();
+            spare.Append(_carry!.WrittenSpan.Slice(consumed));
+            (_carry, _spare) = (spare, _carry);
             _spare.Clear();
             return;
         }
 
-        _carry.Clear();
-        _carry.Append(_chunk.Span.Slice(consumed));
+        var carry = _carry ??= new PooledBuffer<char>(256);
+        carry.Clear();
+        carry.Append(_chunk.Span.Slice(consumed));
         _chunk = default;
     }
 
@@ -530,12 +532,13 @@ internal sealed partial class XmlParser : IXmlReader, IDisposable
             return text;
         }
 
-        _scratch.Clear();
+        var scratch = _scratch ??= new PooledBuffer<char>(256);
+        scratch.Clear();
         for (var i = 0; i < text.Length; i++)
         {
             if (text[i] == '\r')
             {
-                _scratch.Append('\n');
+                scratch.Append('\n');
                 if (i + 1 < text.Length && text[i + 1] == '\n')
                 {
                     i++;
@@ -543,11 +546,11 @@ internal sealed partial class XmlParser : IXmlReader, IDisposable
             }
             else
             {
-                _scratch.Append(text[i]);
+                scratch.Append(text[i]);
             }
         }
 
-        return _scratch.WrittenSpan;
+        return scratch.WrittenSpan;
     }
 
     // The index of the first character that is not white space, -1 when the text is blank.
