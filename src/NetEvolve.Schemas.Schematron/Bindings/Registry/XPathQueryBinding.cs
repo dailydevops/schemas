@@ -123,7 +123,7 @@ internal sealed class XPathQueryBinding : IFunctionHostBinding
         {
             if (scope.VariableNames[i].Length > 0)
             {
-                _ = builder.WithVariable(new XPathQName(string.Empty, scope.VariableNames[i]), i);
+                _ = builder.WithVariable(VariableKey.ToQName(scope.VariableNames[i]), i);
             }
         }
 
