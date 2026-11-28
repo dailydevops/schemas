@@ -202,7 +202,7 @@ var result = await validator.ValidateAsync(
 );
 ```
 
-Here the hinted schema is loaded from `directory`, and the result has one issue with the code `NES4616`. A hinted schema document is compiled on its own: it cannot refer to components of the configured schema. Its identity constraints, ID, and entity checks run.
+Here the hinted schema is loaded from `directory`, and the result has one issue with the code `NES4616`. A hinted schema document may refer to components of the configured schema (import its namespace) but cannot redeclare them. Its identity constraints, ID, and entity checks run.
 
 ## Configuration
 

@@ -20,13 +20,18 @@ internal sealed class ComponentRegistry : IComponentRegistry
     private readonly Dictionary<XPathQName, IXsdComponent>[] _spaces;
     private readonly List<IXsdComponent> _components = [];
     private readonly XsdIssueReporter _reporter;
+    private readonly XsdSchemaSet? _parent;
     private bool _isFrozen;
 
-    internal ComponentRegistry(XsdIssueReporter reporter)
+    /// <summary>Initializes a new instance of the <see cref="ComponentRegistry"/> class.</summary>
+    /// <param name="reporter">The reporter for the issues of the registry.</param>
+    /// <param name="parent">The set whose components the lookups find before the own ones, <see langword="null"/> for none (design #146 DP-22).</param>
+    internal ComponentRegistry(XsdIssueReporter reporter, XsdSchemaSet? parent = null)
     {
         ArgumentNullException.ThrowIfNull(reporter);
 
         _reporter = reporter;
+        _parent = parent;
         _spaces = new Dictionary<XPathQName, IXsdComponent>[XsdSymbolSpaces.Count];
         for (var i = 0; i < _spaces.Length; i++)
         {
@@ -91,6 +96,11 @@ internal sealed class ComponentRegistry : IComponentRegistry
     /// <returns><see langword="true"/> when found.</returns>
     internal bool TryGet(XsdSymbolSpace space, XPathQName name, out IXsdComponent? component)
     {
+        if (_parent is not null && _parent.TryGet(space, name, out component))
+        {
+            return true;
+        }
+
         var found = _spaces[(int)space].TryGetValue(name, out var value);
         component = value;
         return found;

@@ -30,8 +30,8 @@ using NetEvolve.Schemas.Xsd.Validation.Core;
 /// too; the size of a document against <see cref="ValidationLimits.MaxResourceSize"/>.
 /// </para>
 /// <para>
-/// Limitations: a hinted schema is compiled on its own, so it cannot refer to components of the configured schema (#959), and a component that
-/// it shares by name with the configured schema is an error.
+/// Limitations: a hinted schema is compiled on its own, so a component that it shares by name with the configured schema is an error (it refers to the
+/// components of the configured schema, not redeclares them).
 /// </para>
 /// </remarks>
 internal sealed class SchemaLocationHints
@@ -251,7 +251,12 @@ internal sealed class SchemaLocationHints
     {
         var remaining = _limits.MaxExternalResources - _requests;
         var budget = new BudgetResolver(_resolver, remaining);
-        var run = new CompilationRun(_version, budget, _limits.WithMaxExternalResources(Math.Max(1, remaining)));
+        var run = new CompilationRun(
+            _version,
+            budget,
+            _limits.WithMaxExternalResources(Math.Max(1, remaining)),
+            model.Schema
+        );
         var document = run.Read(content, systemId);
         if (document.Root is { } root)
         {
