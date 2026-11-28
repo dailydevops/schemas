@@ -1,5 +1,6 @@
 namespace NetEvolve.Schemas.Xsd.Tests.Unit.Validation.SchemaLocation;
 
+using System;
 using System.Threading.Tasks;
 using NetEvolve.Schemas.Resources;
 using NetEvolve.Schemas.Xsd.Tests.Unit.Composition;
@@ -148,6 +149,31 @@ public class SchemaLocationHintTests
 
         await Assert.That(resolver.Requests).HasSingleItem();
         var issue = await Assert.That(HintFixture.Errors(result)).HasSingleItem();
+        await Assert.That(issue!.Constraint).IsEqualTo("cvc-complex-type.2.4");
+    }
+
+    [Test]
+    public async Task OptIn_TheHintIsOnAnElementOfAStrictWildcard_ItIsAssessedAgainstTheNamedSchema()
+    {
+        var strict = HintFixture.BaseSchema.Replace(
+            "processContents=\"lax\"",
+            "processContents=\"strict\"",
+            StringComparison.Ordinal
+        );
+        var resolver = HintFixture.Resolver();
+        var validator = HintFixture.Build(strict, resolver);
+
+        var valid = HintFixture.Run(
+            validator,
+            HintFixture.BaseRoot(string.Empty, "<h:root " + Hint + "><h:a>1</h:a></h:root>")
+        );
+        var invalid = HintFixture.Run(
+            validator,
+            HintFixture.BaseRoot(string.Empty, "<h:root " + Hint + "><h:b/></h:root>")
+        );
+
+        await Assert.That(valid.IsValid).IsTrue();
+        var issue = await Assert.That(HintFixture.Errors(invalid)).HasSingleItem();
         await Assert.That(issue!.Constraint).IsEqualTo("cvc-complex-type.2.4");
     }
 
