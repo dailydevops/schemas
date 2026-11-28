@@ -7,7 +7,7 @@ This document lists every difference that the differential run over the W3C XML 
 | Baseline | `System.Xml.Schema` of the .NET runtime 10.0, compared on the `net10.0` test leg only (`baseline-runtime: 10.0`) |
 | Corpus | XSTS cases of XSD 1.0 (schema tests and instance tests), pinned in `tests/conformance/suites/xsts.json` |
 | Data file | `tests/NetEvolve.Schemas.Xsd.Tests.Integration/DifferentialData/xsts-1.0-deviations.txt`, one entry per difference: case id, difference kind, observed difference, specification reference, reason |
-| Entries | 14514 entries for 14478 cases |
+| Entries | 14517 entries for 14481 cases |
 
 The list is valid for the recorded baseline runtime version only. A run on another runtime version fails until the list is compared again. System.Xml.Schema implements XSD 1.0 only, so cases of XSD 1.1 are not compared.
 
@@ -27,14 +27,14 @@ No builder option, switch, or code path in the library reproduces System.Xml.Sch
 
 | Class | Entries | Cases |
 |---|---:|---:|
-| Verdict differences: this library follows the specification | 1714 | 1682 |
+| Verdict differences: this library follows the specification | 1716 | 1684 |
 | Verdict differences: documented limitations of this library | 21 | 17 |
-| Position differences: equivalent | 12779 | 12779 |
-| Differences on cases that a bug issue tracks (no entry) | 264 | |
+| Position differences: equivalent | 12780 | 12780 |
+| Differences on cases that a bug issue tracks (no entry) | 263 | |
 
 ## Differences on cases that a bug issue tracks
 
-The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTests/known-failures.txt` and `tests/NetEvolve.Schemas.Xsd.Tests.Integration/InstanceTests/known-failures.txt` record every case of XSD 1.0 that this library does not pass yet, each with its bug issue. At the time of this triage the run found 264 differences on these cases:
+The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTests/known-failures.txt` and `tests/NetEvolve.Schemas.Xsd.Tests.Integration/InstanceTests/known-failures.txt` record every case of XSD 1.0 that this library does not pass yet, each with its bug issue. At the time of this triage the run found 263 differences on these cases:
 
 | Issue | Differences | Title |
 |---|---:|---|
@@ -48,7 +48,6 @@ The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTe
 | #863 | 2 | bug(xsd): particle restriction reports errors for restrictions that the XSTS accepts |
 | #410 | 1 | feat(xml): support caller-selectable xml 1.1 name productions |
 | #1183 | 1 | feat(xsd): build a schema with unions that name each other as members, as the XSTS case ste110 expects |
-| #1181 | 1 | feat(xsd): reject anyURI values of a schema that are no URI references in XSD 1.0 |
 
 ## Verdict differences: this library follows the specification
 
@@ -577,7 +576,7 @@ msMeta-SimpleType_w3c/1.0/stZ041/stZ041
 
 A facet value is not a value of the base type, so the schema is invalid. System.Xml.Schema accepts it.
 
-- Difference: SchemaVerdict `schema verdict: ours=Invalid, baseline=Valid` (28)
+- Difference: SchemaVerdict `schema verdict: ours=Invalid, baseline=Valid` (30)
 - Specification:
   - XSD 1.0 Part 2, 4.3.10.1 (the {value} of minInclusive is a value of the base type) and 4.3.10.4
   - XSD 1.0 Part 2, 4.3.5.5 (enumeration valid restriction)
@@ -585,9 +584,11 @@ A facet value is not a value of the base type, so the schema is invalid. System.
   - XSD 1.0 Part 2, 4.3.8.1 (the {value} of maxExclusive is a value of the base type) and 4.3.8.4
   - XSD 1.0 Part 2, 4.3.8.4 (maxExclusive valid restriction)
   - XSD 1.0 Part 2, 4.3.9.1 (the {value} of minExclusive is a value of the base type) and 4.3.9.4
-- Cases: 28
+- Cases: 30
 
 ```text
+msMeta-DataTypes_w3c/1.0/anyURI_a003_1338/anyURI_a003_1338
+msMeta-DataTypes_w3c/1.0/anyURI_b004_1354/anyURI_b004_1354
 msMeta-DataTypes_w3c/1.0/base64Binary_enumeration003_1321/base64Binary_enumeration003_1321
 msMeta-DataTypes_w3c/1.0/gMonth_enumeration001_1275/gMonth_enumeration001_1275
 msMeta-DataTypes_w3c/1.0/gMonth_enumeration002_1276/gMonth_enumeration002_1276
@@ -14538,9 +14539,9 @@ sunMeta-suntest/1.0/xsd022/xsd022.n00
 
 Both engines reject the document and the verdicts agree. This library reports more issues than System.Xml.Schema for the same document; the engines group and follow up violations differently. The number and the positions of reported issues are not part of the specification, so the difference is equivalent.
 
-- Difference: IssuePositions `issue positions` (343)
+- Difference: IssuePositions `issue positions` (344)
 - Specification: XSD 1.0 Part 1, 5.2 and C.1 (the assessment outcome is the validity property; positions and number of reports are not specified)
-- Cases: 343
+- Cases: 344
 
 ```text
 ibmMeta-cyclicRedefineIncludeImportOverride/1.0/s4_2_4si02/s4_2_4si02s
@@ -14624,6 +14625,7 @@ msMeta-ComplexType_w3c/1.0/ctI035/ctI035.i
 msMeta-ComplexType_w3c/1.0/ctI039/ctI039.i
 msMeta-ComplexType_w3c/1.0/ctI045/ctI045.i
 msMeta-ComplexType_w3c/1.0/ctK002/ctK002
+msMeta-DataTypes_w3c/1.0/anyURI_b006_1356/anyURI_b006_1356
 msMeta-DataTypes_w3c/1.0/dtZ100507_2242/dtZ100507_2242.i
 msMeta-DataTypes_w3c/1.0/gMonth_maxInclusive003_206/gMonth_maxInclusive003_206
 msMeta-DataTypes_w3c/1.0/gMonth_minExclusive003_214/gMonth_minExclusive003_214

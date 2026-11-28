@@ -13,12 +13,9 @@ msMeta-Additional_w3c	1.0/isDefault078/isDefault078	-	A schema location that the
 msMeta-Annotations_w3c	1.0/annotA014/annotA014	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
 msMeta-Annotations_w3c	1.0/annotB025/annotB025	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
 msMeta-DataTypes_w3c	1.0/anyURI_a002_1337/anyURI_a002_1337	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
-msMeta-DataTypes_w3c	1.0/anyURI_a003_1338/anyURI_a003_1338	#1181	An anyURI value that is no URI reference is accepted in XSD 1.0.
 msMeta-DataTypes_w3c	1.0/anyURI_a004_1339/anyURI_a004_1339	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
 msMeta-DataTypes_w3c	1.0/anyURI_a006_1341/anyURI_a006_1341	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
 msMeta-DataTypes_w3c	1.0/anyURI_a009_1344/anyURI_a009_1344	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
-msMeta-DataTypes_w3c	1.0/anyURI_b004_1354/anyURI_b004_1354	#1181	An anyURI value that is no URI reference is accepted in XSD 1.0.
-msMeta-DataTypes_w3c	1.0/anyURI_b006_1356/anyURI_b006_1356	#1181	An anyURI value that is no URI reference is accepted in XSD 1.0.
 msMeta-Element_w3c	1.0/elemZ028c/elemZ028c	-	The unique particle attribution check does not cover an all group, so a member of a substitution group that is also listed is accepted.
 msMeta-Particles_w3c	1.0/particlesZ001/particlesZ001	#863	The restriction is invalid under the table of Particle Valid (Restriction) of XSD 1.0 (RecurseAsIfGroup compares the unbounded element with a base element that occurs once) and valid in XSD 1.1; the suite marks the rule as ambiguous.
 msMeta-Schema_w3c	1.0/schB8/schB8	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.

@@ -21,7 +21,8 @@ public class StringTablesTests
         var generated = StringTablesGenerator.GenerateCaseMapping(
             ucd.Version,
             await ucd.ReadLinesAsync("UnicodeData.txt", cancellationToken),
-            await ucd.ReadLinesAsync("SpecialCasing.txt", cancellationToken)
+            await ucd.ReadLinesAsync("SpecialCasing.txt", cancellationToken),
+            await ucd.ReadLinesAsync("DerivedCoreProperties.txt", cancellationToken)
         );
 
         await AssertCommitted(StringTablesGenerator.CaseMappingPath(), generated, cancellationToken);
