@@ -1,6 +1,8 @@
 namespace NetEvolve.Schemas.Xml.Tests.Unit.Datatypes.Facets.Core;
 
 using System;
+using System.Globalization;
+using System.Linq;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xml.Datatypes.Core;
 using NetEvolve.Schemas.Xml.Datatypes.Facets.Core;
@@ -79,5 +81,53 @@ public class EnumerationFacetTests
         await Assert.That(facet.IsSatisfiedBy("green".AsSpan())).IsTrue();
         await Assert.That(facet.IsSatisfiedBy("Green".AsSpan())).IsFalse();
         await Assert.That(facet.IsSatisfiedBy("".AsSpan())).IsFalse();
+    }
+
+    [Test]
+    public async Task LexicalEnumeration_LargeList_MatchesEveryValueAndNothingElse()
+    {
+        var values = Enumerable.Range(0, 1000).Select(i => "code" + i.ToString(CultureInfo.InvariantCulture)).ToArray();
+        var facet = new LexicalEnumerationFacet(values);
+
+        foreach (var value in values)
+        {
+            await Assert.That(facet.IsSatisfiedBy(value.AsSpan())).IsTrue();
+        }
+
+        await Assert.That(facet.IsSatisfiedBy("code1000".AsSpan())).IsFalse();
+        await Assert.That(facet.IsSatisfiedBy("CODE7".AsSpan())).IsFalse();
+        await Assert.That(facet.IsSatisfiedBy("code".AsSpan())).IsFalse();
+        await Assert.That(facet.IsSatisfiedBy("code70 ".AsSpan())).IsFalse();
+        await Assert.That(facet.IsSatisfiedBy("".AsSpan())).IsFalse();
+    }
+
+    [Test]
+    [Arguments(true)]
+    [Arguments(false)]
+    public async Task LexicalEnumeration_LargeList_HandlesTheEmptyString(bool listed)
+    {
+        var values = Enumerable.Range(0, 20).Select(i => "v" + i.ToString(CultureInfo.InvariantCulture)).ToList();
+        if (listed)
+        {
+            values.Add("");
+        }
+
+        var facet = new LexicalEnumerationFacet(values);
+
+        await Assert.That(facet.IsSatisfiedBy("".AsSpan())).IsEqualTo(listed);
+        await Assert.That(facet.IsSatisfiedBy("v19".AsSpan())).IsTrue();
+    }
+
+    [Test]
+    public async Task LexicalEnumeration_LargeList_AllowsDuplicateValues()
+    {
+        var values = Enumerable
+            .Range(0, 20)
+            .Select(i => "v" + (i % 5).ToString(CultureInfo.InvariantCulture))
+            .ToArray();
+        var facet = new LexicalEnumerationFacet(values);
+
+        await Assert.That(facet.IsSatisfiedBy("v4".AsSpan())).IsTrue();
+        await Assert.That(facet.IsSatisfiedBy("v5".AsSpan())).IsFalse();
     }
 }

@@ -129,6 +129,36 @@
     "baselineRatio": 2.2
   },
   {
+    "name": "EnumerationFacetBenchmarks.Hit(Size=Short)",
+    "meanNs": 20.0,
+    "allocatedBytes": 0
+  },
+  {
+    "name": "EnumerationFacetBenchmarks.Hit(Size=Typical)",
+    "meanNs": 20.0,
+    "allocatedBytes": 0
+  },
+  {
+    "name": "EnumerationFacetBenchmarks.Hit(Size=Long)",
+    "meanNs": 20.0,
+    "allocatedBytes": 0
+  },
+  {
+    "name": "EnumerationFacetBenchmarks.Miss(Size=Short)",
+    "meanNs": 20.0,
+    "allocatedBytes": 0
+  },
+  {
+    "name": "EnumerationFacetBenchmarks.Miss(Size=Typical)",
+    "meanNs": 20.0,
+    "allocatedBytes": 0
+  },
+  {
+    "name": "EnumerationFacetBenchmarks.Miss(Size=Long)",
+    "meanNs": 20.0,
+    "allocatedBytes": 0
+  },
+  {
     "name": "DecimalRoundingBenchmarks.Round(Size=Short)",
     "meanNs": 8.0,
     "allocatedBytes": 0
