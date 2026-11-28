@@ -7,7 +7,7 @@ This document lists every difference that the differential run over the W3C XML 
 | Baseline | `System.Xml.Schema` of the .NET runtime 10.0, compared on the `net10.0` test leg only (`baseline-runtime: 10.0`) |
 | Corpus | XSTS cases of XSD 1.0 (schema tests and instance tests), pinned in `tests/conformance/suites/xsts.json` |
 | Data file | `tests/NetEvolve.Schemas.Xsd.Tests.Integration/DifferentialData/xsts-1.0-deviations.txt`, one entry per difference: case id, difference kind, observed difference, specification reference, reason |
-| Entries | 13843 entries for 13807 cases |
+| Entries | 14514 entries for 14478 cases |
 
 The list is valid for the recorded baseline runtime version only. A run on another runtime version fails until the list is compared again. System.Xml.Schema implements XSD 1.0 only, so cases of XSD 1.1 are not compared.
 
@@ -27,30 +27,28 @@ No builder option, switch, or code path in the library reproduces System.Xml.Sch
 
 | Class | Entries | Cases |
 |---|---:|---:|
-| Verdict differences: this library follows the specification | 1712 | 1680 |
+| Verdict differences: this library follows the specification | 1714 | 1682 |
 | Verdict differences: documented limitations of this library | 21 | 17 |
-| Position differences: equivalent | 12128 | 12128 |
-| Differences on cases that a bug issue tracks (no entry) | 872 | |
+| Position differences: equivalent | 12779 | 12779 |
+| Differences on cases that a bug issue tracks (no entry) | 264 | |
 
 ## Differences on cases that a bug issue tracks
 
-The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTests/known-failures.txt` and `tests/NetEvolve.Schemas.Xsd.Tests.Integration/InstanceTests/known-failures.txt` record every case of XSD 1.0 that this library does not pass yet, each with its bug issue. At the time of this triage the run found 872 differences on these cases:
+The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTests/known-failures.txt` and `tests/NetEvolve.Schemas.Xsd.Tests.Integration/InstanceTests/known-failures.txt` record every case of XSD 1.0 that this library does not pass yet, each with its bug issue. At the time of this triage the run found 264 differences on these cases:
 
 | Issue | Differences | Title |
 |---|---:|---|
-| #1077 | 654 | feat(xsd): evaluate the enumeration facet of list simple types in the value space |
-| #1078 | 101 | feat(xsd): evaluate the enumeration facet of union simple types in the value space |
+| #1078 | 100 | feat(xsd): evaluate the enumeration facet of union simple types in the value space |
+| #1350 | 92 | fix(conformance): resolve the xlink and xml imports of xsts.xsd in the xsts runner |
 | #963 | 35 | test(conformance): run the xsts instance tests of groups without a schema document through schema location hints |
-| #1418 | 3 | bug(xsd): circular redefine chains fail with a missing redefined component |
-| #870 | 22 | feat(xsd): add notation declarations as components |
 | #62 | 19 | feat(xml): support xml 1.1 |
-| #896 | 7 | feat(xsd): compare fixed values in the value space when validating instances |
+| #1418 | 6 | bug(xsd): circular redefine chains fail with a missing redefined component |
+| #604 | 4 | feat(xsd): resolve QName and NOTATION instance values with the namespace context |
 | #1079 | 3 | feat(xsd): evaluate the enumeration facet of hexBinary and base64Binary restrictions |
-| #604 | 2 | feat(xsd): resolve QName and NOTATION instance values with the namespace context |
 | #863 | 2 | bug(xsd): particle restriction reports errors for restrictions that the XSTS accepts |
 | #410 | 1 | feat(xml): support caller-selectable xml 1.1 name productions |
-| #1181 | 1 | feat(xsd): reject anyURI values of a schema that are no URI references in XSD 1.0 |
 | #1183 | 1 | feat(xsd): build a schema with unions that name each other as members, as the XSTS case ste110 expects |
+| #1181 | 1 | feat(xsd): reject anyURI values of a schema that are no URI references in XSD 1.0 |
 
 ## Verdict differences: this library follows the specification
 
@@ -1751,6 +1749,18 @@ nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedShort-enumeration/NISTXML-SV-IV
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedShort-enumeration/NISTXML-SV-IV-list-unsignedShort-enumeration-1-5
 ```
 
+### A list value that is not in the enumeration of the list type
+
+The value is not one of the enumerated values of the list type, so it is not enumeration valid and the instance is invalid. System.Xml.Schema accepts it.
+
+- Difference: InstanceVerdict `instance verdict: ours=Invalid, baseline=Valid` (1)
+- Specification: XSD 1.0 Part 2, 4.3.5.4 (enumeration valid) and 2.5.1.2 (list datatypes)
+- Cases: 1
+
+```text
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonth-enumeration-6/NISTXML-SV-II-list-gMonth-enumeration-2-4
+```
+
 ### An unprefixed QName that is in the enumeration
 
 The unprefixed QName resolves through the default namespace declaration in scope and equals an enumerated value, so the instance is valid. System.Xml.Schema reports that the enumeration constraint failed.
@@ -2216,9 +2226,9 @@ msMeta-AttributeGroup_w3c/1.0/attgD003/attgD003.v
 
 Both engines reject the document with the same number of issues on the same lines, and the verdicts agree. They anchor an issue at different columns of the same construct. Issue positions are not part of the specification, so the difference is equivalent.
 
-- Difference: IssuePositions `issue positions` (3189)
+- Difference: IssuePositions `issue positions` (3190)
 - Specification: XSD 1.0 Part 1, 5.2 and C.1 (the assessment outcome is the validity property; positions and number of reports are not specified)
-- Cases: 3189
+- Cases: 3190
 
 ```text
 ibmMeta-unitsLength/1.0/d2_4_1_3si01/d2_4_1_3si01s
@@ -5417,9 +5427,9 @@ sunMeta-suntest/1.0/xsd023.e/xsd023.e
 
 Both engines reject the document with the same number of issues, and the verdicts agree. They attribute the issues to different constructs of the document. Issue positions are not part of the specification, so the difference is equivalent.
 
-- Difference: IssuePositions `issue positions` (8449)
+- Difference: IssuePositions `issue positions` (9100)
 - Specification: XSD 1.0 Part 1, 5.2 and C.1 (the assessment outcome is the validity property; positions and number of reports are not specified)
-- Cases: 8449
+- Cases: 9100
 
 ```text
 ibmMeta-identityConstraint/1.0/s2_2_4si06/s2_2_4si06s
@@ -6049,10 +6059,12 @@ msMeta-SimpleType_w3c/1.0/stG003/stG003.i
 msMeta-SimpleType_w3c/1.0/stG005/stG005.i
 msMeta-SimpleType_w3c/1.0/stG007/stG007.i
 msMeta-SimpleType_w3c/1.0/stG009/stG009.i
+msMeta-SimpleType_w3c/1.0/stG011/stG011.i
 msMeta-SimpleType_w3c/1.0/stG013/stG013.i
 msMeta-SimpleType_w3c/1.0/stH002/stH002.i
 msMeta-SimpleType_w3c/1.0/stH004/stH004.i
 msMeta-SimpleType_w3c/1.0/stH006/stH006.i
+msMeta-SimpleType_w3c/1.0/stH008/stH008.i
 msMeta-SimpleType_w3c/1.0/stI004/stI004
 msMeta-SimpleType_w3c/1.0/stJ003/stJ003
 msMeta-SimpleType_w3c/1.0/stK003/stK003
@@ -10784,6 +10796,31 @@ nistMeta-NISTXMLSchemaDatatypes/1.0/list-QName-minLength-9/NISTXML-SV-II-list-QN
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-QName-minLength-9/NISTXML-SV-II-list-QName-minLength-5-3
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-QName-minLength-9/NISTXML-SV-II-list-QName-minLength-5-4
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-QName-minLength-9/NISTXML-SV-II-list-QName-minLength-5-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-anyURI-enumeration-5/NISTXML-SV-II-list-anyURI-enumeration-1-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-anyURI-enumeration-5/NISTXML-SV-II-list-anyURI-enumeration-1-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-anyURI-enumeration-5/NISTXML-SV-II-list-anyURI-enumeration-1-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-anyURI-enumeration-5/NISTXML-SV-II-list-anyURI-enumeration-1-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-anyURI-enumeration-5/NISTXML-SV-II-list-anyURI-enumeration-1-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-anyURI-enumeration-6/NISTXML-SV-II-list-anyURI-enumeration-2-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-anyURI-enumeration-6/NISTXML-SV-II-list-anyURI-enumeration-2-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-anyURI-enumeration-6/NISTXML-SV-II-list-anyURI-enumeration-2-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-anyURI-enumeration-6/NISTXML-SV-II-list-anyURI-enumeration-2-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-anyURI-enumeration-6/NISTXML-SV-II-list-anyURI-enumeration-2-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-anyURI-enumeration-7/NISTXML-SV-II-list-anyURI-enumeration-3-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-anyURI-enumeration-7/NISTXML-SV-II-list-anyURI-enumeration-3-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-anyURI-enumeration-7/NISTXML-SV-II-list-anyURI-enumeration-3-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-anyURI-enumeration-7/NISTXML-SV-II-list-anyURI-enumeration-3-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-anyURI-enumeration-7/NISTXML-SV-II-list-anyURI-enumeration-3-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-anyURI-enumeration-8/NISTXML-SV-II-list-anyURI-enumeration-4-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-anyURI-enumeration-8/NISTXML-SV-II-list-anyURI-enumeration-4-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-anyURI-enumeration-8/NISTXML-SV-II-list-anyURI-enumeration-4-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-anyURI-enumeration-8/NISTXML-SV-II-list-anyURI-enumeration-4-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-anyURI-enumeration-8/NISTXML-SV-II-list-anyURI-enumeration-4-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-anyURI-enumeration-9/NISTXML-SV-II-list-anyURI-enumeration-5-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-anyURI-enumeration-9/NISTXML-SV-II-list-anyURI-enumeration-5-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-anyURI-enumeration-9/NISTXML-SV-II-list-anyURI-enumeration-5-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-anyURI-enumeration-9/NISTXML-SV-II-list-anyURI-enumeration-5-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-anyURI-enumeration-9/NISTXML-SV-II-list-anyURI-enumeration-5-5
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-anyURI-length-5/NISTXML-SV-II-list-anyURI-length-1-1
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-anyURI-length-5/NISTXML-SV-II-list-anyURI-length-1-2
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-anyURI-length-5/NISTXML-SV-II-list-anyURI-length-1-3
@@ -10884,6 +10921,31 @@ nistMeta-NISTXMLSchemaDatatypes/1.0/list-anyURI-pattern-9/NISTXML-SV-II-list-any
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-anyURI-pattern-9/NISTXML-SV-II-list-anyURI-pattern-5-3
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-anyURI-pattern-9/NISTXML-SV-II-list-anyURI-pattern-5-4
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-anyURI-pattern-9/NISTXML-SV-II-list-anyURI-pattern-5-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-byte-enumeration-5/NISTXML-SV-II-list-byte-enumeration-1-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-byte-enumeration-5/NISTXML-SV-II-list-byte-enumeration-1-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-byte-enumeration-5/NISTXML-SV-II-list-byte-enumeration-1-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-byte-enumeration-5/NISTXML-SV-II-list-byte-enumeration-1-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-byte-enumeration-5/NISTXML-SV-II-list-byte-enumeration-1-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-byte-enumeration-6/NISTXML-SV-II-list-byte-enumeration-2-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-byte-enumeration-6/NISTXML-SV-II-list-byte-enumeration-2-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-byte-enumeration-6/NISTXML-SV-II-list-byte-enumeration-2-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-byte-enumeration-6/NISTXML-SV-II-list-byte-enumeration-2-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-byte-enumeration-6/NISTXML-SV-II-list-byte-enumeration-2-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-byte-enumeration-7/NISTXML-SV-II-list-byte-enumeration-3-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-byte-enumeration-7/NISTXML-SV-II-list-byte-enumeration-3-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-byte-enumeration-7/NISTXML-SV-II-list-byte-enumeration-3-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-byte-enumeration-7/NISTXML-SV-II-list-byte-enumeration-3-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-byte-enumeration-7/NISTXML-SV-II-list-byte-enumeration-3-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-byte-enumeration-8/NISTXML-SV-II-list-byte-enumeration-4-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-byte-enumeration-8/NISTXML-SV-II-list-byte-enumeration-4-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-byte-enumeration-8/NISTXML-SV-II-list-byte-enumeration-4-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-byte-enumeration-8/NISTXML-SV-II-list-byte-enumeration-4-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-byte-enumeration-8/NISTXML-SV-II-list-byte-enumeration-4-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-byte-enumeration-9/NISTXML-SV-II-list-byte-enumeration-5-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-byte-enumeration-9/NISTXML-SV-II-list-byte-enumeration-5-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-byte-enumeration-9/NISTXML-SV-II-list-byte-enumeration-5-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-byte-enumeration-9/NISTXML-SV-II-list-byte-enumeration-5-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-byte-enumeration-9/NISTXML-SV-II-list-byte-enumeration-5-5
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-byte-length-5/NISTXML-SV-II-list-byte-length-1-1
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-byte-length-5/NISTXML-SV-II-list-byte-length-1-2
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-byte-length-5/NISTXML-SV-II-list-byte-length-1-3
@@ -10984,6 +11046,31 @@ nistMeta-NISTXMLSchemaDatatypes/1.0/list-byte-pattern-9/NISTXML-SV-II-list-byte-
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-byte-pattern-9/NISTXML-SV-II-list-byte-pattern-5-3
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-byte-pattern-9/NISTXML-SV-II-list-byte-pattern-5-4
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-byte-pattern-9/NISTXML-SV-II-list-byte-pattern-5-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-date-enumeration-5/NISTXML-SV-II-list-date-enumeration-1-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-date-enumeration-5/NISTXML-SV-II-list-date-enumeration-1-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-date-enumeration-5/NISTXML-SV-II-list-date-enumeration-1-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-date-enumeration-5/NISTXML-SV-II-list-date-enumeration-1-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-date-enumeration-5/NISTXML-SV-II-list-date-enumeration-1-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-date-enumeration-6/NISTXML-SV-II-list-date-enumeration-2-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-date-enumeration-6/NISTXML-SV-II-list-date-enumeration-2-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-date-enumeration-6/NISTXML-SV-II-list-date-enumeration-2-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-date-enumeration-6/NISTXML-SV-II-list-date-enumeration-2-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-date-enumeration-6/NISTXML-SV-II-list-date-enumeration-2-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-date-enumeration-7/NISTXML-SV-II-list-date-enumeration-3-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-date-enumeration-7/NISTXML-SV-II-list-date-enumeration-3-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-date-enumeration-7/NISTXML-SV-II-list-date-enumeration-3-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-date-enumeration-7/NISTXML-SV-II-list-date-enumeration-3-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-date-enumeration-7/NISTXML-SV-II-list-date-enumeration-3-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-date-enumeration-8/NISTXML-SV-II-list-date-enumeration-4-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-date-enumeration-8/NISTXML-SV-II-list-date-enumeration-4-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-date-enumeration-8/NISTXML-SV-II-list-date-enumeration-4-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-date-enumeration-8/NISTXML-SV-II-list-date-enumeration-4-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-date-enumeration-8/NISTXML-SV-II-list-date-enumeration-4-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-date-enumeration-9/NISTXML-SV-II-list-date-enumeration-5-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-date-enumeration-9/NISTXML-SV-II-list-date-enumeration-5-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-date-enumeration-9/NISTXML-SV-II-list-date-enumeration-5-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-date-enumeration-9/NISTXML-SV-II-list-date-enumeration-5-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-date-enumeration-9/NISTXML-SV-II-list-date-enumeration-5-5
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-date-length-5/NISTXML-SV-II-list-date-length-1-1
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-date-length-5/NISTXML-SV-II-list-date-length-1-2
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-date-length-5/NISTXML-SV-II-list-date-length-1-3
@@ -11084,6 +11171,31 @@ nistMeta-NISTXMLSchemaDatatypes/1.0/list-date-pattern-9/NISTXML-SV-II-list-date-
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-date-pattern-9/NISTXML-SV-II-list-date-pattern-5-3
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-date-pattern-9/NISTXML-SV-II-list-date-pattern-5-4
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-date-pattern-9/NISTXML-SV-II-list-date-pattern-5-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-dateTime-enumeration-5/NISTXML-SV-II-list-dateTime-enumeration-1-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-dateTime-enumeration-5/NISTXML-SV-II-list-dateTime-enumeration-1-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-dateTime-enumeration-5/NISTXML-SV-II-list-dateTime-enumeration-1-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-dateTime-enumeration-5/NISTXML-SV-II-list-dateTime-enumeration-1-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-dateTime-enumeration-5/NISTXML-SV-II-list-dateTime-enumeration-1-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-dateTime-enumeration-6/NISTXML-SV-II-list-dateTime-enumeration-2-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-dateTime-enumeration-6/NISTXML-SV-II-list-dateTime-enumeration-2-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-dateTime-enumeration-6/NISTXML-SV-II-list-dateTime-enumeration-2-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-dateTime-enumeration-6/NISTXML-SV-II-list-dateTime-enumeration-2-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-dateTime-enumeration-6/NISTXML-SV-II-list-dateTime-enumeration-2-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-dateTime-enumeration-7/NISTXML-SV-II-list-dateTime-enumeration-3-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-dateTime-enumeration-7/NISTXML-SV-II-list-dateTime-enumeration-3-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-dateTime-enumeration-7/NISTXML-SV-II-list-dateTime-enumeration-3-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-dateTime-enumeration-7/NISTXML-SV-II-list-dateTime-enumeration-3-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-dateTime-enumeration-7/NISTXML-SV-II-list-dateTime-enumeration-3-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-dateTime-enumeration-8/NISTXML-SV-II-list-dateTime-enumeration-4-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-dateTime-enumeration-8/NISTXML-SV-II-list-dateTime-enumeration-4-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-dateTime-enumeration-8/NISTXML-SV-II-list-dateTime-enumeration-4-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-dateTime-enumeration-8/NISTXML-SV-II-list-dateTime-enumeration-4-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-dateTime-enumeration-8/NISTXML-SV-II-list-dateTime-enumeration-4-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-dateTime-enumeration-9/NISTXML-SV-II-list-dateTime-enumeration-5-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-dateTime-enumeration-9/NISTXML-SV-II-list-dateTime-enumeration-5-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-dateTime-enumeration-9/NISTXML-SV-II-list-dateTime-enumeration-5-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-dateTime-enumeration-9/NISTXML-SV-II-list-dateTime-enumeration-5-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-dateTime-enumeration-9/NISTXML-SV-II-list-dateTime-enumeration-5-5
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-dateTime-length-5/NISTXML-SV-II-list-dateTime-length-1-1
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-dateTime-length-5/NISTXML-SV-II-list-dateTime-length-1-2
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-dateTime-length-5/NISTXML-SV-II-list-dateTime-length-1-3
@@ -11184,6 +11296,31 @@ nistMeta-NISTXMLSchemaDatatypes/1.0/list-dateTime-pattern-9/NISTXML-SV-II-list-d
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-dateTime-pattern-9/NISTXML-SV-II-list-dateTime-pattern-5-3
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-dateTime-pattern-9/NISTXML-SV-II-list-dateTime-pattern-5-4
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-dateTime-pattern-9/NISTXML-SV-II-list-dateTime-pattern-5-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-decimal-enumeration-5/NISTXML-SV-II-list-decimal-enumeration-1-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-decimal-enumeration-5/NISTXML-SV-II-list-decimal-enumeration-1-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-decimal-enumeration-5/NISTXML-SV-II-list-decimal-enumeration-1-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-decimal-enumeration-5/NISTXML-SV-II-list-decimal-enumeration-1-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-decimal-enumeration-5/NISTXML-SV-II-list-decimal-enumeration-1-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-decimal-enumeration-6/NISTXML-SV-II-list-decimal-enumeration-2-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-decimal-enumeration-6/NISTXML-SV-II-list-decimal-enumeration-2-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-decimal-enumeration-6/NISTXML-SV-II-list-decimal-enumeration-2-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-decimal-enumeration-6/NISTXML-SV-II-list-decimal-enumeration-2-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-decimal-enumeration-6/NISTXML-SV-II-list-decimal-enumeration-2-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-decimal-enumeration-7/NISTXML-SV-II-list-decimal-enumeration-3-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-decimal-enumeration-7/NISTXML-SV-II-list-decimal-enumeration-3-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-decimal-enumeration-7/NISTXML-SV-II-list-decimal-enumeration-3-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-decimal-enumeration-7/NISTXML-SV-II-list-decimal-enumeration-3-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-decimal-enumeration-7/NISTXML-SV-II-list-decimal-enumeration-3-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-decimal-enumeration-8/NISTXML-SV-II-list-decimal-enumeration-4-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-decimal-enumeration-8/NISTXML-SV-II-list-decimal-enumeration-4-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-decimal-enumeration-8/NISTXML-SV-II-list-decimal-enumeration-4-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-decimal-enumeration-8/NISTXML-SV-II-list-decimal-enumeration-4-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-decimal-enumeration-8/NISTXML-SV-II-list-decimal-enumeration-4-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-decimal-enumeration-9/NISTXML-SV-II-list-decimal-enumeration-5-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-decimal-enumeration-9/NISTXML-SV-II-list-decimal-enumeration-5-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-decimal-enumeration-9/NISTXML-SV-II-list-decimal-enumeration-5-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-decimal-enumeration-9/NISTXML-SV-II-list-decimal-enumeration-5-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-decimal-enumeration-9/NISTXML-SV-II-list-decimal-enumeration-5-5
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-decimal-length-5/NISTXML-SV-II-list-decimal-length-1-1
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-decimal-length-5/NISTXML-SV-II-list-decimal-length-1-2
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-decimal-length-5/NISTXML-SV-II-list-decimal-length-1-3
@@ -11284,6 +11421,31 @@ nistMeta-NISTXMLSchemaDatatypes/1.0/list-decimal-pattern-9/NISTXML-SV-II-list-de
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-decimal-pattern-9/NISTXML-SV-II-list-decimal-pattern-5-3
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-decimal-pattern-9/NISTXML-SV-II-list-decimal-pattern-5-4
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-decimal-pattern-9/NISTXML-SV-II-list-decimal-pattern-5-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-double-enumeration-5/NISTXML-SV-II-list-double-enumeration-1-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-double-enumeration-5/NISTXML-SV-II-list-double-enumeration-1-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-double-enumeration-5/NISTXML-SV-II-list-double-enumeration-1-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-double-enumeration-5/NISTXML-SV-II-list-double-enumeration-1-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-double-enumeration-5/NISTXML-SV-II-list-double-enumeration-1-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-double-enumeration-6/NISTXML-SV-II-list-double-enumeration-2-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-double-enumeration-6/NISTXML-SV-II-list-double-enumeration-2-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-double-enumeration-6/NISTXML-SV-II-list-double-enumeration-2-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-double-enumeration-6/NISTXML-SV-II-list-double-enumeration-2-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-double-enumeration-6/NISTXML-SV-II-list-double-enumeration-2-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-double-enumeration-7/NISTXML-SV-II-list-double-enumeration-3-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-double-enumeration-7/NISTXML-SV-II-list-double-enumeration-3-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-double-enumeration-7/NISTXML-SV-II-list-double-enumeration-3-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-double-enumeration-7/NISTXML-SV-II-list-double-enumeration-3-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-double-enumeration-7/NISTXML-SV-II-list-double-enumeration-3-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-double-enumeration-8/NISTXML-SV-II-list-double-enumeration-4-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-double-enumeration-8/NISTXML-SV-II-list-double-enumeration-4-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-double-enumeration-8/NISTXML-SV-II-list-double-enumeration-4-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-double-enumeration-8/NISTXML-SV-II-list-double-enumeration-4-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-double-enumeration-8/NISTXML-SV-II-list-double-enumeration-4-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-double-enumeration-9/NISTXML-SV-II-list-double-enumeration-5-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-double-enumeration-9/NISTXML-SV-II-list-double-enumeration-5-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-double-enumeration-9/NISTXML-SV-II-list-double-enumeration-5-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-double-enumeration-9/NISTXML-SV-II-list-double-enumeration-5-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-double-enumeration-9/NISTXML-SV-II-list-double-enumeration-5-5
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-double-length-5/NISTXML-SV-II-list-double-length-1-1
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-double-length-5/NISTXML-SV-II-list-double-length-1-2
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-double-length-5/NISTXML-SV-II-list-double-length-1-3
@@ -11384,6 +11546,31 @@ nistMeta-NISTXMLSchemaDatatypes/1.0/list-double-pattern-9/NISTXML-SV-II-list-dou
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-double-pattern-9/NISTXML-SV-II-list-double-pattern-5-3
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-double-pattern-9/NISTXML-SV-II-list-double-pattern-5-4
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-double-pattern-9/NISTXML-SV-II-list-double-pattern-5-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-duration-enumeration-5/NISTXML-SV-II-list-duration-enumeration-1-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-duration-enumeration-5/NISTXML-SV-II-list-duration-enumeration-1-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-duration-enumeration-5/NISTXML-SV-II-list-duration-enumeration-1-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-duration-enumeration-5/NISTXML-SV-II-list-duration-enumeration-1-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-duration-enumeration-5/NISTXML-SV-II-list-duration-enumeration-1-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-duration-enumeration-6/NISTXML-SV-II-list-duration-enumeration-2-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-duration-enumeration-6/NISTXML-SV-II-list-duration-enumeration-2-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-duration-enumeration-6/NISTXML-SV-II-list-duration-enumeration-2-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-duration-enumeration-6/NISTXML-SV-II-list-duration-enumeration-2-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-duration-enumeration-6/NISTXML-SV-II-list-duration-enumeration-2-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-duration-enumeration-7/NISTXML-SV-II-list-duration-enumeration-3-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-duration-enumeration-7/NISTXML-SV-II-list-duration-enumeration-3-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-duration-enumeration-7/NISTXML-SV-II-list-duration-enumeration-3-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-duration-enumeration-7/NISTXML-SV-II-list-duration-enumeration-3-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-duration-enumeration-7/NISTXML-SV-II-list-duration-enumeration-3-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-duration-enumeration-8/NISTXML-SV-II-list-duration-enumeration-4-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-duration-enumeration-8/NISTXML-SV-II-list-duration-enumeration-4-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-duration-enumeration-8/NISTXML-SV-II-list-duration-enumeration-4-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-duration-enumeration-8/NISTXML-SV-II-list-duration-enumeration-4-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-duration-enumeration-8/NISTXML-SV-II-list-duration-enumeration-4-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-duration-enumeration-9/NISTXML-SV-II-list-duration-enumeration-5-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-duration-enumeration-9/NISTXML-SV-II-list-duration-enumeration-5-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-duration-enumeration-9/NISTXML-SV-II-list-duration-enumeration-5-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-duration-enumeration-9/NISTXML-SV-II-list-duration-enumeration-5-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-duration-enumeration-9/NISTXML-SV-II-list-duration-enumeration-5-5
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-duration-length-5/NISTXML-SV-II-list-duration-length-1-1
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-duration-length-5/NISTXML-SV-II-list-duration-length-1-2
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-duration-length-5/NISTXML-SV-II-list-duration-length-1-3
@@ -11484,6 +11671,31 @@ nistMeta-NISTXMLSchemaDatatypes/1.0/list-duration-pattern-9/NISTXML-SV-II-list-d
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-duration-pattern-9/NISTXML-SV-II-list-duration-pattern-5-3
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-duration-pattern-9/NISTXML-SV-II-list-duration-pattern-5-4
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-duration-pattern-9/NISTXML-SV-II-list-duration-pattern-5-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-float-enumeration-5/NISTXML-SV-II-list-float-enumeration-1-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-float-enumeration-5/NISTXML-SV-II-list-float-enumeration-1-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-float-enumeration-5/NISTXML-SV-II-list-float-enumeration-1-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-float-enumeration-5/NISTXML-SV-II-list-float-enumeration-1-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-float-enumeration-5/NISTXML-SV-II-list-float-enumeration-1-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-float-enumeration-6/NISTXML-SV-II-list-float-enumeration-2-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-float-enumeration-6/NISTXML-SV-II-list-float-enumeration-2-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-float-enumeration-6/NISTXML-SV-II-list-float-enumeration-2-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-float-enumeration-6/NISTXML-SV-II-list-float-enumeration-2-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-float-enumeration-6/NISTXML-SV-II-list-float-enumeration-2-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-float-enumeration-7/NISTXML-SV-II-list-float-enumeration-3-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-float-enumeration-7/NISTXML-SV-II-list-float-enumeration-3-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-float-enumeration-7/NISTXML-SV-II-list-float-enumeration-3-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-float-enumeration-7/NISTXML-SV-II-list-float-enumeration-3-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-float-enumeration-7/NISTXML-SV-II-list-float-enumeration-3-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-float-enumeration-8/NISTXML-SV-II-list-float-enumeration-4-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-float-enumeration-8/NISTXML-SV-II-list-float-enumeration-4-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-float-enumeration-8/NISTXML-SV-II-list-float-enumeration-4-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-float-enumeration-8/NISTXML-SV-II-list-float-enumeration-4-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-float-enumeration-8/NISTXML-SV-II-list-float-enumeration-4-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-float-enumeration-9/NISTXML-SV-II-list-float-enumeration-5-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-float-enumeration-9/NISTXML-SV-II-list-float-enumeration-5-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-float-enumeration-9/NISTXML-SV-II-list-float-enumeration-5-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-float-enumeration-9/NISTXML-SV-II-list-float-enumeration-5-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-float-enumeration-9/NISTXML-SV-II-list-float-enumeration-5-5
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-float-length-5/NISTXML-SV-II-list-float-length-1-1
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-float-length-5/NISTXML-SV-II-list-float-length-1-2
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-float-length-5/NISTXML-SV-II-list-float-length-1-3
@@ -11584,6 +11796,31 @@ nistMeta-NISTXMLSchemaDatatypes/1.0/list-float-pattern-9/NISTXML-SV-II-list-floa
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-float-pattern-9/NISTXML-SV-II-list-float-pattern-5-3
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-float-pattern-9/NISTXML-SV-II-list-float-pattern-5-4
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-float-pattern-9/NISTXML-SV-II-list-float-pattern-5-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gDay-enumeration-5/NISTXML-SV-II-list-gDay-enumeration-1-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gDay-enumeration-5/NISTXML-SV-II-list-gDay-enumeration-1-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gDay-enumeration-5/NISTXML-SV-II-list-gDay-enumeration-1-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gDay-enumeration-5/NISTXML-SV-II-list-gDay-enumeration-1-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gDay-enumeration-5/NISTXML-SV-II-list-gDay-enumeration-1-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gDay-enumeration-6/NISTXML-SV-II-list-gDay-enumeration-2-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gDay-enumeration-6/NISTXML-SV-II-list-gDay-enumeration-2-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gDay-enumeration-6/NISTXML-SV-II-list-gDay-enumeration-2-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gDay-enumeration-6/NISTXML-SV-II-list-gDay-enumeration-2-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gDay-enumeration-6/NISTXML-SV-II-list-gDay-enumeration-2-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gDay-enumeration-7/NISTXML-SV-II-list-gDay-enumeration-3-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gDay-enumeration-7/NISTXML-SV-II-list-gDay-enumeration-3-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gDay-enumeration-7/NISTXML-SV-II-list-gDay-enumeration-3-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gDay-enumeration-7/NISTXML-SV-II-list-gDay-enumeration-3-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gDay-enumeration-7/NISTXML-SV-II-list-gDay-enumeration-3-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gDay-enumeration-8/NISTXML-SV-II-list-gDay-enumeration-4-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gDay-enumeration-8/NISTXML-SV-II-list-gDay-enumeration-4-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gDay-enumeration-8/NISTXML-SV-II-list-gDay-enumeration-4-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gDay-enumeration-8/NISTXML-SV-II-list-gDay-enumeration-4-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gDay-enumeration-8/NISTXML-SV-II-list-gDay-enumeration-4-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gDay-enumeration-9/NISTXML-SV-II-list-gDay-enumeration-5-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gDay-enumeration-9/NISTXML-SV-II-list-gDay-enumeration-5-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gDay-enumeration-9/NISTXML-SV-II-list-gDay-enumeration-5-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gDay-enumeration-9/NISTXML-SV-II-list-gDay-enumeration-5-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gDay-enumeration-9/NISTXML-SV-II-list-gDay-enumeration-5-5
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-gDay-length-5/NISTXML-SV-II-list-gDay-length-1-1
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-gDay-length-5/NISTXML-SV-II-list-gDay-length-1-2
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-gDay-length-5/NISTXML-SV-II-list-gDay-length-1-3
@@ -11684,6 +11921,30 @@ nistMeta-NISTXMLSchemaDatatypes/1.0/list-gDay-pattern-9/NISTXML-SV-II-list-gDay-
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-gDay-pattern-9/NISTXML-SV-II-list-gDay-pattern-5-3
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-gDay-pattern-9/NISTXML-SV-II-list-gDay-pattern-5-4
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-gDay-pattern-9/NISTXML-SV-II-list-gDay-pattern-5-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonth-enumeration-5/NISTXML-SV-II-list-gMonth-enumeration-1-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonth-enumeration-5/NISTXML-SV-II-list-gMonth-enumeration-1-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonth-enumeration-5/NISTXML-SV-II-list-gMonth-enumeration-1-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonth-enumeration-5/NISTXML-SV-II-list-gMonth-enumeration-1-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonth-enumeration-5/NISTXML-SV-II-list-gMonth-enumeration-1-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonth-enumeration-6/NISTXML-SV-II-list-gMonth-enumeration-2-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonth-enumeration-6/NISTXML-SV-II-list-gMonth-enumeration-2-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonth-enumeration-6/NISTXML-SV-II-list-gMonth-enumeration-2-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonth-enumeration-6/NISTXML-SV-II-list-gMonth-enumeration-2-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonth-enumeration-7/NISTXML-SV-II-list-gMonth-enumeration-3-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonth-enumeration-7/NISTXML-SV-II-list-gMonth-enumeration-3-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonth-enumeration-7/NISTXML-SV-II-list-gMonth-enumeration-3-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonth-enumeration-7/NISTXML-SV-II-list-gMonth-enumeration-3-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonth-enumeration-7/NISTXML-SV-II-list-gMonth-enumeration-3-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonth-enumeration-8/NISTXML-SV-II-list-gMonth-enumeration-4-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonth-enumeration-8/NISTXML-SV-II-list-gMonth-enumeration-4-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonth-enumeration-8/NISTXML-SV-II-list-gMonth-enumeration-4-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonth-enumeration-8/NISTXML-SV-II-list-gMonth-enumeration-4-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonth-enumeration-8/NISTXML-SV-II-list-gMonth-enumeration-4-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonth-enumeration-9/NISTXML-SV-II-list-gMonth-enumeration-5-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonth-enumeration-9/NISTXML-SV-II-list-gMonth-enumeration-5-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonth-enumeration-9/NISTXML-SV-II-list-gMonth-enumeration-5-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonth-enumeration-9/NISTXML-SV-II-list-gMonth-enumeration-5-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonth-enumeration-9/NISTXML-SV-II-list-gMonth-enumeration-5-5
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonth-length-5/NISTXML-SV-II-list-gMonth-length-1-1
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonth-length-5/NISTXML-SV-II-list-gMonth-length-1-2
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonth-length-5/NISTXML-SV-II-list-gMonth-length-1-3
@@ -11784,6 +12045,31 @@ nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonth-pattern-9/NISTXML-SV-II-list-gMo
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonth-pattern-9/NISTXML-SV-II-list-gMonth-pattern-5-3
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonth-pattern-9/NISTXML-SV-II-list-gMonth-pattern-5-4
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonth-pattern-9/NISTXML-SV-II-list-gMonth-pattern-5-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonthDay-enumeration-5/NISTXML-SV-II-list-gMonthDay-enumeration-1-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonthDay-enumeration-5/NISTXML-SV-II-list-gMonthDay-enumeration-1-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonthDay-enumeration-5/NISTXML-SV-II-list-gMonthDay-enumeration-1-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonthDay-enumeration-5/NISTXML-SV-II-list-gMonthDay-enumeration-1-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonthDay-enumeration-5/NISTXML-SV-II-list-gMonthDay-enumeration-1-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonthDay-enumeration-6/NISTXML-SV-II-list-gMonthDay-enumeration-2-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonthDay-enumeration-6/NISTXML-SV-II-list-gMonthDay-enumeration-2-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonthDay-enumeration-6/NISTXML-SV-II-list-gMonthDay-enumeration-2-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonthDay-enumeration-6/NISTXML-SV-II-list-gMonthDay-enumeration-2-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonthDay-enumeration-6/NISTXML-SV-II-list-gMonthDay-enumeration-2-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonthDay-enumeration-7/NISTXML-SV-II-list-gMonthDay-enumeration-3-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonthDay-enumeration-7/NISTXML-SV-II-list-gMonthDay-enumeration-3-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonthDay-enumeration-7/NISTXML-SV-II-list-gMonthDay-enumeration-3-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonthDay-enumeration-7/NISTXML-SV-II-list-gMonthDay-enumeration-3-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonthDay-enumeration-7/NISTXML-SV-II-list-gMonthDay-enumeration-3-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonthDay-enumeration-8/NISTXML-SV-II-list-gMonthDay-enumeration-4-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonthDay-enumeration-8/NISTXML-SV-II-list-gMonthDay-enumeration-4-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonthDay-enumeration-8/NISTXML-SV-II-list-gMonthDay-enumeration-4-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonthDay-enumeration-8/NISTXML-SV-II-list-gMonthDay-enumeration-4-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonthDay-enumeration-8/NISTXML-SV-II-list-gMonthDay-enumeration-4-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonthDay-enumeration-9/NISTXML-SV-II-list-gMonthDay-enumeration-5-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonthDay-enumeration-9/NISTXML-SV-II-list-gMonthDay-enumeration-5-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonthDay-enumeration-9/NISTXML-SV-II-list-gMonthDay-enumeration-5-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonthDay-enumeration-9/NISTXML-SV-II-list-gMonthDay-enumeration-5-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonthDay-enumeration-9/NISTXML-SV-II-list-gMonthDay-enumeration-5-5
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonthDay-length-5/NISTXML-SV-II-list-gMonthDay-length-1-1
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonthDay-length-5/NISTXML-SV-II-list-gMonthDay-length-1-2
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonthDay-length-5/NISTXML-SV-II-list-gMonthDay-length-1-3
@@ -11884,6 +12170,31 @@ nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonthDay-pattern-9/NISTXML-SV-II-list-
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonthDay-pattern-9/NISTXML-SV-II-list-gMonthDay-pattern-5-3
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonthDay-pattern-9/NISTXML-SV-II-list-gMonthDay-pattern-5-4
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-gMonthDay-pattern-9/NISTXML-SV-II-list-gMonthDay-pattern-5-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYear-enumeration-5/NISTXML-SV-II-list-gYear-enumeration-1-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYear-enumeration-5/NISTXML-SV-II-list-gYear-enumeration-1-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYear-enumeration-5/NISTXML-SV-II-list-gYear-enumeration-1-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYear-enumeration-5/NISTXML-SV-II-list-gYear-enumeration-1-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYear-enumeration-5/NISTXML-SV-II-list-gYear-enumeration-1-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYear-enumeration-6/NISTXML-SV-II-list-gYear-enumeration-2-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYear-enumeration-6/NISTXML-SV-II-list-gYear-enumeration-2-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYear-enumeration-6/NISTXML-SV-II-list-gYear-enumeration-2-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYear-enumeration-6/NISTXML-SV-II-list-gYear-enumeration-2-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYear-enumeration-6/NISTXML-SV-II-list-gYear-enumeration-2-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYear-enumeration-7/NISTXML-SV-II-list-gYear-enumeration-3-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYear-enumeration-7/NISTXML-SV-II-list-gYear-enumeration-3-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYear-enumeration-7/NISTXML-SV-II-list-gYear-enumeration-3-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYear-enumeration-7/NISTXML-SV-II-list-gYear-enumeration-3-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYear-enumeration-7/NISTXML-SV-II-list-gYear-enumeration-3-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYear-enumeration-8/NISTXML-SV-II-list-gYear-enumeration-4-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYear-enumeration-8/NISTXML-SV-II-list-gYear-enumeration-4-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYear-enumeration-8/NISTXML-SV-II-list-gYear-enumeration-4-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYear-enumeration-8/NISTXML-SV-II-list-gYear-enumeration-4-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYear-enumeration-8/NISTXML-SV-II-list-gYear-enumeration-4-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYear-enumeration-9/NISTXML-SV-II-list-gYear-enumeration-5-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYear-enumeration-9/NISTXML-SV-II-list-gYear-enumeration-5-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYear-enumeration-9/NISTXML-SV-II-list-gYear-enumeration-5-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYear-enumeration-9/NISTXML-SV-II-list-gYear-enumeration-5-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYear-enumeration-9/NISTXML-SV-II-list-gYear-enumeration-5-5
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYear-length-5/NISTXML-SV-II-list-gYear-length-1-1
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYear-length-5/NISTXML-SV-II-list-gYear-length-1-2
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYear-length-5/NISTXML-SV-II-list-gYear-length-1-3
@@ -11984,6 +12295,31 @@ nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYear-pattern-9/NISTXML-SV-II-list-gYea
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYear-pattern-9/NISTXML-SV-II-list-gYear-pattern-5-3
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYear-pattern-9/NISTXML-SV-II-list-gYear-pattern-5-4
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYear-pattern-9/NISTXML-SV-II-list-gYear-pattern-5-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYearMonth-enumeration-5/NISTXML-SV-II-list-gYearMonth-enumeration-1-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYearMonth-enumeration-5/NISTXML-SV-II-list-gYearMonth-enumeration-1-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYearMonth-enumeration-5/NISTXML-SV-II-list-gYearMonth-enumeration-1-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYearMonth-enumeration-5/NISTXML-SV-II-list-gYearMonth-enumeration-1-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYearMonth-enumeration-5/NISTXML-SV-II-list-gYearMonth-enumeration-1-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYearMonth-enumeration-6/NISTXML-SV-II-list-gYearMonth-enumeration-2-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYearMonth-enumeration-6/NISTXML-SV-II-list-gYearMonth-enumeration-2-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYearMonth-enumeration-6/NISTXML-SV-II-list-gYearMonth-enumeration-2-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYearMonth-enumeration-6/NISTXML-SV-II-list-gYearMonth-enumeration-2-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYearMonth-enumeration-6/NISTXML-SV-II-list-gYearMonth-enumeration-2-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYearMonth-enumeration-7/NISTXML-SV-II-list-gYearMonth-enumeration-3-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYearMonth-enumeration-7/NISTXML-SV-II-list-gYearMonth-enumeration-3-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYearMonth-enumeration-7/NISTXML-SV-II-list-gYearMonth-enumeration-3-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYearMonth-enumeration-7/NISTXML-SV-II-list-gYearMonth-enumeration-3-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYearMonth-enumeration-7/NISTXML-SV-II-list-gYearMonth-enumeration-3-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYearMonth-enumeration-8/NISTXML-SV-II-list-gYearMonth-enumeration-4-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYearMonth-enumeration-8/NISTXML-SV-II-list-gYearMonth-enumeration-4-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYearMonth-enumeration-8/NISTXML-SV-II-list-gYearMonth-enumeration-4-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYearMonth-enumeration-8/NISTXML-SV-II-list-gYearMonth-enumeration-4-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYearMonth-enumeration-8/NISTXML-SV-II-list-gYearMonth-enumeration-4-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYearMonth-enumeration-9/NISTXML-SV-II-list-gYearMonth-enumeration-5-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYearMonth-enumeration-9/NISTXML-SV-II-list-gYearMonth-enumeration-5-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYearMonth-enumeration-9/NISTXML-SV-II-list-gYearMonth-enumeration-5-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYearMonth-enumeration-9/NISTXML-SV-II-list-gYearMonth-enumeration-5-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYearMonth-enumeration-9/NISTXML-SV-II-list-gYearMonth-enumeration-5-5
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYearMonth-length-5/NISTXML-SV-II-list-gYearMonth-length-1-1
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYearMonth-length-5/NISTXML-SV-II-list-gYearMonth-length-1-2
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYearMonth-length-5/NISTXML-SV-II-list-gYearMonth-length-1-3
@@ -12084,6 +12420,31 @@ nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYearMonth-pattern-9/NISTXML-SV-II-list
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYearMonth-pattern-9/NISTXML-SV-II-list-gYearMonth-pattern-5-3
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYearMonth-pattern-9/NISTXML-SV-II-list-gYearMonth-pattern-5-4
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-gYearMonth-pattern-9/NISTXML-SV-II-list-gYearMonth-pattern-5-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-int-enumeration-5/NISTXML-SV-II-list-int-enumeration-1-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-int-enumeration-5/NISTXML-SV-II-list-int-enumeration-1-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-int-enumeration-5/NISTXML-SV-II-list-int-enumeration-1-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-int-enumeration-5/NISTXML-SV-II-list-int-enumeration-1-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-int-enumeration-5/NISTXML-SV-II-list-int-enumeration-1-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-int-enumeration-6/NISTXML-SV-II-list-int-enumeration-2-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-int-enumeration-6/NISTXML-SV-II-list-int-enumeration-2-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-int-enumeration-6/NISTXML-SV-II-list-int-enumeration-2-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-int-enumeration-6/NISTXML-SV-II-list-int-enumeration-2-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-int-enumeration-6/NISTXML-SV-II-list-int-enumeration-2-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-int-enumeration-7/NISTXML-SV-II-list-int-enumeration-3-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-int-enumeration-7/NISTXML-SV-II-list-int-enumeration-3-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-int-enumeration-7/NISTXML-SV-II-list-int-enumeration-3-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-int-enumeration-7/NISTXML-SV-II-list-int-enumeration-3-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-int-enumeration-7/NISTXML-SV-II-list-int-enumeration-3-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-int-enumeration-8/NISTXML-SV-II-list-int-enumeration-4-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-int-enumeration-8/NISTXML-SV-II-list-int-enumeration-4-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-int-enumeration-8/NISTXML-SV-II-list-int-enumeration-4-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-int-enumeration-8/NISTXML-SV-II-list-int-enumeration-4-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-int-enumeration-8/NISTXML-SV-II-list-int-enumeration-4-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-int-enumeration-9/NISTXML-SV-II-list-int-enumeration-5-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-int-enumeration-9/NISTXML-SV-II-list-int-enumeration-5-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-int-enumeration-9/NISTXML-SV-II-list-int-enumeration-5-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-int-enumeration-9/NISTXML-SV-II-list-int-enumeration-5-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-int-enumeration-9/NISTXML-SV-II-list-int-enumeration-5-5
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-int-length-5/NISTXML-SV-II-list-int-length-1-1
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-int-length-5/NISTXML-SV-II-list-int-length-1-2
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-int-length-5/NISTXML-SV-II-list-int-length-1-3
@@ -12184,6 +12545,31 @@ nistMeta-NISTXMLSchemaDatatypes/1.0/list-int-pattern-9/NISTXML-SV-II-list-int-pa
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-int-pattern-9/NISTXML-SV-II-list-int-pattern-5-3
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-int-pattern-9/NISTXML-SV-II-list-int-pattern-5-4
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-int-pattern-9/NISTXML-SV-II-list-int-pattern-5-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-integer-enumeration-5/NISTXML-SV-II-list-integer-enumeration-1-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-integer-enumeration-5/NISTXML-SV-II-list-integer-enumeration-1-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-integer-enumeration-5/NISTXML-SV-II-list-integer-enumeration-1-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-integer-enumeration-5/NISTXML-SV-II-list-integer-enumeration-1-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-integer-enumeration-5/NISTXML-SV-II-list-integer-enumeration-1-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-integer-enumeration-6/NISTXML-SV-II-list-integer-enumeration-2-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-integer-enumeration-6/NISTXML-SV-II-list-integer-enumeration-2-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-integer-enumeration-6/NISTXML-SV-II-list-integer-enumeration-2-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-integer-enumeration-6/NISTXML-SV-II-list-integer-enumeration-2-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-integer-enumeration-6/NISTXML-SV-II-list-integer-enumeration-2-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-integer-enumeration-7/NISTXML-SV-II-list-integer-enumeration-3-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-integer-enumeration-7/NISTXML-SV-II-list-integer-enumeration-3-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-integer-enumeration-7/NISTXML-SV-II-list-integer-enumeration-3-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-integer-enumeration-7/NISTXML-SV-II-list-integer-enumeration-3-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-integer-enumeration-7/NISTXML-SV-II-list-integer-enumeration-3-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-integer-enumeration-8/NISTXML-SV-II-list-integer-enumeration-4-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-integer-enumeration-8/NISTXML-SV-II-list-integer-enumeration-4-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-integer-enumeration-8/NISTXML-SV-II-list-integer-enumeration-4-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-integer-enumeration-8/NISTXML-SV-II-list-integer-enumeration-4-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-integer-enumeration-8/NISTXML-SV-II-list-integer-enumeration-4-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-integer-enumeration-9/NISTXML-SV-II-list-integer-enumeration-5-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-integer-enumeration-9/NISTXML-SV-II-list-integer-enumeration-5-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-integer-enumeration-9/NISTXML-SV-II-list-integer-enumeration-5-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-integer-enumeration-9/NISTXML-SV-II-list-integer-enumeration-5-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-integer-enumeration-9/NISTXML-SV-II-list-integer-enumeration-5-5
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-integer-length-5/NISTXML-SV-II-list-integer-length-1-1
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-integer-length-5/NISTXML-SV-II-list-integer-length-1-2
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-integer-length-5/NISTXML-SV-II-list-integer-length-1-3
@@ -12359,6 +12745,31 @@ nistMeta-NISTXMLSchemaDatatypes/1.0/list-language-minLength-9/NISTXML-SV-II-list
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-language-minLength-9/NISTXML-SV-II-list-language-minLength-5-3
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-language-minLength-9/NISTXML-SV-II-list-language-minLength-5-4
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-language-minLength-9/NISTXML-SV-II-list-language-minLength-5-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-long-enumeration-5/NISTXML-SV-II-list-long-enumeration-1-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-long-enumeration-5/NISTXML-SV-II-list-long-enumeration-1-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-long-enumeration-5/NISTXML-SV-II-list-long-enumeration-1-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-long-enumeration-5/NISTXML-SV-II-list-long-enumeration-1-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-long-enumeration-5/NISTXML-SV-II-list-long-enumeration-1-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-long-enumeration-6/NISTXML-SV-II-list-long-enumeration-2-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-long-enumeration-6/NISTXML-SV-II-list-long-enumeration-2-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-long-enumeration-6/NISTXML-SV-II-list-long-enumeration-2-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-long-enumeration-6/NISTXML-SV-II-list-long-enumeration-2-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-long-enumeration-6/NISTXML-SV-II-list-long-enumeration-2-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-long-enumeration-7/NISTXML-SV-II-list-long-enumeration-3-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-long-enumeration-7/NISTXML-SV-II-list-long-enumeration-3-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-long-enumeration-7/NISTXML-SV-II-list-long-enumeration-3-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-long-enumeration-7/NISTXML-SV-II-list-long-enumeration-3-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-long-enumeration-7/NISTXML-SV-II-list-long-enumeration-3-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-long-enumeration-8/NISTXML-SV-II-list-long-enumeration-4-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-long-enumeration-8/NISTXML-SV-II-list-long-enumeration-4-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-long-enumeration-8/NISTXML-SV-II-list-long-enumeration-4-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-long-enumeration-8/NISTXML-SV-II-list-long-enumeration-4-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-long-enumeration-8/NISTXML-SV-II-list-long-enumeration-4-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-long-enumeration-9/NISTXML-SV-II-list-long-enumeration-5-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-long-enumeration-9/NISTXML-SV-II-list-long-enumeration-5-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-long-enumeration-9/NISTXML-SV-II-list-long-enumeration-5-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-long-enumeration-9/NISTXML-SV-II-list-long-enumeration-5-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-long-enumeration-9/NISTXML-SV-II-list-long-enumeration-5-5
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-long-length-5/NISTXML-SV-II-list-long-length-1-1
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-long-length-5/NISTXML-SV-II-list-long-length-1-2
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-long-length-5/NISTXML-SV-II-list-long-length-1-3
@@ -12459,6 +12870,31 @@ nistMeta-NISTXMLSchemaDatatypes/1.0/list-long-pattern-9/NISTXML-SV-II-list-long-
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-long-pattern-9/NISTXML-SV-II-list-long-pattern-5-3
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-long-pattern-9/NISTXML-SV-II-list-long-pattern-5-4
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-long-pattern-9/NISTXML-SV-II-list-long-pattern-5-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-negativeInteger-enumeration-5/NISTXML-SV-II-list-negativeInteger-enumeration-1-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-negativeInteger-enumeration-5/NISTXML-SV-II-list-negativeInteger-enumeration-1-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-negativeInteger-enumeration-5/NISTXML-SV-II-list-negativeInteger-enumeration-1-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-negativeInteger-enumeration-5/NISTXML-SV-II-list-negativeInteger-enumeration-1-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-negativeInteger-enumeration-5/NISTXML-SV-II-list-negativeInteger-enumeration-1-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-negativeInteger-enumeration-6/NISTXML-SV-II-list-negativeInteger-enumeration-2-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-negativeInteger-enumeration-6/NISTXML-SV-II-list-negativeInteger-enumeration-2-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-negativeInteger-enumeration-6/NISTXML-SV-II-list-negativeInteger-enumeration-2-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-negativeInteger-enumeration-6/NISTXML-SV-II-list-negativeInteger-enumeration-2-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-negativeInteger-enumeration-6/NISTXML-SV-II-list-negativeInteger-enumeration-2-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-negativeInteger-enumeration-7/NISTXML-SV-II-list-negativeInteger-enumeration-3-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-negativeInteger-enumeration-7/NISTXML-SV-II-list-negativeInteger-enumeration-3-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-negativeInteger-enumeration-7/NISTXML-SV-II-list-negativeInteger-enumeration-3-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-negativeInteger-enumeration-7/NISTXML-SV-II-list-negativeInteger-enumeration-3-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-negativeInteger-enumeration-7/NISTXML-SV-II-list-negativeInteger-enumeration-3-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-negativeInteger-enumeration-8/NISTXML-SV-II-list-negativeInteger-enumeration-4-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-negativeInteger-enumeration-8/NISTXML-SV-II-list-negativeInteger-enumeration-4-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-negativeInteger-enumeration-8/NISTXML-SV-II-list-negativeInteger-enumeration-4-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-negativeInteger-enumeration-8/NISTXML-SV-II-list-negativeInteger-enumeration-4-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-negativeInteger-enumeration-8/NISTXML-SV-II-list-negativeInteger-enumeration-4-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-negativeInteger-enumeration-9/NISTXML-SV-II-list-negativeInteger-enumeration-5-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-negativeInteger-enumeration-9/NISTXML-SV-II-list-negativeInteger-enumeration-5-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-negativeInteger-enumeration-9/NISTXML-SV-II-list-negativeInteger-enumeration-5-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-negativeInteger-enumeration-9/NISTXML-SV-II-list-negativeInteger-enumeration-5-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-negativeInteger-enumeration-9/NISTXML-SV-II-list-negativeInteger-enumeration-5-5
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-negativeInteger-length-5/NISTXML-SV-II-list-negativeInteger-length-1-1
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-negativeInteger-length-5/NISTXML-SV-II-list-negativeInteger-length-1-2
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-negativeInteger-length-5/NISTXML-SV-II-list-negativeInteger-length-1-3
@@ -12559,6 +12995,31 @@ nistMeta-NISTXMLSchemaDatatypes/1.0/list-negativeInteger-pattern-9/NISTXML-SV-II
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-negativeInteger-pattern-9/NISTXML-SV-II-list-negativeInteger-pattern-5-3
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-negativeInteger-pattern-9/NISTXML-SV-II-list-negativeInteger-pattern-5-4
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-negativeInteger-pattern-9/NISTXML-SV-II-list-negativeInteger-pattern-5-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonNegativeInteger-enumeration-5/NISTXML-SV-II-list-nonNegativeInteger-enumeration-1-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonNegativeInteger-enumeration-5/NISTXML-SV-II-list-nonNegativeInteger-enumeration-1-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonNegativeInteger-enumeration-5/NISTXML-SV-II-list-nonNegativeInteger-enumeration-1-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonNegativeInteger-enumeration-5/NISTXML-SV-II-list-nonNegativeInteger-enumeration-1-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonNegativeInteger-enumeration-5/NISTXML-SV-II-list-nonNegativeInteger-enumeration-1-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonNegativeInteger-enumeration-6/NISTXML-SV-II-list-nonNegativeInteger-enumeration-2-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonNegativeInteger-enumeration-6/NISTXML-SV-II-list-nonNegativeInteger-enumeration-2-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonNegativeInteger-enumeration-6/NISTXML-SV-II-list-nonNegativeInteger-enumeration-2-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonNegativeInteger-enumeration-6/NISTXML-SV-II-list-nonNegativeInteger-enumeration-2-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonNegativeInteger-enumeration-6/NISTXML-SV-II-list-nonNegativeInteger-enumeration-2-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonNegativeInteger-enumeration-7/NISTXML-SV-II-list-nonNegativeInteger-enumeration-3-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonNegativeInteger-enumeration-7/NISTXML-SV-II-list-nonNegativeInteger-enumeration-3-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonNegativeInteger-enumeration-7/NISTXML-SV-II-list-nonNegativeInteger-enumeration-3-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonNegativeInteger-enumeration-7/NISTXML-SV-II-list-nonNegativeInteger-enumeration-3-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonNegativeInteger-enumeration-7/NISTXML-SV-II-list-nonNegativeInteger-enumeration-3-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonNegativeInteger-enumeration-8/NISTXML-SV-II-list-nonNegativeInteger-enumeration-4-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonNegativeInteger-enumeration-8/NISTXML-SV-II-list-nonNegativeInteger-enumeration-4-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonNegativeInteger-enumeration-8/NISTXML-SV-II-list-nonNegativeInteger-enumeration-4-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonNegativeInteger-enumeration-8/NISTXML-SV-II-list-nonNegativeInteger-enumeration-4-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonNegativeInteger-enumeration-8/NISTXML-SV-II-list-nonNegativeInteger-enumeration-4-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonNegativeInteger-enumeration-9/NISTXML-SV-II-list-nonNegativeInteger-enumeration-5-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonNegativeInteger-enumeration-9/NISTXML-SV-II-list-nonNegativeInteger-enumeration-5-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonNegativeInteger-enumeration-9/NISTXML-SV-II-list-nonNegativeInteger-enumeration-5-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonNegativeInteger-enumeration-9/NISTXML-SV-II-list-nonNegativeInteger-enumeration-5-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonNegativeInteger-enumeration-9/NISTXML-SV-II-list-nonNegativeInteger-enumeration-5-5
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonNegativeInteger-length-5/NISTXML-SV-II-list-nonNegativeInteger-length-1-1
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonNegativeInteger-length-5/NISTXML-SV-II-list-nonNegativeInteger-length-1-2
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonNegativeInteger-length-5/NISTXML-SV-II-list-nonNegativeInteger-length-1-3
@@ -12659,6 +13120,31 @@ nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonNegativeInteger-pattern-9/NISTXML-SV
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonNegativeInteger-pattern-9/NISTXML-SV-II-list-nonNegativeInteger-pattern-5-3
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonNegativeInteger-pattern-9/NISTXML-SV-II-list-nonNegativeInteger-pattern-5-4
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonNegativeInteger-pattern-9/NISTXML-SV-II-list-nonNegativeInteger-pattern-5-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonPositiveInteger-enumeration-5/NISTXML-SV-II-list-nonPositiveInteger-enumeration-1-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonPositiveInteger-enumeration-5/NISTXML-SV-II-list-nonPositiveInteger-enumeration-1-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonPositiveInteger-enumeration-5/NISTXML-SV-II-list-nonPositiveInteger-enumeration-1-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonPositiveInteger-enumeration-5/NISTXML-SV-II-list-nonPositiveInteger-enumeration-1-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonPositiveInteger-enumeration-5/NISTXML-SV-II-list-nonPositiveInteger-enumeration-1-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonPositiveInteger-enumeration-6/NISTXML-SV-II-list-nonPositiveInteger-enumeration-2-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonPositiveInteger-enumeration-6/NISTXML-SV-II-list-nonPositiveInteger-enumeration-2-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonPositiveInteger-enumeration-6/NISTXML-SV-II-list-nonPositiveInteger-enumeration-2-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonPositiveInteger-enumeration-6/NISTXML-SV-II-list-nonPositiveInteger-enumeration-2-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonPositiveInteger-enumeration-6/NISTXML-SV-II-list-nonPositiveInteger-enumeration-2-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonPositiveInteger-enumeration-7/NISTXML-SV-II-list-nonPositiveInteger-enumeration-3-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonPositiveInteger-enumeration-7/NISTXML-SV-II-list-nonPositiveInteger-enumeration-3-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonPositiveInteger-enumeration-7/NISTXML-SV-II-list-nonPositiveInteger-enumeration-3-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonPositiveInteger-enumeration-7/NISTXML-SV-II-list-nonPositiveInteger-enumeration-3-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonPositiveInteger-enumeration-7/NISTXML-SV-II-list-nonPositiveInteger-enumeration-3-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonPositiveInteger-enumeration-8/NISTXML-SV-II-list-nonPositiveInteger-enumeration-4-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonPositiveInteger-enumeration-8/NISTXML-SV-II-list-nonPositiveInteger-enumeration-4-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonPositiveInteger-enumeration-8/NISTXML-SV-II-list-nonPositiveInteger-enumeration-4-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonPositiveInteger-enumeration-8/NISTXML-SV-II-list-nonPositiveInteger-enumeration-4-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonPositiveInteger-enumeration-8/NISTXML-SV-II-list-nonPositiveInteger-enumeration-4-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonPositiveInteger-enumeration-9/NISTXML-SV-II-list-nonPositiveInteger-enumeration-5-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonPositiveInteger-enumeration-9/NISTXML-SV-II-list-nonPositiveInteger-enumeration-5-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonPositiveInteger-enumeration-9/NISTXML-SV-II-list-nonPositiveInteger-enumeration-5-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonPositiveInteger-enumeration-9/NISTXML-SV-II-list-nonPositiveInteger-enumeration-5-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonPositiveInteger-enumeration-9/NISTXML-SV-II-list-nonPositiveInteger-enumeration-5-5
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonPositiveInteger-length-5/NISTXML-SV-II-list-nonPositiveInteger-length-1-1
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonPositiveInteger-length-5/NISTXML-SV-II-list-nonPositiveInteger-length-1-2
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-nonPositiveInteger-length-5/NISTXML-SV-II-list-nonPositiveInteger-length-1-3
@@ -12834,6 +13320,31 @@ nistMeta-NISTXMLSchemaDatatypes/1.0/list-normalizedString-minLength-9/NISTXML-SV
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-normalizedString-minLength-9/NISTXML-SV-II-list-normalizedString-minLength-5-3
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-normalizedString-minLength-9/NISTXML-SV-II-list-normalizedString-minLength-5-4
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-normalizedString-minLength-9/NISTXML-SV-II-list-normalizedString-minLength-5-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-positiveInteger-enumeration-5/NISTXML-SV-II-list-positiveInteger-enumeration-1-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-positiveInteger-enumeration-5/NISTXML-SV-II-list-positiveInteger-enumeration-1-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-positiveInteger-enumeration-5/NISTXML-SV-II-list-positiveInteger-enumeration-1-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-positiveInteger-enumeration-5/NISTXML-SV-II-list-positiveInteger-enumeration-1-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-positiveInteger-enumeration-5/NISTXML-SV-II-list-positiveInteger-enumeration-1-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-positiveInteger-enumeration-6/NISTXML-SV-II-list-positiveInteger-enumeration-2-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-positiveInteger-enumeration-6/NISTXML-SV-II-list-positiveInteger-enumeration-2-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-positiveInteger-enumeration-6/NISTXML-SV-II-list-positiveInteger-enumeration-2-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-positiveInteger-enumeration-6/NISTXML-SV-II-list-positiveInteger-enumeration-2-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-positiveInteger-enumeration-6/NISTXML-SV-II-list-positiveInteger-enumeration-2-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-positiveInteger-enumeration-7/NISTXML-SV-II-list-positiveInteger-enumeration-3-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-positiveInteger-enumeration-7/NISTXML-SV-II-list-positiveInteger-enumeration-3-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-positiveInteger-enumeration-7/NISTXML-SV-II-list-positiveInteger-enumeration-3-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-positiveInteger-enumeration-7/NISTXML-SV-II-list-positiveInteger-enumeration-3-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-positiveInteger-enumeration-7/NISTXML-SV-II-list-positiveInteger-enumeration-3-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-positiveInteger-enumeration-8/NISTXML-SV-II-list-positiveInteger-enumeration-4-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-positiveInteger-enumeration-8/NISTXML-SV-II-list-positiveInteger-enumeration-4-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-positiveInteger-enumeration-8/NISTXML-SV-II-list-positiveInteger-enumeration-4-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-positiveInteger-enumeration-8/NISTXML-SV-II-list-positiveInteger-enumeration-4-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-positiveInteger-enumeration-8/NISTXML-SV-II-list-positiveInteger-enumeration-4-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-positiveInteger-enumeration-9/NISTXML-SV-II-list-positiveInteger-enumeration-5-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-positiveInteger-enumeration-9/NISTXML-SV-II-list-positiveInteger-enumeration-5-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-positiveInteger-enumeration-9/NISTXML-SV-II-list-positiveInteger-enumeration-5-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-positiveInteger-enumeration-9/NISTXML-SV-II-list-positiveInteger-enumeration-5-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-positiveInteger-enumeration-9/NISTXML-SV-II-list-positiveInteger-enumeration-5-5
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-positiveInteger-length-5/NISTXML-SV-II-list-positiveInteger-length-1-1
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-positiveInteger-length-5/NISTXML-SV-II-list-positiveInteger-length-1-2
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-positiveInteger-length-5/NISTXML-SV-II-list-positiveInteger-length-1-3
@@ -12934,6 +13445,31 @@ nistMeta-NISTXMLSchemaDatatypes/1.0/list-positiveInteger-pattern-9/NISTXML-SV-II
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-positiveInteger-pattern-9/NISTXML-SV-II-list-positiveInteger-pattern-5-3
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-positiveInteger-pattern-9/NISTXML-SV-II-list-positiveInteger-pattern-5-4
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-positiveInteger-pattern-9/NISTXML-SV-II-list-positiveInteger-pattern-5-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-short-enumeration-5/NISTXML-SV-II-list-short-enumeration-1-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-short-enumeration-5/NISTXML-SV-II-list-short-enumeration-1-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-short-enumeration-5/NISTXML-SV-II-list-short-enumeration-1-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-short-enumeration-5/NISTXML-SV-II-list-short-enumeration-1-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-short-enumeration-5/NISTXML-SV-II-list-short-enumeration-1-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-short-enumeration-6/NISTXML-SV-II-list-short-enumeration-2-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-short-enumeration-6/NISTXML-SV-II-list-short-enumeration-2-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-short-enumeration-6/NISTXML-SV-II-list-short-enumeration-2-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-short-enumeration-6/NISTXML-SV-II-list-short-enumeration-2-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-short-enumeration-6/NISTXML-SV-II-list-short-enumeration-2-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-short-enumeration-7/NISTXML-SV-II-list-short-enumeration-3-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-short-enumeration-7/NISTXML-SV-II-list-short-enumeration-3-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-short-enumeration-7/NISTXML-SV-II-list-short-enumeration-3-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-short-enumeration-7/NISTXML-SV-II-list-short-enumeration-3-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-short-enumeration-7/NISTXML-SV-II-list-short-enumeration-3-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-short-enumeration-8/NISTXML-SV-II-list-short-enumeration-4-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-short-enumeration-8/NISTXML-SV-II-list-short-enumeration-4-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-short-enumeration-8/NISTXML-SV-II-list-short-enumeration-4-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-short-enumeration-8/NISTXML-SV-II-list-short-enumeration-4-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-short-enumeration-8/NISTXML-SV-II-list-short-enumeration-4-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-short-enumeration-9/NISTXML-SV-II-list-short-enumeration-5-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-short-enumeration-9/NISTXML-SV-II-list-short-enumeration-5-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-short-enumeration-9/NISTXML-SV-II-list-short-enumeration-5-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-short-enumeration-9/NISTXML-SV-II-list-short-enumeration-5-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-short-enumeration-9/NISTXML-SV-II-list-short-enumeration-5-5
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-short-length-5/NISTXML-SV-II-list-short-length-1-1
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-short-length-5/NISTXML-SV-II-list-short-length-1-2
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-short-length-5/NISTXML-SV-II-list-short-length-1-3
@@ -13109,6 +13645,31 @@ nistMeta-NISTXMLSchemaDatatypes/1.0/list-string-minLength-9/NISTXML-SV-II-list-s
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-string-minLength-9/NISTXML-SV-II-list-string-minLength-5-3
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-string-minLength-9/NISTXML-SV-II-list-string-minLength-5-4
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-string-minLength-9/NISTXML-SV-II-list-string-minLength-5-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-time-enumeration-5/NISTXML-SV-II-list-time-enumeration-1-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-time-enumeration-5/NISTXML-SV-II-list-time-enumeration-1-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-time-enumeration-5/NISTXML-SV-II-list-time-enumeration-1-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-time-enumeration-5/NISTXML-SV-II-list-time-enumeration-1-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-time-enumeration-5/NISTXML-SV-II-list-time-enumeration-1-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-time-enumeration-6/NISTXML-SV-II-list-time-enumeration-2-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-time-enumeration-6/NISTXML-SV-II-list-time-enumeration-2-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-time-enumeration-6/NISTXML-SV-II-list-time-enumeration-2-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-time-enumeration-6/NISTXML-SV-II-list-time-enumeration-2-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-time-enumeration-6/NISTXML-SV-II-list-time-enumeration-2-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-time-enumeration-7/NISTXML-SV-II-list-time-enumeration-3-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-time-enumeration-7/NISTXML-SV-II-list-time-enumeration-3-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-time-enumeration-7/NISTXML-SV-II-list-time-enumeration-3-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-time-enumeration-7/NISTXML-SV-II-list-time-enumeration-3-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-time-enumeration-7/NISTXML-SV-II-list-time-enumeration-3-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-time-enumeration-8/NISTXML-SV-II-list-time-enumeration-4-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-time-enumeration-8/NISTXML-SV-II-list-time-enumeration-4-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-time-enumeration-8/NISTXML-SV-II-list-time-enumeration-4-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-time-enumeration-8/NISTXML-SV-II-list-time-enumeration-4-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-time-enumeration-8/NISTXML-SV-II-list-time-enumeration-4-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-time-enumeration-9/NISTXML-SV-II-list-time-enumeration-5-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-time-enumeration-9/NISTXML-SV-II-list-time-enumeration-5-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-time-enumeration-9/NISTXML-SV-II-list-time-enumeration-5-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-time-enumeration-9/NISTXML-SV-II-list-time-enumeration-5-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-time-enumeration-9/NISTXML-SV-II-list-time-enumeration-5-5
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-time-length-5/NISTXML-SV-II-list-time-length-1-1
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-time-length-5/NISTXML-SV-II-list-time-length-1-2
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-time-length-5/NISTXML-SV-II-list-time-length-1-3
@@ -13284,6 +13845,31 @@ nistMeta-NISTXMLSchemaDatatypes/1.0/list-token-minLength-9/NISTXML-SV-II-list-to
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-token-minLength-9/NISTXML-SV-II-list-token-minLength-5-3
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-token-minLength-9/NISTXML-SV-II-list-token-minLength-5-4
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-token-minLength-9/NISTXML-SV-II-list-token-minLength-5-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedByte-enumeration-5/NISTXML-SV-II-list-unsignedByte-enumeration-1-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedByte-enumeration-5/NISTXML-SV-II-list-unsignedByte-enumeration-1-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedByte-enumeration-5/NISTXML-SV-II-list-unsignedByte-enumeration-1-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedByte-enumeration-5/NISTXML-SV-II-list-unsignedByte-enumeration-1-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedByte-enumeration-5/NISTXML-SV-II-list-unsignedByte-enumeration-1-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedByte-enumeration-6/NISTXML-SV-II-list-unsignedByte-enumeration-2-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedByte-enumeration-6/NISTXML-SV-II-list-unsignedByte-enumeration-2-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedByte-enumeration-6/NISTXML-SV-II-list-unsignedByte-enumeration-2-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedByte-enumeration-6/NISTXML-SV-II-list-unsignedByte-enumeration-2-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedByte-enumeration-6/NISTXML-SV-II-list-unsignedByte-enumeration-2-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedByte-enumeration-7/NISTXML-SV-II-list-unsignedByte-enumeration-3-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedByte-enumeration-7/NISTXML-SV-II-list-unsignedByte-enumeration-3-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedByte-enumeration-7/NISTXML-SV-II-list-unsignedByte-enumeration-3-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedByte-enumeration-7/NISTXML-SV-II-list-unsignedByte-enumeration-3-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedByte-enumeration-7/NISTXML-SV-II-list-unsignedByte-enumeration-3-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedByte-enumeration-8/NISTXML-SV-II-list-unsignedByte-enumeration-4-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedByte-enumeration-8/NISTXML-SV-II-list-unsignedByte-enumeration-4-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedByte-enumeration-8/NISTXML-SV-II-list-unsignedByte-enumeration-4-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedByte-enumeration-8/NISTXML-SV-II-list-unsignedByte-enumeration-4-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedByte-enumeration-8/NISTXML-SV-II-list-unsignedByte-enumeration-4-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedByte-enumeration-9/NISTXML-SV-II-list-unsignedByte-enumeration-5-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedByte-enumeration-9/NISTXML-SV-II-list-unsignedByte-enumeration-5-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedByte-enumeration-9/NISTXML-SV-II-list-unsignedByte-enumeration-5-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedByte-enumeration-9/NISTXML-SV-II-list-unsignedByte-enumeration-5-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedByte-enumeration-9/NISTXML-SV-II-list-unsignedByte-enumeration-5-5
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedByte-length-5/NISTXML-SV-II-list-unsignedByte-length-1-1
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedByte-length-5/NISTXML-SV-II-list-unsignedByte-length-1-2
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedByte-length-5/NISTXML-SV-II-list-unsignedByte-length-1-3
@@ -13384,6 +13970,31 @@ nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedByte-pattern-9/NISTXML-SV-II-li
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedByte-pattern-9/NISTXML-SV-II-list-unsignedByte-pattern-5-3
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedByte-pattern-9/NISTXML-SV-II-list-unsignedByte-pattern-5-4
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedByte-pattern-9/NISTXML-SV-II-list-unsignedByte-pattern-5-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedInt-enumeration-5/NISTXML-SV-II-list-unsignedInt-enumeration-1-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedInt-enumeration-5/NISTXML-SV-II-list-unsignedInt-enumeration-1-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedInt-enumeration-5/NISTXML-SV-II-list-unsignedInt-enumeration-1-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedInt-enumeration-5/NISTXML-SV-II-list-unsignedInt-enumeration-1-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedInt-enumeration-5/NISTXML-SV-II-list-unsignedInt-enumeration-1-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedInt-enumeration-6/NISTXML-SV-II-list-unsignedInt-enumeration-2-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedInt-enumeration-6/NISTXML-SV-II-list-unsignedInt-enumeration-2-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedInt-enumeration-6/NISTXML-SV-II-list-unsignedInt-enumeration-2-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedInt-enumeration-6/NISTXML-SV-II-list-unsignedInt-enumeration-2-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedInt-enumeration-6/NISTXML-SV-II-list-unsignedInt-enumeration-2-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedInt-enumeration-7/NISTXML-SV-II-list-unsignedInt-enumeration-3-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedInt-enumeration-7/NISTXML-SV-II-list-unsignedInt-enumeration-3-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedInt-enumeration-7/NISTXML-SV-II-list-unsignedInt-enumeration-3-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedInt-enumeration-7/NISTXML-SV-II-list-unsignedInt-enumeration-3-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedInt-enumeration-7/NISTXML-SV-II-list-unsignedInt-enumeration-3-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedInt-enumeration-8/NISTXML-SV-II-list-unsignedInt-enumeration-4-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedInt-enumeration-8/NISTXML-SV-II-list-unsignedInt-enumeration-4-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedInt-enumeration-8/NISTXML-SV-II-list-unsignedInt-enumeration-4-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedInt-enumeration-8/NISTXML-SV-II-list-unsignedInt-enumeration-4-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedInt-enumeration-8/NISTXML-SV-II-list-unsignedInt-enumeration-4-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedInt-enumeration-9/NISTXML-SV-II-list-unsignedInt-enumeration-5-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedInt-enumeration-9/NISTXML-SV-II-list-unsignedInt-enumeration-5-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedInt-enumeration-9/NISTXML-SV-II-list-unsignedInt-enumeration-5-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedInt-enumeration-9/NISTXML-SV-II-list-unsignedInt-enumeration-5-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedInt-enumeration-9/NISTXML-SV-II-list-unsignedInt-enumeration-5-5
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedInt-length-5/NISTXML-SV-II-list-unsignedInt-length-1-1
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedInt-length-5/NISTXML-SV-II-list-unsignedInt-length-1-2
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedInt-length-5/NISTXML-SV-II-list-unsignedInt-length-1-3
@@ -13484,6 +14095,31 @@ nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedInt-pattern-9/NISTXML-SV-II-lis
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedInt-pattern-9/NISTXML-SV-II-list-unsignedInt-pattern-5-3
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedInt-pattern-9/NISTXML-SV-II-list-unsignedInt-pattern-5-4
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedInt-pattern-9/NISTXML-SV-II-list-unsignedInt-pattern-5-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedLong-enumeration-5/NISTXML-SV-II-list-unsignedLong-enumeration-1-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedLong-enumeration-5/NISTXML-SV-II-list-unsignedLong-enumeration-1-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedLong-enumeration-5/NISTXML-SV-II-list-unsignedLong-enumeration-1-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedLong-enumeration-5/NISTXML-SV-II-list-unsignedLong-enumeration-1-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedLong-enumeration-5/NISTXML-SV-II-list-unsignedLong-enumeration-1-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedLong-enumeration-6/NISTXML-SV-II-list-unsignedLong-enumeration-2-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedLong-enumeration-6/NISTXML-SV-II-list-unsignedLong-enumeration-2-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedLong-enumeration-6/NISTXML-SV-II-list-unsignedLong-enumeration-2-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedLong-enumeration-6/NISTXML-SV-II-list-unsignedLong-enumeration-2-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedLong-enumeration-6/NISTXML-SV-II-list-unsignedLong-enumeration-2-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedLong-enumeration-7/NISTXML-SV-II-list-unsignedLong-enumeration-3-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedLong-enumeration-7/NISTXML-SV-II-list-unsignedLong-enumeration-3-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedLong-enumeration-7/NISTXML-SV-II-list-unsignedLong-enumeration-3-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedLong-enumeration-7/NISTXML-SV-II-list-unsignedLong-enumeration-3-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedLong-enumeration-7/NISTXML-SV-II-list-unsignedLong-enumeration-3-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedLong-enumeration-8/NISTXML-SV-II-list-unsignedLong-enumeration-4-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedLong-enumeration-8/NISTXML-SV-II-list-unsignedLong-enumeration-4-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedLong-enumeration-8/NISTXML-SV-II-list-unsignedLong-enumeration-4-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedLong-enumeration-8/NISTXML-SV-II-list-unsignedLong-enumeration-4-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedLong-enumeration-8/NISTXML-SV-II-list-unsignedLong-enumeration-4-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedLong-enumeration-9/NISTXML-SV-II-list-unsignedLong-enumeration-5-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedLong-enumeration-9/NISTXML-SV-II-list-unsignedLong-enumeration-5-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedLong-enumeration-9/NISTXML-SV-II-list-unsignedLong-enumeration-5-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedLong-enumeration-9/NISTXML-SV-II-list-unsignedLong-enumeration-5-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedLong-enumeration-9/NISTXML-SV-II-list-unsignedLong-enumeration-5-5
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedLong-length-5/NISTXML-SV-II-list-unsignedLong-length-1-1
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedLong-length-5/NISTXML-SV-II-list-unsignedLong-length-1-2
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedLong-length-5/NISTXML-SV-II-list-unsignedLong-length-1-3
@@ -13584,6 +14220,31 @@ nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedLong-pattern-9/NISTXML-SV-II-li
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedLong-pattern-9/NISTXML-SV-II-list-unsignedLong-pattern-5-3
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedLong-pattern-9/NISTXML-SV-II-list-unsignedLong-pattern-5-4
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedLong-pattern-9/NISTXML-SV-II-list-unsignedLong-pattern-5-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedShort-enumeration-5/NISTXML-SV-II-list-unsignedShort-enumeration-1-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedShort-enumeration-5/NISTXML-SV-II-list-unsignedShort-enumeration-1-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedShort-enumeration-5/NISTXML-SV-II-list-unsignedShort-enumeration-1-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedShort-enumeration-5/NISTXML-SV-II-list-unsignedShort-enumeration-1-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedShort-enumeration-5/NISTXML-SV-II-list-unsignedShort-enumeration-1-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedShort-enumeration-6/NISTXML-SV-II-list-unsignedShort-enumeration-2-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedShort-enumeration-6/NISTXML-SV-II-list-unsignedShort-enumeration-2-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedShort-enumeration-6/NISTXML-SV-II-list-unsignedShort-enumeration-2-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedShort-enumeration-6/NISTXML-SV-II-list-unsignedShort-enumeration-2-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedShort-enumeration-6/NISTXML-SV-II-list-unsignedShort-enumeration-2-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedShort-enumeration-7/NISTXML-SV-II-list-unsignedShort-enumeration-3-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedShort-enumeration-7/NISTXML-SV-II-list-unsignedShort-enumeration-3-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedShort-enumeration-7/NISTXML-SV-II-list-unsignedShort-enumeration-3-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedShort-enumeration-7/NISTXML-SV-II-list-unsignedShort-enumeration-3-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedShort-enumeration-7/NISTXML-SV-II-list-unsignedShort-enumeration-3-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedShort-enumeration-8/NISTXML-SV-II-list-unsignedShort-enumeration-4-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedShort-enumeration-8/NISTXML-SV-II-list-unsignedShort-enumeration-4-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedShort-enumeration-8/NISTXML-SV-II-list-unsignedShort-enumeration-4-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedShort-enumeration-8/NISTXML-SV-II-list-unsignedShort-enumeration-4-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedShort-enumeration-8/NISTXML-SV-II-list-unsignedShort-enumeration-4-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedShort-enumeration-9/NISTXML-SV-II-list-unsignedShort-enumeration-5-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedShort-enumeration-9/NISTXML-SV-II-list-unsignedShort-enumeration-5-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedShort-enumeration-9/NISTXML-SV-II-list-unsignedShort-enumeration-5-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedShort-enumeration-9/NISTXML-SV-II-list-unsignedShort-enumeration-5-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedShort-enumeration-9/NISTXML-SV-II-list-unsignedShort-enumeration-5-5
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedShort-length-5/NISTXML-SV-II-list-unsignedShort-length-1-1
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedShort-length-5/NISTXML-SV-II-list-unsignedShort-length-1-2
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedShort-length-5/NISTXML-SV-II-list-unsignedShort-length-1-3

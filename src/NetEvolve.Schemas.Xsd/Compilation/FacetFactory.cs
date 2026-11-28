@@ -21,7 +21,8 @@ using NetEvolve.Schemas.Xsd.SimpleTypes.Checks;
 /// </summary>
 /// <remarks>
 /// Limitations: the <c>enumeration</c> facet is carried for string-like bases (including anyURI) and for the ordered families (decimal, integer, float,
-/// double, duration, date and time, boolean), not for the others (binary, <c>QName</c>, and <c>NOTATION</c>); the
+/// double, duration, date and time, boolean), not for the others (binary, <c>QName</c>, and <c>NOTATION</c>); a list carries it when its item type is one of the carried
+/// families and compares item by item, a list of any other item type is not evaluated; the
 /// <c>assertion</c> facets (XSD 1.1, XSD-78) are not carried here, they are collected separately; a length of a binary type is carried
 /// by the binary length facet only when the base is a built-in type of that family. A facet that does not parse is left out, which
 /// can only follow an issue that the check has reported.
@@ -99,6 +100,11 @@ internal static class FacetFactory
                 : Enumeration(enumeration, facts.Descriptor)!;
         }
 
+        if (enumeration.Count > 0 && facts is { Variety: DatatypeVariety.List, Item: { } item })
+        {
+            facets[enumerationSlot] = ListEnumeration(enumeration, item)!;
+        }
+
         _ = facets.RemoveAll(static facet => facet is null);
         return facets;
     }
@@ -131,6 +137,52 @@ internal static class FacetFactory
         {
             facets.Add(facet);
         }
+    }
+
+    // Every listed value is a whitespace-separated item sequence; a sequence with an item that does not parse is left out, the check has reported it.
+    private static IFacet? ListEnumeration(List<string> values, FacetBase item) =>
+        item.Primitive is PrimitiveKind.StringType or PrimitiveKind.AnyUri
+            ? new ListLexicalEnumerationFacet(values)
+            : item.Descriptor switch
+            {
+                IDatatypeDescriptor<XsdDecimal> t => ListEnumeration(values, t),
+                IDatatypeDescriptor<XsdInteger> t => ListEnumeration(values, t),
+                IDatatypeDescriptor<float> t => ListEnumeration(values, t),
+                IDatatypeDescriptor<double> t => ListEnumeration(values, t),
+                IDatatypeDescriptor<XsdDuration> t => ListEnumeration(values, t),
+                IDatatypeDescriptor<XsdDateTime> t => ListEnumeration(values, t),
+                IDatatypeDescriptor<bool> t => ListEnumeration(values, t),
+                _ => null,
+            };
+
+    private static ListEnumerationFacet<TValue>? ListEnumeration<TValue>(
+        List<string> values,
+        IDatatypeDescriptor<TValue> type
+    )
+    {
+        var sequences = new List<TValue[]>(values.Count);
+        foreach (var value in values)
+        {
+            var items = new List<TValue>();
+            var cursor = new XsdListCursor(new TextRange(0, value.Length));
+            var valid = true;
+            while (valid && cursor.TryNext(value.AsSpan(), out var range))
+            {
+                var result = type.Parse(range.Slice(value.AsSpan()));
+                valid = result.Success;
+                if (valid)
+                {
+                    items.Add(result.Value);
+                }
+            }
+
+            if (valid)
+            {
+                sequences.Add([.. items]);
+            }
+        }
+
+        return sequences.Count == 0 ? null : new ListEnumerationFacet<TValue>(type, sequences);
     }
 
     private static IFacet? Enumeration(List<string> values, IDatatypeDescriptor? type) =>

@@ -785,6 +785,18 @@ namespace NetEvolve.Schemas.Xml.Datatypes.Facets.Core
         public NetEvolve.Schemas.Xml.Datatypes.Contracts.FacetKind Kind { get; }
         public bool IsSatisfiedBy(System.ReadOnlySpan<char> lexical) { }
     }
+    public sealed class ListEnumerationFacet<TValue> : NetEvolve.Schemas.Xml.Datatypes.Contracts.IFacet, NetEvolve.Schemas.Xml.Datatypes.Contracts.ILexicalFacet
+    {
+        public ListEnumerationFacet(NetEvolve.Schemas.Xml.Datatypes.Contracts.IDatatypeDescriptor<TValue> itemType, System.Collections.Generic.IReadOnlyList<TValue[]> sequences) { }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.FacetKind Kind { get; }
+        public bool IsSatisfiedBy(System.ReadOnlySpan<char> lexical) { }
+    }
+    public sealed class ListLexicalEnumerationFacet : NetEvolve.Schemas.Xml.Datatypes.Contracts.IFacet, NetEvolve.Schemas.Xml.Datatypes.Contracts.ILexicalFacet
+    {
+        public ListLexicalEnumerationFacet(System.Collections.Generic.IReadOnlyList<string> values) { }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.FacetKind Kind { get; }
+        public bool IsSatisfiedBy(System.ReadOnlySpan<char> lexical) { }
+    }
     public enum PrimitiveKind
     {
         None = 0,
