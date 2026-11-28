@@ -214,6 +214,9 @@ internal sealed partial class ResolveRun
                 rules,
                 pattern.ExpandedFrom
             )
+            {
+                BaseUri = pattern.BaseUri,
+            }
             : new SchematronPattern(
                 pattern.Location,
                 pattern.Id,
@@ -227,7 +230,10 @@ internal sealed partial class ResolveRun
                 pattern.Lets,
                 rules,
                 pattern.ExpandedFrom
-            );
+            )
+            {
+                BaseUri = pattern.BaseUri,
+            };
     }
 
     // An include is replaced by its element; an extends with href by the variables and items of the abstract rule of its
@@ -278,7 +284,10 @@ internal sealed partial class ResolveRun
             lets,
             items,
             rule.ExpandedFrom
-        );
+        )
+        {
+            BaseUri = rule.BaseUri,
+        };
     }
 
     private static bool HasReference(SchematronRule rule)

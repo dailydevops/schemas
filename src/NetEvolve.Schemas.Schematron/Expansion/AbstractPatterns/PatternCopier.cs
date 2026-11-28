@@ -32,7 +32,7 @@ internal sealed class PatternCopier
             var value = _table.Apply(let.Value);
             result[i] = ReferenceEquals(value, let.Value)
                 ? let
-                : new SchematronLet(let.Location, let.Name, let.DeclaredType, value);
+                : new SchematronLet(let.Location, let.Name, let.DeclaredType, value) { BaseUri = let.BaseUri };
         }
 
         return result;
@@ -72,7 +72,10 @@ internal sealed class PatternCopier
             Lets(rule.Lets),
             items,
             _site
-        );
+        )
+        {
+            BaseUri = rule.BaseUri,
+        };
     }
 
     private SchematronNode Item(SchematronNode item) =>
@@ -89,7 +92,10 @@ internal sealed class PatternCopier
                 assert.DiagnosticIds,
                 assert.PropertyIds,
                 Message(assert.Message)
-            ),
+            )
+            {
+                BaseUri = assert.BaseUri,
+            },
             SchematronReport report => new SchematronReport(
                 report.Location,
                 _table.Apply(report.Test),
@@ -101,7 +107,10 @@ internal sealed class PatternCopier
                 report.DiagnosticIds,
                 report.PropertyIds,
                 Message(report.Message)
-            ),
+            )
+            {
+                BaseUri = report.BaseUri,
+            },
             _ => item,
         };
 

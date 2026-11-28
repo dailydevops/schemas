@@ -81,6 +81,9 @@ internal static class PatternInstance
                 rules,
                 site.Location
             )
+            {
+                BaseUri = definition.BaseUri,
+            }
             : new SchematronPattern(
                 definition.Location,
                 site.Id,
@@ -94,7 +97,10 @@ internal static class PatternInstance
                 lets,
                 rules,
                 site.Location
-            );
+            )
+            {
+                BaseUri = definition.BaseUri,
+            };
     }
 
     // Pairs every parameter with its value; every problem of the instance is reported, not only the first.

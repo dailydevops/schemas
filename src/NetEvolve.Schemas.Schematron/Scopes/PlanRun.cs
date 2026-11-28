@@ -118,7 +118,7 @@ internal sealed class PlanRun
             DeclareLets(pattern.Lets, patternStart, patternStart, ScopeLevel.Pattern, lets);
         }
 
-        var scope = Snapshot(patternStart + letCount, null);
+        var scope = Snapshot(patternStart + letCount, null, pattern.BaseUri);
 
         var rules = new List<RuleScope>(pattern.Rules.Count);
         foreach (var rule in pattern.Rules)
@@ -131,7 +131,7 @@ internal sealed class PlanRun
             Clear(ruleStart);
             var ruleLets = new List<VariableSlot>(rule.Lets.Count);
             DeclareLets(rule.Lets, ruleStart, ruleStart, ScopeLevel.Rule, ruleLets);
-            rules.Add(new RuleScope(rule, ruleLets, Snapshot(ruleStart + rule.Lets.Count, null)));
+            rules.Add(new RuleScope(rule, ruleLets, Snapshot(ruleStart + rule.Lets.Count, null, rule.BaseUri)));
         }
 
         return new PatternScope(pattern, lets, scope, rules);
@@ -240,7 +240,7 @@ internal sealed class PlanRun
             }
 
             var declared = DeclaredType(let);
-            var value = Compile(let.Value, slot, declared);
+            var value = Compile(let.Value, slot, declared, let.BaseUri);
             var problem = ConstantProblem(let, declared);
             _names[slot] = let.Name;
             if (problem is { } found && level <= ScopeLevel.Phase)
@@ -278,9 +278,9 @@ internal sealed class PlanRun
     }
 
     // Compiles a value in the scope of its position: everything declared before slot, and nothing after it.
-    private QueryExpression? Compile(string text, int slot, string? declaredType)
+    private QueryExpression? Compile(string text, int slot, string? declaredType, string? baseUri = null)
     {
-        var scope = Snapshot(slot, declaredType);
+        var scope = Snapshot(slot, declaredType, baseUri);
         if (_binding.TryCompile(text.AsSpan(), QueryExpressionKind.Value, scope, out var expression, out var problem))
         {
             return expression;
@@ -366,10 +366,16 @@ internal sealed class PlanRun
         }
     }
 
-    private QueryStaticScope Snapshot(int length, string? declaredType)
+    private QueryStaticScope Snapshot(int length, string? declaredType, string? baseUri = null)
     {
         var names = new string[length];
         Array.Copy(_names, names, length);
-        return new QueryStaticScope(_schema.Namespaces, names, _schema.Location.Source, _schema.Edition, declaredType);
+        return new QueryStaticScope(
+            _schema.Namespaces,
+            names,
+            baseUri ?? _schema.Location.Source,
+            _schema.Edition,
+            declaredType
+        );
     }
 }

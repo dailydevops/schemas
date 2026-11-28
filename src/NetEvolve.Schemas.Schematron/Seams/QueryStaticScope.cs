@@ -33,6 +33,12 @@ internal sealed class QueryStaticScope
 
     internal SchematronEdition Edition { get; }
 
+    /// <summary>Gets this scope with another base URI, or this scope when <paramref name="baseUri"/> is <see langword="null"/>.</summary>
+    /// <param name="baseUri">The base URI, <see langword="null"/> to keep the current one.</param>
+    /// <returns>The scope.</returns>
+    internal QueryStaticScope WithBase(string? baseUri) =>
+        baseUri is null ? this : new(Namespaces, VariableNames, baseUri, Edition, DeclaredType);
+
     /// <summary>
     /// Gets the <see langword="as"/> type of the variable the expression is the value of, or <see langword="null"/>; the binding checks the
     /// value against it. The name is canonical: <c>xs:</c> plus the local name, whatever prefix the schema used.

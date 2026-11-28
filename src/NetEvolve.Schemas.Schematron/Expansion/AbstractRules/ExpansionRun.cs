@@ -79,6 +79,9 @@ internal sealed class ExpansionRun
                 rules,
                 pattern.ExpandedFrom
             )
+            {
+                BaseUri = pattern.BaseUri,
+            }
             : new SchematronPattern(
                 pattern.Location,
                 pattern.Id,
@@ -92,7 +95,10 @@ internal sealed class ExpansionRun
                 pattern.Lets,
                 rules,
                 pattern.ExpandedFrom
-            );
+            )
+            {
+                BaseUri = pattern.BaseUri,
+            };
     }
 
     private void Catalog(IReadOnlyList<SchematronRule> rules, SchematronPatternBase? owner)
@@ -124,7 +130,10 @@ internal sealed class ExpansionRun
                 body.Lets,
                 body.Items,
                 rule.ExpandedFrom
-            );
+            )
+            {
+                BaseUri = rule.BaseUri,
+            };
     }
 
     // The lets and items of the rule with every extends by id replaced by the expanded body of its target.

@@ -43,9 +43,9 @@ internal static class AssertionCompiler
         ArgumentNullException.ThrowIfNull(binding);
         ArgumentNullException.ThrowIfNull(problems);
 
-        var scope = rule.Scope;
+        var scope = rule.Scope.WithBase(assertion.BaseUri);
         var ok = Compile(binding, assertion.Test, QueryExpressionKind.Boolean, scope, problems, out var test);
-        ok &= TryCompileSubject(binding, assertion, rule, problems, out var subject);
+        ok &= TryCompileSubject(binding, assertion, rule, scope, problems, out var subject);
         ok &= TryCompileMessage(binding, string.Empty, assertion.Message, scope, problems, out var message);
         ok &= TryCompileReferences(binding, assertion, schema, false, scope, problems, out var diagnostics);
         ok &= TryCompileReferences(binding, assertion, schema, true, scope, problems, out var properties);
@@ -107,6 +107,7 @@ internal static class AssertionCompiler
         IQueryBinding binding,
         SchematronAssertion assertion,
         RuleScope rule,
+        QueryStaticScope scope,
         IProblemSink problems,
         out QueryExpression? subject
     )
@@ -114,7 +115,7 @@ internal static class AssertionCompiler
         var text = assertion.Subject is { Length: > 0 } own ? own : rule.Rule.Subject;
         subject = null;
         return text is not { Length: > 0 }
-            || Compile(binding, text, QueryExpressionKind.Nodes, rule.Scope, problems, out subject);
+            || Compile(binding, text, QueryExpressionKind.Nodes, scope, problems, out subject);
     }
 
     private static bool Compile(
