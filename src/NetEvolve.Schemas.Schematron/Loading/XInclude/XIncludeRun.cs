@@ -270,7 +270,7 @@ internal sealed class XIncludeRun : IXmlSink, IDisposable
         {
             if (top.FixBase && !_baseSeen)
             {
-                PutAttribute(_xmlBase, RelativeToIncluding(_base).AsSpan());
+                PutAttribute(_xmlBase, RelativeToIncluding(_base!).AsSpan());
             }
 
             if (_carrier is not null)
@@ -627,15 +627,15 @@ internal sealed class XIncludeRun : IXmlSink, IDisposable
     }
 
     // XInclude 4.5.5: the xml:base of included content is relative to the including document where possible.
-    private string RelativeToIncluding(string? absolute)
+    private string RelativeToIncluding(string absolute)
     {
         if (_includingBase is null || !Uri.TryCreate(absolute, UriKind.Absolute, out var target))
         {
-            return absolute ?? string.Empty;
+            return absolute;
         }
 
         var relative = _includingBase.MakeRelativeUri(target);
-        return relative.IsAbsoluteUri ? absolute! : Uri.UnescapeDataString(relative.OriginalString);
+        return relative.IsAbsoluteUri ? absolute : Uri.UnescapeDataString(relative.OriginalString);
     }
 
     private bool IsOnPath(string systemId)

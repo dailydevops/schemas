@@ -186,6 +186,17 @@ public class XIncludeInclusionTests
     }
 
     [Test]
+    public async Task Base_WithoutIncludingDocumentIdentifier_StaysAbsolute()
+    {
+        var files = new FakeResources().Add("file:///a/p.xml", "<p/>");
+
+        var outcome = Run(Doc(Inc("file:///a/p.xml")), files, systemId: null);
+
+        await Assert.That(outcome.Ok).IsTrue();
+        await Assert.That(Dump(FirstChildElement(outcome.Document))).IsEqualTo("<p base=\"file:///a/p.xml\"></p>");
+    }
+
+    [Test]
     public async Task Base_OfNestedIncludedContent_IsRelativeToTheIncludingDocument()
     {
         var files = new FakeResources()
