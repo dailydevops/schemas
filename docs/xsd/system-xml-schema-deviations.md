@@ -7,7 +7,7 @@ This document lists every difference that the differential run over the W3C XML 
 | Baseline | `System.Xml.Schema` of the .NET runtime 10.0, compared on the `net10.0` test leg only (`baseline-runtime: 10.0`) |
 | Corpus | XSTS cases of XSD 1.0 (schema tests and instance tests), pinned in `tests/conformance/suites/xsts.json` |
 | Data file | `tests/NetEvolve.Schemas.Xsd.Tests.Integration/DifferentialData/xsts-1.0-deviations.txt`, one entry per difference: case id, difference kind, observed difference, specification reference, reason |
-| Entries | 14547 entries for 14511 cases |
+| Entries | 14639 entries for 14603 cases |
 
 The list is valid for the recorded baseline runtime version only. A run on another runtime version fails until the list is compared again. System.Xml.Schema implements XSD 1.0 only, so cases of XSD 1.1 are not compared.
 
@@ -29,17 +29,16 @@ No builder option, switch, or code path in the library reproduces System.Xml.Sch
 |---|---:|---:|
 | Verdict differences: this library follows the specification | 1732 | 1700 |
 | Verdict differences: documented limitations of this library | 21 | 17 |
-| Position differences: equivalent | 12794 | 12794 |
-| Differences on cases that a bug issue tracks (no entry) | 233 | |
+| Position differences: equivalent | 12886 | 12886 |
+| Differences on cases that a bug issue tracks (no entry) | 141 | |
 
 ## Differences on cases that a bug issue tracks
 
-The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTests/known-failures.txt` and `tests/NetEvolve.Schemas.Xsd.Tests.Integration/InstanceTests/known-failures.txt` record every case of XSD 1.0 that this library does not pass yet, each with its bug issue. At the time of this triage the run found 233 differences on these cases:
+The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTests/known-failures.txt` and `tests/NetEvolve.Schemas.Xsd.Tests.Integration/InstanceTests/known-failures.txt` record every case of XSD 1.0 that this library does not pass yet, each with its bug issue. At the time of this triage the run found 141 differences on these cases:
 
 | Issue | Differences | Title |
 |---|---:|---|
 | #1078 | 100 | feat(xsd): evaluate the enumeration facet of union simple types in the value space |
-| #1350 | 92 | fix(conformance): resolve the xlink and xml imports of xsts.xsd in the xsts runner |
 | #62 | 19 | feat(xml): support xml 1.1 |
 | #1418 | 6 | bug(xsd): circular redefine chains fail with a missing redefined component |
 | #604 | 4 | feat(xsd): resolve QName and NOTATION instance values with the namespace context |
@@ -2278,9 +2277,9 @@ msMeta-AttributeGroup_w3c/1.0/attgD003/attgD003.v
 
 Both engines reject the document with the same number of issues on the same lines, and the verdicts agree. They anchor an issue at different columns of the same construct. Issue positions are not part of the specification, so the difference is equivalent.
 
-- Difference: IssuePositions `issue positions` (3199)
+- Difference: IssuePositions `issue positions` (3291)
 - Specification: XSD 1.0 Part 1, 5.2 and C.1 (the assessment outcome is the validity property; positions and number of reports are not specified)
-- Cases: 3199
+- Cases: 3291
 
 ```text
 ibmMeta-unitsLength/1.0/d2_4_1_3si01/d2_4_1_3si01s
@@ -5493,6 +5492,98 @@ Both engines reject the document with the same number of issues, and the verdict
 - Cases: 9102
 
 ```text
+common-introspection/1.0/introspection/introspect-testSet-AGroupDef-4
+common-introspection/1.0/introspection/introspect-testSet-All-34
+common-introspection/1.0/introspection/introspect-testSet-Assert-35
+common-introspection/1.0/introspection/introspect-testSet-Assert-52
+common-introspection/1.0/introspection/introspect-testSet-AttrDecl-5
+common-introspection/1.0/introspection/introspect-testSet-AttrUse-6
+common-introspection/1.0/introspection/introspect-testSet-BoeingXSDTestCases-33
+common-introspection/1.0/introspection/introspect-testSet-CTA-37
+common-introspection/1.0/introspection/introspect-testSet-CTA-82
+common-introspection/1.0/introspection/introspect-testSet-CType-7
+common-introspection/1.0/introspection/introspect-testSet-Complex-36
+common-introspection/1.0/introspection/introspect-testSet-ConditionalInclusion-54
+common-introspection/1.0/introspection/introspect-testSet-CyclicDependencies_Redefine_Include_Import_Override-56
+common-introspection/1.0/introspection/introspect-testSet-DefaultFixed-61
+common-introspection/1.0/introspection/introspect-testSet-EDCWildcard-63
+common-introspection/1.0/introspection/introspect-testSet-ElemDecl-8
+common-introspection/1.0/introspection/introspect-testSet-ID_IDREF-71
+common-introspection/1.0/introspection/introspect-testSet-Id-38
+common-introspection/1.0/introspection/introspect-testSet-IdConstrDefs-9
+common-introspection/1.0/introspection/introspect-testSet-IdentityConstraint-72
+common-introspection/1.0/introspection/introspect-testSet-MGroup-10
+common-introspection/1.0/introspection/introspect-testSet-MGroupDef-11
+common-introspection/1.0/introspection/introspect-testSet-MS-Additional2006-07-15-16
+common-introspection/1.0/introspection/introspect-testSet-MS-Annotations2006-07-15-17
+common-introspection/1.0/introspection/introspect-testSet-MS-Attribute2006-07-15-19
+common-introspection/1.0/introspection/introspect-testSet-MS-AttributeGroup2006-07-15-18
+common-introspection/1.0/introspection/introspect-testSet-MS-ComplexType2006-07-15-20
+common-introspection/1.0/introspection/introspect-testSet-MS-DataTypes2006-07-15-21
+common-introspection/1.0/introspection/introspect-testSet-MS-Element2006-07-15-22
+common-introspection/1.0/introspection/introspect-testSet-MS-Errata102006-07-15-23
+common-introspection/1.0/introspection/introspect-testSet-MS-Group2006-07-15-24
+common-introspection/1.0/introspection/introspect-testSet-MS-IdentityConstraint2006-07-15-25
+common-introspection/1.0/introspection/introspect-testSet-MS-ModelGroups2006-07-15-26
+common-introspection/1.0/introspection/introspect-testSet-MS-Notations2006-07-15-27
+common-introspection/1.0/introspection/introspect-testSet-MS-Particles2006-07-15-28
+common-introspection/1.0/introspection/introspect-testSet-MS-Regex2006-07-15-29
+common-introspection/1.0/introspection/introspect-testSet-MS-Schema2006-07-15-30
+common-introspection/1.0/introspection/introspect-testSet-MS-SimpleType2006-07-15-31
+common-introspection/1.0/introspection/introspect-testSet-MS-Wildcards2006-07-15-32
+common-introspection/1.0/introspection/introspect-testSet-NIST2004-01-14-2
+common-introspection/1.0/introspection/introspect-testSet-Notation-12
+common-introspection/1.0/introspection/introspect-testSet-Open-39
+common-introspection/1.0/introspection/introspect-testSet-Override-40
+common-introspection/1.0/introspection/introspect-testSet-PopenContent-74
+common-introspection/1.0/introspection/introspect-testSet-RegularExpression-75
+common-introspection/1.0/introspection/introspect-testSet-RestrictionOfComplexTypes-76
+common-introspection/1.0/introspection/introspect-testSet-SType-13
+common-introspection/1.0/introspection/introspect-testSet-Schema-14
+common-introspection/1.0/introspection/introspect-testSet-Simple-41
+common-introspection/1.0/introspection/introspect-testSet-Subsgroup-42
+common-introspection/1.0/introspection/introspect-testSet-TargetNS-43
+common-introspection/1.0/introspection/introspect-testSet-TargetNS-79
+common-introspection/1.0/introspection/introspect-testSet-TypeAlternativeTests-81
+common-introspection/1.0/introspection/introspect-testSet-UnitsLength-84
+common-introspection/1.0/introspection/introspect-testSet-VC-44
+common-introspection/1.0/introspection/introspect-testSet-VC-86
+common-introspection/1.0/introspection/introspect-testSet-Wild-45
+common-introspection/1.0/introspection/introspect-testSet-Wildcard-15
+common-introspection/1.0/introspection/introspect-testSet-XML11Support-88
+common-introspection/1.0/introspection/introspect-testSet-XPathDefaultNSonKeyKeyRefUnique-89
+common-introspection/1.0/introspection/introspect-testSet-XSImportReference-90
+common-introspection/1.0/introspection/introspect-testSet-XmlVersions-46
+common-introspection/1.0/introspection/introspect-testSet-Zone-47
+common-introspection/1.0/introspection/introspect-testSet-Zone-48
+common-introspection/1.0/introspection/introspect-testSet-allGroup-50
+common-introspection/1.0/introspection/introspect-testSet-anyAttribute-51
+common-introspection/1.0/introspection/introspect-testSet-assertion-53
+common-introspection/1.0/introspection/introspect-testSet-constraintsOnAttribute-55
+common-introspection/1.0/introspection/introspect-testSet-date-57
+common-introspection/1.0/introspection/introspect-testSet-dateTimeStamp-58
+common-introspection/1.0/introspection/introspect-testSet-dayTimeDuration-59
+common-introspection/1.0/introspection/introspect-testSet-defaultAttributesApply-60
+common-introspection/1.0/introspection/introspect-testSet-double-62
+common-introspection/1.0/introspection/introspect-testSet-explicitTimezone-64
+common-introspection/1.0/introspection/introspect-testSet-float-65
+common-introspection/1.0/introspection/introspect-testSet-gDay-69
+common-introspection/1.0/introspection/introspect-testSet-gMonth-70
+common-introspection/1.0/introspection/introspect-testSet-gMonthDay-68
+common-introspection/1.0/introspection/introspect-testSet-gYear-67
+common-introspection/1.0/introspection/introspect-testSet-gYearMonth-66
+common-introspection/1.0/introspection/introspect-testSet-introspection-1
+common-introspection/1.0/introspection/introspect-testSet-list-73
+common-introspection/1.0/introspection/introspect-testSet-rf-whiteSpace-77
+common-introspection/1.0/introspection/introspect-testSet-schema
+common-introspection/1.0/introspection/introspect-testSet-substitution-groups-49
+common-introspection/1.0/introspection/introspect-testSet-substitutionGroup-78
+common-introspection/1.0/introspection/introspect-testSet-suntest-3
+common-introspection/1.0/introspection/introspect-testSet-time-80
+common-introspection/1.0/introspection/introspect-testSet-union-83
+common-introspection/1.0/introspection/introspect-testSet-unsignedIntegers-85
+common-introspection/1.0/introspection/introspect-testSet-wildcard-87
+common-introspection/1.0/introspection/introspect-testSet-yearMonthDuration-91
 ibmMeta-identityConstraint/1.0/s2_2_4si06/s2_2_4si06s
 msMeta-Additional_w3c/1.0/addB002/addB002.i
 msMeta-Additional_w3c/1.0/addB021a/addB021a

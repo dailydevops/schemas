@@ -81,7 +81,7 @@ internal sealed class InstanceXstsValidator : IXstsValidator
                 .WithVersion(XsdVersion.V10)
                 .WithDtdProcessing(true)
                 .WithSchemaLocationHints(true)
-                .WithResolver(new SandboxedFileSystemResourceResolver(_suiteRoot));
+                .WithResolver(new XstsImportResolver(new SandboxedFileSystemResourceResolver(_suiteRoot)));
             foreach (var relative in documents)
             {
                 var path = Path.GetFullPath(Path.Combine(_suiteRoot, relative));

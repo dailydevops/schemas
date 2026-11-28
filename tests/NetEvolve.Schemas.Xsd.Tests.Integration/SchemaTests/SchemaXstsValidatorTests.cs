@@ -90,6 +90,33 @@ public class SchemaXstsValidatorTests
     }
 
     [Test]
+    public async Task CompileSchema_TheXlinkAndXmlImportsOfXsts_AreSuppliedByTheRunner(
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        using var suite = new TempDirectory();
+        _ = suite.Write(
+            "a.xsd",
+            "<xs:schema xmlns:xs=\""
+                + Xs
+                + "\" xmlns:xlink=\"http://www.w3.org/1999/xlink\">"
+                + "<xs:import namespace=\"http://www.w3.org/1999/xlink\" schemaLocation=\"http://www.w3.org/XML/2008/06/xlink.xsd\"/>"
+                + "<xs:import namespace=\"http://www.w3.org/XML/1998/namespace\" schemaLocation=\"http://www.w3.org/2001/xml.xsd\"/>"
+                + "<xs:element name=\"e\"><xs:complexType>"
+                + "<xs:attribute ref=\"xlink:type\" default=\"locator\"/><xs:attribute ref=\"xlink:href\"/><xs:attribute ref=\"xml:lang\"/>"
+                + "</xs:complexType></xs:element></xs:schema>"
+        );
+
+        var outcome = await new SchemaXstsValidator(suite.Path).CompileSchemaAsync(
+            Case(XstsVersions.V10, true, XstsKind.Schema, "a.xsd"),
+            cancellationToken
+        );
+
+        await Assert.That(outcome).IsEqualTo(XstsOutcome.Valid);
+    }
+
+    [Test]
     public async Task CompileSchema_AnXsd11Case_IsNotObserved(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
