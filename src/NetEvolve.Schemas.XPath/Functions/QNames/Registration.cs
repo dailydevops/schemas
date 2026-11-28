@@ -7,7 +7,7 @@ using NetEvolve.Schemas.XPath.Functions.Binding;
 /// <summary>
 /// The registration file of the QName and URI group: its module initializer stages <see cref="Register"/> into the default catalog
 /// (#123, AP8, option B), so no shared list names the group. The group holds the QName functions of section 11 of Functions and
-/// Operators, the URI functions <c>resolve-uri</c>, <c>encode-for-uri</c>, and <c>iri-to-uri</c>, and the base URI functions
+/// Operators, the URI functions <c>resolve-uri</c>, <c>encode-for-uri</c>, <c>iri-to-uri</c>, and <c>escape-html-uri</c>, and the base URI functions
 /// <c>base-uri</c> and <c>static-base-uri</c>.
 /// </summary>
 /// <remarks>
@@ -41,5 +41,6 @@ internal static class Registration
         builder.Add(new StaticBaseUriFunction());
         builder.Add(new UriEscapingFunction("encode-for-uri", UriEscaping.EncodeForUri));
         builder.Add(new UriEscapingFunction("iri-to-uri", UriEscaping.IriToUri));
+        builder.Add(new UriEscapingFunction("escape-html-uri", UriEscaping.EscapeHtmlUri));
     }
 }
