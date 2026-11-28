@@ -63,4 +63,34 @@ public class AssertionFacetUnionListTests
         await Assert.That(fixture.Check(list, "7 x y")).IsFalse();
         await Assert.That(fixture.Issues.Count).IsEqualTo(1);
     }
+
+    [Test]
+    public async Task Assertion_ListAndUnionWithoutAnyAssertion_AreNotEvaluated()
+    {
+        using var fixture = new FacetAssertionFixture();
+        var plain = fixture.Types.Wrapped("integer");
+        var list = fixture.ListOf(plain);
+        var union = fixture.UnionOf([plain, fixture.Types.Wrapped("string")]);
+        var table = fixture.Table();
+
+        await Assert.That(table.Reaches(list)).IsFalse();
+        await Assert.That(table.Reaches(union)).IsFalse();
+        await Assert.That(fixture.Check(list, "1 2")).IsTrue();
+        await Assert.That(fixture.Check(union, "x")).IsTrue();
+    }
+
+    [Test]
+    public async Task Reaches_FollowsTheItemTypeAndTheMembers()
+    {
+        using var fixture = new FacetAssertionFixture();
+        var asserting = fixture.Base("integer", "$value > 5");
+        var list = fixture.ListOf(asserting);
+        var union = fixture.UnionOf([fixture.Types.Wrapped("string"), asserting]);
+        var table = fixture.Table();
+
+        await Assert.That(table.Reaches(asserting)).IsTrue();
+        await Assert.That(table.Reaches(list)).IsTrue();
+        await Assert.That(table.Reaches(union)).IsTrue();
+        await Assert.That(table.Reaches(fixture.Types.Wrapped("string"))).IsFalse();
+    }
 }

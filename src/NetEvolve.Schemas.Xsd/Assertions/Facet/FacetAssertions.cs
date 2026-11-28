@@ -19,6 +19,7 @@ internal sealed class FacetAssertions
 
     private readonly IReadOnlyDictionary<SimpleTypeDefinition, IReadOnlyList<FacetAssertion>> _own;
     private readonly ConcurrentDictionary<SimpleTypeDefinition, IReadOnlyList<FacetAssertion>> _flattened = new();
+    private readonly ConcurrentDictionary<SimpleTypeDefinition, bool> _reaches = new();
 
     /// <summary>Initializes a new instance of the <see cref="FacetAssertions"/> class.</summary>
     /// <param name="own">The assertions that each simple type declares itself, in document order.</param>
@@ -47,6 +48,50 @@ internal sealed class FacetAssertions
         }
 
         return _flattened.GetOrAdd(type, Flatten(type));
+    }
+
+    /// <summary>Tells whether a type, its list item type, or one of its union members (transitively) has an assertion.</summary>
+    /// <param name="type">The simple type.</param>
+    /// <returns><see langword="true"/> when there is something to check.</returns>
+    internal bool Reaches(SimpleTypeDefinition type)
+    {
+        ArgumentNullException.ThrowIfNull(type);
+
+        if (_own.Count == 0)
+        {
+            return false;
+        }
+
+        if (_reaches.TryGetValue(type, out var cached))
+        {
+            return cached;
+        }
+
+        return _reaches.GetOrAdd(type, Reaches(type, []));
+    }
+
+    private bool Reaches(SimpleTypeDefinition type, HashSet<SimpleTypeDefinition> seen)
+    {
+        // A repeated type ends the walk, so a defective definition cannot loop.
+        if (!seen.Add(type))
+        {
+            return false;
+        }
+
+        if (Of(type).Count > 0 || (type.ItemType is { } item && Reaches(item, seen)))
+        {
+            return true;
+        }
+
+        for (var i = 0; i < type.MemberTypes.Count; i++)
+        {
+            if (Reaches(type.MemberTypes[i], seen))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private FacetAssertion[] Flatten(SimpleTypeDefinition type)

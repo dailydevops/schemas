@@ -194,7 +194,7 @@ internal sealed partial class StreamingValidator
         if (
             _facetAssertions is null
             || TypedValues.SimpleTypeOf(type) is not SimpleTypeDefinition definition
-            || _facetAssertions.Of(definition).Count == 0
+            || !_facetAssertions.Reaches(definition)
         )
         {
             return true;
