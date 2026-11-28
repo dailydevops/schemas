@@ -44,6 +44,45 @@ public class EarlyExitTests
     }
 
     [Test]
+    [Arguments("not(//x)", "false")]
+    [Arguments("not(//y)", "true")]
+    [Arguments("boolean(//x)", "true")]
+    [Arguments("boolean(//y)", "false")]
+    public async Task NotAndBoolean_OverAPath_LimitThePathToOneNode(string expression, string expected)
+    {
+        await Assert.That(Run(expression, XPathOptimizations.All, new ChildrenTree(10))).IsEqualTo(expected);
+        await Assert.That(CountedLimit(expression, XPathOptimizations.All)).IsEqualTo(1);
+    }
+
+    [Test]
+    [Arguments("not(//x)")]
+    [Arguments("boolean(//x)")]
+    public async Task NotAndBoolean_OverAPathWithAMatch_ReadNoNodeAfterTheFirstMatch(string expression)
+    {
+        ArgumentNullException.ThrowIfNull(expression);
+
+        var on = new ChildrenTree(1000);
+        var off = new ChildrenTree(1000);
+
+        _ = Run(expression, XPathOptimizations.All, on);
+        _ = Run(expression, XPathOptimizations.All & ~Existence, off);
+
+        await Assert.That(on.FarthestRead).IsLessThanOrEqualTo(2);
+        await Assert.That(off.FarthestRead).IsGreaterThan(1000);
+    }
+
+    [Test]
+    public async Task Some_WithAPathBody_ReadsNoNodeAfterTheFirstMatch()
+    {
+        var tree = new ChildrenTree(1000);
+
+        var result = Run("some $i in 1 satisfies //x", XPathOptimizations.All, tree);
+
+        await Assert.That(result).IsEqualTo("true");
+        await Assert.That(tree.FarthestRead).IsLessThanOrEqualTo(2);
+    }
+
+    [Test]
     public async Task Empty_OverAPathWithAMatch_ReadsNoNodeAfterTheFirstMatch()
     {
         var on = new ChildrenTree(1000);
@@ -143,6 +182,8 @@ public class EarlyExitTests
     [Arguments("empty(//x[. ne 1])")]
     [Arguments("/r[. ne 1]/x[1]")]
     [Arguments("exists(//x/string(.))")]
+    [Arguments("not(//x/string(.))")]
+    [Arguments("boolean(//x[2])")]
     [Arguments("empty(//x/ancestor::*)")]
     [Arguments("exists(//x/..)")]
     [Arguments("count(//x/ancestor::r) > 0")]

@@ -14,12 +14,20 @@ using NetEvolve.Schemas.XPath.Evaluation.Paths;
 /// </summary>
 internal static class EarlyExitRewrites
 {
-    /// <summary><c>fn:exists</c> and <c>fn:empty</c> need one node of their argument.</summary>
+    /// <summary><c>fn:exists</c>, <c>fn:empty</c>, <c>fn:not</c> and <c>fn:boolean</c> need one node of their argument.</summary>
     /// <param name="node">The lowered node.</param>
     /// <returns>The node itself.</returns>
     public static ExecutableNode Existence(ExecutableNode node)
     {
-        if (node is CallNode call && (BuiltInCall.Is(node, "exists", 1) || BuiltInCall.Is(node, "empty", 1)))
+        if (
+            node is CallNode call
+            && (
+                BuiltInCall.Is(node, "exists", 1)
+                || BuiltInCall.Is(node, "empty", 1)
+                || BuiltInCall.Is(node, "not", 1)
+                || BuiltInCall.Is(node, "boolean", 1)
+            )
+        )
         {
             Limit(call.Arguments[0], 1);
         }

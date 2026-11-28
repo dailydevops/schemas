@@ -18,6 +18,11 @@
     "baselineRatio": 16.5
   },
   {
+    "name": "XPathNotBooleanBenchmarks.EvaluateNotAndBoolean",
+    "meanNs": 4000.0,
+    "allocatedBytes": 0
+  },
+  {
     "name": "XPathComparisonBenchmarks.EvaluateComparisons",
     "meanNs": 116743.5,
     "allocatedBytes": 8904,
