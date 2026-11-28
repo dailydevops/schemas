@@ -80,8 +80,8 @@ public class UriEscapingTests
     [Arguments("escape-html-uri")]
     public async Task TheFunctions_AUriOrUntypedArgument_IsReadAsAString(string function)
     {
-        await Assert.That(QNamesHarness.Run(function, "anyURI:a b")).IsEqualTo("string:a%20b");
-        await Assert.That(QNamesHarness.Run(function, "untypedAtomic:a b")).IsEqualTo("string:a%20b");
+        await Assert.That(QNamesHarness.Run(function, "anyURI:a\u00E9")).IsEqualTo("string:a%C3%A9");
+        await Assert.That(QNamesHarness.Run(function, "untypedAtomic:a\u00E9")).IsEqualTo("string:a%C3%A9");
     }
 
     [Test]
@@ -133,12 +133,12 @@ public class UriEscapingTests
     [Arguments("escape-html-uri")]
     public async Task TheFunctions_AnInputWithACharacterToEscape_IsANewString(string function)
     {
-        var input = new string("a b".AsSpan());
+        var input = new string("a\u00E9".AsSpan());
 
         var output = Call(function, input);
 
         await Assert.That(ReferenceEquals(output, input)).IsFalse();
-        await Assert.That(output).IsEqualTo("a%20b");
+        await Assert.That(output).IsEqualTo("a%C3%A9");
     }
 
     private static string? Call(string function, string input)
