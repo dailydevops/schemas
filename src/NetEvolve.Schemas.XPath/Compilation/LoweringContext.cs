@@ -139,7 +139,7 @@ internal sealed class LoweringContext
             return function!;
         }
 
-        throw XPathErrors.Exception(XPathErrorCodes.XPST0017, location.Offset, location.Length);
+        throw XPathErrors.UnknownFunction(name, arity, location);
     }
 
     /// <summary>Declares a variable for the lifetime of the returned scope, as a binding of a for, some, or every expression does.</summary>

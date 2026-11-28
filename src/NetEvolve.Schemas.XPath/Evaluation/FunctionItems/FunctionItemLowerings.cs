@@ -69,7 +69,7 @@ internal static class FunctionItemLowerings
             out var function
         )
             ? FunctionLookupFunction.Bind(function!, statics, activeHost)
-            : throw XPathErrors.Exception(XPathErrorCodes.XPST0017, location.Offset, location.Length);
+            : throw XPathErrors.UnknownFunction(name, arity, location);
     }
 
     /// <summary>Determines whether a list of arguments holds a placeholder, which makes the call a partial function application.</summary>

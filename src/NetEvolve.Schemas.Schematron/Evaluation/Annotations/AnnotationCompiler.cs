@@ -90,6 +90,7 @@ internal static class AnnotationCompiler
 
         if (!binding.TryCompile(reference, QueryExpressionKind.Value, scope, out var expression, out var problem))
         {
+            problem = problem.At(location);
             problems.Add(in problem);
             return false;
         }
