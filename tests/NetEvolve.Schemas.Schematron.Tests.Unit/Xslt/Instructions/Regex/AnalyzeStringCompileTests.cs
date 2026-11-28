@@ -10,7 +10,7 @@ using static NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Instructions.Regex.Rx;
 /// <summary>
 /// The compile of <c>xsl:analyze-string</c> (XSLT 2.0 section 15.1): <see langword="select"/> and <c>regex</c> are required, the content is an
 /// optional <c>xsl:matching-substring</c> and an optional <c>xsl:non-matching-substring</c> in this order, at least one of them
-/// (XTSE1130), <c>xsl:fallback</c> is the unsupported construct error, and every problem is reported without stopping the compile.
+/// (XTSE1130), <c>xsl:fallback</c> is ignored, and every problem is reported without stopping the compile.
 /// </summary>
 public class AnalyzeStringCompileTests
 {
@@ -92,11 +92,12 @@ public class AnalyzeStringCompileTests
     }
 
     [Test]
-    public async Task Compile_WithFallback_IsTheUnsupportedConstructError()
+    public async Task Compile_WithFallback_IgnoresTheFallback()
     {
         var harness = new RegexHarness(Analyze("'a'", "b", null, 10, Match(11, Out("'x'", 12)), X("fallback", 13)));
 
-        await Assert.That(harness.CompileCodes).IsEqualTo(Code(SchematronDiagnosticCodes.XsltUnsupported));
+        await Assert.That(harness.CompileCodes).IsEqualTo(string.Empty);
+        await Assert.That(harness.Executable).IsNotNull();
     }
 
     [Test]
