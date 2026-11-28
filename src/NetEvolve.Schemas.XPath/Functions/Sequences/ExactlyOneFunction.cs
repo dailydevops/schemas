@@ -15,6 +15,11 @@ internal sealed class ExactlyOneFunction : SequenceFunction
     public override XPathEvaluationStatus Invoke(ref XPathFunctionCall invocation)
     {
         var argument = invocation.Arguments[0];
+        if (argument.IsUnreadLazy)
+        {
+            argument = SequenceStreaming.TakeUpToTwo(argument);
+        }
+
         invocation.Result = argument.Count == 1 ? argument : throw XPathErrors.Exception(XPathErrorCodes.FORG0005);
         return XPathEvaluationStatus.Ok;
     }
