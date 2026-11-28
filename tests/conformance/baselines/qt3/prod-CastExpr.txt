@@ -26,15 +26,12 @@ prod-CastExpr/CastFOCA0001-1
 prod-CastExpr/CastFOCA0003-1
 prod-CastExpr/K-SeqExprCast-144
 prod-CastExpr/K-SeqExprCast-1491
-prod-CastExpr/K-SeqExprCast-42
-prod-CastExpr/K-SeqExprCast-55
 prod-CastExpr/K-SeqExprCast-63
 prod-CastExpr/K-SeqExprCast-64
 prod-CastExpr/K-SeqExprCast-67
 prod-CastExpr/K-SeqExprCast-69
 prod-CastExpr/K2-SeqExprCast-17
 prod-CastExpr/K2-SeqExprCast-2
-prod-CastExpr/K2-SeqExprCast-201
 prod-CastExpr/K2-SeqExprCast-207
 prod-CastExpr/K2-SeqExprCast-22
 prod-CastExpr/K2-SeqExprCast-299

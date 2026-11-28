@@ -1,7 +1,10 @@
 namespace NetEvolve.Schemas.XPath.Tests.Unit.Functions.Nodes;
 
+using System;
 using System.Threading.Tasks;
 using NetEvolve.Schemas.XPath.Api;
+using NetEvolve.Schemas.XPath.Context;
+using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Functions.Binding;
 
 /// <summary>
@@ -61,7 +64,47 @@ public class NodeNameQNameTests
         await Assert.That(NodesHarness.Run(function, "integer:1")).IsEqualTo("error:XPTY0004");
 
     [Test]
-    [Arguments("node-name")]
+    [Arguments(XPathVersion.V20, false)]
+    [Arguments(XPathVersion.V30, true)]
+    [Arguments(XPathVersion.V31, true)]
+    public async Task NodeName_WithoutArgument_IsRegisteredFromXPath30(XPathVersion version, bool expected) =>
+        await Assert.That(NodesHarness.TryResolve("node-name", 0, out _, version)).IsEqualTo(expected);
+
+    [Test]
+    [Arguments("a", "QName:p:a{urn:p}")]
+    [Arguments("a@x", "QName:x{}")]
+    [Arguments("pi", "QName:target{}")]
+    [Arguments("doc", "")]
+    [Arguments("cm", "")]
+    public async Task NodeName_WithoutArgument_GivesTheNameOfTheContextNode(string contextItem, string expected)
+    {
+        ArgumentNullException.ThrowIfNull(contextItem);
+
+        _ = NodesHarness.TryResolve("node-name", 0, out var function, XPathVersion.V30);
+        using var context = new XPathEvaluationContext();
+        context.SetContextItem(NodesHarness.ParseItem("node:" + contextItem));
+
+        await Assert.That(NodesHarness.Show(function!.Call(context, []))).IsEqualTo(expected);
+    }
+
+    [Test]
+    [Arguments(null, "XPDY0002")]
+    [Arguments("integer:1", "XPTY0004")]
+    public async Task NodeName_WithoutArgument_RaisesTheContextItemError(string? contextItem, string code)
+    {
+        _ = NodesHarness.TryResolve("node-name", 0, out var function, XPathVersion.V30);
+        using var context = new XPathEvaluationContext();
+        if (contextItem is not null)
+        {
+            context.SetContextItem(NodesHarness.ParseItem(contextItem));
+        }
+
+        var failure = Assert.Throws<XPathException>(() => function!.Call(context, []));
+
+        await Assert.That(failure!.Diagnostic.Code).IsEqualTo(code);
+    }
+
+    [Test]
     [Arguments("nilled")]
     [Arguments("document-uri")]
     public async Task EachFunction_IsRegisteredForOneArgumentOnlyInEveryLanguageVersion(string local)

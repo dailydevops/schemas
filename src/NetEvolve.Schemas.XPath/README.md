@@ -216,7 +216,7 @@ The engine is measured against the W3C QT3 test suite, pinned by commit `201a6e4
 
 ### XPath 2.0
 
-**14,455 of 14,550 decided cases pass, a rate of 99.3%** on `net10.0`, the leg that runs the suites by default. The other 95 are known failures, and 738 skipped cases do not count. The 833 baseline entries (95 failures and 738 skipped cases) are the files of `tests/conformance/baselines/qt3`, one file per test set (238 test sets), and the run fails on a regression and on a listed case that passes.
+**14,473 of 14,550 decided cases pass, a rate of 99.4%** on `net10.0`, the leg that runs the suites by default. The other 77 are known failures, and 738 skipped cases do not count. The 815 baseline entries (77 failures and 738 skipped cases) are the files of `tests/conformance/baselines/qt3`, one file per test set (238 test sets), and the run fails on a regression and on a listed case that passes.
 
 Reproduce the numbers on a clone: set `GITHUB_STEP_SUMMARY` to a file and run the conformance tests; the table of the rate per test set is appended to that file.
 

@@ -576,7 +576,7 @@ internal static class Qt3QNameSelection
         ),
         (
             "fn-QName/K-ExpandedQNameConstructFunc-4",
-            "the case compares two QNames by eq, which has no entry in the comparison table until the QName value type (#545), and writes xs:QName(\"fn:local\"), which the constructor resolves against no namespaces (#644)"
+            "the case compares two QNames by eq, which has no entry in the comparison table until the QName value type (#545)"
         ),
         (
             "fn-QName/K-ExpandedQNameConstructFunc-9",

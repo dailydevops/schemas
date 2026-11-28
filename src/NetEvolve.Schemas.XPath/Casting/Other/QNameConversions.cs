@@ -15,8 +15,8 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// casts a lexical QName only from a string literal, and the lowering of the cast withholds the namespaces from any other operand.
 /// </para>
 /// <para>
-/// Limitation: <c>xs:NOTATION</c> has no row, because it is abstract; a constructor function resolves against no namespaces, so
-/// <c>xs:QName('p:local')</c> is FONS0004 until the lowering of a function call hands the static context to the constructor.
+/// Limitation: <c>xs:NOTATION</c> has no row, because it is abstract. The lowering of a function call hands the namespaces of the static context to
+/// the constructor function <c>xs:QName</c>, with the same rule as the cast.
 /// </para>
 /// </remarks>
 internal static class QNameConversions

@@ -37,7 +37,7 @@ internal static class QNameFixture
             syntax!,
             expression,
             statics,
-            CastFixture.Registry(),
+            XPathEngine.CreateRegistry(XPathEngine.AllSlots),
             out var compiled,
             out diagnostic
         );

@@ -4807,6 +4807,7 @@ msMeta-SimpleType_w3c/1.0/stK017/stK017
 msMeta-SimpleType_w3c/1.0/stK018/stK018
 msMeta-SimpleType_w3c/1.0/stK019/stK019
 msMeta-SimpleType_w3c/1.0/stZ002/stZ002
+msMeta-SimpleType_w3c/1.0/stZ010/stZ010
 msMeta-SimpleType_w3c/1.0/stZ013/stZ013
 msMeta-SimpleType_w3c/1.0/stZ018/stZ018
 msMeta-SimpleType_w3c/1.0/stZ019/stZ019
