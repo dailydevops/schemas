@@ -41,6 +41,9 @@ internal sealed class PatternEvaluator
     // A context that fails on every node reports this many errors per rule and code and pass, and counts the rest.
     private const int MaxReportedContextErrors = 10;
 
+    // The code of a read of a variable that is not bound.
+    private const string UnboundVariable = "XPDY0002";
+
     // The token is checked when the count of visited nodes is a multiple of this power of two.
     private const int CancellationMask = 255;
 
@@ -279,14 +282,20 @@ internal sealed class PatternEvaluator
                 }
             }
 
-            var matched = false;
-
-            // A failed variable was reported once by the binder; a failed match is reported here, with the flooding cap.
-            var status = _binder.EnsureBound(rule.Context.ReferencedSlots);
-            if (status == QueryStatus.Ok)
+            // A variable is an error only where it is read: the context runs even when a slot failed.
+            // The problem of the slot is reported when the context read it (XPDY0002) or when a later expression reads it.
+            // Another failure of the context (not XPDY0002) is reported in addition to the problem of a failed slot that the context names.
+            // A failed match is reported here, with the flooding cap.
+            var deferred = _binder.EnsureBoundDeferred(rule.Context.ReferencedSlots) != QueryStatus.Ok;
+            var status = _matcher.Matches(rule.Context, _run, in candidate, out var matched);
+            if (status != QueryStatus.Ok)
             {
-                status = _matcher.Matches(rule.Context, _run, in candidate, out matched);
-                if (status != QueryStatus.Ok)
+                if (deferred)
+                {
+                    _binder.FlushDeferred(rule.Context.ReferencedSlots);
+                }
+
+                if (!deferred || _run.GetProblem().Constraint != UnboundVariable)
                 {
                     ReportContextError(i);
                 }

@@ -80,6 +80,16 @@ internal sealed class ScriptedMatcher(List<string> log) : IPatternMatcher
             log.Add("match:" + text);
         }
         matched = false;
+        foreach (var slot in ((ScriptedPattern)compiled).ReferencedSlots)
+        {
+            // A read of a slot that is not bound fails the evaluation, as in the variable table of a real run.
+            if (!((PatternTestRun)run).IsBound(slot))
+            {
+                ((PatternTestRun)run).Raise("XPDY0002");
+                return QueryStatus.Problem;
+            }
+        }
+
         if (text.StartsWith("err:", StringComparison.Ordinal))
         {
             if (

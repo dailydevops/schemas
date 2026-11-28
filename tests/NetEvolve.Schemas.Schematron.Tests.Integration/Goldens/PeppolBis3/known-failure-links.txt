@@ -1,2 +1,1 @@
 # One line per baseline entry of the national and envelope test sets: case id, #issue, reason, separated by tabs.
-DK_Validation_DKR011_CII.xml#1	#1446	The rule DK-R-011 ends in a type mismatch error (NES3301); the SVRL holds an svrl:error.
