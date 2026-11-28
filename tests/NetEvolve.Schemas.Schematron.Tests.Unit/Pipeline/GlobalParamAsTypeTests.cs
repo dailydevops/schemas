@@ -43,6 +43,11 @@ public class GlobalParamAsTypeTests
     [Arguments("xs:boolean", "$p", "1")]
     [Arguments("xs:boolean", "not($p)", "false")]
     [Arguments("xs:string", "$p = '10'", "10")]
+    [Arguments("xs:double", "$p = xs:double('INF')", "INF")]
+    [Arguments("xs:double", "$p = xs:double('INF')", "+INF")]
+    [Arguments("xs:double", "$p = xs:double('-INF')", "-INF")]
+    [Arguments("xs:double", "$p != $p", "NaN")]
+    [Arguments("xs:integer", "$p = -9223372036854775808", "-9223372036854775808")]
     public async Task Value_ThatConverts_IsBoundWithTheDeclaredType(string type, string test, string value)
     {
         ArgumentNullException.ThrowIfNull(type);
@@ -57,6 +62,10 @@ public class GlobalParamAsTypeTests
     [Arguments("xs:integer", "")]
     [Arguments("xs:double", "x")]
     [Arguments("xs:boolean", "yes")]
+    [Arguments("xs:double", "")]
+    [Arguments("xs:double", "Infinity")]
+    [Arguments("xs:double", "nan")]
+    [Arguments("xs:integer", "9223372036854775808")]
     public async Task Value_ThatDoesNotConvert_IsXtte0590AtFirstUse(string type, string value)
     {
         var result = Run($"<xsl:param name=\"p\" as=\"{type}\" select=\"{DefaultOf(type)}\"/>", "boolean($p)", value);
@@ -90,6 +99,33 @@ public class GlobalParamAsTypeTests
         var result = Run("<xsl:param name=\"p\" as=\"xs:integer\" select=\"7\"/>", "$p = 7", null);
 
         await Assert.That(result.IsValid).IsTrue();
+    }
+
+    [Test]
+    public async Task Parameter_AfterAGlobalVariable_TakesTheCallerValue()
+    {
+        var result = Run(
+            "<xsl:variable name=\"v\" select=\"1\"/><xsl:param name=\"p\" as=\"xs:integer\" select=\"7\"/>",
+            "$p + $v = 11",
+            "10"
+        );
+
+        await Assert.That(result.IsValid).IsTrue().Because(string.Join("; ", result.Issues.Select(i => i.Message)));
+    }
+
+    [Test]
+    public async Task CallerValue_OfAnUndeclaredName_IsRejectedNextToGlobalDeclarations()
+    {
+        var schema = Wrap(
+            Ns
+                + "<xsl:variable name=\"v\" select=\"1\"/><xsl:param name=\"p\" as=\"xs:integer\" select=\"7\"/>"
+                + "<pattern id=\"p\"><rule context=\"doc\"><assert test=\"true()\">Failed.</assert></rule></pattern>",
+            Attributes
+        );
+
+        var failure = Capture(() => _ = Builder(schema).WithParameter("v", "1").WithParameter("zzz", "1").Build());
+
+        await Assert.That(failure.Message).Contains("2 issue(s)").And.Contains("NES3112");
     }
 
     private static string DefaultOf(string type) =>

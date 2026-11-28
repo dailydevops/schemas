@@ -88,6 +88,20 @@ public class XPathFunctionRunTests
     }
 
     [Test]
+    public async Task TryBindParameter_OfAnUnsupportedType_IsXtte0590AndBindsNothing()
+    {
+        using var run = Begin(Xpath2());
+
+        var status = run.TryBindParameter(41, "2024-01-01", "xs:date", new DocumentLocation(BaseUri, 3, 4));
+        var problem = run.GetProblem();
+
+        await Assert.That(status).IsEqualTo(QueryStatus.Problem);
+        await Assert.That(problem.Constraint).IsEqualTo("XTTE0590");
+        await Assert.That(problem.Message).Contains("xs:date");
+        await Assert.That(run.TryGetValue(41, out _)).IsFalse();
+    }
+
+    [Test]
     public async Task FunctionScope_EnteredAndLeft_KeepsTheValues()
     {
         using var run = Begin(Xpath2());
