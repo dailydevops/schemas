@@ -124,7 +124,7 @@ internal static class XsltSequenceConstructor
         {
             // A failed variable still takes its slot, so the slots of the later ones stay where the compile expects them. A variable
             // with content took its own slot before the locals of its content, which are already counted in the names.
-            var name = XsltElementReader.NameOrEmpty(element);
+            var name = VariableKeyOf(element);
             if (slot < names.Count)
             {
                 names[slot] = name;
@@ -136,5 +136,17 @@ internal static class XsltSequenceConstructor
         }
 
         return compiled is not null;
+    }
+
+    // A prefixed name is kept as {namespace}local, so a reference resolves by expanded QName (XPath 2.0 section 3.1.2).
+    private static string VariableKeyOf(XPathNode element)
+    {
+        var name = XsltElementReader.NameOrEmpty(element);
+        return
+            XsltElementReader.TryParseQName(name, out var prefix, out var local)
+            && prefix is not null
+            && XsltElementReader.TryResolvePrefix(element, prefix, out var namespaceName)
+            ? VariableKey.Of(namespaceName, local)
+            : name;
     }
 }

@@ -52,7 +52,7 @@ internal sealed class SlotReferences
         names = new XPathQName[slots.Length];
         for (var i = 0; i < slots.Length; i++)
         {
-            names[i] = new XPathQName(string.Empty, scope.VariableNames[slots[i]]);
+            names[i] = VariableKey.ToQName(scope.VariableNames[slots[i]]);
         }
     }
 
@@ -108,16 +108,19 @@ internal sealed class SlotReferences
 
     private void Reference(QualifiedName name)
     {
-        // A prefixed name cannot be a variable of the scope (those have no namespace), and such a reference does not compile.
-        if (_ranges.Contains(name.LocalName))
+        // A prefixed name is a slot when the prefix resolves to the namespace of a prefixed local variable; the ranges of for,
+        // some, and every are unprefixed.
+        if (name.Prefix is null && _ranges.Contains(name.LocalName))
         {
             return;
         }
 
+        var key = name.Prefix is null ? name.LocalName : VariableKey.Of(NamespaceOf(name.Prefix), name.LocalName);
+
         var names = _scope.VariableNames;
         for (var slot = names.Count - 1; slot >= 0; slot--)
         {
-            if (string.Equals(names[slot], name.LocalName, StringComparison.Ordinal))
+            if (string.Equals(names[slot], key, StringComparison.Ordinal))
             {
                 if (!_slots.Contains(slot))
                 {
@@ -127,5 +130,20 @@ internal sealed class SlotReferences
                 return;
             }
         }
+    }
+
+    // The last declaration of a prefix wins, as in the static context of the expression; an undeclared prefix gives a key no slot has.
+    private string NamespaceOf(string prefix)
+    {
+        var namespaces = _scope.Namespaces;
+        for (var i = namespaces.Count - 1; i >= 0; i--)
+        {
+            if (string.Equals(namespaces[i].Prefix, prefix, StringComparison.Ordinal))
+            {
+                return namespaces[i].NamespaceName;
+            }
+        }
+
+        return prefix + ":";
     }
 }
