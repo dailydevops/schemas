@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xml.Regex.Parsing;
 
 using System;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Regex.Contracts;
 using NetEvolve.Schemas.Xml.Regex.Matching;
 using NetEvolve.Schemas.Xml.Regex.XPathDialect;

@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Instructions.Grouping;
 
 using System.Threading;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Model;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Schematron.Tests.Unit.Fakes;

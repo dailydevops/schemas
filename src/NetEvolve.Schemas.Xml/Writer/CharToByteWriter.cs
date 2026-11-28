@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.Xml.Writer;
 
 using System;
 using System.Buffers;
-using NetEvolve.Arguments;
 
 /// <summary>
 /// Adapts a character buffer writer to a byte buffer writer, as UTF-8 or UTF-16 little endian. A high surrogate at the

@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xsd.Compilation;
 
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xsd.Assertions.ComplexTypes;
 using NetEvolve.Schemas.Xsd.Assertions.Facet;
 using NetEvolve.Schemas.Xsd.Components;

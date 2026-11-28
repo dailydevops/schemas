@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;
 
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.Xsd.Attributes.Declarations;

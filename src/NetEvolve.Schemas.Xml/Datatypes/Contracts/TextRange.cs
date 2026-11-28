@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.Xml.Datatypes.Contracts;
 
 using System;
 using System.Runtime.InteropServices;
-using NetEvolve.Arguments;
 
 /// <summary>An offset and a length into the caller's span; the view that string-like values carry because a span cannot be a generic argument.</summary>
 /// <remarks>The range is valid while the caller keeps the span it was produced from.</remarks>

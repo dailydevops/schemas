@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Functions.Strings;
 
 using System;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Limits;
 

@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Evaluation.FunctionItems;
 
 using System.Runtime.CompilerServices;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Functions.Binding;
 
 /// <summary>

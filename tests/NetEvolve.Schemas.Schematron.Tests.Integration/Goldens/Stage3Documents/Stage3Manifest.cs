@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Schematron.Tests.Integration.Goldens.Stage3Documents;
 
 using System.Text.Json;
-using NetEvolve.Arguments;
 
 /// <summary>
 /// The stage 3 record <c>tests/conformance/suites/schematron-stage3.json</c>: the pinned suite, the rule sets with their sample

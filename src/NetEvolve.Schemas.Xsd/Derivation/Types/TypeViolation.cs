@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xsd.Derivation.Types;
 
 using System.Runtime.InteropServices;
-using NetEvolve.Arguments;
 
 /// <summary>A violated constraint of a type derivation: the rule, the numbered clause, and a message; <see langword="default"/> is none.</summary>
 [StructLayout(LayoutKind.Auto)]

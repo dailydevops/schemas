@@ -1,7 +1,5 @@
 namespace NetEvolve.Schemas;
 
-using NetEvolve.Arguments;
-
 /// <summary>Immutable validation limits. Every limit is finite and bounded by a ceiling.</summary>
 /// <remarks>The defaults are the approved moderate values; they are provisional until benchmarked (see the validation limits design).</remarks>
 public sealed class ValidationLimits

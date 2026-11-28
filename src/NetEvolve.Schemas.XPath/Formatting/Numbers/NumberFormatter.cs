@@ -3,7 +3,6 @@ namespace NetEvolve.Schemas.XPath.Formatting.Numbers;
 using System;
 using System.Globalization;
 using System.Numerics;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.Floating;
 using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Functions.Strings;

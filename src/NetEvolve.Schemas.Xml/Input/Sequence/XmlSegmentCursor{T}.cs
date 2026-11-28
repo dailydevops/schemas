@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.Xml.Input.Sequence;
 
 using System;
 using System.Buffers;
-using NetEvolve.Arguments;
 
 /// <summary>Walks the segments of a <see cref="ReadOnlySequence{T}"/> in pieces of bounded length; empty segments are skipped.</summary>
 /// <typeparam name="T">The element type.</typeparam>

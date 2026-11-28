@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xml.Input.Sequence;
 
 using System.Buffers;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Contracts;
 
 /// <summary>Feeds the segments of a <see cref="ReadOnlySequence{T}"/> of characters to the parser; no decoding is involved.</summary>

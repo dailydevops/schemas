@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using NetEvolve.Arguments;
 
 /// <summary>
 /// Runs the QT3 cases of <see cref="Qt3DocumentsSelection"/> that the integration runner cannot decide, and proves that the exclusions are

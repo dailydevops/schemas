@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xml.Dtd.Validation.ContentModels;
 
 using System;
-using NetEvolve.Arguments;
 
 /// <summary>
 /// An element content model compiled once into a Glushkov position automaton (XML 1.0, Appendix E): one position per

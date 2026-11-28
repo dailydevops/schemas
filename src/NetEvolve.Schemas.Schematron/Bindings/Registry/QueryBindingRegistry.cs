@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.Schematron.Bindings.Registry;
 
 using System;
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Bindings.Xslt1;
 using NetEvolve.Schemas.Schematron.Model;
 using NetEvolve.Schemas.Schematron.Seams;

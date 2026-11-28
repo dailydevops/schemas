@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.Xml.Buffers;
 
 using System;
 using System.Buffers;
-using NetEvolve.Arguments;
 
 /// <summary>
 /// Growable scratch buffer that rents its backing array from an <see cref="ArrayPool{T}"/> and returns it on dispose.

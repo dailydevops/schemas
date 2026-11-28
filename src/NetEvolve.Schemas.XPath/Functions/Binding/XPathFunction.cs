@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.XPath.Functions.Binding;
 
 using System;
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Errors;

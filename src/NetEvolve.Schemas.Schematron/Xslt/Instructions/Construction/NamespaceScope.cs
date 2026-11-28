@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.Schematron.Xslt.Instructions.Construction;
 
 using System;
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 
 /// <summary>
 /// The namespace bindings in scope of the element under construction: the bindings that its constructed ancestors declare. The

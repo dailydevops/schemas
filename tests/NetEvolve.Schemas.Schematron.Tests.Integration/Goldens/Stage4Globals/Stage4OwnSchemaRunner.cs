@@ -3,7 +3,6 @@
 using System.Buffers;
 using System.Text;
 using System.Xml.Linq;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Conformance.Results;
 using NetEvolve.Schemas.Schematron.Svrl;
 using NetEvolve.Schemas.Schematron.Tests.Integration.Goldens.Harness;

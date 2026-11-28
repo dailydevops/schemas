@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Evaluation.Axes;
 
 using System.Runtime.InteropServices;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Model;
 using NetEvolve.Schemas.XPath.Errors;

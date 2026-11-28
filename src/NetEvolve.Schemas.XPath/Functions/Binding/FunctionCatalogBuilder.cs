@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Functions.Binding;
 
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 
 /// <summary>What a registration file receives: it adds the functions of its group, and nothing else.</summary>
 internal sealed class FunctionCatalogBuilder

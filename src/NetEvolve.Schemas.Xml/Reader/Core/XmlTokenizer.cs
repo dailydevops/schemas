@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.Xml.Reader.Core;
 
 using System;
 using System.Runtime.InteropServices;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Reader.Declaration;
 using NetEvolve.Schemas.Xml.Text.CharClasses;

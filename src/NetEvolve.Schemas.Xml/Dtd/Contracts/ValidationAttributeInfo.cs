@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.Xml.Dtd.Contracts;
 
 using System;
 using System.Runtime.InteropServices;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Dtd.Model;
 

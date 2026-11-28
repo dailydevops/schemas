@@ -3,7 +3,6 @@ namespace NetEvolve.Schemas.Schematron.Tests.Integration.Conformance.Xspec;
 using System.Buffers;
 using System.Text;
 using System.Xml.Linq;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Conformance.Results;
 using NetEvolve.Schemas.Resources.FileSystem;
 using NetEvolve.Schemas.Schematron.Svrl;
@@ -30,8 +29,8 @@ internal static class XspecEngine
     )
     {
         cancellationToken.ThrowIfCancellationRequested();
-        Argument.ThrowIfNull(selection);
-        Argument.ThrowIfNullOrWhiteSpace(suiteRoot);
+        ArgumentNullException.ThrowIfNull(selection);
+        ArgumentException.ThrowIfNullOrWhiteSpace(suiteRoot);
         var resolver = new SandboxedFileSystemResourceResolver(suiteRoot);
         var validations = new Dictionary<(string Schema, string? Phase, string Context), Validation>();
         var results = new List<CaseResult>(selection.Selected.Count + selection.Excluded.Count);

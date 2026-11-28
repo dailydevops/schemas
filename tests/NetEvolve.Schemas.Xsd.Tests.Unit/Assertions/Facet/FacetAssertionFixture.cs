@@ -3,7 +3,6 @@ namespace NetEvolve.Schemas.Xsd.Tests.Unit.Assertions.Facet;
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Resources;
 using NetEvolve.Schemas.XPath.Abstractions;
 using NetEvolve.Schemas.XPath.Api;

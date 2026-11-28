@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Functions.Documents;
 
 using System;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Resources.Default;
 using NetEvolve.Schemas.XPath.Functions.QNames;
 

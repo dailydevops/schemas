@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.Xsd.Derivation.Types;
 
 using System;
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.Xsd.Attributes.Declarations;
 using NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;

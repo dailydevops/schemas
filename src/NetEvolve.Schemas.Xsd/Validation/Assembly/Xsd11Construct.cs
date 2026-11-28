@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xsd.Validation.Assembly;
 
 using System;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xsd.SchemaDocuments;
 
 /// <summary>One XSD 1.1 construct that the assembled validator does not support yet, with the rule it reports under the default version.</summary>

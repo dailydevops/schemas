@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.XPath.Api;
 
 using System;
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 
 /// <summary>A named group of host functions. A static context stacks libraries in layers; the later layer wins.</summary>
 public sealed class XPathFunctionLibrary

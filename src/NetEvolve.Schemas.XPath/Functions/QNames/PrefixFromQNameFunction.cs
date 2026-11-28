@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.XPath.Functions.QNames;
 
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Types;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 

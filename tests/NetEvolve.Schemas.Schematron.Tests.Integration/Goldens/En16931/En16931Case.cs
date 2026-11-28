@@ -1,7 +1,5 @@
 namespace NetEvolve.Schemas.Schematron.Tests.Integration.Goldens.En16931;
 
-using NetEvolve.Arguments;
-
 /// <summary>One document of the CEN EN 16931 corpus with the rules it must fire.</summary>
 /// <remarks>
 /// The unit-test corpus keeps many documents in one test-set file. A rule fires per document when an assertion with its id

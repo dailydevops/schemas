@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Evaluation.Temporal;
 
 using System;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Evaluation.Comparison;

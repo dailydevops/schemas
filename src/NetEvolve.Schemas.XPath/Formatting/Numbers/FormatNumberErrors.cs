@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.XPath.Formatting.Numbers;
 
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Errors;
 
 /// <summary>

@@ -3,7 +3,6 @@ namespace NetEvolve.Schemas.Xsd.Compilation;
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Resources;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xsd.SchemaDocuments;

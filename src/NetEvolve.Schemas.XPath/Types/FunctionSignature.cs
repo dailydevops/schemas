@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.XPath.Types;
 
 using System;
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 
 /// <summary>
 /// The signature of a function item: the types of its parameters and of its result (XPath 3.0, 2.5.5.2). Immutable.

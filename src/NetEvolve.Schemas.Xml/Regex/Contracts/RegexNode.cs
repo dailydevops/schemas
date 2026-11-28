@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xml.Regex.Contracts;
 
 using System.Runtime.InteropServices;
-using NetEvolve.Arguments;
 
 /// <summary>
 /// One node of the array-backed regex syntax tree. Nodes refer to each other by index into the array that holds them: a

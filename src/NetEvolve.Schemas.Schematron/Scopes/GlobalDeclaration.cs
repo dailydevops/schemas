@@ -1,7 +1,5 @@
 namespace NetEvolve.Schemas.Schematron.Scopes;
 
-using NetEvolve.Arguments;
-
 /// <summary>
 /// A top-level <c>xsl:variable</c> or <c>xsl:param</c> reduced to what the planner needs (design #150 EP-4): the name as written, the
 /// text of the value, the canonical <see langword="as"/> type, and whether the declaration is a parameter or a required one. The

@@ -1,6 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Functions.Binding;
 
-using NetEvolve.Arguments;
+using System;
 using NetEvolve.Schemas.XPath.Casting.Core;
 using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Xdm.Values;
@@ -41,7 +41,7 @@ internal static class UntypedAtomicCast
     /// <exception cref="XPathException">The cast fails with the error code of the casting table: FORG0001, FOCA0001, FOCA0003, or XPTY0004 when the target is not a cast target.</exception>
     public static XdmItem Cast(string lexical, XdmTypeId target)
     {
-        Argument.ThrowIfNull(lexical);
+        ArgumentNullException.ThrowIfNull(lexical);
 
         var status = CastingCatalog.Default.Table.TryCast(XdmItem.FromUntypedAtomic(lexical), target, out var result);
         return status == CastStatus.Ok ? result : throw XPathErrors.Exception(status.ToErrorCode());

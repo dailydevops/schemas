@@ -3,7 +3,6 @@ namespace NetEvolve.Schemas.Schematron.Xslt.Functions;
 using System;
 using System.Buffers;
 using System.Threading;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Schematron.Xslt.Construction;
 using NetEvolve.Schemas.Xml.Contracts;

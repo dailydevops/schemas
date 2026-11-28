@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xsd.TypeAlternatives;
 
 using System;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Model;
 using NetEvolve.Schemas.XPath.Api;

@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Casting.Derived;
 
 using System.Runtime.CompilerServices;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xml.Datatypes.Core;
 using NetEvolve.Schemas.Xml.Datatypes.Numeric;

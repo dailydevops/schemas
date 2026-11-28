@@ -6,7 +6,6 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Threading;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Resources.Default;
 
 /// <summary>Serves resources from one root directory and refuses everything outside it.</summary>

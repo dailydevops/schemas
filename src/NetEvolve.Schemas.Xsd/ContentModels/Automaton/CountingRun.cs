@@ -1,7 +1,6 @@
 ﻿namespace NetEvolve.Schemas.Xsd.ContentModels.Automaton;
 
 using System;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.Xsd.Contracts;
 

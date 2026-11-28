@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.XPath.Casting.Core;
 
 using System;
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>What a registration receives: it adds rows to the casting table, and nothing else.</summary>

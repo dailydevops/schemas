@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.Xsd.Compilation;
 
 using System.Collections.Generic;
 using System.Globalization;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.Binary;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xml.Datatypes.Core;

@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.XPath.Evaluation.Comparison;
 
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Syntax.Tree;
 
 /// <summary>The relation of an operator, and the test of a relation against the order of two values.</summary>

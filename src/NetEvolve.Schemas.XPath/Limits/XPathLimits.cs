@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.XPath.Limits;
 
 using System;
 using System.Numerics;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Syntax.Tree;
 

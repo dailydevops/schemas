@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Functions.QNames;
 
 using System.Runtime.CompilerServices;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Functions.Binding;
 
 /// <summary>

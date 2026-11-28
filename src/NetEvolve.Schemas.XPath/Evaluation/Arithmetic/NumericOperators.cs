@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.XPath.Evaluation.Arithmetic;
 
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Syntax.Tree;
 using NetEvolve.Schemas.XPath.Xdm.Values;

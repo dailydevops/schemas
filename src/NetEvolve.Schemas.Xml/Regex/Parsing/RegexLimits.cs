@@ -1,7 +1,5 @@
 namespace NetEvolve.Schemas.Xml.Regex.Parsing;
 
-using NetEvolve.Arguments;
-
 /// <summary>Immutable limits of the pattern parser; exceeding one is <c>RX0009</c>.</summary>
 /// <remarks>Limitation: the defaults are those of the approved design; the program size limit belongs to the matcher.</remarks>
 public sealed class RegexLimits

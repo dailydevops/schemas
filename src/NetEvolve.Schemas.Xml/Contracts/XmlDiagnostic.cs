@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xml.Contracts;
 
 using System;
-using NetEvolve.Arguments;
 
 /// <summary>A fatal error found while reading: the table row and the position.</summary>
 public sealed class XmlDiagnostic

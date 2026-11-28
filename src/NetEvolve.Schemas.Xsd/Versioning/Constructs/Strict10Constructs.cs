@@ -1,7 +1,6 @@
 ﻿namespace NetEvolve.Schemas.Xsd.Versioning.Constructs;
 
 using System;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Diagnostics;

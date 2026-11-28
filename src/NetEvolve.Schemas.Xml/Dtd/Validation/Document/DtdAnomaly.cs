@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xml.Dtd.Validation.Document;
 
 using System.Runtime.InteropServices;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Formats;
 
 /// <summary>One parse-time fact: its kind, where it was found, and the name it concerns.</summary>

@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.XPath.Api;
 
 using System;
 using System.Runtime.InteropServices;
-using NetEvolve.Arguments;
 
 /// <summary>An expanded name: namespace name (the namespace URI) and local name. Equality is ordinal on both parts.</summary>
 [StructLayout(LayoutKind.Auto)]

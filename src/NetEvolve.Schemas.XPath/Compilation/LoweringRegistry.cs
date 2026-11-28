@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.XPath.Compilation;
 
 using System;
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Syntax.Tree;
 
 /// <summary>

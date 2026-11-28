@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.XPath.Evaluation.Comparison;
 
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Types;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 

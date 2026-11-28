@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Schematron.Expansion.AbstractRules;
 
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Model;
 using NetEvolve.Schemas.Schematron.Seams;
 

@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Evaluation.FunctionItems;
 
 using System;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Functions.Binding;
 using NetEvolve.Schemas.XPath.Types;

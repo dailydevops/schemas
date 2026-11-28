@@ -1,7 +1,5 @@
 namespace NetEvolve.Schemas.XPath.Formatting.Numbers;
 
-using NetEvolve.Arguments;
-
 /// <summary>
 /// One analyzed sub-picture: the variables of the analysis phase (XSLT 2.0, 16.4.3; Functions and Operators 3.1, 4.7.4). Immutable after
 /// <see cref="NumberPictureParser"/> has built it.

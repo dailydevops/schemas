@@ -1,7 +1,5 @@
 namespace NetEvolve.Schemas.Schematron.Tests.Integration.Conformance.Xspec;
 
-using NetEvolve.Arguments;
-
 /// <summary>Reads the declarative subset of the XSpec files for Schematron.</summary>
 /// <remarks>
 /// A file is read when its path below the XSpec root names Schematron (the selection of the issue: <c>test</c> and <c>tutorial</c>). A file
@@ -41,7 +39,7 @@ internal static class XspecReader
     /// <returns>The expectations to run and the parts that are left out.</returns>
     public static XspecSelection Read(string suiteRoot)
     {
-        Argument.ThrowIfNullOrWhiteSpace(suiteRoot);
+        ArgumentException.ThrowIfNullOrWhiteSpace(suiteRoot);
         var selected = new List<XspecCase>();
         var excluded = new List<XspecExclusion>();
         var files = new SortedDictionary<string, string>(StringComparer.Ordinal);

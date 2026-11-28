@@ -1,7 +1,5 @@
 namespace NetEvolve.Schemas.XPath.Evaluation.Comparison;
 
-using NetEvolve.Arguments;
-
 /// <summary>
 /// The Unicode codepoint collation (<c>http://www.w3.org/2005/xpath-functions/collation/codepoint</c>): strings are ordered by their
 /// Unicode codepoints, which is not the order of the UTF-16 code units that <see cref="string.CompareOrdinal(string, string)"/> gives

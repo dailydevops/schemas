@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Evaluation.Paths;
 
 using System.Runtime.InteropServices;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Evaluation.Ordering;
 using NetEvolve.Schemas.XPath.Xdm.Nodes;
 using NetEvolve.Schemas.XPath.Xdm.Values;

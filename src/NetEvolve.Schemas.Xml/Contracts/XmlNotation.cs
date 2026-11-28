@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xml.Contracts;
 
 using System;
-using NetEvolve.Arguments;
 
 /// <summary>A notation declaration of the document type: name and identifiers.</summary>
 public sealed class XmlNotation

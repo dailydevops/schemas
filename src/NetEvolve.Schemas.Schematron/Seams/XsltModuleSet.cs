@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Schematron.Seams;
 
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 
 /// <summary>
 /// The declarations of a principal module and of every module it includes or imports, in the order of the walk (an include is spliced

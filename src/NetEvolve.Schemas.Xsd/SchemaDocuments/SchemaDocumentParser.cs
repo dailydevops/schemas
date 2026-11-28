@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.Xsd.SchemaDocuments;
 
 using System;
 using System.IO;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Reader.Pipeline;
 using NetEvolve.Schemas.Xsd.Diagnostics;

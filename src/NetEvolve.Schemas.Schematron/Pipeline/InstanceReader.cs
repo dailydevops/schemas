@@ -1,7 +1,6 @@
 ﻿namespace NetEvolve.Schemas.Schematron.Pipeline;
 
 using System;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Model;

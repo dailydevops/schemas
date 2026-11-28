@@ -1,8 +1,8 @@
 namespace NetEvolve.Schemas.XPath.Functions.Binding;
 
+using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Syntax.Tree;
@@ -74,8 +74,8 @@ internal readonly struct XPathParameterType
     /// <exception cref="XPathException">A prefix is not bound (XPST0081), a type name is not a built-in type (XPST0051), or a schema declaration is named (XPST0008).</exception>
     public static XPathParameterType FromSequenceType(SequenceType syntax, XPathStaticContext context)
     {
-        Argument.ThrowIfNull(syntax);
-        Argument.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(syntax);
+        ArgumentNullException.ThrowIfNull(context);
 
         var occurrence = syntax.Occurrence;
         switch (syntax.ItemType)

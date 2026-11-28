@@ -2,7 +2,6 @@
 
 using System;
 using System.Text;
-using NetEvolve.Arguments;
 
 /// <summary>
 /// The namespace constraint of a wildcard: any, a negation, or a set (Structures 3.10.1), with the set operations of

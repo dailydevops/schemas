@@ -1,7 +1,5 @@
 namespace NetEvolve.Schemas.Xml.Contracts;
 
-using NetEvolve.Arguments;
-
 /// <summary>Immutable reader limits, one per resource that hostile input can inflate, each with one default and one error code. A limit of zero never disables it.</summary>
 /// <remarks>Every value must be at least one; <c>With*</c> methods reject zero and negative values.</remarks>
 public sealed class XmlReaderLimits

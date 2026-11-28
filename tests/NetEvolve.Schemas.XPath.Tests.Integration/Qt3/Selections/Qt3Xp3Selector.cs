@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Tests.Integration.Qt3.Selections;
 
 using System.Text.RegularExpressions;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Tests.Integration.Qt3.Runner;
 
 /// <summary>

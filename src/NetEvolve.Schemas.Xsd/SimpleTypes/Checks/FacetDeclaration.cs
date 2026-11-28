@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xsd.SimpleTypes.Checks;
 
 using System.Runtime.InteropServices;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 
 /// <summary>One constraining facet of a restriction step as the schema document states it: the facet, its lexical value, and the fixed flag.</summary>

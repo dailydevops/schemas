@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xml.Writer;
 
 using System;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Contracts;
 
 /// <summary>The exception an <see cref="XmlWriter"/> throws for an event that would produce ill-formed output; nothing is written for that event.</summary>

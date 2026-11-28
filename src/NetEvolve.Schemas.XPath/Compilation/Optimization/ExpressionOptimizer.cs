@@ -1,7 +1,5 @@
 namespace NetEvolve.Schemas.XPath.Compilation.Optimization;
 
-using NetEvolve.Arguments;
-
 /// <summary>
 /// The optimization stage (XPath 2.0, 2.3.4): rewrites a lowered node into an equivalent one. The lowering calls it for each node after the
 /// operands were lowered, so a rewrite sees operands that are rewritten already. Every rewrite keeps the result and the dynamic errors that

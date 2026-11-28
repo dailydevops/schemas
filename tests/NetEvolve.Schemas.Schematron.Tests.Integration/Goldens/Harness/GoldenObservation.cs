@@ -1,7 +1,5 @@
 namespace NetEvolve.Schemas.Schematron.Tests.Integration.Goldens.Harness;
 
-using NetEvolve.Arguments;
-
 /// <summary>What a validator observed for one document.</summary>
 internal sealed record GoldenObservation
 {

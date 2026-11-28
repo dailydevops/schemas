@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.Xml.Interop;
 
 using System;
 using System.Xml;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Contracts;
 
 /// <summary>Copies the nodes an <see cref="XmlReader"/> delivers into the document model.</summary>

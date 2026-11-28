@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Formatting.Numbers;
 
 using System;
-using NetEvolve.Arguments;
 
 /// <summary>
 /// The decimal digits of the absolute value of a number: <c>0.DIGITS x 10^Point</c> with no leading and no trailing zero, so zero is the

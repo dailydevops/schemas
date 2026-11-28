@@ -3,7 +3,6 @@
 namespace NetEvolve.Schemas.Xsd;
 
 using System;
-using NetEvolve.Arguments;
 
 /// <summary>The expanded name of a type annotation.</summary>
 /// <remarks>

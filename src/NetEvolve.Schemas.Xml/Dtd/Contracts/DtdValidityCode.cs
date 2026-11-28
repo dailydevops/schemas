@@ -1,7 +1,5 @@
 namespace NetEvolve.Schemas.Xml.Dtd.Contracts;
 
-using NetEvolve.Arguments;
-
 /// <summary>One row of the DTD code table: the alias, the <c>NES</c> code, the official name, the section, the owning step, and the message.</summary>
 /// <remarks>
 /// Validity constraints use <c>XML5001</c> to <c>XML5026</c> in specification order (<c>NES1501</c> to <c>NES1526</c>);

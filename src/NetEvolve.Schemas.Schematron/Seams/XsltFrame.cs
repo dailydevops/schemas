@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Schematron.Seams;
 
 using System.Threading;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Contracts;
 
 /// <summary>

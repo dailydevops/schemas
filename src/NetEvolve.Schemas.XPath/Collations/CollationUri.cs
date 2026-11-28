@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Collations;
 
 using System;
-using NetEvolve.Arguments;
 
 /// <summary>
 /// Tells an absolute collation URI from a relative one and resolves a relative one against the static base URI. Absoluteness is the

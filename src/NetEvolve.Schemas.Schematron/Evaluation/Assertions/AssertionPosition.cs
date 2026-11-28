@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Schematron.Evaluation.Assertions;
 
 using System.Runtime.InteropServices;
-using NetEvolve.Arguments;
 
 /// <summary>The ordinals of an assertion in the effective model, which <see cref="AssertionIdentifier"/> turns into its identifier.</summary>
 [StructLayout(LayoutKind.Auto)]

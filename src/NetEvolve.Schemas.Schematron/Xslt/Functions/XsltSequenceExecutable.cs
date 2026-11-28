@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Schematron.Xslt.Functions;
 
 using System;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Seams;
 
 /// <summary><c>xsl:sequence</c>: evaluates its <see langword="select"/> expression and pushes the items into the sink without copying nodes (XSLT 2.0 section 11.9).</summary>

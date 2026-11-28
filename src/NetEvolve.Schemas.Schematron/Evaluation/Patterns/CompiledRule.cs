@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.Schematron.Evaluation.Patterns;
 
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Evaluation.Annotations;
 using NetEvolve.Schemas.Schematron.Evaluation.Assertions;
 using NetEvolve.Schemas.Schematron.Scopes;

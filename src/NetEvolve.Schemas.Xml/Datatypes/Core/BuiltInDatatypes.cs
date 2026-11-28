@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.Xml.Datatypes.Core;
 
 using System;
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 
 /// <summary>The built-in datatypes of XSD 1.0 and XSD 1.1, assembled from the registrations listed in <c>BuiltInDatatypes.Sources.cs</c>.</summary>

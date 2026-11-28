@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Schematron.Xslt.Functions;
 
 using System.Runtime.CompilerServices;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Xslt.Registry;
 
 /// <summary>

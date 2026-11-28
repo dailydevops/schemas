@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xsd.Derivation.Particles10;
 
 using System;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xsd.Elements;
 
 /// <summary>The arithmetic on occurrence ranges that Particle Valid (Restriction) needs (Structures 1.0, 3.8.6 and 3.9.6).</summary>

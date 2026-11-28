@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.Xsd.OpenContent;
 
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Diagnostics;

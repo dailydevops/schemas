@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xml.Dtd.External.Loader;
 
 using System.Runtime.InteropServices;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Contracts;
 
 /// <summary>Why a request of the <see cref="ExternalEntityLoader"/> did not produce a frame: the error row and a message.</summary>

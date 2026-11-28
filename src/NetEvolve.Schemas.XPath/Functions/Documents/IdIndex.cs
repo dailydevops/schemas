@@ -3,7 +3,6 @@ namespace NetEvolve.Schemas.XPath.Functions.Documents;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Dtd.Model;
 

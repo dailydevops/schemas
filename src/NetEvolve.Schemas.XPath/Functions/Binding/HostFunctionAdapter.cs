@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.XPath.Functions.Binding;
 
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Api;
 
 /// <summary>

@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.Schematron.Xslt.Library.Core;
 
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Schematron.Xslt.Documents;
 using NetEvolve.Schemas.Schematron.Xslt.Functions;

@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Collations;
 
 using System;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Evaluation.Comparison;
 
 /// <summary>

@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.Schematron.Tests.Integration.Conformance.Xspec;
 
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Model;
 using NetEvolve.Schemas.Xml.Model.Loading;
 using NetEvolve.Schemas.XPath.Api;
@@ -36,8 +35,8 @@ internal sealed class XspecNodeLocator
         out string? problem
     )
     {
-        Argument.ThrowIfNull(left);
-        Argument.ThrowIfNull(right);
+        ArgumentNullException.ThrowIfNull(left);
+        ArgumentNullException.ThrowIfNull(right);
         var first = Select(left, leftNamespaces, out problem);
         if (problem is not null)
         {

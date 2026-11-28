@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Schematron.Xslt.Library.Core;
 
 using System;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.QNames;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Context;

@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.Schematron.Xslt.Globals;
 
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Scopes;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.XPath.Api;

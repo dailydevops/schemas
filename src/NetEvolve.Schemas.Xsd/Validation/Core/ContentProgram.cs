@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xsd.Validation.Core;
 
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xsd.ContentModels.AllGroups;
 using NetEvolve.Schemas.Xsd.ContentModels.AllGroups11;
 using NetEvolve.Schemas.Xsd.ContentModels.Automaton;

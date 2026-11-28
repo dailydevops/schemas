@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Collations;
 
 using System;
-using NetEvolve.Arguments;
 
 /// <summary>
 /// A collation (Functions and Operators 1.0, 7.3): the rules to compare strings and to find a string in another one. A host adds its own

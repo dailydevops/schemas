@@ -3,7 +3,6 @@ namespace NetEvolve.Schemas.XPath.Tests.Unit.Functions.Strings;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 using static NetEvolve.Schemas.XPath.Tests.Unit.Functions.Strings.StringsHarness;
 

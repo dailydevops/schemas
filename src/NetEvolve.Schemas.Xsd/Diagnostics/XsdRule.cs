@@ -2,8 +2,6 @@
 
 namespace NetEvolve.Schemas.Xsd;
 
-using NetEvolve.Arguments;
-
 /// <summary>One rule of the catalog: a stable diagnostic code for one constraint of the specification.</summary>
 /// <remarks>
 /// The <see cref="Id"/> of a specification rule is the short id of the constraint (for example <c>cvc-elt</c>); engine

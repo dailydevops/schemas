@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xml.Datatypes.Core;
 
 using System;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Buffers;
 
 /// <summary>The whitespace processing of the <c>whiteSpace</c> facet on spans. Normalized input is passed through without a copy.</summary>

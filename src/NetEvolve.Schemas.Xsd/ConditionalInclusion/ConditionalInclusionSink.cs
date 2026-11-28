@@ -3,7 +3,6 @@ namespace NetEvolve.Schemas.Xsd.ConditionalInclusion;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xml.Datatypes.QNames;

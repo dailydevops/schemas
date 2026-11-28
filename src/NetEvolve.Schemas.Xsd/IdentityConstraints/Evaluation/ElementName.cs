@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xsd.IdentityConstraints.Evaluation;
 
 using System.Runtime.InteropServices;
-using NetEvolve.Arguments;
 
 /// <summary>The expanded name of an open element, kept on the stack the path matcher reads.</summary>
 [StructLayout(LayoutKind.Auto)]

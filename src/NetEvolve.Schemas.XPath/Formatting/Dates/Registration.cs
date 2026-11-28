@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Formatting.Dates;
 
 using System.Runtime.CompilerServices;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.DateTime;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Functions.Binding;

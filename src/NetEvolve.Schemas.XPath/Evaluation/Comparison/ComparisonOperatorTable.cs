@@ -3,7 +3,6 @@ namespace NetEvolve.Schemas.XPath.Evaluation.Comparison;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Types;
 using NetEvolve.Schemas.XPath.Xdm.Values;

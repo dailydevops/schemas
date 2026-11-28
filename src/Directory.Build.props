@@ -6,7 +6,7 @@
   <ItemGroup>
     <AdditionalFiles Include="$(MSBuildThisFileDirectory)BannedSymbols.txt" />
   </ItemGroup>
-  <!-- Maintainer rule: argument validation uses NetEvolve.Arguments; it ships as a runtime dependency of every package. -->
+  <!-- Maintainer rule: argument validation uses the BCL guards (ArgumentNullException.ThrowIfNull, ...); NetEvolve.Arguments ships as a runtime dependency of every package and polyfills them on netstandard2.0. -->
   <ItemGroup>
     <PackageReference Include="NetEvolve.Arguments" />
   </ItemGroup>

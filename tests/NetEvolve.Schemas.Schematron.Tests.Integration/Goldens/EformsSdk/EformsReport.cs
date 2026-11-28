@@ -3,7 +3,6 @@ namespace NetEvolve.Schemas.Schematron.Tests.Integration.Goldens.EformsSdk;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
-using NetEvolve.Arguments;
 
 /// <summary>The findings of one SVRL document, read in document order.</summary>
 /// <remarks>

@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xsd.Derivation.Particles10;
 
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xsd.Elements;
 
 /// <summary>

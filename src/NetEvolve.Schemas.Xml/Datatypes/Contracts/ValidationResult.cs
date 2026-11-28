@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xml.Datatypes.Contracts;
 
 using System.Runtime.InteropServices;
-using NetEvolve.Arguments;
 
 /// <summary>The outcome of validating a lexical form: valid, or the coded error, the failed facet, and the offset. Validation yields no value.</summary>
 /// <remarks>Facets are checked in a fixed order: whitespace, lexical pattern, then the value-space facets. <see langword="default"/> is not valid; use <see cref="Valid"/>.</remarks>

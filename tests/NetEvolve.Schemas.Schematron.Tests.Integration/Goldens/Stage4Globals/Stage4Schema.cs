@@ -1,7 +1,5 @@
 namespace NetEvolve.Schemas.Schematron.Tests.Integration.Goldens.Stage4Globals;
 
-using NetEvolve.Arguments;
-
 /// <summary>One own test schema with its documents.</summary>
 internal sealed record Stage4Schema
 {

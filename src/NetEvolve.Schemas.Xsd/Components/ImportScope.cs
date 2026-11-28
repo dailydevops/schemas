@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.Xsd.Components;
 
 using System;
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.Xsd.SchemaDocuments;
 

@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Schematron.Xslt.Instructions.Grouping;
 
 using System.Runtime.CompilerServices;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Xslt.Registry;
 
 /// <summary>

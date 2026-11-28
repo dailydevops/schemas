@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Schematron.Scopes;
 
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Seams;
 
 /// <summary>

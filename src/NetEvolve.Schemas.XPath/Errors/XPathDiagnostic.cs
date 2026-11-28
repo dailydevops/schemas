@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.XPath.Errors;
 
 using System;
 using System.Runtime.InteropServices;
-using NetEvolve.Arguments;
 
 /// <summary>An XPath error as a code with its kind, message, and expression location. Immutable.</summary>
 [StructLayout(LayoutKind.Auto)]

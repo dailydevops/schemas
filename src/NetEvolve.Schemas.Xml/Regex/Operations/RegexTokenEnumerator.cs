@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xml.Regex.Operations;
 
 using System.Runtime.InteropServices;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 
 /// <summary>Enumerates the tokens of an input: the parts between the matches of a separator pattern, as ranges of the input.</summary>

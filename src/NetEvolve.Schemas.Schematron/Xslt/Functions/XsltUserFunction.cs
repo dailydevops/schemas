@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Schematron.Xslt.Functions;
 
 using System.Threading;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Errors;

@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas;
 
 using System;
 using System.Globalization;
-using NetEvolve.Arguments;
 
 /// <summary>A stable diagnostic code, <c>NES</c> plus four digits. <see langword="default"/> means unassigned (<c>NES0000</c>).</summary>
 public readonly struct DiagnosticCode : IEquatable<DiagnosticCode>

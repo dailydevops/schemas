@@ -1,7 +1,7 @@
 namespace NetEvolve.Schemas.Xsd.Validation.Assembly;
 
+using System;
 using System.Threading;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Resources;
 using NetEvolve.Schemas.Xml.Contracts;
@@ -36,7 +36,7 @@ internal sealed class XsdValidator : SchemaValidatorBase, IXsdValidator
     public XsdAnnotatedResult ValidateTree(XmlTree document, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        Argument.ThrowIfNull(document);
+        ArgumentNullException.ThrowIfNull(document);
 
         return _tree.Validate(document.Document, cancellationToken);
     }
@@ -49,10 +49,10 @@ internal sealed class XsdValidator : SchemaValidatorBase, IXsdValidator
     )
     {
         cancellationToken.ThrowIfCancellationRequested();
-        Argument.ThrowIfNull(document);
-        Argument.ThrowIfNull(element.Tree, nameof(element));
-        Argument.ThrowIfNotEqual(element.Tree.TreeId, document.TreeId, nameof(element));
-        Argument.ThrowIfNotEqual((int)element.Kind, (int)XmlNodeKind.Element, nameof(element));
+        ArgumentNullException.ThrowIfNull(document);
+        ArgumentNullException.ThrowIfNull(element.Tree, nameof(element));
+        ArgumentOutOfRangeException.ThrowIfNotEqual(element.Tree.TreeId, document.TreeId, nameof(element));
+        ArgumentOutOfRangeException.ThrowIfNotEqual((int)element.Kind, (int)XmlNodeKind.Element, nameof(element));
 
         return _tree.Validate(element, cancellationToken);
     }

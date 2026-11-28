@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Schematron.Seams;
 
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Resources;
 
 /// <summary>The builder configuration a pipeline compiles against: phase, parameters, limits, and resolver.</summary>

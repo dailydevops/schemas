@@ -3,7 +3,6 @@ namespace NetEvolve.Schemas.Schematron.Tests.Integration.Goldens.Stage3Documents
 using System.Buffers;
 using System.Text;
 using System.Xml.Linq;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Conformance.Results;
 using NetEvolve.Schemas.Resources;
 using NetEvolve.Schemas.Schematron.Svrl;

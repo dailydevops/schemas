@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.Xml.Dtd.Attributes;
 
 using System;
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Dtd.Entities;
 using NetEvolve.Schemas.Xml.Dtd.Model;

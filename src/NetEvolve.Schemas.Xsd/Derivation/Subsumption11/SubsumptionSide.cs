@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xsd.Derivation.Subsumption11;
 
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas;
 using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.XPath.Api;

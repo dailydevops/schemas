@@ -3,7 +3,6 @@ namespace NetEvolve.Schemas.Xsd.Assertions.ComplexTypes;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.Xsd.Compilation;

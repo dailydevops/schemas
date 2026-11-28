@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.XPath.Types;
 
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Compilation;
 using NetEvolve.Schemas.XPath.Syntax.Tree;
 using NetEvolve.Schemas.XPath.Xdm.Nodes;

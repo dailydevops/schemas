@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Schematron.Evaluation.Patterns;
 
 using System;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Schematron.Seams;
 

@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.XPath.Functions.QNames;
 
 using System;
 using System.Buffers;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.XPath.Xdm.Nodes;
 using NetEvolve.Schemas.XPath.Xdm.Values;

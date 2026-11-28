@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xsd.Validation.Assembly;
 
 using System;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xsd.Compilation;
 using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.SchemaDocuments;

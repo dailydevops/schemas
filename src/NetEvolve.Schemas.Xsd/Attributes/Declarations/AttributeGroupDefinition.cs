@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xsd.Attributes.Declarations;
 
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Diagnostics;

@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.Schematron.Xslt.Functions;
 
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Seams;
 
 /// <summary>The compiled form of an <c>xsl:param</c> in a function head: it carries the parameter and does nothing when executed, because the call binds the argument.</summary>

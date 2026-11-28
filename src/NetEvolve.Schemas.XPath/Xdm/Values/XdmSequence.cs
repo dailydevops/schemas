@@ -3,7 +3,6 @@ namespace NetEvolve.Schemas.XPath.Xdm.Values;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using NetEvolve.Arguments;
 
 /// <summary>A flat sequence of items: never nested, and a singleton equals its item.</summary>
 /// <remarks>

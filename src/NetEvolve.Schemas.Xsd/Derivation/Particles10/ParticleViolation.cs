@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xsd.Derivation.Particles10;
 
 using System.Runtime.InteropServices;
-using NetEvolve.Arguments;
 
 /// <summary>
 /// A violated constraint of a particle restriction: the rule, the numbered clause, a message, and the location of the

@@ -5,7 +5,6 @@ using System.Buffers;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using NetEvolve.Arguments;
 
 /// <summary>Collects bytes in memory and hands them to a stream with one <see cref="Stream.WriteAsync(byte[], int, int, CancellationToken)"/> per flush; it never writes synchronously.</summary>
 internal sealed class StreamBuffer : IBufferWriter<byte>

@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.Xml.Datatypes.QNames;
 
 using System;
 using System.Runtime.InteropServices;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xml.Text.CharClasses;
 

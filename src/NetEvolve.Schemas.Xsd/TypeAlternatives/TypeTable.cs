@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xsd.TypeAlternatives;
 
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Diagnostics;
 using NetEvolve.Schemas.Xsd.SchemaDocuments;

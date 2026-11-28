@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Tests.Unit.Functions.Numerics;
 
 using System;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Tests.Unit.Functions.Sequences;
 using NetEvolve.Schemas.XPath.Types;
 using NetEvolve.Schemas.XPath.Xdm.Values;

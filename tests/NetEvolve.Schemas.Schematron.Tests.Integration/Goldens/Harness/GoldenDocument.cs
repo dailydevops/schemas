@@ -1,7 +1,5 @@
 namespace NetEvolve.Schemas.Schematron.Tests.Integration.Goldens.Harness;
 
-using NetEvolve.Arguments;
-
 /// <summary>A golden document that was fetched through its pinned suite.</summary>
 internal sealed record GoldenDocument
 {

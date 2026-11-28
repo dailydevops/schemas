@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.XPath.Casting.Core;
 
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Syntax.Tree;

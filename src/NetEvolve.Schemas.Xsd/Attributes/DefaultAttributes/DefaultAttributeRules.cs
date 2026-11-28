@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.Xsd.Attributes.DefaultAttributes;
 
 using System;
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xsd.Attributes.Declarations;
 using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Contracts;

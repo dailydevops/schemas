@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Functions.Delta3;
 
 using System.Runtime.CompilerServices;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Functions.Binding;
 
 /// <summary>

@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.XPath.Functions.QNames;
 
 using System;
 using System.Buffers;
-using NetEvolve.Arguments;
 
 /// <summary>
 /// The percent-encoding of <c>fn:encode-for-uri</c> and <c>fn:iri-to-uri</c> (Functions and Operators 1.0, 8.4 and 8.5): the UTF-8

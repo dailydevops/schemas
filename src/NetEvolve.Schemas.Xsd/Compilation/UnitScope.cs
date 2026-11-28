@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.Xsd.Compilation;
 
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Composition;

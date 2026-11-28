@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.XPath.Evaluation.Paths;
 
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.Decimals;
 using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Evaluation.Atomization;

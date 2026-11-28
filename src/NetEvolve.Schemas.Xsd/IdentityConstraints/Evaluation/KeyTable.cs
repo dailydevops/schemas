@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xsd.IdentityConstraints.Evaluation;
 
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 
 /// <summary>The key-sequences of one constraint in one scope, found by their hash in the value space.</summary>
 internal sealed class KeyTable

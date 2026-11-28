@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Diagnostics;
 using NetEvolve.Schemas.Schematron.Model;
 using NetEvolve.Schemas.Schematron.Seams;

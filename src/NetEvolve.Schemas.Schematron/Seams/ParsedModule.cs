@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.Schematron.Seams;
 
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Model;
 
 /// <summary>The output of stage Parse: the principal schema with its <c>include</c> and <c>extends</c> still in place. Its base URI is <c>Schema.Location.Source</c>.</summary>

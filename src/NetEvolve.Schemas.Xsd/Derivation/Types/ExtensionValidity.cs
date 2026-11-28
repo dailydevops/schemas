@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.Xsd.Derivation.Types;
 
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xsd.ComplexTypes.Definitions;
 using NetEvolve.Schemas.Xsd.Contracts;
 

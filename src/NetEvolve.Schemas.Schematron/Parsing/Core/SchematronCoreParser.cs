@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.Schematron.Parsing.Core;
 
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Model;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Xml.Contracts;

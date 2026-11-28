@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Evaluation.Atomization;
 
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Xdm.Arrays;
 using NetEvolve.Schemas.XPath.Xdm.Nodes;

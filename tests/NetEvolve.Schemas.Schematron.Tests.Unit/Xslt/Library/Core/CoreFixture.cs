@@ -3,7 +3,6 @@ namespace NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Library.Core;
 using System;
 using System.Globalization;
 using System.Numerics;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Bindings.Registry;
 using NetEvolve.Schemas.Schematron.Tests.Unit.Parsing.Core;
 using NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Functions;

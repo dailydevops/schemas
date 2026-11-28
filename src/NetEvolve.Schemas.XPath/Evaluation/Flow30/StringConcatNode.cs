@@ -2,7 +2,6 @@
 
 using System;
 using System.Buffers;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Casting.Core;
 using NetEvolve.Schemas.XPath.Compilation;
 using NetEvolve.Schemas.XPath.Context;

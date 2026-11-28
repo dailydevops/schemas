@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xsd.ContentModels.AllGroups;
 
 using System;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xsd.Contracts;
 
 /// <summary>

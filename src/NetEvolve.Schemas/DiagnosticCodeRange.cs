@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas;
 
 using System;
 using System.Runtime.InteropServices;
-using NetEvolve.Arguments;
 
 /// <summary>An inclusive range of diagnostic code numbers owned by one package.</summary>
 [StructLayout(LayoutKind.Auto)]

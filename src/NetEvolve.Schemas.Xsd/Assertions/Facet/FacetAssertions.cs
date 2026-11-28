@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.Xsd.Assertions.Facet;
 
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xsd.SimpleTypes.Definitions;
 
 /// <summary>

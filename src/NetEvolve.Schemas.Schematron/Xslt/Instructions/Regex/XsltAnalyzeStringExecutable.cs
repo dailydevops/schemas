@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.Schematron.Xslt.Instructions.Regex;
 
 using System;
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Schematron.Xslt.Functions;
 using NetEvolve.Schemas.Schematron.Xslt.Instructions.Construction;

@@ -3,7 +3,6 @@ namespace NetEvolve.Schemas.Xml.Regex.Parsing;
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.Core;
 using NetEvolve.Schemas.Xml.Regex.Contracts;
 using NetEvolve.Schemas.Xml.Regex.Matching;

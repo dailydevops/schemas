@@ -3,7 +3,6 @@ namespace NetEvolve.Schemas.Xsd.Validation.Assembly;
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Resources;
 using NetEvolve.Schemas.Xml.Contracts;
@@ -117,10 +116,10 @@ internal sealed class ValidationCore : IValidationCore
     )
     {
         cancellationToken.ThrowIfCancellationRequested();
-        Argument.ThrowIfNull(node.Tree, nameof(node));
-        Argument.ThrowIfGreaterThan((int)node.Kind, (int)XmlNodeKind.Element, nameof(node));
-        Argument.ThrowIfNull(annotations);
-        Argument.ThrowIfNull(issues);
+        ArgumentNullException.ThrowIfNull(node.Tree, nameof(node));
+        ArgumentOutOfRangeException.ThrowIfGreaterThan((int)node.Kind, (int)XmlNodeKind.Element, nameof(node));
+        ArgumentNullException.ThrowIfNull(annotations);
+        ArgumentNullException.ThrowIfNull(issues);
 
         var collector = new ValidationIssueCollector(_limits);
         var defaults = new TreeDefaults(annotations);

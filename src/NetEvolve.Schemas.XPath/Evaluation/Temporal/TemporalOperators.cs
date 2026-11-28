@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.XPath.Evaluation.Temporal;
 
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Evaluation.Arithmetic;
 using NetEvolve.Schemas.XPath.Evaluation.Comparison;
 using NetEvolve.Schemas.XPath.Syntax.Tree;

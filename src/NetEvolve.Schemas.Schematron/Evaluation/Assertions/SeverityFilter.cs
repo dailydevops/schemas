@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.Schematron.Evaluation.Assertions;
 
 using System;
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 
 /// <summary>
 /// The allow-list of <c>severity</c> values of a validator (#384). A finding whose severity is not listed is dropped; a finding without

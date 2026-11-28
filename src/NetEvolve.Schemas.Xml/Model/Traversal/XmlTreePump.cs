@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xml.Model.Traversal;
 
 using System;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Contracts;
 
 /// <summary>Pumps a document or an element subtree of the model into a sink.</summary>

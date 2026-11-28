@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.Xsd.Validation.Tree;
 
 using System;
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Dtd.Contracts;
 using NetEvolve.Schemas.Xml.Model;
@@ -24,7 +23,7 @@ internal sealed class TreeDefaults : IAnnotationSink
     /// <param name="next">The sink that stores the annotations.</param>
     internal TreeDefaults(IAnnotationSink next)
     {
-        Argument.ThrowIfNull(next);
+        ArgumentNullException.ThrowIfNull(next);
 
         _next = next;
     }
@@ -55,7 +54,7 @@ internal sealed class TreeDefaults : IAnnotationSink
     /// <param name="copy">The builder of the copy, with the start tag of the element open.</param>
     internal void CopyAttributes(XmlTreeBuilder copy)
     {
-        Argument.ThrowIfNull(copy);
+        ArgumentNullException.ThrowIfNull(copy);
 
         for (var i = 0; i < _attributes.Count; i++)
         {

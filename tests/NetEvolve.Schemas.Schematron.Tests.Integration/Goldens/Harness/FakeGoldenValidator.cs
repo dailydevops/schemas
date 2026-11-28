@@ -1,7 +1,5 @@
 namespace NetEvolve.Schemas.Schematron.Tests.Integration.Goldens.Harness;
 
-using NetEvolve.Arguments;
-
 internal sealed class FakeGoldenValidator : IGoldenValidator
 {
     private readonly Func<GoldenDocument, GoldenObservation> _verdict;

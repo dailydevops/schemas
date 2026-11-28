@@ -1,7 +1,5 @@
 namespace NetEvolve.Schemas.Xml.Regex.Contracts;
 
-using NetEvolve.Arguments;
-
 /// <summary>
 /// Immutable step ceilings of a match, the denial-of-service bound of the matcher. One step is one instruction executed by one
 /// thread at one input position, so the same input aborts identically on every target.

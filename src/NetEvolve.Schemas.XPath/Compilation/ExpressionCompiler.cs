@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.XPath.Compilation;
 
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Compilation.Optimization;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Errors;

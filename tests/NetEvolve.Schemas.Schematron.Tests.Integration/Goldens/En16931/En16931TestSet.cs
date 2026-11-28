@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.Schematron.Tests.Integration.Goldens.En16931;
 
 using System.Text;
 using System.Xml.Linq;
-using NetEvolve.Arguments;
 
 /// <summary>Reads a test-set file of the CEN EN 16931 unit-test corpus into one case per embedded document.</summary>
 /// <remarks>

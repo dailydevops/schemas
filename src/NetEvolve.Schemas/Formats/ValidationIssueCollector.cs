@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Formats;
 
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 
 /// <summary>The single implementation of the issue drop policy, so no format handles <c>MaxIssues</c> itself.</summary>
 public sealed class ValidationIssueCollector

@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.Schematron.Tests.Integration.Conformance.Xspec;
 
 using System.Globalization;
 using System.Xml.Linq;
-using NetEvolve.Arguments;
 
 /// <summary>Checks an expectation against the SVRL output of a validation.</summary>
 /// <remarks>
@@ -32,9 +31,9 @@ internal static class XspecJudge
     /// <returns>The reason the expectation does not hold, or <see langword="null"/> when it holds.</returns>
     public static string? Check(XspecExpectation expectation, XDocument svrl, XspecNodeLocator locator)
     {
-        Argument.ThrowIfNull(expectation);
-        Argument.ThrowIfNull(svrl);
-        Argument.ThrowIfNull(locator);
+        ArgumentNullException.ThrowIfNull(expectation);
+        ArgumentNullException.ThrowIfNull(svrl);
+        ArgumentNullException.ThrowIfNull(locator);
         var output = svrl.Root!;
         var hasFired = output.Elements(Svrl + "fired-rule").Any();
         if (expectation.Kind == XspecExpectKind.Valid)

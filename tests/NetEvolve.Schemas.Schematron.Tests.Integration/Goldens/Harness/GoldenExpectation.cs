@@ -1,7 +1,5 @@
 namespace NetEvolve.Schemas.Schematron.Tests.Integration.Goldens.Harness;
 
-using NetEvolve.Arguments;
-
 /// <summary>The expected result of validating one document with one rule set.</summary>
 internal sealed record GoldenExpectation
 {

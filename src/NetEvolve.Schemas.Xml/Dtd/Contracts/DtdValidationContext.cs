@@ -1,6 +1,5 @@
 namespace NetEvolve.Schemas.Xml.Dtd.Contracts;
 
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Dtd.Model;

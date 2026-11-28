@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Xml.Datatypes.Facets.Core;
 
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 
 /// <summary>The <c>enumeration</c> facet (XSD 1.1 Part 2, section 4.3.5): a value satisfies it when it equals one of the listed values in the value space.</summary>

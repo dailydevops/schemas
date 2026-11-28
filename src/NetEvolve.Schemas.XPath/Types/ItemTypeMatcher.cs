@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.XPath.Types;
 
 using System;
 using System.Runtime.InteropServices;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Context;

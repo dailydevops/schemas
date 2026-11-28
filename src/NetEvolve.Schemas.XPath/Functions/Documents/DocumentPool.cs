@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Resources;
 using NetEvolve.Schemas.Resources.Default;
 using NetEvolve.Schemas.Xml.Contracts;

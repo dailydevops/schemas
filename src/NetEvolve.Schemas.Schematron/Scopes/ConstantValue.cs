@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.Schematron.Scopes;
 
 using System;
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Model;
 using NetEvolve.Schemas.XPath.Syntax.Parser;
 using NetEvolve.Schemas.XPath.Syntax.Tree;

@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.Schematron.Tests.Unit.Loading.XInclude.Suite;
 
 using System.Xml;
 using System.Xml.Linq;
-using NetEvolve.Arguments;
 
 /// <summary>Reads <c>testdescr.xml</c>, the catalog of the W3C XInclude test suite.</summary>
 internal static class XIncludeCatalogReader

@@ -2,7 +2,6 @@ namespace NetEvolve.Schemas.XPath.Formatting.Numbers;
 
 using System;
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 
 /// <summary>
 /// The analysis phase of <c>format-number</c>: it checks a picture string against the rules of one rule set and derives the variables of

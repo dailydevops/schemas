@@ -1,7 +1,6 @@
 namespace NetEvolve.Schemas.Schematron.Xslt.Functions;
 
 using System.Collections.Generic;
-using NetEvolve.Arguments;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.XPath.Xdm.Nodes;

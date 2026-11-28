@@ -4,7 +4,6 @@ namespace NetEvolve.Schemas.Resources;
 
 using System;
 using System.IO;
-using NetEvolve.Arguments;
 
 /// <summary>The outcome of resolving a resource. <see langword="default"/> denies.</summary>
 public readonly struct ResourceResult : IDisposable
