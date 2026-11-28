@@ -32,7 +32,17 @@ public class CaseTests
         ("017F", "0053", "017F"), // long s
         ("01C4 01C5 01C6", "01C4 01C4 01C4", "01C6 01C6 01C6"), // dz with caron: capital, title-case, small
         ("01CB", "01CA", "01CC"),
-        ("0391 03A3", "0391 03A3", "03B1 03C3"), // no Final_Sigma: a capital sigma always maps to the medial small sigma
+        ("0391 03A3", "0391 03A3", "03B1 03C2"), // Final_Sigma: a capital sigma at the end of a word is the final small sigma
+        ("03A3", "03A3", "03C3"), // alone: not preceded by a cased letter
+        ("0391 03A3 0391", "0391 03A3 0391", "03B1 03C3 03B1"), // followed by a cased letter: medial
+        ("0391 03A3 0027 0391", "0391 03A3 0027 0391", "03B1 03C3 0027 03B1"), // an apostrophe is skipped: a cased letter follows
+        ("0391 0027 03A3", "0391 0027 03A3", "03B1 0027 03C2"), // an apostrophe is skipped backward: a cased letter precedes
+        ("0391 03A3 0021", "0391 03A3 0021", "03B1 03C2 0021"), // followed by punctuation that is not case ignorable
+        ("0031 03A3", "0031 03A3", "0031 03C3"), // a digit is not cased
+        ("0391 03A3 03A3", "0391 03A3 03A3", "03B1 03C3 03C2"), // the first of two capital sigmas is followed by a cased letter
+        ("10400 03A3", "10400 03A3", "10428 03C2"), // a cased letter outside the Basic Multilingual Plane
+        ("0391 03A3 10400", "0391 03A3 10400", "03B1 03C3 10428"),
+        ("0391 0301 03A3", "0391 0301 03A3", "03B1 0301 03C2"), // a combining mark is case ignorable
         ("03C2", "03A3", "03C2"), // final small sigma
         ("1E9E", "1E9E", "00DF"), // capital sharp s
         ("0587", "0535 0552", "0587"),
