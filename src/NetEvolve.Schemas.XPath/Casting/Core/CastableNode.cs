@@ -46,6 +46,9 @@ internal sealed class CastableNode : ExecutableNode
         _namespaces = namespaces;
     }
 
+    /// <summary>Gets the operand.</summary>
+    public ExecutableNode Operand => _operand;
+
     /// <inheritdoc />
     public override XdmSequence Evaluate(XPathEvaluationContext context)
     {

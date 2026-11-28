@@ -29,6 +29,16 @@
     "allocatedBytes": 30446
   },
   {
+    "name": "XPathCastFoldBenchmarks.EvaluateFolded",
+    "meanNs": 15.3,
+    "allocatedBytes": 0
+  },
+  {
+    "name": "XPathCastFoldBenchmarks.EvaluateUnfolded",
+    "meanNs": 1746.8,
+    "allocatedBytes": 88
+  },
+  {
     "name": "XPathCompileBenchmarks.CompileCompatible",
     "meanNs": 15345.8,
     "allocatedBytes": 20976,

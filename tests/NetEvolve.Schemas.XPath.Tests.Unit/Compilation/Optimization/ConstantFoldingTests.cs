@@ -98,7 +98,7 @@ public class ConstantFoldingTests
     [Arguments("'x' castable as xs:integer", "false")]
     [Arguments("() cast as xs:integer?", "")]
     [Arguments("() castable as xs:integer?", "true")]
-    [Arguments("xs:string(7)", "7")]
+    [Arguments("xs:boolean(1)", "true")]
     public async Task Fold_CastOverLiteral_BecomesOneConstantWithTheSameResult(string expression, string expected)
     {
         var on = Compile(expression, XPathOptimizations.All, Statics);
@@ -130,5 +130,8 @@ public class ConstantFoldingTests
         var on = Compile("count(//x) cast as xs:string", XPathOptimizations.All, Statics);
 
         await Assert.That(on.Root).IsNotTypeOf<ConstantNode>();
+        await Assert
+            .That(Compile("xs:integer(count(//x))", XPathOptimizations.All, Statics).Root)
+            .IsNotTypeOf<ConstantNode>();
     }
 }

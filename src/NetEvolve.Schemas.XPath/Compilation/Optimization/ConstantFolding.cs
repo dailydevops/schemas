@@ -1,5 +1,7 @@
 namespace NetEvolve.Schemas.XPath.Compilation.Optimization;
 
+using NetEvolve.Schemas.XPath.Api;
+using NetEvolve.Schemas.XPath.Casting.Core;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Evaluation.Arithmetic;
@@ -14,8 +16,8 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// when a branch that holds it is never evaluated.
 /// </summary>
 /// <remarks>
-/// Limitation: only arithmetic, numeric comparisons, <see langword="and"/>, <see langword="or"/>, and a conditional are folded. A comparison of strings is left to
-/// the evaluation because the default collation is a dynamic setting; a function call is never folded.
+/// Limitation: only arithmetic, numeric comparisons, <see langword="and"/>, <see langword="or"/>, a conditional, <c>cast as</c>, <c>castable as</c>, and constructor functions over literals are folded. A comparison of strings is left to
+/// the evaluation because the default collation is a dynamic setting; any other function call is never folded.
 /// </remarks>
 internal static class ConstantFolding
 {
@@ -31,10 +33,26 @@ internal static class ConstantFolding
                 Fold(node),
             GeneralComparisonNode { Left: ConstantNode left, Right: ConstantNode right } when IsNumber(left, right) =>
                 Fold(node),
+            CastNode { Operand: ConstantNode } => Fold(node),
+            CastableNode { Operand: ConstantNode } => Fold(node),
+            CallNode { Function: ConstructorFunction } call when IsConstant(call) => Fold(node),
             LogicalNode { Left: ConstantNode, Right: ConstantNode } => Fold(node),
             IfNode { Condition: ConstantNode condition } conditional => Branch(conditional, condition),
             _ => node,
         };
+
+    private static bool IsConstant(CallNode call)
+    {
+        for (var i = 0; i < call.Arguments.Count; i++)
+        {
+            if (call.Arguments[i] is not ConstantNode)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
 
     private static bool IsNumber(ConstantNode left, ConstantNode right) =>
         IsNumber(left.Value) && IsNumber(right.Value);
