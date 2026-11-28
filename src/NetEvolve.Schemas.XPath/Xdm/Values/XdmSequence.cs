@@ -81,6 +81,14 @@ public readonly struct XdmSequence : IEquatable<XdmSequence>
         return Count;
     }
 
+    /// <summary>Opens a forward cursor; a lazy sequence that nobody has read is pulled item by item and not kept.</summary>
+    /// <returns>The cursor, to be disposed.</returns>
+    /// <remarks>Limitation: such a lazy source is enumerated again when the sequence is read afterwards, because nothing is kept.</remarks>
+    internal XdmSequenceCursor Open() => new(this, _many is XdmLazyItems lazy ? lazy.UnreadSource : null);
+
+    /// <summary>Determines whether the sequence is a lazy one that nobody has read.</summary>
+    internal bool IsUnreadLazy => _many is XdmLazyItems { UnreadSource: not null };
+
     /// <summary>Gets an item.</summary>
     /// <param name="index">The zero-based position.</param>
     /// <returns>The item.</returns>

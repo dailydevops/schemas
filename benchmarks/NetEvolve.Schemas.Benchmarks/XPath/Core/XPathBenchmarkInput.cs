@@ -1,4 +1,4 @@
-﻿namespace NetEvolve.Schemas.Benchmarks.XPath.Core;
+namespace NetEvolve.Schemas.Benchmarks.XPath.Core;
 
 using System.Globalization;
 using System.Text;
@@ -27,6 +27,14 @@ internal static class XPathBenchmarkInput
         "/Invoice/InvoiceLine[position() > 10 and position() < 20]/LineAmount",
         "/Invoice/InvoiceLine[position() >= 40 and position() <= 60 and position() > 45]",
         "/Invoice/InvoiceLine[position() > 90 and position() <= 95]/LineAmount",
+    ];
+
+    /// <summary>Gets the expressions that take a few items of a large range with sequence functions; they need XPath 2.0, so there is no System.Xml.XPath counterpart.</summary>
+    public static string[] SequenceStreams { get; } =
+    [
+        "subsequence(1 to 50000, 3, 4)",
+        "zero-or-one(subsequence(1 to 50000, 7, 1))",
+        "exactly-one(subsequence(1 to 50000, 9, 1))",
     ];
 
     /// <summary>Gets the XPath 1.0 compatible expressions that are dominated by comparisons.</summary>

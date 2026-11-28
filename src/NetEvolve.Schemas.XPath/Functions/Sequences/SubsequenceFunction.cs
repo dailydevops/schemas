@@ -21,7 +21,6 @@ internal sealed class SubsequenceFunction : SequenceFunction
     public override XPathEvaluationStatus Invoke(ref XPathFunctionCall invocation)
     {
         var source = invocation.Arguments[0];
-        var count = source.Count;
         _ = invocation.Arguments[1][0].TryGetDouble(out var startArgument);
         var start = Round(startArgument);
         var end = double.PositiveInfinity;
@@ -37,6 +36,13 @@ internal sealed class SubsequenceFunction : SequenceFunction
             return XPathEvaluationStatus.Ok;
         }
 
+        if (source.IsUnreadLazy)
+        {
+            invocation.Result = Stream(source, start, end);
+            return XPathEvaluationStatus.Ok;
+        }
+
+        var count = source.Count;
         var first =
             start <= 1 ? 1
             : start > count ? count + 1
@@ -72,6 +78,35 @@ internal sealed class SubsequenceFunction : SequenceFunction
         }
 
         return XPathEvaluationStatus.Ok;
+    }
+
+    // An unread lazy source is pulled up to the end of the window and no further: a position p is selected when start <= p < end, so the
+    // loop stops at the first position at or after end. An infinite start selects nothing and reads nothing.
+    private static XdmSequence Stream(in XdmSequence source, double start, double end)
+    {
+        if (double.IsPositiveInfinity(start) || end <= 1 || end <= start)
+        {
+            return XdmSequence.Empty;
+        }
+
+        var selected = default(XdmItemList);
+        try
+        {
+            using var cursor = source.Open();
+            for (long position = 1; position < end && cursor.MoveNext(); position++)
+            {
+                if (position >= start)
+                {
+                    selected.Add(cursor.Current);
+                }
+            }
+
+            return selected.ToSequence();
+        }
+        finally
+        {
+            selected.Dispose();
+        }
     }
 
     // fn:round: the closest integer, half toward positive infinity. The fraction is read from the floor, so that no value is
