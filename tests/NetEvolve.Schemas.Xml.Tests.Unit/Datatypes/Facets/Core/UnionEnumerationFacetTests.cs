@@ -9,8 +9,7 @@ public class UnionEnumerationFacetTests
 {
     private static IDatatypeDescriptor Type(string name) => BuiltInDatatypes.For(XsdVersion.V11).Get(name);
 
-    private static UnionDescriptor Union(params string[] members) =>
-        new("union", [.. members.Select(Type)]);
+    private static UnionDescriptor Union(params string[] members) => new("union", [.. members.Select(Type)]);
 
     [Test]
     [Arguments("1", true)]
@@ -46,13 +45,19 @@ public class UnionEnumerationFacetTests
     [Arguments("float", "1.5", "2", false)]
     [Arguments("double", "1.5", "1.50E0", true)]
     [Arguments("double", "1.5", "2", false)]
-    [Arguments("duration", "P1D", "PT24H", false)]
+    [Arguments("duration", "P1D", "PT24H", true)]
+    [Arguments("duration", "P1D", "PT25H", false)]
     [Arguments("duration", "P1D", "P1D", true)]
     [Arguments("dateTime", "2001-01-01T00:00:00Z", "2001-01-01T00:00:00Z", true)]
     [Arguments("dateTime", "2001-01-01T00:00:00Z", "2001-01-01T00:00:01Z", false)]
     [Arguments("boolean", "true", "1", true)]
     [Arguments("boolean", "true", "false", false)]
-    public async Task OrderedMembers_CompareInTheirValueSpace(string member, string listed, string lexical, bool expected)
+    public async Task OrderedMembers_CompareInTheirValueSpace(
+        string member,
+        string listed,
+        string lexical,
+        bool expected
+    )
     {
         var facet = new UnionEnumerationFacet(Union(member, "string"), [listed]);
 
