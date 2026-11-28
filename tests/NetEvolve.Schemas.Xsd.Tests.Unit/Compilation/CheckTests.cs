@@ -138,6 +138,30 @@ public class CheckTests
     }
 
     [Test]
+    [Arguments("xs:anySimpleType", "<xs:minLength value=\"1\"/>", true)]
+    [Arguments("xs:anySimpleType", "<xs:pattern value=\"a\"/>", false)]
+    [Arguments("xs:string", "<xs:minLength value=\"1\"/>", false)]
+    public async Task FacetCheck_SimpleContentRestriction_AppliesTheFacetsToTheSimpleContentOfTheBase(
+        string content,
+        string facet,
+        bool rejected
+    )
+    {
+        var compilation = Compile(
+            Schema(
+                "<xs:complexType name=\"t1\"><xs:simpleContent><xs:extension base=\""
+                    + content
+                    + "\"/></xs:simpleContent></xs:complexType>"
+                    + "<xs:complexType name=\"t2\"><xs:simpleContent><xs:restriction base=\"t:t1\">"
+                    + facet
+                    + "</xs:restriction></xs:simpleContent></xs:complexType>"
+            )
+        );
+
+        await Assert.That(Codes(compilation).Contains(XsdRuleCodes.CosApplicableFacets)).IsEqualTo(rejected);
+    }
+
+    [Test]
     public async Task FacetCheck_AFixedFacetThatIsChanged_IsReported()
     {
         var compilation = Compile(
