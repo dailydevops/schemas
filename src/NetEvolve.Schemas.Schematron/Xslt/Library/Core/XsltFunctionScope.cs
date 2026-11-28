@@ -13,7 +13,7 @@ using NetEvolve.Schemas.XPath.Functions.Binding;
 
 /// <summary>
 /// The functions in scope for the expressions of one binding: the XPath catalog under the host flags of the binding, the core library
-/// of this folder (<c>current</c>, <c>system-property</c>, <c>function-available</c>, <c>element-available</c>, <c>type-available</c>, and the two grouping functions <c>current-group</c> and <c>current-grouping-key</c>), the document functions of
+/// of this folder (<c>current</c>, <c>system-property</c>, <c>function-available</c>, <c>element-available</c>, <c>type-available</c>, the two XSLT 3.0 functions <c>snapshot</c> and <c>copy-of</c>, and the two grouping functions <c>current-group</c> and <c>current-grouping-key</c>), the document functions of
 /// <see cref="XsltDocumentFunctions"/> (<c>document</c>, <c>doc</c>, <c>doc-available</c>, <c>unparsed-text</c>,
 /// <c>unparsed-text-available</c>, bound to the base URI of the expressions), and the stylesheet functions. An XSLT binding sets the
 /// XSLT 2.0 host flag of the XPath package, which makes <c>generate-id</c> visible there; this folder holds no second implementation
@@ -68,6 +68,17 @@ internal sealed class XsltFunctionScope
             .. XsltGroupingFunctions.Create(binding),
             new RegexGroupFunction(),
         ];
+        if (string.Equals(binding.Name, "xslt3", StringComparison.Ordinal))
+        {
+            // The two streaming functions of XSLT 3.0 exist for this binding only (SCH-21).
+            CoreFunctions =
+            [
+                .. CoreFunctions,
+                new SnapshotFunction("snapshot", true),
+                new SnapshotFunction("copy-of", false),
+            ];
+        }
+
         // The document functions are a layer of their own: a relative reference resolves against the base URI of the expressions (#312).
         StaticContext = statics
             .ToBuilder()
