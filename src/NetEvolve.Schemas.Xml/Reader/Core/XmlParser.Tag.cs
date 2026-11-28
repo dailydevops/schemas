@@ -29,7 +29,7 @@ internal sealed partial class XmlParser
     }
 
     private readonly PooledBuffer<char> _tag = new(256);
-    private AttributeEntry[] _attributes = new AttributeEntry[8];
+    private AttributeEntry[] _attributes = new AttributeEntry[4];
     private XmlName[] _stack = new XmlName[16];
     private XmlBudget _elementDepth;
     private int _attributeCount;

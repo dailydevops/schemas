@@ -45,4 +45,29 @@ public class XmlParserAllocationTests
         await Assert.That(Parse(large)).IsGreaterThan(Parse(small));
         await Assert.That(largeBytes - smallBytes).IsLessThanOrEqualTo(0L);
     }
+
+    [Test]
+    public async Task Pump_SmallCompleteDocument_DoesNotAllocateCarryBuffersOrOversizedAttributeTable()
+    {
+        const string xml = "<r a=\"1\"><b/></r>";
+        var names = new SpanInterningNameTable(1000);
+
+        // Parser object, tag stack, and a four-entry attribute table; the carry, spare, and scratch buffers
+        // (about 100 B of objects) and the second half of an eight-entry table (about 256 B) stay unallocated.
+        var bytes = AllocationAssert.Measure(
+            () =>
+            {
+                using var parser = new XmlParser(XmlReaderLimits.Default);
+                var sink = new CountingStructSink(names);
+                parser.Feed(xml.AsMemory(), true);
+                _ = parser.Pump(ref sink);
+            },
+            warmups: 30,
+            repeats: 10
+        );
+
+        await Assert.That(bytes).IsLessThanOrEqualTo(CeilingBytes);
+    }
+
+    private const long CeilingBytes = 1700;
 }

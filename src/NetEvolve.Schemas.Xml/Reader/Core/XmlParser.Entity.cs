@@ -150,11 +150,12 @@ internal sealed partial class XmlParser
         // Only the characters of the construct that is still open stay in the buffer.
         if (frame.Offset > 0)
         {
-            _spare.Clear();
-            _spare.Append(pending.WrittenSpan.Slice(frame.Offset));
+            var spare = _spare ??= new PooledBuffer<char>(256);
+            spare.Clear();
+            spare.Append(pending.WrittenSpan.Slice(frame.Offset));
             pending.Clear();
-            pending.Append(_spare.WrittenSpan);
-            _spare.Clear();
+            pending.Append(spare.WrittenSpan);
+            spare.Clear();
             frame.Offset = 0;
         }
 
