@@ -116,10 +116,6 @@ public class InstanceXstsValidatorTests
             Case(XstsVersions.V11, true, "ok.xml", "g11", "a.xsd"),
             cancellationToken
         );
-        var noSchema = await validator.ValidateInstanceAsync(
-            Case(XstsVersions.V10, true, "ok.xml", "none"),
-            cancellationToken
-        );
         var brokenSchema = await validator.ValidateInstanceAsync(
             Case(XstsVersions.V10, true, "ok.xml", "broken", "broken.xsd"),
             cancellationToken
@@ -138,11 +134,46 @@ public class InstanceXstsValidatorTests
         );
 
         await Assert.That(version11).IsEqualTo(XstsOutcome.NotImplemented);
-        await Assert.That(noSchema).IsEqualTo(XstsOutcome.NotImplemented);
         await Assert.That(brokenSchema).IsEqualTo(XstsOutcome.NotImplemented);
         await Assert.That(missingSchema).IsEqualTo(XstsOutcome.NotImplemented);
         await Assert.That(noInstance).IsEqualTo(XstsOutcome.NotImplemented);
         await Assert.That(missingInstance).IsEqualTo(XstsOutcome.NotImplemented);
+    }
+
+    [Test]
+    public async Task ValidateInstance_AGroupWithoutSchemaDocument_FollowsTheSchemaLocationHint(
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        using var suite = Suite();
+        _ = suite.Write(
+            "n.xsd",
+            "<xs:schema xmlns:xs=\""
+                + Xs
+                + "\" targetNamespace=\"urn:n\" xmlns=\"urn:n\"><xs:element name=\"e\" type=\"xs:int\"/></xs:schema>"
+        );
+        _ = suite.Write(
+            "hint-ok.xml",
+            "<e xmlns=\"urn:n\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"urn:n n.xsd\">1</e>"
+        );
+        _ = suite.Write(
+            "hint-bad.xml",
+            "<e xmlns=\"urn:n\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"urn:n n.xsd\">x</e>"
+        );
+        var validator = new InstanceXstsValidator(suite.Path);
+
+        var valid = await validator.ValidateInstanceAsync(
+            Case(XstsVersions.V10, true, "hint-ok.xml", "hinted"),
+            cancellationToken
+        );
+        var invalid = await validator.ValidateInstanceAsync(
+            Case(XstsVersions.V10, false, "hint-bad.xml", "hinted"),
+            cancellationToken
+        );
+
+        await Assert.That(valid).IsEqualTo(XstsOutcome.Valid);
+        await Assert.That(invalid).IsEqualTo(XstsOutcome.Invalid);
     }
 
     [Test]

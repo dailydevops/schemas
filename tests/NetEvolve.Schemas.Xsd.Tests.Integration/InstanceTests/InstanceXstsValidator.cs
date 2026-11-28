@@ -12,8 +12,7 @@ using NetEvolve.Schemas.Xsd.Tests.Integration.Xsts;
 /// instance with it; the schema documents may include and import each other inside the suite.
 /// </summary>
 /// <remarks>
-/// A case that cannot be observed is not observed, so a defect never counts as a verdict: a case of XSD 1.1, a group without a schema
-/// document (its instance names the schema with <c>xsi:schemaLocation</c>, which is XSD-77), a schema that does not build, a missing
+/// A case that cannot be observed is not observed, so a defect never counts as a verdict: a case of XSD 1.1, a schema that does not build, a missing
 /// document, or a pipeline that throws.
 /// </remarks>
 internal sealed class InstanceXstsValidator : IXstsValidator
@@ -39,11 +38,7 @@ internal sealed class InstanceXstsValidator : IXstsValidator
         ArgumentNullException.ThrowIfNull(xstsCase);
 
         var instance = xstsCase.Case.InstanceDocument;
-        if (
-            !string.Equals(xstsCase.Version, XstsVersions.V10, StringComparison.Ordinal)
-            || xstsCase.Case.SchemaDocuments.Count == 0
-            || instance is null
-        )
+        if (!string.Equals(xstsCase.Version, XstsVersions.V10, StringComparison.Ordinal) || instance is null)
         {
             return XstsOutcome.NotImplemented;
         }
