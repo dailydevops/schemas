@@ -13,8 +13,8 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// number that is negative or above the number of groups, and for a group that took no part in the match.
 /// </summary>
 /// <remarks>
-/// The function declares no host requirement, because an unset slot is not an error. Limitation: the function is not in
-/// <see cref="XsltFunctionScope"/> yet, as <c>current-group</c> is not (#297, #628, #803); the run that composes the scope adds it.
+/// The function declares no host requirement, because an unset slot is not an error. <see cref="XsltFunctionScope"/> offers the
+/// function to the XSLT bindings.
 /// </remarks>
 internal sealed class RegexGroupFunction : XPathFunction
 {

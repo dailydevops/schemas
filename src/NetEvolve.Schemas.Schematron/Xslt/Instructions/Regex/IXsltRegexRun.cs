@@ -10,10 +10,8 @@ using NetEvolve.Schemas.XPath.Abstractions;
 /// matching substring, and inside a non-matching substring.
 /// </summary>
 /// <remarks>
-/// Limitation: an <see cref="IQueryRun"/> has no member for the slots, so the run of a binding implements this interface too; the run
-/// of the XPath binding does not offer the slot yet (#628, #832), so only the test run does. It is the same deviation as
-/// <see cref="IXsltGroupRun"/>: the run copies the value into the XPath host slot when it starts an evaluation. A function
-/// body does not clear the slot yet, because the function folder is outside this work package.
+/// The run of the XPath binding implements this interface too (an <see cref="IQueryRun"/> has no member for the slots): it copies the
+/// value into the XPath host slot when it starts an evaluation, and a function body clears it (#1087), as for <see cref="IXsltGroupRun"/>.
 /// </remarks>
 internal interface IXsltRegexRun : IQueryRun
 {

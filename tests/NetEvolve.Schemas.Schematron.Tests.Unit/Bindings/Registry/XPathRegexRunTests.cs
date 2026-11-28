@@ -97,7 +97,7 @@ public class XPathRegexRunTests
     {
         var binding = Binding("xslt2");
         using var run = Begin(binding);
-        ((IXsltRegexRun)(object)run).RegexGroups = Groups();
+        ((IXsltRegexRun)run).RegexGroups = Groups();
 
         await Assert.That(Eval(binding, run, "regex-group(2)")).IsEqualTo((QueryStatus.Ok, "11", string.Empty));
         await Assert.That(Eval(binding, run, "regex-group(0)").Text).IsEqualTo("2026-11");
@@ -117,7 +117,7 @@ public class XPathRegexRunTests
     {
         var binding = Binding("xslt2");
         using var run = Begin(binding);
-        ((IXsltRegexRun)(object)run).RegexGroups = Groups();
+        ((IXsltRegexRun)run).RegexGroups = Groups();
 
         run.EnterFunction();
         var inside = Eval(binding, run, "regex-group(1)").Text;

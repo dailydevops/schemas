@@ -12,8 +12,7 @@ using NetEvolve.Schemas.XPath.Context;
 /// <c>format-number</c> and <c>generate-id</c>) for the names of the XSLT family.
 /// </summary>
 /// <remarks>
-/// The layering rule keeps the XSLT library out of reach of a binding, so the composition hands the functions in. The stylesheet functions of a schema are added per schema by <see cref="XsltDeclarations.WithSignatures"/>. The key slot is assigned per run, so <c>key</c> works in rules (#776). Limitation: regex
-/// groups of a stylesheet are not available (#287): <c>regex-group</c> is not found, because its slot is not offered.
+/// The layering rule keeps the XSLT library out of reach of a binding, so the composition hands the functions in. The stylesheet functions of a schema are added per schema by <see cref="XsltDeclarations.WithSignatures"/>. The key slot is assigned per run, so <c>key</c> works in rules (#776). The regex groups of <c>xsl:analyze-string</c> reach <c>regex-group</c> through the run (#1087).
 /// </remarks>
 internal static class PipelineBindings
 {
