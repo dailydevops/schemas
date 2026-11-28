@@ -171,7 +171,7 @@ var order = annotated.Document.Document.FirstChild;
 var found = annotated.TryGetAnnotation(order, out var annotation);
 ```
 
-Here `found` is `true`, `annotation.Validity` is `XsdValidity.Valid`, and the defaulted attribute `priority` is the first attribute of `order`, with the value `3` and `IsSpecified` `false`. `ValidateTree(tree, element)` validates the subtree that starts at one element. The tree path does not read schema location hints, and it sees no document type declaration, because the document model keeps none (#731).
+Here `found` is `true`, `annotation.Validity` is `XsdValidity.Valid`, and the defaulted attribute `priority` is the first attribute of `order`, with the value `3` and `IsSpecified` `false`. `ValidateTree(tree, element)` validates the subtree that starts at one element. The tree path reads schema location hints like the streaming path, and it sees no document type declaration, because the document model keeps none (#731).
 
 ### Compilers older than C# 14
 
