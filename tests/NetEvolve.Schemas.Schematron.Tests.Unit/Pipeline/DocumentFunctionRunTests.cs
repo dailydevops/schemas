@@ -273,6 +273,14 @@ public class DocumentFunctionRunTests
         await Assert.That(result.IsValid).IsTrue();
     }
 
+    [Test]
+    public async Task ElementAvailable_OfARegisteredAndAnUnknownInstruction_AnswersFromTheRegistry()
+    {
+        var result = Run("element-available('xsl:copy-of') and not(element-available('xsl:no-such-instruction'))");
+
+        await Assert.That(result.IsValid).IsTrue();
+    }
+
     private static ValidationResult RunAsserts(string[] tests, FakeResources files, ValidationLimits? limits = null)
     {
         var asserts = string.Concat(tests.Select(t => $"<assert test=\"{t}\">Failed.</assert>"));
