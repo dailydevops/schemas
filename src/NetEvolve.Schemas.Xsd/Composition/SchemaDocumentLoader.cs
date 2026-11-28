@@ -764,8 +764,19 @@ internal sealed class SchemaDocumentLoader
             }
         }
 
+        // Redefinitions of one component that come from different documents (circular redefines) redefine the same original: the first
+        // one in load order, which is the outermost, takes the name and the later ones are superseded. Two redefinitions of the same
+        // document stay a missing component.
+        var redefined = new Dictionary<(SchemaUnit, string, string), SchemaUnit>();
         foreach (var redefinition in _redefinitions)
         {
+            var key = (redefinition.Target, redefinition.Node.Name.LocalName, redefinition.Name);
+            if (redefined.TryGetValue(key, out var first) && !ReferenceEquals(first, redefinition.Unit))
+            {
+                _ = redefinition.Unit.Components.Remove(redefinition.Node);
+                continue;
+            }
+
             var original = FindOriginal(redefinition.Target, redefinition, []);
             if (original is null)
             {
@@ -790,6 +801,7 @@ internal sealed class SchemaDocumentLoader
             } while (!used.Add(Key(fresh, redefinition.Unit.EffectiveNamespace)));
 
             original.SetAttribute("name", fresh);
+            redefined[key] = redefinition.Unit;
             if (redefinition.References.Count == 0 && redefinition.Node.Name.LocalName is "group" or "attributeGroup")
             {
                 var space = redefinition.Unit.EffectiveNamespace;

@@ -241,4 +241,94 @@ public class RedefineTests
         await Assert.That(first).IsNotEqualTo(second);
         await Assert.That(set.Units[0].Components[0].FindAttribute("name")).IsEqualTo("T");
     }
+
+    [Test]
+    public async Task Redefine_TwoRedefinitionsOfOneOriginalInACycle_BuildWithoutIssues()
+    {
+        // The shape of the XSTS cases schU3 to schU5: the root includes d, d and the root both redefine c, and c includes d.
+        const string redefinedInC =
+            "<xs:attributeGroup name=\"g\"><xs:attributeGroup ref=\"g\"/><xs:attribute name=\"{0}\"/></xs:attributeGroup>";
+        var root = Schema(
+            "<xs:include schemaLocation=\"d.xsd\"/><xs:redefine schemaLocation=\"c.xsd\">"
+                + string.Format(System.Globalization.CultureInfo.InvariantCulture, redefinedInC, "r")
+                + "</xs:redefine>"
+        );
+        var resolver = new MapResolver()
+            .Add(
+                "file:///d.xsd",
+                Schema(
+                    "<xs:redefine schemaLocation=\"c.xsd\">"
+                        + string.Format(System.Globalization.CultureInfo.InvariantCulture, redefinedInC, "d")
+                        + "</xs:redefine>"
+                )
+            )
+            .Add(
+                "file:///c.xsd",
+                Schema(
+                    "<xs:include schemaLocation=\"d.xsd\"/><xs:attributeGroup name=\"g\"><xs:attribute name=\"c\"/></xs:attributeGroup>"
+                )
+            );
+
+        var (_, issues) = Load(root, resolver);
+
+        await Assert.That(issues).IsEmpty();
+    }
+
+    [Test]
+    public async Task Redefine_TwoRedefinitionsOfOneOriginalInACycle_TheOutermostWinsAndTheOtherIsDropped()
+    {
+        const string redefinedInC =
+            "<xs:attributeGroup name=\"g\"><xs:attributeGroup ref=\"g\"/><xs:attribute name=\"{0}\"/></xs:attributeGroup>";
+        var root = Schema(
+            "<xs:include schemaLocation=\"d.xsd\"/><xs:redefine schemaLocation=\"c.xsd\">"
+                + string.Format(System.Globalization.CultureInfo.InvariantCulture, redefinedInC, "r")
+                + "</xs:redefine>"
+        );
+        var resolver = new MapResolver()
+            .Add(
+                "file:///d.xsd",
+                Schema(
+                    "<xs:redefine schemaLocation=\"c.xsd\">"
+                        + string.Format(System.Globalization.CultureInfo.InvariantCulture, redefinedInC, "d")
+                        + "</xs:redefine>"
+                )
+            )
+            .Add(
+                "file:///c.xsd",
+                Schema(
+                    "<xs:include schemaLocation=\"d.xsd\"/><xs:attributeGroup name=\"g\"><xs:attribute name=\"c\"/></xs:attributeGroup>"
+                )
+            );
+
+        var (set, issues) = Load(root, resolver);
+
+        await Assert.That(issues).IsEmpty();
+        var attributes = new List<string?>();
+        foreach (var unit in set.Units)
+        {
+            foreach (var component in unit.Components)
+            {
+                if (string.Equals(component.FindAttribute("name"), "g", StringComparison.Ordinal))
+                {
+                    attributes.Add(component.GetChildNode(1).FindAttribute("name"));
+                }
+            }
+        }
+
+        await Assert.That(attributes.Count).IsEqualTo(1);
+        await Assert.That(attributes[0]).IsEqualTo("r");
+    }
+
+    [Test]
+    public async Task Redefine_TwoRedefinitionsOfOneComponentInTheSameDocument_StayAMissingComponent()
+    {
+        var (_, issues) = Run(
+            BaseSimple,
+            "<xs:simpleType name=\"T\"><xs:restriction base=\"T\"/></xs:simpleType>"
+                + "<xs:simpleType name=\"T\"><xs:restriction base=\"T\"/></xs:simpleType>"
+        );
+
+        await Assert.That(issues.Count).IsEqualTo(1);
+        await Assert.That(issues[0].Code).IsEqualTo(CodeOf("src-expredef"));
+    }
 }
