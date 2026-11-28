@@ -54,6 +54,18 @@ public class LibraryCoreArchitectureTests
     }
 
     [Test]
+    public async Task LibraryCore_RegistersSnapshotAndCopyOfForXslt3Only()
+    {
+        var names = new List<string>();
+        foreach (var function in Scope("xslt3").CoreFunctions)
+        {
+            names.Add(function.Name.LocalName);
+        }
+
+        await Assert.That(names).Contains("snapshot").And.Contains("copy-of");
+    }
+
+    [Test]
     public async Task LibraryCore_FunctionsAreInTheDefaultFunctionNamespaceAndNeedOnlyTheCurrentItemSlot()
     {
         foreach (var function in Scope().CoreFunctions)
