@@ -32,7 +32,10 @@ public class XPathNestingLimitTests
     public async Task Builder_CeilingAndOne_AreAccepted()
     {
         var low = XPathStaticContext.Default.ToBuilder().WithMaxRecursionDepth(1).Build();
-        var high = XPathStaticContext.Default.ToBuilder().WithMaxRecursionDepth(XPathLimits.MaxRecursionDepthCeiling).Build();
+        var high = XPathStaticContext
+            .Default.ToBuilder()
+            .WithMaxRecursionDepth(XPathLimits.MaxRecursionDepthCeiling)
+            .Build();
 
         await Assert.That(low.MaxRecursionDepth).IsEqualTo(1);
         await Assert.That(high.MaxRecursionDepth).IsEqualTo(XPathLimits.MaxRecursionDepthCeiling);

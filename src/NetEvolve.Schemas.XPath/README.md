@@ -184,7 +184,7 @@ Every evaluation is bounded, so a hostile or faulty expression ends with an erro
 
 | Limit | Default | Source and error |
 | --- | --- | --- |
-| Recursion depth | 256 | `MaxDepth`: depth of an expression and of recursive evaluation. |
+| Recursion depth | 256 | `MaxDepth`: depth of an expression and of recursive evaluation. The parser nests at most 100 levels by default (parentheses, predicates, function arguments, conditionals, unary signs, `XPST0003`); `XPathStaticContext.Builder.WithMaxRecursionDepth` sets that bound and, once set, the depth of the lowering and the evaluation to the same value. |
 | Sequence size | 10,000,000 | `MaxEntityExpansion`: items of a sequence. |
 | Range size | 10,000,000 | `MaxEntityExpansion`: the length of `a to b`. |
 | String length | 10,000,000 | `MaxEntityExpansion`: characters of a constructed string. |
@@ -193,7 +193,7 @@ Every evaluation is bounded, so a hostile or faulty expression ends with an erro
 | External resources | 16 | `MaxExternalResources`: resolver requests of one evaluation context. |
 | Resource size | 16 MiB | `MaxResourceSize`: bytes of one resource. |
 
-The first six limits are held by the engine and are not configurable through the public API on main; the last two are the defaults of `ValidationLimits` and are applied to the resources of a context. An exceeded limit is an `XPathException` or a result with the status `Error`, never a crash.
+The recursion depth is configurable through `XPathStaticContext.Builder.WithMaxRecursionDepth` (from 1 up to the ceiling of `ValidationLimits.MaxDepth`, read back from `MaxRecursionDepth`); the other five of the first six limits are held by the engine and are not configurable through the public API on main; the last two are the defaults of `ValidationLimits` and are applied to the resources of a context. An exceeded limit is an `XPathException` or a result with the status `Error`, never a crash.
 
 ### Benchmarks
 
@@ -258,7 +258,7 @@ The selection rules, the exclusion list of the later tiers, and the regeneration
 - **Host functions.** A host function declares no parameter types, so it receives its arguments as evaluated, without function conversion or atomization, until the contract can declare them ([#586](https://github.com/dailydevops/schemas/issues/586)). A function that needs a host slot (current item, current group, regex groups, decimal formats, keys) states it in `HostRequirements`, and the slots are set on `XPathEvaluationContext.Host`.
 - **Documents and base URI.** The built-in document functions hold no static base URI, so a relative reference is unresolvable, and a document is loaded with the secure reader defaults. The [document functions readme](https://github.com/dailydevops/schemas/blob/main/src/NetEvolve.Schemas.XPath/Functions/Documents/README.md) lists the rest.
 - **Schema-aware processing, static typing, the namespace axis, UCA collations, `fn:collection`, and the fully normalized form** are not supported, see [Exclusions](#exclusions).
-- **Evaluation limits** are not configurable through the public API on main, see [Evaluation limits](#evaluation-limits).
+- **Evaluation limits** other than the recursion depth are not configurable through the public API on main, see [Evaluation limits](#evaluation-limits).
 - **Year range.** Dates and dateTimes accept a year of up to 17 digits, the range of the datatype layer ([#100](https://github.com/dailydevops/schemas/issues/100), [#301](https://github.com/dailydevops/schemas/issues/301)); Functions and Operators 1.0 lets an implementation choose a smaller range. Eight QT3 cases expect a rejection beyond a smaller range and are a deliberate deviation, tracked in [#889](https://github.com/dailydevops/schemas/issues/889): the four `castable as` cases `cbcl-castable-date-001`, `cbcl-castable-date-002`, `cbcl-castable-dateTime-001`, and `cbcl-castable-dateTime-002` (excluded from the selection) and the four cases `cbcl-adjust-date-to-timezone-002` and `-003` and `cbcl-adjust-dateTime-to-timezone-002` and `-003` (listed in the baseline), which expect `FODT0001`.
 - **Conformance.** The cases with serialization assertions and compound assertions are skipped by the runner and are not part of the rate.
 - **Compilers older than C# 14.** The API of this package has no C# 14 extension members, so every compiler calls it the same way; the C# 14 calling path of `SchemaValidator.ForSchematron` belongs to the Schematron package.

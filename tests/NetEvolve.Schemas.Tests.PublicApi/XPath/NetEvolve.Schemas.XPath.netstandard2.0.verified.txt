@@ -171,6 +171,7 @@ namespace NetEvolve.Schemas.XPath.Context
         public System.Uri? BaseUri { get; }
         public string? DefaultElementNamespace { get; }
         public string DefaultFunctionNamespace { get; }
+        public int MaxRecursionDepth { get; }
         public NetEvolve.Schemas.XPath.Api.XPathVersion Version { get; }
         public bool XPath10Compatibility { get; }
         public static NetEvolve.Schemas.XPath.Context.XPathStaticContext Default { get; }
@@ -182,6 +183,7 @@ namespace NetEvolve.Schemas.XPath.Context
             public NetEvolve.Schemas.XPath.Context.XPathStaticContext.Builder WithDefaultElementNamespace(string? namespaceName) { }
             public NetEvolve.Schemas.XPath.Context.XPathStaticContext.Builder WithFunction(NetEvolve.Schemas.XPath.Api.XPathHostFunction function) { }
             public NetEvolve.Schemas.XPath.Context.XPathStaticContext.Builder WithLibrary(NetEvolve.Schemas.XPath.Api.XPathFunctionLibrary library) { }
+            public NetEvolve.Schemas.XPath.Context.XPathStaticContext.Builder WithMaxRecursionDepth(int depth) { }
             public NetEvolve.Schemas.XPath.Context.XPathStaticContext.Builder WithNamespace(string prefix, string namespaceName) { }
             public NetEvolve.Schemas.XPath.Context.XPathStaticContext.Builder WithVariable(NetEvolve.Schemas.XPath.Api.XPathQName name, string? declaredType = null) { }
             public NetEvolve.Schemas.XPath.Context.XPathStaticContext.Builder WithVersion(NetEvolve.Schemas.XPath.Api.XPathVersion version) { }
