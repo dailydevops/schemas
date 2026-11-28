@@ -35,7 +35,7 @@ public class GlobalContentTests
     public async Task Variable_WithElementContent_IsATemporaryTreeNavigatedByPath(string instance, bool expected)
     {
         var validator = Inline(
-            "<xsl:variable name=\"catalog\"><entry code=\"A\"/><entry code=\"B\"/></xsl:variable>",
+            "<xsl:variable name=\"catalog\"><entry xmlns=\"\" code=\"A\"/><entry xmlns=\"\" code=\"B\"/></xsl:variable>",
             "string(.) = $catalog/entry/@code"
         );
 
@@ -45,7 +45,10 @@ public class GlobalContentTests
     [Test]
     public async Task Variable_WithElementContent_HasADocumentNode()
     {
-        var validator = Inline("<xsl:variable name=\"t\"><e/></xsl:variable>", "$t instance of document-node()");
+        var validator = Inline(
+            "<xsl:variable name=\"t\"><e xmlns=\"\"/></xsl:variable>",
+            "$t instance of document-node()"
+        );
 
         await Assert.That(Validate(validator, "<a/>").IsValid).IsTrue();
     }
@@ -54,7 +57,7 @@ public class GlobalContentTests
     public async Task Param_WithElementContent_IsTheDefault()
     {
         var validator = Inline(
-            "<xsl:param name=\"retired\"><entry code=\"C\"/></xsl:param>",
+            "<xsl:param name=\"retired\"><entry xmlns=\"\" code=\"C\"/></xsl:param>",
             "not(string(.) = $retired/entry/@code)"
         );
 
@@ -63,9 +66,9 @@ public class GlobalContentTests
     }
 
     [Test]
-    public async Task Variable_WithEmptyContent_IsAnEmptyDocumentNode()
+    public async Task Variable_WithEmptyContent_IsTheEmptyString()
     {
-        var validator = Inline("<xsl:variable name=\"t\"></xsl:variable>", "$t instance of document-node() and not($t/node())");
+        var validator = Inline("<xsl:variable name=\"t\"></xsl:variable>", "$t = '' and $t instance of xs:string");
 
         await Assert.That(Validate(validator, "<a/>").IsValid).IsTrue();
     }
@@ -74,7 +77,7 @@ public class GlobalContentTests
     public async Task Variable_WithElementContent_ReadsAnotherGlobalDeclaredAfterIt()
     {
         var validator = Inline(
-            "<xsl:variable name=\"copy\"><v><xsl:value-of select=\"$n\"/></v></xsl:variable><xsl:variable name=\"n\" select=\"21 * 2\"/>",
+            "<xsl:variable name=\"copy\"><v xmlns=\"\"><xsl:value-of select=\"$n\"/></v></xsl:variable><xsl:variable name=\"n\" select=\"21 * 2\"/>",
             "$copy/v = '42'"
         );
 
@@ -109,7 +112,10 @@ public class GlobalContentTests
     [Test]
     public async Task Variable_ThatReadsItself_IsXtde0640()
     {
-        var validator = Inline("<xsl:variable name=\"t\"><e><xsl:value-of select=\"$t\"/></e></xsl:variable>", "$t");
+        var validator = Inline(
+            "<xsl:variable name=\"t\"><e xmlns=\"\"><xsl:value-of select=\"$t\"/></e></xsl:variable>",
+            "$t"
+        );
 
         var result = Validate(validator, "<a/>");
 

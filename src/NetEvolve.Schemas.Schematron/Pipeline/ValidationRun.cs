@@ -111,7 +111,11 @@ internal static class ValidationRun
         var document = new XPathNode(tree.Document);
         using var run = program.Binding.BeginRun(program.Resources, cancellationToken);
         var problems = new EvaluationProblems(collector, events, systemId);
-        var embedded = new EmbeddedContent(context.Names);
+        var embedded = new EmbeddedContent(context.Names)
+        {
+            GlobalContents = program.XsltTables?.GlobalContents,
+            CancellationToken = cancellationToken,
+        };
         var binder = new SlotBinder(program.Plan, run, new QueryFocus(document, 1, 1), problems, embedded);
         if (program.XsltTables is { Functions.Count: > 0 } tables && run is IXsltFunctionRun functionRun)
         {

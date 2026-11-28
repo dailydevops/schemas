@@ -18,7 +18,7 @@ using NetEvolve.Schemas.Schematron.Seams;
 /// <see langword="let"/>: lazily, once per run, with the circularity error XTDE0640 and a caller value for a parameter.
 /// A <see langword="let"/> with element content (SCH-84, #289) is a slot that holds no expression: it is bound by the
 /// <see cref="IEmbeddedContent"/> of the run, as a temporary tree, once per span like any other slot. Limitation: the values themselves live
-/// in the variable table of the run of the binding; a global <c>xsl:variable</c> with content (#794) is not bound here yet.
+/// in the variable table of the run of the binding; a global <c>xsl:variable</c> with a sequence constructor (#1160) is built by the <see cref="IEmbeddedContent"/> of the run.
 /// A cycle that runs through the body of a stylesheet function cannot be seen by the walk over the slots a value reads: the call
 /// binds the slots of the body from inside the evaluation of the value. A slot that is in progress when <see cref="EnsureBound"/>
 /// is entered is therefore a cycle (XTDE0640), reported once; the slots on the path of the evaluation fail without a new issue.
@@ -327,6 +327,10 @@ internal sealed class SlotBinder : ISlotBinder
         {
             BindContent(slot, declaration);
         }
+        else if (declaration.HasGlobalContent)
+        {
+            BindGlobalContent(slot, declaration);
+        }
         else if (declaration.Value is null)
         {
             Fail(
@@ -366,6 +370,51 @@ internal sealed class SlotBinder : ISlotBinder
         {
             Fail(slot, new SchematronProblem(problem.Code, problem.Message, declaration.Location, problem.Constraint));
         }
+    }
+
+    // The value of a global with a sequence constructor (#1160) is built by running its body, which binds the slots it reads from
+    // inside this call, as the body of a stylesheet function does; a cycle is therefore found by EnsureBound like a cycle through a function.
+    private void BindGlobalContent(int slot, VariableSlot declaration)
+    {
+        if (_embedded is null)
+        {
+            Fail(
+                slot,
+                new SchematronProblem(
+                    SchematronDiagnosticCodes.XsltUnsupported,
+                    $"The variable '{declaration.Name}' has a sequence constructor, and the run has no component that builds it.",
+                    declaration.Location
+                )
+            );
+            return;
+        }
+
+        QueryStatus status;
+        SchematronProblem problem;
+        _evaluating++;
+        try
+        {
+            status = _embedded.TryBindGlobalContent(_run, this, slot, out problem);
+        }
+        finally
+        {
+            _evaluating--;
+        }
+
+        if (status == QueryStatus.Ok)
+        {
+            Mark(slot, Bound);
+        }
+        else if (_cycleReported)
+        {
+            Mark(slot, Failed);
+        }
+        else
+        {
+            Fail(slot, new SchematronProblem(problem.Code, problem.Message, declaration.Location, problem.Constraint));
+        }
+
+        _cycleReported &= _evaluating > 0;
     }
 
     // A cycle that was reported from inside the evaluation fails every slot on its path, and the cycle is the only issue.

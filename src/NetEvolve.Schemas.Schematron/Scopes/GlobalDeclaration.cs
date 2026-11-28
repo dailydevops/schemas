@@ -14,7 +14,8 @@ internal sealed class GlobalDeclaration
         string? declaredType,
         bool isParameter,
         bool isRequired,
-        DocumentLocation location
+        DocumentLocation location,
+        object? contentSource = null
     )
     {
         ArgumentNullException.ThrowIfNull(name);
@@ -25,6 +26,7 @@ internal sealed class GlobalDeclaration
         IsParameter = isParameter;
         IsRequired = isRequired;
         Location = location;
+        ContentSource = contentSource;
     }
 
     /// <summary>Gets the name as written; it is the key of the caller value of a parameter.</summary>
@@ -44,4 +46,11 @@ internal sealed class GlobalDeclaration
 
     /// <summary>Gets the location of the element.</summary>
     internal DocumentLocation Location { get; }
+
+    /// <summary>
+    /// Gets what the XSLT layer compiles into the value of a declaration with a sequence constructor (#1160), or <see langword="null"/>
+    /// for a <see langword="select"/> declaration. The scopes only keep it; <see cref="Value"/> is <see langword="null"/> then and the
+    /// binder asks <c>IEmbeddedContent</c> for the value.
+    /// </summary>
+    internal object? ContentSource { get; }
 }

@@ -116,15 +116,16 @@ public class GlobalCompileTests
     }
 
     [Test]
-    public async Task Variable_WithContent_IsNotSupportedBecauseTheTemporaryTreeBelongsToSch67()
+    public async Task Variable_WithContent_IsRecordedForTheBodyCompileAndHasNoSelectValue()
     {
         var fixture = new GlobalFixture();
 
         var global = fixture.CompileOne(X("variable", 10, A("name", "g"), "text"));
 
-        await Assert.That(global).IsNull();
-        await Assert.That(Codes(fixture.Problems)).IsEqualTo("NES3204");
-        await Assert.That(fixture.Problems.Problems[0].Message).Contains("xsl:variable");
+        await Assert.That(fixture.Problems.Problems.Count).IsEqualTo(0);
+        await Assert.That(global!.Declaration.Value).IsNull();
+        await Assert.That(global.Declaration.ContentSource).IsNotNull();
+        await Assert.That(global.Declaration.IsRequired).IsFalse();
     }
 
     [Test]
@@ -232,15 +233,17 @@ public class GlobalCompileTests
     }
 
     [Test]
-    public async Task Param_WithContent_IsNotSupportedAndNamesTheParam()
+    public async Task Param_WithContent_IsAnOptionalParameterWithoutSelectValue()
     {
         var fixture = new GlobalFixture();
 
         var global = fixture.CompileOne(X("param", 10, A("name", "p"), "text"));
 
-        await Assert.That(global).IsNull();
-        await Assert.That(Codes(fixture.Problems)).IsEqualTo("NES3204");
-        await Assert.That(fixture.Problems.Problems[0].Message).Contains("xsl:param");
+        await Assert.That(fixture.Problems.Problems.Count).IsEqualTo(0);
+        await Assert.That(global!.Declaration.IsParameter).IsTrue();
+        await Assert.That(global.Declaration.IsRequired).IsFalse();
+        await Assert.That(global.Declaration.Value).IsNull();
+        await Assert.That(global.Declaration.ContentSource).IsNotNull();
     }
 
     [Test]

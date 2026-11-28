@@ -7,6 +7,7 @@ using NetEvolve.Schemas.Schematron.Model;
 using NetEvolve.Schemas.Schematron.Scopes;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Schematron.Xslt.Functions;
+using NetEvolve.Schemas.Schematron.Xslt.Globals;
 using NetEvolve.Schemas.Schematron.Xslt.Modules;
 using NetEvolve.Schemas.Schematron.Xslt.Registry;
 using NetEvolve.Schemas.XPath.Api;
@@ -152,6 +153,151 @@ internal sealed class XsltDeclarations
         );
         tables = new XsltModuleTables(compiled.Functions, globals.Globals, globals.Keys, globals.DecimalFormats);
         return ok;
+    }
+
+    /// <summary>
+    /// Compiles the sequence constructors of the globals that have one (#1160) after the functions, in slots above theirs: a body runs
+    /// lazily, possibly from inside a function call, so its slots share none with a function or with another global.
+    /// </summary>
+    /// <param name="schema">The effective schema.</param>
+    /// <param name="modules">The linked modules.</param>
+    /// <param name="binding">The binding that compiles the expressions.</param>
+    /// <param name="plan">The plan over the globals of <paramref name="tables"/>.</param>
+    /// <param name="tables">The tables with the functions; the result holds the compiled bodies too.</param>
+    /// <param name="problems">The sink of the problems.</param>
+    /// <param name="result">The tables with the compiled bodies.</param>
+    /// <returns><see langword="true"/> when every body compiled.</returns>
+    internal static bool TryCompileGlobalContents(
+        SchematronSchema schema,
+        XsltModuleSet modules,
+        IQueryBinding binding,
+        ScopePlan plan,
+        XsltModuleTables tables,
+        IProblemSink problems,
+        out XsltModuleTables result
+    )
+    {
+        ArgumentNullException.ThrowIfNull(schema);
+        ArgumentNullException.ThrowIfNull(modules);
+        ArgumentNullException.ThrowIfNull(binding);
+        ArgumentNullException.ThrowIfNull(plan);
+        ArgumentNullException.ThrowIfNull(tables);
+        ArgumentNullException.ThrowIfNull(problems);
+
+        result = tables;
+        var contents = new Dictionary<int, XsltGlobalContent>();
+        var next = Math.Max(plan.SlotCount, tables.Functions.SlotEnd);
+        var ok = true;
+        foreach (var declaration in modules.Declarations)
+        {
+            if (!TryFindContentGlobal(declaration, tables, plan, out var slot))
+            {
+                continue;
+            }
+
+            var names = new List<string>(plan.GlobalScope.VariableNames);
+            while (names.Count < next)
+            {
+                names.Add(string.Empty);
+            }
+
+            var step = new XsltDeclarations(schema, binding, names);
+            var instruction = new ContentInstruction(slot);
+            var compiled = step.Compile(
+                declaration.Element,
+                instruction,
+                step.Scope(declaration.Element),
+                declaration.SystemId,
+                new XsltModuleProblemSink(problems, declaration.SystemId)
+            );
+            if (compiled is null || instruction.Content is not { } content)
+            {
+                ok = false;
+                continue;
+            }
+
+            contents[slot] = content;
+            next = Math.Max(next, content.Executable.SlotEnd);
+        }
+
+        if (contents.Count > 0)
+        {
+            result = new XsltModuleTables(
+                tables.Functions,
+                tables.Globals,
+                tables.Keys,
+                tables.DecimalFormats,
+                contents
+            );
+        }
+
+        return ok;
+    }
+
+    // A declaration is a content global when it is a variable or param that won the table with its own element as the content source.
+    private static bool TryFindContentGlobal(
+        XsltModuleDeclaration declaration,
+        XsltModuleTables tables,
+        ScopePlan plan,
+        out int slot
+    )
+    {
+        slot = -1;
+        var element = declaration.Element;
+        if (
+            !(XsltElementReader.IsXslt(element.Node, "variable") || XsltElementReader.IsXslt(element.Node, "param"))
+            || !XsltGlobalCompile.IsTopLevel(element)
+        )
+        {
+            return false;
+        }
+
+        foreach (var global in tables.Globals.Declarations)
+        {
+            if (global.ContentSource is XPathNode source && source.Equals(element))
+            {
+                foreach (var variable in plan.Globals)
+                {
+                    if (
+                        variable.HasGlobalContent && string.Equals(variable.Name, global.Name, StringComparison.Ordinal)
+                    )
+                    {
+                        slot = variable.Slot;
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    // Hands the compile context of the declaration element to XsltGlobalCompile; the executable it returns only marks success.
+    private sealed class ContentInstruction : IXsltInstruction
+    {
+        private readonly int _slot;
+
+        internal ContentInstruction(int slot) => _slot = slot;
+
+        internal XsltGlobalContent? Content { get; private set; }
+
+        public XPathQName Name { get; } = new(XsltInstructionRegistry.Namespace, "variable");
+
+        public XsltPosition Position => XsltPosition.Declaration;
+
+        public bool TryCompile(XsltCompileContext context, out XsltExecutable executable, out SchematronProblem problem)
+        {
+            problem = default;
+            executable = null!;
+            if (!XsltGlobalCompile.TryCompileContent(context, _slot, out var content))
+            {
+                return false;
+            }
+
+            Content = content;
+            executable = content.Executable;
+            return true;
+        }
     }
 
     private static XsltModuleSet Select(XsltModuleSet modules, bool functions)

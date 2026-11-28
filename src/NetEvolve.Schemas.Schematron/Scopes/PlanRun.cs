@@ -207,7 +207,8 @@ internal sealed class PlanRun
                         value,
                         global.DeclaredType,
                         null,
-                        global.IsParameter
+                        global.IsParameter,
+                        hasGlobalContent: global.ContentSource is not null
                     )
                 );
             }
