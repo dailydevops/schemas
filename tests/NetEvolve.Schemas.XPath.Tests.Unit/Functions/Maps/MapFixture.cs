@@ -34,6 +34,7 @@ internal static class MapFixture
             .WithVersion(version)
             .WithNamespace("fn", FnNamespace)
             .WithNamespace("map", MapNamespace)
+            .WithNamespace("array", "http://www.w3.org/2005/xpath-functions/array")
             .WithNamespace("xs", "http://www.w3.org/2001/XMLSchema")
             .Build();
         _ = ExpressionCompiler.TryCompile(

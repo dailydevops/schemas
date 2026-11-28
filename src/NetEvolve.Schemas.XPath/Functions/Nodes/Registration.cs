@@ -33,6 +33,7 @@ internal static class Registration
         builder.Add(new LocalNameFunction());
         builder.Add(new NamespaceUriFunction());
         builder.Add(new NodeQNameFunction());
+        builder.Add(new NodeQNameContextItemFunction());
         builder.Add(new NilledFunction());
         builder.Add(new DocumentUriFunction());
         builder.Add(new RootFunction());

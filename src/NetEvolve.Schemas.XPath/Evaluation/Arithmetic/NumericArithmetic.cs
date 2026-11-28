@@ -6,6 +6,7 @@ using NetEvolve.Schemas.Xml.Datatypes.Contracts;
 using NetEvolve.Schemas.Xml.Datatypes.Decimals;
 using NetEvolve.Schemas.Xml.Datatypes.Decimals.Arithmetic;
 using NetEvolve.Schemas.XPath.Errors;
+using NetEvolve.Schemas.XPath.Limits;
 using NetEvolve.Schemas.XPath.Syntax.Tree;
 using NetEvolve.Schemas.XPath.Types;
 using NetEvolve.Schemas.XPath.Xdm.Values;
@@ -23,9 +24,10 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// </para>
 /// <para>
 /// Limitations: a decimal <c>div</c> is rounded half to even at 18 fraction digits, because the precision is implementation-defined
-/// (#100 AP-7); the decimal operations align scales with a power of ten, so their cost grows with the scale difference, and an integer beyond 64 bits grows without bound, so a product or sum of large
-/// operands costs memory and time in proportion to its width; the evaluation limits of XP-75 (#229) do not cover numeric growth, which
-/// is left to #639; a decimal beyond the scale range of the Xml package
+/// (#100 AP-7); the decimal operations align scales with a power of ten, so their cost grows with the scale difference, and an integer beyond 64 bits grows, so a product or sum of large
+/// operands costs memory and time in proportion to its width; both are bounded by the evaluation limits <see cref="XPathLimits.MaxDecimalScale"/> and <see cref="XPathLimits.MaxIntegerBits"/>
+/// (#639), which end in the coded diagnostics XP0009 and XP0008 and are charged by the overloads that take the limits; the overloads
+/// without them use <see cref="XPathLimits.Default"/>. A decimal mantissa is not charged, only its scale; a decimal beyond the scale range of the Xml package
 /// raises FOAR0002. <c>idiv</c> of float
 /// and double is the truncated quotient of the division, as the specification equates it with <c>($a div $b) cast as xs:integer</c>,
 /// so it can differ from the exact quotient by the rounding of the division. Steady state allocates nothing for the 64-bit
@@ -34,6 +36,9 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// </remarks>
 internal static class NumericArithmetic
 {
+    // The arithmetic has no source location at run time, as the error model defines for dynamic errors.
+    private static readonly SourceSpan NoLocation = new(-1, 0);
+
     // The order is the promotion order of B.1: integer, then decimal, then float, then double.
     private enum Rank
     {
@@ -48,30 +53,64 @@ internal static class NumericArithmetic
     /// <param name="right">The right operand.</param>
     /// <returns>The sum, in the promoted type.</returns>
     /// <exception cref="XPathException">The result overflows (FOAR0002).</exception>
-    public static XdmItem Add(in XdmItem left, in XdmItem right) => Apply(ArithmeticOperator.Add, left, right);
+    public static XdmItem Add(in XdmItem left, in XdmItem right) => Add(left, right, XPathLimits.Default);
+
+    /// <summary>Applies <c>op:numeric-add</c> under the numeric growth budgets of <paramref name="limits"/>.</summary>
+    /// <param name="left">The left operand.</param>
+    /// <param name="right">The right operand.</param>
+    /// <param name="limits">The budgets.</param>
+    /// <returns>The result, in the promoted type.</returns>
+    /// <exception cref="XPathException">The operation fails as in the overload without limits, or an integer beyond 64 bits is wider, or a decimal has a larger scale, than the budget allows (XP0008, XP0009).</exception>
+    public static XdmItem Add(in XdmItem left, in XdmItem right, XPathLimits limits) =>
+        Apply(ArithmeticOperator.Add, left, right, limits);
 
     /// <summary>Subtracts two numbers (<c>op:numeric-subtract</c>).</summary>
     /// <param name="left">The left operand.</param>
     /// <param name="right">The right operand.</param>
     /// <returns>The difference, in the promoted type.</returns>
     /// <exception cref="XPathException">The result overflows (FOAR0002).</exception>
-    public static XdmItem Subtract(in XdmItem left, in XdmItem right) =>
-        Apply(ArithmeticOperator.Subtract, left, right);
+    public static XdmItem Subtract(in XdmItem left, in XdmItem right) => Subtract(left, right, XPathLimits.Default);
+
+    /// <summary>Applies <c>op:numeric-subtract</c> under the numeric growth budgets of <paramref name="limits"/>.</summary>
+    /// <param name="left">The left operand.</param>
+    /// <param name="right">The right operand.</param>
+    /// <param name="limits">The budgets.</param>
+    /// <returns>The result, in the promoted type.</returns>
+    /// <exception cref="XPathException">The operation fails as in the overload without limits, or an integer beyond 64 bits is wider, or a decimal has a larger scale, than the budget allows (XP0008, XP0009).</exception>
+    public static XdmItem Subtract(in XdmItem left, in XdmItem right, XPathLimits limits) =>
+        Apply(ArithmeticOperator.Subtract, left, right, limits);
 
     /// <summary>Multiplies two numbers (<c>op:numeric-multiply</c>).</summary>
     /// <param name="left">The left operand.</param>
     /// <param name="right">The right operand.</param>
     /// <returns>The product, in the promoted type.</returns>
     /// <exception cref="XPathException">The result overflows (FOAR0002).</exception>
-    public static XdmItem Multiply(in XdmItem left, in XdmItem right) =>
-        Apply(ArithmeticOperator.Multiply, left, right);
+    public static XdmItem Multiply(in XdmItem left, in XdmItem right) => Multiply(left, right, XPathLimits.Default);
+
+    /// <summary>Applies <c>op:numeric-multiply</c> under the numeric growth budgets of <paramref name="limits"/>.</summary>
+    /// <param name="left">The left operand.</param>
+    /// <param name="right">The right operand.</param>
+    /// <param name="limits">The budgets.</param>
+    /// <returns>The result, in the promoted type.</returns>
+    /// <exception cref="XPathException">The operation fails as in the overload without limits, or an integer beyond 64 bits is wider, or a decimal has a larger scale, than the budget allows (XP0008, XP0009).</exception>
+    public static XdmItem Multiply(in XdmItem left, in XdmItem right, XPathLimits limits) =>
+        Apply(ArithmeticOperator.Multiply, left, right, limits);
 
     /// <summary>Divides two numbers (<c>op:numeric-divide</c>).</summary>
     /// <param name="left">The dividend.</param>
     /// <param name="right">The divisor.</param>
     /// <returns>The quotient: a decimal for two integers or decimals, otherwise in the promoted type.</returns>
     /// <exception cref="XPathException">An integer or decimal divisor is zero (FOAR0001).</exception>
-    public static XdmItem Divide(in XdmItem left, in XdmItem right) => Apply(ArithmeticOperator.Divide, left, right);
+    public static XdmItem Divide(in XdmItem left, in XdmItem right) => Divide(left, right, XPathLimits.Default);
+
+    /// <summary>Applies <c>op:numeric-divide</c> under the numeric growth budgets of <paramref name="limits"/>.</summary>
+    /// <param name="left">The left operand.</param>
+    /// <param name="right">The right operand.</param>
+    /// <param name="limits">The budgets.</param>
+    /// <returns>The result, in the promoted type.</returns>
+    /// <exception cref="XPathException">The operation fails as in the overload without limits, or an integer beyond 64 bits is wider, or a decimal has a larger scale, than the budget allows (XP0008, XP0009).</exception>
+    public static XdmItem Divide(in XdmItem left, in XdmItem right, XPathLimits limits) =>
+        Apply(ArithmeticOperator.Divide, left, right, limits);
 
     /// <summary>Divides two numbers and truncates toward zero (<c>op:numeric-integer-divide</c>).</summary>
     /// <param name="left">The dividend.</param>
@@ -79,14 +118,32 @@ internal static class NumericArithmetic
     /// <returns>The integer quotient, an <c>xs:integer</c> for every operand type.</returns>
     /// <exception cref="XPathException">The divisor is zero (FOAR0001), or the dividend is NaN or infinite, or the divisor is NaN (FOAR0002).</exception>
     public static XdmItem IntegerDivide(in XdmItem left, in XdmItem right) =>
-        Apply(ArithmeticOperator.IntegerDivide, left, right);
+        IntegerDivide(left, right, XPathLimits.Default);
+
+    /// <summary>Applies <c>op:numeric-integerdivide</c> under the numeric growth budgets of <paramref name="limits"/>.</summary>
+    /// <param name="left">The left operand.</param>
+    /// <param name="right">The right operand.</param>
+    /// <param name="limits">The budgets.</param>
+    /// <returns>The result, in the promoted type.</returns>
+    /// <exception cref="XPathException">The operation fails as in the overload without limits, or an integer beyond 64 bits is wider, or a decimal has a larger scale, than the budget allows (XP0008, XP0009).</exception>
+    public static XdmItem IntegerDivide(in XdmItem left, in XdmItem right, XPathLimits limits) =>
+        Apply(ArithmeticOperator.IntegerDivide, left, right, limits);
 
     /// <summary>Gets the remainder of a truncating division, with the sign of the dividend (<c>op:numeric-mod</c>).</summary>
     /// <param name="left">The dividend.</param>
     /// <param name="right">The divisor.</param>
     /// <returns>The remainder, in the promoted type.</returns>
     /// <exception cref="XPathException">An integer or decimal divisor is zero (FOAR0001).</exception>
-    public static XdmItem Modulo(in XdmItem left, in XdmItem right) => Apply(ArithmeticOperator.Modulo, left, right);
+    public static XdmItem Modulo(in XdmItem left, in XdmItem right) => Modulo(left, right, XPathLimits.Default);
+
+    /// <summary>Applies <c>op:numeric-modulo</c> under the numeric growth budgets of <paramref name="limits"/>.</summary>
+    /// <param name="left">The left operand.</param>
+    /// <param name="right">The right operand.</param>
+    /// <param name="limits">The budgets.</param>
+    /// <returns>The result, in the promoted type.</returns>
+    /// <exception cref="XPathException">The operation fails as in the overload without limits, or an integer beyond 64 bits is wider, or a decimal has a larger scale, than the budget allows (XP0008, XP0009).</exception>
+    public static XdmItem Modulo(in XdmItem left, in XdmItem right, XPathLimits limits) =>
+        Apply(ArithmeticOperator.Modulo, left, right, limits);
 
     /// <summary>Returns the operand (<c>op:numeric-unary-plus</c>).</summary>
     /// <param name="operand">The operand.</param>
@@ -113,16 +170,16 @@ internal static class NumericArithmetic
         }
     }
 
-    private static XdmItem Apply(ArithmeticOperator op, in XdmItem left, in XdmItem right)
+    private static XdmItem Apply(ArithmeticOperator op, in XdmItem left, in XdmItem right, XPathLimits limits)
     {
         var rank = (Rank)Math.Max((int)RankOf(left), (int)RankOf(right));
         switch (rank)
         {
             case Rank.Integer when op != ArithmeticOperator.Divide:
-                return ApplyInteger(op, left, right);
+                return ApplyInteger(op, left, right, limits);
             case Rank.Integer:
             case Rank.Decimal:
-                return ApplyDecimal(op, ToDecimal(left), ToDecimal(right));
+                return ApplyDecimal(op, ToDecimal(left), ToDecimal(right), limits);
             case Rank.Float:
                 return ApplySingle(op, ToSingle(left), ToSingle(right));
             default:
@@ -131,7 +188,7 @@ internal static class NumericArithmetic
     }
 
     // Integers: 64 bits while the result fits, BigInteger beyond.
-    private static XdmItem ApplyInteger(ArithmeticOperator op, in XdmItem left, in XdmItem right)
+    private static XdmItem ApplyInteger(ArithmeticOperator op, in XdmItem left, in XdmItem right, XPathLimits limits)
     {
         var narrow = left.TryGetInteger(out var a) & right.TryGetInteger(out var b);
         switch (op)
@@ -146,7 +203,7 @@ internal static class NumericArithmetic
                     }
                 }
 
-                return XdmItem.FromBigInteger(ToBigInteger(left) + ToBigInteger(right));
+                return Wide(limits, ToBigInteger(left) + ToBigInteger(right));
             case ArithmeticOperator.Subtract:
                 if (narrow)
                 {
@@ -157,11 +214,17 @@ internal static class NumericArithmetic
                     }
                 }
 
-                return XdmItem.FromBigInteger(ToBigInteger(left) - ToBigInteger(right));
+                return Wide(limits, ToBigInteger(left) - ToBigInteger(right));
             case ArithmeticOperator.Multiply:
-                return narrow && TryMultiply(a, b, out var product)
-                    ? XdmItem.FromInteger(product)
-                    : XdmItem.FromBigInteger(ToBigInteger(left) * ToBigInteger(right));
+                if (narrow && TryMultiply(a, b, out var product))
+                {
+                    return XdmItem.FromInteger(product);
+                }
+
+                var x = ToBigInteger(left);
+                var y = ToBigInteger(right);
+                limits.ThrowIfProductTooWide(x, y, NoLocation);
+                return Wide(limits, x * y);
             case ArithmeticOperator.IntegerDivide:
                 if (narrow)
                 {
@@ -189,8 +252,15 @@ internal static class NumericArithmetic
         }
     }
 
-    private static XdmItem ApplyDecimal(ArithmeticOperator op, in XsdDecimal a, in XsdDecimal b)
+    private static XdmItem ApplyDecimal(ArithmeticOperator op, in XsdDecimal a, in XsdDecimal b, XPathLimits limits)
     {
+        // A product aligns nothing, so only its result is charged; the other operations align the scales, so their operands are.
+        if (op != ArithmeticOperator.Multiply)
+        {
+            limits.ThrowIfScaleTooLarge(a.Scale, NoLocation);
+            limits.ThrowIfScaleTooLarge(b.Scale, NoLocation);
+        }
+
         try
         {
             switch (op)
@@ -200,7 +270,9 @@ internal static class NumericArithmetic
                 case ArithmeticOperator.Subtract:
                     return XdmItem.FromDecimal(a.Subtract(b));
                 case ArithmeticOperator.Multiply:
-                    return XdmItem.FromDecimal(a.Multiply(b));
+                    var product = a.Multiply(b);
+                    limits.ThrowIfScaleTooLarge(product.Scale, NoLocation);
+                    return XdmItem.FromDecimal(product);
                 case ArithmeticOperator.Divide:
                     return XdmItem.FromDecimal(Unwrap(DecimalArithmetic.Divide(a, b)));
                 case ArithmeticOperator.IntegerDivide:
@@ -319,6 +391,13 @@ internal static class NumericArithmetic
                 // The operator table maps numeric types only, so this is a registration error.
                 throw XPathErrors.Exception(XPathErrorCodes.XPTY0004);
         }
+    }
+
+    // An integer result beyond 64 bits is charged against the width budget; a result that fits 64 bits is never charged.
+    private static XdmItem Wide(XPathLimits limits, BigInteger value)
+    {
+        limits.ThrowIfIntegerTooWide(value, NoLocation);
+        return XdmItem.FromBigInteger(value);
     }
 
     private static BigInteger ToBigInteger(in XdmItem item) => item.TryGetBigInteger(out var value) ? value : default;

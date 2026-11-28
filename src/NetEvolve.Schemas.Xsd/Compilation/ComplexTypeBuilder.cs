@@ -3,6 +3,7 @@ namespace NetEvolve.Schemas.Xsd.Compilation;
 using System;
 using System.Collections.Generic;
 using NetEvolve.Schemas.Xml.Datatypes.Contracts;
+using NetEvolve.Schemas.Xml.Datatypes.Facets.Core;
 using NetEvolve.Schemas.Xsd.Assertions.ComplexTypes;
 using NetEvolve.Schemas.Xsd.Attributes.Declarations;
 using NetEvolve.Schemas.Xsd.Attributes.DefaultAttributes;
@@ -347,6 +348,11 @@ internal sealed class ComplexTypeBuilder : IComponentBuilder
         }
 
         var facts = FacetBase.Resolve(restricted, _context.Version);
+        if (facts is null)
+        {
+            RejectFacetsOfAnySimpleType(restricted, step);
+        }
+
         var check = SimpleTypeFacetCheck.Check(
             restricted,
             facts,
@@ -374,6 +380,39 @@ internal sealed class ComplexTypeBuilder : IComponentBuilder
         }
 
         return type;
+    }
+
+    // Datatypes 4.1.5 (cos-applicable-facets): anySimpleType has no primitive, so a length, digits, or bounds facet applies to
+    // nothing. Structures 1.0 only; XSD 1.1 leaves the facets of such a restriction to the datatype check.
+    private void RejectFacetsOfAnySimpleType(IXsdComponent restricted, List<FacetDeclaration> step)
+    {
+        if (
+            _context.Version != XsdVersion.V10
+            || _context.AsSimple(restricted) is not { Name: { LocalName: "anySimpleType" } name }
+            || !string.Equals(name.NamespaceName, SchemaGrammar.Namespace, StringComparison.Ordinal)
+        )
+        {
+            return;
+        }
+
+        for (var i = 0; i < step.Count; i++)
+        {
+            if (
+                !FacetApplicability.IsApplicable(
+                    step[i].Kind,
+                    DatatypeVariety.Atomic,
+                    PrimitiveKind.None,
+                    _context.Version
+                )
+            )
+            {
+                _context.Report(
+                    XsdRuleCodes.CosApplicableFacets,
+                    step[i].Location,
+                    "The facet does not apply to the simple content type anySimpleType of the base type."
+                );
+            }
+        }
     }
 
     private static bool HasAssertionFacet(SchemaSyntaxNode restriction)

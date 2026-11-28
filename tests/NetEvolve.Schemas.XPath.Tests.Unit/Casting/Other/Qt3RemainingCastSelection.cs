@@ -20,8 +20,7 @@ namespace NetEvolve.Schemas.XPath.Tests.Unit.Casting.Other;
 /// Limitation: the QT3 runner of the integration tests still has no evaluator behind it (#295), so these cases run through the lowerings of
 /// <see cref="Core.CastFixture"/> and not through the runner; the end-to-end run stays open until #295, as for the seven types (#265).
 /// <see cref="Excluded"/> lists every case of the same shape that is left out, with the reason: a comparison of dates, times, durations,
-/// Gregorian values, binary values, or QNames needs the operators of XP-26 (#300); a constructor function of a QName with a prefix needs the
-/// static context of the call, which the lowering of a function call has yet to hand over (#644); and a year of 17 digits is within the
+/// Gregorian values, binary values, or QNames needs the operators of XP-26 (#300); a case that uses the prefix <c>fn</c>, which the static context of the fixture does not bind; and a year of 17 digits is within the
 /// range of the datatype layer, where the case expects a smaller implementation-defined range.
 /// </para>
 /// <para>
@@ -3365,11 +3364,11 @@ internal static class Qt3RemainingCastSelection
         ("prod-CastExpr/K-SeqExprCast-400", "The comparison of these types needs the operators of XP-26 (#300)."),
         (
             "prod-CastExpr/K-SeqExprCast-42",
-            "The constructor xs:QName with a prefix needs the static context of the call (#644)."
+            "The case uses the prefix fn, which the static context of this fixture does not bind; the conformance run of the QT3 environment binds it."
         ),
         (
             "prod-CastExpr/K-SeqExprCast-55",
-            "The constructor xs:QName with a prefix needs the static context of the call (#644)."
+            "The case uses the prefix fn, which the static context of this fixture does not bind; the conformance run of the QT3 environment binds it."
         ),
         ("prod-CastExpr/K-SeqExprCast-640", "The comparison of these types needs the operators of XP-26 (#300)."),
         ("prod-CastExpr/K-SeqExprCast-642", "The comparison of these types needs the operators of XP-26 (#300)."),

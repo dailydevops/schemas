@@ -27,6 +27,12 @@ internal static class XPathLimitErrors
     /// <summary>A string is longer than <see cref="XPathLimits.MaxStringLength"/>.</summary>
     internal static readonly XPathErrorCode StringLengthExceeded = new(EngineNamespace, "XP0006");
 
+    /// <summary>The magnitude of an integer has more bits than <see cref="XPathLimits.MaxIntegerBits"/>.</summary>
+    internal static readonly XPathErrorCode IntegerWidthExceeded = new(EngineNamespace, "XP0008");
+
+    /// <summary>The absolute scale of a decimal is above <see cref="XPathLimits.MaxDecimalScale"/>.</summary>
+    internal static readonly XPathErrorCode DecimalScaleExceeded = new(EngineNamespace, "XP0009");
+
     /// <summary>Builds the exception for a breach of <see cref="XPathLimits.MaxRecursionDepth"/>.</summary>
     /// <param name="limit">The configured value.</param>
     /// <param name="location">The location of the expression.</param>
@@ -54,6 +60,20 @@ internal static class XPathLimitErrors
     /// <returns>The exception to throw.</returns>
     internal static XPathException StringLength(long limit, in SourceSpan location) =>
         Breach(StringLengthExceeded, nameof(XPathLimits.MaxStringLength), limit, location);
+
+    /// <summary>Builds the exception for a breach of <see cref="XPathLimits.MaxIntegerBits"/>.</summary>
+    /// <param name="limit">The configured value.</param>
+    /// <param name="location">The location of the expression.</param>
+    /// <returns>The exception to throw.</returns>
+    internal static XPathException IntegerWidth(int limit, in SourceSpan location) =>
+        Breach(IntegerWidthExceeded, nameof(XPathLimits.MaxIntegerBits), limit, location);
+
+    /// <summary>Builds the exception for a breach of <see cref="XPathLimits.MaxDecimalScale"/>.</summary>
+    /// <param name="limit">The configured value.</param>
+    /// <param name="location">The location of the expression.</param>
+    /// <returns>The exception to throw.</returns>
+    internal static XPathException DecimalScale(int limit, in SourceSpan location) =>
+        Breach(DecimalScaleExceeded, nameof(XPathLimits.MaxDecimalScale), limit, location);
 
     // Built on the failure path only; the checks themselves compare and call this.
     private static XPathException Breach(XPathErrorCode code, string name, long limit, in SourceSpan location) =>

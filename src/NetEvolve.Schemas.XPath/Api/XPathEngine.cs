@@ -174,6 +174,12 @@ internal static class XPathEngine
             arguments[i] = context.Lower(node.Arguments[i]);
         }
 
+        // A constructor function resolves the prefix of a lexical QName against the static context, as cast as does (#644).
+        if (function is ConstructorFunction constructor && arity == 1)
+        {
+            function = constructor.BindTo(node.Arguments[0], statics);
+        }
+
         // In XPath 1.0 compatibility mode the node of the mode converts the arguments first (XPath 2.0, 3.1.5).
         return statics.XPath10Compatibility
             ? new CompatibilityCallNode(function, arguments)

@@ -53,7 +53,7 @@ internal static class AggregateInput
         var count = items.Count;
         for (var i = 1; i < count; i++)
         {
-            total = NumericArithmetic.Add(total, Number(items[i]));
+            total = NumericArithmetic.Add(total, Number(items[i]), context.Limits);
         }
 
         return total;

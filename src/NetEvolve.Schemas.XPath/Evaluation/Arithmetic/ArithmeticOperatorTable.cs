@@ -76,6 +76,30 @@ internal sealed class ArithmeticOperatorTable
         );
     }
 
+    /// <summary>Registers a binary operator for a pair of operand types with a form that reads the dynamic context and a plain form for callers without one.</summary>
+    /// <param name="operator">The operator.</param>
+    /// <param name="left">The type of the left operand.</param>
+    /// <param name="right">The type of the right operand.</param>
+    /// <param name="plain">The form without the context.</param>
+    /// <param name="contextual">The form with the context; the evaluation uses it.</param>
+    /// <exception cref="ArgumentNullException">An implementation is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="operator"/> is not a defined operator.</exception>
+    /// <exception cref="InvalidOperationException">The operator and the pair of types already have an implementation.</exception>
+    public void Register(
+        ArithmeticOperator @operator,
+        XdmTypeId left,
+        XdmTypeId right,
+        BinaryOperatorImplementation plain,
+        ContextBinaryOperatorImplementation contextual
+    )
+    {
+        CheckOperator(@operator);
+        ArgumentNullException.ThrowIfNull(plain);
+        ArgumentNullException.ThrowIfNull(contextual);
+
+        Add(@operator, new BinaryEntry(left, right, plain, contextual));
+    }
+
     /// <summary>Registers the implementation of a binary operator for a pair of operand types that reads the dynamic context.</summary>
     /// <param name="operator">The operator.</param>
     /// <param name="left">The type of the left operand.</param>

@@ -1,6 +1,8 @@
 namespace NetEvolve.Schemas.XPath.Casting.Core;
 
+using NetEvolve.Schemas.Xml.Datatypes.QNames;
 using NetEvolve.Schemas.XPath.Api;
+using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Functions.Binding;
 using NetEvolve.Schemas.XPath.Syntax.Tree;
@@ -11,7 +13,10 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// The constructor function of an atomic type, <c>xs:T($arg as xs:anyAtomicType?) as xs:T?</c> (XPath 2.0, 3.10.4): the argument is
 /// atomized by the function conversion rules, the empty sequence gives the empty sequence, and a value is cast to the type.
 /// </summary>
-/// <remarks>Stateless apart from the immutable table, so it is safe to share.</remarks>
+/// <remarks>
+/// Stateless apart from the immutable table, so it is safe to share. The lowering of a call binds a copy to the namespaces of the static
+/// context for a target that resolves the prefix of a lexical form (<c>xs:QName</c>), see <see cref="BindTo"/>.
+/// </remarks>
 internal sealed class ConstructorFunction : XPathFunction
 {
     private static readonly XPathParameterType[] Parameters = [new(XPathItemType.AnyAtomic, Occurrence.ZeroOrOne)];
@@ -20,6 +25,8 @@ internal sealed class ConstructorFunction : XPathFunction
 
     private readonly XdmTypeId _target;
     private readonly CastingTable _table;
+    private readonly bool _bound;
+    private readonly INamespaceContext? _namespaces;
 
     /// <summary>Initializes a new instance of the <see cref="ConstructorFunction"/> class.</summary>
     /// <param name="name">The expanded name of the function, the name of the type.</param>
@@ -35,6 +42,31 @@ internal sealed class ConstructorFunction : XPathFunction
 
         _target = target;
         _table = table;
+    }
+
+    private ConstructorFunction(ConstructorFunction source, INamespaceContext? namespaces)
+        : this(source.Name, source._target, source._table)
+    {
+        _bound = true;
+        _namespaces = namespaces;
+    }
+
+    /// <summary>Binds the function to the static context of one call.</summary>
+    /// <param name="argument">The syntax of the argument of the call.</param>
+    /// <param name="statics">The static context of the call.</param>
+    /// <returns>
+    /// This function when its target does not depend on the namespaces; otherwise a copy that casts as <c>cast as xs:T?</c> does, with the namespaces
+    /// of the static context and the rule of the language version (see <see cref="CastingLowerings.NamespacesFor"/>).
+    /// </returns>
+    /// <exception cref="System.ArgumentNullException">An argument is <see langword="null"/>.</exception>
+    public ConstructorFunction BindTo(Expression argument, XPathStaticContext statics)
+    {
+        ArgumentNullException.ThrowIfNull(argument);
+        ArgumentNullException.ThrowIfNull(statics);
+
+        return _table.IsNamespaceSensitive(_target)
+            ? new ConstructorFunction(this, CastingLowerings.NamespacesFor(argument, statics, _table, _target))
+            : this;
     }
 
     /// <inheritdoc />
@@ -54,7 +86,7 @@ internal sealed class ConstructorFunction : XPathFunction
             return XPathEvaluationStatus.Ok;
         }
 
-        var status = _table.TryCast(argument[0], _target, out var result);
+        var status = Cast(argument[0], out var result);
         if (status == CastStatus.Ok)
         {
             invocation.Result = XdmSequence.Create(result);
@@ -64,4 +96,9 @@ internal sealed class ConstructorFunction : XPathFunction
         invocation.Diagnostic = XPathDiagnostic.Create(status.ToErrorCode());
         return XPathEvaluationStatus.Error;
     }
+
+    private CastStatus Cast(in XdmItem source, out XdmItem result) =>
+        _bound
+            ? _table.TryCast(in source, _target, _namespaces, out result)
+            : _table.TryCast(in source, _target, out result);
 }

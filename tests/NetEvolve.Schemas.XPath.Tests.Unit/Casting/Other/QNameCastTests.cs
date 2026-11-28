@@ -187,8 +187,7 @@ public class QNameCastTests
         await Assert.That(value).IsFalse();
     }
 
-    // The constructor function has no static context: it resolves against no namespaces, so an unprefixed name works and every prefix is unbound.
-    // Limitation until the call lowering hands the static context to a constructor function.
+    // The constructor function is lowered with the static context of the call, as cast as is.
     [Test]
     [Arguments("xs:QName('local')", "local")]
     [Arguments("xs:QName(' local ')", "local")]
@@ -200,7 +199,6 @@ public class QNameCastTests
     }
 
     [Test]
-    [Arguments("xs:QName('p:local')", "FONS0004")]
     [Arguments("xs:QName('zz:local')", "FONS0004")]
     [Arguments("xs:QName('1abc')", "FORG0001")]
     [Arguments("xs:QName(1)", "XPTY0004")]
@@ -212,4 +210,77 @@ public class QNameCastTests
     [Test]
     public async Task Constructor_OfTheEmptySequence_IsTheEmptySequence() =>
         await Assert.That(CastFixture.Evaluate("xs:QName(())").Count).IsEqualTo(0);
+
+    [Test]
+    [Arguments("xs:QName('p:local')")]
+    [Arguments("xs:QName(' p:local ')")]
+    [Arguments("xs:QName(('p:local'))")]
+    [Arguments("xs:QName('q:local')")]
+    public async Task Constructor_PrefixedName_IsResolvedAgainstTheStaticContext(string expression)
+    {
+        foreach (var statics in (XPathStaticContext[])[V20, V30, V31])
+        {
+            await Assert.That(Item(expression, statics).TryGetQName(out var name)).IsTrue();
+            await Assert.That(name!.Name.NamespaceName).IsEqualTo(P);
+            await Assert.That(name.Name.LocalName).IsEqualTo("local");
+        }
+    }
+
+    [Test]
+    public async Task Constructor_UnboundPrefix_IsFons0004InEveryVersion()
+    {
+        foreach (var statics in (XPathStaticContext[])[V20, V30, V31])
+        {
+            await Assert.That(Code("xs:QName('zz:local')", statics)).IsEqualTo("FONS0004");
+        }
+    }
+
+    [Test]
+    public async Task Constructor_UnprefixedName_TakesTheDefaultElementNamespace()
+    {
+        var statics = V20.ToBuilder().WithDefaultElementNamespace("urn:default").Build();
+
+        await Assert.That(Item("xs:QName('local')", statics).TryGetQName(out var name)).IsTrue();
+        await Assert.That(name!.Name.NamespaceName).IsEqualTo("urn:default");
+    }
+
+    // The constructor function is cast as xs:QName?: XPath 2.0 takes a string literal alone, XPath 3.0 and 3.1 any string or untyped value.
+    [Test]
+    [Arguments("xs:string('local')")]
+    [Arguments("xs:string('p:local')")]
+    [Arguments("xs:untypedAtomic('p:local')")]
+    [Arguments("xs:untypedAtomic('an arbitrary string')")]
+    public async Task Xpath20_Constructor_NotAStringLiteral_IsXpty0004(string operand) =>
+        await Assert.That(Code("xs:QName(" + operand + ")", V20)).IsEqualTo("XPTY0004");
+
+    [Test]
+    [Arguments("xs:string('p:local')", "p:local")]
+    [Arguments("xs:untypedAtomic(' p:local ')", "p:local")]
+    public async Task Xpath30And31_Constructor_AnyStringOrUntypedOperand_IsCast(string operand, string text)
+    {
+        foreach (var statics in (XPathStaticContext[])[V30, V31])
+        {
+            var expression = "xs:QName(" + operand + ")";
+
+            await Assert.That(Text(expression, statics)).IsEqualTo(text);
+        }
+    }
+
+    [Test]
+    public async Task Constructor_InCompatibilityMode_IsResolvedAgainstTheStaticContext()
+    {
+        var statics = V20.ToBuilder().WithXPath10Compatibility(true).Build();
+
+        await Assert.That(Item("xs:QName('p:local')", statics).TryGetQName(out var name)).IsTrue();
+        await Assert.That(name!.Name.NamespaceName).IsEqualTo(P);
+    }
+
+    [Test]
+    public async Task Constructor_OfTheEmptySequence_IsTheEmptySequenceInEveryVersion()
+    {
+        foreach (var statics in (XPathStaticContext[])[V20, V30, V31])
+        {
+            await Assert.That(Evaluate("xs:QName(())", statics).Count).IsEqualTo(0);
+        }
+    }
 }

@@ -7,7 +7,6 @@ using NetEvolve.Schemas.XPath.Functions.Binding;
 /// The registration file of the functions of the <c>map</c> namespace: its module initializer stages <see cref="Register"/> into the
 /// default catalog (#123, AP8, option B). The functions are available from XPath 3.1 on.
 /// </summary>
-/// <remarks>Limitation: <c>map:find</c> returns an array and waits for the array item, so it is not registered.</remarks>
 internal static class Registration
 {
     // Decision (#123, AP8, option B): a library registers its function groups through a module initializer, so CA2255 is suppressed in this file, once, and not in any other.
@@ -32,5 +31,6 @@ internal static class Registration
         builder.Add(new MapEntryFunction());
         builder.Add(new MapRemoveFunction());
         builder.Add(new MapForEachFunction());
+        builder.Add(new MapFindFunction());
     }
 }
