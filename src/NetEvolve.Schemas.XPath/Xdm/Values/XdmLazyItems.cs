@@ -5,8 +5,8 @@ using System.Collections.Generic;
 /// <summary>Holds the source of a lazy sequence: it is enumerated once, on the first read, and the result is kept.</summary>
 /// <remarks>
 /// Limitation: not thread-safe; an evaluation reads its sequences from one thread. The first read drains the whole source. The one
-/// exception is <see cref="UnreadSource"/>: <c>fn:count</c>, <c>fn:exists</c>, and <c>fn:empty</c> enumerate a source that nobody has read
-/// without keeping the items, so a source can be enumerated more than once.
+/// exception is <see cref="UnreadSource"/>: <c>fn:count</c>, <c>fn:exists</c>, <c>fn:empty</c>, <c>fn:subsequence</c>, <c>fn:zero-or-one</c>, <c>fn:one-or-more</c>, and <c>fn:exactly-one</c>
+/// pull from a source that nobody has read without keeping the items (<see cref="XdmSequenceCursor"/>), so a source can be enumerated more than once.
 /// </remarks>
 internal sealed class XdmLazyItems
 {

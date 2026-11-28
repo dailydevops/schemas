@@ -72,6 +72,11 @@
     "baselineRatio": 0.4
   },
   {
+    "name": "XPathSequenceStreamBenchmarks.EvaluateSequenceStreams",
+    "meanNs": 1500.0,
+    "allocatedBytes": 456
+  },
+  {
     "name": "XPathStringFunctionBenchmarks.LowerCase",
     "meanNs": 12000.0,
     "allocatedBytes": 800,
