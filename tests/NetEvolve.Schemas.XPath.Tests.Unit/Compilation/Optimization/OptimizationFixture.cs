@@ -18,18 +18,27 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 internal static class OptimizationFixture
 {
     /// <summary>Compiles an expression with the rewrites that are enabled.</summary>
-    public static CompiledExpression Compile(string text, XPathOptimizations optimizations)
+    public static CompiledExpression Compile(
+        string text,
+        XPathOptimizations optimizations,
+        XPathStaticContext? statics = null
+    )
     {
-        var result = XPathEngine.TryCompile(text, text, null, XPathEngine.AllSlots, optimizations);
+        var result = XPathEngine.TryCompile(text, text, statics, XPathEngine.AllSlots, optimizations);
         return result.Expression?.Compiled
             ?? throw new InvalidOperationException("The expression does not compile: " + result.Diagnostic.Code);
     }
 
     /// <summary>Compiles and evaluates an expression with the document of the tree as the context item.</summary>
     /// <returns>The rendered result, or the error code when evaluating raises one.</returns>
-    public static string Run(string text, XPathOptimizations optimizations, ChildrenTree tree)
+    public static string Run(
+        string text,
+        XPathOptimizations optimizations,
+        ChildrenTree tree,
+        XPathStaticContext? statics = null
+    )
     {
-        var compiled = Compile(text, optimizations);
+        var compiled = Compile(text, optimizations, statics);
         using var context = new XPathEvaluationContext();
         context.SetContextItem(XdmItem.FromNode(tree.At(0)));
         try
