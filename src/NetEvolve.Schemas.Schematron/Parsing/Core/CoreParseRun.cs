@@ -173,7 +173,10 @@ internal sealed partial class CoreParseRun
         return new SchematronNamespace(Location(element), prefix, uri);
     }
 
-    private SchematronPatternBase ParsePattern(XmlNode element, bool isGroup)
+    private SchematronPatternBase ParsePattern(XmlNode element, bool isGroup) =>
+        WithBase(ParsePatternCore(element, isGroup), element);
+
+    private SchematronPatternBase ParsePatternCore(XmlNode element, bool isGroup)
     {
         var id = Attribute(element, "id");
         var isAbstract = Boolean(element, "abstract");
@@ -253,7 +256,9 @@ internal sealed partial class CoreParseRun
         }
     }
 
-    private SchematronRule ParseRule(XmlNode element)
+    private SchematronRule ParseRule(XmlNode element) => WithBase(ParseRuleCore(element), element);
+
+    private SchematronRule ParseRuleCore(XmlNode element)
     {
         SchematronTitle? title = null;
         var lets = new List<SchematronLet>();
@@ -314,7 +319,9 @@ internal sealed partial class CoreParseRun
         );
     }
 
-    private SchematronAssert ParseAssert(XmlNode element)
+    private SchematronAssert ParseAssert(XmlNode element) => WithBase(ParseAssertCore(element), element);
+
+    private SchematronAssert ParseAssertCore(XmlNode element)
     {
         var test = Required(element, "test");
         var id = Attribute(element, "id");
@@ -338,7 +345,9 @@ internal sealed partial class CoreParseRun
         );
     }
 
-    private SchematronReport ParseReport(XmlNode element)
+    private SchematronReport ParseReport(XmlNode element) => WithBase(ParseReportCore(element), element);
+
+    private SchematronReport ParseReportCore(XmlNode element)
     {
         var test = Required(element, "test");
         var id = Attribute(element, "id");
@@ -362,7 +371,9 @@ internal sealed partial class CoreParseRun
         );
     }
 
-    private SchematronLet ParseLet(XmlNode element)
+    private SchematronLet ParseLet(XmlNode element) => WithBase(ParseLetCore(element), element);
+
+    private SchematronLet ParseLetCore(XmlNode element)
     {
         var name = Required(element, "name");
         var declaredType = Attribute(element, "as");
@@ -524,6 +535,35 @@ internal sealed partial class CoreParseRun
 
     private SchematronMessage ParseMessage(XmlNode element, CoreInline allowed) =>
         new(Location(element), ParseParts(element, allowed), InheritedLanguage(element));
+
+    private T WithBase<T>(T node, XmlNode element)
+        where T : SchematronNode
+    {
+        node.BaseUri = InheritedBase(element);
+        return node;
+    }
+
+    // The base URI of an element when an xml:base of the element or of an ancestor sets it, otherwise null: the base is then the system
+    // identifier of the schema and the expressions behave as without xml:base (#1263).
+    private string? InheritedBase(XmlNode element)
+    {
+        for (var node = element; !node.IsEmpty; node = node.Parent)
+        {
+            for (var attribute = node.FirstAttribute; !attribute.IsEmpty; attribute = attribute.NextAttribute)
+            {
+                var name = attribute.Name;
+                if (
+                    string.Equals(_names.GetString(name.Local), "base", StringComparison.Ordinal)
+                    && string.Equals(_names.GetString(name.NamespaceUri), XmlNamespace, StringComparison.Ordinal)
+                )
+                {
+                    return element.BaseUri?.OriginalString;
+                }
+            }
+        }
+
+        return null;
+    }
 
     // The nearest xml:lang of the element and its ancestors; an empty value resets the language, so it is returned as written.
     private string? InheritedLanguage(XmlNode element)
