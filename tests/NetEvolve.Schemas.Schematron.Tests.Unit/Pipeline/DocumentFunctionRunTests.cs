@@ -273,6 +273,15 @@ public class DocumentFunctionRunTests
         await Assert.That(result.IsValid).IsTrue();
     }
 
+    [Test]
+    public async Task ElementAvailable_OfARegisteredAndAnUnknownInstruction_AnswersFromTheRegistry()
+    {
+        var validator = ElementAvailableValidator();
+        var result = Validate(validator, Instance);
+
+        await Assert.That(result.IsValid).IsTrue();
+    }
+
     private static ValidationResult RunAsserts(string[] tests, FakeResources files, ValidationLimits? limits = null)
     {
         var asserts = string.Concat(tests.Select(t => $"<assert test=\"{t}\">Failed.</assert>"));
@@ -334,6 +343,18 @@ public class DocumentFunctionRunTests
         await Assert.That(result.IsValid).IsTrue();
         await Assert.That(files.Requests.Last()).IsEqualTo("file:///schemas/sub/inner.xml");
     }
+
+    private static ISchematronValidator ElementAvailableValidator() =>
+        SchemaValidator
+            .ForSchematron(
+                Wrap(
+                    "<ns prefix=\"xsl\" uri=\"http://www.w3.org/1999/XSL/Transform\"/>"
+                        + "<pattern id=\"p\"><rule context=\"doc\"><assert test=\"element-available('xsl:copy-of') and not(element-available('xsl:no-such-instruction'))\">Failed.</assert></rule></pattern>",
+                    $" queryBinding=\"xslt2\" schematronEdition=\"2025\" {Xsl}"
+                ),
+                Schema
+            )
+            .Build();
 
     private static ISchematronValidator FunctionBodyValidator(FakeResources files) =>
         SchemaValidator
