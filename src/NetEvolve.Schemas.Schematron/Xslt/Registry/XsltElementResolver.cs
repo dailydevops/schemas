@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.Schematron.Xslt.Registry;
 
 using NetEvolve.Schemas.Schematron.Seams;
+using NetEvolve.Schemas.Schematron.Xslt.Functions;
 using NetEvolve.Schemas.Xml.Model;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Xdm.Nodes;
@@ -77,6 +78,17 @@ internal static class XsltElementResolver
                 );
                 return false;
             default:
+                if (
+                    (where & XsltPosition.Instruction) != XsltPosition.None
+                    && !XsltKnownElements.Contains(local)
+                    && HasFallback(element)
+                    && registry.TryGetSynthetic(XsltSyntheticElement.UnknownInstruction, out instruction)
+                )
+                {
+                    problem = default;
+                    return true;
+                }
+
                 problem = new SchematronProblem(
                     SchematronDiagnosticCodes.XsltUnsupported,
                     $"The XSLT element 'xsl:{local}' is not supported.",
@@ -107,6 +119,20 @@ internal static class XsltElementResolver
             "The XSLT construct 'text node' is not supported.",
             LocationOf(new XPathNode(text.Node.Parent), moduleSystemId)
         );
+        return false;
+    }
+
+    // An element that XSLT does not define is replaced by its xsl:fallback children (XSLT 2.0 section 18.2).
+    private static bool HasFallback(XPathNode element)
+    {
+        for (var child = element.Node.FirstChild; !child.IsEmpty; child = child.NextSibling)
+        {
+            if (XsltElementReader.IsXslt(child, "fallback"))
+            {
+                return true;
+            }
+        }
+
         return false;
     }
 
