@@ -30,7 +30,7 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// as the position (<c>last()</c> then equals <c>position()</c>). The token is looked at before every evaluation.
 /// </para>
 /// </remarks>
-internal sealed class XPathQueryRun : IXsltFunctionRun, IXsltGroupRun, IXPathResourceResolver
+internal sealed class XPathQueryRun : IXsltFunctionRun, IXsltGroupRun, IXsltRegexRun, IXPathResourceResolver
 {
     // The public code type, not the internal table of the XPath package, which the seam rule keeps out of reach.
     private static readonly XPathErrorCode UnsetContext = new("XPDY0002");
@@ -44,7 +44,7 @@ internal sealed class XPathQueryRun : IXsltFunctionRun, IXsltGroupRun, IXPathRes
     private IXPathKeyProvider? _keys;
     private XdmSequence[] _values = new XdmSequence[16];
     private bool[] _bound = new bool[16];
-    private readonly Stack<(XdmSequence? Group, XdmSequence? Key)> _saved = new();
+    private readonly Stack<(XdmSequence? Group, XdmSequence? Key, XPathRegexGroups? Regex)> _saved = new();
     private SchematronProblem _problem;
     private RunLoading? _loading;
 
@@ -61,6 +61,9 @@ internal sealed class XPathQueryRun : IXsltFunctionRun, IXsltGroupRun, IXPathRes
 
     /// <inheritdoc />
     public XdmSequence? CurrentGroupingKey { get; set; }
+
+    /// <inheritdoc />
+    public XPathRegexGroups? RegexGroups { get; set; }
 
     /// <inheritdoc />
     public object? FunctionCalls
@@ -189,15 +192,16 @@ internal sealed class XPathQueryRun : IXsltFunctionRun, IXsltGroupRun, IXPathRes
 
     // A function body starts with no focus, no current item, no group, no grouping key, and no regex groups: an evaluation that
     // is nested in another one runs on a context of its own (see Acquire), which is cleared when it is taken, so the focus needs no
-    // save here. The group and the key live in the run, not in a context, so they are saved and cleared.
+    // save here. The group, the key, and the regex groups live in the run, not in a context, so they are saved and cleared.
     public void EnterFunction()
     {
-        _saved.Push((CurrentGroup, CurrentGroupingKey));
+        _saved.Push((CurrentGroup, CurrentGroupingKey, RegexGroups));
         CurrentGroup = null;
         CurrentGroupingKey = null;
+        RegexGroups = null;
     }
 
-    public void ExitFunction() => (CurrentGroup, CurrentGroupingKey) = _saved.Pop();
+    public void ExitFunction() => (CurrentGroup, CurrentGroupingKey, RegexGroups) = _saved.Pop();
 
     public void FailWith(in SchematronProblem problem)
     {
@@ -323,6 +327,7 @@ internal sealed class XPathQueryRun : IXsltFunctionRun, IXsltGroupRun, IXPathRes
         SetFocus(context, in focus);
         context.Host.CurrentGroup = CurrentGroup;
         context.Host.CurrentGroupingKey = CurrentGroupingKey;
+        context.Host.RegexGroups = RegexGroups;
         return context;
     }
 

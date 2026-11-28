@@ -36,7 +36,7 @@ public class LibraryCoreArchitectureTests
     }
 
     [Test]
-    public async Task LibraryCore_RegistersExactlyTheCoreAndGroupingFunctions()
+    public async Task LibraryCore_RegistersExactlyTheCoreGroupingAndRegexFunctions()
     {
         var names = new List<string>();
         foreach (var function in Scope().CoreFunctions)
@@ -49,7 +49,7 @@ public class LibraryCoreArchitectureTests
         await Assert
             .That(string.Join(",", names))
             .IsEqualTo(
-                "current-group/0-0,current-grouping-key/0-0,current/0-0,element-available/1-1,function-available/1-2,system-property/1-1"
+                "current-group/0-0,current-grouping-key/0-0,current/0-0,element-available/1-1,function-available/1-2,regex-group/1-1,system-property/1-1"
             );
     }
 

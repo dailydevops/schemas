@@ -50,11 +50,5 @@
       ]
     }
   ],
-  "knownFailures": [
-    {"id": "analyze-string/valid-dates.xml", "issue": 1087, "reason": "A stylesheet function with xsl:analyze-string and regex-group() does not build or run: regex-group is not offered to the function scope (NES3202), and the run of the XPath binding does not hold the regex groups (NES3301) (#1087)."},
-    {"id": "analyze-string/no-dates.xml", "issue": 1087, "reason": "A stylesheet function with xsl:analyze-string and regex-group() does not build or run: regex-group is not offered to the function scope (NES3202), and the run of the XPath binding does not hold the regex groups (NES3301) (#1087)."},
-    {"id": "analyze-string/month-thirteen.xml", "issue": 1087, "reason": "A stylesheet function with xsl:analyze-string and regex-group() does not build or run: regex-group is not offered to the function scope (NES3202), and the run of the XPath binding does not hold the regex groups (NES3301) (#1087)."},
-    {"id": "analyze-string/one-bad-of-two.xml", "issue": 1087, "reason": "A stylesheet function with xsl:analyze-string and regex-group() does not build or run: regex-group is not offered to the function scope (NES3202), and the run of the XPath binding does not hold the regex groups (NES3301) (#1087)."},
-    {"id": "analyze-string/no-note.xml", "issue": 1087, "reason": "A stylesheet function with xsl:analyze-string and regex-group() does not build or run: regex-group is not offered to the function scope (NES3202), and the run of the XPath binding does not hold the regex groups (NES3301) (#1087)."}
-  ]
+  "knownFailures": []
 }

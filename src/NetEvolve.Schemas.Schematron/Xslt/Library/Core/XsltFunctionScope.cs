@@ -5,6 +5,7 @@ using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Schematron.Xslt.Documents;
 using NetEvolve.Schemas.Schematron.Xslt.Functions;
 using NetEvolve.Schemas.Schematron.Xslt.Instructions.Grouping;
+using NetEvolve.Schemas.Schematron.Xslt.Instructions.Regex;
 using NetEvolve.Schemas.Schematron.Xslt.Registry;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Context;
@@ -64,6 +65,7 @@ internal sealed class XsltFunctionScope
             new FunctionAvailableFunction(this),
             new ElementAvailableFunction(statics, instructions ?? (() => XsltRegistryCatalog.Shared.Default)),
             .. XsltGroupingFunctions.Create(binding),
+            new RegexGroupFunction(),
         ];
         // The document functions are a layer of their own: a relative reference resolves against the base URI of the expressions (#312).
         StaticContext = statics
