@@ -133,4 +133,47 @@ public class GlobalContentTests
 
         await Assert.That(Validate(validator, "<a/>").IsValid).IsTrue();
     }
+
+    [Test]
+    public async Task Variable_WithABodyThatDoesNotCompile_FailsTheBuild()
+    {
+        var failure = BuildFailure(
+            Wrap(
+                Ns
+                    + "<xsl:variable name=\"t\"><e xmlns=\"\"><xsl:value-of select=\"1 +\"/></e></xsl:variable>"
+                    + Rule("true()"),
+                $" queryBinding=\"xslt2\" schematronEdition=\"2025\" {Xsl} xmlns:f=\"urn:f\""
+            )
+        );
+
+        await Assert.That(failure.Issues.Count).IsGreaterThan(0);
+        await Assert.That(failure.Issues[0].Constraint).IsEqualTo("XPST0003");
+    }
+
+    [Test]
+    public async Task Variable_WithAnInvalidAsType_FailsTheBuild()
+    {
+        var failure = BuildFailure(
+            Wrap(
+                Ns
+                    + "<xsl:variable name=\"t\" as=\"xs:integer )\"><xsl:sequence select=\"1\"/></xsl:variable>"
+                    + Rule("true()"),
+                $" queryBinding=\"xslt2\" schematronEdition=\"2025\" {Xsl} xmlns:f=\"urn:f\""
+            )
+        );
+
+        await Assert.That(failure.Issues.Count).IsGreaterThan(0);
+    }
+
+    [Test]
+    public async Task Variable_WithElementContent_NextToAFunction_StillBuilds()
+    {
+        var validator = Inline(
+            "<xsl:function name=\"f:twice\" as=\"xs:integer\"><xsl:param name=\"x\" as=\"xs:integer\"/><xsl:variable name=\"y\" select=\"$x * 2\"/><xsl:sequence select=\"$y\"/></xsl:function>"
+                + "<xsl:variable name=\"t\" as=\"xs:integer\"><xsl:sequence select=\"f:twice(21)\"/></xsl:variable>",
+            "$t = 42"
+        );
+
+        await Assert.That(Validate(validator, "<a/>").IsValid).IsTrue();
+    }
 }
