@@ -1,8 +1,10 @@
 namespace NetEvolve.Schemas.XPath.Functions.Sequences;
 
+using System;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Evaluation.Arithmetic;
+using NetEvolve.Schemas.XPath.Evaluation.Atomization;
 using NetEvolve.Schemas.XPath.Evaluation.Temporal;
 using NetEvolve.Schemas.XPath.Functions.Binding;
 using NetEvolve.Schemas.XPath.Syntax.Tree;
@@ -34,41 +36,40 @@ internal static class AggregateInput
         return IsNumber(in value) ? value : throw XPathErrors.Exception(XPathErrorCodes.FORG0006);
     }
 
-    /// <summary>Adds the numbers or the durations of a sequence in order, with type promotion for the numbers.</summary>
-    /// <param name="items">The atomized items, not empty.</param>
+    /// <summary>Adds the numbers or the durations of the items in order, with type promotion for the numbers.</summary>
+    /// <param name="items">The items, not empty; a node is atomized here.</param>
     /// <param name="context">The dynamic context.</param>
     /// <returns>The sum, in the promoted type, or a duration of the type of the items.</returns>
     /// <exception cref="System.ArgumentNullException"><paramref name="context"/> is <see langword="null"/>.</exception>
     /// <exception cref="XPathException">An item is not a number (FORG0006) or cannot be cast (FORG0001), the sum overflows (FOAR0002 for a number, FODT0002 for a duration), or the durations are of two subtypes (FORG0006).</exception>
-    public static XdmItem Sum(in XdmSequence items, XPathEvaluationContext context)
+    public static XdmItem Sum(ReadOnlySpan<XdmItem> items, XPathEvaluationContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
 
-        if (TemporalAggregation.IsSummable(items[0]))
+        var first = XPathAtomization.AtomizeUntyped(items[0]);
+        if (TemporalAggregation.IsSummable(first))
         {
-            return SumDurations(in items, context);
+            return SumDurations(items, first, context);
         }
 
-        var total = Number(items[0]);
-        var count = items.Count;
-        for (var i = 1; i < count; i++)
+        var total = Number(first);
+        for (var i = 1; i < items.Length; i++)
         {
-            total = NumericArithmetic.Add(total, Number(items[i]), context.Limits);
+            total = NumericArithmetic.Add(total, Number(XPathAtomization.AtomizeUntyped(items[i])), context.Limits);
         }
 
         return total;
     }
 
-    private static XdmItem SumDurations(in XdmSequence items, XPathEvaluationContext context)
+    private static XdmItem SumDurations(ReadOnlySpan<XdmItem> items, XdmItem total, XPathEvaluationContext context)
     {
-        var total = items[0];
-        var count = items.Count;
-        for (var i = 1; i < count; i++)
+        for (var i = 1; i < items.Length; i++)
         {
+            var item = XPathAtomization.AtomizeUntyped(items[i]);
             // A year-month and a day-time duration, or a duration and a number, have no sum: the operator table has no entry for the pair.
             if (
-                !TemporalAggregation.IsSummable(items[i])
-                || !TemporalAggregation.TryApply(ArithmeticOperator.Add, total, items[i], context, out total)
+                !TemporalAggregation.IsSummable(item)
+                || !TemporalAggregation.TryApply(ArithmeticOperator.Add, total, item, context, out total)
             )
             {
                 throw XPathErrors.Exception(XPathErrorCodes.FORG0006);

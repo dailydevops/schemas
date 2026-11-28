@@ -106,6 +106,9 @@ internal sealed class PathNode : ExecutableNode, IOrderedNodeSequence, IItemList
         return _limit >= limit;
     }
 
+    /// <summary>Gets the location of the path in the expression, reported when a result exceeds the sequence size limit.</summary>
+    internal SourceSpan Location => _location;
+
     /// <summary>Gets what each step needs after it ran: nothing, a reversal, duplicate removal, or a sort.</summary>
     public IReadOnlyList<XPathOrderRequirement> Requirements => _requirements;
 

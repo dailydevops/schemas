@@ -1,8 +1,11 @@
 namespace NetEvolve.Schemas.XPath.Functions.Sequences;
 
+using System;
 using NetEvolve.Schemas.XPath.Api;
+using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Evaluation.Arithmetic;
 using NetEvolve.Schemas.XPath.Evaluation.Temporal;
+using NetEvolve.Schemas.XPath.Functions.Binding;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>
@@ -13,7 +16,7 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// <c>op:divide-dayTimeDuration</c> divide.
 /// </summary>
 /// <remarks>Limitation: <c>xs:duration</c> and the dates and times have no average and are FORG0006 (<see cref="AggregateInput"/>).</remarks>
-internal sealed class AverageFunction : SequenceFunction
+internal sealed class AverageFunction : SequenceFunction, IItemSpanFunction
 {
     /// <summary>Initializes a new instance of the <see cref="AverageFunction"/> class.</summary>
     public AverageFunction()
@@ -22,17 +25,26 @@ internal sealed class AverageFunction : SequenceFunction
     /// <inheritdoc />
     public override XPathEvaluationStatus Invoke(ref XPathFunctionCall invocation)
     {
-        var items = invocation.Arguments[0];
-        if (!items.IsEmpty)
+        invocation.Result = InvokeOver(this, in invocation.Arguments[0], invocation.Context);
+        return XPathEvaluationStatus.Ok;
+    }
+
+    /// <inheritdoc />
+    public XdmSequence InvokeOver(XPathEvaluationContext context, ReadOnlySpan<XdmItem> items) =>
+        Average(items, context);
+
+    private static XdmSequence Average(ReadOnlySpan<XdmItem> items, XPathEvaluationContext context)
+    {
+        if (items.IsEmpty)
         {
-            var total = AggregateInput.Sum(in items, invocation.Context);
-            invocation.Result = XdmSequence.Create(
-                TemporalAggregation.IsSummable(in total)
-                    ? AggregateInput.DivideDuration(in total, items.Count, invocation.Context)
-                    : NumericArithmetic.Divide(total, XdmItem.FromInteger(items.Count), invocation.Context.Limits)
-            );
+            return default;
         }
 
-        return XPathEvaluationStatus.Ok;
+        var total = AggregateInput.Sum(items, context);
+        return XdmSequence.Create(
+            TemporalAggregation.IsSummable(in total)
+                ? AggregateInput.DivideDuration(in total, items.Length, context)
+                : NumericArithmetic.Divide(total, XdmItem.FromInteger(items.Length), context.Limits)
+        );
     }
 }

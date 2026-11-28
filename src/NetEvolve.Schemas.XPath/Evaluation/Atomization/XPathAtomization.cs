@@ -1,5 +1,6 @@
 namespace NetEvolve.Schemas.XPath.Evaluation.Atomization;
 
+using System;
 using System.Collections.Generic;
 using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Xdm.Arrays;
@@ -76,6 +77,33 @@ internal static class XPathAtomization
         }
 
         return XdmSequence.Create(items);
+    }
+
+    /// <summary>Atomizes one item with the untyped default: a node yields its <c>xs:untypedAtomic</c> or <c>xs:string</c> value, an atomic value passes through.</summary>
+    /// <param name="item">The item, not a function item.</param>
+    /// <returns>The atomic value.</returns>
+    internal static XdmItem AtomizeUntyped(in XdmItem item) =>
+        item.IsNode ? AtomizeNode(item, UntypedAnnotationSource.Instance)[0] : item;
+
+    /// <summary>Computes the effective boolean value of items in a span; the same rules as for a sequence.</summary>
+    /// <param name="items">The items.</param>
+    /// <returns>The value.</returns>
+    /// <exception cref="XPathException">The operand has no effective boolean value (FORG0006).</exception>
+    internal static bool EffectiveBooleanValue(ReadOnlySpan<XdmItem> items)
+    {
+        if (items.IsEmpty)
+        {
+            return false;
+        }
+
+        if (items[0].IsNode)
+        {
+            return true;
+        }
+
+        return items.Length > 1
+            ? throw XPathErrors.Exception(XPathErrorCodes.FORG0006)
+            : EffectiveBooleanValue(XdmSequence.Create(items[0]));
     }
 
     /// <summary>Computes the effective boolean value of a sequence.</summary>

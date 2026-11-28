@@ -118,10 +118,11 @@ public class NumericGrowthTests
     public async Task Sum_BeyondTheLimit_EndsInTheCodedDiagnostic()
     {
         using var context = new XPathEvaluationContext { Limits = XPathLimits.Default.WithMaxIntegerBits(64) };
-        var items = XdmSequence.Create([
+        XdmItem[] items =
+        [
             XdmItem.FromBigInteger(System.Numerics.BigInteger.Pow(2, 63)),
             XdmItem.FromBigInteger(System.Numerics.BigInteger.Pow(2, 63)),
-        ]);
+        ];
 
         XPathException? caught = null;
         try
