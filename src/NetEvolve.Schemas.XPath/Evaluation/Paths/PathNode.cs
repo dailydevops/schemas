@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using NetEvolve.Schemas.XPath.Compilation;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Errors;
+using NetEvolve.Schemas.XPath.Evaluation.Axes;
 using NetEvolve.Schemas.XPath.Evaluation.Ordering;
+using NetEvolve.Schemas.XPath.Limits;
 using NetEvolve.Schemas.XPath.Syntax.Tree;
 using NetEvolve.Schemas.XPath.Xdm.Nodes;
 using NetEvolve.Schemas.XPath.Xdm.Values;
@@ -21,6 +23,9 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// </remarks>
 internal sealed class PathNode : ExecutableNode, IOrderedNodeSequence, IItemListProducer
 {
+    // A path of more plain steps than this keeps the list pipeline; the walk keeps its per-step state on the stack.
+    private const int MaxDirectSteps = 16;
+
     private const XPathOrderProperties Kept = XPathOrderProperties.Single | XPathOrderProperties.NonNested;
 
     private readonly PathRoot _root;
@@ -28,6 +33,9 @@ internal sealed class PathNode : ExecutableNode, IOrderedNodeSequence, IItemList
     private readonly XPathOrderRequirement[] _requirements;
     private readonly SourceSpan _location;
     private readonly bool _stopsAtFirst;
+
+    // The steps of a path that needs no list pipeline: plain axis steps whose results need no ordering. Null for any other path.
+    private readonly AxisPathStep[]? _direct;
     private int _limit;
 
     /// <summary>Initializes a new instance of the <see cref="PathNode"/> class.</summary>
@@ -52,6 +60,7 @@ internal sealed class PathNode : ExecutableNode, IOrderedNodeSequence, IItemList
         // A last step that can only deliver nodes, already in order, is enough once it delivered one: the truth is known.
         var last = steps.Length - 1;
         _stopsAtFirst = last >= 0 && steps[last].CanLimit && _requirements[last] == XPathOrderRequirement.None;
+        _direct = CreateDirect(steps, _requirements);
     }
 
     /// <summary>Gets the number of result nodes that is enough, zero when the path delivers every node.</summary>
@@ -115,6 +124,19 @@ internal sealed class PathNode : ExecutableNode, IOrderedNodeSequence, IItemList
 
         var limit = context.Limits.MaxSequenceSize;
         var current = new XdmItemList(limit, _location);
+        if (_direct is not null)
+        {
+            try
+            {
+                Walk(context, ref current, _limit);
+                return current.ToSequence();
+            }
+            finally
+            {
+                current.Dispose();
+            }
+        }
+
         var next = new XdmItemList(limit, _location);
         try
         {
@@ -145,6 +167,19 @@ internal sealed class PathNode : ExecutableNode, IOrderedNodeSequence, IItemList
 
         var limit = context.Limits.MaxSequenceSize;
         var current = new XdmItemList(limit, _location);
+        if (_direct is not null)
+        {
+            try
+            {
+                Walk(context, ref current, 1);
+                return current.Count > 0;
+            }
+            finally
+            {
+                current.Dispose();
+            }
+        }
+
         var next = new XdmItemList(limit, _location);
         try
         {
@@ -162,6 +197,12 @@ internal sealed class PathNode : ExecutableNode, IOrderedNodeSequence, IItemList
     public void EvaluateInto(XPathEvaluationContext context, ref XdmItemList results)
     {
         ArgumentNullException.ThrowIfNull(context);
+
+        if (_direct is not null)
+        {
+            Walk(context, ref results, _limit);
+            return;
+        }
 
         var limit = context.Limits.MaxSequenceSize;
         var current = new XdmItemList(limit, _location);
@@ -200,6 +241,106 @@ internal sealed class PathNode : ExecutableNode, IOrderedNodeSequence, IItemList
             (current, next) = (next, current);
             next.Clear();
         }
+    }
+
+    private static AxisPathStep[]? CreateDirect(PathStep[] steps, XPathOrderRequirement[] requirements)
+    {
+        if (steps.Length is 0 or > MaxDirectSteps)
+        {
+            return null;
+        }
+
+        var direct = new AxisPathStep[steps.Length];
+        for (var i = 0; i < steps.Length; i++)
+        {
+            if (steps[i] is not AxisPathStep { IsPlain: true } step || requirements[i] != XPathOrderRequirement.None)
+            {
+                return null;
+            }
+
+            direct[i] = step;
+        }
+
+        return direct;
+    }
+
+    // Visits the nodes of the steps depth first and adds only those of the last step to the results. Every step keeps the order of its
+    // axis and needs no sort or duplicate removal, so the nodes of step i + 1 for the nodes of step i, one after the other, are exactly
+    // the nodes the list pipeline delivers. The limit counts the nodes this call adds.
+    private void Walk(XPathEvaluationContext context, ref XdmItemList results, int limit)
+    {
+        var steps = _direct!;
+        XPathNode start;
+        if (_root == PathRoot.Relative)
+        {
+            var item = context.ContextItem ?? throw XPathErrors.Exception(XPathErrorCodes.XPDY0002);
+            start = item.TryGetNode(out var node) ? node : throw XPathErrors.Exception(XPathErrorCodes.XPTY0020);
+        }
+        else
+        {
+            start = GetRoot(context);
+        }
+
+        // Axes stay inside one tree, so one binding per step serves every node of the walk.
+        var names = start.Tree!.Names;
+        Span<XPathNodeMatcher> matchers = stackalloc XPathNodeMatcher[steps.Length];
+        Span<int> counts = stackalloc int[steps.Length];
+        for (var i = 0; i < steps.Length; i++)
+        {
+            matchers[i] = steps[i].Test.Bind(names);
+        }
+
+        var state = new WalkState(
+            matchers,
+            counts,
+            context.Limits.MaxSequenceSize,
+            limit > 0 ? results.Count + limit : 0
+        );
+        _ = Walk(0, start, ref state, ref results);
+    }
+
+    private bool Walk(int index, in XPathNode node, ref WalkState state, ref XdmItemList results)
+    {
+        var steps = _direct!;
+        var last = index == steps.Length - 1;
+        var iterator = new XPathAxisIterator(node, steps[index].Axis, state.Matchers[index]);
+        while (iterator.MoveNext())
+        {
+            if (!last)
+            {
+                // The list pipeline holds the nodes of a step in one list, which the sequence size limit bounds.
+                if (++state.Counts[index] > state.SizeLimit)
+                {
+                    throw XPathLimitErrors.SequenceSize(state.SizeLimit, _location);
+                }
+
+                if (!Walk(index + 1, iterator.Current, ref state, ref results))
+                {
+                    return false;
+                }
+
+                continue;
+            }
+
+            results.Add(XdmItem.FromNode(iterator.Current));
+            if (state.Stop > 0 && results.Count >= state.Stop)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private readonly ref struct WalkState(Span<XPathNodeMatcher> matchers, Span<int> counts, int sizeLimit, int stop)
+    {
+        public Span<XPathNodeMatcher> Matchers { get; } = matchers;
+
+        public Span<int> Counts { get; } = counts;
+
+        public int SizeLimit { get; } = sizeLimit;
+
+        public int Stop { get; } = stop;
     }
 
     // The properties start from one node: the context item, or the root.
@@ -241,6 +382,12 @@ internal sealed class PathNode : ExecutableNode, IOrderedNodeSequence, IItemList
     // The type rule of E1/E2: all nodes, or all atomic values in the last step.
     private void Finish(ref XdmItemList results, int index)
     {
+        if (_steps[index].DeliversNodesOnly)
+        {
+            Normalize(ref results, _requirements[index]);
+            return;
+        }
+
         var items = results.Items;
         var nodes = 0;
         for (var i = 0; i < items.Length; i++)

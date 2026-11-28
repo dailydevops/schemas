@@ -33,10 +33,17 @@ public readonly struct XPathNode : IEquatable<XPathNode>
     /// Gets the type annotation: <c>xs:untyped</c> for documents and elements, <c>xs:untypedAtomic</c> for attributes and text,
     /// and <c>xs:string</c> for the remaining kinds, whose typed value is a string.
     /// </summary>
-    public XdmTypeId TypeAnnotation =>
-        Kind is XdmNodeKind.Document or XdmNodeKind.Element ? XdmTypeId.Untyped
-        : Kind is XdmNodeKind.Attribute or XdmNodeKind.Text ? XdmTypeId.UntypedAtomic
-        : XdmTypeId.XsString;
+    public XdmTypeId TypeAnnotation
+    {
+        get
+        {
+            // The kind is a virtual call on the tree: read it once.
+            var kind = Kind;
+            return kind is XdmNodeKind.Document or XdmNodeKind.Element ? XdmTypeId.Untyped
+                : kind is XdmNodeKind.Attribute or XdmNodeKind.Text ? XdmTypeId.UntypedAtomic
+                : XdmTypeId.XsString;
+        }
+    }
 
     /// <summary>Determines whether another node is the same node (the <see langword="is"/> operator).</summary>
     /// <param name="other">The other node.</param>
