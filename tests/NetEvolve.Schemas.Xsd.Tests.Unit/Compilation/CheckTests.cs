@@ -162,6 +162,20 @@ public class CheckTests
     }
 
     [Test]
+    public async Task FacetCheck_SimpleContentRestrictionOfAnySimpleType_IsLeftToTheDatatypeCheckInXsd11()
+    {
+        var compilation = Compile(
+            Schema(
+                "<xs:complexType name=\"t1\"><xs:simpleContent><xs:extension base=\"xs:anySimpleType\"/></xs:simpleContent></xs:complexType>"
+                    + "<xs:complexType name=\"t2\"><xs:simpleContent><xs:restriction base=\"t:t1\"><xs:minLength value=\"1\"/></xs:restriction></xs:simpleContent></xs:complexType>"
+            ),
+            XsdVersion.V11
+        );
+
+        await Assert.That(Codes(compilation).Contains(XsdRuleCodes.CosApplicableFacets)).IsFalse();
+    }
+
+    [Test]
     public async Task FacetCheck_AFixedFacetThatIsChanged_IsReported()
     {
         var compilation = Compile(
