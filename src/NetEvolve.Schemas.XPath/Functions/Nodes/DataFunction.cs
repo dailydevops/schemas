@@ -8,7 +8,7 @@ using NetEvolve.Schemas.XPath.Syntax.Tree;
 /// <c>fn:data</c>: the atomized argument. The parameter is declared <c>xs:anyAtomicType*</c>, so the function conversion rules
 /// atomize it (the typed value of each node) before the call, and the function returns the converted argument.
 /// </summary>
-/// <remarks>Limitation: the zero-argument form of XPath 3.0 is not registered (#92).</remarks>
+/// <remarks>The zero-argument form of XPath 3.0 is <see cref="DataContextItemFunction"/>.</remarks>
 internal sealed class DataFunction : NodeFunction
 {
     /// <summary>Initializes a new instance of the <see cref="DataFunction"/> class.</summary>
