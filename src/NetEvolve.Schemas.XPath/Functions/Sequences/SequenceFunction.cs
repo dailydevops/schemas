@@ -1,10 +1,12 @@
 namespace NetEvolve.Schemas.XPath.Functions.Sequences;
 
+using System;
 using System.Collections.Generic;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Functions.Binding;
 using NetEvolve.Schemas.XPath.Syntax.Tree;
+using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>The base of the sequence and aggregate functions: every one is a built-in function of the <c>fn</c> namespace, and the parameter types they share are declared once.</summary>
 /// <remarks>
@@ -35,6 +37,34 @@ internal abstract class SequenceFunction : XPathFunction
 
     /// <summary>Gets <c>item()*</c>: the argument is neither atomized nor read by the function conversion rules.</summary>
     protected static XPathParameterType Items => new(XPathItemType.Item, Occurrence.ZeroOrMore);
+
+    /// <summary>Runs a span function over an evaluated argument; a singleton goes through a cached array, so the call allocates nothing.</summary>
+    /// <param name="function">The function.</param>
+    /// <param name="argument">The converted argument.</param>
+    /// <param name="context">The evaluation context.</param>
+    /// <returns>The result.</returns>
+    protected static XdmSequence InvokeOver(
+        IItemSpanFunction function,
+        in XdmSequence argument,
+        XPathEvaluationContext context
+    )
+    {
+        if (argument.TryGetSpan(out var items))
+        {
+            return function.InvokeOver(context, items);
+        }
+
+        var single = SmallArrayCache<XdmItem>.Rent(1);
+        try
+        {
+            single[0] = argument[0];
+            return function.InvokeOver(context, new ReadOnlySpan<XdmItem>(single, 0, 1));
+        }
+        finally
+        {
+            SmallArrayCache<XdmItem>.Return(single, 1);
+        }
+    }
 
     /// <summary>Gets <c>xs:anyAtomicType*</c>: the argument is atomized.</summary>
     protected static XPathParameterType Atomics => new(XPathItemType.AnyAtomic, Occurrence.ZeroOrMore);

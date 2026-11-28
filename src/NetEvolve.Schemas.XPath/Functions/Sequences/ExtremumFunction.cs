@@ -1,12 +1,15 @@
 namespace NetEvolve.Schemas.XPath.Functions.Sequences;
 
+using System;
 using NetEvolve.Schemas.Xml.Datatypes.Decimals;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Evaluation.Arithmetic;
+using NetEvolve.Schemas.XPath.Evaluation.Atomization;
 using NetEvolve.Schemas.XPath.Evaluation.Comparison;
 using NetEvolve.Schemas.XPath.Evaluation.Temporal;
+using NetEvolve.Schemas.XPath.Functions.Binding;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>
@@ -21,7 +24,7 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// Limitations: <c>xs:duration</c> and the Gregorian types have no order and are FORG0006, as are values of two types of the temporal
 /// family; the codepoint collation is the only collation (<see cref="CollationArgument"/>). Equal values: the first of them is the result.
 /// </remarks>
-internal abstract class ExtremumFunction : SequenceFunction
+internal abstract class ExtremumFunction : SequenceFunction, IItemSpanFunction
 {
     private readonly ComparisonRelation _better;
 
@@ -38,36 +41,46 @@ internal abstract class ExtremumFunction : SequenceFunction
     {
         CollationArgument.Check(invocation.Arguments, 1);
 
-        var items = invocation.Arguments[0];
-        if (items.IsEmpty)
-        {
-            return XPathEvaluationStatus.Ok;
-        }
-
-        var family = Classify(in items, out var rank);
-        invocation.Result = XdmSequence.Create(
-            family switch
-            {
-                Family.Numeric => PickNumber(in items, rank),
-                Family.Text => PickText(in items),
-                Family.Temporal => PickTemporal(in items, invocation.Context),
-                _ => PickBoolean(in items),
-            }
-        );
+        invocation.Result = InvokeOver(this, in invocation.Arguments[0], invocation.Context);
         return XPathEvaluationStatus.Ok;
     }
 
+    /// <inheritdoc />
+    public XdmSequence InvokeOver(XPathEvaluationContext context, ReadOnlySpan<XdmItem> items) => Pick(items, context);
+
+    private XdmSequence Pick(ReadOnlySpan<XdmItem> items, XPathEvaluationContext context)
+    {
+        if (items.IsEmpty)
+        {
+            return default;
+        }
+
+        var family = Classify(items, out var rank);
+        return XdmSequence.Create(
+            family switch
+            {
+                Family.Numeric => PickNumber(items, rank),
+                Family.Text => PickText(items),
+                Family.Temporal => PickTemporal(items, context),
+                _ => PickBoolean(items),
+            }
+        );
+    }
+
+    // A node is atomized on every read: the items of a call over a path are not atomized, those of the generic call already are.
+    private static XdmItem At(ReadOnlySpan<XdmItem> items, int index) => XPathAtomization.AtomizeUntyped(items[index]);
+
     // The family of every item must be the one of the first, and the rank is the widest number: integer, decimal, float, or double.
-    private static Family Classify(in XdmSequence items, out Rank rank)
+    private static Family Classify(ReadOnlySpan<XdmItem> items, out Rank rank)
     {
         rank = Rank.Integer;
-        var family = FamilyOf(items[0]);
-        var count = items.Count;
+        var family = FamilyOf(At(items, 0));
+        var count = items.Length;
         for (var i = 0; i < count; i++)
         {
-            var item = items[i];
+            var item = At(items, i);
             // The temporal types compare with their own type only: a date with a dateTime, or a year-month with a day-time duration, has no operator.
-            if (FamilyOf(item) != family || (family == Family.Temporal && item.Kind != items[0].Kind))
+            if (FamilyOf(item) != family || (family == Family.Temporal && item.Kind != At(items, 0).Kind))
             {
                 throw XPathErrors.Exception(XPathErrorCodes.FORG0006);
             }
@@ -102,14 +115,14 @@ internal abstract class ExtremumFunction : SequenceFunction
             _ => throw XPathErrors.Exception(XPathErrorCodes.FORG0006),
         };
 
-    private XdmItem PickNumber(in XdmSequence items, Rank rank)
+    private XdmItem PickNumber(ReadOnlySpan<XdmItem> items, Rank rank)
     {
         var best = default(XdmItem);
         var seenNaN = false;
-        var count = items.Count;
+        var count = items.Length;
         for (var i = 0; i < count; i++)
         {
-            var value = Promote(AggregateInput.Number(items[i]), rank);
+            var value = Promote(AggregateInput.Number(At(items, i)), rank);
             if (IsNaN(in value))
             {
                 seenNaN = true;
@@ -150,13 +163,13 @@ internal abstract class ExtremumFunction : SequenceFunction
         (item.TryGetDouble(out var wide) && double.IsNaN(wide))
         || (item.TryGetFloat(out var narrow) && float.IsNaN(narrow));
 
-    private XdmItem PickText(in XdmSequence items)
+    private XdmItem PickText(ReadOnlySpan<XdmItem> items)
     {
-        var best = items[0];
-        var count = items.Count;
+        var best = At(items, 0);
+        var count = items.Length;
         for (var i = 1; i < count; i++)
         {
-            var item = items[i];
+            var item = At(items, i);
             if (ComparisonRelations.Holds(_better, CodepointComparison.Compare(TextOf(in item), TextOf(in best))))
             {
                 best = item;
@@ -175,13 +188,13 @@ internal abstract class ExtremumFunction : SequenceFunction
         return uri!;
     }
 
-    private XdmItem PickTemporal(in XdmSequence items, XPathEvaluationContext context)
+    private XdmItem PickTemporal(ReadOnlySpan<XdmItem> items, XPathEvaluationContext context)
     {
-        var best = items[0];
-        var count = items.Count;
+        var best = At(items, 0);
+        var count = items.Length;
         for (var i = 1; i < count; i++)
         {
-            var item = items[i];
+            var item = At(items, i);
             if (TemporalAggregation.TryCompare(_better, item, best, context, out var holds) && holds)
             {
                 best = item;
@@ -191,13 +204,13 @@ internal abstract class ExtremumFunction : SequenceFunction
         return best;
     }
 
-    private XdmItem PickBoolean(in XdmSequence items)
+    private XdmItem PickBoolean(ReadOnlySpan<XdmItem> items)
     {
-        var best = items[0];
-        var count = items.Count;
+        var best = At(items, 0);
+        var count = items.Length;
         for (var i = 1; i < count; i++)
         {
-            var item = items[i];
+            var item = At(items, i);
             if (BooleanComparison.Compare(_better, item, best))
             {
                 best = item;

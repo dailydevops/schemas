@@ -1,6 +1,9 @@
 namespace NetEvolve.Schemas.XPath.Functions.Sequences;
 
+using System;
 using NetEvolve.Schemas.XPath.Api;
+using NetEvolve.Schemas.XPath.Context;
+using NetEvolve.Schemas.XPath.Functions.Binding;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>
@@ -10,7 +13,7 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// entries of the arithmetic operator table.
 /// </summary>
 /// <remarks>Limitation: <c>xs:duration</c> and the dates and times have no sum and are FORG0006 (<see cref="AggregateInput"/>).</remarks>
-internal sealed class SumFunction : SequenceFunction
+internal sealed class SumFunction : SequenceFunction, IItemSpanFunction
 {
     /// <summary>Initializes a new instance of the <see cref="SumFunction"/> class.</summary>
     public SumFunction()
@@ -27,7 +30,11 @@ internal sealed class SumFunction : SequenceFunction
             return XPathEvaluationStatus.Ok;
         }
 
-        invocation.Result = XdmSequence.Create(AggregateInput.Sum(in items, invocation.Context));
+        invocation.Result = InvokeOver(this, in items, invocation.Context);
         return XPathEvaluationStatus.Ok;
     }
+
+    /// <inheritdoc />
+    public XdmSequence InvokeOver(XPathEvaluationContext context, ReadOnlySpan<XdmItem> items) =>
+        XdmSequence.Create(items.IsEmpty ? XdmItem.FromInteger(0) : AggregateInput.Sum(items, context));
 }

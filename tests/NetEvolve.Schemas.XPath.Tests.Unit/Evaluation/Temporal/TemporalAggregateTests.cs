@@ -96,10 +96,21 @@ public class TemporalAggregateTests
     public async Task AValueThatCannotBeOrderedOrAddedTogether_RaisesForg0006(string expression) =>
         await Assert.That(Code(expression)).IsEqualTo("FORG0006");
 
+    private static XdmItem[] Items(XdmSequence sequence)
+    {
+        var items = new XdmItem[sequence.Count];
+        for (var i = 0; i < items.Length; i++)
+        {
+            items[i] = sequence[i];
+        }
+
+        return items;
+    }
+
     [Test]
     public async Task Sum_OfNumbers_WithoutAContext_RaisesArgumentNullException()
     {
-        var numbers = Run("(1, 2)").Result;
+        var numbers = Items(Run("(1, 2)").Result);
 
         await Assert.That(() => AggregateInput.Sum(numbers, null!)).Throws<ArgumentNullException>();
     }
@@ -107,7 +118,7 @@ public class TemporalAggregateTests
     [Test]
     public async Task Sum_OfDurations_WithoutAContext_RaisesArgumentNullException()
     {
-        var durations = Run("(xs:dayTimeDuration('PT1H'), xs:dayTimeDuration('PT2H'))").Result;
+        var durations = Items(Run("(xs:dayTimeDuration('PT1H'), xs:dayTimeDuration('PT2H'))").Result);
 
         await Assert.That(() => AggregateInput.Sum(durations, null!)).Throws<ArgumentNullException>();
     }

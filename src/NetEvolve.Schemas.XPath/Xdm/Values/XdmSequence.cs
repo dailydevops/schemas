@@ -81,6 +81,20 @@ public readonly struct XdmSequence : IEquatable<XdmSequence>
         return Count;
     }
 
+    /// <summary>Gets the items as a span unless the sequence is a singleton, which keeps its item inline; a lazy sequence is read.</summary>
+    /// <param name="items">The items; empty for the empty sequence.</param>
+    /// <returns><see langword="false"/> for a singleton.</returns>
+    internal bool TryGetSpan(out ReadOnlySpan<XdmItem> items)
+    {
+        items = _many switch
+        {
+            null => default,
+            XdmItem[] array => array,
+            _ => ((XdmLazyItems)_many).Items,
+        };
+        return _many is not null || _count == 0;
+    }
+
     /// <summary>Opens a forward cursor; a lazy sequence that nobody has read is pulled item by item and not kept.</summary>
     /// <returns>The cursor, to be disposed.</returns>
     /// <remarks>Limitation: such a lazy source is enumerated again when the sequence is read afterwards, because nothing is kept.</remarks>

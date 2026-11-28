@@ -1,7 +1,10 @@
 namespace NetEvolve.Schemas.XPath.Functions.Numerics;
 
+using System;
 using NetEvolve.Schemas.XPath.Api;
+using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Evaluation.Atomization;
+using NetEvolve.Schemas.XPath.Functions.Binding;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>
@@ -9,7 +12,7 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// <see cref="XPathAtomization"/>. The argument is not atomized: a sequence that starts with a node is true, and a value without an
 /// effective boolean value is FORG0006.
 /// </summary>
-internal sealed class BooleanFunction : NumericFunction
+internal sealed class BooleanFunction : NumericFunction, IItemSpanFunction
 {
     /// <summary>Initializes a new instance of the <see cref="BooleanFunction"/> class.</summary>
     public BooleanFunction()
@@ -23,4 +26,8 @@ internal sealed class BooleanFunction : NumericFunction
         );
         return XPathEvaluationStatus.Ok;
     }
+
+    /// <inheritdoc />
+    public XdmSequence InvokeOver(XPathEvaluationContext context, ReadOnlySpan<XdmItem> items) =>
+        XdmSequence.Create(XdmItem.FromBoolean(XPathAtomization.EffectiveBooleanValue(items)));
 }
