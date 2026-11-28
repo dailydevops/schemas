@@ -1,4 +1,4 @@
-namespace NetEvolve.Schemas.Xml.Datatypes.Core;
+﻿namespace NetEvolve.Schemas.Xml.Datatypes.Core;
 
 using System;
 using System.Collections.Generic;
@@ -61,7 +61,7 @@ public sealed class AtomicDescriptor<TValue> : IDatatypeDescriptor<TValue>
         Whitespace = whitespace ?? baseType.Whitespace;
         Facets = Combine(baseType.Facets, facets, out _hasValueFacets);
         _lexicalFacets = Select<ILexicalFacet>(Facets);
-        _valueFacets = Select<IValueFacet<TValue>>(Facets);
+        _valueFacets = FoldBounds(Select<IValueFacet<TValue>>(Facets));
     }
 
     /// <summary>Initializes a restriction of an atomic type whose value type differs from the value type of this descriptor, for example integer on <see cref="System.Numerics.BigInteger"/> derived from decimal.</summary>
@@ -91,7 +91,7 @@ public sealed class AtomicDescriptor<TValue> : IDatatypeDescriptor<TValue>
         Whitespace = whitespace ?? mapping.Whitespace;
         Facets = Combine(baseType.Facets, facets, out _hasValueFacets);
         _lexicalFacets = Select<ILexicalFacet>(Facets);
-        _valueFacets = Select<IValueFacet<TValue>>(Facets);
+        _valueFacets = FoldBounds(Select<IValueFacet<TValue>>(Facets));
     }
 
     /// <inheritdoc />
@@ -155,6 +155,44 @@ public sealed class AtomicDescriptor<TValue> : IDatatypeDescriptor<TValue>
         }
 
         return [.. selected];
+    }
+
+    // Evaluation only: a bound that a stricter bound of the same kind implies cannot change the outcome, because both report the same facet kind.
+    // Of equal bounds the first stays. The public facet list is not folded.
+    internal static IValueFacet<TValue>[] FoldBounds(IValueFacet<TValue>[] facets)
+    {
+        var kept = new List<IValueFacet<TValue>>(facets.Length);
+        for (var i = 0; i < facets.Length; i++)
+        {
+            if (!IsRedundant(facets, i))
+            {
+                kept.Add(facets[i]);
+            }
+        }
+
+        return kept.Count == facets.Length ? facets : [.. kept];
+    }
+
+    private static bool IsRedundant(IValueFacet<TValue>[] facets, int index)
+    {
+        if (facets[index] is not IFoldableBound<TValue> bound)
+        {
+            return false;
+        }
+
+        for (var j = 0; j < facets.Length; j++)
+        {
+            if (
+                j != index
+                && bound.IsImpliedBy(facets[j])
+                && (j < index || !(facets[j] is IFoldableBound<TValue> other && other.IsImpliedBy(facets[index])))
+            )
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static IFacet[] Combine(
