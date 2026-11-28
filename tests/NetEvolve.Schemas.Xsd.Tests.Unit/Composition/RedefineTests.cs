@@ -243,7 +243,7 @@ public class RedefineTests
     }
 
     [Test]
-    public async Task Redefine_TwoRedefinitionsOfOneOriginalInACycle_ReportNoMissingComponent()
+    public async Task Redefine_TwoRedefinitionsOfOneOriginalInACycle_BuildWithoutIssues()
     {
         // The shape of the XSTS cases schU3 to schU5: the root includes d, d and the root both redefine c, and c includes d.
         const string redefinedInC =
@@ -271,6 +271,6 @@ public class RedefineTests
 
         var (_, issues) = Load(root, resolver);
 
-        await Assert.That(issues.Where(i => i.Code == CodeOf("src-expredef"))).IsEmpty();
+        await Assert.That(issues).IsEmpty();
     }
 }
