@@ -38,6 +38,7 @@ internal static class Registration
         builder.Add(new NilledFunction());
         builder.Add(new NilledContextItemFunction());
         builder.Add(new DocumentUriFunction());
+        builder.Add(new DocumentUriContextItemFunction());
         builder.Add(new RootFunction());
         builder.Add(new LangFunction());
         builder.Add(new PositionFunction());
