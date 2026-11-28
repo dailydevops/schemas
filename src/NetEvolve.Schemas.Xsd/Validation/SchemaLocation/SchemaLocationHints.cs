@@ -31,8 +31,7 @@ using NetEvolve.Schemas.Xsd.Validation.Core;
 /// </para>
 /// <para>
 /// Limitations: a hinted schema is compiled on its own, so it cannot refer to components of the configured schema (#959), and a component that
-/// it shares by name with the configured schema is an error; the validation
-/// of a tree does not read hints, because it is not a streaming run (#962).
+/// it shares by name with the configured schema is an error.
 /// </para>
 /// </remarks>
 internal sealed class SchemaLocationHints
