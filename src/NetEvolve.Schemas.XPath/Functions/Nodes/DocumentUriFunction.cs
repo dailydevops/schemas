@@ -10,11 +10,17 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// <c>fn:document-uri($arg as node()?) as xs:anyURI?</c> (Functions and Operators 1.0, 2.3): the document URI of a document node that
 /// has one; the empty sequence for the empty sequence, for a document node without a URI, and for the other kinds of node.
 /// </summary>
-internal sealed class DocumentUriFunction : NodeFunction
+internal class DocumentUriFunction : NodeFunction
 {
     /// <summary>Initializes a new instance of the <see cref="DocumentUriFunction"/> class.</summary>
     public DocumentUriFunction()
-        : base("document-uri", 1, 1, [new XPathParameterType(XPathItemType.Node, Occurrence.ZeroOrOne)]) { }
+        : this(1, [new XPathParameterType(XPathItemType.Node, Occurrence.ZeroOrOne)]) { }
+
+    /// <summary>Initializes a new instance of the <see cref="DocumentUriFunction"/> class with one fixed arity.</summary>
+    /// <param name="arity">The number of arguments.</param>
+    /// <param name="parameters">The declared parameter types.</param>
+    private protected DocumentUriFunction(int arity, XPathParameterType[] parameters)
+        : base("document-uri", arity, arity, parameters) { }
 
     /// <inheritdoc />
     public override XPathEvaluationStatus Invoke(ref XPathFunctionCall invocation)

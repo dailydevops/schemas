@@ -74,7 +74,15 @@ public class XPathErrorCodesTests
     private static readonly string[] XPath30Codes = ["XQST0039", "FOTY0013"];
 
     // XML Path Language (XPath) 3.1, appendix F, and XQuery and XPath Functions and Operators 3.1, appendix D: the conditions that maps and arrays add.
-    private static readonly string[] XPath31Codes = ["XQDY0137", "FOJS0003", "FOJS0005", "FOAY0001", "FOAY0002"];
+    private static readonly string[] XPath31Codes =
+    [
+        "XQDY0137",
+        "FORG0010",
+        "FOJS0003",
+        "FOJS0005",
+        "FOAY0001",
+        "FOAY0002",
+    ];
 
     public static IEnumerable<string> AllCodes() =>
         [.. XPath20Codes, .. FunctionsCodes, .. XPath30Codes, .. XPath31Codes];
