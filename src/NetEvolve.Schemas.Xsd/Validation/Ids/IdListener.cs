@@ -49,7 +49,7 @@ internal sealed class IdListener : ValidationListener
     private static readonly XsdRule ComplexTypeRule = XsdRuleLookup.Find(XsdRuleCodes.CvcComplexType);
 
     private readonly ISimpleValueAssessor _assessor;
-    private readonly XsdSchemaSet _schema;
+    private XsdSchemaSet _schema;
     private readonly bool _oneIdAttribute;
     private readonly DtdIdTable _ids = new();
     private readonly DtdNameStore _pendingNames = new();
@@ -72,6 +72,15 @@ internal sealed class IdListener : ValidationListener
         _assessor = assessor;
         _schema = schema;
         _oneIdAttribute = schema.Version == XsdVersion.V10;
+    }
+
+    /// <summary>Replaces the schema set that the notation declarations are read from, when a schema location hint extended the schema of the run.</summary>
+    /// <param name="schema">The extended schema set.</param>
+    internal void UseSchema(XsdSchemaSet schema)
+    {
+        ArgumentNullException.ThrowIfNull(schema);
+
+        _schema = schema;
     }
 
     /// <inheritdoc />
