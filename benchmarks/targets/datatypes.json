@@ -228,18 +228,63 @@
     "name": "IntegerParseBenchmarks.ParseInteger(Size=Short)",
     "meanNs": 106.1,
     "allocatedBytes": 0,
-    "baselineRatio": 33.3
+    "baselineRatio": 4.0
   },
   {
     "name": "IntegerParseBenchmarks.ParseInteger(Size=Typical)",
     "meanNs": 128.7,
     "allocatedBytes": 0,
-    "baselineRatio": 24.7
+    "baselineRatio": 4.0
   },
   {
     "name": "IntegerParseBenchmarks.ParseInteger(Size=Long)",
     "meanNs": 140.7,
     "allocatedBytes": 33,
-    "baselineRatio": 21.7
+    "baselineRatio": 4.0
+  },
+  {
+    "name": "DescriptorParseBenchmarks.ParseDecimal(Size=Short)",
+    "meanNs": 45.0,
+    "allocatedBytes": 0
+  },
+  {
+    "name": "DescriptorParseBenchmarks.ParseDecimal(Size=Typical)",
+    "meanNs": 120.0,
+    "allocatedBytes": 0
+  },
+  {
+    "name": "DescriptorParseBenchmarks.ParseDecimal(Size=Long)",
+    "meanNs": 190.0,
+    "allocatedBytes": 40
+  },
+  {
+    "name": "DescriptorParseBenchmarks.ParseDateTime(Size=Short)",
+    "meanNs": 115.0,
+    "allocatedBytes": 0
+  },
+  {
+    "name": "DescriptorParseBenchmarks.ParseDateTime(Size=Typical)",
+    "meanNs": 160.0,
+    "allocatedBytes": 0
+  },
+  {
+    "name": "DescriptorParseBenchmarks.ParseDateTime(Size=Long)",
+    "meanNs": 160.0,
+    "allocatedBytes": 0
+  },
+  {
+    "name": "DescriptorParseBenchmarks.ParseDouble(Size=Short)",
+    "meanNs": 80.0,
+    "allocatedBytes": 0
+  },
+  {
+    "name": "DescriptorParseBenchmarks.ParseDouble(Size=Typical)",
+    "meanNs": 130.0,
+    "allocatedBytes": 0
+  },
+  {
+    "name": "DescriptorParseBenchmarks.ParseDouble(Size=Long)",
+    "meanNs": 2500.0,
+    "allocatedBytes": 1448
   }
 ]
