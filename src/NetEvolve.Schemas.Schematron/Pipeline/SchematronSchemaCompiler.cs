@@ -10,6 +10,7 @@ using NetEvolve.Schemas.Schematron.Patterns;
 using NetEvolve.Schemas.Schematron.Phases;
 using NetEvolve.Schemas.Schematron.Scopes;
 using NetEvolve.Schemas.Schematron.Seams;
+using NetEvolve.Schemas.Schematron.Xslt.Globals;
 using NetEvolve.Schemas.Schematron.Xslt.Modules;
 
 /// <summary>
@@ -84,13 +85,18 @@ internal sealed class SchematronSchemaCompiler : ISchemaCompiler
 
         ScopePlan plan;
         var ok = linked || CheckDeclarations(effective, binding, problems);
-        ok &= CheckParameters(effective, settings, problems);
+        if (!linked)
+        {
+            ok &= CheckParameters(effective, settings, null, problems);
+        }
+
         ok &= PhaseSelector.TryResolve(effective, settings.Phase, problems, out var selection);
         ok &= SubordinateConstructs.TryCheck(selection.Patterns, settings.Resolver, problems);
         XsltModuleTables? tables = null;
         if (linked)
         {
             ok &= XsltDeclarations.TryCompileGlobals(effective, modules, binding, problems, out var globals);
+            ok &= CheckParameters(effective, settings, globals.Globals, problems);
             ok &= ScopePlanner.TryPlan(
                 effective,
                 selection,
@@ -189,7 +195,12 @@ internal sealed class SchematronSchemaCompiler : ISchemaCompiler
         return ok;
     }
 
-    private static bool CheckParameters(SchematronSchema schema, BuildSettings settings, IProblemSink problems)
+    private static bool CheckParameters(
+        SchematronSchema schema,
+        BuildSettings settings,
+        XsltGlobalTable? globals,
+        IProblemSink problems
+    )
     {
         var ok = true;
 
@@ -198,7 +209,7 @@ internal sealed class SchematronSchemaCompiler : ISchemaCompiler
         names.Sort(StringComparer.Ordinal);
         foreach (var name in names)
         {
-            if (!Declares(schema, name))
+            if (!Declares(schema, globals, name))
             {
                 problems.Add(
                     new SchematronProblem(
@@ -229,8 +240,17 @@ internal sealed class SchematronSchemaCompiler : ISchemaCompiler
         return ok;
     }
 
-    private static bool Declares(SchematronSchema schema, string name)
+    private static bool Declares(SchematronSchema schema, XsltGlobalTable? globals, string name)
     {
+        // A global xsl:param takes a caller value too (#795).
+        foreach (var global in globals?.Declarations ?? [])
+        {
+            if (global.IsParameter && string.Equals(global.Name, name, StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
         foreach (var parameter in schema.Parameters)
         {
             if (string.Equals(parameter.Name, name, StringComparison.Ordinal))

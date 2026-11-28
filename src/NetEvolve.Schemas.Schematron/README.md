@@ -83,7 +83,7 @@ The builder sets the phase with `WithPhase`, the parameters with `WithParameter`
 
 ### Phases and parameters
 
-`WithPhase` takes a phase `id`, `#ALL`, or `#DEFAULT` (the default: the `defaultPhase` of the schema, or `#ALL`). An unknown phase fails at `Build` with `NES3013`. `WithParameter` sets the value of a `param` of the schema; the last call per name wins, and an undeclared name fails at `Build` with `NES3112`. A parameter value is a literal string, never an expression, so an expression that compares it with a number converts it first. The element `param` belongs to the 2025 edition and needs `schematronEdition="2025"`.
+`WithPhase` takes a phase `id`, `#ALL`, or `#DEFAULT` (the default: the `defaultPhase` of the schema, or `#ALL`). An unknown phase fails at `Build` with `NES3013`. `WithParameter` sets the value of a `param` of the schema; the last call per name wins, and an undeclared name fails at `Build` with `NES3112`. A parameter value is a literal string, never an expression. A global `xsl:param` with an `as` type (`xs:string`, `xs:boolean`, `xs:double`, or `xs:integer`) converts the value like an untyped atomic value, and a value that does not convert is `XTTE0590` at the first read; a parameter without `as` keeps the string, so an expression that compares it with a number converts it first. The element `param` belongs to the 2025 edition and needs `schematronEdition="2025"`.
 
 ```csharp
 const string schema = """

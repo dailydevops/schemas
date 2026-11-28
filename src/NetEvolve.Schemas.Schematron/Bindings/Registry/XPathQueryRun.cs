@@ -3,6 +3,7 @@ namespace NetEvolve.Schemas.Schematron.Bindings.Registry;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Threading;
 using NetEvolve.Schemas.Formats;
 using NetEvolve.Schemas.Resources;
@@ -30,7 +31,12 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// as the position (<c>last()</c> then equals <c>position()</c>). The token is looked at before every evaluation.
 /// </para>
 /// </remarks>
-internal sealed class XPathQueryRun : IXsltFunctionRun, IXsltGroupRun, IXsltRegexRun, IXPathResourceResolver
+internal sealed class XPathQueryRun
+    : IParameterRun,
+        IXsltFunctionRun,
+        IXsltGroupRun,
+        IXsltRegexRun,
+        IXPathResourceResolver
 {
     // The public code type, not the internal table of the XPath package, which the seam rule keeps out of reach.
     private static readonly XPathErrorCode UnsetContext = new("XPDY0002");
@@ -165,6 +171,93 @@ internal sealed class XPathQueryRun : IXsltFunctionRun, IXsltGroupRun, IXsltRege
         ArgumentNullException.ThrowIfNull(value);
 
         Store(slot, XdmSequence.Create(XdmItem.FromString(value)));
+    }
+
+    public QueryStatus TryBindParameter(int slot, string value, string type, in DocumentLocation location)
+    {
+        ArgumentNullException.ThrowIfNull(value);
+        ArgumentNullException.ThrowIfNull(type);
+
+        if (!TryConvert(value, type, out var item))
+        {
+            _problem = new SchematronProblem(
+                SchematronDiagnosticCodes.LetType,
+                $"The value '{value}' of the parameter cannot be converted to the declared type '{type}'.",
+                location,
+                "XTTE0590"
+            );
+            return QueryStatus.Problem;
+        }
+
+        Store(slot, XdmSequence.Create(item));
+        return QueryStatus.Ok;
+    }
+
+    // The lexical forms of an untyped atomic value after whitespace collapse (XPath 2.0 casting).
+    // ponytail: an xs:integer beyond the range of long does not convert; add a big-integer parse when a caller needs it.
+    private static bool TryConvert(string value, string type, out XdmItem item)
+    {
+        var text = value.Trim(' ', '\t', '\r', '\n');
+        item = default;
+        switch (type)
+        {
+            case "xs:string":
+                item = XdmItem.FromString(value);
+                return true;
+            case "xs:boolean":
+                if (text is "true" or "1" or "false" or "0")
+                {
+                    item = XdmItem.FromBoolean(text is "true" or "1");
+                    return true;
+                }
+
+                return false;
+            case "xs:integer":
+                if (long.TryParse(text, NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out var integer))
+                {
+                    item = XdmItem.FromInteger(integer);
+                    return true;
+                }
+
+                return false;
+            case "xs:double":
+                return TryParseDouble(text, out item);
+            default:
+                return false;
+        }
+    }
+
+    private static bool TryParseDouble(string text, out XdmItem item)
+    {
+        item = default;
+        double number;
+        switch (text)
+        {
+            case "INF" or "+INF":
+                number = double.PositiveInfinity;
+                break;
+            case "-INF":
+                number = double.NegativeInfinity;
+                break;
+            case "NaN":
+                number = double.NaN;
+                break;
+            default:
+                // The invariant parser also takes words such as "Infinity"; the lexical form has digits only.
+                if (
+                    text.Length == 0
+                    || text.AsSpan().IndexOfAny("INaityfn".AsSpan()) >= 0
+                    || !double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out number)
+                )
+                {
+                    return false;
+                }
+
+                break;
+        }
+
+        item = XdmItem.FromDouble(number);
+        return true;
     }
 
     public void SetValue(int slot, in XdmSequence value) => Store(slot, value);
