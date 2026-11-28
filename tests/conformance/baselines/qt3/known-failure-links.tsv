@@ -1,9 +1,6 @@
 # One line per baseline entry: case id, #issue, reason, separated by tabs. A baseline entry without a line fails the guard test.
 # Every issue number must also be listed in known-open-issues.lst (no network access in the test).
 app-FunctxFn/functx-fn-doc-available-1	#886	fn:node-name, fn:nilled and fn:document-uri are not available with an argument (XPST0017).
-app-FunctxFn/functx-fn-escape-html-uri-1	#96	fn:escape-html-uri is not implemented (XPST0017).
-app-FunctxFn/functx-fn-escape-html-uri-2	#96	fn:escape-html-uri is not implemented (XPST0017).
-app-FunctxFn/functx-fn-escape-html-uri-all	#96	fn:escape-html-uri is not implemented (XPST0017).
 app-FunctxFn/functx-fn-resolve-uri-4	#901	The runner skips the compound assertions any-of, all-of and not.
 app-FunctxFn/functx-fn-resolve-uri-5	#901	The runner skips the compound assertions any-of, all-of and not.
 app-FunctxFn/functx-fn-resolve-uri-all	#901	The runner skips the compound assertions any-of, all-of and not.
@@ -230,36 +227,6 @@ fn-error/cbcl-error-032	#901	The runner skips the compound assertions any-of, al
 fn-error/cbcl-error-033	#901	The runner skips the compound assertions any-of, all-of and not.
 fn-error/cbcl-error-034	#901	The runner skips the compound assertions any-of, all-of and not.
 fn-error/cbcl-error-035	#901	The runner skips the compound assertions any-of, all-of and not.
-fn-escape-html-uri/K-EscapeHTMLURIFunc-3	#96	fn:escape-html-uri is not implemented (XPST0017).
-fn-escape-html-uri/K-EscapeHTMLURIFunc-4	#96	fn:escape-html-uri is not implemented (XPST0017).
-fn-escape-html-uri/K-EscapeHTMLURIFunc-5	#96	fn:escape-html-uri is not implemented (XPST0017).
-fn-escape-html-uri/cbcl-escape-html-uri-001	#96	fn:escape-html-uri is not implemented (XPST0017).
-fn-escape-html-uri/fn-escape-html-uri-1	#96	fn:escape-html-uri is not implemented (XPST0017).
-fn-escape-html-uri/fn-escape-html-uri-10	#96	fn:escape-html-uri is not implemented (XPST0017).
-fn-escape-html-uri/fn-escape-html-uri-11	#96	fn:escape-html-uri is not implemented (XPST0017).
-fn-escape-html-uri/fn-escape-html-uri-12	#96	fn:escape-html-uri is not implemented (XPST0017).
-fn-escape-html-uri/fn-escape-html-uri-13	#96	fn:escape-html-uri is not implemented (XPST0017).
-fn-escape-html-uri/fn-escape-html-uri-14	#96	fn:escape-html-uri is not implemented (XPST0017).
-fn-escape-html-uri/fn-escape-html-uri-15	#96	fn:escape-html-uri is not implemented (XPST0017).
-fn-escape-html-uri/fn-escape-html-uri-16	#96	fn:escape-html-uri is not implemented (XPST0017).
-fn-escape-html-uri/fn-escape-html-uri-17	#96	fn:escape-html-uri is not implemented (XPST0017).
-fn-escape-html-uri/fn-escape-html-uri-18	#96	fn:escape-html-uri is not implemented (XPST0017).
-fn-escape-html-uri/fn-escape-html-uri-19	#96	fn:escape-html-uri is not implemented (XPST0017).
-fn-escape-html-uri/fn-escape-html-uri-2	#96	fn:escape-html-uri is not implemented (XPST0017).
-fn-escape-html-uri/fn-escape-html-uri-20	#96	fn:escape-html-uri is not implemented (XPST0017).
-fn-escape-html-uri/fn-escape-html-uri-21	#96	fn:escape-html-uri is not implemented (XPST0017).
-fn-escape-html-uri/fn-escape-html-uri-3	#96	fn:escape-html-uri is not implemented (XPST0017).
-fn-escape-html-uri/fn-escape-html-uri-4	#96	fn:escape-html-uri is not implemented (XPST0017).
-fn-escape-html-uri/fn-escape-html-uri-5	#96	fn:escape-html-uri is not implemented (XPST0017).
-fn-escape-html-uri/fn-escape-html-uri-6	#96	fn:escape-html-uri is not implemented (XPST0017).
-fn-escape-html-uri/fn-escape-html-uri-7	#96	fn:escape-html-uri is not implemented (XPST0017).
-fn-escape-html-uri/fn-escape-html-uri-8	#96	fn:escape-html-uri is not implemented (XPST0017).
-fn-escape-html-uri/fn-escape-html-uri-9	#96	fn:escape-html-uri is not implemented (XPST0017).
-fn-escape-html-uri/fn-escape-html-uri1args-1	#96	fn:escape-html-uri is not implemented (XPST0017).
-fn-escape-html-uri/fn-escape-html-uri1args-2	#96	fn:escape-html-uri is not implemented (XPST0017).
-fn-escape-html-uri/fn-escape-html-uri1args-3	#96	fn:escape-html-uri is not implemented (XPST0017).
-fn-escape-html-uri/fn-escape-html-uri1args-4	#96	fn:escape-html-uri is not implemented (XPST0017).
-fn-escape-html-uri/fn-escape-html-uri1args-5	#96	fn:escape-html-uri is not implemented (XPST0017).
 fn-false/fn-false-1	#901	The runner skips the compound assertions any-of, all-of and not.
 fn-floor/fn-floor-decimal-1	#901	The runner skips the compound assertions any-of, all-of and not.
 fn-floor/fn-floor-decimal-2	#901	The runner skips the compound assertions any-of, all-of and not.

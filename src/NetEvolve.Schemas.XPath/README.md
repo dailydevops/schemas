@@ -218,7 +218,7 @@ The engine is measured against the W3C QT3 test suite, pinned by commit `201a6e4
 
 ### XPath 2.0
 
-**14,473 of 14,550 decided cases pass, a rate of 99.4%** on `net10.0`, the leg that runs the suites by default. The other 77 are known failures, and 738 skipped cases do not count. The 815 baseline entries (77 failures and 738 skipped cases) are the files of `tests/conformance/baselines/qt3`, one file per test set (238 test sets), and the run fails on a regression and on a listed case that passes.
+**14,506 of 14,550 decided cases pass, a rate of 99.6%** on `net10.0`, the leg that runs the suites by default. The other 44 are known failures, and 738 skipped cases do not count. The 782 baseline entries (44 failures and 738 skipped cases) are the files of `tests/conformance/baselines/qt3`, one file per test set (238 test sets), and the run fails on a regression and on a listed case that passes.
 
 Reproduce the numbers on a clone: set `GITHUB_STEP_SUMMARY` to a file and run the conformance tests; the table of the rate per test set is appended to that file.
 
@@ -248,7 +248,7 @@ The QT3 runner compiles every query as XPath 2.0, because the compile entry does
 | Tier | New cases | Pass | Fail | Skipped | Rate | Baseline |
 | --- | ---: | ---: | ---: | ---: | ---: | --- |
 | XPath 3.0 | 4,028 | 1,125 | 2,729 | 174 | 29.1% | 2,903 baseline entries in `tests/conformance/baselines/qt3-xp30` |
-| XPath 3.1 | 1,713 | 236 | 1,222 | 255 | 16.2% | 1,477 baseline entries in `tests/conformance/baselines/qt3-xp31` |
+| XPath 3.1 | 1,713 | 238 | 1,220 | 255 | 16.3% | 1,475 baseline entries in `tests/conformance/baselines/qt3-xp31` |
 
 The selection rules, the exclusion list of the later tiers, and the regeneration commands are in the [selections readme](https://github.com/dailydevops/schemas/blob/main/tests/NetEvolve.Schemas.XPath.Tests.Integration/Qt3/Selections/README.md). The conformance statement for XPath 3.0 and 3.1 is planned as XP-76.
 

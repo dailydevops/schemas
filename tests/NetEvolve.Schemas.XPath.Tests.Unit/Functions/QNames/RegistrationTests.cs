@@ -21,6 +21,7 @@ public class RegistrationTests
     [Arguments("static-base-uri", 0, 0)]
     [Arguments("encode-for-uri", 1, 1)]
     [Arguments("iri-to-uri", 1, 1)]
+    [Arguments("escape-html-uri", 1, 1)]
     public async Task DefaultCatalog_ResolvesTheFunctionForItsArityRangeOnly(string local, int minArity, int maxArity)
     {
         for (var arity = 0; arity <= 4; arity++)

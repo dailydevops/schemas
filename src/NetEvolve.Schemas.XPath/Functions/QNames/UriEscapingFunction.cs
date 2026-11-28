@@ -5,7 +5,7 @@ using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>
-/// The base of <c>fn:encode-for-uri</c> and <c>fn:iri-to-uri</c> (<c>xs:string?</c> in, <c>xs:string</c> out): the empty sequence gives
+/// The base of <c>fn:encode-for-uri</c>, <c>fn:iri-to-uri</c>, and <c>fn:escape-html-uri</c> (<c>xs:string?</c> in, <c>xs:string</c> out): the empty sequence gives
 /// the zero-length string, and a string without a character to escape comes back as the same string.
 /// </summary>
 internal sealed class UriEscapingFunction : QNameFunction

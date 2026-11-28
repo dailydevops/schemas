@@ -71,21 +71,4 @@ public class RegistrationTests
 
         await Assert.That(found).IsTrue();
     }
-
-    [Test]
-    public async Task DefaultCatalog_DoesNotRegisterTheFunctionsOfOtherWorkPackages()
-    {
-        // escape-html-uri: DEF-84. (matches, replace, and tokenize are registered by XP-24, in Functions/Regex; encode-for-uri and iri-to-uri by XP-28, in Functions/QNames.) (compare and codepoint-equal: XP-25 registers them in Collations.)
-        string[] names = ["escape-html-uri"];
-        foreach (var local in names)
-        {
-            for (var arity = 0; arity <= 4; arity++)
-            {
-                await Assert
-                    .That(SequencesHarness.TryResolve(local, arity, out _))
-                    .IsFalse()
-                    .Because($"{local}#{arity}");
-            }
-        }
-    }
 }

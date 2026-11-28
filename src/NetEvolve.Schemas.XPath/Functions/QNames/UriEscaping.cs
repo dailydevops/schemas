@@ -4,7 +4,7 @@ using System;
 using System.Buffers;
 
 /// <summary>
-/// The percent-encoding of <c>fn:encode-for-uri</c> and <c>fn:iri-to-uri</c> (Functions and Operators 1.0, 8.4 and 8.5): the UTF-8
+/// The percent-encoding of <c>fn:encode-for-uri</c>, <c>fn:iri-to-uri</c>, and <c>fn:escape-html-uri</c> (Functions and Operators 1.0, 8.4 to 8.6): the UTF-8
 /// octets of a character, each as <c>%</c> and two upper-case hexadecimal digits. A string without a character to escape is returned as
 /// it is; otherwise the result is built in a stack buffer that grows into a pooled array, so only the result string is allocated.
 /// </summary>
@@ -15,19 +15,33 @@ using System.Buffers;
 internal static class UriEscaping
 {
     private const int StackLength = 256;
+
+    private enum Mode
+    {
+        Unreserved,
+        Uri,
+        Html,
+    }
+
     private const string HexDigits = "0123456789ABCDEF";
 
     /// <summary>Escapes every character but the unreserved ones of RFC 3986 (letters, digits, <c>-</c>, <c>_</c>, <c>.</c>, <c>~</c>).</summary>
     /// <param name="text">The text.</param>
     /// <returns>The escaped text; <paramref name="text"/> itself when nothing needs escaping.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="text"/> is <see langword="null"/>.</exception>
-    internal static string EncodeForUri(string text) => Escape(text, unreservedOnly: true);
+    internal static string EncodeForUri(string text) => Escape(text, Mode.Unreserved);
 
     /// <summary>Escapes the characters that no URI may contain: control characters, space, <c>&lt;&gt;"{}|\^`</c>, and every character beyond ASCII.</summary>
     /// <param name="text">The text.</param>
     /// <returns>The escaped text; <paramref name="text"/> itself when nothing needs escaping.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="text"/> is <see langword="null"/>.</exception>
-    internal static string IriToUri(string text) => Escape(text, unreservedOnly: false);
+    internal static string IriToUri(string text) => Escape(text, Mode.Uri);
+
+    /// <summary>Escapes every character beyond the printable ASCII range (U+0020 to U+007E), as <c>fn:escape-html-uri</c> does.</summary>
+    /// <param name="text">The text.</param>
+    /// <returns>The escaped text; <paramref name="text"/> itself when nothing needs escaping.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="text"/> is <see langword="null"/>.</exception>
+    internal static string EscapeHtmlUri(string text) => Escape(text, Mode.Html);
 
     /// <summary>Determines whether a character may not appear in a URI reference.</summary>
     /// <param name="c">The character.</param>
@@ -35,11 +49,11 @@ internal static class UriEscaping
     internal static bool IsForbiddenInUri(char c) =>
         c <= 0x20 || c >= 0x7F || c is '<' or '>' or '"' or '{' or '}' or '|' or '\\' or '^' or '`';
 
-    private static string Escape(string text, bool unreservedOnly)
+    private static string Escape(string text, Mode mode)
     {
         ArgumentNullException.ThrowIfNull(text);
 
-        var length = Measure(text, unreservedOnly);
+        var length = Measure(text, mode);
         if (length == text.Length)
         {
             return text;
@@ -48,13 +62,13 @@ internal static class UriEscaping
         if (length <= StackLength)
         {
             Span<char> stack = stackalloc char[StackLength];
-            return Write(text, unreservedOnly, stack).ToString();
+            return Write(text, mode, stack).ToString();
         }
 
         var rented = ArrayPool<char>.Shared.Rent(length);
         try
         {
-            return Write(text, unreservedOnly, rented).ToString();
+            return Write(text, mode, rented).ToString();
         }
         finally
         {
@@ -62,19 +76,29 @@ internal static class UriEscaping
         }
     }
 
-    private static bool Keeps(char c, bool unreservedOnly) =>
-        unreservedOnly
-            ? c is (>= 'a' and <= 'z') or (>= 'A' and <= 'Z') or (>= '0' and <= '9') or '-' or '_' or '.' or '~'
-            : !IsForbiddenInUri(c);
+    private static bool Keeps(char c, Mode mode) =>
+        mode switch
+        {
+            Mode.Unreserved => c
+                is (>= 'a' and <= 'z')
+                    or (>= 'A' and <= 'Z')
+                    or (>= '0' and <= '9')
+                    or '-'
+                    or '_'
+                    or '.'
+                    or '~',
+            Mode.Uri => !IsForbiddenInUri(c),
+            _ => c is >= ' ' and <= '~',
+        };
 
     // The length of the result: a kept character is one, an escaped code point is three characters per UTF-8 octet.
-    private static int Measure(string text, bool unreservedOnly)
+    private static int Measure(string text, Mode mode)
     {
         var length = 0;
         for (var i = 0; i < text.Length; i++)
         {
             var c = text[i];
-            if (Keeps(c, unreservedOnly))
+            if (Keeps(c, mode))
             {
                 length++;
                 continue;
@@ -94,13 +118,13 @@ internal static class UriEscaping
         return length;
     }
 
-    private static Span<char> Write(string text, bool unreservedOnly, Span<char> destination)
+    private static Span<char> Write(string text, Mode mode, Span<char> destination)
     {
         var length = 0;
         for (var i = 0; i < text.Length; i++)
         {
             var c = text[i];
-            if (Keeps(c, unreservedOnly))
+            if (Keeps(c, mode))
             {
                 destination[length++] = c;
                 continue;
