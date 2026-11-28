@@ -6,6 +6,7 @@ using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Model.Loading;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Context;
+using NetEvolve.Schemas.XPath.Errors;
 using NetEvolve.Schemas.XPath.Xdm.Nodes;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 using static NetEvolve.Schemas.Schematron.Tests.Unit.Xslt.Library.Core.CoreFixture;
@@ -81,6 +82,55 @@ public class SnapshotTests
         await Assert.That(copy.Node.Name.Local.Value).IsEqualTo(target.Node.Name.Local.Value);
         await Assert.That(copy.Node.StringValue).IsEqualTo("t");
         await Assert.That(copy.Node.Parent.Kind).IsEqualTo(XmlNodeKind.Document);
+    }
+
+    [Test]
+    public async Task CopyOf_OfAnAttributeOrNamespaceNode_IsXTDE0420()
+    {
+        var root = Target().Node.Parent;
+        foreach (var node in new[] { root.FirstAttribute, root.FirstNamespace })
+        {
+            var (status, diagnostic) = Invoke("copy-of", new XPathNode(node));
+
+            await Assert.That(status).IsEqualTo(XPathEvaluationStatus.Error);
+            await Assert.That(diagnostic!.Value.Code).Contains("XTDE0420");
+        }
+    }
+
+    [Test]
+    public async Task Snapshot_OfANamespaceNode_ReturnsTheCopyOfItsParentElement()
+    {
+        var root = Target().Node.Parent;
+        var copy = Call("snapshot", new XPathNode(root.FirstNamespace));
+
+        await Assert.That(copy.Node.Kind).IsEqualTo(XmlNodeKind.Element);
+        await Assert.That(copy.Node.Name.Local.Value).IsEqualTo(root.Name.Local.Value);
+        await Assert.That(copy.Node.FirstNamespace.StringValue).IsEqualTo("urn:p");
+        await Assert.That(copy.Node.FirstAttribute.StringValue).IsEqualTo("1");
+        await Assert.That(ReferenceEquals(copy.Node.Tree, root.Tree)).IsFalse();
+    }
+
+    [Test]
+    [Arguments("snapshot")]
+    [Arguments("copy-of")]
+    public async Task Function_OfADocumentNode_ReturnsACopiedDocument(string local)
+    {
+        var document = new XPathNode(Target().Node.Tree!.Document);
+        var copy = Call(local, document);
+
+        await Assert.That(copy.Node.Kind).IsEqualTo(XmlNodeKind.Document);
+        await Assert.That(copy.Node.Equals(document.Node)).IsFalse();
+        await Assert.That(copy.Node.FirstChild.Name.Local.Value).IsEqualTo(document.Node.FirstChild.Name.Local.Value);
+        await Assert.That(copy.Node.FirstChild.FirstChild.NextSibling.StringValue).IsEqualTo("t");
+    }
+
+    private static (XPathEvaluationStatus Status, XPathDiagnostic? Diagnostic) Invoke(string local, XPathNode node)
+    {
+        _ = Scope("xslt3").TryResolve(Fn(local), 1, out var function);
+        using var context = new XPathEvaluationContext();
+        var call = new XPathFunctionCall(context, [XdmSequence.Create(XdmItem.FromNode(node))]);
+        var status = function!.Invoke(ref call);
+        return (status, call.Diagnostic);
     }
 
     private static XPathNode Target() =>
