@@ -50,6 +50,9 @@ internal sealed class CountingRun
         Reset();
     }
 
+    /// <summary>Gets or sets a value indicating whether the general counting path is used even without counters (tests).</summary>
+    internal bool ForceGeneralPath { get; set; }
+
     /// <summary>Gets a value indicating whether a step was rejected because the configurations exceeded the ceiling.</summary>
     public bool CeilingExceeded { get; private set; }
 
