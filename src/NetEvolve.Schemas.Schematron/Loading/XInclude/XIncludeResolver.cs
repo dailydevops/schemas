@@ -30,8 +30,9 @@ using NetEvolve.Schemas.Xml.Contracts;
 /// Limitations: <c>xpointer</c> is not supported (DEF-58, #70); <c>accept</c> and <c>accept-language</c> have no effect, because the
 /// resolver does no content negotiation; <c>xml:base</c> and <c>xml:lang</c> of the including document are not applied (decision
 /// Q10 of design #106); the elements of included content report the position of the <c>xi:include</c> element in the document
-/// the schema was loaded from, because a tree has one source; namespace declarations on <c>xi:include</c> and
-/// <c>xi:fallback</c> elements are not carried to fallback content; the included document is not validated and its document
+/// the schema was loaded from, because a tree has one source; the prefix bindings of <c>xi:include</c> and
+/// <c>xi:fallback</c> elements are declared on the top-level elements of fallback content unless the content declares the prefix
+/// itself, whereas XInclude 1.0 copies all in-scope namespaces (the default namespace and the XInclude namespace are not carried); the included document is not validated and its document
 /// type declaration is dropped. The tree is merged after the XInclude infoset rules except that <c>xml:base</c> is the absolute
 /// system identifier of the included document. The nesting of includes is recursive, bounded by
 /// <see cref="ValidationLimits.MaxDepth"/> and by a fixed cap of 256 nested includes

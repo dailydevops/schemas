@@ -44,6 +44,9 @@ internal sealed class XIncludeRun : IXmlSink, IDisposable
     private int _documentBase;
     private int _skip;
     private int _depth;
+    private readonly List<(XmlSymbol Prefix, XmlSymbol Uri)> _heldDeclarations = [];
+    private readonly List<(XmlName Name, string Value)> _heldAttributes = [];
+    private IncludeState? _carrier;
     private bool _failed;
     private bool _baseSeen;
     private bool _positionFixed;
@@ -144,9 +147,30 @@ internal sealed class XIncludeRun : IXmlSink, IDisposable
 
     public void NamespaceDeclaration(XmlSymbol prefix, XmlSymbol uri)
     {
-        if (Forwarding())
+        if (_failed || _skip > 0)
         {
-            _builder.NamespaceDeclaration(prefix, uri);
+            return;
+        }
+
+        if (_stack.Count > 0 && Top.Kind is FrameKind.Include or FrameKind.Fallback)
+        {
+            // The declarations of xi:include and xi:fallback are dropped with them, but fallback content inherits them.
+            // The default namespace and the XInclude namespace are not carried.
+            if (!prefix.IsEmpty && uri != _xiNamespace)
+            {
+                Top.Include?.Declare(prefix, uri);
+            }
+        }
+        else if (Forwarding())
+        {
+            if (_carrier is null)
+            {
+                _builder.NamespaceDeclaration(prefix, uri);
+            }
+            else
+            {
+                _heldDeclarations.Add((prefix, uri));
+            }
         }
     }
 
@@ -173,9 +197,64 @@ internal sealed class XIncludeRun : IXmlSink, IDisposable
             }
             else
             {
-                _builder.Attribute(name, value);
+                PutAttribute(name, value);
             }
         }
+    }
+
+    private void PutAttribute(XmlName name, ReadOnlySpan<char> value)
+    {
+        if (_carrier is null)
+        {
+            _builder.Attribute(name, value);
+        }
+        else
+        {
+            _heldAttributes.Add((name, value.ToString()));
+        }
+    }
+
+    /// <summary>
+    /// Writes the held start tag of a top-level element of fallback content: the declarations of <c>xi:include</c> and
+    /// <c>xi:fallback</c> come first, unless the content declares the prefix itself, then the held declarations and attributes.
+    /// </summary>
+    private void FlushHeldTag()
+    {
+        var carrier = _carrier!;
+        _carrier = null;
+        foreach (var (prefix, uri) in carrier.Declarations)
+        {
+            if (!IsHeld(prefix))
+            {
+                _builder.NamespaceDeclaration(prefix, uri);
+            }
+        }
+
+        foreach (var (prefix, uri) in _heldDeclarations)
+        {
+            _builder.NamespaceDeclaration(prefix, uri);
+        }
+
+        foreach (var (name, value) in _heldAttributes)
+        {
+            _builder.Attribute(name, value.AsSpan());
+        }
+
+        _heldDeclarations.Clear();
+        _heldAttributes.Clear();
+    }
+
+    private bool IsHeld(XmlSymbol prefix)
+    {
+        foreach (var held in _heldDeclarations)
+        {
+            if (held.Prefix == prefix)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public void EndAttributes()
@@ -190,7 +269,12 @@ internal sealed class XIncludeRun : IXmlSink, IDisposable
         {
             if (top.FixBase && !_baseSeen)
             {
-                _builder.Attribute(_xmlBase, _base.AsSpan());
+                PutAttribute(_xmlBase, _base.AsSpan());
+            }
+
+            if (_carrier is not null)
+            {
+                FlushHeldTag();
             }
 
             _builder.EndAttributes();
@@ -282,6 +366,11 @@ internal sealed class XIncludeRun : IXmlSink, IDisposable
             return;
         }
 
+        if (_stack.Count > 0 && Top.Kind == FrameKind.Fallback && Top.Active && Top.Include!.Declarations.Count > 0)
+        {
+            _carrier = Top.Include;
+        }
+
         _stack.Add(new Frame(FrameKind.Plain, false, null, _stack.Count > 0 && Top.Kind == FrameKind.Content));
         _baseSeen = false;
         _builder.StartElement(name, _positionFixed ? _fixedPosition : position);
@@ -313,7 +402,14 @@ internal sealed class XIncludeRun : IXmlSink, IDisposable
             }
             else
             {
-                _stack.Add(new Frame(FrameKind.Include, false, new IncludeState(position), false));
+                var state = new IncludeState(position);
+                if (_stack.Count > 0 && Top.Kind == FrameKind.Fallback && Top.Active)
+                {
+                    // An include that is a direct child of used fallback content sees the declarations of the outer ones.
+                    state.Inherit(Top.Include!);
+                }
+
+                _stack.Add(new Frame(FrameKind.Include, false, state, false));
             }
         }
         else if (local == _fallbackName)
@@ -330,7 +426,7 @@ internal sealed class XIncludeRun : IXmlSink, IDisposable
             else
             {
                 include.HasFallback = true;
-                _stack.Add(new Frame(FrameKind.Fallback, include.Failed, null, false));
+                _stack.Add(new Frame(FrameKind.Fallback, include.Failed, include, false));
             }
         }
         else

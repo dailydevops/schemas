@@ -1,7 +1,9 @@
 namespace NetEvolve.Schemas.Schematron.Loading.XInclude;
 
+using System.Collections.Generic;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Xml.Contracts;
+using NetEvolve.Schemas.Xml.Model;
 
 /// <summary>What one open <c>xi:include</c> element has collected and how its load went.</summary>
 internal sealed class IncludeState
@@ -9,6 +11,18 @@ internal sealed class IncludeState
     internal IncludeState(XmlPosition position) => Position = position;
 
     internal XmlPosition Position { get; }
+
+    /// <summary>Gets the prefix bindings of the <c>xi:include</c> and <c>xi:fallback</c> elements, one per prefix, the innermost last.</summary>
+    internal List<(XmlSymbol Prefix, XmlSymbol Uri)> Declarations { get; } = [];
+
+    /// <summary>Records a declaration, replacing an earlier one of the same prefix.</summary>
+    internal void Declare(XmlSymbol prefix, XmlSymbol uri)
+    {
+        _ = Declarations.RemoveAll(d => d.Prefix == prefix);
+        Declarations.Add((prefix, uri));
+    }
+
+    internal void Inherit(IncludeState outer) => Declarations.AddRange(outer.Declarations);
 
     internal string? Href { get; set; }
 
