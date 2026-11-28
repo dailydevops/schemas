@@ -169,6 +169,42 @@ public class OwnFacetAssessmentTests
     }
 
     [Test]
+    [Arguments("integer", "1 2", "+01 02", true)]
+    [Arguments("integer", "1 2", "2 1", false)]
+    [Arguments("integer", "1 2", "1", false)]
+    [Arguments("integer", "1 2", "1 2 3", false)]
+    [Arguments("integer", "1 2", "1  2", true)]
+    [Arguments("string", "a b", "a b", true)]
+    [Arguments("string", "a b", "b a", false)]
+    [Arguments("anyURI", "urn:a urn:b", "urn:a urn:b", true)]
+    [Arguments("anyURI", "urn:a urn:b", "urn:a urn:c", false)]
+    [Arguments("boolean", "true false", "1 0", true)]
+    public async Task List_EvaluatesAnEnumerationItemByItemInTheValueSpace(
+        string item,
+        string listed,
+        string lexical,
+        bool valid
+    )
+    {
+        var fixture = new FacetFixture();
+        var baseType = fixture.Base("list:" + item);
+        var facets = FacetFactory.Create(
+            baseType,
+            [FacetFixture.Decl(FacetKind.Enumeration, listed), FacetFixture.Decl(FacetKind.Enumeration, "9 9")],
+            XsdVersion.V11
+        );
+        var type = fixture.Derive(baseType, [.. facets]);
+
+        var result = fixture.Assessor.Assess(type, lexical, out _);
+
+        await Assert.That(result.IsValid).IsEqualTo(valid);
+        if (!valid)
+        {
+            await Assert.That(result.FailedFacet).IsEqualTo(FacetKind.Enumeration);
+        }
+    }
+
+    [Test]
     public async Task Restriction_OfAnyUri_EvaluatesLexicalFacets()
     {
         var fixture = new FacetFixture();
