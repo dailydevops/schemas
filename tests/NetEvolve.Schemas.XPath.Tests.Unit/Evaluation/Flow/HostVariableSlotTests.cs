@@ -1,7 +1,9 @@
 namespace NetEvolve.Schemas.XPath.Tests.Unit.Evaluation.Flow;
 
 using NetEvolve.Schemas.XPath.Api;
+using NetEvolve.Schemas.XPath.Compilation;
 using NetEvolve.Schemas.XPath.Context;
+using NetEvolve.Schemas.XPath.Syntax.Parser;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
 /// <summary>Variables that the host declares with a slot are read from the slot array of the context, not from the name-keyed variables.</summary>
@@ -101,22 +103,23 @@ public class HostVariableSlotTests
     [Test]
     public async Task AnInlineFunction_CapturesTheSlotValueWhenTheItemIsCreated()
     {
-        var slots = new XdmSequence[1];
-        var bound = new bool[1];
-        using var context = new XPathEvaluationContext();
-        context.Variables.AttachSlots(slots, bound);
-        slots[0] = XdmSequence.Create(XdmItem.FromInteger(7));
-        bound[0] = true;
-        var statics = XPathStaticContext
-            .Default.ToBuilder()
-            .WithVersion(XPathVersion.V30)
-            .WithVariable(X, 0)
-            .Build();
+        const string text = "(function() { $x })()";
+        _ = XPathParser.TryParse(text.AsSpan(), XPathVersion.V30, out var syntax, out _);
+        var statics = XPathStaticContext.Default.ToBuilder().WithVersion(XPathVersion.V30).WithVariable(X, 0).Build();
+        _ = ExpressionCompiler.TryCompile(
+            syntax!,
+            text,
+            statics,
+            XPathEngine.CreateRegistry(XPathEngine.AllSlots),
+            out var compiled,
+            out _
+        );
+        using var context = Attach(7);
 
-        var result = XPathExpression.Compile("(function() { $x })()", statics).TryEvaluate(context);
+        var result = compiled!.Evaluate(context);
 
-        await Assert.That(result.Status).IsEqualTo(XPathEvaluationStatus.Ok);
-        await Assert.That(result.Value[0].TryGetInteger(out var number)).IsTrue();
+        await Assert.That(result.Count).IsEqualTo(1);
+        await Assert.That(result[0].TryGetInteger(out var number)).IsTrue();
         await Assert.That(number).IsEqualTo(7L);
     }
 }

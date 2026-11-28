@@ -90,14 +90,33 @@ internal sealed class LoweringContext
     /// <param name="name">The name.</param>
     /// <returns>The expanded name.</returns>
     /// <exception cref="XPathException">The prefix is undeclared (XPST0081) or the variable is not defined (XPST0008).</exception>
-    public XPathQName ResolveVariable(QualifiedName name)
+    public XPathQName ResolveVariable(QualifiedName name) => ResolveVariable(name, out _);
+
+    /// <summary>Resolves a variable name to an expanded name and, when the variable is a host variable, its slot.</summary>
+    /// <param name="name">The name.</param>
+    /// <param name="hostSlot">The slot of the host variable the name stands for at this position, or -1 when a range variable in scope or a variable without a slot does.</param>
+    /// <returns>The expanded name.</returns>
+    /// <exception cref="XPathException">The prefix is undeclared (XPST0081) or the variable is not defined (XPST0008).</exception>
+    public XPathQName ResolveVariable(QualifiedName name, out int hostSlot)
     {
         ArgumentNullException.ThrowIfNull(name);
 
         var qname = Expand(name, string.Empty);
-        if ((_scope is not null && _scope.Contains(qname)) || StaticContext.TryGetVariableType(qname, out _))
+        hostSlot = -1;
+        if (_scope is not null && _scope.Contains(qname))
         {
-            NoteReference(qname);
+            NoteReference(qname, hostSlot);
+            return qname;
+        }
+
+        if (StaticContext.TryGetVariableType(qname, out _))
+        {
+            if (!StaticContext.TryGetHostSlot(qname, out hostSlot))
+            {
+                hostSlot = -1;
+            }
+
+            NoteReference(qname, hostSlot);
             return qname;
         }
 
@@ -144,7 +163,10 @@ internal sealed class LoweringContext
         return frame;
     }
 
-    private void NoteReference(XPathQName name)
+    /// <summary>Gets a value indicating whether an inline function body is being lowered.</summary>
+    public bool InCapture => _captures is { Count: > 0 };
+
+    private void NoteReference(XPathQName name, int hostSlot)
     {
         if (_captures is not { Count: > 0 })
         {
@@ -156,7 +178,7 @@ internal sealed class LoweringContext
         {
             if (declared < _captures[i].ScopeBase)
             {
-                _ = _captures[i].FreeNames.Add(name);
+                _captures[i].FreeNames[name] = hostSlot;
             }
         }
     }
@@ -191,8 +213,8 @@ internal sealed class LoweringContext
 
         internal int ScopeBase { get; }
 
-        /// <summary>Gets the free variables.</summary>
-        public HashSet<XPathQName> FreeNames { get; } = [];
+        /// <summary>Gets the free variables with the host slot each one reads, -1 for a variable without one.</summary>
+        public Dictionary<XPathQName, int> FreeNames { get; } = [];
 
         /// <summary>Ends the collection.</summary>
         public void Dispose() => _owner._captures!.Remove(this);

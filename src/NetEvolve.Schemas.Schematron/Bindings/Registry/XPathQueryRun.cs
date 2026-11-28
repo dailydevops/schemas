@@ -20,10 +20,10 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// </summary>
 /// <remarks>
 /// <para>
-/// The values live in an array indexed by slot. Before an evaluation the run copies only the slots the expression reads into the
-/// variables of the context, under the names the expression was compiled with, so two slots with one name never see each other: the
-/// expression reads the slot that was visible where it was written. A slot that is not bound is removed from the variables, so the
-/// evaluation fails with XPDY0002 instead of reading the value of another slot.
+/// The values live in an array indexed by slot, which every context of the run reads directly: the expression was compiled with the
+/// slot of each variable (<see cref="XPathQueryBinding.CreateStaticContext"/>), so two slots with one name never see each other and
+/// the expression reads the slot that was visible where it was written. A slot that is not bound fails the evaluation with XPDY0002
+/// instead of reading the value of another slot.
 /// </para>
 /// <para>
 /// The size of the focus is -1 when nothing needs it; the context needs a size of at least the position, so an unknown size is taken
@@ -95,7 +95,7 @@ internal sealed class XPathQueryRun : IXsltFunctionRun, IXsltGroupRun, IXPathRes
         ArgumentNullException.ThrowIfNull(expression);
 
         var query = Cast(expression);
-        var context = Begin(query, in focus);
+        var context = Begin(in focus);
 
         // The effective boolean value is computed by the engine, which stops a path test at its first node.
         _level++;
@@ -281,7 +281,7 @@ internal sealed class XPathQueryRun : IXsltFunctionRun, IXsltGroupRun, IXPathRes
 
     private bool TryRun(XPathQueryExpression query, in QueryFocus focus, out XdmSequence sequence)
     {
-        var context = Begin(query, in focus);
+        var context = Begin(in focus);
 
         // A stylesheet function called from the expression evaluates its body through this run, so the context of the evaluation
         // that is running must stay untouched: the nested one takes the next context.
@@ -306,8 +306,8 @@ internal sealed class XPathQueryRun : IXsltFunctionRun, IXsltGroupRun, IXPathRes
         return false;
     }
 
-    // Prepares the context of the next evaluation: the focus and the variables of the query.
-    private XPathEvaluationContext Begin(XPathQueryExpression query, in QueryFocus focus)
+    // Prepares the context of the next evaluation: the focus; the variables are the slots of the run.
+    private XPathEvaluationContext Begin(in QueryFocus focus)
     {
         _cancellationToken.ThrowIfCancellationRequested();
 
@@ -323,20 +323,6 @@ internal sealed class XPathQueryRun : IXsltFunctionRun, IXsltGroupRun, IXPathRes
         SetFocus(context, in focus);
         context.Host.CurrentGroup = CurrentGroup;
         context.Host.CurrentGroupingKey = CurrentGroupingKey;
-        var slots = query.ReferencedSlots;
-        for (var i = 0; i < query.Names.Length; i++)
-        {
-            var slot = slots[i];
-            if (slot < _bound.Length && _bound[slot])
-            {
-                context.Variables.Set(query.Names[i], _values[slot]);
-            }
-            else
-            {
-                context.Variables.Remove(query.Names[i]);
-            }
-        }
-
         return context;
     }
 
@@ -357,6 +343,7 @@ internal sealed class XPathQueryRun : IXsltFunctionRun, IXsltGroupRun, IXPathRes
         }
 
         var context = new XPathEvaluationContext { ResourceResolver = this };
+        context.Variables.AttachSlots(_values, _bound);
         Prepare(context);
         _contexts.Add(context);
         return context;
@@ -394,6 +381,10 @@ internal sealed class XPathQueryRun : IXsltFunctionRun, IXsltGroupRun, IXPathRes
             var length = Math.Max(slot + 1, _values.Length * 2);
             Array.Resize(ref _values, length);
             Array.Resize(ref _bound, length);
+            foreach (var context in _contexts)
+            {
+                context.Variables.AttachSlots(_values, _bound);
+            }
         }
 
         _values[slot] = value;

@@ -117,12 +117,13 @@ internal sealed class XPathQueryBinding : IFunctionHostBinding
             }
         }
 
-        // An empty entry is a slot that is not visible at this position.
+        // An empty entry is a slot that is not visible at this position. The index is the slot of the run, which the engine reads
+        // directly; a later entry of one name wins, as the slot that is visible where the expression is written.
         for (var i = 0; i < scope.VariableNames.Count; i++)
         {
             if (scope.VariableNames[i].Length > 0)
             {
-                _ = builder.WithVariable(new XPathQName(string.Empty, scope.VariableNames[i]));
+                _ = builder.WithVariable(new XPathQName(string.Empty, scope.VariableNames[i]), i);
             }
         }
 
