@@ -22,7 +22,8 @@ using NetEvolve.Schemas.Xsd.SimpleTypes.Checks;
 /// </summary>
 /// <remarks>
 /// Limitations: the <c>enumeration</c> facet is carried for string-like bases (including anyURI) and for the ordered families (decimal, integer, float,
-/// double, duration, date and time, boolean), not for the others (binary, <c>QName</c>, and <c>NOTATION</c>); the
+/// double, duration, date and time, boolean), not for the others (binary, <c>QName</c>, and <c>NOTATION</c>); a list carries it when its item type is one of the carried
+/// families and compares item by item, a list of any other item type is not evaluated; the
 /// <c>assertion</c> facets (XSD 1.1, XSD-78) are not carried here, they are collected separately; a length of a binary type is carried
 /// by the binary length facet only when the base is a built-in type of that family. A facet that does not parse is left out, which
 /// can only follow an issue that the check has reported.

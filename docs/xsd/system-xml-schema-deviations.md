@@ -30,7 +30,7 @@ No builder option, switch, or code path in the library reproduces System.Xml.Sch
 | Verdict differences: this library follows the specification | 1712 | 1680 |
 | Verdict differences: documented limitations of this library | 21 | 17 |
 | Position differences: equivalent | 12127 | 12127 |
-| Differences on cases that a bug issue tracks (no entry) | 873 | |
+| Differences on cases that a bug issue tracks (no entry) | 218 | |
 
 ## Differences on cases that a bug issue tracks
 
@@ -38,8 +38,7 @@ The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTe
 
 | Issue | Differences | Title |
 |---|---:|---|
-| #1077 | 654 | feat(xsd): evaluate the enumeration facet of list simple types in the value space |
-| #1078 | 101 | feat(xsd): evaluate the enumeration facet of union simple types in the value space |
+| #1078 | 100 | feat(xsd): evaluate the enumeration facet of union simple types in the value space |
 | #963 | 35 | test(conformance): run the xsts instance tests of groups without a schema document through schema location hints |
 | #1418 | 3 | bug(xsd): circular redefine chains fail with a missing redefined component |
 | #870 | 22 | feat(xsd): add notation declarations as components |
