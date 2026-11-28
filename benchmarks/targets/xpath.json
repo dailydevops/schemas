@@ -20,7 +20,7 @@
   {
     "name": "XPathComparisonBenchmarks.EvaluateComparisons",
     "meanNs": 116743.5,
-    "allocatedBytes": 18786,
+    "allocatedBytes": 8904,
     "baselineRatio": 4.6
   },
   {
