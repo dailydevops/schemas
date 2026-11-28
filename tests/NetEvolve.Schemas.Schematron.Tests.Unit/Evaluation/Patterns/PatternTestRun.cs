@@ -14,6 +14,7 @@ internal sealed class PatternTestRun : IQueryRun
 {
     private readonly IQueryRun _inner;
     private readonly List<string> _log;
+    private readonly HashSet<int> _bound = [];
     private SchematronProblem _problem;
 
     internal PatternTestRun(AssertionTestBinding binding, List<string> log)
@@ -37,10 +38,20 @@ internal sealed class PatternTestRun : IQueryRun
             return QueryStatus.Problem;
         }
 
+        _ = _bound.Add(slot);
         return QueryStatus.Ok;
     }
 
-    public void BindVariable(int slot, string value) => _log.Add("bind-literal:" + slot);
+    public void BindVariable(int slot, string value)
+    {
+        _ = _bound.Add(slot);
+        _log.Add("bind-literal:" + slot);
+    }
+
+    /// <summary>Gets a value indicating whether the slot holds a value, as the variable table of a real run does.</summary>
+    /// <param name="slot">The slot.</param>
+    /// <returns><see langword="true"/> when the slot was bound.</returns>
+    internal bool IsBound(int slot) => _bound.Contains(slot);
 
     public SchematronProblem GetProblem() => _problem.Message is null ? _inner.GetProblem() : _problem;
 

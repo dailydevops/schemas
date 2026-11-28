@@ -39,12 +39,14 @@ internal sealed class SlotBinder : ISlotBinder
     private readonly string?[] _external;
     private readonly int[] _stamps;
     private readonly byte[] _states;
+    private readonly List<SchematronProblem> _deferred = [];
     private int[] _stack = new int[16];
     private int _depth;
     private int _patternEpoch = 1;
     private int _firingEpoch = 1;
     private int _evaluating;
     private bool _cycleReported;
+    private bool _defer;
     private RuleScope? _rule;
     private QueryFocus _focus;
 
@@ -159,7 +161,46 @@ internal sealed class SlotBinder : ISlotBinder
             }
         }
 
+        // A failure that was held back is reported at the first read that is not deferred.
+        if (status == QueryStatus.Problem && !_defer)
+        {
+            FlushDeferred();
+        }
+
         return status;
+    }
+
+    /// <summary>
+    /// Binds the slots like <see cref="EnsureBound"/>, but holds the problem of a failed slot back: the expression of a rule context may
+    /// name a variable in an operand that its <see langword="and"/> or <see langword="or"/> never evaluates, and a variable is an error only where it is read (#1446).
+    /// The caller runs the expression anyway and calls <see cref="FlushDeferred"/> when the expression read a failed slot.
+    /// </summary>
+    /// <param name="slots">The slots an expression reads.</param>
+    /// <returns><see cref="QueryStatus.Problem"/> when a slot is or became failed.</returns>
+    internal QueryStatus EnsureBoundDeferred(ReadOnlySpan<int> slots)
+    {
+        var outer = _defer;
+        _defer = true;
+        try
+        {
+            return EnsureBound(slots);
+        }
+        finally
+        {
+            _defer = outer;
+        }
+    }
+
+    /// <summary>Reports the problems of failed slots that <see cref="EnsureBoundDeferred"/> held back, once.</summary>
+    internal void FlushDeferred()
+    {
+        for (var i = 0; i < _deferred.Count; i++)
+        {
+            var problem = _deferred[i];
+            _problems.Add(in problem);
+        }
+
+        _deferred.Clear();
     }
 
     // Re-entrant: evaluating a value can call a function whose body binds slots, which starts a nested walk. The nested walk
@@ -327,7 +368,19 @@ internal sealed class SlotBinder : ISlotBinder
     private void Fail(int slot, in SchematronProblem problem)
     {
         Mark(slot, Failed);
-        _problems.Add(in problem);
+        Report(in problem);
+    }
+
+    private void Report(in SchematronProblem problem)
+    {
+        if (_defer)
+        {
+            _deferred.Add(problem);
+        }
+        else
+        {
+            _problems.Add(in problem);
+        }
     }
 
     private void ReportCycle(int slot)
@@ -339,7 +392,7 @@ internal sealed class SlotBinder : ISlotBinder
             declaration?.Location ?? default,
             "XTDE0640"
         );
-        _problems.Add(in problem);
+        Report(in problem);
     }
 
     // A constant that does not match its declared type is a failed slot from the start of its span, reported once per span.

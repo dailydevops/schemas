@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 using static NetEvolve.Schemas.Schematron.Tests.Unit.Pipeline.PipelineFixture;
 
 /// <summary>
-/// A <c>let</c> whose value fails is an error only where an expression reads it (#1446): a rule context that names the variable in the
-/// operand of a short-circuited <c>and</c> runs without an error, as the variables of the compiled stylesheet of the reference processors do.
+/// A <see langword="let"/> whose value fails is an error only where an expression reads it (#1446): a rule context that names the variable in the
+/// operand of a short-circuited <see langword="and"/> runs without an error, as the variables of the compiled stylesheet of the reference processors do.
 /// </summary>
 public class FailedLetInContextTests
 {
