@@ -21,13 +21,13 @@ public sealed class ListEnumerationFacet<TValue> : ILexicalFacet
     private readonly TValue[][] _sequences;
 
     /// <summary>Initializes a new instance of the <see cref="ListEnumerationFacet{TValue}"/> class.</summary>
-    /// <param name="type">The item type whose value space defines equality.</param>
+    /// <param name="itemType">The item type whose value space defines equality.</param>
     /// <param name="sequences">The listed item sequences.</param>
-    public ListEnumerationFacet(IDatatypeDescriptor<TValue> type, IReadOnlyList<TValue[]> sequences)
+    public ListEnumerationFacet(IDatatypeDescriptor<TValue> itemType, IReadOnlyList<TValue[]> sequences)
     {
-        ArgumentNullException.ThrowIfNull(type);
+        ArgumentNullException.ThrowIfNull(itemType);
         ArgumentNullException.ThrowIfNull(sequences);
-        _type = type;
+        _type = itemType;
         _sequences = [.. sequences];
     }
 
