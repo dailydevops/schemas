@@ -11,11 +11,17 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// for the empty sequence and for the other kinds of node.
 /// </summary>
 /// <remarks>Limitation: a node carries no schema annotation here, so an element is never nilled (see <c>ItemTypeMatcher</c>).</remarks>
-internal sealed class NilledFunction : NodeFunction
+internal class NilledFunction : NodeFunction
 {
     /// <summary>Initializes a new instance of the <see cref="NilledFunction"/> class.</summary>
     public NilledFunction()
-        : base("nilled", 1, 1, [new XPathParameterType(XPathItemType.Node, Occurrence.ZeroOrOne)]) { }
+        : this(1, [new XPathParameterType(XPathItemType.Node, Occurrence.ZeroOrOne)]) { }
+
+    /// <summary>Initializes a new instance of the <see cref="NilledFunction"/> class with one fixed arity.</summary>
+    /// <param name="arity">The number of arguments.</param>
+    /// <param name="parameters">The declared parameter types.</param>
+    private protected NilledFunction(int arity, XPathParameterType[] parameters)
+        : base("nilled", arity, arity, parameters) { }
 
     /// <inheritdoc />
     public override XPathEvaluationStatus Invoke(ref XPathFunctionCall invocation)

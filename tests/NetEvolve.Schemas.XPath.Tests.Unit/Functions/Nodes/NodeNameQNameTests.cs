@@ -45,6 +45,59 @@ public class NodeNameQNameTests
     ) => await Assert.That(NodesHarness.Run("nilled", node == "()" ? node : "node:" + node)).IsEqualTo(expected);
 
     [Test]
+    [Arguments(XPathVersion.V20, false)]
+    [Arguments(XPathVersion.V30, true)]
+    [Arguments(XPathVersion.V31, true)]
+    public async Task Nilled_WithoutArgument_IsRegisteredFromXPath30(XPathVersion version, bool expected) =>
+        await Assert.That(NodesHarness.TryResolve("nilled", 0, out _, version)).IsEqualTo(expected);
+
+    [Test]
+    [Arguments("r", "boolean:false")]
+    [Arguments("a", "boolean:false")]
+    [Arguments("doc", "")]
+    [Arguments("a@x", "")]
+    [Arguments("cm", "")]
+    [Arguments("pi", "")]
+    public async Task Nilled_WithoutArgument_ReadsTheContextNode(string contextItem, string expected)
+    {
+        ArgumentNullException.ThrowIfNull(contextItem);
+
+        _ = NodesHarness.TryResolve("nilled", 0, out var function, XPathVersion.V30);
+        using var context = new XPathEvaluationContext();
+        context.SetContextItem(NodesHarness.ParseItem("node:" + contextItem));
+
+        await Assert.That(NodesHarness.Show(function!.Call(context, []))).IsEqualTo(expected);
+    }
+
+    [Test]
+    [Arguments(null, "XPDY0002")]
+    [Arguments("integer:1", "XPTY0004")]
+    public async Task Nilled_WithoutArgument_RaisesTheContextItemError(string? contextItem, string code)
+    {
+        _ = NodesHarness.TryResolve("nilled", 0, out var function, XPathVersion.V30);
+        using var context = new XPathEvaluationContext();
+        if (contextItem is not null)
+        {
+            context.SetContextItem(NodesHarness.ParseItem(contextItem));
+        }
+
+        var failure = Assert.Throws<XPathException>(() => function!.Call(context, []));
+
+        await Assert.That(failure!.Diagnostic.Code).IsEqualTo(code);
+    }
+
+    [Test]
+    [Arguments(XPathVersion.V20)]
+    [Arguments(XPathVersion.V30)]
+    [Arguments(XPathVersion.V31)]
+    public async Task Nilled_WithOneArgument_StaysRegisteredForEveryVersion(XPathVersion version)
+    {
+        await Assert.That(NodesHarness.TryResolve("nilled", 2, out _, version)).IsFalse();
+        await Assert.That(NodesHarness.TryResolve("nilled", 1, out var function, version)).IsTrue();
+        await Assert.That(function!.Versions).IsEqualTo(XPathVersionMask.All);
+    }
+
+    [Test]
     [Arguments("u.doc", "anyURI:http://example.com/u.xml")]
     [Arguments("doc", "")]
     [Arguments("o.doc", "")]
@@ -105,7 +158,6 @@ public class NodeNameQNameTests
     }
 
     [Test]
-    [Arguments("nilled")]
     [Arguments("document-uri")]
     public async Task EachFunction_IsRegisteredForOneArgumentOnlyInEveryLanguageVersion(string local)
     {
