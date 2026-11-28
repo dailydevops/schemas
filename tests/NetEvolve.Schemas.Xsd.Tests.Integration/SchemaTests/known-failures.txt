@@ -25,7 +25,6 @@ msMeta-Schema_w3c	1.0/schB8/schB8	-	A schema location that the resolver refuses 
 msMeta-Schema_w3c	1.0/schD7/schD7	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
 msMeta-Schema_w3c	1.0/schD8/schD8	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
 msMeta-Schema_w3c	1.0/schH9/schH9	-	A schema location that the resolver refuses or cannot find is an error at the directive (design 146, DP-3); the suite ignores it.
-msMeta-SimpleType_w3c	1.0/stZ010/stZ010	#1180	A facet that does not apply to the simple content of a simpleContent restriction is accepted.
 saxonMeta-Missing	1.0/missing001/missing001.xsd	-	A reference to a type that no document declares is src-resolve here; the suite accepts incomplete schemas.
 saxonMeta-Missing	1.0/missing002/missing001.xsd	-	A reference to an element declaration that no document declares is src-resolve here; the suite accepts incomplete schemas.
 saxonMeta-Missing	1.0/missing003/missing003.xsd	-	A reference to a type that no document declares is src-resolve here; the suite accepts incomplete schemas.
