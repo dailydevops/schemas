@@ -351,4 +351,18 @@ public class StylesheetFunctionCallTests
         await Assert.That(result.IsValid).IsFalse();
         await Assert.That(Messages(result)).Contains("XTTE0570");
     }
+
+    [Test]
+    [Arguments("<a>380</a>", true)]
+    [Arguments("<a>999</a>", false)]
+    public async Task Call_OfAFunctionWithAPrefixedLocalVariable_ResolvesTheVariable(string instance, bool expected)
+    {
+        const string module =
+            "<xsl:function name=\"f:is-code\" as=\"xs:boolean\"><xsl:param name=\"code\" as=\"xs:string?\"/>"
+            + "<xsl:variable name=\"f:codes\" as=\"xs:string\" select=\"'380 389'\"/>"
+            + "<xsl:sequence select=\"$code = tokenize($f:codes, ' ')\"/></xsl:function>";
+        var validator = Inline(module, "f:is-code(string(.))");
+
+        await Assert.That(Validate(validator, instance).IsValid).IsEqualTo(expected);
+    }
 }
