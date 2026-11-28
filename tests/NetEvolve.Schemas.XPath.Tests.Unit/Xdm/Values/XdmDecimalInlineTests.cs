@@ -53,18 +53,12 @@ public class XdmDecimalInlineTests
     }
 
     [Test]
-    [Arguments("100000000000000000000", 0)]
-    [Arguments("18446744073709551615", 0)]
-    [Arguments("1e", 0)]
-    public async Task XdmItem_Decimal_BeyondInlineRange_StaysExact(string lexical, int ignored)
+    [Arguments("100000000000000000000")]
+    [Arguments("18446744073709551615")]
+    [Arguments("9223372036854775808")]
+    public async Task XdmItem_Decimal_BeyondInlineRange_StaysExact(string lexical)
     {
-        _ = ignored;
-        if (!BigInteger.TryParse(lexical, NumberStyles.None, CultureInfo.InvariantCulture, out var big))
-        {
-            return;
-        }
-
-        var value = new XsdDecimal(big, -3);
+        var value = new XsdDecimal(BigInteger.Parse(lexical, CultureInfo.InvariantCulture), -3);
 
         await Assert.That(RoundTrip(value)).IsTrue();
         await Assert.That(XdmItem.FromDecimal(value).TryGetDecimal(out var read)).IsTrue();
