@@ -7,7 +7,7 @@ This document lists every difference that the differential run over the W3C XML 
 | Baseline | `System.Xml.Schema` of the .NET runtime 10.0, compared on the `net10.0` test leg only (`baseline-runtime: 10.0`) |
 | Corpus | XSTS cases of XSD 1.0 (schema tests and instance tests), pinned in `tests/conformance/suites/xsts.json` |
 | Data file | `tests/NetEvolve.Schemas.Xsd.Tests.Integration/DifferentialData/xsts-1.0-deviations.txt`, one entry per difference: case id, difference kind, observed difference, specification reference, reason |
-| Entries | 14739 entries for 14703 cases |
+| Entries | 14740 entries for 14704 cases |
 
 The list is valid for the recorded baseline runtime version only. A run on another runtime version fails until the list is compared again. System.Xml.Schema implements XSD 1.0 only, so cases of XSD 1.1 are not compared.
 
@@ -27,10 +27,10 @@ No builder option, switch, or code path in the library reproduces System.Xml.Sch
 
 | Class | Entries | Cases |
 |---|---:|---:|
-| Verdict differences: this library follows the specification | 1732 | 1700 |
+| Verdict differences: this library follows the specification | 1733 | 1701 |
 | Verdict differences: documented limitations of this library | 21 | 17 |
 | Position differences: equivalent | 12986 | 12986 |
-| Differences on cases that a bug issue tracks (no entry) | 41 | |
+| Differences on cases that a bug issue tracks (no entry) | 40 | |
 
 ## Differences on cases that a bug issue tracks
 
@@ -39,7 +39,7 @@ The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTe
 | Issue | Differences | Title |
 |---|---:|---|
 | #62 | 19 | feat(xml): support xml 1.1 |
-| #1418 | 6 | bug(xsd): circular redefine chains fail with a missing redefined component |
+| #1418 | 5 | bug(xsd): circular redefine chains fail with a missing redefined component |
 | #604 | 4 | feat(xsd): resolve QName and NOTATION instance values with the namespace context |
 | #1079 | 3 | feat(xsd): evaluate the enumeration facet of hexBinary and base64Binary restrictions |
 | #863 | 2 | bug(xsd): particle restriction reports errors for restrictions that the XSTS accepts |
@@ -2216,6 +2216,18 @@ The instance names its schema documents with xsi:schemaLocation and its type wit
 
 ```text
 sunMeta-SType/1.0/st_targetns00101m/ST_targetNS00101m2_n
+```
+
+### Circular redefinitions that the suite judges against the outermost redefinition
+
+Two schema documents of a circle redefine the same component. This library applies the redefinition of the outermost document and supersedes the others, so the attribute values are checked against its types and the instance is invalid, as the suite expects. System.Xml.Schema reports the reference to the attribute group as undeclared, leaves the attributes unchecked, and accepts the instance.
+
+- Difference: InstanceVerdict `instance verdict: ours=Invalid, baseline=Valid` (1)
+- Specification: XSD 1.0 Part 1, 4.2.2 (src-redefine; the specification does not say what several redefinitions of one component in a circle mean) and 5.2
+- Cases: 1
+
+```text
+msMeta-Schema_w3c/1.0/schU3/schU3.i
 ```
 
 ## Verdict differences: documented limitations of this library

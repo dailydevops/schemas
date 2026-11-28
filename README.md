@@ -187,8 +187,8 @@ The rates were measured on `main` at commit `a2d4119` with `net10.0`. The `Confo
 | xmlconf, DTD validation | `NetEvolve.Schemas.Xml` | 943 | 931 | 98.7% | `NetEvolve.Schemas.Xml.Tests.Integration`, filter `/*/*/*Xml*Conf*SuiteTests/*`; 12 baselined, 14 skipped |
 | W3C QT3 test suite, XPath 2.0 selection | `NetEvolve.Schemas.XPath` | 14,550 | 14,506 | 99.6% | `NetEvolve.Schemas.XPath.Tests.Integration`, filter `/*/*Conformance*/*/*`; 44 baselined cases in `tests/conformance/baselines/qt3`, 738 skipped |
 | W3C XML Schema Test Suite (XSTS) 1.0, schema tests | `NetEvolve.Schemas.Xsd` | 14,357 | 14,236 | 99.1% | `NetEvolve.Schemas.Xsd.Tests.Integration`, filter `/*/*Conformance*/*/*`; 121 baselined cases |
-| XSTS 1.0, instance tests | `NetEvolve.Schemas.Xsd` | 24,914 | 24,017 | 96.3% | same run; 897 baselined cases |
-| XSTS 1.1, schema and instance tests | `NetEvolve.Schemas.Xsd` | 41,389 | 0 | 0.0% | derived from the same run: the row for all of XSTS (80,660 applicable, 38,253 passed, 47.4%) minus both XSTS 1.0 rows |
+| XSTS 1.0, instance tests | `NetEvolve.Schemas.Xsd` | 24,914 | 24,018 | 96.4% | same run; 896 baselined cases |
+| XSTS 1.1, schema and instance tests | `NetEvolve.Schemas.Xsd` | 41,389 | 0 | 0.0% | derived from the same run: the row for all of XSTS (80,660 applicable, 38,254 passed, 47.4%) minus both XSTS 1.0 rows |
 | Schematron conformance suite 2.0, bindings `xslt-1` and `xslt-2` | `NetEvolve.Schemas.Schematron` | 84 | 55 | 65.4% | `NetEvolve.Schemas.Schematron.Tests.Integration`, filter `/*/*Conformance*/*/*`; 29 baselined cases in `tests/conformance/baselines/schematron-conformance`, 3 excluded |
 | EN 16931 (CEN) validation artefacts 1.3.17, golden tests | `NetEvolve.Schemas.Schematron` | 1,174 | 1,174 | 100.0% | `NetEvolve.Schemas.Schematron.Tests.Integration`, filter `/*/*/En16931GoldenTests/*`; no baselined cases |
 | EN 16931 (CEN) 1.3.17, EDIFACT binding, ISO 20625 XML examples | `NetEvolve.Schemas.Schematron` | 9 | 9 | 100.0% | `NetEvolve.Schemas.Schematron.Tests.Integration`, filter `/*/*/En16931ExtendedGoldenTests/*`; no baselined cases |

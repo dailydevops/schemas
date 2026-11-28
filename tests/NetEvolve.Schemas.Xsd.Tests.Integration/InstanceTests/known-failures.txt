@@ -21,9 +21,8 @@ msMeta-DataTypes_w3c	1.0/hexBinary_enumeration003_1307/hexBinary_enumeration003_
 msMeta-Particles_w3c	1.0/particlesZ001/particlesZ001.i	#863	The schema does not build: see the schema test of the same case.
 msMeta-Particles_w3c	1.0/particlesZ025/particlesZ025.v	#1477	The hinted schema documents import each other, so the namespace is loaded twice and reported as duplicate declarations.
 msMeta-Schema_w3c	1.0/schD7/schD7.v	-	The schema is incomplete (a missing component or document); the suite accepts it, the validator reports src-resolve.
-msMeta-Schema_w3c	1.0/schU3/schU3.i	#1418	The schema does not build: a circular redefinition does not find the component it redefines.
-msMeta-Schema_w3c	1.0/schU4/schU4.i	#1418	The schema does not build: a circular redefinition does not find the component it redefines.
-msMeta-Schema_w3c	1.0/schU5/schU5.i	#1418	The schema does not build: a circular redefinition does not find the component it redefines.
+msMeta-Schema_w3c	1.0/schU4/schU4.i	#1418	The schema builds with the first of the circular redefinitions of a component; the instance is valid, the suite expects invalid (the specification is underspecified).
+msMeta-Schema_w3c	1.0/schU5/schU5.i	#1418	The schema builds with the first of the circular redefinitions of a component; the instance is valid, the suite expects invalid (the specification is underspecified).
 msMeta-SimpleType_w3c	1.0/stZ075/stZ075.v	#604	A NOTATION value is looked up without the namespace context of the instance, so an unprefixed name does not find the declaration of the target namespace.
 msMeta-SimpleType_w3c	1.0/ste110/ste110.i	#1183	The schema with unions that name each other as members does not build.
 saxonMeta-Missing	1.0/missing001/missing001.n1.xml	-	The schema is incomplete (a missing component or document); the suite accepts it, the validator reports src-resolve.
