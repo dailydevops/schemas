@@ -13,7 +13,7 @@ An XPath engine for .NET that compiles an expression once and evaluates it again
 - XPath 1.0 compatibility mode - a switch of the static context, see [XPath 1.0 compatibility mode](#xpath-10-compatibility-mode)
 - Variables and host functions - bind values on the evaluation context and register your own functions on the static context
 - Deny-by-default resources - `fn:doc` and the text functions reach nothing unless a resolver is set
-- Bounded evaluation - limits for recursion depth, sequence size, range size, and string length, see [Evaluation limits](#evaluation-limits)
+- Bounded evaluation - limits for recursion depth, sequence size, range size, string length, integer width, and decimal scale, see [Evaluation limits](#evaluation-limits)
 - XPath 3.0 and 3.1 in progress - parts of the syntax and function library exist behind a version gate that the public entry does not open yet, see [Limitations](#limitations)
 
 ## Installation
@@ -188,10 +188,12 @@ Every evaluation is bounded, so a hostile or faulty expression ends with an erro
 | Sequence size | 10,000,000 | `MaxEntityExpansion`: items of a sequence. |
 | Range size | 10,000,000 | `MaxEntityExpansion`: the length of `a to b`. |
 | String length | 10,000,000 | `MaxEntityExpansion`: characters of a constructed string. |
+| Integer width | 10,000,000 | `MaxEntityExpansion`: bits of an `xs:integer` result beyond 64 bits (`XP0008`). |
+| Decimal scale | 10,000,000 | `MaxEntityExpansion`: absolute scale of a decimal operand or product (`XP0009`). |
 | External resources | 16 | `MaxExternalResources`: resolver requests of one evaluation context. |
 | Resource size | 16 MiB | `MaxResourceSize`: bytes of one resource. |
 
-The first four limits are held by the engine and are not configurable through the public API on main; the last two are the defaults of `ValidationLimits` and are applied to the resources of a context. An exceeded limit is an `XPathException` or a result with the status `Error`, never a crash.
+The first six limits are held by the engine and are not configurable through the public API on main; the last two are the defaults of `ValidationLimits` and are applied to the resources of a context. An exceeded limit is an `XPathException` or a result with the status `Error`, never a crash.
 
 ### Benchmarks
 

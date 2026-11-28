@@ -29,7 +29,7 @@ internal sealed class AverageFunction : SequenceFunction
             invocation.Result = XdmSequence.Create(
                 TemporalAggregation.IsSummable(in total)
                     ? AggregateInput.DivideDuration(in total, items.Count, invocation.Context)
-                    : NumericArithmetic.Divide(total, XdmItem.FromInteger(items.Count))
+                    : NumericArithmetic.Divide(total, XdmItem.FromInteger(items.Count), invocation.Context.Limits)
             );
         }
 

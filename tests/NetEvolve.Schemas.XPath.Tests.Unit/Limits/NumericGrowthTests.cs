@@ -32,14 +32,16 @@ public class NumericGrowthTests
     [Arguments("-4611686018427387904 * 4", 65, true)]
     [Arguments($"{Max64} + {Max64}", 64, true)]
     [Arguments($"-{Max64} - {Max64}", 64, true)]
-    [Arguments($"{Two64} + {Two64}", 65, true)]
-    [Arguments($"{Two64} + {Two64}", 64, false)]
+    [Arguments($"{Two64} + {Two64}", 66, true)]
+    [Arguments($"{Two64} + {Two64}", 65, false)]
     [Arguments($"{Two64} - -{Two64}", 64, false)]
     public async Task Integer_AtAndBeyondTheLimit(string expression, int bits, bool fits)
     {
         var diagnostic = Evaluate(expression, XPathLimits.Default.WithMaxIntegerBits(bits), out _);
 
-        await Assert.That(diagnostic.Code).IsEqualTo(fits ? string.Empty : "XP0008");
+        await Assert
+            .That(diagnostic.Code)
+            .IsEqualTo(fits ? string.Empty : XPathLimitErrors.IntegerWidthExceeded.ToString());
     }
 
     [Test]
@@ -87,7 +89,9 @@ public class NumericGrowthTests
     {
         var diagnostic = Evaluate(expression, XPathLimits.Default.WithMaxDecimalScale(scale), out _);
 
-        await Assert.That(diagnostic.Code).IsEqualTo(fits ? string.Empty : "XP0009");
+        await Assert
+            .That(diagnostic.Code)
+            .IsEqualTo(fits ? string.Empty : XPathLimitErrors.DecimalScaleExceeded.ToString());
     }
 
     [Test]

@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.XPath.Evaluation.Arithmetic;
 
 using NetEvolve.Arguments;
+using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Syntax.Tree;
 using NetEvolve.Schemas.XPath.Xdm.Values;
 
@@ -30,12 +31,44 @@ internal static class NumericOperators
     {
         ArgumentNullException.ThrowIfNull(table);
 
-        RegisterBinary(table, ArithmeticOperator.Add, NumericArithmetic.Add);
-        RegisterBinary(table, ArithmeticOperator.Subtract, NumericArithmetic.Subtract);
-        RegisterBinary(table, ArithmeticOperator.Multiply, NumericArithmetic.Multiply);
-        RegisterBinary(table, ArithmeticOperator.Divide, NumericArithmetic.Divide);
-        RegisterBinary(table, ArithmeticOperator.IntegerDivide, NumericArithmetic.IntegerDivide);
-        RegisterBinary(table, ArithmeticOperator.Modulo, NumericArithmetic.Modulo);
+        // The contextual form charges the numeric growth budgets of the evaluation; the plain form uses the default budgets.
+        RegisterBinary(
+            table,
+            ArithmeticOperator.Add,
+            NumericArithmetic.Add,
+            static (in XdmItem a, in XdmItem b, XPathEvaluationContext c) => NumericArithmetic.Add(a, b, c.Limits)
+        );
+        RegisterBinary(
+            table,
+            ArithmeticOperator.Subtract,
+            NumericArithmetic.Subtract,
+            static (in XdmItem a, in XdmItem b, XPathEvaluationContext c) => NumericArithmetic.Subtract(a, b, c.Limits)
+        );
+        RegisterBinary(
+            table,
+            ArithmeticOperator.Multiply,
+            NumericArithmetic.Multiply,
+            static (in XdmItem a, in XdmItem b, XPathEvaluationContext c) => NumericArithmetic.Multiply(a, b, c.Limits)
+        );
+        RegisterBinary(
+            table,
+            ArithmeticOperator.Divide,
+            NumericArithmetic.Divide,
+            static (in XdmItem a, in XdmItem b, XPathEvaluationContext c) => NumericArithmetic.Divide(a, b, c.Limits)
+        );
+        RegisterBinary(
+            table,
+            ArithmeticOperator.IntegerDivide,
+            NumericArithmetic.IntegerDivide,
+            static (in XdmItem a, in XdmItem b, XPathEvaluationContext c) =>
+                NumericArithmetic.IntegerDivide(a, b, c.Limits)
+        );
+        RegisterBinary(
+            table,
+            ArithmeticOperator.Modulo,
+            NumericArithmetic.Modulo,
+            static (in XdmItem a, in XdmItem b, XPathEvaluationContext c) => NumericArithmetic.Modulo(a, b, c.Limits)
+        );
         RegisterUnary(table, UnaryOperator.Plus, NumericArithmetic.Plus);
         RegisterUnary(table, UnaryOperator.Minus, NumericArithmetic.Minus);
     }
@@ -43,14 +76,15 @@ internal static class NumericOperators
     private static void RegisterBinary(
         ArithmeticOperatorTable table,
         ArithmeticOperator @operator,
-        BinaryOperatorImplementation implementation
+        BinaryOperatorImplementation plain,
+        ContextBinaryOperatorImplementation contextual
     )
     {
         for (var left = 0; left < NumericTypes.Length; left++)
         {
             for (var right = 0; right < NumericTypes.Length; right++)
             {
-                table.Register(@operator, NumericTypes[left], NumericTypes[right], implementation);
+                table.Register(@operator, NumericTypes[left], NumericTypes[right], plain, contextual);
             }
         }
     }
