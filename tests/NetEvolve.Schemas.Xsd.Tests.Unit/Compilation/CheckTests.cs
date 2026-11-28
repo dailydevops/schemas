@@ -419,4 +419,36 @@ public class CheckTests
 
         await Assert.That(Codes(compilation)).IsEquivalentTo([XsdRuleCodes.SrcResolve]);
     }
+
+    [Test]
+    [Arguments(":a")]
+    [Arguments("b:")]
+    [Arguments("a\b")]
+    [Arguments("%")]
+    public async Task AnyUri_EnumerationValueThatIsNoUriReference_IsReportedInXsd10(string value)
+    {
+        var schema = Schema(
+            "<xs:simpleType name=\"b\"><xs:restriction base=\"xs:anyURI\"><xs:enumeration value=\"a\"/><xs:enumeration value=\""
+                + value
+                + "\"/></xs:restriction></xs:simpleType>"
+        );
+
+        await Assert
+            .That(Codes(Compile(schema, XsdVersion.V10)))
+            .IsEquivalentTo([XsdRuleCodes.EnumerationValidRestriction]);
+        await Assert.That(Codes(Compile(schema, XsdVersion.V11))).IsEmpty();
+    }
+
+    [Test]
+    public async Task AnyUri_EnumerationValueThatIsUriReference_IsNotReportedInXsd10()
+    {
+        var compilation = Compile(
+            Schema(
+                "<xs:simpleType name=\"b\"><xs:restriction base=\"xs:anyURI\"><xs:enumeration value=\"a\"/><xs:enumeration value=\"http://x/y%20z\"/></xs:restriction></xs:simpleType>"
+            ),
+            XsdVersion.V10
+        );
+
+        await Assert.That(Codes(compilation)).IsEmpty();
+    }
 }
