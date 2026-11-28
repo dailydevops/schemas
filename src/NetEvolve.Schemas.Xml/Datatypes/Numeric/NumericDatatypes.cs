@@ -61,7 +61,7 @@ internal static class NumericDatatypes
             return new AtomicDescriptor<XsdInteger>(name, (AtomicDescriptor<XsdInteger>)r.Get(baseName), null, facets);
         });
 
-    private sealed class DecimalMapping : ILexicalMapping<XsdDecimal>
+    private sealed class DecimalMapping : ILexicalMapping<XsdDecimal>, IFusedLexicalMapping<XsdDecimal>
     {
         public WhitespaceMode Whitespace => WhitespaceMode.Collapse;
 
@@ -77,6 +77,20 @@ internal static class NumericDatatypes
         public XsdDecimal Map(ReadOnlySpan<char> normalized, WhitespaceMode mode, XsdVersion version) =>
             XsdDecimal.Parse(normalized).Value;
 
+        public DatatypeError TryMap(
+            ReadOnlySpan<char> normalized,
+            WhitespaceMode mode,
+            XsdVersion version,
+            out XsdDecimal value,
+            out int errorOffset
+        )
+        {
+            var result = XsdDecimal.Parse(normalized);
+            errorOffset = result.ErrorOffset;
+            value = result.Value;
+            return result.Error;
+        }
+
         public XsdOrder Compare(in XsdDecimal a, in XsdDecimal b, XsdVersion version)
         {
             var order = a.CompareTo(b);
@@ -88,7 +102,7 @@ internal static class NumericDatatypes
         public bool IsIdentical(in XsdDecimal a, in XsdDecimal b, XsdVersion version) => a.Equals(b);
     }
 
-    private sealed class IntegerMapping : ILexicalMapping<XsdInteger>
+    private sealed class IntegerMapping : ILexicalMapping<XsdInteger>, IFusedLexicalMapping<XsdInteger>
     {
         public WhitespaceMode Whitespace => WhitespaceMode.Collapse;
 
@@ -119,6 +133,51 @@ internal static class NumericDatatypes
             }
 
             errorOffset = 0;
+            return DatatypeError.None;
+        }
+
+        // One pass: validates and accumulates the first 18 digits, which fit a long; longer forms use the existing path.
+        public DatatypeError TryMap(
+            ReadOnlySpan<char> normalized,
+            WhitespaceMode mode,
+            XsdVersion version,
+            out XsdInteger value,
+            out int errorOffset
+        )
+        {
+            value = default;
+            var negative = normalized.Length > 0 && normalized[0] == '-';
+            var start = normalized.Length > 0 && normalized[0] is '+' or '-' ? 1 : 0;
+            errorOffset = normalized.Length;
+            if (start == normalized.Length)
+            {
+                return DatatypeError.InvalidLexicalForm;
+            }
+
+            long small = 0;
+            for (var i = start; i < normalized.Length; i++)
+            {
+                var digit = normalized[i] - '0';
+                if ((uint)digit > 9)
+                {
+                    errorOffset = i;
+                    return DatatypeError.InvalidCharacter;
+                }
+
+                if (i - start == XsdDecimal.DefaultMaxDigits)
+                {
+                    errorOffset = i;
+                    return DatatypeError.DigitCap;
+                }
+
+                if (i - start < 18)
+                {
+                    small = (small * 10) + digit;
+                }
+            }
+
+            errorOffset = 0;
+            value = normalized.Length - start <= 18 ? new(negative ? -small : small) : Map(normalized, mode, version);
             return DatatypeError.None;
         }
 
