@@ -38,7 +38,7 @@ internal static class FloatingDatatypes
     private static bool Same(double a, double b) =>
         double.IsNaN(a) ? double.IsNaN(b) : BitConverter.DoubleToInt64Bits(a) == BitConverter.DoubleToInt64Bits(b);
 
-    private sealed class DoubleMapping : ILexicalMapping<double>
+    private sealed class DoubleMapping : ILexicalMapping<double>, IFusedLexicalMapping<double>
     {
         public WhitespaceMode Whitespace => WhitespaceMode.Collapse;
 
@@ -53,12 +53,20 @@ internal static class FloatingDatatypes
             return value;
         }
 
+        public DatatypeError TryMap(
+            ReadOnlySpan<char> normalized,
+            WhitespaceMode mode,
+            XsdVersion version,
+            out double value,
+            out int errorOffset
+        ) => XsdFloatingPoint.Parse(normalized, version, false, out value, out errorOffset);
+
         public XsdOrder Compare(in double a, in double b, XsdVersion version) => Order(a, b);
 
         public bool IsIdentical(in double a, in double b, XsdVersion version) => Same(a, b);
     }
 
-    private sealed class SingleMapping : ILexicalMapping<float>
+    private sealed class SingleMapping : ILexicalMapping<float>, IFusedLexicalMapping<float>
     {
         public WhitespaceMode Whitespace => WhitespaceMode.Collapse;
 
@@ -71,6 +79,19 @@ internal static class FloatingDatatypes
         {
             _ = XsdFloatingPoint.Parse(normalized, version, true, out var value, out _);
             return (float)value;
+        }
+
+        public DatatypeError TryMap(
+            ReadOnlySpan<char> normalized,
+            WhitespaceMode mode,
+            XsdVersion version,
+            out float value,
+            out int errorOffset
+        )
+        {
+            var error = XsdFloatingPoint.Parse(normalized, version, true, out var parsed, out errorOffset);
+            value = (float)parsed;
+            return error;
         }
 
         public XsdOrder Compare(in float a, in float b, XsdVersion version) => Order(a, b);

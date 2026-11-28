@@ -42,7 +42,7 @@ internal static class GregorianDatatypes
         );
 
     /// <summary>The dateTime mapping with the explicit timezone required.</summary>
-    private sealed class TimestampMapping : ILexicalMapping<XsdDateTime>
+    private sealed class TimestampMapping : ILexicalMapping<XsdDateTime>, IFusedLexicalMapping<XsdDateTime>
     {
         private readonly DateTimeDatatypes.Mapping _inner;
 
@@ -54,18 +54,35 @@ internal static class GregorianDatatypes
 
         public DatatypeError Check(ReadOnlySpan<char> normalized, XsdVersion version, out int errorOffset)
         {
-            var error = _inner.Check(normalized, version, out errorOffset);
-            if (error != DatatypeError.None)
-            {
-                return error;
-            }
+            var error = _inner.TryMap(normalized, WhitespaceMode.Collapse, version, out var value, out errorOffset);
+            return error == DatatypeError.None ? RequireTimezone(normalized, in value, out errorOffset) : error;
+        }
 
-            if (_inner.Map(normalized, WhitespaceMode.Collapse, version).TimezoneOffsetMinutes is null)
+        public DatatypeError TryMap(
+            ReadOnlySpan<char> normalized,
+            WhitespaceMode mode,
+            XsdVersion version,
+            out XsdDateTime value,
+            out int errorOffset
+        )
+        {
+            var error = _inner.TryMap(normalized, mode, version, out value, out errorOffset);
+            return error == DatatypeError.None ? RequireTimezone(normalized, in value, out errorOffset) : error;
+        }
+
+        private static DatatypeError RequireTimezone(
+            ReadOnlySpan<char> normalized,
+            in XsdDateTime value,
+            out int errorOffset
+        )
+        {
+            if (value.TimezoneOffsetMinutes is null)
             {
                 errorOffset = normalized.Length;
                 return DatatypeError.InvalidLexicalForm;
             }
 
+            errorOffset = 0;
             return DatatypeError.None;
         }
 

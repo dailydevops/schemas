@@ -23,7 +23,7 @@ internal static class BinaryDatatypes
         )),
     ];
 
-    private sealed class BinaryMapping : ILexicalMapping<XsdBinary>
+    private sealed class BinaryMapping : ILexicalMapping<XsdBinary>, IFusedLexicalMapping<XsdBinary>
     {
         private readonly BinaryKind _kind;
 
@@ -40,6 +40,19 @@ internal static class BinaryDatatypes
         {
             _ = BinaryLexical.Scan(normalized, _kind, out var octets, out _);
             return XsdBinary.Map(normalized, _kind, octets);
+        }
+
+        public DatatypeError TryMap(
+            ReadOnlySpan<char> normalized,
+            WhitespaceMode mode,
+            XsdVersion version,
+            out XsdBinary value,
+            out int errorOffset
+        )
+        {
+            var error = BinaryLexical.Scan(normalized, _kind, out var octets, out errorOffset);
+            value = error == DatatypeError.None ? XsdBinary.Map(normalized, _kind, octets) : default;
+            return error;
         }
 
         public XsdOrder Compare(in XsdBinary a, in XsdBinary b, XsdVersion version) =>

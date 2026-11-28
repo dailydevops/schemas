@@ -20,7 +20,7 @@ internal static class DateTimeDatatypes
     private static DatatypeRegistration Register(string name, XsdDateTimeKind kind) =>
         new(name, XsdVersion.V10, r => new AtomicDescriptor<XsdDateTime>(name, r.Version, new Mapping(kind)));
 
-    internal sealed class Mapping : ILexicalMapping<XsdDateTime>
+    internal sealed class Mapping : ILexicalMapping<XsdDateTime>, IFusedLexicalMapping<XsdDateTime>
     {
         private readonly XsdDateTimeKind _kind;
 
@@ -39,6 +39,20 @@ internal static class DateTimeDatatypes
 
         public XsdDateTime Map(ReadOnlySpan<char> normalized, WhitespaceMode mode, XsdVersion version) =>
             XsdDateTime.Parse(normalized, _kind, version).Value;
+
+        public DatatypeError TryMap(
+            ReadOnlySpan<char> normalized,
+            WhitespaceMode mode,
+            XsdVersion version,
+            out XsdDateTime value,
+            out int errorOffset
+        )
+        {
+            var result = XsdDateTime.Parse(normalized, _kind, version);
+            errorOffset = result.ErrorOffset;
+            value = result.Value;
+            return result.Error;
+        }
 
         public XsdOrder Compare(in XsdDateTime a, in XsdDateTime b, XsdVersion version) =>
             DateTimeTimeline.Compare(in a, in b);

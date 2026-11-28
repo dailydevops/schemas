@@ -41,7 +41,7 @@ internal static class DurationDatatypes
             DurationLexical.Scan(lexical, _kind, out _, out _) == DatatypeError.None;
     }
 
-    private sealed class DurationMapping : ILexicalMapping<XsdDuration>
+    private sealed class DurationMapping : ILexicalMapping<XsdDuration>, IFusedLexicalMapping<XsdDuration>
     {
         public WhitespaceMode Whitespace => WhitespaceMode.Collapse;
 
@@ -54,6 +54,19 @@ internal static class DurationDatatypes
         {
             _ = DurationLexical.Scan(normalized, DurationKind.Duration, out var parts, out _);
             return XsdDuration.Map(normalized, parts);
+        }
+
+        public DatatypeError TryMap(
+            ReadOnlySpan<char> normalized,
+            WhitespaceMode mode,
+            XsdVersion version,
+            out XsdDuration value,
+            out int errorOffset
+        )
+        {
+            var error = DurationLexical.Scan(normalized, DurationKind.Duration, out var parts, out errorOffset);
+            value = error == DatatypeError.None ? XsdDuration.Map(normalized, parts) : default;
+            return error;
         }
 
         public XsdOrder Compare(in XsdDuration a, in XsdDuration b, XsdVersion version) =>

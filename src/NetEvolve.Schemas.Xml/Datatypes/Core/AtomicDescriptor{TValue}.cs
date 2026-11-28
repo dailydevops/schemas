@@ -15,6 +15,7 @@ public sealed class AtomicDescriptor<TValue> : IDatatypeDescriptor<TValue>
     private const int ScratchLength = 128;
 
     private readonly ILexicalMapping<TValue> _mapping;
+    private readonly IFusedLexicalMapping<TValue>? _fused;
     private readonly bool _hasValueFacets;
     private readonly ILexicalFacet[] _lexicalFacets;
     private readonly IValueFacet<TValue>[] _valueFacets;
@@ -30,6 +31,7 @@ public sealed class AtomicDescriptor<TValue> : IDatatypeDescriptor<TValue>
         Name = name;
         LexicalMode = lexicalMode;
         _mapping = mapping;
+        _fused = mapping as IFusedLexicalMapping<TValue>;
         Whitespace = mapping.Whitespace;
         Facets = [];
         _lexicalFacets = [];
@@ -55,6 +57,7 @@ public sealed class AtomicDescriptor<TValue> : IDatatypeDescriptor<TValue>
         BaseType = baseType;
         LexicalMode = baseType.LexicalMode;
         _mapping = baseType._mapping;
+        _fused = baseType._fused;
         Whitespace = whitespace ?? baseType.Whitespace;
         Facets = Combine(baseType.Facets, facets, out _hasValueFacets);
         _lexicalFacets = Select<ILexicalFacet>(Facets);
@@ -84,6 +87,7 @@ public sealed class AtomicDescriptor<TValue> : IDatatypeDescriptor<TValue>
         BaseType = baseType;
         LexicalMode = baseType.LexicalMode;
         _mapping = mapping;
+        _fused = mapping as IFusedLexicalMapping<TValue>;
         Whitespace = whitespace ?? mapping.Whitespace;
         Facets = Combine(baseType.Facets, facets, out _hasValueFacets);
         _lexicalFacets = Select<ILexicalFacet>(Facets);
@@ -225,7 +229,12 @@ public sealed class AtomicDescriptor<TValue> : IDatatypeDescriptor<TValue>
         failedFacet = FacetKind.None;
         offset = 0;
 
-        var error = _mapping.Check(normalized, LexicalMode, out var normalizedOffset);
+        // A fused mapping scans the form once for the check and the value; without a need for the value, Check is cheaper.
+        var needValue = wantValue || _hasValueFacets;
+        var fused = needValue ? _fused : null;
+        var error = fused is null
+            ? _mapping.Check(normalized, LexicalMode, out var normalizedOffset)
+            : fused.TryMap(normalized, Whitespace, LexicalMode, out value, out normalizedOffset);
         if (error != DatatypeError.None)
         {
             offset = WhitespaceNormalizer.ToSourceOffset(lexical, Whitespace, normalizedOffset);
@@ -242,9 +251,13 @@ public sealed class AtomicDescriptor<TValue> : IDatatypeDescriptor<TValue>
             }
         }
 
-        if (wantValue || _hasValueFacets)
+        if (needValue)
         {
-            value = _mapping.Map(normalized, Whitespace, LexicalMode);
+            if (fused is null)
+            {
+                value = _mapping.Map(normalized, Whitespace, LexicalMode);
+            }
+
             foreach (var valueFacet in _valueFacets)
             {
                 if (!valueFacet.IsSatisfiedBy(in value))
