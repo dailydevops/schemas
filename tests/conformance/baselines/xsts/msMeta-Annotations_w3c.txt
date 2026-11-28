@@ -1,7 +1,5 @@
 1.0/annotA014/annotA014
 1.0/annotB025/annotB025
-1.0/annotF001/annotF001
-1.0/annotF003/annotF003
 1.1/annotA001/annotA001
 1.1/annotA002/annotA002
 1.1/annotA003/annotA003

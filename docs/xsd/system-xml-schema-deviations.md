@@ -30,11 +30,11 @@ No builder option, switch, or code path in the library reproduces System.Xml.Sch
 | Verdict differences: this library follows the specification | 1712 | 1680 |
 | Verdict differences: documented limitations of this library | 21 | 17 |
 | Position differences: equivalent | 12127 | 12127 |
-| Differences on cases that a bug issue tracks (no entry) | 875 | |
+| Differences on cases that a bug issue tracks (no entry) | 873 | |
 
 ## Differences on cases that a bug issue tracks
 
-The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTests/known-failures.txt` and `tests/NetEvolve.Schemas.Xsd.Tests.Integration/InstanceTests/known-failures.txt` record every case of XSD 1.0 that this library does not pass yet, each with its bug issue. At the time of this triage the run found 875 differences on these cases:
+The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTests/known-failures.txt` and `tests/NetEvolve.Schemas.Xsd.Tests.Integration/InstanceTests/known-failures.txt` record every case of XSD 1.0 that this library does not pass yet, each with its bug issue. At the time of this triage the run found 873 differences on these cases:
 
 | Issue | Differences | Title |
 |---|---:|---|
@@ -48,7 +48,6 @@ The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTe
 | #1079 | 3 | feat(xsd): evaluate the enumeration facet of hexBinary and base64Binary restrictions |
 | #604 | 2 | feat(xsd): resolve QName and NOTATION instance values with the namespace context |
 | #863 | 2 | bug(xsd): particle restriction reports errors for restrictions that the XSTS accepts |
-| #1179 | 2 | feat(xsd): reject an xml:lang value of an annotation element that is not a language in XSD 1.0 |
 | #410 | 1 | feat(xml): support caller-selectable xml 1.1 name productions |
 | #1180 | 1 | feat(xsd): reject a facet that does not apply to the simple content of a simpleContent restriction |
 | #1181 | 1 | feat(xsd): reject anyURI values of a schema that are no URI references in XSD 1.0 |

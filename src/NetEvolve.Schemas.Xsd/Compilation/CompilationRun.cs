@@ -325,6 +325,7 @@ internal sealed class CompilationRun
             if (checkedDocuments.Add(unit.Unit.Document))
             {
                 Strict10Constructs.Check(unit.Unit.Document.Root!, _version, reporter);
+                Strict10Constructs.CheckLanguages(unit.Unit.Document, _version, reporter);
                 Xsd11ConstructGate.Check(unit.Unit.Document.Root!, _version, reporter);
             }
         }
