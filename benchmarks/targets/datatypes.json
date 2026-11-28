@@ -240,7 +240,7 @@
     "name": "IntegerParseBenchmarks.ParseInteger(Size=Long)",
     "meanNs": 140.7,
     "allocatedBytes": 33,
-    "baselineRatio": 4.0
+    "baselineRatio": 21.7
   },
   {
     "name": "DescriptorParseBenchmarks.ParseDecimal(Size=Short)",
