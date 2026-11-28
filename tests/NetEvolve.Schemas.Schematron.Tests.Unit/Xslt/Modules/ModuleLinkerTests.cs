@@ -492,6 +492,65 @@ public class ModuleLinkerTests
     }
 
     [Test]
+    public async Task Import_SummedSizeExceedsMaxInputSize_ReportsNes0007AtTheReferenceThatCrossesTheSum(
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var a = Sheet(Decl("a"));
+        var b = Sheet(Decl("b"));
+        var limits = ValidationLimits.Default.WithMaxInputSize(Size(a) + Size(b) - 1);
+        var harness = new ModuleHarness(limits: limits);
+        _ = harness.Files.Add("file:///m/a.xsl", a).Add("file:///m/b.xsl", b);
+
+        var ok = harness.Link(Sheet(Import("a.xsl"), Import("b.xsl")));
+
+        await Assert.That(ok).IsFalse();
+        await Assert.That(harness.Problems.Problems.Count).IsEqualTo(1);
+        await Assert.That(harness.Problems.Problems[0].Code).IsEqualTo(CoreDiagnosticCodes.ResourceSizeLimitExceeded);
+        await Assert.That(harness.Problems.Problems[0].Location.Line).IsEqualTo(3);
+    }
+
+    [Test]
+    public async Task Import_SummedSizeEqualsMaxInputSize_Links(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var a = Sheet(Decl("a"));
+        var b = Sheet(Decl("b"));
+        var harness = new ModuleHarness(limits: ValidationLimits.Default.WithMaxInputSize(Size(a) + Size(b)));
+        _ = harness.Files.Add("file:///m/a.xsl", a).Add("file:///m/b.xsl", b);
+
+        var ok = harness.Link(Sheet(Import("a.xsl"), Import("b.xsl")));
+
+        await Assert.That(ok).IsTrue();
+        await Assert.That(harness.Problems.Problems.Count).IsEqualTo(0);
+    }
+
+    [Test]
+    public async Task Import_DiamondReference_CountsTheSharedModuleOnce(CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var shared = Sheet(Decl("c"));
+        var a = Sheet(Include("c.xsl"), Decl("a"));
+        var b = Sheet(Include("c.xsl"), Decl("b"));
+        var harness = new ModuleHarness(
+            limits: ValidationLimits.Default.WithMaxInputSize(Size(a) + Size(b) + Size(shared))
+        );
+        _ = harness.Files.Add("file:///m/a.xsl", a).Add("file:///m/b.xsl", b).Add("file:///m/c.xsl", shared);
+
+        var ok = harness.Link(Sheet(Import("a.xsl"), Import("b.xsl")));
+
+        await Assert.That(ok).IsTrue();
+        await Assert.That(harness.Problems.Problems.Count).IsEqualTo(0);
+        await Assert.That(harness.Files.Requests.Count).IsEqualTo(3);
+    }
+
+    private static int Size(string text) => System.Text.Encoding.UTF8.GetByteCount(text);
+
+    [Test]
     public async Task Import_HrefResolvesAgainstTheContainingModule_AndThePassedRequesterIsTheContainingModule(
         CancellationToken cancellationToken
     )

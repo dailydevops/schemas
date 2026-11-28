@@ -48,6 +48,26 @@ public class ModuleLoaderTests
     }
 
     [Test]
+    public async Task TryLoad_SummedSizeOfTheBuild_IsBoundedByMaxInputSizeAtTheReferenceThatCrossesIt(
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var text = Pattern("px");
+        var size = System.Text.Encoding.UTF8.GetByteCount(text);
+        var files = new FakeResources().Add("file:///s/x.sch", text).Add("file:///s/y.sch", text);
+        var loader = new ModuleLoader(files, ValidationLimits.Default.WithMaxInputSize((2 * size) - 1));
+
+        var first = loader.TryLoad(Reference("x.sch"), cancellationToken, out _, out _);
+        var second = loader.TryLoad(Reference("y.sch"), cancellationToken, out _, out var problem);
+
+        await Assert.That(first).IsTrue();
+        await Assert.That(second).IsFalse();
+        await Assert.That(problem.Code).IsEqualTo(CoreDiagnosticCodes.ResourceSizeLimitExceeded);
+        await Assert.That(problem.Location).IsEqualTo(At);
+    }
+
+    [Test]
     public async Task TryLoad_RefusedAndMissingResources_CountAgainstTheLimit(CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
