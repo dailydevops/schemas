@@ -22,8 +22,8 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// Limitations (#270, decisions): a character that no URI may contain (control characters, space, <c>&lt;&gt;"{}|\^`</c>) is FORG0002,
 /// because the XML escaping of <c>UriReference</c> would turn it into <c>%20</c> and the like and change the string the caller wrote; a
 /// character beyond ASCII is escaped as UTF-8 octets, as <c>fn:iri-to-uri</c> does, because RFC 3986 knows no such character. The static
-/// base URI is held by the function like the one of <see cref="StaticBaseUriFunction"/> (#806, #752); the one in the default catalog
-/// holds none.
+/// base URI is held by the function like the one of <see cref="StaticBaseUriFunction"/>; the one in the default catalog holds none, and the
+/// function registry binds a copy that holds the static base URI of the static context (#806).
 /// </para>
 /// </remarks>
 internal sealed class ResolveUriFunction : QNameFunction

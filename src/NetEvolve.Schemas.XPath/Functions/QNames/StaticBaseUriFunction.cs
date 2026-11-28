@@ -9,10 +9,10 @@ using NetEvolve.Schemas.XPath.Xdm.Values;
 /// empty sequence when there is none.
 /// </summary>
 /// <remarks>
-/// Limitation: a call reaches the evaluation context only, which carries no static context, so the function holds the base URI itself, as
-/// <c>fn:compare</c> does. The one in the default catalog holds none and gives the empty sequence; a host that wants a static base URI
-/// registers a function built over it (the layering of the function registry lets it override this one). Wiring the static context to a
-/// call is #752 and, for the base URI, #806. A relative URI is no static base URI.
+/// A call reaches the evaluation context only, which carries no static context, so the function holds the base URI itself, as
+/// <c>fn:compare</c> does. The one in the default catalog holds none; the function registry binds a copy that holds the
+/// <c>BaseUri</c> of the static context when it resolves the call (#806). A host can still register a function built over its own URI
+/// (the layering of the function registry lets it override this one). A relative URI is no static base URI.
 /// </remarks>
 internal sealed class StaticBaseUriFunction : QNameFunction
 {

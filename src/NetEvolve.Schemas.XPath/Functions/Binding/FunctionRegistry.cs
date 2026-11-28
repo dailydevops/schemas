@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using NetEvolve.Arguments;
 using NetEvolve.Schemas.XPath.Api;
 using NetEvolve.Schemas.XPath.Context;
+using NetEvolve.Schemas.XPath.Functions.QNames;
 
 /// <summary>
 /// Resolves a function call by expanded name and arity over three layers, the first match wins: the host functions of the static
@@ -73,7 +74,7 @@ internal sealed class FunctionRegistry
             {
                 if (Matches(candidates[i], name, arity, version, activeHost))
                 {
-                    function = candidates[i];
+                    function = BindStaticBaseUri(candidates[i], context);
                     return true;
                 }
             }
@@ -82,6 +83,17 @@ internal sealed class FunctionRegistry
         function = null;
         return false;
     }
+
+    // A call reaches the evaluation context only, so the functions that read the static base URI get the one of the static context here (#806).
+    private static XPathFunction BindStaticBaseUri(XPathFunction candidate, XPathStaticContext context) =>
+        context.BaseUri is null
+            ? candidate
+            : candidate switch
+            {
+                StaticBaseUriFunction => new StaticBaseUriFunction(context.BaseUri),
+                ResolveUriFunction => new ResolveUriFunction(context.BaseUri),
+                _ => candidate,
+            };
 
     /// <summary>Answers <c>function-available</c>: whether <see cref="TryResolve"/> finds the function.</summary>
     /// <param name="context">The static context.</param>
