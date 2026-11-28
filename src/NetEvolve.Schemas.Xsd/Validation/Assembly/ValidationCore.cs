@@ -236,26 +236,27 @@ internal sealed class ValidationCore : IValidationCore
         {
             var entities = _core._needsEntities ? new EntityListener(_core._assessor, _core._options.Limits) : null;
             var reporter = new XsdIssueReporter(_collector);
+            var hints = _core._hintResolver is null
+                ? null
+                : new SchemaLocationHints(
+                    _core._version,
+                    _core._hintResolver,
+                    _core._limits,
+                    reporter,
+                    _systemId,
+                    _cancellationToken
+                );
             var validator = new StreamingValidator(
                 _core._model,
                 _core._assessor,
                 reporter,
                 _core._limits,
                 _systemId,
-                Listeners(entities),
+                Listeners(entities, hints),
                 readerLimits: _core._options.Limits,
                 facetAssertions: _core._facetAssertions,
                 typeAlternatives: _core._hasTypeAlternatives,
-                hints: _core._hintResolver is null
-                    ? null
-                    : new SchemaLocationHints(
-                        _core._version,
-                        _core._hintResolver,
-                        _core._limits,
-                        reporter,
-                        _systemId,
-                        _cancellationToken
-                    )
+                hints: hints
             );
 
             return new SessionSink(validator, entities, _cancellationToken);
@@ -263,7 +264,7 @@ internal sealed class ValidationCore : IValidationCore
 
         // The fixed order of the listeners: ID, entity, identity constraint, assertion; each exists only when the schema needs it (design #146 DP-12).
         // The annotation listener comes last and exists only when the run has a sink, because it reads the validity that the others settle.
-        private List<ValidationListener> Listeners(EntityListener? entities)
+        private List<ValidationListener> Listeners(EntityListener? entities, SchemaLocationHints? hints)
         {
             var listeners = new List<ValidationListener>(4);
             if (_core._needsIds)
@@ -283,7 +284,7 @@ internal sealed class ValidationCore : IValidationCore
                         declaration is ElementDeclaration element
                         && _core._constraints.TryGetValue(element, out var constraints)
                             ? constraints
-                            : null
+                            : hints?.ConstraintsOf(declaration)
                     )
                 );
             }

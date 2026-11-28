@@ -40,10 +40,8 @@ public class HintListenerTests
     private const string NotationHinted =
         "<xs:schema xmlns:xs=\""
         + HintFixture.Xs
-        + "\" targetNamespace=\""
-        + HintFixture.Hinted
-        + "\" elementFormDefault=\"qualified\"><xs:notation name=\"gif\" public=\"image/gif\"/>"
-        + "<xs:element name=\"root\"><xs:complexType><xs:attribute name=\"n\" type=\"xs:NOTATION\"/>"
+        + "\"><xs:notation name=\"gif\" public=\"image/gif\"/>"
+        + "<xs:element name=\"plain\"><xs:complexType><xs:attribute name=\"n\"><xs:simpleType><xs:restriction base=\"xs:NOTATION\"><xs:enumeration value=\"gif\"/></xs:restriction></xs:simpleType></xs:attribute>"
         + "</xs:complexType></xs:element></xs:schema>";
 
     // A configured schema that already names ID and carries an identity constraint, so both listeners exist before a hint.
@@ -53,9 +51,9 @@ public class HintListenerTests
         + "\" targetNamespace=\""
         + HintFixture.Base
         + "\" elementFormDefault=\"qualified\"><xs:element name=\"r\"><xs:complexType><xs:sequence>"
-        + "<xs:any namespace=\"##other\" processContents=\"lax\" minOccurs=\"0\" maxOccurs=\"unbounded\"/></xs:sequence>"
+        + "<xs:any namespace=\"##any\" processContents=\"lax\" minOccurs=\"0\" maxOccurs=\"unbounded\"/></xs:sequence>"
         + "<xs:attribute name=\"id\" type=\"xs:ID\"/></xs:complexType>"
-        + "<xs:unique name=\"u\"><xs:selector xpath=\"@id\"/><xs:field xpath=\".\"/></xs:unique></xs:element></xs:schema>";
+        + "<xs:unique name=\"u\"><xs:selector xpath=\".\"/><xs:field xpath=\"@id\"/></xs:unique></xs:element></xs:schema>";
 
     private static ValidationResult Run(
         string baseSchema,
@@ -171,7 +169,11 @@ public class HintListenerTests
     [Test]
     public async Task Notation_DeclaredInTheHintedSchema_IsValidWhenTheIdListenerExists()
     {
-        var result = Run(BaseWithListeners, NotationHinted, HintFixture.BaseRoot(Hint, "<h:root n=\"gif\"/>"));
+        var result = Run(
+            BaseWithListeners,
+            NotationHinted,
+            HintFixture.BaseRoot("xsi:noNamespaceSchemaLocation=\"h.xsd\"", "<plain xmlns=\"\" n=\"gif\"/>")
+        );
 
         await Assert.That(result.Issues).IsEmpty();
     }

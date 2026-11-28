@@ -13,6 +13,7 @@ using NetEvolve.Schemas.Xsd.Compilation;
 using NetEvolve.Schemas.Xsd.Components;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.Diagnostics;
+using NetEvolve.Schemas.Xsd.IdentityConstraints.Definitions;
 using NetEvolve.Schemas.Xsd.Validation.Core;
 
 /// <summary>
@@ -30,9 +31,7 @@ using NetEvolve.Schemas.Xsd.Validation.Core;
 /// </para>
 /// <para>
 /// Limitations: a hinted schema is compiled on its own, so it cannot refer to components of the configured schema (#959), and a component that
-/// it shares by name with the configured schema is an error; the identity constraints of a hinted schema are not enforced (#960), and its ID
-/// and entity checks only when the configured schema names such a type, because the listeners of a run are chosen from the configured
-/// schema; a hint on an element that a strict wildcard has already rejected at its start is too late for that element (#961); the validation
+/// it shares by name with the configured schema is an error; a hint on an element that a strict wildcard has already rejected at its start is too late for that element (#961); the validation
 /// of a tree does not read hints, because it is not a streaming run (#962).
 /// </para>
 /// </remarks>
@@ -48,6 +47,7 @@ internal sealed class SchemaLocationHints
     private readonly CancellationToken _cancellationToken;
     private readonly HashSet<string> _used = new(StringComparer.Ordinal);
     private readonly HashSet<string> _hinted = new(StringComparer.Ordinal);
+    private Dictionary<IXsdComponent, IReadOnlyList<IdentityConstraintDefinition>>? _constraints;
     private int _requests;
     private bool _limitReported;
 
@@ -80,6 +80,21 @@ internal sealed class SchemaLocationHints
         _documentUri = documentUri;
         _cancellationToken = cancellationToken;
     }
+
+    /// <summary>Gets a value indicating whether a loaded schema names an ID, IDREF, IDREFS, or NOTATION type.</summary>
+    internal bool NeedsIds { get; private set; }
+
+    /// <summary>Gets a value indicating whether a loaded schema names an ENTITY or ENTITIES type.</summary>
+    internal bool NeedsEntities { get; private set; }
+
+    /// <summary>Gets a value indicating whether a loaded schema declares an identity constraint.</summary>
+    internal bool HasConstraints => _constraints is not null;
+
+    /// <summary>Gives the identity constraints that the loaded schemas of the run declare for an element declaration.</summary>
+    /// <param name="declaration">The element declaration.</param>
+    /// <returns>The constraints, <see langword="null"/> for none.</returns>
+    internal IReadOnlyList<IdentityConstraintDefinition>? ConstraintsOf(IXsdComponent declaration) =>
+        _constraints is not null && _constraints.TryGetValue(declaration, out var constraints) ? constraints : null;
 
     /// <summary>Records that an element or attribute of a namespace is assessed, so a later hint for the namespace is an error.</summary>
     /// <param name="namespaceName">The namespace name, empty for none.</param>
@@ -273,6 +288,17 @@ internal sealed class SchemaLocationHints
         if (ReportDuplicates(model, compilation.Components, where))
         {
             return model;
+        }
+
+        NeedsIds |= compilation.NeedsIdListener;
+        NeedsEntities |= compilation.NeedsEntityListener;
+        if (compilation.IdentityConstraints.Count > 0)
+        {
+            _constraints ??= [];
+            foreach (var pair in compilation.IdentityConstraints)
+            {
+                _constraints[pair.Key] = pair.Value;
+            }
         }
 
         return model.Extend(compilation.Set!.WithParent(model.Schema), compilation.Components, _reporter);

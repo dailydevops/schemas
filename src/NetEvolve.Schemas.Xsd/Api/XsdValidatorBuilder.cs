@@ -117,8 +117,8 @@ public sealed class XsdValidatorBuilder : SchemaValidatorBuilder<XsdValidatorBui
     /// location goes through the resolver of the builder, which refuses everything unless another one is set.
     /// </summary>
     /// <remarks>
-    /// Limitations: a hinted schema document is compiled on its own, so it cannot refer to components of the configured schema; its identity
-    /// constraints are not enforced; the validation of a tree does not read hints.
+    /// Limitations: a hinted schema document is compiled on its own, so it cannot refer to components of the configured schema; the
+    /// validation of a tree does not read hints.
     /// </remarks>
     /// <param name="enabled"><see langword="true"/> to load the schema documents that the hints name.</param>
     /// <returns>This builder.</returns>

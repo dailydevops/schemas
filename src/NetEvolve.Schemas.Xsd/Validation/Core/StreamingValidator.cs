@@ -66,13 +66,15 @@ internal sealed partial class StreamingValidator : IXmlSink
     private readonly string? _documentUri;
     private readonly XsiNamespaceScope _scope;
     private readonly XsiNil _nil;
-    private readonly ValidationListener[] _listeners;
-    private readonly ValidationListener[] _onStart;
-    private readonly ValidationListener[] _onAttribute;
-    private readonly ValidationListener[] _onXsiAttribute;
-    private readonly ValidationListener[] _onValue;
-    private readonly ValidationListener[] _onEnd;
+    private ValidationListener[] _listeners = [];
+    private ValidationListener[] _onStart = [];
+    private ValidationListener[] _onAttribute = [];
+    private ValidationListener[] _onXsiAttribute = [];
+    private ValidationListener[] _onValue = [];
+    private ValidationListener[] _onEnd = [];
 
+    private DoctypeCopy? _doctype;
+    private readonly XmlReaderLimits? _readerLimits;
     private ValidationModel _model;
     private NameBinding _binding;
     private XsiTypeResolver _xsi;
@@ -131,6 +133,7 @@ internal sealed partial class StreamingValidator : IXmlSink
 
         _model = model;
         _hints = hints;
+        _readerLimits = readerLimits;
         _facetAssertions = facetAssertions;
         _inherited = typeAlternatives ? new InheritedAttributes() : null;
         _derivation = derivation;
@@ -153,12 +156,7 @@ internal sealed partial class StreamingValidator : IXmlSink
             all.Add(listeners[i]);
         }
 
-        _listeners = all.ToArray();
-        _onStart = Interested(all, ListenerInterest.StartElement);
-        _onAttribute = Interested(all, ListenerInterest.Attribute);
-        _onXsiAttribute = Interested(all, ListenerInterest.XsiAttribute);
-        _onValue = Interested(all, ListenerInterest.SimpleValue);
-        _onEnd = Interested(all, ListenerInterest.EndElement);
+        Distribute(all);
     }
 
     /// <inheritdoc />
@@ -228,7 +226,19 @@ internal sealed partial class StreamingValidator : IXmlSink
     public void ProcessingInstruction(XmlSymbol target, ReadOnlySpan<char> data) => _inText = false;
 
     /// <inheritdoc />
-    public void Doctype(in XmlDoctypeInfo doctype) { }
+    public void Doctype(in XmlDoctypeInfo doctype)
+    {
+        // A listener that a hint adds later has not seen the declaration.
+        if (_hints is not null)
+        {
+            _doctype = new DoctypeCopy(
+                doctype.Name.ToString(),
+                doctype.PublicId.ToString(),
+                doctype.SystemId.ToString(),
+                doctype.InternalSubset.ToString()
+            );
+        }
+    }
 
     private static ValidationListener[] Interested(List<ValidationListener> listeners, ListenerInterest hook)
     {
