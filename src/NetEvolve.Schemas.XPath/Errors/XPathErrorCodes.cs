@@ -141,6 +141,10 @@ internal static class XPathErrorCodes
         "FORG0009",
         "Error resolving a relative URI against a base URI in fn:resolve-uri."
     );
+    internal static readonly XPathErrorCode FORG0010 = Define(
+        "FORG0010",
+        "Invalid date/time or invalid input of fn:parse-ietf-date."
+    );
     internal static readonly XPathErrorCode FORX0001 = Define("FORX0001", "Invalid regular expression flags.");
     internal static readonly XPathErrorCode FORX0002 = Define("FORX0002", "Invalid regular expression.");
     internal static readonly XPathErrorCode FORX0003 = Define(

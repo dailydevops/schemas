@@ -158,15 +158,54 @@ public class NodeNameQNameTests
     }
 
     [Test]
-    [Arguments("document-uri")]
-    public async Task EachFunction_IsRegisteredForOneArgumentOnlyInEveryLanguageVersion(string local)
+    [Arguments(XPathVersion.V20, false)]
+    [Arguments(XPathVersion.V30, true)]
+    [Arguments(XPathVersion.V31, true)]
+    public async Task DocumentUri_WithoutArgument_IsRegisteredFromXPath30(XPathVersion version, bool expected) =>
+        await Assert.That(NodesHarness.TryResolve("document-uri", 0, out _, version)).IsEqualTo(expected);
+
+    [Test]
+    [Arguments("u.doc", "anyURI:http://example.com/u.xml")]
+    [Arguments("doc", "")]
+    [Arguments("o.doc", "")]
+    [Arguments("r", "")]
+    [Arguments("a@x", "")]
+    public async Task DocumentUri_WithoutArgument_ReadsTheContextNode(string contextItem, string expected)
     {
-        foreach (var version in new[] { XPathVersion.V20, XPathVersion.V30, XPathVersion.V31 })
+        ArgumentNullException.ThrowIfNull(contextItem);
+
+        _ = NodesHarness.TryResolve("document-uri", 0, out var function, XPathVersion.V30);
+        using var context = new XPathEvaluationContext();
+        context.SetContextItem(NodesHarness.ParseItem("node:" + contextItem));
+
+        await Assert.That(NodesHarness.Show(function!.Call(context, []))).IsEqualTo(expected);
+    }
+
+    [Test]
+    [Arguments(null, "XPDY0002")]
+    [Arguments("integer:1", "XPTY0004")]
+    public async Task DocumentUri_WithoutArgument_RaisesTheContextItemError(string? contextItem, string code)
+    {
+        _ = NodesHarness.TryResolve("document-uri", 0, out var function, XPathVersion.V30);
+        using var context = new XPathEvaluationContext();
+        if (contextItem is not null)
         {
-            await Assert.That(NodesHarness.TryResolve(local, 0, out _, version)).IsFalse();
-            await Assert.That(NodesHarness.TryResolve(local, 2, out _, version)).IsFalse();
-            await Assert.That(NodesHarness.TryResolve(local, 1, out var function, version)).IsTrue();
-            await Assert.That(function!.Versions).IsEqualTo(XPathVersionMask.All);
+            context.SetContextItem(NodesHarness.ParseItem(contextItem));
         }
+
+        var failure = Assert.Throws<XPathException>(() => function!.Call(context, []));
+
+        await Assert.That(failure!.Diagnostic.Code).IsEqualTo(code);
+    }
+
+    [Test]
+    [Arguments(XPathVersion.V20)]
+    [Arguments(XPathVersion.V30)]
+    [Arguments(XPathVersion.V31)]
+    public async Task DocumentUri_WithOneArgument_StaysRegisteredForEveryVersion(XPathVersion version)
+    {
+        await Assert.That(NodesHarness.TryResolve("document-uri", 2, out _, version)).IsFalse();
+        await Assert.That(NodesHarness.TryResolve("document-uri", 1, out var function, version)).IsTrue();
+        await Assert.That(function!.Versions).IsEqualTo(XPathVersionMask.All);
     }
 }
