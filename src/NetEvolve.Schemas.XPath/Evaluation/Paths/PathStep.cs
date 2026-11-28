@@ -16,6 +16,9 @@ internal abstract class PathStep
     /// <summary>Gets a value indicating whether the step can stop after a number of results: it delivers nodes in the order of its axis, with nothing left to filter by position.</summary>
     public virtual bool CanLimit => false;
 
+    /// <summary>Gets a value indicating whether every item the step delivers is a node, so that the enclosing path need not check the type rule.</summary>
+    public virtual bool DeliversNodesOnly => false;
+
     /// <summary>Evaluates the step for the context item of the evaluation, the first step of a relative path.</summary>
     /// <param name="context">The evaluation context.</param>
     /// <param name="results">The list that receives the results.</param>

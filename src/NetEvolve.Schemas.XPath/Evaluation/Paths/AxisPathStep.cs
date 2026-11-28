@@ -70,6 +70,18 @@ internal class AxisPathStep : PathStep
             ? new CutoffAxisPathStep(_axis, _test, _typed?.Value, predicates, value)
             : new AxisPathStep(_axis, _test, _typed?.Value, predicates);
 
+    /// <summary>Gets the axis.</summary>
+    public Axis Axis => _axis;
+
+    /// <summary>Gets the node test.</summary>
+    public XPathNodeTest Test => _test;
+
+    /// <summary>Gets a value indicating whether the step is a plain axis and node test: no predicate, no cutoff, and no type name to check.</summary>
+    public bool IsPlain => _predicates.Length == 0 && _typed is null && Cutoff is null;
+
+    /// <inheritdoc />
+    public override bool DeliversNodesOnly => true;
+
     /// <inheritdoc />
     public override bool CanLimit => _predicates.Length == 0 && Cutoff is null;
 
@@ -155,12 +167,22 @@ internal class AxisPathStep : PathStep
             state.Matcher = _test.Bind(tree!.Names);
         }
 
+        // A step without predicates and cutoff delivers straight into the results; the others collect, filter, and copy.
+        var cutoff = Cutoff;
+        var direct = cutoff is null && _predicates.Length == 0;
+        ref var target = ref direct ? ref results : ref delivered;
+
         // The walk stops once the cutoff or the limit has what it needs; the limit applies to a step without predicates only.
         var stop =
-            Cutoff is { } cutoff ? cutoff.Budget
-            : limit > 0 ? limit - results.Count
-            : 0;
-        delivered.Clear();
+            cutoff is { } budgeted ? budgeted.Budget
+            : limit <= 0 ? 0
+            : direct ? limit
+            : limit - results.Count;
+        if (!direct)
+        {
+            delivered.Clear();
+        }
+
         var iterator = new XPathAxisIterator(node, _axis, state.Matcher);
         while (iterator.MoveNext())
         {
@@ -175,15 +197,20 @@ internal class AxisPathStep : PathStep
                 )
             )
             {
-                delivered.Add(current);
-                if (stop > 0 && delivered.Count >= stop)
+                target.Add(current);
+                if (stop > 0 && target.Count >= stop)
                 {
                     break;
                 }
             }
         }
 
-        Cutoff?.Apply(ref delivered);
+        if (direct)
+        {
+            return;
+        }
+
+        cutoff?.Apply(ref delivered);
         if (_predicates.Length > 0)
         {
             PredicateFilter.Apply(context, _predicates, ref delivered);
