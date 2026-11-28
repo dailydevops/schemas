@@ -15,6 +15,11 @@ internal sealed class SubstitutionTable
 {
     private readonly string[] _names;
     private readonly string[] _values;
+    private readonly Dictionary<string, int> _indexes = new(StringComparer.Ordinal);
+    private readonly int[] _lengths;
+#if NET9_0_OR_GREATER
+    private readonly Dictionary<string, int>.AlternateLookup<ReadOnlySpan<char>> _lookup;
+#endif
 
     internal SubstitutionTable(string[] names, string[] values)
     {
@@ -23,6 +28,29 @@ internal sealed class SubstitutionTable
 
         _names = names;
         _values = values;
+
+        // The first index of a name wins and empty names never match, as in the former linear scan.
+        for (var i = 0; i < names.Length; i++)
+        {
+            if (names[i].Length != 0 && !_indexes.ContainsKey(names[i]))
+            {
+                _indexes.Add(names[i], i);
+            }
+        }
+
+        var lengths = new HashSet<int>();
+        foreach (var name in _indexes.Keys)
+        {
+            _ = lengths.Add(name.Length);
+        }
+
+        _lengths = new int[lengths.Count];
+        lengths.CopyTo(_lengths);
+        Array.Sort(_lengths);
+        Array.Reverse(_lengths);
+#if NET9_0_OR_GREATER
+        _lookup = _indexes.GetAlternateLookup<ReadOnlySpan<char>>();
+#endif
     }
 
     /// <summary>Gets the text with every known parameter reference replaced, or the same string when none occurs.</summary>
@@ -53,33 +81,30 @@ internal sealed class SubstitutionTable
 
     private static int Next(string text, int from)
     {
-        for (var i = from; i < text.Length; i++)
-        {
-            if (text[i] == '$')
-            {
-                return i;
-            }
-        }
-
-        return -1;
+        var offset = text.AsSpan(from).IndexOf('$');
+        return offset < 0 ? -1 : from + offset;
     }
 
     private int Longest(string text, int start)
     {
-        var best = -1;
-        for (var i = 0; i < _names.Length; i++)
+        var remaining = text.Length - start;
+        foreach (var length in _lengths)
         {
-            var name = _names[i];
-            if (
-                name.Length != 0
-                && (best < 0 || name.Length > _names[best].Length)
-                && string.CompareOrdinal(text, start, name, 0, name.Length) == 0
-            )
+            if (length > remaining)
             {
-                best = i;
+                continue;
+            }
+
+#if NET9_0_OR_GREATER
+            if (_lookup.TryGetValue(text.AsSpan(start, length), out var index))
+#else
+            if (_indexes.TryGetValue(text.Substring(start, length), out var index))
+#endif
+            {
+                return index;
             }
         }
 
-        return best;
+        return -1;
     }
 }
