@@ -7,7 +7,7 @@ This document lists every difference that the differential run over the W3C XML 
 | Baseline | `System.Xml.Schema` of the .NET runtime 10.0, compared on the `net10.0` test leg only (`baseline-runtime: 10.0`) |
 | Corpus | XSTS cases of XSD 1.0 (schema tests and instance tests), pinned in `tests/conformance/suites/xsts.json` |
 | Data file | `tests/NetEvolve.Schemas.Xsd.Tests.Integration/DifferentialData/xsts-1.0-deviations.txt`, one entry per difference: case id, difference kind, observed difference, specification reference, reason |
-| Entries | 14639 entries for 14603 cases |
+| Entries | 14739 entries for 14703 cases |
 
 The list is valid for the recorded baseline runtime version only. A run on another runtime version fails until the list is compared again. System.Xml.Schema implements XSD 1.0 only, so cases of XSD 1.1 are not compared.
 
@@ -29,16 +29,15 @@ No builder option, switch, or code path in the library reproduces System.Xml.Sch
 |---|---:|---:|
 | Verdict differences: this library follows the specification | 1732 | 1700 |
 | Verdict differences: documented limitations of this library | 21 | 17 |
-| Position differences: equivalent | 12886 | 12886 |
-| Differences on cases that a bug issue tracks (no entry) | 141 | |
+| Position differences: equivalent | 12986 | 12986 |
+| Differences on cases that a bug issue tracks (no entry) | 41 | |
 
 ## Differences on cases that a bug issue tracks
 
-The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTests/known-failures.txt` and `tests/NetEvolve.Schemas.Xsd.Tests.Integration/InstanceTests/known-failures.txt` record every case of XSD 1.0 that this library does not pass yet, each with its bug issue. At the time of this triage the run found 141 differences on these cases:
+The known-failures lists `tests/NetEvolve.Schemas.Xsd.Tests.Integration/SchemaTests/known-failures.txt` and `tests/NetEvolve.Schemas.Xsd.Tests.Integration/InstanceTests/known-failures.txt` record every case of XSD 1.0 that this library does not pass yet, each with its bug issue. At the time of this triage the run found 41 differences on these cases:
 
 | Issue | Differences | Title |
 |---|---:|---|
-| #1078 | 100 | feat(xsd): evaluate the enumeration facet of union simple types in the value space |
 | #62 | 19 | feat(xml): support xml 1.1 |
 | #1418 | 6 | bug(xsd): circular redefine chains fail with a missing redefined component |
 | #604 | 4 | feat(xsd): resolve QName and NOTATION instance values with the namespace context |
@@ -5487,9 +5486,9 @@ sunMeta-suntest/1.0/xsd023.e/xsd023.e
 
 Both engines reject the document with the same number of issues, and the verdicts agree. They attribute the issues to different constructs of the document. Issue positions are not part of the specification, so the difference is equivalent.
 
-- Difference: IssuePositions `issue positions` (9102)
+- Difference: IssuePositions `issue positions` (9202)
 - Specification: XSD 1.0 Part 1, 5.2 and C.1 (the assessment outcome is the validity property; positions and number of reports are not specified)
-- Cases: 9102
+- Cases: 9202
 
 ```text
 common-introspection/1.0/introspection/introspect-testSet-AGroupDef-4
@@ -14499,6 +14498,31 @@ nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedShort-pattern-9/NISTXML-SV-II-l
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedShort-pattern-9/NISTXML-SV-II-list-unsignedShort-pattern-5-3
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedShort-pattern-9/NISTXML-SV-II-list-unsignedShort-pattern-5-4
 nistMeta-NISTXMLSchemaDatatypes/1.0/list-unsignedShort-pattern-9/NISTXML-SV-II-list-unsignedShort-pattern-5-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-anyURI-float-enumeration-5/NISTXML-SV-II-union-anyURI-float-enumeration-1-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-anyURI-float-enumeration-5/NISTXML-SV-II-union-anyURI-float-enumeration-1-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-anyURI-float-enumeration-5/NISTXML-SV-II-union-anyURI-float-enumeration-1-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-anyURI-float-enumeration-5/NISTXML-SV-II-union-anyURI-float-enumeration-1-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-anyURI-float-enumeration-5/NISTXML-SV-II-union-anyURI-float-enumeration-1-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-anyURI-float-enumeration-6/NISTXML-SV-II-union-anyURI-float-enumeration-2-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-anyURI-float-enumeration-6/NISTXML-SV-II-union-anyURI-float-enumeration-2-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-anyURI-float-enumeration-6/NISTXML-SV-II-union-anyURI-float-enumeration-2-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-anyURI-float-enumeration-6/NISTXML-SV-II-union-anyURI-float-enumeration-2-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-anyURI-float-enumeration-6/NISTXML-SV-II-union-anyURI-float-enumeration-2-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-anyURI-float-enumeration-7/NISTXML-SV-II-union-anyURI-float-enumeration-3-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-anyURI-float-enumeration-7/NISTXML-SV-II-union-anyURI-float-enumeration-3-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-anyURI-float-enumeration-7/NISTXML-SV-II-union-anyURI-float-enumeration-3-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-anyURI-float-enumeration-7/NISTXML-SV-II-union-anyURI-float-enumeration-3-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-anyURI-float-enumeration-7/NISTXML-SV-II-union-anyURI-float-enumeration-3-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-anyURI-float-enumeration-8/NISTXML-SV-II-union-anyURI-float-enumeration-4-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-anyURI-float-enumeration-8/NISTXML-SV-II-union-anyURI-float-enumeration-4-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-anyURI-float-enumeration-8/NISTXML-SV-II-union-anyURI-float-enumeration-4-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-anyURI-float-enumeration-8/NISTXML-SV-II-union-anyURI-float-enumeration-4-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-anyURI-float-enumeration-8/NISTXML-SV-II-union-anyURI-float-enumeration-4-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-anyURI-float-enumeration-9/NISTXML-SV-II-union-anyURI-float-enumeration-5-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-anyURI-float-enumeration-9/NISTXML-SV-II-union-anyURI-float-enumeration-5-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-anyURI-float-enumeration-9/NISTXML-SV-II-union-anyURI-float-enumeration-5-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-anyURI-float-enumeration-9/NISTXML-SV-II-union-anyURI-float-enumeration-5-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-anyURI-float-enumeration-9/NISTXML-SV-II-union-anyURI-float-enumeration-5-5
 nistMeta-NISTXMLSchemaDatatypes/1.0/union-anyURI-float-pattern-5/NISTXML-SV-II-union-anyURI-float-pattern-1-1
 nistMeta-NISTXMLSchemaDatatypes/1.0/union-anyURI-float-pattern-5/NISTXML-SV-II-union-anyURI-float-pattern-1-2
 nistMeta-NISTXMLSchemaDatatypes/1.0/union-anyURI-float-pattern-5/NISTXML-SV-II-union-anyURI-float-pattern-1-3
@@ -14524,6 +14548,31 @@ nistMeta-NISTXMLSchemaDatatypes/1.0/union-anyURI-float-pattern-9/NISTXML-SV-II-u
 nistMeta-NISTXMLSchemaDatatypes/1.0/union-anyURI-float-pattern-9/NISTXML-SV-II-union-anyURI-float-pattern-5-3
 nistMeta-NISTXMLSchemaDatatypes/1.0/union-anyURI-float-pattern-9/NISTXML-SV-II-union-anyURI-float-pattern-5-4
 nistMeta-NISTXMLSchemaDatatypes/1.0/union-anyURI-float-pattern-9/NISTXML-SV-II-union-anyURI-float-pattern-5-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-duration-decimal-enumeration-5/NISTXML-SV-II-union-duration-decimal-enumeration-1-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-duration-decimal-enumeration-5/NISTXML-SV-II-union-duration-decimal-enumeration-1-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-duration-decimal-enumeration-5/NISTXML-SV-II-union-duration-decimal-enumeration-1-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-duration-decimal-enumeration-5/NISTXML-SV-II-union-duration-decimal-enumeration-1-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-duration-decimal-enumeration-5/NISTXML-SV-II-union-duration-decimal-enumeration-1-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-duration-decimal-enumeration-6/NISTXML-SV-II-union-duration-decimal-enumeration-2-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-duration-decimal-enumeration-6/NISTXML-SV-II-union-duration-decimal-enumeration-2-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-duration-decimal-enumeration-6/NISTXML-SV-II-union-duration-decimal-enumeration-2-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-duration-decimal-enumeration-6/NISTXML-SV-II-union-duration-decimal-enumeration-2-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-duration-decimal-enumeration-6/NISTXML-SV-II-union-duration-decimal-enumeration-2-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-duration-decimal-enumeration-7/NISTXML-SV-II-union-duration-decimal-enumeration-3-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-duration-decimal-enumeration-7/NISTXML-SV-II-union-duration-decimal-enumeration-3-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-duration-decimal-enumeration-7/NISTXML-SV-II-union-duration-decimal-enumeration-3-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-duration-decimal-enumeration-7/NISTXML-SV-II-union-duration-decimal-enumeration-3-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-duration-decimal-enumeration-7/NISTXML-SV-II-union-duration-decimal-enumeration-3-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-duration-decimal-enumeration-8/NISTXML-SV-II-union-duration-decimal-enumeration-4-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-duration-decimal-enumeration-8/NISTXML-SV-II-union-duration-decimal-enumeration-4-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-duration-decimal-enumeration-8/NISTXML-SV-II-union-duration-decimal-enumeration-4-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-duration-decimal-enumeration-8/NISTXML-SV-II-union-duration-decimal-enumeration-4-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-duration-decimal-enumeration-8/NISTXML-SV-II-union-duration-decimal-enumeration-4-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-duration-decimal-enumeration-9/NISTXML-SV-II-union-duration-decimal-enumeration-5-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-duration-decimal-enumeration-9/NISTXML-SV-II-union-duration-decimal-enumeration-5-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-duration-decimal-enumeration-9/NISTXML-SV-II-union-duration-decimal-enumeration-5-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-duration-decimal-enumeration-9/NISTXML-SV-II-union-duration-decimal-enumeration-5-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-duration-decimal-enumeration-9/NISTXML-SV-II-union-duration-decimal-enumeration-5-5
 nistMeta-NISTXMLSchemaDatatypes/1.0/union-duration-decimal-pattern-5/NISTXML-SV-II-union-duration-decimal-pattern-1-1
 nistMeta-NISTXMLSchemaDatatypes/1.0/union-duration-decimal-pattern-5/NISTXML-SV-II-union-duration-decimal-pattern-1-2
 nistMeta-NISTXMLSchemaDatatypes/1.0/union-duration-decimal-pattern-5/NISTXML-SV-II-union-duration-decimal-pattern-1-3
@@ -14549,6 +14598,31 @@ nistMeta-NISTXMLSchemaDatatypes/1.0/union-duration-decimal-pattern-9/NISTXML-SV-
 nistMeta-NISTXMLSchemaDatatypes/1.0/union-duration-decimal-pattern-9/NISTXML-SV-II-union-duration-decimal-pattern-5-3
 nistMeta-NISTXMLSchemaDatatypes/1.0/union-duration-decimal-pattern-9/NISTXML-SV-II-union-duration-decimal-pattern-5-4
 nistMeta-NISTXMLSchemaDatatypes/1.0/union-duration-decimal-pattern-9/NISTXML-SV-II-union-duration-decimal-pattern-5-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-gMonthDay-gYearMonth-enumeration-5/NISTXML-SV-II-union-gMonthDay-gYearMonth-enumeration-1-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-gMonthDay-gYearMonth-enumeration-5/NISTXML-SV-II-union-gMonthDay-gYearMonth-enumeration-1-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-gMonthDay-gYearMonth-enumeration-5/NISTXML-SV-II-union-gMonthDay-gYearMonth-enumeration-1-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-gMonthDay-gYearMonth-enumeration-5/NISTXML-SV-II-union-gMonthDay-gYearMonth-enumeration-1-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-gMonthDay-gYearMonth-enumeration-5/NISTXML-SV-II-union-gMonthDay-gYearMonth-enumeration-1-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-gMonthDay-gYearMonth-enumeration-6/NISTXML-SV-II-union-gMonthDay-gYearMonth-enumeration-2-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-gMonthDay-gYearMonth-enumeration-6/NISTXML-SV-II-union-gMonthDay-gYearMonth-enumeration-2-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-gMonthDay-gYearMonth-enumeration-6/NISTXML-SV-II-union-gMonthDay-gYearMonth-enumeration-2-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-gMonthDay-gYearMonth-enumeration-6/NISTXML-SV-II-union-gMonthDay-gYearMonth-enumeration-2-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-gMonthDay-gYearMonth-enumeration-6/NISTXML-SV-II-union-gMonthDay-gYearMonth-enumeration-2-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-gMonthDay-gYearMonth-enumeration-7/NISTXML-SV-II-union-gMonthDay-gYearMonth-enumeration-3-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-gMonthDay-gYearMonth-enumeration-7/NISTXML-SV-II-union-gMonthDay-gYearMonth-enumeration-3-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-gMonthDay-gYearMonth-enumeration-7/NISTXML-SV-II-union-gMonthDay-gYearMonth-enumeration-3-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-gMonthDay-gYearMonth-enumeration-7/NISTXML-SV-II-union-gMonthDay-gYearMonth-enumeration-3-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-gMonthDay-gYearMonth-enumeration-7/NISTXML-SV-II-union-gMonthDay-gYearMonth-enumeration-3-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-gMonthDay-gYearMonth-enumeration-8/NISTXML-SV-II-union-gMonthDay-gYearMonth-enumeration-4-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-gMonthDay-gYearMonth-enumeration-8/NISTXML-SV-II-union-gMonthDay-gYearMonth-enumeration-4-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-gMonthDay-gYearMonth-enumeration-8/NISTXML-SV-II-union-gMonthDay-gYearMonth-enumeration-4-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-gMonthDay-gYearMonth-enumeration-8/NISTXML-SV-II-union-gMonthDay-gYearMonth-enumeration-4-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-gMonthDay-gYearMonth-enumeration-8/NISTXML-SV-II-union-gMonthDay-gYearMonth-enumeration-4-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-gMonthDay-gYearMonth-enumeration-9/NISTXML-SV-II-union-gMonthDay-gYearMonth-enumeration-5-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-gMonthDay-gYearMonth-enumeration-9/NISTXML-SV-II-union-gMonthDay-gYearMonth-enumeration-5-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-gMonthDay-gYearMonth-enumeration-9/NISTXML-SV-II-union-gMonthDay-gYearMonth-enumeration-5-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-gMonthDay-gYearMonth-enumeration-9/NISTXML-SV-II-union-gMonthDay-gYearMonth-enumeration-5-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-gMonthDay-gYearMonth-enumeration-9/NISTXML-SV-II-union-gMonthDay-gYearMonth-enumeration-5-5
 nistMeta-NISTXMLSchemaDatatypes/1.0/union-gMonthDay-gYearMonth-pattern-5/NISTXML-SV-II-union-gMonthDay-gYearMonth-pattern-1-1
 nistMeta-NISTXMLSchemaDatatypes/1.0/union-gMonthDay-gYearMonth-pattern-5/NISTXML-SV-II-union-gMonthDay-gYearMonth-pattern-1-2
 nistMeta-NISTXMLSchemaDatatypes/1.0/union-gMonthDay-gYearMonth-pattern-5/NISTXML-SV-II-union-gMonthDay-gYearMonth-pattern-1-3
@@ -14574,6 +14648,31 @@ nistMeta-NISTXMLSchemaDatatypes/1.0/union-gMonthDay-gYearMonth-pattern-9/NISTXML
 nistMeta-NISTXMLSchemaDatatypes/1.0/union-gMonthDay-gYearMonth-pattern-9/NISTXML-SV-II-union-gMonthDay-gYearMonth-pattern-5-3
 nistMeta-NISTXMLSchemaDatatypes/1.0/union-gMonthDay-gYearMonth-pattern-9/NISTXML-SV-II-union-gMonthDay-gYearMonth-pattern-5-4
 nistMeta-NISTXMLSchemaDatatypes/1.0/union-gMonthDay-gYearMonth-pattern-9/NISTXML-SV-II-union-gMonthDay-gYearMonth-pattern-5-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-short-gYear-enumeration-5/NISTXML-SV-II-union-short-gYear-enumeration-1-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-short-gYear-enumeration-5/NISTXML-SV-II-union-short-gYear-enumeration-1-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-short-gYear-enumeration-5/NISTXML-SV-II-union-short-gYear-enumeration-1-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-short-gYear-enumeration-5/NISTXML-SV-II-union-short-gYear-enumeration-1-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-short-gYear-enumeration-5/NISTXML-SV-II-union-short-gYear-enumeration-1-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-short-gYear-enumeration-6/NISTXML-SV-II-union-short-gYear-enumeration-2-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-short-gYear-enumeration-6/NISTXML-SV-II-union-short-gYear-enumeration-2-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-short-gYear-enumeration-6/NISTXML-SV-II-union-short-gYear-enumeration-2-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-short-gYear-enumeration-6/NISTXML-SV-II-union-short-gYear-enumeration-2-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-short-gYear-enumeration-6/NISTXML-SV-II-union-short-gYear-enumeration-2-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-short-gYear-enumeration-7/NISTXML-SV-II-union-short-gYear-enumeration-3-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-short-gYear-enumeration-7/NISTXML-SV-II-union-short-gYear-enumeration-3-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-short-gYear-enumeration-7/NISTXML-SV-II-union-short-gYear-enumeration-3-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-short-gYear-enumeration-7/NISTXML-SV-II-union-short-gYear-enumeration-3-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-short-gYear-enumeration-7/NISTXML-SV-II-union-short-gYear-enumeration-3-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-short-gYear-enumeration-8/NISTXML-SV-II-union-short-gYear-enumeration-4-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-short-gYear-enumeration-8/NISTXML-SV-II-union-short-gYear-enumeration-4-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-short-gYear-enumeration-8/NISTXML-SV-II-union-short-gYear-enumeration-4-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-short-gYear-enumeration-8/NISTXML-SV-II-union-short-gYear-enumeration-4-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-short-gYear-enumeration-8/NISTXML-SV-II-union-short-gYear-enumeration-4-5
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-short-gYear-enumeration-9/NISTXML-SV-II-union-short-gYear-enumeration-5-1
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-short-gYear-enumeration-9/NISTXML-SV-II-union-short-gYear-enumeration-5-2
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-short-gYear-enumeration-9/NISTXML-SV-II-union-short-gYear-enumeration-5-3
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-short-gYear-enumeration-9/NISTXML-SV-II-union-short-gYear-enumeration-5-4
+nistMeta-NISTXMLSchemaDatatypes/1.0/union-short-gYear-enumeration-9/NISTXML-SV-II-union-short-gYear-enumeration-5-5
 nistMeta-NISTXMLSchemaDatatypes/1.0/union-short-gYear-pattern-5/NISTXML-SV-II-union-short-gYear-pattern-1-1
 nistMeta-NISTXMLSchemaDatatypes/1.0/union-short-gYear-pattern-5/NISTXML-SV-II-union-short-gYear-pattern-1-2
 nistMeta-NISTXMLSchemaDatatypes/1.0/union-short-gYear-pattern-5/NISTXML-SV-II-union-short-gYear-pattern-1-3

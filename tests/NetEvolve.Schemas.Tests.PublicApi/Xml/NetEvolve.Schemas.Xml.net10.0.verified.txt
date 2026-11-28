@@ -820,6 +820,12 @@ namespace NetEvolve.Schemas.Xml.Datatypes.Facets.Core
         QName = 18,
         Notation = 19,
     }
+    public sealed class UnionEnumerationFacet : NetEvolve.Schemas.Xml.Datatypes.Contracts.IFacet, NetEvolve.Schemas.Xml.Datatypes.Contracts.ILexicalFacet
+    {
+        public UnionEnumerationFacet(NetEvolve.Schemas.Xml.Datatypes.Core.UnionDescriptor type, System.Collections.Generic.IReadOnlyList<string> values) { }
+        public NetEvolve.Schemas.Xml.Datatypes.Contracts.FacetKind Kind { get; }
+        public bool IsSatisfiedBy(System.ReadOnlySpan<char> lexical) { }
+    }
     public sealed class WhiteSpaceFacet : NetEvolve.Schemas.Xml.Datatypes.Contracts.IFacet, NetEvolve.Schemas.Xml.Datatypes.Contracts.ILexicalFacet
     {
         public WhiteSpaceFacet(NetEvolve.Schemas.Xml.Datatypes.Core.WhitespaceMode mode) { }

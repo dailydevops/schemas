@@ -14,6 +14,7 @@ using NetEvolve.Schemas.Xml.Datatypes.Facets.Pattern;
 using NetEvolve.Schemas.Xml.Datatypes.Numeric;
 using NetEvolve.Schemas.Xsd.Contracts;
 using NetEvolve.Schemas.Xsd.SimpleTypes.Checks;
+using NetEvolve.Schemas.Xsd.SimpleTypes.Definitions;
 
 /// <summary>
 /// Turns the facets of a restriction step, which the facet check has validated, into the facet objects of the datatype contract
@@ -22,7 +23,8 @@ using NetEvolve.Schemas.Xsd.SimpleTypes.Checks;
 /// <remarks>
 /// Limitations: the <c>enumeration</c> facet is carried for string-like bases (including anyURI) and for the ordered families (decimal, integer, float,
 /// double, duration, date and time, boolean), not for the others (binary, <c>QName</c>, and <c>NOTATION</c>); a list carries it when its item type is one of the carried
-/// families and compares item by item, a list of any other item type is not evaluated; the
+/// families and compares item by item, a list of any other item type is not evaluated; a union carries it and compares in the value space of the
+/// member that accepts the value, with the limits of <see cref="UnionEnumerationFacet"/> for members that are not ordered, and without the own facets of a member that is a list or a union or a restriction of anyURI when it chooses the member that accepts a value; the
 /// <c>assertion</c> facets (XSD 1.1, XSD-78) are not carried here, they are collected separately; a length of a binary type is carried
 /// by the binary length facet only when the base is a built-in type of that family. A facet that does not parse is left out, which
 /// can only follow an issue that the check has reported.
@@ -105,8 +107,36 @@ internal static class FacetFactory
             facets[enumerationSlot] = ListEnumeration(enumeration, item)!;
         }
 
+        if (enumeration.Count > 0 && facts is { Variety: DatatypeVariety.Union })
+        {
+            facets[enumerationSlot] = UnionOf(facts) is { } union
+                ? new UnionEnumerationFacet(union, enumeration)
+                : null!;
+        }
+
         _ = facets.RemoveAll(static facet => facet is null);
         return facets;
+    }
+
+    // A union definition is described by the datatypes of its members; a member that is a list or a union definition is described by its item or
+    // member types, without the facets that the definition adds.
+    private static UnionDescriptor? UnionOf(FacetBase facts) =>
+        facts.Members.Count == 0 ? null : new UnionDescriptor("union", Describe(facts.Members));
+
+    private static IDatatypeDescriptor[] Describe(IReadOnlyList<SimpleTypeDefinition> types)
+    {
+        var descriptors = new IDatatypeDescriptor[types.Count];
+        for (var i = 0; i < descriptors.Length; i++)
+        {
+            descriptors[i] = types[i].ValueDescriptor
+                ?? (
+                    types[i] is { Variety: DatatypeVariety.List, ItemType: { } item }
+                        ? new ListDescriptor("list", Describe([item])[0])
+                        : new UnionDescriptor("union", Describe(types[i].MemberTypes))
+                );
+        }
+
+        return descriptors;
     }
 
     // A slot holds the place of a facet that is built from every declaration of its kind once the step is read.
