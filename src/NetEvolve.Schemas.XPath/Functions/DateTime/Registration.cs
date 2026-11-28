@@ -6,7 +6,7 @@ using NetEvolve.Schemas.XPath.Functions.Binding;
 /// <summary>
 /// The registration file of the date and time group: its module initializer stages <see cref="Register"/> into the default catalog
 /// (#123, AP8, option B), so no shared list names the group. The group holds the component extraction functions, the timezone
-/// adjustment functions, and the context functions that read the current date and time.
+/// adjustment functions, the context functions that read the current date and time, and <c>parse-ietf-date</c>.
 /// </summary>
 /// <remarks>
 /// Limitation: the context functions live in this folder because the work package owns it; the design names a <c>Functions/Context</c> group for them.
@@ -55,5 +55,6 @@ internal static class Registration
         builder.Add(new CurrentDateFunction());
         builder.Add(new CurrentTimeFunction());
         builder.Add(new ImplicitTimezoneFunction());
+        builder.Add(new ParseIetfDateFunction());
     }
 }
