@@ -61,7 +61,7 @@ public class SchemaLocationErrorTests
     }
 
     [Test]
-    public async Task AnOddNumberOfTokensInSchemaLocation_IsALocatedIssueAndNothingIsLoaded()
+    public async Task AnOddNumberOfTokensInSchemaLocation_IsIgnoredAndNothingIsLoaded()
     {
         var resolver = HintFixture.Resolver();
         var validator = HintFixture.Build(resolver);
@@ -69,10 +69,7 @@ public class SchemaLocationErrorTests
 
         var result = HintFixture.Run(validator, instance);
 
-        var issue = await Assert.That(HintFixture.Errors(result)).HasSingleItem();
-        await Assert.That(issue!.Constraint).IsEqualTo("schema_reference");
-        await Assert.That(issue.Location.Source).IsEqualTo(HintFixture.InstanceId);
-        await Assert.That(issue.Location.Line).IsEqualTo(1);
+        await Assert.That(HintFixture.Errors(result)).IsEmpty();
         await Assert.That(resolver.Requests).IsEmpty();
     }
 

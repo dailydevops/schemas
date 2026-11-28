@@ -121,12 +121,8 @@ internal sealed class SchemaLocationHints
         var count = CountTokens(value);
         if (count % 2 != 0)
         {
-            Report(
-                location,
-                "The value of xsi:schemaLocation has "
-                    + count
-                    + " tokens, but it must list pairs of a namespace and a location."
-            );
+            // The attribute is a hint (Structures 4.3.2): a value that is not a list of pairs is skipped, so the
+            // schema set alone judges the instance, as System.Xml.Schema does.
             return model;
         }
 

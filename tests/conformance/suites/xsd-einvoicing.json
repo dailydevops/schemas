@@ -101,16 +101,5 @@
       "reason": "The value of the xs:token attribute type is only spaces. It collapses to the empty string, which is a valid xs:token (Datatypes 1.0, 3.3.2); System.Xml.Schema rejects it. The document breaks the Schematron rule TSR-37 only."
     }
   ],
-  "knownFailures": [
-    {
-      "id": "cen-cii-d16b-coupled/cii/examples/CII_example6.xml",
-      "issue": 1375,
-      "reason": "The xsi:schemaLocation hint of the example has one token and is rejected as an error."
-    },
-    {
-      "id": "cen-cii-d16b-uncoupled/cii/examples/CII_example6.xml",
-      "issue": 1375,
-      "reason": "The xsi:schemaLocation hint of the example has one token and is rejected as an error."
-    }
-  ]
+  "knownFailures": []
 }
