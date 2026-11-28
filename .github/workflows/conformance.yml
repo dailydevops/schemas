@@ -19,6 +19,7 @@ jobs:
         tfm: [ net10.0 ]
     env:
       SCHEMAS_CONFORMANCE_CACHE: ${{ github.workspace }}/.conformance-cache
+      SCHEMAS_CONFORMANCE_REPORT: ${{ github.workspace }}/conformance-report
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: actions/setup-dotnet@0f4a354dd5547a28c70b7853dbd95d5b67886e73 # v6
@@ -29,8 +30,16 @@ jobs:
         with:
           path: ${{ env.SCHEMAS_CONFORMANCE_CACHE }}
           key: conformance-suites-${{ hashFiles('tests/conformance/suites/*.json') }}
-      # The runners append one rate row per test set to the job summary (GITHUB_STEP_SUMMARY) through ConformanceRateReporter.
+      # The runners append one line per suite to the job summary (GITHUB_STEP_SUMMARY) through ConformanceRateReporter; only failed cases are listed one by one.
       - name: Test ${{ matrix.tfm }}
         run: >
           dotnet test --solution ./Schemas.slnx --framework ${{ matrix.tfm }} --configuration Release
           --treenode-filter "/*/*/*/*[Category=Conformance]" --ignore-exit-code 8
+      # The runners write every case of the run, one JSON line per case, to SCHEMAS_CONFORMANCE_REPORT through ConformanceReportFile.
+      - name: Upload report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: conformance-report-${{ matrix.tfm }}
+          path: ${{ env.SCHEMAS_CONFORMANCE_REPORT }}
+          if-no-files-found: warn

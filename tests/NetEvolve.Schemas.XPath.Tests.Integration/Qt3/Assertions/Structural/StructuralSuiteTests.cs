@@ -11,7 +11,7 @@ public class StructuralSuiteTests
 {
     private static readonly string[] Kinds = ["assert-deep-eq", "assert-permutation", "assert-type", "assert-xml"];
 
-    /// <summary>Runs every structural case of the selection: none stays skipped, and the report goes to the test output and the job summary.</summary>
+    /// <summary>Runs every structural case of the selection: none stays skipped, and the report goes to the test output.</summary>
     [Test]
     public async Task Suite_EveryStructuralCaseMovedOutOfTheSkippedBucket(CancellationToken cancellationToken)
     {
@@ -30,11 +30,6 @@ public class StructuralSuiteTests
         var movement = StructuralMovement.Count(cases, Qt3Runner.Run(cases, engine));
         var report = StructuralMovement.Render(movement);
         await TestContext.Current!.OutputWriter.WriteLineAsync(report.AsMemory(), cancellationToken);
-        var summary = Environment.GetEnvironmentVariable(ConformanceRateReporter.SummaryVariable);
-        if (!string.IsNullOrEmpty(summary))
-        {
-            await File.AppendAllTextAsync(summary, "### Structural QT3 assertions\n\n" + report, cancellationToken);
-        }
 
         var skipped = 0;
         var moved = 0;

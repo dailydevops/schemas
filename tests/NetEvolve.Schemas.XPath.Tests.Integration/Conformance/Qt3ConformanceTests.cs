@@ -34,7 +34,6 @@ public class Qt3ConformanceTests
         };
 
         var report = ConformanceReport.Compare(results, baselines);
-        Qt3Xp20Rate.Collect(report.Counts);
         ConformanceRateReporter.Collect(
             "NetEvolve.Schemas.XPath",
             TargetFrameworkName.Of(typeof(Qt3ConformanceTests).Assembly),

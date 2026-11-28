@@ -337,7 +337,7 @@ The package is measured against the official Schematron conformance suite, relea
 
 **134 of 166 applicable cases pass, a rate of 80.7%** on `net10.0`, the leg that runs the suites. The other cases are the 32 known failures below, and 3 excluded cases do not count. The 84 selected cases run once per selected binding, so a case that fails under both bindings counts twice and the lists below name it once. Every known failure is a case of the committed baseline in `tests/conformance/baselines/schematron-conformance/` (32 baseline entries in 10 files, one file per test set), linked to an issue; a regression and an unexpected pass fail the run.
 
-Reproduce the numbers on a clone: set `GITHUB_STEP_SUMMARY` to a file and run the conformance tests; the table of the rate per test set is appended to that file.
+Reproduce the numbers on a clone: set `GITHUB_STEP_SUMMARY` to a file and run the conformance tests; one line per suite with its counts and its rate is appended to that file, and a failed case is listed below its line.
 
 ```bash
 dotnet test --project tests/NetEvolve.Schemas.Schematron.Tests.Integration --configuration Release --framework net10.0 --treenode-filter "/*/*Conformance*/*/*"
