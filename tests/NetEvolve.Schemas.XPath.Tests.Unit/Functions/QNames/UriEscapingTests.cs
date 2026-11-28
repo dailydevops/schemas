@@ -52,14 +52,32 @@ public class UriEscapingTests
         await Assert.That(Run("iri-to-uri", text)).IsEqualTo(expected);
 
     [Test]
+    [Arguments(Unreserved + Reserved + " ", "string:" + Unreserved + Reserved + " ")]
+    [Arguments("", "string:")]
+    [Arguments("<>\"{}|\\^`%", "string:<>\"{}|\\^`%")]
+    [Arguments("\u0001\u001F\u007F", "string:%01%1F%7F")]
+    [Arguments(
+        "http://www.example.com/00/Weather/CA/Los%20Angeles#ocean",
+        "string:http://www.example.com/00/Weather/CA/Los%20Angeles#ocean"
+    )]
+    [Arguments("http://www.example.com/~b\u00E9b\u00E9", "string:http://www.example.com/~b%C3%A9b%C3%A9")]
+    [Arguments("\u20AC", "string:%E2%82%AC")]
+    [Arguments("\uD83D\uDE00", "string:%F0%9F%98%80")]
+    [Arguments("a\uD800b", "string:a%EF%BF%BDb")]
+    public async Task EscapeHtmlUri_EscapesOnlyTheCharactersBeyondPrintableAscii(string text, string expected) =>
+        await Assert.That(Run("escape-html-uri", text)).IsEqualTo(expected);
+
+    [Test]
     [Arguments("encode-for-uri")]
     [Arguments("iri-to-uri")]
+    [Arguments("escape-html-uri")]
     public async Task TheFunctions_TheEmptySequence_GivesTheEmptyString(string function) =>
         await Assert.That(QNamesHarness.Run(function, "()")).IsEqualTo("string:");
 
     [Test]
     [Arguments("encode-for-uri")]
     [Arguments("iri-to-uri")]
+    [Arguments("escape-html-uri")]
     public async Task TheFunctions_AUriOrUntypedArgument_IsReadAsAString(string function)
     {
         await Assert.That(QNamesHarness.Run(function, "anyURI:a b")).IsEqualTo("string:a%20b");
@@ -69,6 +87,7 @@ public class UriEscapingTests
     [Test]
     [Arguments("encode-for-uri")]
     [Arguments("iri-to-uri")]
+    [Arguments("escape-html-uri")]
     public async Task TheFunctions_AnArgumentOfTheWrongTypeOrCardinality_IsXPTY0004(string function)
     {
         await Assert.That(QNamesHarness.Run(function, "integer:12")).IsEqualTo("error:XPTY0004");
@@ -78,6 +97,7 @@ public class UriEscapingTests
     [Test]
     [Arguments("encode-for-uri")]
     [Arguments("iri-to-uri")]
+    [Arguments("escape-html-uri")]
     public async Task TheFunctions_AnInputBeyondTheStackBuffer_IsEscapedInFull(string function)
     {
         // 400 characters of U+00E9 are 2 UTF-8 octets each: 6 characters of output per input character, beyond any stack buffer.
@@ -94,6 +114,7 @@ public class UriEscapingTests
     [Arguments("encode-for-uri", "abc-DEF_012.~")]
     [Arguments("iri-to-uri", "abc-DEF_012.~")]
     [Arguments("iri-to-uri", "http://www.example.com/a%20b?c=d&e=f#g")]
+    [Arguments("escape-html-uri", "http://www.example.com/a%20b?c=d&e=f#g <>")]
     public async Task TheFunctions_AnInputWithoutACharacterToEscape_IsReturnedAsTheSameString(
         string function,
         string text
@@ -109,6 +130,7 @@ public class UriEscapingTests
     [Test]
     [Arguments("encode-for-uri")]
     [Arguments("iri-to-uri")]
+    [Arguments("escape-html-uri")]
     public async Task TheFunctions_AnInputWithACharacterToEscape_IsANewString(string function)
     {
         var input = new string("a b".AsSpan());
