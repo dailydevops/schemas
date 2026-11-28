@@ -347,7 +347,7 @@ public class XIncludeErrorTests
         var outcome = Run(Doc(Inc("p.xml", string.Empty, "text<!--c--><?p d?><ext><deep/></ext>")), files);
 
         await Assert.That(outcome.Ok).IsTrue();
-        await Assert.That(outcome.Text).IsEqualTo("<root><p base=\"file:///a/p.xml\"></p></root>");
+        await Assert.That(outcome.Text).IsEqualTo("<root><p base=\"p.xml\"></p></root>");
     }
 
     [Test]

@@ -1,5 +1,3 @@
-imaq-include-xml-01
-imaq-include-xml-02
 imaq-include-xml-04
 imaq-pex1-01
 imaq-pex11-05

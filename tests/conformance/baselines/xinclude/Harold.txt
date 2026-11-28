@@ -4,7 +4,6 @@ harold-03
 harold-04
 harold-05
 harold-06
-harold-07
 harold-08
 harold-09
 harold-10
@@ -12,17 +11,11 @@ harold-11
 harold-12
 harold-13
 harold-14
-harold-18
-harold-20
 harold-21
 harold-22
-harold-27
 harold-28
 harold-29
-harold-32
 harold-34
-harold-35
-harold-36
 harold-40
 harold-41
 harold-42
