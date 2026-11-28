@@ -2,10 +2,20 @@ namespace NetEvolve.Schemas.Xml.Datatypes.Core;
 
 using System;
 using NetEvolve.Schemas.Xml.Buffers;
+#if NET10_0_OR_GREATER
+using System.Buffers;
+#endif
 
 /// <summary>The whitespace processing of the <c>whiteSpace</c> facet on spans. Normalized input is passed through without a copy.</summary>
 internal static class WhitespaceNormalizer
 {
+#if NET10_0_OR_GREATER
+    private static readonly SearchValues<char> XmlSpaces = SearchValues.Create(" \t\n\r");
+
+    /// <summary>The length from which a vectorized search beats the character loop; shorter forms keep the loop.</summary>
+    private const int BulkLength = 32;
+#endif
+
     /// <summary>Normalizes <paramref name="source"/> into <paramref name="destination"/>, which must be at least as long as the source.</summary>
     /// <param name="source">The lexical form.</param>
     /// <param name="mode">The whitespace mode.</param>
@@ -19,6 +29,13 @@ internal static class WhitespaceNormalizer
             source.CopyTo(destination);
             return source.Length;
         }
+
+#if NET10_0_OR_GREATER
+        if (source.Length >= BulkLength)
+        {
+            return NormalizeRuns(source, mode, destination);
+        }
+#endif
 
         var length = 0;
         var pendingSpace = false;
@@ -48,6 +65,53 @@ internal static class WhitespaceNormalizer
         return length;
     }
 
+#if NET10_0_OR_GREATER
+    private static int NormalizeRuns(ReadOnlySpan<char> source, WhitespaceMode mode, Span<char> destination)
+    {
+        var length = 0;
+        var pendingSpace = false;
+        var i = 0;
+        while (i < source.Length)
+        {
+            var run = source.Slice(i).IndexOfAny(XmlSpaces);
+            if (run < 0)
+            {
+                run = source.Length - i;
+            }
+
+            if (run > 0)
+            {
+                if (pendingSpace)
+                {
+                    destination[length++] = ' ';
+                    pendingSpace = false;
+                }
+
+                source.Slice(i, run).CopyTo(destination.Slice(length));
+                length += run;
+                i += run;
+                if (i == source.Length)
+                {
+                    break;
+                }
+            }
+
+            if (mode == WhitespaceMode.Replace)
+            {
+                destination[length++] = ' ';
+            }
+            else
+            {
+                pendingSpace = length > 0;
+            }
+
+            i++;
+        }
+
+        return length;
+    }
+#endif
+
     /// <summary>Determines whether the mode would leave <paramref name="source"/> unchanged.</summary>
     /// <param name="source">The lexical form.</param>
     /// <param name="mode">The whitespace mode.</param>
@@ -59,8 +123,27 @@ internal static class WhitespaceNormalizer
             return true;
         }
 
+        if (mode == WhitespaceMode.Replace)
+        {
+            return source.IndexOfAny('\t', '\n', '\r') < 0;
+        }
+
+        var i = 0;
         var previousSpace = true; // starts true so a leading space counts as a collapsible one
-        for (var i = 0; i < source.Length; i++)
+#if NET10_0_OR_GREATER
+        if (source.Length >= BulkLength)
+        {
+            i = source.IndexOfAny(XmlSpaces);
+            if (i < 0)
+            {
+                return true;
+            }
+
+            previousSpace = i == 0; // a white space found later follows a non-space character
+        }
+#endif
+
+        for (; i < source.Length; i++)
         {
             var c = source[i];
             if (c is '\t' or '\n' or '\r')
@@ -68,7 +151,7 @@ internal static class WhitespaceNormalizer
                 return false;
             }
 
-            if (mode == WhitespaceMode.Collapse && c == ' ' && previousSpace)
+            if (c == ' ' && previousSpace)
             {
                 return false;
             }
@@ -76,7 +159,7 @@ internal static class WhitespaceNormalizer
             previousSpace = c == ' ';
         }
 
-        return mode != WhitespaceMode.Collapse || source.IsEmpty || !previousSpace;
+        return source.IsEmpty || !previousSpace;
     }
 
     /// <summary>Applies the mode, renting a buffer only when the text changes.</summary>

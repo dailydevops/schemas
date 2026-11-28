@@ -130,7 +130,7 @@ internal sealed class SimpleTypeValidator
             return _atomic.Validate(lexical);
         }
 
-        if (!_collapse || IsCollapsed(lexical))
+        if (!_collapse || WhitespaceNormalizer.IsNormalized(lexical, WhitespaceMode.Collapse))
         {
             return Check(lexical);
         }
@@ -139,7 +139,7 @@ internal sealed class SimpleTypeValidator
         try
         {
             var buffer = rented is null ? stackalloc char[Scratch] : new Span<char>(rented);
-            return Check(buffer.Slice(0, Collapse(lexical, buffer)));
+            return Check(buffer.Slice(0, WhitespaceNormalizer.Normalize(lexical, WhitespaceMode.Collapse, buffer)));
         }
         finally
         {
@@ -182,43 +182,5 @@ internal sealed class SimpleTypeValidator
         }
 
         return ValidationResult.Valid;
-    }
-
-    private static bool IsCollapsed(ReadOnlySpan<char> text)
-    {
-        for (var i = 0; i < text.Length; i++)
-        {
-            var c = text[i];
-            if (c is '\t' or '\n' or '\r' || (c == ' ' && (i == 0 || i == text.Length - 1 || text[i - 1] == ' ')))
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private static int Collapse(ReadOnlySpan<char> text, Span<char> destination)
-    {
-        var length = 0;
-        var pending = false;
-        foreach (var c in text)
-        {
-            if (c is ' ' or '\t' or '\n' or '\r')
-            {
-                pending = length > 0;
-                continue;
-            }
-
-            if (pending)
-            {
-                destination[length++] = ' ';
-                pending = false;
-            }
-
-            destination[length++] = c;
-        }
-
-        return length;
     }
 }

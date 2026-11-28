@@ -164,4 +164,105 @@ public class WhitespaceNormalizerTests
             .That(WhitespaceNormalizer.ToSourceOffset("a\tb".AsSpan(), WhitespaceMode.Preserve, 2))
             .IsEqualTo(2);
     }
+
+    [Test]
+    [Arguments(WhitespaceMode.Preserve)]
+    [Arguments(WhitespaceMode.Replace)]
+    [Arguments(WhitespaceMode.Collapse)]
+    public async Task GeneratedForms_MatchTheCharacterLoops(WhitespaceMode mode)
+    {
+        var random = new Random(1293);
+        const string alphabet = "ab \t\n\r";
+        for (var length = 0; length <= 300; length++)
+        {
+            for (var round = 0; round < 6; round++)
+            {
+                // round 0 and 1 keep white space rare so the long forms reach the vectorized path; the others mix it densely
+                var chars = new char[length];
+                for (var i = 0; i < length; i++)
+                {
+                    chars[i] = round < 2 && random.Next(40) != 0 ? 'x' : alphabet[random.Next(alphabet.Length)];
+                }
+
+                if (length > 0 && round % 3 == 0)
+                {
+                    chars[0] = ' ';
+                }
+
+                if (length > 1 && round % 2 == 0)
+                {
+                    chars[length - 1] = ' ';
+                }
+
+                var source = new string(chars);
+                await Assert
+                    .That(WhitespaceNormalizer.IsNormalized(source, mode))
+                    .IsEqualTo(ReferenceIsNormalized(source, mode));
+                await Assert.That(Normalize(source, mode)).IsEqualTo(ReferenceNormalize(source, mode));
+            }
+        }
+    }
+
+    private static bool ReferenceIsNormalized(string source, WhitespaceMode mode)
+    {
+        if (mode == WhitespaceMode.Preserve)
+        {
+            return true;
+        }
+
+        var previousSpace = true;
+        foreach (var c in source)
+        {
+            if (c is '\t' or '\n' or '\r')
+            {
+                return false;
+            }
+
+            if (mode == WhitespaceMode.Collapse && c == ' ' && previousSpace)
+            {
+                return false;
+            }
+
+            previousSpace = c == ' ';
+        }
+
+        return mode != WhitespaceMode.Collapse || source.Length == 0 || !previousSpace;
+    }
+
+    private static string ReferenceNormalize(string source, WhitespaceMode mode)
+    {
+        if (mode == WhitespaceMode.Preserve)
+        {
+            return source;
+        }
+
+        var builder = new System.Text.StringBuilder();
+        var pending = false;
+        foreach (var c in source)
+        {
+            if (c is ' ' or '\t' or '\n' or '\r')
+            {
+                if (mode == WhitespaceMode.Replace)
+                {
+                    _ = builder.Append(' ');
+                }
+                else
+                {
+                    pending = builder.Length > 0;
+                }
+
+                continue;
+            }
+
+            if (pending)
+            {
+                _ = builder.Append(' ');
+                pending = false;
+            }
+
+            _ = builder.Append(c);
+        }
+
+        return builder.ToString();
+    }
 }
