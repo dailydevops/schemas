@@ -10,9 +10,10 @@ using NetEvolve.Schemas.XPath.Limits;
 /// <c>SpecialCasing.txt</c> of the one pinned Unicode version, so every target framework gives the same result and no culture is consulted.
 /// </summary>
 /// <remarks>
-/// Limitations: the conditional mappings of <c>SpecialCasing.txt</c> are not applied (the Final_Sigma rule of lower-case, and the
-/// mappings for Lithuanian, Turkish, and Azeri), so a capital sigma always becomes the small sigma and the case mapping is culture-invariant,
-/// as the work package states; the Final_Sigma rule is tracked in #678. A surrogate that is not part of a valid pair maps to itself.
+/// The Final_Sigma rule of lower-case is applied (a capital sigma at the end of a word becomes the final small sigma U+03C2), with the
+/// Cased and Case_Ignorable ranges of <c>DerivedCoreProperties.txt</c>.
+/// Limitations: the other conditional mappings of <c>SpecialCasing.txt</c> (Lithuanian, Turkish, and Azeri) are not applied, so the case
+/// mapping is culture-invariant, as the work package states. A surrogate that is not part of a valid pair maps to itself.
 /// </remarks>
 internal static class CaseMapping
 {
@@ -20,6 +21,8 @@ internal static class CaseMapping
     internal const int MaxExpansion = 3;
 
     private const int MaxCodePoint = 0x10FFFF;
+    private const int CapitalSigma = 0x3A3;
+    private const int FinalSmallSigma = 0x3C2;
     private const int InitialBuffer = 256;
 
     /// <summary>Maps one code point.</summary>
@@ -110,7 +113,15 @@ internal static class CaseMapping
                     continue;
                 }
 
-                var count = Map(CodePoints.Next(span, ref index), upper, mapped);
+                var start = index;
+                var codePoint = CodePoints.Next(span, ref index);
+                if (!upper && codePoint == CapitalSigma && IsFinalSigma(span, start, index))
+                {
+                    builder.AppendCodePoint(FinalSmallSigma);
+                    continue;
+                }
+
+                var count = Map(codePoint, upper, mapped);
                 for (var i = 0; i < count; i++)
                 {
                     builder.AppendCodePoint(mapped[i]);
@@ -123,6 +134,73 @@ internal static class CaseMapping
         {
             builder.Dispose();
         }
+    }
+
+    // Final_Sigma (SpecialCasing.txt): the sigma is preceded by a cased letter and case-ignorable characters, and is not followed by
+    // case-ignorable characters and a cased letter. A character that is both cased and case ignorable counts as cased.
+    private static bool IsFinalSigma(ReadOnlySpan<char> text, int start, int end)
+    {
+        var before = false;
+        for (var i = start; i > 0; )
+        {
+            var codePoint = Previous(text, ref i);
+            if (InRanges(codePoint, CaseMappingTables.CasedFirst, CaseMappingTables.CasedLast))
+            {
+                before = true;
+                break;
+            }
+
+            if (!InRanges(codePoint, CaseMappingTables.CaseIgnorableFirst, CaseMappingTables.CaseIgnorableLast))
+            {
+                break;
+            }
+        }
+
+        if (!before)
+        {
+            return false;
+        }
+
+        for (var i = end; i < text.Length; )
+        {
+            var codePoint = CodePoints.Next(text, ref i);
+            if (InRanges(codePoint, CaseMappingTables.CasedFirst, CaseMappingTables.CasedLast))
+            {
+                return false;
+            }
+
+            if (!InRanges(codePoint, CaseMappingTables.CaseIgnorableFirst, CaseMappingTables.CaseIgnorableLast))
+            {
+                break;
+            }
+        }
+
+        return true;
+    }
+
+    // Reads the code point that ends at the index and moves the index to its start.
+    private static int Previous(ReadOnlySpan<char> text, ref int index)
+    {
+        var unit = text[--index];
+        if (char.IsLowSurrogate(unit) && index > 0 && char.IsHighSurrogate(text[index - 1]))
+        {
+            return char.ConvertToUtf32(text[--index], unit);
+        }
+
+        return unit;
+    }
+
+    // Whether the code point lies in one of the sorted ranges.
+    private static bool InRanges(int codePoint, int[] first, int[] last)
+    {
+        var index = Array.BinarySearch(first, codePoint);
+        if (index >= 0)
+        {
+            return true;
+        }
+
+        index = ~index - 1;
+        return index >= 0 && codePoint <= last[index];
     }
 
     // The index of the first code unit whose code point maps to something else, or -1 when nothing changes.
