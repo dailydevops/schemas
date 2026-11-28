@@ -33,9 +33,13 @@ using NetEvolve.Schemas.XPath.Xdm.Nodes;
 /// the list of the top-level elements of the schema, so its Schematron elements neither precede nor follow an import.
 /// </para>
 /// <para>
-/// Limitations: the sum of the sizes of all modules of a build is not bounded by <c>MaxInputSize</c> (the loaded module carries no
-/// size; each module is bounded by <c>MaxResourceSize</c>, the number of modules by <c>MaxExternalResources</c>); <c>xml:base</c>
-/// is not applied; the version attribute of the module root is not checked.
+/// The sum of the sizes of all modules of a build is bounded by <c>MaxInputSize</c>, on top of <c>MaxResourceSize</c> for each
+/// module and <c>MaxExternalResources</c> for their number: the loader keeps one running sum per build (the Schematron
+/// <c>include</c> counts too) and reports NES0007 at the reference whose module crosses it. A module that is reached again is not
+/// loaded again, so a diamond counts it once.
+/// </para>
+/// <para>
+/// Limitations: <c>xml:base</c> is not applied; the version attribute of the module root is not checked.
 /// </para>
 /// </remarks>
 internal sealed class XsltModuleLinker

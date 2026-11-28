@@ -20,6 +20,13 @@ using NetEvolve.Schemas.XPath.Xdm.Nodes;
 /// document is capped by <see cref="ValidationLimits.MaxResourceSize"/>.
 /// </para>
 /// <para>
+/// The loader also keeps one running sum of the bytes of every module it fetched, for the Schematron <c>include</c> and the
+/// XSLT <c>xsl:include</c> and <c>xsl:import</c> alike, and reports <see cref="CoreDiagnosticCodes.ResourceSizeLimitExceeded"/>
+/// (NES0007) at the reference whose module takes the sum above <see cref="ValidationLimits.MaxInputSize"/> (design #150 EP-14,
+/// example M8). The loader does not de-duplicate, so a module counts once per load; the XSLT linker loads a module that is reached
+/// again (a diamond) only once, and so counts it once.
+/// </para>
+/// <para>
 /// Limitations: <c>xml:base</c> and <c>xml:lang</c> are not applied (decision Q10 of design #106, section 11 of design #137):
 /// the base URI of a loaded module is its system identifier. A document that is not well formed is reported with
 /// <see cref="SchematronDiagnosticCodes.ModuleInvalid"/>; the reader limits are the reader defaults.
@@ -28,6 +35,7 @@ using NetEvolve.Schemas.XPath.Xdm.Nodes;
 internal sealed class ModuleLoader : IModuleLoader
 {
     private readonly IncludeFetcher _fetcher;
+    private long _totalSize;
 
     internal ModuleLoader(IResourceResolver resolver, ValidationLimits limits)
     {
@@ -67,6 +75,17 @@ internal sealed class ModuleLoader : IModuleLoader
             )
         )
         {
+            return false;
+        }
+
+        _totalSize += content.Length;
+        if (_totalSize > _fetcher.Limits.MaxInputSize)
+        {
+            problem = new SchematronProblem(
+                CoreDiagnosticCodes.ResourceSizeLimitExceeded,
+                $"The modules of the build exceed {_fetcher.Limits.MaxInputSize} bytes in total at '{systemId}'.",
+                reference.Location
+            );
             return false;
         }
 
