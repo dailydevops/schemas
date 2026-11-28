@@ -89,7 +89,7 @@ public class CaseMappingTests
 
             // A cased letter precedes the sigma, then the code point: the sigma is final unless the code point is neither cased nor ignorable.
             var before = CaseMapping.ToLower("\u0391" + text + "\u03A3", XPathLimits.Default);
-            if (before.EndsWith('\u03C2') != (cased[cp] || ignorable[cp]))
+            if ((before[^1] == '\u03C2') != (cased[cp] || ignorable[cp]))
             {
                 failures.Add($"before U+{cp:X4}");
             }
@@ -114,6 +114,9 @@ public class CaseMappingTests
         await Assert
             .That(CaseMapping.ToLower("\u0391\u03A3\uDC00", XPathLimits.Default))
             .IsEqualTo("\u03B1\u03C2\uDC00");
+        await Assert
+            .That(CaseMapping.ToLower("\u0391\uDC00\u03A3", XPathLimits.Default))
+            .IsEqualTo("\u03B1\uDC00\u03C3");
     }
 
     [Test]
