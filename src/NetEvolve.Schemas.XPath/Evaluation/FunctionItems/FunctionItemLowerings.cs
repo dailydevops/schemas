@@ -175,8 +175,15 @@ internal static class FunctionItemLowerings
 
             var body = context.Lower(node.Body);
             var free = new XPathQName[frame.FreeNames.Count];
-            frame.FreeNames.CopyTo(free);
-            return new FunctionItemNode(new FunctionSignature(types, result), names, body, free);
+            var freeSlots = new int[free.Length];
+            var next = 0;
+            foreach (var entry in frame.FreeNames)
+            {
+                free[next] = entry.Key;
+                freeSlots[next++] = entry.Value;
+            }
+
+            return new FunctionItemNode(new FunctionSignature(types, result), names, body, free, freeSlots);
         }
         finally
         {

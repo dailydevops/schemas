@@ -28,6 +28,7 @@ public class SchematronCoreBenchmarkTargetsTests
                 }
             ),
             "SvrlWriteBenchmarks.WriteSvrl",
+            "LetRuleSetBenchmarks.ValidateMemory",
         ];
 
         var entries = await ReadTargets(cancellationToken);
@@ -63,6 +64,7 @@ public class SchematronCoreBenchmarkTargetsTests
             {
                 "SchemaCompilationBenchmarks",
                 "SvrlWriteBenchmarks",
+                "LetRuleSetBenchmarks",
                 "SmallRuleSetValidationBenchmarks",
                 "MediumRuleSetValidationBenchmarks",
                 "LargeRuleSetValidationBenchmarks",

@@ -65,11 +65,13 @@ internal static class CompatibilityFixture
         var context = new XPathEvaluationContext();
         var first = Tree.Document.FirstChild.FirstChild;
         var second = first.NextSibling;
-        context.Variables.Set(
-            new XPathQName(string.Empty, "a"),
-            XdmSequence.Create([XdmItem.FromNode(new XPathNode(first)), XdmItem.FromNode(new XPathNode(second))])
-        );
-        context.Variables.Set(new XPathQName(string.Empty, "b"), XdmItem.FromNode(new XPathNode(second.NextSibling)));
+        var a = XdmSequence.Create([XdmItem.FromNode(new XPathNode(first)), XdmItem.FromNode(new XPathNode(second))]);
+        var b = XdmSequence.Create(XdmItem.FromNode(new XPathNode(second.NextSibling)));
+        context.Variables.Set(new XPathQName(string.Empty, "a"), a);
+        context.Variables.Set(new XPathQName(string.Empty, "b"), b);
+
+        // The static context of the binding reads the variables by slot, in the order of VariableNames.
+        context.Variables.AttachSlots([a, b], [true, true]);
         return context;
     }
 

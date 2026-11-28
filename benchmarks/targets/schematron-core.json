@@ -8,5 +8,6 @@
   { "name": "MediumRuleSetValidationBenchmarks.ValidateMemory", "meanNs": 1059803.5, "allocatedBytes": 88590, "baselineRatio": 4.9 },
   { "name": "LargeRuleSetValidationBenchmarks.ValidateStream", "meanNs": 9835009.4, "allocatedBytes": 379575, "baselineRatio": 4.4 },
   { "name": "LargeRuleSetValidationBenchmarks.ValidateMemory", "meanNs": 9834742.1, "allocatedBytes": 379470, "baselineRatio": 4.4 },
-  { "name": "SvrlWriteBenchmarks.WriteSvrl", "meanNs": 5613863.0, "allocatedBytes": 163620 }
+  { "name": "SvrlWriteBenchmarks.WriteSvrl", "meanNs": 5613863.0, "allocatedBytes": 163620 },
+  { "name": "LetRuleSetBenchmarks.ValidateMemory", "meanNs": 2500000.0, "allocatedBytes": 103960 }
 ]

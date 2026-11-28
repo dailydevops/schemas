@@ -19,6 +19,7 @@ public sealed class XPathStaticContext
 
     private readonly Dictionary<string, string> _namespaces;
     private readonly Dictionary<XPathQName, string?> _variables;
+    private readonly Dictionary<XPathQName, int> _hostSlots;
     private readonly XPathFunctionLibrary[] _layers;
 
     private XPathStaticContext(Builder builder)
@@ -31,6 +32,7 @@ public sealed class XPathStaticContext
         HasRecursionDepth = builder.MaxRecursionDepth is not null;
         _namespaces = new Dictionary<string, string>(builder.Namespaces, StringComparer.Ordinal);
         _variables = new Dictionary<XPathQName, string?>(builder.Variables);
+        _hostSlots = new Dictionary<XPathQName, int>(builder.HostSlots);
         _layers = [.. builder.Layers];
     }
 
@@ -68,6 +70,9 @@ public sealed class XPathStaticContext
     internal bool TryGetVariableType(XPathQName name, out string? declaredType) =>
         _variables.TryGetValue(name, out declaredType);
 
+    // The slot of a variable that the host keeps in the slot array of the evaluation context (see XPathVariables.AttachSlots).
+    internal bool TryGetHostSlot(XPathQName name, out int slot) => _hostSlots.TryGetValue(name, out slot);
+
     internal bool TryResolveFunction(XPathQName name, int arity, out XPathHostFunction? function)
     {
         var version = (XPathVersionMask)(1 << (int)Version);
@@ -101,6 +106,7 @@ public sealed class XPathStaticContext
         {
             Namespaces = new Dictionary<string, string>(StringComparer.Ordinal) { ["xml"] = XmlNamespace };
             Variables = [];
+            HostSlots = [];
             Layers = [];
         }
 
@@ -113,6 +119,7 @@ public sealed class XPathStaticContext
             MaxRecursionDepth = source.HasRecursionDepth ? source.MaxRecursionDepth : null;
             Namespaces = new Dictionary<string, string>(source._namespaces, StringComparer.Ordinal);
             Variables = new Dictionary<XPathQName, string?>(source._variables);
+            HostSlots = new Dictionary<XPathQName, int>(source._hostSlots);
             Layers = [.. source._layers];
         }
 
@@ -129,6 +136,8 @@ public sealed class XPathStaticContext
         internal Dictionary<string, string> Namespaces { get; }
 
         internal Dictionary<XPathQName, string?> Variables { get; }
+
+        internal Dictionary<XPathQName, int> HostSlots { get; }
 
         internal List<XPathFunctionLibrary> Layers { get; }
 
@@ -203,6 +212,20 @@ public sealed class XPathStaticContext
         public Builder WithVariable(XPathQName name, string? declaredType = null)
         {
             Variables[name] = declaredType;
+            _ = HostSlots.Remove(name);
+            return this;
+        }
+
+        /// <summary>Declares a variable whose value the host keeps in a slot of the evaluation context; a later declaration of the name wins.</summary>
+        /// <param name="name">The variable name.</param>
+        /// <param name="hostSlot">The index into the slot array attached with <see cref="XPathVariables.AttachSlots"/>.</param>
+        /// <returns>This builder.</returns>
+        internal Builder WithVariable(XPathQName name, int hostSlot)
+        {
+            ArgumentOutOfRangeException.ThrowIfNegative(hostSlot);
+
+            Variables[name] = null;
+            HostSlots[name] = hostSlot;
             return this;
         }
 

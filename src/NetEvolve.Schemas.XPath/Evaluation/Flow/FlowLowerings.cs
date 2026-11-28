@@ -47,7 +47,13 @@ internal static class FlowLowerings
                 node.Inner is null ? new ConstantNode(XdmSequence.Empty) : context.Lower(node.Inner)
         );
         registry.Register<VariableReference>(
-            static (node, context) => new VariableNode(context.ResolveVariable(node.Name))
+            static (node, context) =>
+            {
+                var name = context.ResolveVariable(node.Name, out var hostSlot);
+
+                // The body of an inline function reads the closure, which is bound by name, so it keeps the name.
+                return hostSlot >= 0 && !context.InCapture ? new HostVariableNode(hostSlot) : new VariableNode(name);
+            }
         );
         registry.Register<SequenceExpression>(static (node, context) => LowerSequence(node, context));
         registry.Register<RangeExpression>(
