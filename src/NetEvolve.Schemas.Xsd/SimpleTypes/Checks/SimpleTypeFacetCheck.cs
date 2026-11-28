@@ -318,7 +318,15 @@ internal static class SimpleTypeFacetCheck
                     continue;
                 }
 
-                if (!_assessor.Assess(_baseType, _step[i].Value.AsSpan(), out _).IsValid)
+                // Datatypes 1.0, 3.2.17: the lexical space of anyURI is the URI references; XSD 1.1 accepts every string.
+                if (
+                    !_assessor.Assess(_baseType, _step[i].Value.AsSpan(), out _).IsValid
+                    || (
+                        _version == XsdVersion.V10
+                        && _facts.Primitive == PrimitiveKind.AnyUri
+                        && !AnyUriReference.IsValid(_step[i].Value.AsSpan())
+                    )
+                )
                 {
                     Report(
                         XsdRuleCodes.EnumerationValidRestriction,
