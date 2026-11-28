@@ -89,7 +89,9 @@ internal static class XPathEngine
             );
         }
 
-        if (!XPathParser.TryParse(text, out var syntax, out var diagnostic))
+        if (
+            !XPathParser.TryParse(text, XPathVersion.V20, context.MaxRecursionDepth, out var syntax, out var diagnostic)
+        )
         {
             return new XPathCompileResult(null, diagnostic);
         }
@@ -105,7 +107,7 @@ internal static class XPathEngine
             registry,
             out var compiled,
             out diagnostic,
-            null,
+            context.HasRecursionDepth ? XPathLimits.Default.WithMaxRecursionDepth(context.MaxRecursionDepth) : null,
             optimizations
         )
             ? new XPathCompileResult(new XPathExpression(compiled!), default)

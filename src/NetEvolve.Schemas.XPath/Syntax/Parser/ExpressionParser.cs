@@ -37,13 +37,19 @@ internal ref partial struct ExpressionParser
     private XPathToken _current;
     private int _lastEnd;
     private int _depth;
+    private readonly int _maxNestingDepth;
 
     /// <summary>Initializes a new instance of the <see cref="ExpressionParser"/> struct.</summary>
     /// <param name="text">The expression; it must outlive the parser.</param>
     /// <param name="version">
     /// The language version; the productions of XPath 3.0 apply from <see cref="XPathVersion.V30"/> on.
     /// </param>
-    public ExpressionParser(ReadOnlySpan<char> text, XPathVersion version = XPathVersion.V20)
+    /// <param name="maxNestingDepth">The deepest nesting accepted.</param>
+    public ExpressionParser(
+        ReadOnlySpan<char> text,
+        XPathVersion version = XPathVersion.V20,
+        int maxNestingDepth = XPathParser.MaxNestingDepth
+    )
     {
         _text = text;
         _v30 = version >= XPathVersion.V30;
@@ -52,6 +58,7 @@ internal ref partial struct ExpressionParser
         _current = _lexer.Next();
         _lastEnd = 0;
         _depth = 0;
+        _maxNestingDepth = maxNestingDepth;
     }
 
     /// <summary>Parses the whole input as one expression.</summary>
@@ -412,7 +419,7 @@ internal ref partial struct ExpressionParser
     // Each nesting construct passes through here; the bound turns hostile input into a diagnostic.
     private void Enter()
     {
-        if (++_depth > XPathParser.MaxNestingDepth)
+        if (++_depth > _maxNestingDepth)
         {
             throw Unexpected();
         }

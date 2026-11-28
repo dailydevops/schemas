@@ -15,6 +15,7 @@ public sealed class XPathStaticContext
 {
     private const string FunctionNamespace = "http://www.w3.org/2005/xpath-functions";
     private const string XmlNamespace = "http://www.w3.org/XML/1998/namespace";
+    private const int DefaultMaxRecursionDepth = 100;
 
     private readonly Dictionary<string, string> _namespaces;
     private readonly Dictionary<XPathQName, string?> _variables;
@@ -26,6 +27,8 @@ public sealed class XPathStaticContext
         XPath10Compatibility = builder.Compatibility;
         BaseUri = builder.BaseUri;
         DefaultElementNamespace = builder.DefaultElementNamespace;
+        MaxRecursionDepth = builder.MaxRecursionDepth ?? DefaultMaxRecursionDepth;
+        HasRecursionDepth = builder.MaxRecursionDepth is not null;
         _namespaces = new Dictionary<string, string>(builder.Namespaces, StringComparer.Ordinal);
         _variables = new Dictionary<XPathQName, string?>(builder.Variables);
         _layers = [.. builder.Layers];
@@ -45,6 +48,12 @@ public sealed class XPathStaticContext
 
     /// <summary>Gets the default element namespace, <see langword="null"/> for none.</summary>
     public string? DefaultElementNamespace { get; }
+
+    /// <summary>Gets the deepest nesting the compiler accepts; the parser rejects a deeper expression with XPST0003, and, when it was set, the lowering and the evaluation recurse under the same bound.</summary>
+    /// <remarks>The default is 100, the bound of the parser; until it is set, the lowering and the evaluation keep their own default depth.</remarks>
+    public int MaxRecursionDepth { get; }
+
+    internal bool HasRecursionDepth { get; }
 
     /// <summary>Gets the default function namespace.</summary>
     public string DefaultFunctionNamespace { get; } = FunctionNamespace;
@@ -101,6 +110,7 @@ public sealed class XPathStaticContext
             Compatibility = source.XPath10Compatibility;
             BaseUri = source.BaseUri;
             DefaultElementNamespace = source.DefaultElementNamespace;
+            MaxRecursionDepth = source.HasRecursionDepth ? source.MaxRecursionDepth : null;
             Namespaces = new Dictionary<string, string>(source._namespaces, StringComparer.Ordinal);
             Variables = new Dictionary<XPathQName, string?>(source._variables);
             Layers = [.. source._layers];
@@ -113,6 +123,8 @@ public sealed class XPathStaticContext
         internal Uri? BaseUri { get; private set; }
 
         internal string? DefaultElementNamespace { get; private set; }
+
+        internal int? MaxRecursionDepth { get; private set; }
 
         internal Dictionary<string, string> Namespaces { get; }
 
@@ -144,6 +156,19 @@ public sealed class XPathStaticContext
         public Builder WithBaseUri(Uri? uri)
         {
             BaseUri = uri;
+            return this;
+        }
+
+        /// <summary>Sets the deepest nesting the compiler accepts, for the parser and, with it, the lowering and the evaluation.</summary>
+        /// <param name="depth">The depth, from one to the recursion depth ceiling of 10,000; the default is 100.</param>
+        /// <returns>This builder.</returns>
+        /// <exception cref="System.ArgumentOutOfRangeException"><paramref name="depth"/> is below one or above the ceiling.</exception>
+        public Builder WithMaxRecursionDepth(int depth)
+        {
+            ArgumentOutOfRangeException.ThrowIfLessThan(depth, 1);
+            ArgumentOutOfRangeException.ThrowIfGreaterThan(depth, Limits.XPathLimits.MaxRecursionDepthCeiling);
+
+            MaxRecursionDepth = depth;
             return this;
         }
 
