@@ -147,9 +147,20 @@ public class InstanceXstsValidatorTests
     {
         cancellationToken.ThrowIfCancellationRequested();
         using var suite = Suite();
-        _ = suite.Write("n.xsd", Schema("<xs:element name=\"e\" type=\"xs:int\"/>").Replace("<xs:schema ", "<xs:schema targetNamespace=\"urn:n\" xmlns=\"urn:n\" "));
-        _ = suite.Write("hint-ok.xml", "<e xmlns=\"urn:n\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"urn:n n.xsd\">1</e>");
-        _ = suite.Write("hint-bad.xml", "<e xmlns=\"urn:n\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"urn:n n.xsd\">x</e>");
+        _ = suite.Write(
+            "n.xsd",
+            "<xs:schema xmlns:xs=\""
+                + Xs
+                + "\" targetNamespace=\"urn:n\" xmlns=\"urn:n\"><xs:element name=\"e\" type=\"xs:int\"/></xs:schema>"
+        );
+        _ = suite.Write(
+            "hint-ok.xml",
+            "<e xmlns=\"urn:n\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"urn:n n.xsd\">1</e>"
+        );
+        _ = suite.Write(
+            "hint-bad.xml",
+            "<e xmlns=\"urn:n\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"urn:n n.xsd\">x</e>"
+        );
         var validator = new InstanceXstsValidator(suite.Path);
 
         var valid = await validator.ValidateInstanceAsync(
