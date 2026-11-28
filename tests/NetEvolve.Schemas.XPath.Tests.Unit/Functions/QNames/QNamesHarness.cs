@@ -86,6 +86,21 @@ internal static class QNamesHarness
         return RunFunction(function!, setup, arguments);
     }
 
+    /// <summary>Resolves a function of the default catalog under a static context with the given static base URI and calls it.</summary>
+    internal static string RunWithStaticBaseUri(Uri? staticBaseUri, string local, params string[] arguments)
+    {
+        var statics = XPathStaticContext.Default.ToBuilder().WithBaseUri(staticBaseUri).Build();
+        var found = FunctionCatalog.Default.Registry.TryResolve(
+            statics,
+            new XPathQName(FunctionNamespace, local),
+            arguments.Length,
+            XPathHostRequirements.None,
+            out var function
+        );
+
+        return found ? RunFunction(function!, null, arguments) : "error:not-registered";
+    }
+
     /// <summary>Calls a given function instance.</summary>
     internal static string RunFunction(
         XPathFunction function,
