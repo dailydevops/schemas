@@ -41,6 +41,7 @@ internal sealed class XIncludeRun : IXmlSink, IDisposable
     private readonly XmlSymbol _encodingName;
     private readonly XmlName _xmlBase;
     private string? _base;
+    private Uri? _includingBase;
     private int _documentBase;
     private int _skip;
     private int _depth;
@@ -193,7 +194,7 @@ internal sealed class XIncludeRun : IXmlSink, IDisposable
                 // The xml:base of an included top-level element is relative to the included document.
                 _baseSeen = true;
                 var resolved = UriReference.Resolve(value.ToString(), _base).Uri ?? value.ToString();
-                _builder.Attribute(name, resolved.AsSpan());
+                _builder.Attribute(name, RelativeToIncluding(resolved).AsSpan());
             }
             else
             {
@@ -269,7 +270,7 @@ internal sealed class XIncludeRun : IXmlSink, IDisposable
         {
             if (top.FixBase && !_baseSeen)
             {
-                PutAttribute(_xmlBase, _base.AsSpan());
+                PutAttribute(_xmlBase, RelativeToIncluding(_base).AsSpan());
             }
 
             if (_carrier is not null)
@@ -590,12 +591,14 @@ internal sealed class XIncludeRun : IXmlSink, IDisposable
     private void Splice(XmlNode document, string systemId, XmlPosition site)
     {
         var outerBase = _base;
+        var outerIncluding = _includingBase;
         var outerDocumentBase = _documentBase;
         var outerFixed = _positionFixed;
         var outerPosition = _fixedPosition;
 
         _path.Add(systemId);
         _stack.Add(new Frame(FrameKind.Content, false, null, false));
+        _includingBase = Uri.TryCreate(outerBase, UriKind.Absolute, out var including) ? including : null;
         _base = systemId;
         _documentBase = _stack.Count;
         if (!_positionFixed)
@@ -617,9 +620,22 @@ internal sealed class XIncludeRun : IXmlSink, IDisposable
         _stack.RemoveAt(_stack.Count - 1);
         _path.RemoveAt(_path.Count - 1);
         _base = outerBase;
+        _includingBase = outerIncluding;
         _documentBase = outerDocumentBase;
         _positionFixed = outerFixed;
         _fixedPosition = outerPosition;
+    }
+
+    // XInclude 4.5.5: the xml:base of included content is relative to the including document where possible.
+    private string RelativeToIncluding(string? absolute)
+    {
+        if (_includingBase is null || !Uri.TryCreate(absolute, UriKind.Absolute, out var target))
+        {
+            return absolute ?? string.Empty;
+        }
+
+        var relative = _includingBase.MakeRelativeUri(target);
+        return relative.IsAbsoluteUri ? absolute! : Uri.UnescapeDataString(relative.OriginalString);
     }
 
     private bool IsOnPath(string systemId)

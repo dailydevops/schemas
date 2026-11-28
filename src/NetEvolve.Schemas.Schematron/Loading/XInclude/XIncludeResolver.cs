@@ -33,8 +33,8 @@ using NetEvolve.Schemas.Xml.Contracts;
 /// the schema was loaded from, because a tree has one source; the prefix bindings of <c>xi:include</c> and
 /// <c>xi:fallback</c> elements are declared on the top-level elements of fallback content unless the content declares the prefix
 /// itself, whereas XInclude 1.0 copies all in-scope namespaces (the default namespace and the XInclude namespace are not carried); the included document is not validated and its document
-/// type declaration is dropped. The tree is merged after the XInclude infoset rules except that <c>xml:base</c> is the absolute
-/// system identifier of the included document. The nesting of includes is recursive, bounded by
+/// type declaration is dropped. The tree is merged after the XInclude infoset rules with <c>xml:base</c> written relative to the
+/// including document where possible (section 4.5.5 of XInclude 1.0). The nesting of includes is recursive, bounded by
 /// <see cref="ValidationLimits.MaxDepth"/> and by a fixed cap of 256 nested includes
 /// (<see cref="CoreDiagnosticCodes.DepthLimitExceeded"/>).
 /// </para>
