@@ -2,6 +2,7 @@ namespace NetEvolve.Schemas.XPath.Tests.Unit.Compilation.Optimization;
 
 using System.Threading.Tasks;
 using NetEvolve.Schemas.XPath.Compilation.Optimization;
+using NetEvolve.Schemas.XPath.Context;
 using NetEvolve.Schemas.XPath.Evaluation.Arithmetic;
 using NetEvolve.Schemas.XPath.Evaluation.Comparison;
 using NetEvolve.Schemas.XPath.Evaluation.Flow;
@@ -13,6 +14,11 @@ public class ConstantFoldingTests
     private const XPathOptimizations Off = XPathOptimizations.All & ~XPathOptimizations.ConstantFolding;
 
     private static readonly ChildrenTree Tree = new(2);
+
+    private static readonly XPathStaticContext Statics = XPathStaticContext
+        .Default.ToBuilder()
+        .WithNamespace("xs", "http://www.w3.org/2001/XMLSchema")
+        .Build();
 
     [Test]
     [Arguments("1 + 2 * 3", "7")]
@@ -83,5 +89,49 @@ public class ConstantFoldingTests
         var on = Compile("'a' eq 'b'", XPathOptimizations.All);
 
         await Assert.That(on.Root).IsTypeOf<ValueComparisonNode>();
+    }
+
+    [Test]
+    [Arguments("'42' cast as xs:integer", "42")]
+    [Arguments("xs:integer('42')", "42")]
+    [Arguments("'42' castable as xs:integer", "true")]
+    [Arguments("'x' castable as xs:integer", "false")]
+    [Arguments("() cast as xs:integer?", "")]
+    [Arguments("() castable as xs:integer?", "true")]
+    [Arguments("xs:boolean(1)", "true")]
+    public async Task Fold_CastOverLiteral_BecomesOneConstantWithTheSameResult(string expression, string expected)
+    {
+        var on = Compile(expression, XPathOptimizations.All, Statics);
+        var off = Compile(expression, Off, Statics);
+
+        await Assert.That(on.Root).IsTypeOf<ConstantNode>();
+        await Assert.That(off.Root).IsNotTypeOf<ConstantNode>();
+        await Assert.That(Run(expression, XPathOptimizations.All, Tree, Statics)).IsEqualTo(expected);
+        await Assert.That(Run(expression, Off, Tree, Statics)).IsEqualTo(expected);
+    }
+
+    [Test]
+    [Arguments("'x' cast as xs:integer", "FORG0001")]
+    [Arguments("xs:integer('x')", "FORG0001")]
+    [Arguments("() cast as xs:integer", "XPTY0004")]
+    [Arguments("if (1 = 1) then 1 else 'x' cast as xs:integer", "1")]
+    public async Task Fold_FailingCast_StaysDynamic(string expression, string expected)
+    {
+        var on = Compile(expression, XPathOptimizations.All, Statics);
+
+        await Assert.That(on.Root is ConstantNode).IsEqualTo(expected == "1");
+        await Assert.That(Run(expression, XPathOptimizations.All, Tree, Statics)).IsEqualTo(expected);
+        await Assert.That(Run(expression, Off, Tree, Statics)).IsEqualTo(expected);
+    }
+
+    [Test]
+    public async Task Fold_CastOfNonLiteral_StaysACast()
+    {
+        var on = Compile("count(//x) cast as xs:string", XPathOptimizations.All, Statics);
+
+        await Assert.That(on.Root).IsNotTypeOf<ConstantNode>();
+        await Assert
+            .That(Compile("xs:integer(count(//x))", XPathOptimizations.All, Statics).Root)
+            .IsNotTypeOf<ConstantNode>();
     }
 }

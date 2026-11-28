@@ -53,6 +53,9 @@ internal sealed class CastNode : ExecutableNode
         _namespaces = namespaces;
     }
 
+    /// <summary>Gets the operand.</summary>
+    public ExecutableNode Operand => _operand;
+
     /// <inheritdoc />
     /// <exception cref="XPathException">The cast fails (FORG0001, FOCA0001, FOCA0002, FOCA0003, XPTY0004).</exception>
     public override XdmSequence Evaluate(XPathEvaluationContext context)
