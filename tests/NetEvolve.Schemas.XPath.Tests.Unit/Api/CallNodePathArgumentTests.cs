@@ -107,7 +107,7 @@ public class CallNodePathArgumentTests
         return (GC.GetAllocatedBytesForCurrentThread() - before) / Rounds;
     }
 
-    // The path result array alone is 24 + 24n bytes (n = 40 here), and the atomization adds another one for sum.
+    // The path result array alone is 24 + 24n bytes (n = 40 here).
     [Test]
     [Arguments("count(/r/x)")]
     [Arguments("exists(/r/x)")]
@@ -118,5 +118,35 @@ public class CallNodePathArgumentTests
         var bytes = BytesPerCall(expression, Xml(40));
 
         await Assert.That(bytes).IsLessThan(300);
+    }
+
+    // The string value of each node stays (about 24 bytes per node); the path array and the atomization array (3912 bytes together) go.
+    [Test]
+    [Arguments("sum(/r/x)", 1200)]
+    [Arguments("max(/r/x)", 2200)]
+    public async Task Call_OverAPathOfNodes_AllocatesNoItemArrays(string expression, int budget)
+    {
+        ArgumentNullException.ThrowIfNull(expression);
+
+        var bytes = BytesPerCall(expression, Xml(40));
+
+        await Assert.That(bytes).IsLessThan(budget);
+    }
+
+    // The comma operator makes the argument a node that is no item list producer, so that call takes the generic route.
+    [Test]
+    [Arguments("sum", "/r/x/string()")]
+    [Arguments("boolean", "/r/x/string()")]
+    [Arguments("boolean", "/r/x/number()")]
+    [Arguments("max", "/r/x/string()")]
+    [Arguments("min", "/r/x/number()")]
+    public async Task Call_OverAPath_GivesTheResultOfTheGenericRoute(string function, string path)
+    {
+        ArgumentNullException.ThrowIfNull(function);
+        ArgumentNullException.ThrowIfNull(path);
+
+        var xml = "<r><x>1</x><x>2</x></r>";
+
+        await Assert.That(Run($"{function}({path})", xml)).IsEqualTo(Run($"{function}(({path}, ()))", xml));
     }
 }
