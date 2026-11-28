@@ -12,7 +12,7 @@ class per function.
 | `fn:string-length`, `fn:normalize-space`                                          | 0..1  | without an argument they read the context item                                |
 | `fn:translate`                                                                    | 3     | the first occurrence in the map string wins                                   |
 | `fn:contains`, `fn:starts-with`, `fn:ends-with`, `fn:substring-before`, `fn:substring-after` | 2..3  | the third argument is the collation                         |
-| `fn:upper-case`, `fn:lower-case`                                                  | 1     | full case mappings (a sharp s gives two letters); Final_Sigma  |
+| `fn:upper-case`, `fn:lower-case`                                                  | 1     | full case mappings (a sharp s gives two letters); Final_Sigma                 |
 | `fn:normalize-unicode`                                                            | 1..2  | NFC, NFD, NFKC, NFKD                                                          |
 | `fn:codepoints-to-string`, `fn:string-to-codepoints`                              | 1     | FOCH0001 for a value that is not a character of XML                           |
 
