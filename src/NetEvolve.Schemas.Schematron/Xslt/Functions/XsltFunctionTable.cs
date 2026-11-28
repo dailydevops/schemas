@@ -1,5 +1,6 @@
 namespace NetEvolve.Schemas.Schematron.Xslt.Functions;
 
+using System;
 using System.Collections.Generic;
 using NetEvolve.Schemas.XPath.Api;
 
@@ -18,10 +19,20 @@ internal sealed class XsltFunctionTable
 
         _byName = byName;
         Count = count;
+        foreach (var overloads in byName.Values)
+        {
+            foreach (var function in overloads)
+            {
+                SlotEnd = Math.Max(SlotEnd, function.SlotBase + function.SlotCount);
+            }
+        }
     }
 
     /// <summary>Gets the number of functions.</summary>
     internal int Count { get; }
+
+    /// <summary>Gets the first slot above every slot of every function, which a global with a sequence constructor may use (#1160).</summary>
+    internal int SlotEnd { get; }
 
     /// <summary>Finds the function a call with an arity resolves to.</summary>
     /// <param name="name">The expanded name.</param>

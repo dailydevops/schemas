@@ -1,6 +1,7 @@
 namespace NetEvolve.Schemas.Schematron.Xslt.Globals;
 
 using System;
+using System.Collections.Generic;
 using NetEvolve.Schemas.Schematron.Scopes;
 using NetEvolve.Schemas.Schematron.Seams;
 using NetEvolve.Schemas.Schematron.Xslt.Functions;
@@ -18,8 +19,9 @@ using NetEvolve.Schemas.XPath.Xdm.Nodes;
 /// problem is reported through the context and the compile continues after one.
 /// </summary>
 /// <remarks>
-/// Limitations: the content form of a global (a sequence constructor in place of <see langword="select"/>, which builds a temporary
-/// tree) is #794 (the local form is #629); the attribute <see langword="static"/> and static parameters are an XSLT 3.0 feature (DEF-28, #40); the <see langword="as"/> type is limited to the
+/// Content form (#1160): a sequence constructor in place of <see langword="select"/> is only recorded here; the body is compiled after the
+/// functions (<see cref="TryCompileContent"/>), in slots above theirs, and run by the binder when the global is first used, with no focus.
+/// Limitations: the attribute <see langword="static"/> and static parameters are an XSLT 3.0 feature (DEF-28, #40); the <see langword="as"/> type is limited to the
 /// types the scopes of the package check (#392). Without <see langword="select"/> and content a variable is the empty string whether
 /// or not <see langword="as"/> is present, as for a local variable (#629); a parameter with <see langword="as"/> and without a default is
 /// required, because the empty sequence that XSLT 2.0 section 9.3 gives it does not match any of those types. A global that is not
@@ -62,8 +64,13 @@ internal static class XsltGlobalCompile
         executable = null!;
         var element = context.Element;
         var kind = isParameter ? "xsl:param" : "xsl:variable";
+        var hasSelect = XsltElementReader.TryGetAttribute(element, "select", out var select);
+        var hasContent = !hasSelect && XsltVariableInstruction.HasContent(element);
         var ok = TryReadName(context, kind, out var written, out var name);
-        ok &= XsltVariableInstruction.TryReadDeclaredType(context, written, out var declared);
+        string? declared = null;
+        ok &= hasContent
+            ? TryCheckContentType(context, written)
+            : XsltVariableInstruction.TryReadDeclaredType(context, written, out declared);
         ok &= TryRejectStatic(context, kind);
         var required = false;
         if (isParameter)
@@ -72,9 +79,8 @@ internal static class XsltGlobalCompile
             required = string.Equals(requiredText, "yes", StringComparison.Ordinal);
         }
 
-        var hasSelect = XsltElementReader.TryGetAttribute(element, "select", out var select);
-        ok &= XsltVariableInstruction.CheckContent(context, hasSelect, kind);
-        if (required && hasSelect)
+        ok &= hasContent || XsltVariableInstruction.CheckContent(context, hasSelect, kind);
+        if (required && (hasSelect || hasContent))
         {
             XsltProblems.Report(
                 context.Problems,
@@ -92,9 +98,10 @@ internal static class XsltGlobalCompile
         }
 
         // A typed parameter without a default is required: the empty sequence does not match the type (XSLT 2.0 section 9.3).
-        required |= isParameter && !hasSelect && XsltElementReader.TryGetAttribute(element, "as", out _);
+        required |= isParameter && !hasSelect && !hasContent && XsltElementReader.TryGetAttribute(element, "as", out _);
         var value =
-            hasSelect ? select
+            hasContent ? null
+            : hasSelect ? select
             : required ? null
             : "''";
         executable = new XsltGlobalDeclaration(
@@ -105,10 +112,66 @@ internal static class XsltGlobalCompile
                 declared,
                 isParameter,
                 required,
-                XsltElementResolver.LocationOf(element, null)
+                XsltElementResolver.LocationOf(element, null),
+                hasContent ? element : null
             )
         );
         return true;
+    }
+
+    /// <summary>
+    /// Compiles the sequence constructor of a content declaration (#1160), in the scope of the schema level whose names are padded up to
+    /// the first slot the body may use, so its locals never share a slot with a function or another global.
+    /// </summary>
+    /// <param name="context">The compile context of the declaration element.</param>
+    /// <param name="slot">The slot that the planner gave the global.</param>
+    /// <param name="content">The compiled body when the result is <see langword="true"/>.</param>
+    /// <returns><see langword="false"/> when a problem was reported through the context.</returns>
+    internal static bool TryCompileContent(XsltCompileContext context, int slot, out XsltGlobalContent content)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+
+        content = null!;
+        _ = XsltElementReader.TryGetAttribute(context.Element, "name", out var written);
+        if (!XsltVariableInstruction.TryCompileContent(context, written, slot, true, out var compiled))
+        {
+            return false;
+        }
+
+        var variable = (XsltVariableContentExecutable)compiled;
+        var reads = new List<int>();
+        foreach (var read in variable.ReferencedSlots)
+        {
+            if (read < context.Scope.VariableNames.Count)
+            {
+                reads.Add(read);
+            }
+        }
+
+        content = new XsltGlobalContent(variable, reads.ToArray());
+        return true;
+    }
+
+    // The as type of a content declaration is any sequence type of the function conversion rules, not only the four the scopes check.
+    private static bool TryCheckContentType(XsltCompileContext context, string written)
+    {
+        var element = context.Element;
+        if (
+            !XsltElementReader.TryGetAttribute(element, "as", out var typeText)
+            || XsltSequenceType.TryParse(typeText, XsltElementReader.StaticContext(element), out _, out var found)
+        )
+        {
+            return true;
+        }
+
+        XsltProblems.Report(
+            context.Problems,
+            SchematronDiagnosticCodes.ExpressionInvalid,
+            $"The type '{typeText}' of the variable '{written}' is not valid: {found.Message}",
+            element,
+            found.Code
+        );
+        return false;
     }
 
     // The name is a QName now; an unprefixed name of a variable is in no namespace.

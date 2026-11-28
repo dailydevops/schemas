@@ -24,6 +24,17 @@ internal interface IEmbeddedContent
         out SchematronProblem problem
     );
 
+    /// <summary>
+    /// Evaluates the sequence constructor of a global <c>xsl:variable</c> or <c>xsl:param</c> and binds the value to its slot (#1160).
+    /// The slots that the body reads are bound first, through <paramref name="binder"/>.
+    /// </summary>
+    /// <param name="run">The run that holds the value.</param>
+    /// <param name="binder">The binder of the run, for the slots that the body reads.</param>
+    /// <param name="slot">The slot of the global.</param>
+    /// <param name="problem">The problem when the result is <see cref="QueryStatus.Problem"/>.</param>
+    /// <returns><see cref="QueryStatus.Ok"/> when the slot is bound.</returns>
+    QueryStatus TryBindGlobalContent(IQueryRun run, ISlotBinder binder, int slot, out SchematronProblem problem);
+
     /// <summary>Begins the content of one referenced property.</summary>
     /// <returns>The builder, which receives the items and the text of the property in order.</returns>
     IFindingContentBuilder BeginFindingContent();

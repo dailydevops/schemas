@@ -15,10 +15,10 @@ using NetEvolve.Schemas.XPath.Xdm.Nodes;
 /// expression. The variable takes the next slot of the scope it is compiled in, so the compile scope of the instruction names
 /// exactly the variables declared before it; the caller of the sequence constructor adds the name for the later siblings. A sequence
 /// constructor in place of <see langword="select"/> builds a temporary tree with a document node, or, with <see langword="as"/>, the
-/// constructed sequence after the function conversion rules (<see cref="XsltVariableContentExecutable"/>, #629).
+/// constructed sequence after the function conversion rules (<see cref="XsltVariableContentExecutable"/>, #629); the global form is compiled by <see cref="XsltGlobalCompile.TryCompileContent"/> (#1160).
 /// </summary>
 /// <remarks>
-/// Limitations: the global form with content is left out (#794); with <see langword="select"/> the
+/// Limitations: with <see langword="select"/> the
 /// <see langword="as"/> type is limited to the types the scopes of the package check (<c>xs:string</c>, <c>xs:boolean</c>, <c>xs:double</c>, and
 /// <c>xs:integer</c>, #392) and is checked by the binding through the declared type of the scope. The entry is also the global
 /// <c>xsl:variable</c> (SCH-66, #252): a top-level element, which has the schema or a stylesheet module as its parent, is read by
@@ -51,7 +51,7 @@ internal sealed class XsltVariableInstruction : IXsltInstruction
         var hasSelect = XsltElementReader.TryGetAttribute(element, "select", out var select);
         if (!hasSelect && (HasContent(element) || XsltElementReader.TryGetAttribute(element, "as", out _)))
         {
-            return TryCompileContent(context, name, ok, out executable);
+            return TryCompileContent(context, name, scope.VariableNames.Count, ok, out executable);
         }
 
         ok &= TryReadDeclaredType(context, name, out var declared);
@@ -85,9 +85,10 @@ internal sealed class XsltVariableInstruction : IXsltInstruction
 
     // The content form: the sequence constructor is compiled with the slot of the variable named by an empty name, so that the
     // locals of the content take the slots above it and the variable does not see itself.
-    private static bool TryCompileContent(
+    internal static bool TryCompileContent(
         XsltCompileContext context,
         string name,
+        int slot,
         bool ok,
         out XsltExecutable executable
     )
@@ -119,7 +120,7 @@ internal sealed class XsltVariableInstruction : IXsltInstruction
 
         executable = new XsltVariableContentExecutable(
             name,
-            context.Scope.VariableNames.Count,
+            slot,
             type,
             body,
             XsltElementResolver.LocationOf(element, null),

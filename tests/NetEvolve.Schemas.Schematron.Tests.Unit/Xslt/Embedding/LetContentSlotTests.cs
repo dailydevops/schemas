@@ -43,6 +43,13 @@ public class LetContentSlotTests
             return QueryStatus.Ok;
         }
 
+        public QueryStatus TryBindGlobalContent(
+            IQueryRun run,
+            ISlotBinder binder,
+            int slot,
+            out SchematronProblem problem
+        ) => throw new System.NotSupportedException();
+
         public IFindingContentBuilder BeginFindingContent() => throw new System.NotSupportedException();
     }
 
@@ -63,6 +70,13 @@ public class LetContentSlotTests
             );
             return QueryStatus.Problem;
         }
+
+        public QueryStatus TryBindGlobalContent(
+            IQueryRun run,
+            ISlotBinder binder,
+            int slot,
+            out SchematronProblem problem
+        ) => throw new System.NotSupportedException();
 
         public IFindingContentBuilder BeginFindingContent() => throw new System.NotSupportedException();
     }

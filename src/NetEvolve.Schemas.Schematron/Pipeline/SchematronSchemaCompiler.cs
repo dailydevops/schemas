@@ -110,7 +110,16 @@ internal sealed class SchematronSchemaCompiler : ISchemaCompiler
                 problems,
                 out var withFunctions
             );
-            tables = withFunctions;
+            ok &= XsltDeclarations.TryCompileGlobalContents(
+                effective,
+                modules,
+                binding,
+                plan,
+                withFunctions,
+                problems,
+                out var withContents
+            );
+            tables = withContents;
         }
         else
         {

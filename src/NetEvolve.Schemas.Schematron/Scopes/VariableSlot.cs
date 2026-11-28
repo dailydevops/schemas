@@ -16,7 +16,8 @@ internal sealed class VariableSlot
         string? declaredType,
         SchematronProblem? staticProblem,
         bool isParameter = false,
-        IReadOnlyList<SchematronNode>? content = null
+        IReadOnlyList<SchematronNode>? content = null,
+        bool hasGlobalContent = false
     )
     {
         ArgumentNullException.ThrowIfNull(name);
@@ -31,6 +32,7 @@ internal sealed class VariableSlot
         StaticProblem = staticProblem;
         IsParameter = isParameter;
         Content = content;
+        HasGlobalContent = hasGlobalContent;
     }
 
     internal string Name { get; }
@@ -61,4 +63,10 @@ internal sealed class VariableSlot
     /// builds it into a temporary tree when the slot is read, and <see cref="Value"/> is <see langword="null"/> then.
     /// </summary>
     internal IReadOnlyList<SchematronNode>? Content { get; }
+
+    /// <summary>
+    /// Gets a value indicating whether the slot is a global <c>xsl:variable</c> or <c>xsl:param</c> with a sequence constructor (#1160),
+    /// whose compiled body the <see cref="IEmbeddedContent"/> of the run holds.
+    /// </summary>
+    internal bool HasGlobalContent { get; }
 }

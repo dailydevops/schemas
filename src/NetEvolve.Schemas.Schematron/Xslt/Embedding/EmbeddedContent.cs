@@ -1,9 +1,12 @@
 namespace NetEvolve.Schemas.Schematron.Xslt.Embedding;
 
 using System.Collections.Generic;
+using System.Threading;
 using NetEvolve.Schemas.Schematron.Model;
 using NetEvolve.Schemas.Schematron.Seams;
+using NetEvolve.Schemas.Schematron.Xslt.Construction;
 using NetEvolve.Schemas.Schematron.Xslt.Functions;
+using NetEvolve.Schemas.Schematron.Xslt.Globals;
 using NetEvolve.Schemas.Xml.Contracts;
 using NetEvolve.Schemas.Xml.Text.NameTable;
 using NetEvolve.Schemas.XPath.Xdm.Values;
@@ -73,6 +76,59 @@ internal sealed class EmbeddedContent : IEmbeddedContent
         }
 
         values.SetValue(slot, XdmSequence.Create(document));
+        return QueryStatus.Ok;
+    }
+
+    /// <summary>Gets or sets the compiled sequence constructors of the globals, by slot (#1160); <see langword="null"/> when there are none.</summary>
+    internal IReadOnlyDictionary<int, XsltGlobalContent>? GlobalContents { get; set; }
+
+    /// <summary>Gets or sets the token that the body of a global checks; the default is not cancelable.</summary>
+    internal CancellationToken CancellationToken { get; set; }
+
+    /// <inheritdoc />
+    public QueryStatus TryBindGlobalContent(IQueryRun run, ISlotBinder binder, int slot, out SchematronProblem problem)
+    {
+        ArgumentNullException.ThrowIfNull(run);
+        ArgumentNullException.ThrowIfNull(binder);
+
+        if (
+            run is not IXsltFunctionRun values
+            || GlobalContents is null
+            || !GlobalContents.TryGetValue(slot, out var content)
+        )
+        {
+            problem = new SchematronProblem(
+                SchematronDiagnosticCodes.XsltUnsupported,
+                "The run cannot build the value of a variable with a sequence constructor.",
+                default
+            );
+            return QueryStatus.Problem;
+        }
+
+        // The slots the body reads are bound first, from inside the evaluation of this slot, so that a read of the slot itself is a cycle.
+        var frame = new XsltFrame(run, CancellationToken) { Focus = XsltFunctionFocus.None };
+        if (binder.EnsureBound(content.SchemaSlots) == QueryStatus.Problem)
+        {
+            problem = run.GetProblem();
+            return QueryStatus.Problem;
+        }
+
+        // Like the body of a function, the body has no focus (XSLT 2.0 section 10.3 for the function, section 9.5 leaves the global its own).
+        values.EnterFunction();
+        try
+        {
+            if (content.Executable.TryExecute(frame, new ItemSequenceSink(_names)) == QueryStatus.Problem)
+            {
+                problem = frame.TakeProblem();
+                return QueryStatus.Problem;
+            }
+        }
+        finally
+        {
+            values.ExitFunction();
+        }
+
+        problem = default;
         return QueryStatus.Ok;
     }
 
