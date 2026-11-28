@@ -40,15 +40,14 @@ public class FailedLetInContextTests
         const string schema =
             "<schema xmlns=\"http://purl.oclc.org/dsdl/schematron\" queryBinding=\"xslt2\">"
             + "<let name=\"off\" value=\"false()\"/>"
-            + "<let name=\"unread\" value=\"normalize-space(/r/c)\"/>"
+            + "<let name=\"unread\" value=\"xs:integer('x')\"/>"
             + "<let name=\"read\" value=\"normalize-space(/r/d)\"/>"
             + "<pattern><rule context=\"/r/a[$off and $unread = 'x']\"><assert test=\"false()\">Never.</assert></rule>"
             + "<rule context=\"/r/b[$read = 'x']\"><assert test=\"false()\">Reads it.</assert></rule></pattern></schema>";
 
-        var result = Validate(Build(schema), "<r><a/><b/><c>1</c><c>2</c><d>1</d><d>2</d></r>");
+        var result = Validate(Build(schema), "<r><a/><b/><d>1</d><d>2</d></r>");
 
         await Assert.That(result.Issues.Count).IsEqualTo(1);
-        await Assert.That(result.Issues[0].Message).DoesNotContain("'unread'");
-        await Assert.That(result.Issues[0].Message).Contains("/r/d");
+        await Assert.That(result.Issues[0].Message).IsEqualTo("The type of a value does not match the required type.");
     }
 }

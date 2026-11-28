@@ -39,7 +39,7 @@ internal sealed class SlotBinder : ISlotBinder
     private readonly string?[] _external;
     private readonly int[] _stamps;
     private readonly byte[] _states;
-    private readonly List<SchematronProblem> _deferred = [];
+    private readonly List<(int Slot, SchematronProblem Problem)> _deferred = [];
     private int[] _stack = new int[16];
     private int _depth;
     private int _patternEpoch = 1;
@@ -164,7 +164,7 @@ internal sealed class SlotBinder : ISlotBinder
         // A failure that was held back is reported at the first read that is not deferred.
         if (status == QueryStatus.Problem && !_defer)
         {
-            FlushDeferred();
+            FlushDeferred(slots);
         }
 
         return status;
@@ -191,16 +191,47 @@ internal sealed class SlotBinder : ISlotBinder
         }
     }
 
-    /// <summary>Reports the problems of failed slots that <see cref="EnsureBoundDeferred"/> held back, once.</summary>
-    internal void FlushDeferred()
+    /// <summary>
+    /// Reports the held-back problems of the failed slots that <paramref name="slots"/> read, directly or through other slots, once. The
+    /// problem of a slot nobody reads stays held back: it is not an error.
+    /// </summary>
+    /// <param name="slots">The slots the failing expression reads.</param>
+    internal void FlushDeferred(ReadOnlySpan<int> slots)
     {
-        for (var i = 0; i < _deferred.Count; i++)
+        if (_deferred.Count == 0)
         {
-            var problem = _deferred[i];
-            _problems.Add(in problem);
+            return;
         }
 
-        _deferred.Clear();
+        // Rare path: a failure was held back and is read now.
+        var reached = new HashSet<int>();
+        var pending = new Stack<int>();
+        foreach (var slot in slots)
+        {
+            pending.Push(slot);
+        }
+
+        while (pending.Count > 0)
+        {
+            var slot = pending.Pop();
+            if (reached.Add(slot) && _declarations[slot]?.Value is { } value)
+            {
+                foreach (var read in value.ReferencedSlots)
+                {
+                    pending.Push(read);
+                }
+            }
+        }
+
+        for (var i = _deferred.Count - 1; i >= 0; i--)
+        {
+            if (reached.Contains(_deferred[i].Slot))
+            {
+                var problem = _deferred[i].Problem;
+                _deferred.RemoveAt(i);
+                _problems.Add(in problem);
+            }
+        }
     }
 
     // Re-entrant: evaluating a value can call a function whose body binds slots, which starts a nested walk. The nested walk
@@ -368,14 +399,14 @@ internal sealed class SlotBinder : ISlotBinder
     private void Fail(int slot, in SchematronProblem problem)
     {
         Mark(slot, Failed);
-        Report(in problem);
+        Report(slot, in problem);
     }
 
-    private void Report(in SchematronProblem problem)
+    private void Report(int slot, in SchematronProblem problem)
     {
         if (_defer)
         {
-            _deferred.Add(problem);
+            _deferred.Add((slot, problem));
         }
         else
         {
@@ -392,7 +423,7 @@ internal sealed class SlotBinder : ISlotBinder
             declaration?.Location ?? default,
             "XTDE0640"
         );
-        Report(in problem);
+        Report(slot, in problem);
     }
 
     // A constant that does not match its declared type is a failed slot from the start of its span, reported once per span.
