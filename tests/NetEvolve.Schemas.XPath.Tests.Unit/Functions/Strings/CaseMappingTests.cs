@@ -39,6 +39,87 @@ public class CaseMappingTests
     }
 
     [Test]
+    public async Task ToLower_FinalSigma_EveryCodePoint_MatchesTheCasedAndCaseIgnorableProperties(
+        CancellationToken cancellationToken
+    )
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var ucd = await StringsUcd.GetAsync(cancellationToken);
+        var lines = await ucd.ReadLinesAsync("DerivedCoreProperties.txt", cancellationToken);
+        var cased = new bool[0x110000];
+        var ignorable = new bool[0x110000];
+        foreach (var line in lines)
+        {
+            var fields = line.Split('#')[0].Split(';');
+            if (fields.Length < 2)
+            {
+                continue;
+            }
+
+            var target = fields[1].Trim() switch
+            {
+                "Cased" => cased,
+                "Case_Ignorable" => ignorable,
+                _ => null,
+            };
+            if (target is null)
+            {
+                continue;
+            }
+
+            var range = fields[0].Trim().Split("..");
+            var first = int.Parse(range[0], NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+            var last =
+                range.Length > 1 ? int.Parse(range[1], NumberStyles.HexNumber, CultureInfo.InvariantCulture) : first;
+            for (var cp = first; cp <= last; cp++)
+            {
+                target[cp] = true;
+            }
+        }
+
+        var failures = new List<string>();
+        for (var cp = 0; cp < 0x110000 && failures.Count < MaxReported; cp++)
+        {
+            if (cp is >= 0xD800 and <= 0xDFFF)
+            {
+                continue;
+            }
+
+            var text = char.ConvertFromUtf32(cp);
+
+            // A cased letter precedes the sigma, then the code point: the sigma is final unless the code point is neither cased nor ignorable.
+            var before = CaseMapping.ToLower("\u0391" + text + "\u03A3", XPathLimits.Default);
+            if ((before[^1] == '\u03C2') != (cased[cp] || ignorable[cp]))
+            {
+                failures.Add($"before U+{cp:X4}");
+            }
+
+            // The code point follows the sigma: the sigma is final unless the code point is cased.
+            var after = CaseMapping.ToLower("\u0391\u03A3" + text, XPathLimits.Default);
+            if ((after[1] == 'ς') == cased[cp])
+            {
+                failures.Add($"after U+{cp:X4}");
+            }
+        }
+
+        await Assert.That(string.Join(", ", failures)).IsEqualTo(string.Empty);
+    }
+
+    [Test]
+    public async Task ToLower_ASigmaNextToUnpairedSurrogates_TreatsThemAsNeitherCasedNorIgnorable()
+    {
+        await Assert
+            .That(CaseMapping.ToLower("\u0391\uD800\u03A3", XPathLimits.Default))
+            .IsEqualTo("\u03B1\uD800\u03C3");
+        await Assert
+            .That(CaseMapping.ToLower("\u0391\u03A3\uDC00", XPathLimits.Default))
+            .IsEqualTo("\u03B1\u03C2\uDC00");
+        await Assert
+            .That(CaseMapping.ToLower("\u0391\uDC00\u03A3", XPathLimits.Default))
+            .IsEqualTo("\u03B1\uDC00\u03C3");
+    }
+
+    [Test]
     public async Task Map_ReportsTheLengthOfAnExpansion()
     {
         var buffer = new int[3];

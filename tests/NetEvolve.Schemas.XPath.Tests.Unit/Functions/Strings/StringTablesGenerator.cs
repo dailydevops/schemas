@@ -25,8 +25,13 @@ internal static class StringTablesGenerator
 
     internal static string NormalizationPath() => Path.Combine(FolderPath(), "NormalizationTables.generated.cs");
 
-    /// <summary>Generates the case mapping tables: the simple mappings of <c>UnicodeData.txt</c>, overridden by the unconditional entries of <c>SpecialCasing.txt</c>.</summary>
-    internal static string GenerateCaseMapping(string version, string[] unicodeData, string[] specialCasing)
+    /// <summary>Generates the case mapping tables: the simple mappings of <c>UnicodeData.txt</c>, overridden by the unconditional entries of <c>SpecialCasing.txt</c>, and the Cased and Case_Ignorable ranges of <c>DerivedCoreProperties.txt</c> for the Final_Sigma rule.</summary>
+    internal static string GenerateCaseMapping(
+        string version,
+        string[] unicodeData,
+        string[] specialCasing,
+        string[] derivedCoreProperties
+    )
     {
         var upper = new SortedDictionary<int, int[]>();
         var lower = new SortedDictionary<int, int[]>();
@@ -70,6 +75,8 @@ internal static class StringTablesGenerator
             .Append("internal static partial class CaseMappingTables\n{");
         AppendCaseDirection("Upper", upper, sb);
         AppendCaseDirection("Lower", lower, sb);
+        AppendRanges("Cased", ReadRanges(derivedCoreProperties, "Cased"), sb);
+        AppendRanges("CaseIgnorable", ReadRanges(derivedCoreProperties, "Case_Ignorable"), sb);
         _ = sb.Append("}\n");
         return sb.ToString();
     }
@@ -177,6 +184,33 @@ internal static class StringTablesGenerator
         }
 
         return excluded;
+    }
+
+    // The sorted, non-overlapping ranges of one binary property of DerivedCoreProperties.txt.
+    private static List<(int First, int Last)> ReadRanges(string[] derivedCoreProperties, string property)
+    {
+        var ranges = new List<(int First, int Last)>();
+        foreach (var line in derivedCoreProperties)
+        {
+            var fields = WithoutComment(line).Split(';');
+            if (fields.Length < 2 || !string.Equals(fields[1].Trim(), property, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            var range = fields[0].Trim().Split("..", StringSplitOptions.None);
+            var first = Hex(range[0]);
+            ranges.Add((first, range.Length > 1 ? Hex(range[1]) : first));
+        }
+
+        ranges.Sort();
+        return ranges;
+    }
+
+    private static void AppendRanges(string name, List<(int First, int Last)> ranges, StringBuilder sb)
+    {
+        AppendInts(name + "First", ranges.ConvertAll(r => r.First), sb);
+        AppendInts(name + "Last", ranges.ConvertAll(r => r.Last), sb);
     }
 
     // Combining class runs: the first and last code point of each maximal run of one non-zero class.
